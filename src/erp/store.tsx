@@ -364,7 +364,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
       new Notification(title, {
         body: description,
-        icon: '/logo.png',
+        icon: '/wm-logo.svg',
       });
     } else {
       toast(title, {
