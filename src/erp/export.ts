@@ -121,7 +121,7 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
     h2{color:#f97316;border-bottom:1px solid #fed7aa;padding-bottom:4px;margin-top:28px}
   </style></head><body>
   <div class="head">
-    <div class="logo"><img src="/wm-logo.svg" alt="WM" /></div>
+    <div class="logo"><img src="/logo.png" alt="WM" /></div>
     <div><h1>${EMPRESA.nombre}</h1><div class="slogan">${EMPRESA.eslogan}</div></div>
     <div style="margin-left:auto;text-align:right;color:#64748b">PRESUPUESTO DE OBRA<br>${new Date().toLocaleDateString('es-GT')}</div>
   </div>
