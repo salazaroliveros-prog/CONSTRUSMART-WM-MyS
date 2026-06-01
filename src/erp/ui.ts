@@ -10,6 +10,6 @@ export const ERROR_STATE = 'border-red-500 focus:border-red-500 focus:ring-2 foc
 export const BUTTON_PRIMARY = 'bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all active:scale-95';
 export const BUTTON_DARK = 'bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all active:scale-95';
 export const BUTTON_ACCENT = 'bg-pink-500 hover:bg-pink-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all active:scale-95';
-export const BUTTON_SECONDARY = 'bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all';
+export const BUTTON_SECONDARY = 'bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed';
 export const SECTION_TITLE = 'text-xl font-bold text-slate-800 mb-4 flex items-center gap-2';
 export const KPI_CARD = 'bg-gradient-to-br from-slate-50 to-white rounded-2xl p-4 border border-slate-100 shadow-sm';

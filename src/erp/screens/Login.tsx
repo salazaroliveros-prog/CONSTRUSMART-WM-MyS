@@ -45,10 +45,6 @@ const Login: React.FC = () => {
       } catch {}
     } else {
       await signIn(data.email, data.password);
-      if (data.email === 'salazaroliveros@gmail.com') {
-        window.location.href = 'https://erp-construsmart-wm-app-01.vercel.app/';
-        return;
-      }
     }
     setLoading(false);
   };
@@ -59,7 +55,9 @@ const Login: React.FC = () => {
         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-orange-900/40" />
         <div className="relative z-10 text-white max-w-md">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center font-black text-xl mb-6">WM</div>
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center font-black text-2xl mb-6 shadow-lg shadow-orange-500/30">
+            <img src="/wm-logo.svg" alt="WM" className="w-14 h-14" />
+          </div>
           <h1 className="text-4xl font-black leading-tight">{EMPRESA.nombre}</h1>
           <p className="text-orange-300 text-lg italic mt-2">{EMPRESA.eslogan}</p>
           <p className="text-slate-300 mt-6 leading-relaxed">ERP Integral con control de acceso por roles: Administrador, Gerente, Residente, Compras y Bodeguero.</p>
@@ -77,7 +75,9 @@ const Login: React.FC = () => {
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-slate-50 min-h-screen lg:min-h-0">
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-3 mb-6 sm:mb-8">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center font-black text-white text-sm sm:text-base">WM</div>
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center font-black text-white shrink-0 overflow-hidden">
+              <img src="/wm-logo.svg" alt="WM" className="w-8 h-8" />
+            </div>
             <div>
               <div className="font-bold text-slate-800 text-sm sm:text-base">{EMPRESA.nombre}</div>
               <div className="text-[10px] sm:text-xs text-orange-500 italic">{EMPRESA.eslogan}</div>
