@@ -14,9 +14,9 @@ const ITEMS: { id: View; label: string; icon: React.ElementType }[] = [
 ];
 
 const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
-  const { view, setView, allowedViews, user } = useErp();
+  const { view, setView, user } = useErp();
   const { sidebarCollapsed, toggleCollapse } = useAppContext();
-  const items = ITEMS.filter(it => allowedViews.includes(it.id));
+  const items = ITEMS;
   const collapsed = sidebarCollapsed;
   const asideW = collapsed ? 'w-16' : 'w-60';
   return (
