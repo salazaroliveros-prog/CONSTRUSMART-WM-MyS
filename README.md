@@ -13,6 +13,7 @@ ERP web para gestión constructora (proyectos, presupuestos APU, finanzas, RRHH,
 - Dashboard, Proyectos, Presupuestos, Financiero, RRHH, Bodega, Seguimiento
 - Login/registro con RBAC: Administrador, Gerente, Residente, Compras, Bodeguero
 - Motor de APU y métricas de Valor Ganado (EVM)
+- Google OAuth integrado
 
 ## Configuración
 1) Copia `.env.example` a `.env` y define `VITE_SUPABASE_URL` y `VITE_SUPABASE_KEY`.
