@@ -131,6 +131,7 @@ const Calendar: React.FC = () => {
                   type="time"
                   value={hora}
                   onChange={e => setHora(e.target.value)}
+                  placeholder="00:00"
                   className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
                 />
               </div>
