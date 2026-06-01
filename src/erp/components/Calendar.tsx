@@ -143,7 +143,7 @@ const Calendar: React.FC = () => {
               <div className="grid gap-2 sm:grid-cols-2">
                 <select
                   value={tipo}
-                  onChange={e => setTipo(e.target.value as any)}
+                  onChange={e => setTipo(e.target.value as 'Recordatorio' | 'Actividad' | 'Reunión' | 'Visita')}
                   className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
                 >
                   <option value="Recordatorio">Recordatorio</option>

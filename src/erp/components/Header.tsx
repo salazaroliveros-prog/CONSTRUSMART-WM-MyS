@@ -16,7 +16,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
     try {
       const saved = localStorage.getItem('wm_photo');
       if (saved) setCustomPhoto(saved);
-    } catch {}
+    } catch { /* ignore */ }
   }, []);
 
   const onPick = () => fileRef.current?.click();
@@ -28,7 +28,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
       const data = typeof reader.result === 'string' ? reader.result : null;
       if (data) {
         setCustomPhoto(data);
-        try { localStorage.setItem('wm_photo', data); } catch {}
+        try { localStorage.setItem('wm_photo', data); } catch { /* ignore */ }
       }
     };
     reader.readAsDataURL(f);
@@ -45,8 +45,8 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
             <Menu className="w-5 h-5" />
           </button>
         )}
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center font-black text-sm shrink-0 overflow-hidden">
-          <img src="/wm-logo.svg" alt="WM" className="w-8 h-8" />
+        <div className="w-10 h-10 rounded-xl shrink-0 bg-slate-900 flex items-center justify-center ring-1 ring-orange-400/30 shadow-[0_0_6px_rgba(249,115,22,0.35)]">
+          <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
         </div>
         <div className="min-w-0">
           <div className="font-bold text-sm leading-tight truncate">{title || EMPRESA.nombre}</div>
