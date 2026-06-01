@@ -27,7 +27,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 max-w-md w-full text-center">
+          <div className="bg-white rounded-2xl shadow-sm p-6 max-w-md w-full text-center">
             <h2 className="text-xl font-bold text-slate-800 mb-2">Algo salió mal</h2>
             <p className="text-sm text-slate-500 mb-4">Ocurrió un error inesperado en la aplicación.</p>
             <pre className="text-xs text-red-600 bg-red-50 rounded-lg p-3 overflow-auto max-h-40 text-left mb-4">
