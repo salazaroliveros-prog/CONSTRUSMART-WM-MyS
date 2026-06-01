@@ -166,6 +166,7 @@ const RRHH: React.FC = () => {
                         type="number"
                         value={e.diasTrabajados}
                         onChange={ev => updateEmpleado(e.id, { diasTrabajados: +ev.target.value })}
+                        placeholder="Días"
                         className="w-14 px-1 py-0.5 rounded bg-white text-center"
                       />
                     </td>
@@ -232,12 +233,12 @@ const RRHH: React.FC = () => {
                 <option key={p.id} value={p.id}>{p.nombre}</option>
               ))}
             </select>
-            <input
-              type="number"
-              {...register('diasTrabajados')}
-              placeholder="Días trabajados"
-              className={`${inp} ${errors.diasTrabajados ? ERROR_STATE : ''}`}
-            />
+              <input
+                type="number"
+                {...register('diasTrabajados')}
+                placeholder="Días trabajados"
+                className={`${inp} ${errors.diasTrabajados ? ERROR_STATE : ''}`}
+              />
             {errors.diasTrabajados && <p className="text-xs text-red-500">{errors.diasTrabajados.message}</p>}
             <button type="submit" className={BUTTON_DARK}>
               <Plus className="w-4 h-4" /> {editingId ? 'Actualizar' : 'Agregar'}

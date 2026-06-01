@@ -169,6 +169,7 @@ const Bodega: React.FC = () => {
                         type="number"
                         value={m.stock}
                         onChange={e => updateMaterial(m.id, { stock: +e.target.value })}
+                        placeholder="Stock"
                         className="w-16 px-2 py-1 rounded bg-white text-right"
                       />
                       <span className="text-slate-400">{m.unidad}</span>

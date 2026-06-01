@@ -161,7 +161,7 @@ const Presupuestos: React.FC = () => {
                   <span className="flex-1 text-sm font-semibold text-slate-700 truncate">{idx + 1}. {r.nombre}</span>
                   <div className="hidden sm:flex items-center gap-1 text-xs">
                     <span className="text-slate-400">Cant.</span>
-                    <input type="number" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} className="w-16 px-2 py-1 rounded border border-slate-200 text-right text-xs" />
+                    <input type="number" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} placeholder="Cantidad" className="w-16 px-2 py-1 rounded border border-slate-200 text-right text-xs" />
                     <span className="text-slate-400">{r.unidad}</span>
                   </div>
                   <span className="text-sm font-bold text-orange-600 w-24 text-right">{fmtQ(c.total)}</span>
@@ -170,13 +170,13 @@ const Presupuestos: React.FC = () => {
                 {r.expanded && (
                   <div className="bg-slate-50 px-3 pb-3 pt-1 border-t border-slate-100">
                     <div className="grid grid-cols-2 sm:hidden gap-2 mb-2 text-xs">
-                      <div><label className="text-slate-400">Cantidad ({r.unidad})</label><input type="number" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} className={ninp} /></div>
+                      <div><label className="text-slate-400">Cantidad ({r.unidad})</label><input type="number" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} placeholder="Cantidad" className={ninp} /></div>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 text-xs">
-                      <div><label className="text-slate-400 block mb-0.5">Rendimiento/día</label><input type="number" value={r.rendimientoCuadrilla} onChange={e => upd(r.id, { rendimientoCuadrilla: +e.target.value })} className={ninp} /></div>
-                      <div><label className="text-slate-400 block mb-0.5">Materiales Q</label><input type="number" value={r.costoMateriales} onChange={e => upd(r.id, { costoMateriales: +e.target.value })} className={ninp} /></div>
-                      <div><label className="text-slate-400 block mb-0.5">Mano Obra Q</label><input type="number" value={r.costoManoObra} onChange={e => upd(r.id, { costoManoObra: +e.target.value })} className={ninp} /></div>
-                      <div><label className="text-slate-400 block mb-0.5">Equipo Q</label><input type="number" value={r.costoEquipo} onChange={e => upd(r.id, { costoEquipo: +e.target.value })} className={ninp} /></div>
+                      <div><label className="text-slate-400 block mb-0.5">Rendimiento/día</label><input type="number" value={r.rendimientoCuadrilla} onChange={e => upd(r.id, { rendimientoCuadrilla: +e.target.value })} placeholder="Rendimiento/día" className={ninp} /></div>
+                      <div><label className="text-slate-400 block mb-0.5">Materiales Q</label><input type="number" value={r.costoMateriales} onChange={e => upd(r.id, { costoMateriales: +e.target.value })} placeholder="Materiales Q" className={ninp} /></div>
+                      <div><label className="text-slate-400 block mb-0.5">Mano Obra Q</label><input type="number" value={r.costoManoObra} onChange={e => upd(r.id, { costoManoObra: +e.target.value })} placeholder="Mano Obra Q" className={ninp} /></div>
+                      <div><label className="text-slate-400 block mb-0.5">Equipo Q</label><input type="number" value={r.costoEquipo} onChange={e => upd(r.id, { costoEquipo: +e.target.value })} placeholder="Equipo Q" className={ninp} /></div>
                       <div><label className="text-slate-400 block mb-0.5">Duración (días)</label><div className={ninp + ' bg-white text-slate-600'}>{c.dur}</div></div>
                     </div>
                     <div className="grid grid-cols-3 gap-2 mt-2 text-xs">

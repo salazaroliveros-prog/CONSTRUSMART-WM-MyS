@@ -117,6 +117,7 @@ const Seguimiento: React.FC = () => {
                           max={100}
                           value={pendingProgress[p.id] ?? String(p.avanceFisico)}
                           onChange={e => setPendingProgress(prev => ({ ...prev, [p.id]: e.target.value }))}
+                          placeholder="0-100"
                           className="w-20 px-2 py-1 border border-slate-200 rounded text-xs"
                         />
                         <button type="button" onClick={() => saveProjectProgress(p.id)} className="p-1 rounded bg-emerald-500 text-white text-xs"><Save className="w-3.5 h-3.5" /></button>
