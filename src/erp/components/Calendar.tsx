@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
-import { ChevronLeft, ChevronRight, Plus, X, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Check } from 'lucide-react';
 
 const Calendar: React.FC = () => {
   const { eventos, addEvento, updateEvento, deleteEvento, proyectos } = useErp();

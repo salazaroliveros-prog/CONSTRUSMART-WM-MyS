@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CARD, CARD_TITLE, INPUT, BUTTON_DARK } from '../ui';
+import { CARD, INPUT, BUTTON_DARK } from '../ui';
 
 import { useErp } from '../store';
 import { Tipologia, RenglonPresupuesto } from '../types';
