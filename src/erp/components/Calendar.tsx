@@ -1,30 +1,55 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
-import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
-import { todayISO as _todayISO } from '../utils';
+import { ChevronLeft, ChevronRight, Plus, X, Check } from 'lucide-react';
 
 const Calendar: React.FC = () => {
-  const { eventos, addEvento, deleteEvento, proyectos } = useErp();
+  const { eventos, addEvento, updateEvento, deleteEvento, proyectos } = useErp();
   const [cursor, setCursor] = useState(new Date());
   const [sel, setSel] = useState<string | null>(null);
   const [titulo, setTitulo] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [hora, setHora] = useState('09:00');
+  const [tipo, setTipo] = useState<'Recordatorio' | 'Actividad' | 'Reunión' | 'Visita'>('Recordatorio');
   const [proyectoSel, setProyectoSel] = useState<string | null>(null);
 
-  const year = cursor.getFullYear(), month = cursor.getMonth();
+  const year = cursor.getFullYear();
+  const month = cursor.getMonth();
   const first = new Date(year, month, 1).getDay();
   const days = new Date(year, month + 1, 0).getDate();
   const monthName = cursor.toLocaleDateString('es-GT', { month: 'long', year: 'numeric' });
 
   const iso = (d: number) => `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
   const todayIsoVal = new Date().toISOString().slice(0, 10);
-  const selEventos = eventos.filter(e => e.fecha === sel);
+  const selEventos = eventos.filter(e => e.fecha === sel).sort((a, b) => (a.hora || '00:00').localeCompare(b.hora || '00:00'));
+
+  const upcoming = useMemo(() => {
+    const now = new Date();
+    return eventos
+      .filter(e => new Date(`${e.fecha}T${e.hora || '09:00'}:00`) >= now)
+      .sort((a, b) => new Date(`${a.fecha}T${a.hora || '09:00'}:00`).getTime() - new Date(`${b.fecha}T${b.hora || '09:00'}:00`).getTime())
+      .slice(0, 3);
+  }, [eventos]);
 
   const handleAddEvento = () => {
-    if (titulo.trim() && sel) {
-      addEvento({ fecha: sel, titulo, proyectoId: proyectoSel });
-      setTitulo('');
-      setProyectoSel(null);
-    }
+    if (!titulo.trim() || !sel) return;
+    addEvento({
+      fecha: sel,
+      hora,
+      titulo: titulo.trim(),
+      descripcion: descripcion.trim() || undefined,
+      tipo,
+      proyectoId: proyectoSel,
+      completado: false,
+    });
+    setTitulo('');
+    setDescripcion('');
+    setHora('09:00');
+    setTipo('Recordatorio');
+    setProyectoSel(null);
+  };
+
+  const handleToggleCompleted = (id: string, completed?: boolean) => {
+    updateEvento(id, { completado: !completed });
   };
 
   return (
@@ -59,57 +84,147 @@ const Calendar: React.FC = () => {
         })}
       </div>
 
-      {sel && (
-        <div className="mt-3 border-t border-slate-100 pt-3">
-          <div className="text-xs font-semibold text-slate-600 mb-2">
-            Actividades {sel}
-            <button onClick={() => setSel(null)} className="ml-auto float-right text-slate-400 hover:text-red-500">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-          {selEventos.length === 0 && <p className="text-xs text-slate-400 mb-2">Sin actividades programadas</p>}
-          {selEventos.map(e => (
-            <div key={e.id} className="flex items-center justify-between bg-slate-50 rounded-lg px-2 py-1.5 mb-1">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-700">{e.titulo}</span>
-                {e.proyectoId && (
-                  <span className="text-[10px] bg-orange-100 text-orange-600 px-1 rounded">
-                    {proyectos.find(p => p.id === e.proyectoId)?.nombre.split(' ')[0]}
-                  </span>
-                )}
+      <div className="mt-4 grid gap-3 lg:grid-cols-[1.3fr_0.7fr] flex-1">
+        <div className="space-y-3">
+          <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-semibold text-slate-600">Próximas actividades</span>
+              <span className="text-[10px] text-slate-400">{upcoming.length} agenda</span>
+            </div>
+            {upcoming.length === 0 ? (
+              <p className="text-xs text-slate-400">No hay recordatorios próximos. Crea uno seleccionando un día.</p>
+            ) : (
+              <div className="space-y-2">
+                {upcoming.map(evento => (
+                  <div key={evento.id} className="rounded-2xl bg-white border border-slate-200 p-3">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div>
+                        <p className="text-[11px] font-semibold text-slate-800">{evento.titulo}</p>
+                        <p className="text-[10px] text-slate-500">{evento.fecha} • {evento.hora || '09:00'}</p>
+                      </div>
+                      <span className="text-[10px] text-slate-500">{evento.tipo || 'Actividad'}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-[10px] text-slate-500">
+                      {evento.proyectoId && <span className="rounded-full bg-slate-100 px-2 py-1">{proyectos.find(p => p.id === evento.proyectoId)?.nombre.split(' ')[0]}</span>}
+                      {evento.descripcion && <span className="rounded-full bg-orange-100 px-2 py-1 text-orange-600">Con notas</span>}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <button onClick={() => deleteEvento(e.id)} className="text-slate-400 hover:text-red-500">
-                <X className="w-3.5 h-3.5" />
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-semibold text-slate-600">Crear recordatorio</span>
+              <span className="text-[10px] text-slate-400">Fecha: {sel || 'Sin seleccionar'}</span>
+            </div>
+            <div className="space-y-2">
+              <div className="grid gap-2 sm:grid-cols-2">
+                <input
+                  value={titulo}
+                  onChange={e => setTitulo(e.target.value)}
+                  placeholder="Título"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
+                />
+                <input
+                  type="time"
+                  value={hora}
+                  onChange={e => setHora(e.target.value)}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
+                />
+              </div>
+              <textarea
+                value={descripcion}
+                onChange={e => setDescripcion(e.target.value)}
+                placeholder="Descripción opcional"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400 min-h-[80px] resize-none"
+              />
+              <div className="grid gap-2 sm:grid-cols-2">
+                <select
+                  value={tipo}
+                  onChange={e => setTipo(e.target.value as any)}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
+                >
+                  <option value="Recordatorio">Recordatorio</option>
+                  <option value="Actividad">Actividad</option>
+                  <option value="Reunión">Reunión</option>
+                  <option value="Visita">Visita</option>
+                </select>
+                <select
+                  value={proyectoSel || ''}
+                  onChange={e => setProyectoSel(e.target.value || null)}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
+                >
+                  <option value="">Sin proyecto</option>
+                  {proyectos.map(p => (
+                    <option key={p.id} value={p.id}>{p.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={handleAddEvento}
+                disabled={!titulo.trim() || !sel}
+                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-white rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-50"
+              >
+                <Plus className="w-4 h-4" /> Guardar actividad
               </button>
             </div>
-          ))}
-          <div className="flex flex-col gap-2 mt-2">
-            <input
-              value={titulo}
-              onChange={e => setTitulo(e.target.value)}
-              placeholder="Nueva actividad..."
-              className="flex-1 px-2 py-1.5 text-xs rounded-lg border border-slate-200 outline-none focus:border-orange-400"
-            />
-            <select
-              value={proyectoSel || ''}
-              onChange={e => setProyectoSel(e.target.value || null)}
-              className="px-2 py-1.5 text-xs rounded-lg border border-slate-200 outline-none focus:border-orange-400"
-            >
-              <option value="">— Sin proyecto —</option>
-              {proyectos.map(p => (
-                <option key={p.id} value={p.id}>{p.nombre}</option>
-              ))}
-            </select>
-            <button
-              onClick={handleAddEvento}
-              disabled={!titulo.trim()}
-              className="px-2 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1 disabled:opacity-50"
-            >
-              <Plus className="w-3.5 h-3.5" /> Agregar
-            </button>
           </div>
         </div>
-      )}
+
+        <div className="space-y-3">
+          <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50 h-full">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-semibold text-slate-600">Detalles del día</span>
+              <span className="text-[10px] text-slate-400">{sel || 'Elige un día'}</span>
+            </div>
+            {sel ? (
+              selEventos.length === 0 ? (
+                <p className="text-xs text-slate-400">Esta fecha está libre. Crea una actividad para que te la recuerde.</p>
+              ) : (
+                <div className="space-y-2">
+                  {selEventos.map(e => (
+                    <div key={e.id} className="rounded-2xl border border-slate-200 bg-white p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[11px] font-semibold text-slate-800">{e.titulo}</span>
+                            <span className="text-[10px] text-slate-500">{e.hora || '09:00'}</span>
+                          </div>
+                          <p className="text-[10px] text-slate-500 mb-1">{e.tipo || 'Actividad'}</p>
+                          {e.descripcion && <p className="text-[10px] text-slate-400">{e.descripcion}</p>}
+                          {e.proyectoId && (
+                            <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-[10px] text-slate-600 mt-2">
+                              {proyectos.find(p => p.id === e.proyectoId)?.nombre || 'Proyecto'}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <button
+                            onClick={() => handleToggleCompleted(e.id, e.completado)}
+                            className={`text-[10px] px-2 py-1 rounded-full ${e.completado ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}
+                          >
+                            <Check className="w-3 h-3 inline-block mr-1" />{e.completado ? 'Completado' : 'Marcar hecho'}
+                          </button>
+                          <button onClick={() => deleteEvento(e.id)} className="text-[10px] text-red-500 hover:text-red-600">Eliminar</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            ) : (
+              <p className="text-xs text-slate-400">Selecciona un día para ver sus actividades y detalles de recordatorio.</p>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50">
+            <span className="text-xs font-semibold text-slate-600">Consejo de recordatorios</span>
+            <p className="text-[10px] text-slate-500 mt-2">El navegador te solicitará permiso de notificaciones. Acepta para recibir alertas automáticas de tus actividades programadas.</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
