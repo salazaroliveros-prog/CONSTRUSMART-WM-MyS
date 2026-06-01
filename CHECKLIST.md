@@ -58,10 +58,10 @@
 | # | Item | Prioridad | Acción | Estado |
 |---|------|-----------|--------|--------|
 | 35 | Documentación README | 🟡 Baja | Expandir README | ✅ Actualizado |
-| 36 | Tests unitarios/integración | 🟡 Baja | Agregar Vitest | ⚠️ Pendiente |
-| 37 | Error Boundaries | 🟡 Media | Implementar global | ⚠️ Pendiente |
-| 38 | Loading states consistentes | 🟡 Media | Agregar Skeletons | ⚠️ Pendiente |
-| 39 | Estilos inline duplicados | 🟡 Baja | Refactorizar Tailwind | ⚠️ Pendiente |
+| 36 | Tests unitarios/integración | 🟡 Baja | Agregar Vitest | ✅ Implementado (Vitest) |
+| 37 | Error Boundaries | 🟡 Media | Implementar global | ✅ Implementado |
+| 38 | Loading states consistentes | 🟡 Media | Agregar Skeletons | ✅ Implementado |
+| 39 | Estilos inline duplicados | 🟡 Baja | Refactorizar Tailwind | ✅ Implementado |
 | 40 | Manejo de offline/PWA | 🟡 Baja | Evaluar necesidad | ✅ Implementado (manifest.json, offline-first) |
 
 ---
@@ -69,8 +69,8 @@
 ## 📊 RESUMEN DE COMPLETUDAD
 - **Críticas:** 4/4 ✅
 - **Altas:** 5/5 ✅
-- **Medias:** 2/3 ✅ (1 pendiente: seed data)
-- **Bajas:** 5/6 ✅ (1 pendiente: tests, error boundaries, loading states)
+- **Medias:** 3/3 ✅
+- **Bajas:** 6/6 ✅
 
 ---
 
