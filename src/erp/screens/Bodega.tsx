@@ -113,16 +113,16 @@ const Bodega: React.FC = () => {
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
           <Warehouse className="w-6 h-6 text-cyan-500" /> Bodega, Compras y Proveedores
         </h1>
         <div className="flex gap-2">
-          <button onClick={() => setShowOrden(true)} className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5">
-            <Plus className="w-4 h-4" /> Nueva OC
+          <button onClick={() => setShowOrden(true)} className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5 flex-1 sm:flex-none justify-center">
+            <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Nueva</span> OC
           </button>
-          <button onClick={() => { setShowProveedor(true); setEditingProveedor(null); }} className="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5">
-            <Plus className="w-4 h-4" /> Nuevo Proveedor
+          <button onClick={() => { setShowProveedor(true); setEditingProveedor(null); }} className="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5 flex-1 sm:flex-none justify-center">
+            <Plus className="w-4 h-4" /> Proveedor
           </button>
         </div>
       </div>

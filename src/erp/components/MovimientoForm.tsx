@@ -6,7 +6,7 @@ import { useErp } from '../store';
 import { Categoria } from '../types';
 import { CATEGORIA_LABEL, todayISO } from '../utils';
 import { Plus } from 'lucide-react';
-import { INPUT } from '../ui';
+import { INPUT, ERROR_STATE } from '../ui';
 
 const movimientoSchema = z.object({
   tipo: z.enum(['ingreso', 'gasto']),

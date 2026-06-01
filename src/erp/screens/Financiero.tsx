@@ -93,23 +93,25 @@ const Financiero: React.FC = () => {
               </div>
             </div>
             <div className="max-h-96 overflow-y-auto">
-              <table className="w-full text-xs">
-                <tbody>
-                  {lista.map(m => (
-                    <tr key={m.id} className="border-b border-slate-50 hover:bg-slate-50">
-                      <td className="p-2"><div className="font-semibold text-slate-700">{m.descripcion}</div><div className="text-slate-400">{CATEGORIA_LABEL[m.categoria]} · {proyectos.find(p => p.id === m.proyectoId)?.nombre || 'Operativo'} · {m.fecha}</div></td>
-                      <td className={`p-2 text-right font-bold ${m.tipo === 'ingreso' ? 'text-emerald-600' : 'text-red-500'}`}>{m.tipo === 'ingreso' ? '+' : '-'}{fmtQ(m.costoTotal)}</td>
-                      <td className="p-2 w-8"><button onClick={() => deleteMovimiento(m.id)}><Trash2 className="w-3.5 h-3.5 text-slate-300 hover:text-red-500" /></button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs min-w-[420px]">
+                  <tbody>
+                    {lista.map(m => (
+                      <tr key={m.id} className="border-b border-slate-50 hover:bg-slate-50">
+                        <td className="p-2"><div className="font-semibold text-slate-700">{m.descripcion}</div><div className="text-slate-400">{CATEGORIA_LABEL[m.categoria]} · {proyectos.find(p => p.id === m.proyectoId)?.nombre || 'Operativo'} · {m.fecha}</div></td>
+                        <td className={`p-2 text-right font-bold ${m.tipo === 'ingreso' ? 'text-emerald-600' : 'text-red-500'}`}>{m.tipo === 'ingreso' ? '+' : '-'}{fmtQ(m.costoTotal)}</td>
+                        <td className="p-2 w-8"><button onClick={() => deleteMovimiento(m.id)}><Trash2 className="w-3.5 h-3.5 text-slate-300 hover:text-red-500" /></button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 mt-4 p-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 mt-4 p-4 overflow-x-auto">
             <h3 className="font-bold text-slate-700 text-sm mb-2">Utilidad Neta por Centro de Costo</h3>
-            <table className="w-full text-xs">
+            <table className="w-full text-xs min-w-[320px]">
               <thead className="text-slate-400"><tr><th className="text-left pb-1">Proyecto</th><th className="text-right">Ingresos</th><th className="text-right">Egresos</th><th className="text-right">Margen</th></tr></thead>
               <tbody>
                 {centrosCosto.map(c => (

@@ -6,7 +6,7 @@ import { useErp } from '../store';
 import { Tipologia } from '../types';
 import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
 import { Progress } from '../components/Charts';
-import { CARD, INPUT, ERROR_STATE, BUTTON_PRIMARY } from '../ui';
+import { CARD, INPUT, BUTTON_PRIMARY } from '../ui';
 import { Plus, MapPin, Trash2, X, Building2 } from 'lucide-react';
 
 const proyectoSchema = z.object({

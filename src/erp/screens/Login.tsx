@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useErp, Rol } from '../store';
 import { EMPRESA } from '../utils';
 import { Building2, ArrowRight, ShieldCheck } from 'lucide-react';
+import { INPUT, ERROR_STATE } from '../ui';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -48,11 +49,8 @@ const Login: React.FC = () => {
     setLoading(false);
   };
 
-  const inp = "w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none mb-4";
-  const errorClass = "border-red-500 focus:border-red-500";
-
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50">
       <div className="hidden lg:flex flex-1 bg-slate-900 relative overflow-hidden items-center justify-center p-12">
         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-orange-900/40" />
@@ -72,30 +70,30 @@ const Login: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-slate-50 min-h-screen lg:min-h-0">
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center font-black text-white">WM</div>
+          <div className="lg:hidden flex items-center gap-3 mb-6 sm:mb-8">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center font-black text-white text-sm sm:text-base">WM</div>
             <div>
-              <div className="font-bold text-slate-800">{EMPRESA.nombre}</div>
-              <div className="text-xs text-orange-500 italic">{EMPRESA.eslogan}</div>
+              <div className="font-bold text-slate-800 text-sm sm:text-base">{EMPRESA.nombre}</div>
+              <div className="text-[10px] sm:text-xs text-orange-500 italic">{EMPRESA.eslogan}</div>
             </div>
           </div>
           <div className="flex items-center gap-2 text-slate-800 mb-1">
             <Building2 className="w-5 h-5 text-orange-500" />
-            <h2 className="text-2xl font-bold">{mode === 'in' ? 'Iniciar sesión' : 'Crear cuenta'}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">{mode === 'in' ? 'Iniciar sesión' : 'Crear cuenta'}</h2>
           </div>
-          <p className="text-slate-400 text-sm mb-6">Acceso seguro con control de roles (RBAC)</p>
+          <p className="text-slate-400 text-xs sm:text-sm mb-4 sm:mb-6">Acceso seguro con control de roles (RBAC)</p>
 
           {mode === 'up' && (
             <>
               <input
                 {...register('nombre')}
                 placeholder="Nombre completo"
-                className={`${inp} ${errors.nombre ? errorClass : ''}`}
+                className={`${INPUT} ${errors.nombre ? ERROR_STATE : ''}`}
               />
               {errors.nombre && <p className="text-xs text-red-500 mb-2">{errors.nombre.message}</p>}
-              <select {...register('rol')} className={inp}>
+              <select {...register('rol')} className={INPUT}>
                 {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </>
@@ -104,14 +102,14 @@ const Login: React.FC = () => {
             type="email"
             {...register('email')}
             placeholder="Correo electrónico"
-            className={`${inp} ${errors.email ? errorClass : ''}`}
+            className={`${INPUT} ${errors.email ? ERROR_STATE : ''}`}
           />
           {errors.email && <p className="text-xs text-red-500 mb-2">{errors.email.message}</p>}
           <input
             type="password"
             {...register('password')}
             placeholder="Contraseña (mín. 6)"
-            className={`${inp} ${errors.password ? errorClass : ''}`}
+            className={`${INPUT} ${errors.password ? ERROR_STATE : ''}`}
           />
           {errors.password && <p className="text-xs text-red-500 mb-2">{errors.password.message}</p>}
 
@@ -120,14 +118,14 @@ const Login: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 disabled:opacity-60"
+            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-3 sm:py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 disabled:opacity-60 active:scale-[0.98] transition-all"
           >
             {loading ? 'Procesando...' : mode === 'in' ? 'Ingresar' : 'Registrarme'} <ArrowRight className="w-4 h-4" />
           </button>
           <button
             type="button"
             onClick={() => setMode(mode === 'in' ? 'up' : 'in')}
-            className="w-full text-center text-xs text-slate-500 mt-4 hover:text-orange-500"
+            className="w-full text-center text-xs sm:text-sm text-slate-500 mt-3 sm:mt-4 hover:text-orange-500 transition-colors"
           >
             {mode === 'in' ? '¿No tienes cuenta? Crear una nueva' : '¿Ya tienes cuenta? Iniciar sesión'}
           </button>
