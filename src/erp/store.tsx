@@ -91,53 +91,54 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
   const ADMIN_NOMBRE = 'Oliver Salazar';
 
-  const loadProfile = async (id: string, email?: string) => {
+  const loadProfile = async (id: string, email?: string, userName?: string | null) => {
     let profileErr: unknown = null;
     let profileData: { nombre?: string; rol?: string } | null = null;
     try {
-      const result = await supabase.from('profiles').select('nombre,rol').eq('id', id).single();
+      const result = await supabase.from('profiles').select('nombre,rol').eq('id', id).maybeSingle();
       profileData = result.data;
       profileErr = result.error;
     } catch (e) {
       profileErr = e;
     }
 
+    const fallbackNombre = (() => {
+      const name = userName || email?.split('@')[0] || 'Usuario';
+      return name.trim() || 'Usuario';
+    })();
     const isAdmin = email === ADMIN_EMAIL;
-    if (!profileData || profileErr) {
-      const nombre = profileData?.nombre || email?.split('@')[0] || ADMIN_NOMBRE;
-      const rol = isAdmin ? 'Administrador' : (profileData?.rol as Rol) || 'Administrador';
-      setUser({ nombre, rol });
-      if (isAdmin) {
-        try {
-          const upsert = await supabase.from('profiles').upsert({ id, nombre: ADMIN_NOMBRE, rol: 'Administrador' });
-          if (upsert.error) console.warn('profiles upsert failed', upsert.error);
-        } catch {
-          // best effort only
-        }
-      }
-    } else {
-      const nombre = profileData.nombre || email?.split('@')[0] || ADMIN_NOMBRE;
-      const rol = (profileData.rol as Rol) || (isAdmin ? 'Administrador' : 'Administrador');
-      setUser({ nombre, rol });
-      if (isAdmin) {
-        try {
-          const upsert = await supabase.from('profiles').upsert({ id, nombre: ADMIN_NOMBRE, rol: 'Administrador' });
-          if (upsert.error) console.warn('profiles upsert failed', upsert.error);
-        } catch {
-          // best effort only
-        }
+    const rol = isAdmin ? 'Administrador' : ((profileData?.rol as Rol) || 'Administrador');
+    const nombre = profileData?.nombre || fallbackNombre;
+
+    setUser({ nombre, rol });
+    setView('dashboard');
+
+    if (!profileData || profileErr || isAdmin) {
+      const upsertPayload: Record<string, unknown> = {
+        id,
+        rol,
+        nombre,
+      };
+      try {
+        await supabase.from('profiles').upsert(upsertPayload);
+      } catch {
+        // ignore profile repair errors
       }
     }
-    setView('dashboard');
   };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user) loadProfile(data.session.user.id, data.session.user.email || undefined);
+      if (data.session?.user) {
+        const name = (data.session.user.user_metadata as Record<string, unknown> | null)?.full_name as string | null;
+        loadProfile(data.session.user.id, data.session.user.email || undefined, name);
+      }
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session?.user) loadProfile(session.user.id, session.user.email || undefined);
-      else { setUser(null); setView('login'); }
+      if (session?.user) {
+        const name = (session.user.user_metadata as Record<string, unknown> | null)?.full_name as string | null;
+        loadProfile(session.user.id, session.user.email || undefined, name);
+      } else { setUser(null); setView('login'); }
     });
     return () => sub.subscription.unsubscribe();
   }, []);

@@ -33,6 +33,9 @@ CREATE POLICY "profiles_self_read" ON public.profiles
 CREATE POLICY "profiles_self_update" ON public.profiles
   FOR UPDATE TO authenticated USING (auth.uid() = id);
 
+CREATE POLICY "profiles_self_insert" ON public.profiles
+  FOR INSERT TO authenticated WITH CHECK (auth.uid() = id);
+
 -- ============================================================
 -- 1) Tablas ERP
 -- ============================================================
