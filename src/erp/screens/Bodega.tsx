@@ -128,29 +128,29 @@ const Bodega: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
           <div className="text-2xl font-bold text-slate-800">{materiales.length}</div>
           <div className="text-xs text-slate-400">Materiales</div>
         </div>
-        <div className="bg-red-50 rounded-2xl p-4 border border-red-100">
+        <div className="bg-red-50 rounded-2xl p-4">
           <div className="text-2xl font-bold text-red-600 flex items-center gap-1">
             <AlertTriangle className="w-5 h-5" />{criticos.length}
           </div>
           <div className="text-xs text-red-400">Stock Bajo Mínimo</div>
         </div>
-        <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100">
+        <div className="bg-amber-50 rounded-2xl p-4">
           <div className="text-2xl font-bold text-amber-600">{pendientes.length}</div>
           <div className="text-xs text-amber-500">OC por Aprobar</div>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
           <div className="text-2xl font-bold text-slate-800">{fmtQ(materiales.reduce((a, m) => a + m.stock * m.precio, 0))}</div>
           <div className="text-xs text-slate-400">Valor Inventario</div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="p-3 border-b border-slate-100">
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-md overflow-hidden">
+          <div className="p-3 border-b">
             <h3 className="font-bold text-slate-700 text-sm">Control de Stock</h3>
           </div>
           <div className="divide-y divide-slate-50">
@@ -169,7 +169,7 @@ const Bodega: React.FC = () => {
                         type="number"
                         value={m.stock}
                         onChange={e => updateMaterial(m.id, { stock: +e.target.value })}
-                        className="w-16 px-2 py-1 rounded border border-slate-200 text-right"
+                        className="w-16 px-2 py-1 rounded bg-white text-right"
                       />
                       <span className="text-slate-400">{m.unidad}</span>
                     </div>
@@ -185,13 +185,13 @@ const Bodega: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-2xl p-4 shadow-sm">
             <h3 className="font-bold text-slate-700 text-sm mb-2">Pareto 80/20 Inventario</h3>
             <BarChart height={150} data={pareto} />
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div className="p-3 border-b border-slate-100">
+          <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+            <div className="p-3 border-b">
               <h3 className="font-bold text-slate-700 text-sm">Órdenes por Aprobar</h3>
             </div>
             <div className="divide-y divide-slate-50 max-h-56 overflow-y-auto">
@@ -221,7 +221,7 @@ const Bodega: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mt-4">
+      <div className="bg-white rounded-2xl p-4 shadow-sm mt-4">
         <h3 className="font-bold text-slate-700 text-sm mb-3">Proveedores</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {proveedores.map(p => (

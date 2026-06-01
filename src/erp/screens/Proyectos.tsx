@@ -109,7 +109,7 @@ const Proyectos: React.FC = () => {
   };
 
   const Skeleton = (
-    <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 animate-pulse space-y-3">
+    <div className="bg-white rounded-2xl p-4 shadow-sm animate-pulse space-y-3">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-lg bg-slate-200" />
@@ -165,7 +165,7 @@ const Proyectos: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {proyectos.length === 0 ? Array.from({ length: 3 }).map((_, i) => <div key={i}>{Skeleton}</div>) : proyectos.map(p => (
-          <div key={p.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-200">
+          <div key={p.id} className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-200">
             <div className="p-5">
               <div className="flex items-start gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: estadoColor(p) }}>
