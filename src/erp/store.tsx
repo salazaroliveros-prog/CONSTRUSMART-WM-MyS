@@ -88,13 +88,45 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [eventos, setEventos] = usePersist<EventoCalendario[]>('eventos', []);
   const [bitacora, setBitacora] = usePersist<BitacoraEntry[]>('bitacora', []);
 
+  const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
+  const ADMIN_NOMBRE = 'Oliver Salazar';
+
   const loadProfile = async (id: string, email?: string) => {
+    let profileErr: unknown = null;
+    let profileData: { nombre?: string; rol?: string } | null = null;
     try {
-      const { data } = await supabase.from('profiles').select('nombre,rol').eq('id', id).single();
-      const rol = (data?.rol as Rol) || 'Administrador';
-      setUser({ nombre: data?.nombre || email?.split('@')[0] || 'Usuario', rol });
-    } catch {
-      setUser({ nombre: email?.split('@')[0] || 'Usuario', rol: 'Administrador' });
+      const result = await supabase.from('profiles').select('nombre,rol').eq('id', id).single();
+      profileData = result.data;
+      profileErr = result.error;
+    } catch (e) {
+      profileErr = e;
+    }
+
+    const isAdmin = email === ADMIN_EMAIL;
+    if (!profileData || profileErr) {
+      const nombre = profileData?.nombre || email?.split('@')[0] || ADMIN_NOMBRE;
+      const rol = isAdmin ? 'Administrador' : (profileData?.rol as Rol) || 'Administrador';
+      setUser({ nombre, rol });
+      if (isAdmin) {
+        try {
+          const upsert = await supabase.from('profiles').upsert({ id, nombre: ADMIN_NOMBRE, rol: 'Administrador' });
+          if (upsert.error) console.warn('profiles upsert failed', upsert.error);
+        } catch {
+          // best effort only
+        }
+      }
+    } else {
+      const nombre = profileData.nombre || email?.split('@')[0] || ADMIN_NOMBRE;
+      const rol = (profileData.rol as Rol) || (isAdmin ? 'Administrador' : 'Administrador');
+      setUser({ nombre, rol });
+      if (isAdmin) {
+        try {
+          const upsert = await supabase.from('profiles').upsert({ id, nombre: ADMIN_NOMBRE, rol: 'Administrador' });
+          if (upsert.error) console.warn('profiles upsert failed', upsert.error);
+        } catch {
+          // best effort only
+        }
+      }
     }
     setView('dashboard');
   };
@@ -124,7 +156,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const signInWithGoogle = async () => {
     setAuthError('');
-    const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -133,21 +164,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       },
     });
     if (error) setAuthError(error.message);
-    if (error) return;
-    if (typeof window !== 'undefined') {
-      const stored = (() => {
-        try {
-          const raw = localStorage.getItem('erp_pending_google_admin');
-          return raw ? JSON.parse(raw) : null;
-        } catch {
-          return null;
-        }
-      })();
-      const shouldForceAdmin = stored?.email === ADMIN_EMAIL;
-      if (!stored || stored.email !== ADMIN_EMAIL) {
-        localStorage.setItem('erp_pending_google_admin', JSON.stringify({ email: ADMIN_EMAIL, force_admin: shouldForceAdmin }));
-      }
-    }
   };
 
   const allowedViews = user ? ALLOWED[user.rol] : [];
