@@ -2,11 +2,11 @@ import React, { useMemo, useState } from 'react';
 import { CARD, INPUT, BUTTON_DARK } from '../ui';
 
 import { useErp } from '../store';
-import { Tipologia, RenglonPresupuesto } from '../types';
+import { Tipologia, RenglonPresupuesto, SubRenglon } from '../types';
 import { generarRenglones } from '../data';
 import { fmtQ, TIPOLOGIA_LABEL, costoDirectoUnitario, precioUnitarioVenta, duracionPorRendimiento, HERRAMIENTA_MENOR, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD } from '../utils';
 import { exportCSV, exportPDF } from '../export';
-import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X } from 'lucide-react';
 
 const Presupuestos: React.FC = () => {
   const { setView: _setView } = useErp();
@@ -22,16 +22,45 @@ const Presupuestos: React.FC = () => {
   const addRenglon = (codigo: string) => {
     const base = catalogo.find(c => c.codigo === codigo);
     if (!base) return;
-    setItems(s => [...s, { ...base, id: codigo, cantidad: 1, expanded: true }]);
+    setItems(s => [...s, { ...base, id: codigo, cantidad: 1, expanded: false, subrenglones: [] }]);
     setSel('');
   };
   const addTodos = () => {
-    setItems(catalogo.map(c => ({ ...c, id: c.codigo, cantidad: 1, expanded: false })));
+    setItems(catalogo.map(c => ({ ...c, id: c.codigo, cantidad: 1, expanded: false, subrenglones: [] })));
   };
 
   const upd = (id: string, patch: Partial<RenglonPresupuesto>) =>
     setItems(s => s.map(i => i.id === id ? { ...i, ...patch } : i));
   const del = (id: string) => setItems(s => s.filter(i => i.id !== id));
+
+  // Funciones para sub-renglones
+  const addSubrenglon = (renglonId: string) => {
+    upd(renglonId, {
+      subrenglones: [
+        ...(items.find(r => r.id === renglonId)?.subrenglones || []),
+        {
+          id: 'sub-' + Math.random().toString(36).slice(2, 9),
+          nombreMaterial: '',
+          unidad: 'kg',
+          cantidadUnitaria: 0,
+          precioUnitario: 0,
+        } as SubRenglon
+      ]
+    });
+  };
+
+  const updSubrenglon = (renglonId: string, subId: string, patch: Partial<SubRenglon>) => {
+    const renglon = items.find(r => r.id === renglonId);
+    if (!renglon?.subrenglones) return;
+    const subs = renglon.subrenglones.map(s => s.id === subId ? { ...s, ...patch } : s);
+    upd(renglonId, { subrenglones: subs });
+  };
+
+  const delSubrenglon = (renglonId: string, subId: string) => {
+    const renglon = items.find(r => r.id === renglonId);
+    if (!renglon?.subrenglones) return;
+    upd(renglonId, { subrenglones: renglon.subrenglones.filter(s => s.id !== subId) });
+  };
 
   const calc = (r: RenglonPresupuesto) => {
     const cd = costoDirectoUnitario(r.costoMateriales, r.costoManoObra, r.costoEquipo);
@@ -40,6 +69,26 @@ const Presupuestos: React.FC = () => {
   };
   const granTotal = items.reduce((a, r) => a + calc(r).total, 0);
   const granDir = items.reduce((a, r) => a + costoDirectoUnitario(r.costoMateriales, r.costoManoObra, r.costoEquipo) * r.cantidad, 0);
+
+  // Resumen de materiales
+  const resumenMateriales = useMemo(() => {
+    const materiales: Record<string, { unidad: string; cantidad: number; total: number }> = {};
+    items.forEach(r => {
+      if (r.subrenglones) {
+        r.subrenglones.forEach(sub => {
+          const key = `${sub.nombreMaterial}-${sub.unidad}`;
+          const cant = sub.cantidadUnitaria * r.cantidad;
+          const tot = cant * sub.precioUnitario;
+          if (!materiales[key]) {
+            materiales[key] = { unidad: sub.unidad, cantidad: 0, total: 0 };
+          }
+          materiales[key].cantidad += cant;
+          materiales[key].total += tot;
+        });
+      }
+    });
+    return Object.entries(materiales).map(([nombre, data]) => ({ nombre, ...data }));
+  }, [items]);
 
   const save = () => { try { localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(items)); } catch {} setSaved(true); setTimeout(() => setSaved(false), 1500); };
 
@@ -135,6 +184,68 @@ const Presupuestos: React.FC = () => {
                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">Precio Unit. Venta</div><b className="text-orange-600">{fmtQ(c.pv)}</b></div>
                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">Total Renglón</div><b className="text-emerald-600">{fmtQ(c.total)}</b></div>
                     </div>
+
+                    {/* Sub-renglones de materiales */}
+                    <div className="mt-3 border-t pt-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="text-[10px] font-semibold text-slate-500">📦 Desglose de Materiales por Renglon</div>
+                        <button onClick={() => addSubrenglon(r.id)} className="text-[10px] bg-orange-100 text-orange-600 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200">
+                          <Plus className="w-3 h-3" /> Material
+                        </button>
+                      </div>
+                      {r.subrenglones && r.subrenglones.length > 0 ? (
+                        <div className="space-y-1.5">
+                          {r.subrenglones.map((sub, subIdx) => {
+                            const subTotal = (sub.cantidadUnitaria * r.cantidad * sub.precioUnitario);
+                            return (
+                              <div key={sub.id} className="bg-white rounded p-2 border border-slate-150 flex items-center gap-1.5 text-xs">
+                                <span className="text-slate-400 w-6">{subIdx + 1}.</span>
+                                <input 
+                                  type="text" 
+                                  value={sub.nombreMaterial} 
+                                  onChange={e => updSubrenglon(r.id, sub.id, { nombreMaterial: e.target.value })}
+                                  placeholder="Material"
+                                  className="flex-1 px-1.5 py-0.5 rounded border border-slate-200 text-xs"
+                                />
+                                <input 
+                                  type="number" 
+                                  value={sub.cantidadUnitaria} 
+                                  onChange={e => updSubrenglon(r.id, sub.id, { cantidadUnitaria: +e.target.value })}
+                                  placeholder="Cant/u"
+                                  className="w-12 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
+                                />
+                                <select 
+                                  value={sub.unidad} 
+                                  onChange={e => updSubrenglon(r.id, sub.id, { unidad: e.target.value })}
+                                  className="w-14 px-1 py-0.5 rounded border border-slate-200 text-xs"
+                                >
+                                  <option>kg</option>
+                                  <option>l</option>
+                                  <option>m²</option>
+                                  <option>m³</option>
+                                  <option>u</option>
+                                  <option>ml</option>
+                                </select>
+                                <input 
+                                  type="number" 
+                                  value={sub.precioUnitario} 
+                                  onChange={e => updSubrenglon(r.id, sub.id, { precioUnitario: +e.target.value })}
+                                  placeholder="Precio"
+                                  className="w-16 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
+                                />
+                                <span className="text-slate-600 font-semibold w-20 text-right">{fmtQ(subTotal)}</span>
+                                <button onClick={() => delSubrenglon(r.id, sub.id)} className="text-slate-300 hover:text-red-500">
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-[10px] text-slate-400 italic py-2">Sin desglose de materiales. Agrega uno con el botón + Material</div>
+                      )}
+                    </div>
+
                     <div className="mt-2">
                       <div className="text-[10px] font-semibold text-slate-500 mb-1">Desglose APU (insumos)</div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
@@ -151,6 +262,27 @@ const Presupuestos: React.FC = () => {
               </div>
             );
           })}
+
+          {/* Resumen de Materiales */}
+          {resumenMateriales.length > 0 && (
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border-2 border-emerald-200 p-4">
+              <div className="text-sm font-bold text-emerald-900 mb-3">📊 Resumen de Materiales a Utilizar</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
+                {resumenMateriales.map((mat, idx) => (
+                  <div key={idx} className="bg-white rounded-lg p-2.5 border border-emerald-100">
+                    <div className="font-semibold text-slate-700 truncate">{mat.nombre}</div>
+                    <div className="flex justify-between mt-1 text-slate-600">
+                      <span>{mat.cantidad.toFixed(2)} {mat.unidad}</span>
+                      <span className="font-bold text-emerald-600">{fmtQ(mat.total)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 text-xs text-slate-600 text-center">
+                <b className="text-emerald-700">{resumenMateriales.length} materiales diferentes</b> · Total materiales: <b className="text-emerald-700">{fmtQ(resumenMateriales.reduce((a, m) => a + m.total, 0))}</b>
+              </div>
+            </div>
+          )}
 
           <div className="bg-slate-900 text-white rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 sticky bottom-2">
             <div className="flex gap-6 text-sm">
