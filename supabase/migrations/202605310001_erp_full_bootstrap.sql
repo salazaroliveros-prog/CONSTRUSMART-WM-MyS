@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   id uuid REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   nombre text NOT NULL DEFAULT '',
   rol text NOT NULL DEFAULT 'usuario' CHECK (rol = ANY (ARRAY['Administrador','Gerente','Residente','Compras','Bodeguero','usuario'])),
+  user_metadata jsonb, -- Agregado: para almacenar metadatos de usuario adicionales
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
