@@ -24,7 +24,7 @@ interface Mutation {
   type: 'addProyecto' | 'updateProyecto' | 'deleteProyecto' | 'addMovimiento' | 'deleteMovimiento' |
          'addEmpleado' | 'updateEmpleado' | 'deleteEmpleado' | 'updateMaterial' |
          'addOrden' | 'updateOrden' | 'addProveedor' | 'updateProveedor' | 'deleteProveedor' |
-         'addEvento' | 'updateEvento' | 'deleteEvento' | 'addBitacora';
+         'addEvento' | 'updateEvento' | 'deleteEvento' | 'addBitacora' | 'updateBitacora' | 'deleteBitacora';
   payload: Record<string, unknown>;
   timestamp: number;
 }
@@ -67,6 +67,8 @@ interface ErpState {
   deleteEvento: (id: string) => Promise<void>;
   bitacora: BitacoraEntry[];
   addBitacora: (b: Omit<BitacoraEntry, 'id'>) => Promise<void>;
+  updateBitacora: (id: string, patch: Partial<BitacoraEntry>) => Promise<void>;
+  deleteBitacora: (id: string) => Promise<void>;
 }
 
 const Ctx = createContext<ErpState>({} as ErpState);
@@ -202,6 +204,12 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         case 'addBitacora':
           await supabase.from('erp_bitacora').insert(next.payload);
           break;
+        case 'updateBitacora':
+          await supabase.from('erp_bitacora').update(next.payload).eq('id', next.payload.id);
+          break;
+        case 'deleteBitacora':
+          await supabase.from('erp_bitacora').delete().eq('id', next.payload.id);
+          break;
       }
     } catch (err) {
       setMutationQueue(q => [next, ...q]);
@@ -216,37 +224,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [isOnline, mutationQueue, processQueue]);
 
   const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-  const ADMIN_NOMBRE = 'Oliver Salazar';
-
-  const loadProfile = async (id: string, email?: string, userName?: string | null, avatarUrl?: string | null) => {
-    let profileErr: unknown = null;
-    let profileData: { nombre?: string; rol?: string } | null = null;
-    try {
-      const result = await supabase.from('profiles').select('nombre,rol').eq('id', id).maybeSingle();
-      profileData = result.data;
-      profileErr = result.error;
-    } catch (e) {
-      profileErr = e;
-    }
-
-    const fallbackNombre = (() => {
-      const name = userName || email?.split('@')[0] || 'Usuario';
-      return name.trim() || 'Usuario';
-    })();
-    const isAdmin = email === ADMIN_EMAIL;
-    const rol = isAdmin ? 'Administrador' : ((profileData?.rol as Rol) || 'Administrador');
-    const nombre = profileData?.nombre || fallbackNombre;
-
-    setUser({ nombre, rol, avatar: avatarUrl ?? undefined });
-    setView('dashboard');
-
-    if (!profileData || profileErr || isAdmin) {
-      const upsertPayload: Record<string, unknown> = { id, rol, nombre };
-      try {
-        await supabase.from('profiles').upsert(upsertPayload);
-      } catch {}
-    }
-  };
 
   const requestNotificationPermission = useCallback(async () => {
     if (typeof window === 'undefined' || !('Notification' in window)) return;
@@ -342,11 +319,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setProyectos(s => [...s, newProj]);
     enqueueMutation('addProyecto', newProj);
   };
-  const updateProyecto = (id: string, patch: Partial<Proyecto>) => {
+  const updateProyecto = async (id: string, patch: Partial<Proyecto>) => {
     setProyectos(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
     enqueueMutation('updateProyecto', { id, ...patch });
   };
-  const deleteProyecto = (id: string) => {
+  const deleteProyecto = async (id: string) => {
     setProyectos(s => s.filter(p => p.id !== id));
     enqueueMutation('deleteProyecto', { id });
   };
@@ -356,7 +333,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setMovimientos(s => [newMov, ...s]);
     enqueueMutation('addMovimiento', newMov);
   };
-  const deleteMovimiento = (id: string) => {
+  const deleteMovimiento = async (id: string) => {
     setMovimientos(s => s.filter(m => m.id !== id));
     enqueueMutation('deleteMovimiento', { id });
   };
@@ -366,26 +343,26 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setEmpleados(s => [...s, newEmp]);
     enqueueMutation('addEmpleado', newEmp);
   };
-  const updateEmpleado = (id: string, patch: Partial<Empleado>) => {
+  const updateEmpleado = async (id: string, patch: Partial<Empleado>) => {
     setEmpleados(s => s.map(e => e.id === id ? { ...e, ...patch } : e));
     enqueueMutation('updateEmpleado', { id, ...patch });
   };
-  const deleteEmpleado = (id: string) => {
+  const deleteEmpleado = async (id: string) => {
     setEmpleados(s => s.filter(e => e.id !== id));
     enqueueMutation('deleteEmpleado', { id });
   };
 
-  const updateMaterial = (id: string, patch: Partial<Material>) => {
+  const updateMaterial = async (id: string, patch: Partial<Material>) => {
     setMateriales(s => s.map(m => m.id === id ? { ...m, ...patch } : m));
     enqueueMutation('updateMaterial', { id, ...patch });
   };
 
-  const addOrden = (o: Omit<OrdenCompra, 'id'>) => {
+  const addOrden = async (o: Omit<OrdenCompra, 'id'>) => {
     const newOrd = { ...o, id: uid() };
     setOrdenes(s => [newOrd, ...s]);
     enqueueMutation('addOrden', newOrd);
   };
-  const updateOrden = (id: string, estado: OrdenCompra['estado']) => {
+  const updateOrden = async (id: string, estado: OrdenCompra['estado']) => {
     setOrdenes(s => s.map(o => o.id === id ? { ...o, estado } : o));
     enqueueMutation('updateOrden', { id, estado });
   };
@@ -395,11 +372,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setProveedores(s => [...s, newProv]);
     enqueueMutation('addProveedor', newProv);
   };
-  const updateProveedor = (id: string, patch: Partial<Proveedor>) => {
+  const updateProveedor = async (id: string, patch: Partial<Proveedor>) => {
     setProveedores(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
     enqueueMutation('updateProveedor', { id, ...patch });
   };
-  const deleteProveedor = (id: string) => {
+  const deleteProveedor = async (id: string) => {
     setProveedores(s => s.filter(p => p.id !== id));
     enqueueMutation('deleteProveedor', { id });
   };
@@ -409,19 +386,29 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setEventos(s => [...s, newEvt]);
     enqueueMutation('addEvento', newEvt);
   };
-  const updateEvento = (id: string, patch: Partial<EventoCalendario>) => {
+  const updateEvento = async (id: string, patch: Partial<EventoCalendario>) => {
     setEventos(s => s.map(e => e.id === id ? { ...e, ...patch } : e));
     enqueueMutation('updateEvento', { id, ...patch });
   };
-  const deleteEvento = (id: string) => {
+  const deleteEvento = async (id: string) => {
     setEventos(s => s.filter(e => e.id !== id));
     enqueueMutation('deleteEvento', { id });
   };
 
-  const addBitacora = (b: Omit<BitacoraEntry, 'id'>) => {
+  const addBitacora = async (b: Omit<BitacoraEntry, 'id'>) => {
     const newBit = { ...b, id: uid() };
     setBitacora(s => [newBit, ...s]);
     enqueueMutation('addBitacora', newBit);
+  };
+
+  const updateBitacora = async (id: string, patch: Partial<BitacoraEntry>) => {
+    setBitacora(s => s.map(b => b.id === id ? { ...b, ...patch } : b));
+    enqueueMutation('updateBitacora', { id, ...patch });
+  };
+
+  const deleteBitacora = async (id: string) => {
+    setBitacora(s => s.filter(b => b.id !== id));
+    enqueueMutation('deleteBitacora', { id });
   };
 
   return (
@@ -435,7 +422,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ordenes, updateOrden, addOrden,
       proveedores, addProveedor, updateProveedor, deleteProveedor,
       eventos, addEvento, updateEvento, deleteEvento,
-      bitacora, addBitacora,
+      bitacora, addBitacora, updateBitacora, deleteBitacora,
     }}>
       {children}
     </Ctx.Provider>
