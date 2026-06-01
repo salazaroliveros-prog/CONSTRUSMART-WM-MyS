@@ -146,7 +146,7 @@ const Proyectos: React.FC = () => {
       <div className="bg-slate-900 rounded-2xl p-4 mb-4 relative overflow-hidden" style={{ height: 220 }}>
         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200)', backgroundSize: 'cover' }} />
         <div className="relative z-10 flex items-center gap-2 text-white mb-1">
-          <MapPin className="w-4 h-4 text-orange-400" /><span className="text-sm font-bold">Mapa de Calor — Geolocalización de Obras</span>
+          <MapPin className="w-4 h-4 text-orange-400" /><span className="text-sm font-bold">Mapa de Calor - Geolocalización de Obras</span>
         </div>
         <div className="relative z-10 flex gap-3 text-[10px] text-slate-300 mb-2">
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />En tiempo</span>
@@ -164,42 +164,56 @@ const Proyectos: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {proyectos.length === 0
-          ? Array.from({ length: 3 }).map((_, i) => <div key={i}>{Skeleton}</div>)
-          : proyectos.map(p => (
-              <div key={p.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white shrink-0" style={{ background: estadoColor(p) }}>
-                  <Building2 className="w-4 h-4" />
+        {proyectos.length === 0 ? Array.from({ length: 3 }).map((_, i) => <div key={i}>{Skeleton}</div>) : proyectos.map(p => (
+          <div key={p.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-200">
+            <div className="p-5">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: estadoColor(p) }}>
+                  <Building2 className="w-5 h-5" />
                 </div>
-                <div className="min-w-0">
+                <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-slate-800 text-sm truncate">{p.nombre}</h3>
                   <p className="text-[11px] text-slate-400 truncate">{p.cliente} · {p.ubicacion}</p>
                 </div>
+                <div className="flex gap-1">
+                  <button onClick={() => openEdit(p)} className="p-2 rounded-lg text-slate-400 hover:text-orange-600 hover:bg-orange-50 transition-colors" title="Editar">
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => deleteProyecto(p.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Eliminar">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button onClick={() => openEdit(p)} className="p-1 text-slate-300 hover:text-orange-500"><Pencil className="w-4 h-4" /></button>
-                <button onClick={() => deleteProyecto(p.id)} className="p-1 text-slate-300 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+              <div className="flex gap-2 mb-4">
+                <span className="text-[10px] px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">{TIPOLOGIA_LABEL[p.tipologia]}</span>
+                <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium ${p.estado === 'ejecucion' ? 'bg-emerald-50 text-emerald-700' : p.estado === 'planeacion' ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>{p.estado}</span>
               </div>
-            </div>
-            <div className="flex gap-2 mt-2">
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{TIPOLOGIA_LABEL[p.tipologia]}</span>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full ${p.estado === 'ejecucion' ? 'bg-emerald-50 text-emerald-600' : p.estado === 'planeacion' ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-500'}`}>{p.estado}</span>
-            </div>
-            <div className="mt-3 space-y-2">
-              <div>
-                <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-400">Avance Físico</span><span className="font-semibold text-slate-700">{fmtPct(p.avanceFisico)}</span></div>
-                <Progress value={p.avanceFisico} color="#3b82f6" />
+              <div className="space-y-2.5 mb-4">
+                <div>
+                  <div className="flex justify-between text-[11px] mb-1.5">
+                    <span className="text-slate-500">Avance Físico</span>
+                    <span className="font-semibold text-slate-700">{fmtPct(p.avanceFisico)}</span>
+                  </div>
+                  <Progress value={p.avanceFisico} color="#3b82f6" />
+                </div>
+                <div>
+                  <div className="flex justify-between text-[11px] mb-1.5">
+                    <span className="text-slate-500">Avance Financiero</span>
+                    <span className="font-semibold text-slate-700">{fmtPct(p.avanceFinanciero)}</span>
+                  </div>
+                  <Progress value={p.avanceFinanciero} color="#f97316" />
+                </div>
               </div>
-              <div>
-                <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-400">Avance Financiero</span><span className="font-semibold text-slate-700">{fmtPct(p.avanceFinanciero)}</span></div>
-                <Progress value={p.avanceFinanciero} color="#f97316" />
+              <div className="pt-3.5 border-t border-slate-100 flex justify-between text-xs">
+                <div>
+                  <span className="text-slate-400 block text-[10px] mb-0.5">Presupuesto</span>
+                  <b className="text-slate-700 font-semibold">{fmtQ(p.presupuestoTotal)}</b>
+                </div>
+                <div className="text-right">
+                  <span className="text-slate-400 block text-[10px] mb-0.5">Contrato</span>
+                  <b className="text-emerald-600 font-semibold">{fmtQ(p.montoContrato)}</b>
+                </div>
               </div>
-            </div>
-            <div className="mt-3 pt-3 border-t border-slate-100 flex justify-between text-xs">
-              <div><span className="text-slate-400 block text-[10px]">Presupuesto</span><b className="text-slate-700">{fmtQ(p.presupuestoTotal)}</b></div>
-              <div className="text-right"><span className="text-slate-400 block text-[10px]">Contrato</span><b className="text-emerald-600">{fmtQ(p.montoContrato)}</b></div>
             </div>
           </div>
         ))}
@@ -230,7 +244,7 @@ const Proyectos: React.FC = () => {
                 <p className="text-xs text-red-500">{errors.presupuestoTotal?.message || errors.montoContrato?.message}</p>
               )}
             </div>
-               <button type="submit" className={BUTTON_PRIMARY}>{editingId ? 'Guardar Cambios' : 'Crear Proyecto'}</button>
+            <button type="submit" className={BUTTON_PRIMARY}>{editingId ? 'Guardar Cambios' : 'Crear Proyecto'}</button>
           </form>
         </div>
       )}
