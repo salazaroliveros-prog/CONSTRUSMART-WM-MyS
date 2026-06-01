@@ -7,7 +7,7 @@ import { Tipologia } from '../types';
 import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
 import { Progress } from '../components/Charts';
 import { CARD, INPUT, BUTTON_PRIMARY } from '../ui';
-import { Plus, MapPin, Trash2, X, Building2 } from 'lucide-react';
+import { Plus, MapPin, Trash2, X, Building2, Pencil } from 'lucide-react';
 
 const proyectoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -29,8 +29,9 @@ const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado
 };
 
 const Proyectos: React.FC = () => {
-  const { proyectos, addProyecto, deleteProyecto } = useErp();
+  const { proyectos, addProyecto, updateProyecto, deleteProyecto } = useErp();
   const [show, setShow] = React.useState(false);
+  const [editingId, setEditingId] = React.useState<string | null>(null);
 
   const {
     register,
@@ -50,23 +51,61 @@ const Proyectos: React.FC = () => {
   });
 
   const onSubmit = (data: ProyectoFormData) => {
-    addProyecto({
-      nombre: data.nombre,
-      cliente: data.cliente,
-      ubicacion: data.ubicacion,
-      tipologia: data.tipologia,
-      estado: 'planeacion',
-      presupuestoTotal: data.presupuestoTotal,
-      montoContrato: data.montoContrato,
-      avanceFisico: 0,
-      avanceFinanciero: 0,
-      lat: 14.6 + Math.random() * 0.2,
-      lng: -90.55 + Math.random() * 0.2,
-      fechaInicio: todayISO(),
-      fechaFin: todayISO(),
-    });
+    if (editingId) {
+      updateProyecto(editingId, {
+        nombre: data.nombre,
+        cliente: data.cliente,
+        ubicacion: data.ubicacion,
+        tipologia: data.tipologia,
+        presupuestoTotal: data.presupuestoTotal,
+        montoContrato: data.montoContrato,
+      });
+    } else {
+      addProyecto({
+        nombre: data.nombre,
+        cliente: data.cliente,
+        ubicacion: data.ubicacion,
+        tipologia: data.tipologia,
+        estado: 'planeacion',
+        presupuestoTotal: data.presupuestoTotal,
+        montoContrato: data.montoContrato,
+        avanceFisico: 0,
+        avanceFinanciero: 0,
+        lat: 14.6 + Math.random() * 0.2,
+        lng: -90.55 + Math.random() * 0.2,
+        fechaInicio: todayISO(),
+        fechaFin: todayISO(),
+      });
+    }
     reset();
+    setEditingId(null);
     setShow(false);
+  };
+
+  const openCreate = () => {
+    setEditingId(null);
+    reset({
+      nombre: '',
+      cliente: '',
+      ubicacion: '',
+      tipologia: 'residencial',
+      presupuestoTotal: 0,
+      montoContrato: 0,
+    });
+    setShow(true);
+  };
+
+  const openEdit = (p: Proyecto) => {
+    setEditingId(p.id);
+    reset({
+      nombre: p.nombre,
+      cliente: p.cliente,
+      ubicacion: p.ubicacion,
+      tipologia: p.tipologia,
+      presupuestoTotal: p.presupuestoTotal,
+      montoContrato: p.montoContrato,
+    });
+    setShow(true);
   };
 
   const Skeleton = (
@@ -99,7 +138,7 @@ const Proyectos: React.FC = () => {
           <h1 className="text-2xl font-black text-slate-800">Portafolio de Proyectos</h1>
           <p className="text-sm text-slate-400">{proyectos.length} proyectos registrados</p>
         </div>
-        <button onClick={() => setShow(true)} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
+        <button onClick={openCreate} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nuevo Proyecto
         </button>
       </div>
@@ -139,7 +178,10 @@ const Proyectos: React.FC = () => {
                   <p className="text-[11px] text-slate-400 truncate">{p.cliente} · {p.ubicacion}</p>
                 </div>
               </div>
-              <button onClick={() => deleteProyecto(p.id)}><Trash2 className="w-4 h-4 text-slate-300 hover:text-red-500" /></button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => openEdit(p)} className="p-1 text-slate-300 hover:text-orange-500"><Pencil className="w-4 h-4" /></button>
+                <button onClick={() => deleteProyecto(p.id)} className="p-1 text-slate-300 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+              </div>
             </div>
             <div className="flex gap-2 mt-2">
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{TIPOLOGIA_LABEL[p.tipologia]}</span>
@@ -167,8 +209,8 @@ const Proyectos: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShow(false)}>
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-lg text-slate-800">Nuevo Proyecto</h2>
-              <button type="button" onClick={() => setShow(false)}><X className="w-5 h-5" /></button>
+              <h2 className="font-bold text-lg text-slate-800">{editingId ? 'Editar Proyecto' : 'Nuevo Proyecto'}</h2>
+              <button type="button" onClick={() => { setShow(false); setEditingId(null); }}><X className="w-5 h-5" /></button>
             </div>
             <div className="space-y-3">
               <input {...register('nombre')} placeholder="Nombre del proyecto" className={INPUT} />
@@ -188,7 +230,7 @@ const Proyectos: React.FC = () => {
                 <p className="text-xs text-red-500">{errors.presupuestoTotal?.message || errors.montoContrato?.message}</p>
               )}
             </div>
-              <button type="submit" className={BUTTON_PRIMARY}>Crear Proyecto</button>
+               <button type="submit" className={BUTTON_PRIMARY}>{editingId ? 'Guardar Cambios' : 'Crear Proyecto'}</button>
           </form>
         </div>
       )}
