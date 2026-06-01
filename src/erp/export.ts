@@ -9,8 +9,9 @@ const calcRow = (r: RenglonPresupuesto) => {
 
 export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tipologia: string) => {
   const rows: string[] = [];
+  rows.push(`Logo: WM`);
   rows.push(`${EMPRESA.nombre} - ${EMPRESA.eslogan}`);
-  rows.push(`Presupuesto: ${proyecto};Tipologia: ${TIPOLOGIA_LABEL[tipologia as keyof typeof TIPOLOGIA_LABEL] || tipologia}`);
+  rows.push(`Proyecto: ${proyecto};Tipologia: ${TIPOLOGIA_LABEL[tipologia as keyof typeof TIPOLOGIA_LABEL] || tipologia}`);
   rows.push('');
   rows.push('Codigo;Renglon;Unidad;Cantidad;Materiales;Mano Obra;Equipo;Costo Directo;Precio Unitario;Total');
   let gran = 0;
@@ -49,7 +50,8 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   <style>
     body{font-family:Arial,sans-serif;color:#334155;margin:32px;font-size:11px}
     .head{display:flex;align-items:center;gap:14px;border-bottom:3px solid #f97316;padding-bottom:12px;margin-bottom:8px}
-    .logo{width:54px;height:54px;border-radius:10px;background:linear-gradient(135deg,#f97316,#f59e0b);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px}
+    .logo{width:54px;height:54px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #e2e8f0}
+.logo img{width:100%;height:100%;object-fit:contain;display:block}
     h1{margin:0;font-size:18px;color:#1e293b}
     .slogan{color:#f97316;font-style:italic;font-size:12px}
     .meta{margin:10px 0;font-size:11px;color:#64748b}
@@ -61,7 +63,7 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
     h2{color:#f97316;border-bottom:1px solid #fed7aa;padding-bottom:4px;margin-top:28px}
   </style></head><body>
   <div class="head">
-    <div class="logo">WM</div>
+    <div class="logo"><img src="/wm-logo.svg" alt="WM" /></div>
     <div><h1>${EMPRESA.nombre}</h1><div class="slogan">${EMPRESA.eslogan}</div></div>
     <div style="margin-left:auto;text-align:right;color:#64748b">PRESUPUESTO DE OBRA<br>${new Date().toLocaleDateString('es-GT')}</div>
   </div>

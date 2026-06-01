@@ -73,7 +73,7 @@ const Presupuestos: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
             <label className="text-xs font-semibold text-slate-500">Nombre del presupuesto</label>
-            <input value={proyecto} onChange={e => setProyecto(e.target.value)} className={INPUT} />
+            <input value={proyecto} onChange={e => setProyecto(e.target.value)} placeholder="Ej. Presupuesto obra casa" className={INPUT} />
           </div>
           <div>
             <label className="text-xs font-semibold text-slate-500">Tipología (40+ renglones c/u)</label>

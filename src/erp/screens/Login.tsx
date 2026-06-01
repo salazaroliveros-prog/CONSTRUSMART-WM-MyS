@@ -74,8 +74,8 @@ const Login: React.FC = () => {
 
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-slate-50 min-h-screen lg:min-h-0">
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-3 mb-6 sm:mb-8">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center font-black text-white shrink-0 overflow-hidden">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center overflow-hidden shadow-lg">
               <img src="/wm-logo.svg" alt="WM" className="w-8 h-8" />
             </div>
             <div>
