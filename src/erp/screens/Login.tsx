@@ -55,7 +55,7 @@ const Login: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-orange-900/40" />
         <div className="relative z-10 text-white max-w-md">
           <div className="w-20 h-20 rounded-2xl mb-6 bg-slate-900 flex items-center justify-center ring-1 ring-orange-400/30 shadow-[0_0_8px_rgba(249,115,22,0.35)]">
-            <img src="/wm-logo.svg" alt="WM" className="w-full h-full object-contain" />
+            <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-4xl font-black leading-tight">{EMPRESA.nombre}</h1>
           <p className="text-orange-300 text-lg italic mt-2">{EMPRESA.eslogan}</p>
@@ -75,7 +75,7 @@ const Login: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center ring-1 ring-orange-400/30 shadow-[0_0_6px_rgba(249,115,22,0.35)]">
-              <img src="/wm-logo.svg" alt="WM" className="w-full h-full object-contain" />
+              <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="font-bold text-slate-800 text-sm sm:text-base">{EMPRESA.nombre}</div>
