@@ -1,9 +1,28 @@
---
--- ERP CONSTRUSMART - Database Schema
--- Tablas para módulos: Proyectos, Presupuestos, Financiero, RRHH, Bodega, Seguimiento
---
+-- ============================================================
+-- ERP CONSTRUSMART - Migración completa para Supabase
+-- Copiar TODO este bloque y pegarlo en el SQL Editor de Supabase
+-- ============================================================
 
--- Tabla: erp_proyectos
+-- 0) Perfiles de usuario (tabla base para RLS)
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id uuid REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  nombre text NOT NULL DEFAULT '',
+  rol text NOT NULL DEFAULT 'usuario' CHECK (rol = ANY (ARRAY['Administrador','Gerente','Residente','Compras','Bodeguero','usuario'])),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "profiles_self_read" ON public.profiles
+  FOR SELECT TO authenticated USING (auth.uid() = id);
+
+CREATE POLICY "profiles_self_update" ON public.profiles
+  FOR UPDATE TO authenticated USING (auth.uid() = id);
+
+-- ============================================================
+-- 1) Tablas ERP
+-- ============================================================
+
 CREATE TABLE erp_proyectos (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     nombre text NOT NULL,
@@ -24,7 +43,6 @@ CREATE TABLE erp_proyectos (
     updated_at timestamptz DEFAULT now() NOT NULL
 );
 
--- Tabla: erp_movimientos (ingresos/gastos financieros)
 CREATE TABLE erp_movimientos (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     tipo text NOT NULL CHECK (tipo = ANY (ARRAY['ingreso','gasto'])),
@@ -40,7 +58,6 @@ CREATE TABLE erp_movimientos (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
--- Tabla: erp_empleados
 CREATE TABLE erp_empleados (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     nombre text NOT NULL,
@@ -52,7 +69,6 @@ CREATE TABLE erp_empleados (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
--- Tabla: erp_materiales (inventario de bodega)
 CREATE TABLE erp_materiales (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     nombre text NOT NULL,
@@ -64,7 +80,6 @@ CREATE TABLE erp_materiales (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
--- Tabla: erp_ordenes_compra
 CREATE TABLE erp_ordenes_compra (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     proveedor text NOT NULL,
@@ -76,7 +91,6 @@ CREATE TABLE erp_ordenes_compra (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
--- Tabla: erp_proveedores
 CREATE TABLE erp_proveedores (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     nombre text NOT NULL,
@@ -86,7 +100,6 @@ CREATE TABLE erp_proveedores (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
--- Tabla: erp_eventos_calendario
 CREATE TABLE erp_eventos_calendario (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     fecha date NOT NULL,
@@ -95,7 +108,6 @@ CREATE TABLE erp_eventos_calendario (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
--- Tabla: erp_bitacora
 CREATE TABLE erp_bitacora (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     proyecto_id uuid NOT NULL REFERENCES erp_proyectos(id) ON DELETE CASCADE,
@@ -108,7 +120,6 @@ CREATE TABLE erp_bitacora (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
--- Tabla: erp_seguimiento (avances y EVM por proyecto)
 CREATE TABLE erp_seguimiento (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     proyecto_id uuid NOT NULL REFERENCES erp_proyectos(id) ON DELETE CASCADE,
@@ -124,9 +135,9 @@ CREATE TABLE erp_seguimiento (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
---
--- ROW LEVEL SECURITY para tablas ERP
---
+-- ============================================================
+-- 2) RLS - Habilitar en todas las tablas ERP
+-- ============================================================
 
 ALTER TABLE erp_proyectos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_movimientos ENABLE ROW LEVEL SECURITY;
@@ -138,124 +149,66 @@ ALTER TABLE erp_eventos_calendario ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_bitacora ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_seguimiento ENABLE ROW LEVEL SECURITY;
 
--- Todos los usuarios autenticados pueden leer proyectos
-CREATE POLICY "ERP proyectos readable" ON erp_proyectos
-    FOR SELECT TO authenticated USING (true);
+-- ============================================================
+-- 3) Políticas RLS ERP (ahora sí con public.profiles)
+-- ============================================================
 
--- Solo Administrador y Gerente pueden modificar proyectos
-CREATE POLICY "ERP proyectos writable" ON erp_proyectos
-    FOR ALL TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE profiles.id = auth.uid()
-            AND profiles.rol = ANY (ARRAY['Administrador','Gerente'])
-        )
-    );
+-- Proyectos: todos leen, solo Admin/Gerente escriben
+CREATE POLICY "erp_proyectos_read" ON erp_proyectos FOR SELECT TO authenticated USING (true);
+CREATE POLICY "erp_proyectos_write" ON erp_proyectos FOR ALL TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.rol = ANY (ARRAY['Administrador','Gerente']))
+);
 
--- Movimientos: lectura para todos autenticados, escritura para Administrador, Gerente, Residente
-CREATE POLICY "ERP movimientos readable" ON erp_movimientos
-    FOR SELECT TO authenticated USING (true);
+-- Movimientos: todos leen, Admin/Gerente/Residente escriben
+CREATE POLICY "erp_movimientos_read" ON erp_movimientos FOR SELECT TO authenticated USING (true);
+CREATE POLICY "erp_movimientos_write" ON erp_movimientos FOR ALL TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.rol = ANY (ARRAY['Administrador','Gerente','Residente']))
+);
 
-CREATE POLICY "ERP movimientos writable" ON erp_movimientos
-    FOR ALL TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE profiles.id = auth.uid()
-            AND profiles.rol = ANY (ARRAY['Administrador','Gerente','Residente'])
-        )
-    );
+-- Empleados: todos leen, Admin/Gerente escriben
+CREATE POLICY "erp_empleados_read" ON erp_empleados FOR SELECT TO authenticated USING (true);
+CREATE POLICY "erp_empleados_write" ON erp_empleados FOR ALL TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.rol = ANY (ARRAY['Administrador','Gerente']))
+);
 
--- Empleados: lectura para todos, escritura para Administrador y Gerente
-CREATE POLICY "ERP empleados readable" ON erp_empleados
-    FOR SELECT TO authenticated USING (true);
+-- Materiales: todos leen, Admin/Gerente/Compras/Bodeguero escriben
+CREATE POLICY "erp_materiales_read" ON erp_materiales FOR SELECT TO authenticated USING (true);
+CREATE POLICY "erp_materiales_write" ON erp_materiales FOR ALL TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.rol = ANY (ARRAY['Administrador','Gerente','Compras','Bodeguero']))
+);
 
-CREATE POLICY "ERP empleados writable" ON erp_empleados
-    FOR ALL TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE profiles.id = auth.uid()
-            AND profiles.rol = ANY (ARRAY['Administrador','Gerente'])
-        )
-    );
+-- Órdenes de compra: todos leen, Admin/Gerente/Compras escriben
+CREATE POLICY "erp_ordenes_read" ON erp_ordenes_compra FOR SELECT TO authenticated USING (true);
+CREATE POLICY "erp_ordenes_write" ON erp_ordenes_compra FOR ALL TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.rol = ANY (ARRAY['Administrador','Gerente','Compras']))
+);
 
--- Bodega: lectura para autenticados, escritura para Administrador, Compras, Bodeguero
-CREATE POLICY "ERP materiales readable" ON erp_materiales
-    FOR SELECT TO authenticated USING (true);
+-- Proveedores: todos leen, Admin/Gerente/Compras escriben
+CREATE POLICY "erp_proveedores_read" ON erp_proveedores FOR SELECT TO authenticated USING (true);
+CREATE POLICY "erp_proveedores_write" ON erp_proveedores FOR ALL TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.rol = ANY (ARRAY['Administrador','Gerente','Compras']))
+);
 
-CREATE POLICY "ERP materiales writable" ON erp_materiales
-    FOR ALL TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE profiles.id = auth.uid()
-            AND profiles.rol = ANY (ARRAY['Administrador','Gerente','Compras','Bodeguero'])
-        )
-    );
+-- Eventos de calendario: todos leen y escriben
+CREATE POLICY "erp_eventos_read" ON erp_eventos_calendario FOR SELECT TO authenticated USING (true);
+CREATE POLICY "erp_eventos_write" ON erp_eventos_calendario FOR ALL TO authenticated USING (true);
 
-CREATE POLICY "ERP ordenes readable" ON erp_ordenes_compra
-    FOR SELECT TO authenticated USING (true);
+-- Bitácora: todos leen y escriben
+CREATE POLICY "erp_bitacora_read" ON erp_bitacora FOR SELECT TO authenticated USING (true);
+CREATE POLICY "erp_bitacora_write" ON erp_bitacora FOR ALL TO authenticated USING (true);
 
-CREATE POLICY "ERP ordenes writable" ON erp_ordenes_compra
-    FOR ALL TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE profiles.id = auth.uid()
-            AND profiles.rol = ANY (ARRAY['Administrador','Gerente','Compras'])
-        )
-    );
+-- Seguimiento (EVM): solo Admin/Gerente
+CREATE POLICY "erp_seguimiento_read" ON erp_seguimiento FOR SELECT TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.rol = ANY (ARRAY['Administrador','Gerente']))
+);
+CREATE POLICY "erp_seguimiento_write" ON erp_seguimiento FOR ALL TO authenticated USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.rol = ANY (ARRAY['Administrador','Gerente']))
+);
 
-CREATE POLICY "ERP proveedores readable" ON erp_proveedores
-    FOR SELECT TO authenticated USING (true);
+-- ============================================================
+-- 4) Índices para rendimiento
+-- ============================================================
 
-CREATE POLICY "ERP proveedores writable" ON erp_proveedores
-    FOR ALL TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE profiles.id = auth.uid()
-            AND profiles.rol = ANY (ARRAY['Administrador','Gerente','Compras'])
-        )
-    );
-
--- Eventos y bitácora: lectura para autenticados, escritura para todos con acceso al proyecto
-CREATE POLICY "ERP eventos readable" ON erp_eventos_calendario
-    FOR SELECT TO authenticated USING (true);
-
-CREATE POLICY "ERP eventos writable" ON erp_eventos_calendario
-    FOR ALL TO authenticated USING (true);
-
-CREATE POLICY "ERP bitacora readable" ON erp_bitacora
-    FOR SELECT TO authenticated USING (true);
-
-CREATE POLICY "ERP bitacora writable" ON erp_bitacora
-    FOR ALL TO authenticated USING (true);
-
--- Seguimiento: solo Administrador y Gerente
-CREATE POLICY "ERP seguimiento readable" ON erp_seguimiento
-    FOR SELECT TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE profiles.id = auth.uid()
-            AND profiles.rol = ANY (ARRAY['Administrador','Gerente'])
-        )
-    );
-
-CREATE POLICY "ERP seguimiento writable" ON erp_seguimiento
-    FOR ALL TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE profiles.id = auth.uid()
-            AND profiles.rol = ANY (ARRAY['Administrador','Gerente'])
-        )
-    );
-
--- Índices para rendimiento
 CREATE INDEX idx_erp_proyectos_estado ON erp_proyectos(estado);
 CREATE INDEX idx_erp_movimientos_proyecto ON erp_movimientos(proyecto_id);
 CREATE INDEX idx_erp_movimientos_fecha ON erp_movimientos(fecha);
@@ -265,8 +218,11 @@ CREATE INDEX idx_erp_eventos_fecha ON erp_eventos_calendario(fecha);
 CREATE INDEX idx_erp_bitacora_proyecto ON erp_bitacora(proyecto_id);
 CREATE INDEX idx_erp_seguimiento_proyecto ON erp_seguimiento(proyecto_id);
 
--- Trigger para actualizar updated_at automáticamente
-CREATE OR REPLACE FUNCTION fn_erp_set_updated_at()
+-- ============================================================
+-- 5) Trigger updated_at automático
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION fn_set_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = now();
@@ -274,6 +230,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_erp_proyectos_updated ON erp_proyectos;
 CREATE TRIGGER trg_erp_proyectos_updated
-    BEFORE UPDATE ON erp_proyectos
-    FOR EACH ROW EXECUTE FUNCTION fn_erp_set_updated_at();
+  BEFORE UPDATE ON erp_proyectos
+  FOR EACH ROW EXECUTE FUNCTION fn_set_updated_at();
+
+-- ============================================================
+-- FIN - Copiá y pegá TODO el bloque en el SQL Editor de Supabase
+-- ============================================================
