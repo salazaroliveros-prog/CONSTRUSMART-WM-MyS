@@ -30,31 +30,31 @@ interface ErpState {
   logout: () => void;
 
   proyectos: Proyecto[];
-  addProyecto: (p: Omit<Proyecto, 'id'>) => void;
-  updateProyecto: (id: string, patch: Partial<Proyecto>) => void;
-  deleteProyecto: (id: string) => void;
+  addProyecto: (p: Omit<Proyecto, 'id'>) => Promise<void>;
+  updateProyecto: (id: string, patch: Partial<Proyecto>) => Promise<void>;
+  deleteProyecto: (id: string) => Promise<void>;
   movimientos: Movimiento[];
-  addMovimiento: (m: Omit<Movimiento, 'id'>) => void;
-  deleteMovimiento: (id: string) => void;
+  addMovimiento: (m: Omit<Movimiento, 'id'>) => Promise<void>;
+  deleteMovimiento: (id: string) => Promise<void>;
   empleados: Empleado[];
-  addEmpleado: (e: Omit<Empleado, 'id'>) => void;
-  updateEmpleado: (id: string, patch: Partial<Empleado>) => void;
-  deleteEmpleado: (id: string) => void;
+  addEmpleado: (e: Omit<Empleado, 'id'>) => Promise<void>;
+  updateEmpleado: (id: string, patch: Partial<Empleado>) => Promise<void>;
+  deleteEmpleado: (id: string) => Promise<void>;
   materiales: Material[];
-  updateMaterial: (id: string, patch: Partial<Material>) => void;
+  updateMaterial: (id: string, patch: Partial<Material>) => Promise<void>;
   ordenes: OrdenCompra[];
-  updateOrden: (id: string, estado: OrdenCompra['estado']) => void;
-  addOrden: (o: Omit<OrdenCompra, 'id'>) => void;
+  updateOrden: (id: string, estado: OrdenCompra['estado']) => Promise<void>;
+  addOrden: (o: Omit<OrdenCompra, 'id'>) => Promise<void>;
   proveedores: Proveedor[];
-  addProveedor: (p: Omit<Proveedor, 'id'>) => void;
-  updateProveedor: (id: string, patch: Partial<Proveedor>) => void;
-  deleteProveedor: (id: string) => void;
+  addProveedor: (p: Omit<Proveedor, 'id'>) => Promise<void>;
+  updateProveedor: (id: string, patch: Partial<Proveedor>) => Promise<void>;
+  deleteProveedor: (id: string) => Promise<void>;
   eventos: EventoCalendario[];
-  addEvento: (e: Omit<EventoCalendario, 'id'>) => void;
-  updateEvento: (id: string, patch: Partial<EventoCalendario>) => void;
-  deleteEvento: (id: string) => void;
+  addEvento: (e: Omit<EventoCalendario, 'id'>) => Promise<void>;
+  updateEvento: (id: string, patch: Partial<EventoCalendario>) => Promise<void>;
+  deleteEvento: (id: string) => Promise<void>;
   bitacora: BitacoraEntry[];
-  addBitacora: (b: Omit<BitacoraEntry, 'id'>) => void;
+  addBitacora: (b: Omit<BitacoraEntry, 'id'>) => Promise<void>;
 }
 
 const Ctx = createContext<ErpState>({} as ErpState);
@@ -66,27 +66,44 @@ export const uid = (): string => {
   return Math.random().toString(36).slice(2, 10);
 };
 
-function usePersist<T>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
-  const [state, setState] = useState<T>(() => {
-    try { const raw = localStorage.getItem('wm_' + key); return raw ? JSON.parse(raw) : initial; } catch { return initial; }
-  });
-  useEffect(() => { try { localStorage.setItem('wm_' + key, JSON.stringify(state)); } catch {} }, [key, state]);
-  return [state, setState];
-}
-
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [view, setView] = useState<View>('login');
   const [user, setUser] = useState<ErpState['user']>(null);
   const [authError, setAuthError] = useState('');
 
-  const [proyectos, setProyectos] = usePersist<Proyecto[]>('proyectos', SEED_PROYECTOS);
-  const [movimientos, setMovimientos] = usePersist<Movimiento[]>('movimientos', SEED_MOVIMIENTOS);
-  const [empleados, setEmpleados] = usePersist<Empleado[]>('empleados', SEED_EMPLEADOS);
-  const [materiales, setMateriales] = usePersist<Material[]>('materiales', SEED_MATERIALES);
-  const [ordenes, setOrdenes] = usePersist<OrdenCompra[]>('ordenes', SEED_OC);
-  const [proveedores, setProveedores] = usePersist<Proveedor[]>('proveedores', SEED_PROVEEDORES);
-  const [eventos, setEventos] = usePersist<EventoCalendario[]>('eventos', []);
-  const [bitacora, setBitacora] = usePersist<BitacoraEntry[]>('bitacora', []);
+  const [proyectos, setProyectos] = useState<Proyecto[]>(() => {
+    try { const raw = localStorage.getItem('wm_proyectos'); return raw ? JSON.parse(raw) : SEED_PROYECTOS; } catch { return SEED_PROYECTOS; }
+  });
+  const [movimientos, setMovimientos] = useState<Movimiento[]>(() => {
+    try { const raw = localStorage.getItem('wm_movimientos'); return raw ? JSON.parse(raw) : SEED_MOVIMIENTOS; } catch { return SEED_MOVIMIENTOS; }
+  });
+  const [empleados, setEmpleados] = useState<Empleado[]>(() => {
+    try { const raw = localStorage.getItem('wm_empleados'); return raw ? JSON.parse(raw) : SEED_EMPLEADOS; } catch { return SEED_EMPLEADOS; }
+  });
+  const [materiales, setMateriales] = useState<Material[]>(() => {
+    try { const raw = localStorage.getItem('wm_materiales'); return raw ? JSON.parse(raw) : SEED_MATERIALES; } catch { return SEED_MATERIALES; }
+  });
+  const [ordenes, setOrdenes] = useState<OrdenCompra[]>(() => {
+    try { const raw = localStorage.getItem('wm_ordenes'); return raw ? JSON.parse(raw) : SEED_OC; } catch { return SEED_OC; }
+  });
+  const [proveedores, setProveedores] = useState<Proveedor[]>(() => {
+    try { const raw = localStorage.getItem('wm_proveedores'); return raw ? JSON.parse(raw) : SEED_PROVEEDORES; } catch { return SEED_PROVEEDORES; }
+  });
+  const [eventos, setEventos] = useState<EventoCalendario[]>(() => {
+    try { const raw = localStorage.getItem('wm_eventos'); return raw ? JSON.parse(raw) : []; } catch { return []; }
+  });
+  const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => {
+    try { const raw = localStorage.getItem('wm_bitacora'); return raw ? JSON.parse(raw) : []; } catch { return []; }
+  });
+
+  useEffect(() => { localStorage.setItem('wm_proyectos', JSON.stringify(proyectos)); }, [proyectos]);
+  useEffect(() => { localStorage.setItem('wm_movimientos', JSON.stringify(movimientos)); }, [movimientos]);
+  useEffect(() => { localStorage.setItem('wm_empleados', JSON.stringify(empleados)); }, [empleados]);
+  useEffect(() => { localStorage.setItem('wm_materiales', JSON.stringify(materiales)); }, [materiales]);
+  useEffect(() => { localStorage.setItem('wm_ordenes', JSON.stringify(ordenes)); }, [ordenes]);
+  useEffect(() => { localStorage.setItem('wm_proveedores', JSON.stringify(proveedores)); }, [proveedores]);
+  useEffect(() => { localStorage.setItem('wm_eventos', JSON.stringify(eventos)); }, [eventos]);
+  useEffect(() => { localStorage.setItem('wm_bitacora', JSON.stringify(bitacora)); }, [bitacora]);
 
   const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
   const ADMIN_NOMBRE = 'Oliver Salazar';
@@ -169,21 +186,36 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const allowedViews = user ? ALLOWED[user.rol] : [];
 
-  const addProyecto = (p: Omit<Proyecto, 'id'>) => setProyectos(s => [...s, { ...p, id: uid() }]);
+  const addProyecto = async (p: Omit<Proyecto, 'id'>) => {
+    const newProj = { ...p, id: uid() };
+    setProyectos(s => [...s, newProj]);
+  };
   const updateProyecto = (id: string, patch: Partial<Proyecto>) => setProyectos(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
   const deleteProyecto = (id: string) => setProyectos(s => s.filter(p => p.id !== id));
-  const addMovimiento = (m: Omit<Movimiento, 'id'>) => setMovimientos(s => [{ ...m, id: uid() }, ...s]);
+  const addMovimiento = async (m: Omit<Movimiento, 'id'>) => {
+    const newMov = { ...m, id: uid() };
+    setMovimientos(s => [{ ...newMov, id: uid() }, ...s]);
+  };
   const deleteMovimiento = (id: string) => setMovimientos(s => s.filter(m => m.id !== id));
-  const addEmpleado = (e: Omit<Empleado, 'id'>) => setEmpleados(s => [...s, { ...e, id: uid() }]);
+  const addEmpleado = async (e: Omit<Empleado, 'id'>) => {
+    const newEmp = { ...e, id: uid() };
+    setEmpleados(s => [...s, newEmp]);
+  };
   const updateEmpleado = (id: string, patch: Partial<Empleado>) => setEmpleados(s => s.map(e => e.id === id ? { ...e, ...patch } : e));
   const deleteEmpleado = (id: string) => setEmpleados(s => s.filter(e => e.id !== id));
   const updateMaterial = (id: string, patch: Partial<Material>) => setMateriales(s => s.map(m => m.id === id ? { ...m, ...patch } : m));
   const updateOrden = (id: string, estado: OrdenCompra['estado']) => setOrdenes(s => s.map(o => o.id === id ? { ...o, estado } : o));
   const addOrden = (o: Omit<OrdenCompra, 'id'>) => setOrdenes(s => [{ ...o, id: uid() }, ...s]);
-  const addEvento = (e: Omit<EventoCalendario, 'id'>) => setEventos(s => [...s, { ...e, id: uid() }]);
+  const addEvento = async (e: Omit<EventoCalendario, 'id'>) => {
+    const newEvt = { ...e, id: uid() };
+    setEventos(s => [...s, newEvt]);
+  };
   const updateEvento = (id: string, patch: Partial<EventoCalendario>) => setEventos(s => s.map(e => e.id === id ? { ...e, ...patch } : e));
   const deleteEvento = (id: string) => setEventos(s => s.filter(e => e.id !== id));
-  const addProveedor = (p: Omit<Proveedor, 'id'>) => setProveedores(s => [...s, { ...p, id: uid() }]);
+  const addProveedor = async (p: Omit<Proveedor, 'id'>) => {
+    const newProv = { ...p, id: uid() };
+    setProveedores(s => [...s, newProv]);
+  };
   const updateProveedor = (id: string, patch: Partial<Proveedor>) => setProveedores(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
   const deleteProveedor = (id: string) => setProveedores(s => s.filter(p => p.id !== id));
   const addBitacora = (b: Omit<BitacoraEntry, 'id'>) => setBitacora(s => [{ ...b, id: uid() }, ...s]);
