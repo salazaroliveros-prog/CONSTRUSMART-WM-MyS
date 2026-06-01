@@ -53,8 +53,8 @@ const Calendar: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 h-full">
-      <div className="flex items-center justify-between mb-3">
+    <div className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 h-full flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between mb-2 flex-shrink-0">
         <span className="font-bold text-slate-700 text-sm capitalize">{monthName}</span>
         <div className="flex gap-1">
           <button onClick={() => setCursor(new Date(year, month - 1, 1))} className="p-1 hover:bg-slate-100 rounded">
@@ -84,7 +84,7 @@ const Calendar: React.FC = () => {
         })}
       </div>
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-[1.3fr_0.7fr] flex-1">
+      <div className="mt-2 overflow-y-auto flex-1 min-h-0 space-y-2">
         <div className="space-y-3">
           <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50">
             <div className="flex items-center justify-between mb-3">
