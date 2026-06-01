@@ -103,8 +103,12 @@ export interface Proveedor {
 export interface EventoCalendario {
   id: string;
   fecha: string; // YYYY-MM-DD
+  hora?: string; // HH:mm
   titulo: string;
+  descripcion?: string;
+  tipo?: 'Recordatorio' | 'Actividad' | 'Reunión' | 'Visita';
   proyectoId: string | null;
+  completado?: boolean;
 }
 
 export interface BitacoraEntry {

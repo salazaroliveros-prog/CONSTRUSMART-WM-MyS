@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { toast } from '@/components/ui/sonner';
 import {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
 } from './types';
@@ -105,6 +106,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [proveedores, setProveedores] = useState<Proveedor[]>(() => loadFromStorage(STORAGE_KEY + '_proveedores', SEED_PROVEEDORES));
   const [eventos, setEventos] = useState<EventoCalendario[]>(() => loadFromStorage(STORAGE_KEY + '_eventos', []));
   const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => loadFromStorage(STORAGE_KEY + '_bitacora', []));
+  const [notifiedEventos, setNotifiedEventos] = useState<string[]>(() => loadFromStorage(STORAGE_KEY + '_notified_eventos', []));
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
 
@@ -129,6 +131,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => { saveToStorage(STORAGE_KEY + '_proveedores', proveedores); }, [proveedores]);
   useEffect(() => { saveToStorage(STORAGE_KEY + '_eventos', eventos); }, [eventos]);
   useEffect(() => { saveToStorage(STORAGE_KEY + '_bitacora', bitacora); }, [bitacora]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_notified_eventos', notifiedEventos); }, [notifiedEventos]);
   useEffect(() => { saveToStorage(QUEUE_KEY, mutationQueue); }, [mutationQueue]);
 
   const enqueueMutation = useCallback((type: Mutation['type'], payload: Record<string, unknown>) => {
@@ -245,25 +248,68 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user) {
-        const metadata = data.session.user.user_metadata as Record<string, unknown> | null;
-        const name = metadata?.full_name as string | null;
-        const avatarUrl = (metadata?.picture || metadata?.avatar_url || metadata?.photo_url) as string | null;
-        loadProfile(data.session.user.id, data.session.user.email || undefined, name, avatarUrl);
-      }
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session?.user) {
-        const metadata = session.user.user_metadata as Record<string, unknown> | null;
-        const name = metadata?.full_name as string | null;
-        const avatarUrl = (metadata?.picture || metadata?.avatar_url || metadata?.photo_url) as string | null;
-        loadProfile(session.user.id, session.user.email || undefined, name, avatarUrl);
-      } else { setUser(null); setView('login'); }
-    });
-    return () => sub.subscription.unsubscribe();
+  const requestNotificationPermission = useCallback(async () => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      await Notification.requestPermission();
+    }
   }, []);
+
+  const sendReminderNotification = useCallback((evento: EventoCalendario) => {
+    const title = `Recordatorio: ${evento.titulo}`;
+    const description = evento.descripcion
+      ? evento.descripcion
+      : evento.proyectoId
+        ? `Actividad asociada al proyecto ${proyectos.find(p => p.id === evento.proyectoId)?.nombre || evento.proyectoId}`
+        : 'Revisa tu calendario para más detalles.';
+
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, {
+        body: description,
+        icon: '/logo.png',
+      });
+    } else {
+      toast(title, {
+        description,
+        action: {
+          label: 'Ver calendario',
+          onClick: () => setView('dashboard'),
+        },
+      });
+    }
+  }, [proyectos, setView]);
+
+  useEffect(() => {
+    requestNotificationPermission();
+
+    const checkReminders = () => {
+      if (typeof window === 'undefined') return;
+      const now = new Date();
+      const todayIso = now.toISOString().slice(0, 10);
+
+      eventos.forEach(evento => {
+        if (notifiedEventos.includes(evento.id) || evento.completado) return;
+
+        const time = evento.hora || '09:00';
+        const dateTime = new Date(`${evento.fecha}T${time}:00`);
+        if (Number.isNaN(dateTime.getTime())) return;
+
+        const diff = dateTime.getTime() - now.getTime();
+        const shouldNotify = evento.fecha === todayIso
+          ? diff <= 5 * 60 * 1000 && diff >= -15 * 60 * 1000
+          : false;
+
+        if (shouldNotify) {
+          sendReminderNotification(evento);
+          setNotifiedEventos(ids => ids.includes(evento.id) ? ids : [...ids, evento.id]);
+        }
+      });
+    };
+
+    checkReminders();
+    const timer = setInterval(checkReminders, 30 * 1000);
+    return () => clearInterval(timer);
+  }, [eventos, notifiedEventos, requestNotificationPermission, sendReminderNotification]);
 
   const signIn = async (email: string, pass: string) => {
     setAuthError('');
