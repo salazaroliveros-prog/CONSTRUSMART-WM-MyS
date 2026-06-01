@@ -33,6 +33,7 @@ interface ErpState {
   view: View;
   setView: (v: View) => void;
   user: { nombre: string; rol: Rol; avatar?: string } | null;
+  initializing: boolean;
   allowedViews: View[];
   authError: string;
   signIn: (email: string, pass: string) => Promise<void>;
@@ -97,6 +98,7 @@ function saveToStorage<T>(key: string, data: T) {
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [view, setView] = useState<View>('login');
   const [user, setUser] = useState<ErpState['user']>(null);
+  const [initializing, setInitializing] = useState(true);
   const [authError, setAuthError] = useState('');
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
@@ -114,23 +116,58 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Listen for Supabase auth state changes
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const handleAuth = (session: any) => {
       if (session?.user) {
         const userData = session.user.user_metadata;
         setUser({
-          nombre: userData?.nombre || session.user.email?.split('@')[0] || 'Usuario',
+          nombre: userData?.full_name || userData?.name || userData?.nombre || session.user.email?.split('@')[0] || 'Usuario',
           rol: (userData?.rol || 'Residente') as Rol,
-          avatar: session.user.user_metadata?.avatar_url,
+          avatar: userData?.avatar_url || userData?.picture || userData?.avatar,
         });
         setView('dashboard');
         setAuthError('');
+        setInitializing(false);
       } else {
         setUser(null);
+        // Detect if we are in an OAuth redirect flow
+        const isAuthCallback = window.location.hash.includes('access_token=') || 
+                             window.location.hash.includes('error=') ||
+                             window.location.search.includes('code=');
+        
+        if (!isAuthCallback) {
+          setView('login');
+          setInitializing(false);
+        }
+      }
+    };
+
+    // Initial check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      handleAuth(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Supabase Auth Event:', event);
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        handleAuth(session);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
         setView('login');
+        setInitializing(false);
+      } else if (event === 'INITIAL_SESSION') {
+        handleAuth(session);
       }
     });
 
-    return () => subscription?.unsubscribe();
+    // Timeout safety for initializing state
+    const timeout = setTimeout(() => {
+      setInitializing(false);
+    }, 5000);
+
+    return () => {
+      subscription?.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   useEffect(() => {
@@ -323,14 +360,21 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const signInWithGoogle = async () => {
     setAuthError('');
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
-        queryParams: { prompt: 'select_account' },
-      },
-    });
-    if (error) setAuthError(error.message);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+          queryParams: {
+            prompt: 'select_account',
+          },
+        },
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Google Sign In Error:', err);
+      setAuthError(err.message || 'Error al conectar con Google');
+    }
   };
 
   const allowedViews = user ? ALLOWED[user.rol] : [];
@@ -434,7 +478,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   return (
     <Ctx.Provider value={{
-      view, setView, user, allowedViews, authError, signIn, signUp, signInWithGoogle, logout,
+      view, setView, user, initializing, allowedViews, authError, signIn, signUp, signInWithGoogle, logout,
       isOnline,
       proyectos, addProyecto, updateProyecto, deleteProyecto,
       movimientos, addMovimiento, deleteMovimiento,

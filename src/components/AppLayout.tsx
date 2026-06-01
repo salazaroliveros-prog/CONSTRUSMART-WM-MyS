@@ -14,8 +14,19 @@ import RRHH from '@/erp/screens/RRHH';
 import Bodega from '@/erp/screens/Bodega';
 
 const Shell: React.FC = () => {
-  const { view } = useErp();
+  const { view, initializing } = useErp();
   const { sidebarOpen, toggleSidebar } = useAppContext();
+
+  if (initializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-500 text-sm font-medium animate-pulse">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (view === 'login') return <Login />;
 
