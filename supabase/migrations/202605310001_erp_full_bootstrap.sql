@@ -1,10 +1,21 @@
 -- ============================================================
 -- ERP CONSTRUSMART - Migración completa para Supabase
--- Copiar TODO este bloque y pegarlo en el SQL Editor de Supabase
+-- Ejecutar TODO en el SQL Editor.
+-- NOTA: para re-ejecutar previo agregar DROP IF EXISTS arriba.
 -- ============================================================
 
+DROP TABLE IF EXISTS public.profiles CASCADE;
+DROP TABLE IF EXISTS erp_bitacora CASCADE;
+DROP TABLE IF EXISTS erp_eventos_calendario CASCADE;
+DROP TABLE IF EXISTS erp_proveedores CASCADE;
+DROP TABLE IF EXISTS erp_ordenes_compra CASCADE;
+DROP TABLE IF EXISTS erp_materiales CASCADE;
+DROP TABLE IF EXISTS erp_empleados CASCADE;
+DROP TABLE IF EXISTS erp_movimientos CASCADE;
+DROP TABLE IF EXISTS erp_proyectos CASCADE;
+
 -- 0) Perfiles de usuario (tabla base para RLS)
-CREATE TABLE IF NOT EXISTS public.profiles (
+CREATE TABLE public.profiles (
   id uuid REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   nombre text NOT NULL DEFAULT '',
   rol text NOT NULL DEFAULT 'usuario' CHECK (rol = ANY (ARRAY['Administrador','Gerente','Residente','Compras','Bodeguero','usuario'])),

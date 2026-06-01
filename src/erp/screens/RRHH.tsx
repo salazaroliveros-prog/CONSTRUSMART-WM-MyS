@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useErp } from '../store';
 import { fmtQ, factorSalarioReal, FSR_PRESTACIONES } from '../utils';
-import { BarChart } from '../components/Charts';
+import { CARD, CARD_TITLE, BUTTON_DARK, BUTTON_ACCENT } from '../ui';
 import { Users, Plus, Trash2 } from 'lucide-react';
 
 const empleadoSchema = z.object({
@@ -82,8 +82,10 @@ const RRHH: React.FC = () => {
     setEditingId(null);
   };
 
-  const inp = "w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-orange-400";
+  const inp = INPUT;
+
   const errorClass = "border-red-500 focus:border-red-500";
+
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
@@ -103,26 +105,26 @@ const RRHH: React.FC = () => {
               diasTrabajados: 0,
             });
           }}
-          className="bg-pink-500 hover:bg-pink-600 text-white px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1"
+          className={BUTTON_ACCENT}
         >
           <Plus className="w-4 h-4" /> Nuevo Empleado
         </button>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className={`${CARD}`}>
           <div className="text-2xl font-bold text-slate-800">{empleados.length}</div>
           <div className="text-xs text-slate-400">Personal Activo</div>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className={`${CARD}`}>
           <div className="text-2xl font-bold text-slate-800">{fmtQ(totalPlanilla)}</div>
           <div className="text-xs text-slate-400">Planilla Base</div>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className={`${CARD}`}>
           <div className="text-2xl font-bold text-orange-600">{fmtQ(totalFSR)}</div>
           <div className="text-xs text-slate-400">Con FSR (+{(FSR_PRESTACIONES * 100).toFixed(0)}%)</div>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className={`${CARD}`}>
           <div className="text-2xl font-bold text-slate-800">
             {empleados.filter(e => e.tipo === 'destajo').length}
           </div>
@@ -131,9 +133,9 @@ const RRHH: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className={`${CARD} lg:col-span-2 overflow-hidden`}>
           <div className="p-3 border-b border-slate-100">
-            <h3 className="font-bold text-slate-700 text-sm">Planilla Semanal</h3>
+            <h3 className={`${CARD_TITLE}`}>Planilla Semanal</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[640px]">
@@ -148,7 +150,9 @@ const RRHH: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {empleados.map(e => (
+                {empleados.length === 0 ? (
+                  <tr><td colSpan={6} className="p-6 text-center text-xs text-slate-400">No hay empleados registrados.</td></tr>
+                ) : empleados.map(e => (
                   <tr key={e.id} className="border-t border-slate-50">
                     <td className="p-2">
                       <div className="font-semibold text-slate-700">{e.nombre}</div>
@@ -236,7 +240,7 @@ const RRHH: React.FC = () => {
               className={`${inp} ${errors.diasTrabajados ? errorClass : ''}`}
             />
             {errors.diasTrabajados && <p className="text-xs text-red-500">{errors.diasTrabajados.message}</p>}
-            <button type="submit" className="w-full bg-pink-500 text-white py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1">
+            <button type="submit" className={BUTTON_DARK}>
               <Plus className="w-4 h-4" /> {editingId ? 'Actualizar' : 'Agregar'}
             </button>
           </form>

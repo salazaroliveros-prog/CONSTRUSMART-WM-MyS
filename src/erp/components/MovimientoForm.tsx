@@ -6,6 +6,7 @@ import { useErp } from '../store';
 import { Categoria } from '../types';
 import { CATEGORIA_LABEL, todayISO } from '../utils';
 import { Plus } from 'lucide-react';
+import { INPUT } from '../ui';
 
 const movimientoSchema = z.object({
   tipo: z.enum(['ingreso', 'gasto']),
@@ -64,8 +65,8 @@ const MovimientoForm: React.FC<{ compact?: boolean }> = ({ compact }) => {
     reset({ ...data, descripcion: '', costoUnitario: 0, cantidad: 1 });
   };
 
-  const inp = "w-full px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-300";
-  const errorClass = "border-red-500 focus:border-red-500";
+  const inp = INPUT;
+  const errorClass = ERROR_STATE;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">

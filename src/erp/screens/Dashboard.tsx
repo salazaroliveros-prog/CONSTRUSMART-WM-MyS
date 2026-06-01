@@ -46,6 +46,14 @@ const Dashboard: React.FC = () => {
     { id: 'bodega', label: 'Bodega', icon: Warehouse, c: 'from-cyan-500 to-sky-600' },
   ];
 
+  const SkeletonCard: React.FC<{ h?: string }> = ({ h = 'h-10' }) => (
+    <div className="rounded-2xl border border-slate-100 bg-white animate-pulse">
+      <div className={`${h} bg-slate-100 rounded-2xl`} />
+    </div>
+  );
+
+  const loading = proyectos.length === 0 && movimientos.length === 0;
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
@@ -60,12 +68,17 @@ const Dashboard: React.FC = () => {
         </select>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <KpiCard label="Margen de Utilidad Prom." value={fmtPct(margenProm)} icon={<TrendingUp className="w-5 h-5" />} trend="+2.4%" trendUp accent="from-emerald-500 to-teal-500" />
-        <KpiCard label="Proyectos Activos" value={String(activos.length)} icon={<Building2 className="w-5 h-5" />} trend={`${proyectos.length} total`} trendUp accent="from-blue-500 to-indigo-500" />
-        <KpiCard label="Presupuesto en Ejecución" value={fmtQ(presupuestoTotal)} icon={<DollarSign className="w-5 h-5" />} accent="from-orange-500 to-amber-500" />
-        <KpiCard label="Desviación Global Costos" value={fmtPct(desviacion)} icon={<AlertTriangle className="w-5 h-5" />} trend={desviacion > 0 ? 'Riesgo' : 'Sano'} trendUp={desviacion <= 0} accent="from-red-500 to-rose-500" />
-      </div>
+      {loading
+        ? <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        : <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <KpiCard label="Margen de Utilidad Prom." value={fmtPct(margenProm)} icon={<TrendingUp className="w-5 h-5" />} trend="+2.4%" trendUp accent="from-emerald-500 to-teal-500" />
+            <KpiCard label="Proyectos Activos" value={String(activos.length)} icon={<Building2 className="w-5 h-5" />} trend={`${proyectos.length} total`} trendUp accent="from-blue-500 to-indigo-500" />
+            <KpiCard label="Presupuesto en Ejecución" value={fmtQ(presupuestoTotal)} icon={<DollarSign className="w-5 h-5" />} accent="from-orange-500 to-amber-500" />
+            <KpiCard label="Desviación Global Costos" value={fmtPct(desviacion)} icon={<AlertTriangle className="w-5 h-5" />} trend={desviacion > 0 ? 'Riesgo' : 'Sano'} trendUp={desviacion <= 0} accent="from-red-500 to-rose-500" />
+          </div>
+      }
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         <div className={`${CARD} lg:col-span-2`}>

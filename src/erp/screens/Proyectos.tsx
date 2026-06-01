@@ -6,6 +6,7 @@ import { useErp } from '../store';
 import { Tipologia } from '../types';
 import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
 import { Progress } from '../components/Charts';
+import { CARD, INPUT, ERROR_STATE, BUTTON_PRIMARY } from '../ui';
 import { Plus, MapPin, Trash2, X, Building2 } from 'lucide-react';
 
 const proyectoSchema = z.object({
@@ -68,8 +69,28 @@ const Proyectos: React.FC = () => {
     setShow(false);
   };
 
-  const inp = "w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-orange-400";
-  const errorClass = "border-red-500 focus:border-red-500";
+  const Skeleton = (
+    <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 animate-pulse space-y-3">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-lg bg-slate-200" />
+          <div className="space-y-2">
+            <div className="h-3 w-36 bg-slate-200 rounded" />
+            <div className="h-2 w-24 bg-slate-200 rounded" />
+          </div>
+        </div>
+        <div className="w-4 h-4 bg-slate-200 rounded" />
+      </div>
+      <div className="space-y-2">
+        <div className="h-2 w-full bg-slate-200 rounded" />
+        <div className="h-2 w-5/6 bg-slate-200 rounded" />
+      </div>
+      <div className="space-y-2">
+        <div className="h-2 w-full bg-slate-200 rounded" />
+        <div className="h-2 w-4/6 bg-slate-200 rounded" />
+      </div>
+    </div>
+  );
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
@@ -104,8 +125,10 @@ const Proyectos: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {proyectos.map(p => (
-          <div key={p.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+        {proyectos.length === 0
+          ? Array.from({ length: 3 }).map((_, i) => <div key={i}>{Skeleton}</div>)
+          : proyectos.map(p => (
+              <div key={p.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white shrink-0" style={{ background: estadoColor(p) }}>
@@ -148,24 +171,24 @@ const Proyectos: React.FC = () => {
               <button type="button" onClick={() => setShow(false)}><X className="w-5 h-5" /></button>
             </div>
             <div className="space-y-3">
-              <input {...register('nombre')} placeholder="Nombre del proyecto" className={`${inp} ${errors.nombre ? errorClass : ''}`} />
+              <input {...register('nombre')} placeholder="Nombre del proyecto" className={INPUT} />
               {errors.nombre && <p className="text-xs text-red-500">{errors.nombre.message}</p>}
-              <input {...register('cliente')} placeholder="Cliente" className={`${inp} ${errors.cliente ? errorClass : ''}`} />
+              <input {...register('cliente')} placeholder="Cliente" className={INPUT} />
               {errors.cliente && <p className="text-xs text-red-500">{errors.cliente.message}</p>}
-              <input {...register('ubicacion')} placeholder="Ubicación" className={`${inp} ${errors.ubicacion ? errorClass : ''}`} />
+              <input {...register('ubicacion')} placeholder="Ubicación" className={INPUT} />
               {errors.ubicacion && <p className="text-xs text-red-500">{errors.ubicacion.message}</p>}
-              <select {...register('tipologia')} className={inp}>
+              <select {...register('tipologia')} className={INPUT}>
                 {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]}</option>)}
               </select>
               <div className="grid grid-cols-2 gap-3">
-                <input type="number" {...register('presupuestoTotal')} placeholder="Presupuesto Q" className={`${inp} ${errors.presupuestoTotal ? errorClass : ''}`} />
-                <input type="number" {...register('montoContrato')} placeholder="Contrato Q" className={`${inp} ${errors.montoContrato ? errorClass : ''}`} />
+                <input type="number" {...register('presupuestoTotal')} placeholder="Presupuesto Q" className={INPUT} />
+                <input type="number" {...register('montoContrato')} placeholder="Contrato Q" className={INPUT} />
               </div>
               {(errors.presupuestoTotal || errors.montoContrato) && (
                 <p className="text-xs text-red-500">{errors.presupuestoTotal?.message || errors.montoContrato?.message}</p>
               )}
             </div>
-            <button type="submit" className="mt-4 w-full bg-orange-500 text-white py-2.5 rounded-lg font-semibold">Crear Proyecto</button>
+              <button type="submit" className={BUTTON_PRIMARY}>Crear Proyecto</button>
           </form>
         </div>
       )}

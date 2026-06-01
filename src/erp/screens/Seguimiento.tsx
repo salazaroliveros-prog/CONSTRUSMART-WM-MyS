@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
 import { fmtQ, todayISO } from '../utils';
 import { Progress, Gauge, BarChart } from '../components/Charts';
+import { CARD, CARD_TITLE, INPUT } from '../ui';
 import { ClipboardCheck, Plus, CloudRain, Camera } from 'lucide-react';
 
 const Seguimiento: React.FC = () => {
@@ -17,7 +18,6 @@ const Seguimiento: React.FC = () => {
   }), [proyectos, movimientos]);
 
   const proy = proyectos.find(p => p.id === selProy);
-  // EVM
   const PV = proy ? proy.presupuestoTotal * (proy.avanceFinanciero / 100) : 0;
   const EV = proy ? proy.presupuestoTotal * (proy.avanceFisico / 100) : 0;
   const AC = proy ? proyData.find(p => p.id === proy.id)?.gas || 0 : 0;
@@ -37,8 +37,7 @@ const Seguimiento: React.FC = () => {
         <p className="text-sm text-slate-400">Avance físico-financiero, bitácora y valor ganado (EVM)</p>
       </div>
 
-      {/* Tabla de proyectos */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-4">
+      <div className={`${CARD} overflow-hidden mb-4`}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[820px]">
             <thead className="bg-slate-50 text-slate-500 text-xs">
@@ -52,7 +51,9 @@ const Seguimiento: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {proyData.map(p => (
+              {proyData.length === 0 ? (
+                <tr><td colSpan={6} className="p-6 text-center text-xs text-slate-400 animate-pulse">Cargando proyectos...</td></tr>
+              ) : proyData.map(p => (
                 <tr key={p.id} className="border-t border-slate-100 hover:bg-slate-50">
                   <td className="p-3">
                     <div className="font-semibold text-slate-700">{p.nombre}</div>
@@ -71,9 +72,9 @@ const Seguimiento: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className={`${CARD}`}>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-bold text-slate-700 text-sm">Valor Ganado (EVM)</h3>
+            <h3 className={`${CARD_TITLE}`}>Valor Ganado (EVM)</h3>
             <select value={selProy} onChange={e => setSelProy(e.target.value)} className="text-xs px-2 py-1 rounded border border-slate-200">
               {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
@@ -84,22 +85,22 @@ const Seguimiento: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-          <h3 className="font-bold text-slate-700 text-sm mb-2">Físico vs Financiero</h3>
+        <div className={`${CARD}`}>
+          <h3 className={`${CARD_TITLE}`}>Físico vs Financiero</h3>
           {proy && <BarChart height={150} data={[
             { label: 'Físico', value: proy.avanceFisico, color: '#3b82f6' },
             { label: 'Financ.', value: proy.avanceFinanciero, color: '#f97316' },
           ]} />}
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-          <h3 className="font-bold text-slate-700 text-sm mb-2 flex items-center gap-1"><Camera className="w-4 h-4 text-emerald-500" /> Bitácora Reciente</h3>
+        <div className={`${CARD}`}>
+          <h3 className={`${CARD_TITLE} flex items-center gap-1`}><Camera className="w-4 h-4 text-emerald-500" /> Bitácora Reciente</h3>
           <div className="space-y-2 max-h-44 overflow-y-auto">
             {bitacora.length === 0 && <p className="text-xs text-slate-400">Sin entradas. Registre el reporte diario abajo.</p>}
             {bitacora.slice(0, 6).map(b => (
               <div key={b.id} className="bg-slate-50 rounded-lg p-2 text-xs">
                 <div className="flex justify-between"><b className="text-slate-600">{proyectos.find(p => p.id === b.proyectoId)?.nombre}</b><span className="text-slate-400">{b.fecha}</span></div>
-                <div className="flex items-center gap-2 text-slate-500 mt-0.5"><CloudRain className="w-3 h-3" />{b.clima} · {b.personal} pers.</div>
+                <div className="flex items-center gap-2 text-slate-500 mt-0.5"><CloudRain className="w-3 h-3" /> {b.clima} · {b.personal} pers.</div>
                 {b.tareas && <p className="text-slate-500 mt-0.5">{b.tareas}</p>}
               </div>
             ))}
@@ -107,17 +108,16 @@ const Seguimiento: React.FC = () => {
         </div>
       </div>
 
-      {/* Reporte diario */}
-      <form onSubmit={guardarBit} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-        <h3 className="font-bold text-slate-700 text-sm mb-3">Reporte Diario de Campo (Bitácora Digital)</h3>
+      <form onSubmit={guardarBit} className={`${CARD}`}>
+        <h3 className={`${CARD_TITLE}`}>Reporte Diario de Campo (Bitácora Digital)</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <select value={selProy} onChange={e => setSelProy(e.target.value)} className="px-3 py-2 rounded-lg border border-slate-200 text-sm col-span-2">
+          <select value={selProy} onChange={e => setSelProy(e.target.value)} className={`${INPUT} col-span-2`}>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
           </select>
-          <input value={bit.clima} onChange={e => setBit({ ...bit, clima: e.target.value })} placeholder="Clima" className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
-          <input type="number" value={bit.personal} onChange={e => setBit({ ...bit, personal: e.target.value })} placeholder="Personal activo" className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
-          <input value={bit.maquinaria} onChange={e => setBit({ ...bit, maquinaria: e.target.value })} placeholder="Maquinaria" className="px-3 py-2 rounded-lg border border-slate-200 text-sm md:col-span-2" />
-          <input value={bit.tareas} onChange={e => setBit({ ...bit, tareas: e.target.value })} placeholder="Tareas ejecutadas" className="px-3 py-2 rounded-lg border border-slate-200 text-sm md:col-span-2" />
+          <input value={bit.clima} onChange={e => setBit({ ...bit, clima: e.target.value })} placeholder="Clima" className={INPUT} />
+          <input type="number" value={bit.personal} onChange={e => setBit({ ...bit, personal: e.target.value })} placeholder="Personal activo" className={INPUT} />
+          <input value={bit.maquinaria} onChange={e => setBit({ ...bit, maquinaria: e.target.value })} placeholder="Maquinaria" className={`${INPUT} md:col-span-2`} />
+          <input value={bit.tareas} onChange={e => setBit({ ...bit, tareas: e.target.value })} placeholder="Tareas ejecutadas" className={`${INPUT} md:col-span-2`} />
         </div>
         <button type="submit" className="mt-3 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5"><Plus className="w-4 h-4" /> Registrar Reporte</button>
       </form>

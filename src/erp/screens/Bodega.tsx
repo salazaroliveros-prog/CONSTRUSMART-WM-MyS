@@ -7,6 +7,7 @@ import { fmtQ, todayISO } from '../utils';
 import { Progress, BarChart } from '../components/Charts';
 import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { INPUT_COMPACT } from '../ui';
 
 const proveedorSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -92,7 +93,8 @@ const Bodega: React.FC = () => {
     return sorted;
   }, [materiales]);
 
-  const inp = "w-full px-2 py-1 text-xs rounded border border-slate-200 outline-none focus:border-orange-400";
+  const inp = INPUT_COMPACT;
+
 
   if (loading) {
     return (

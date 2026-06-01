@@ -1,4 +1,6 @@
 import React, { useMemo, useState } from 'react';
+import { CARD, CARD_TITLE, INPUT, BUTTON_DARK } from '../ui';
+
 import { useErp } from '../store';
 import { Tipologia, RenglonPresupuesto } from '../types';
 import { generarRenglones } from '../data';
@@ -42,6 +44,16 @@ const Presupuestos: React.FC = () => {
   const save = () => { try { localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(items)); } catch {} setSaved(true); setTimeout(() => setSaved(false), 1500); };
 
   const ninp = "w-full px-2 py-1 text-xs rounded border border-slate-200 outline-none focus:border-orange-400 text-right";
+  const SkeletonRow = (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-3 animate-pulse space-y-2">
+      <div className="flex items-center gap-2">
+        <div className="w-4 h-4 rounded-full bg-slate-200" />
+        <div className="h-3 w-32 bg-slate-200 rounded" />
+        <div className="h-3 w-24 bg-slate-200 rounded ml-auto" />
+      </div>
+      <div className="h-2 w-full bg-slate-100 rounded" />
+    </div>
+  );
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
@@ -51,28 +63,28 @@ const Presupuestos: React.FC = () => {
           <p className="text-sm text-slate-400">Motor de cálculo con FSR, herramienta menor {(HERRAMIENTA_MENOR*100)}%, indirectos {(COSTOS_INDIRECTOS*100)}%, admin {(ADMINISTRACION*100)}%, imprevistos {(IMPREVISTOS*100)}%, utilidad {(UTILIDAD*100)}%</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={save} className="bg-slate-900 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><Save className="w-4 h-4" /> {saved ? 'Guardado' : 'Guardar'}</button>
+          <button onClick={save} className={BUTTON_DARK}><Save className="w-4 h-4" /> {saved ? 'Guardado' : 'Guardar'}</button>
           <button disabled={!items.length} onClick={() => exportPDF(items, proyecto, tipologia)} className="bg-red-500 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><FileText className="w-4 h-4" /> PDF</button>
           <button disabled={!items.length} onClick={() => exportCSV(items, proyecto, tipologia)} className="bg-emerald-600 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><FileSpreadsheet className="w-4 h-4" /> CSV</button>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-4">
+      <div className={`${CARD}`}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
             <label className="text-xs font-semibold text-slate-500">Nombre del presupuesto</label>
-            <input value={proyecto} onChange={e => setProyecto(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-orange-400" />
+            <input value={proyecto} onChange={e => setProyecto(e.target.value)} className={INPUT} />
           </div>
           <div>
             <label className="text-xs font-semibold text-slate-500">Tipología (40+ renglones c/u)</label>
-            <select value={tipologia} onChange={e => { setTipologia(e.target.value as Tipologia); setItems([]); }} className="w-full mt-1 px-3 py-2 rounded-lg border border-slate-200 text-sm">
+            <select value={tipologia} onChange={e => { setTipologia(e.target.value as Tipologia); setItems([]); }} className={INPUT}>
               {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]} ({generarRenglones(t).length} renglones)</option>)}
             </select>
           </div>
           <div className="md:col-span-2">
             <label className="text-xs font-semibold text-slate-500">Agregar renglón (filtro)</label>
             <div className="flex gap-2 mt-1">
-              <select value={sel} onChange={e => addRenglon(e.target.value)} className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm">
+              <select value={sel} onChange={e => addRenglon(e.target.value)} className={`${INPUT} flex-1`}>
                 <option value="">— Seleccionar renglón ({disponibles.length} disponibles) —</option>
                 {disponibles.map(c => <option key={c.codigo} value={c.codigo}>{c.codigo} · {c.nombre}</option>)}
               </select>
@@ -83,9 +95,8 @@ const Presupuestos: React.FC = () => {
       </div>
 
       {items.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-200">
-          <Calculator className="w-12 h-12 mx-auto text-slate-300" />
-          <p className="text-slate-400 mt-3 text-sm">Seleccione renglones del filtro para comenzar el presupuesto.<br />El formato se expandirá automáticamente.</p>
+        <div className="space-y-2">
+          {Array.from({ length: 4 }).map((_, i) => <div key={i}>{SkeletonRow}</div>)}
         </div>
       ) : (
         <div className="space-y-2">
