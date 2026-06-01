@@ -76,6 +76,7 @@ const Seguimiento: React.FC = () => {
           <div className="flex items-center justify-between mb-2">
             <h3 className={`${CARD_TITLE}`}>Valor Ganado (EVM)</h3>
             <select value={selProy} onChange={e => setSelProy(e.target.value)} className="text-xs px-2 py-1 rounded border border-slate-200">
+              <option value="">Selecciona proyecto</option>
               {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
           </div>
@@ -112,6 +113,7 @@ const Seguimiento: React.FC = () => {
         <h3 className={`${CARD_TITLE}`}>Reporte Diario de Campo (Bitácora Digital)</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           <select value={selProy} onChange={e => setSelProy(e.target.value)} className={`${INPUT} col-span-2`}>
+            <option value="">Selecciona proyecto</option>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
           </select>
           <input value={bit.clima} onChange={e => setBit({ ...bit, clima: e.target.value })} placeholder="Clima" className={INPUT} />
