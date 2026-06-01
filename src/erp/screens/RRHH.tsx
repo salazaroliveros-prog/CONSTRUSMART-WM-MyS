@@ -185,7 +185,7 @@ const RRHH: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-2xl p-4 shadow-sm">
             <h3 className="font-bold text-slate-700 text-sm mb-2">Costo MO por Proyecto</h3>
             {porProyecto.length ? (
               <BarChart height={140} data={porProyecto} />
@@ -193,7 +193,7 @@ const RRHH: React.FC = () => {
               <p className="text-xs text-slate-400">Sin datos</p>
             )}
           </div>
-          <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl p-4 shadow-sm space-y-2">
             <h3 className="font-bold text-slate-700 text-sm">Nuevo Empleado</h3>
             <input
               {...register('nombre')}

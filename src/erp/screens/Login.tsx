@@ -55,7 +55,7 @@ const Login: React.FC = () => {
         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-orange-900/40" />
         <div className="relative z-10 text-white max-w-md">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center font-black text-2xl mb-6 shadow-lg shadow-orange-500/30">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center font-black text-2xl mb-6 shadow-lg shadow-orange-500/30 overflow-hidden">
             <img src="/wm-logo.svg" alt="WM" className="w-14 h-14" />
           </div>
           <h1 className="text-4xl font-black leading-tight">{EMPRESA.nombre}</h1>
