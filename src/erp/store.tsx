@@ -32,7 +32,7 @@ interface Mutation {
 interface ErpState {
   view: View;
   setView: (v: View) => void;
-  user: { nombre: string; rol: Rol; avatar?: string } | null;
+  user: { id: string; nombre: string; rol: Rol; avatar?: string } | null;
   initializing: boolean;
   allowedViews: View[];
   authError: string;
@@ -76,9 +76,13 @@ const Ctx = createContext<ErpState>({} as ErpState);
 export const useErp = () => useContext(Ctx);
 export const uid = (): string => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID().slice(0, 8);
+    return crypto.randomUUID();
   }
-  return Math.random().toString(36).slice(2, 10);
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 };
 
 const STORAGE_KEY = 'wm_erp_data';
@@ -114,6 +118,43 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
 
+  const fetchInitialData = useCallback(async () => {
+    try {
+      const [
+        { data: p }, { data: m }, { data: e }, { data: mat }, { data: o }, { data: prov }, { data: evt }, { data: bit }
+      ] = await Promise.all([
+        supabase.from('erp_proyectos').select('*'),
+        supabase.from('erp_movimientos').select('*').order('fecha', { ascending: false }),
+        supabase.from('erp_empleados').select('*'),
+        supabase.from('erp_materiales').select('*'),
+        supabase.from('erp_ordenes_compra').select('*').order('created_at', { ascending: false }),
+        supabase.from('erp_proveedores').select('*'),
+        supabase.from('erp_eventos_calendario').select('*'),
+        supabase.from('erp_bitacora').select('*').order('fecha', { ascending: false }),
+      ]);
+
+      const mapFromSnakeCase = (obj: any) => {
+        const mapped: any = {};
+        for (const key in obj) {
+          const camelKey = key.replace(/_([a-z])/g, g => g[1].toUpperCase());
+          mapped[camelKey] = obj[key];
+        }
+        return mapped;
+      };
+
+      if (p) setProyectos(p.map(mapFromSnakeCase));
+      if (m) setMovimientos(m.map(mapFromSnakeCase));
+      if (e) setEmpleados(e.map(mapFromSnakeCase));
+      if (mat) setMateriales(mat.map(mapFromSnakeCase));
+      if (o) setOrdenes(o.map(mapFromSnakeCase));
+      if (prov) setProveedores(prov.map(mapFromSnakeCase));
+      if (evt) setEventos(evt.map(mapFromSnakeCase));
+      if (bit) setBitacora(bit.map(mapFromSnakeCase));
+    } catch (err) {
+      console.error('Error fetching initial data:', err);
+    }
+  }, []);
+
   // Listen for Supabase auth state changes
   useEffect(() => {
     let mounted = true;
@@ -126,6 +167,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (session?.user) {
         const userData = session.user.user_metadata;
         setUser({
+          id: session.user.id,
           nombre: userData?.full_name || userData?.name || userData?.nombre || session.user.email?.split('@')[0] || 'Usuario',
           rol: (userData?.rol || 'Residente') as Rol,
           avatar: userData?.avatar_url || userData?.picture || userData?.avatar,
@@ -133,6 +175,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setView('dashboard');
         setAuthError('');
         setInitializing(false);
+        fetchInitialData();
       } else {
         setUser(null);
         // Detect if we are in an OAuth redirect flow
@@ -231,73 +274,88 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [next, ...rest] = mutationQueue;
     setMutationQueue(rest);
 
+    const mapToSnakeCase = (obj: any) => {
+      const mapped: any = {};
+      for (const key in obj) {
+        const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+        mapped[snakeKey] = obj[key];
+      }
+      return mapped;
+    };
+
     try {
+      const payload = mapToSnakeCase(next.payload);
+      if (['addProyecto', 'addMovimiento'].includes(next.type) && user?.id) {
+        payload.created_by = user.id;
+      }
+
       switch (next.type) {
         case 'addProyecto':
-          await supabase.from('erp_proyectos').insert(next.payload);
+          await supabase.from('erp_proyectos').insert(payload);
           break;
         case 'updateProyecto':
-          await supabase.from('erp_proyectos').update(next.payload).eq('id', next.payload.id);
+          await supabase.from('erp_proyectos').update(payload).eq('id', next.payload.id);
           break;
         case 'deleteProyecto':
           await supabase.from('erp_proyectos').delete().eq('id', next.payload.id);
           break;
         case 'addMovimiento':
-          await supabase.from('erp_movimientos').insert(next.payload);
+          await supabase.from('erp_movimientos').insert(payload);
           break;
         case 'deleteMovimiento':
           await supabase.from('erp_movimientos').delete().eq('id', next.payload.id);
           break;
         case 'addEmpleado':
-          await supabase.from('erp_empleados').insert(next.payload);
+          await supabase.from('erp_empleados').insert(payload);
           break;
         case 'updateEmpleado':
-          await supabase.from('erp_empleados').update(next.payload).eq('id', next.payload.id);
+          await supabase.from('erp_empleados').update(payload).eq('id', next.payload.id);
           break;
         case 'deleteEmpleado':
           await supabase.from('erp_empleados').delete().eq('id', next.payload.id);
           break;
         case 'updateMaterial':
-          await supabase.from('erp_materiales').update(next.payload).eq('id', next.payload.id);
+          await supabase.from('erp_materiales').update(payload).eq('id', next.payload.id);
           break;
         case 'addOrden':
-          await supabase.from('erp_ordenes_compra').insert(next.payload);
+          await supabase.from('erp_ordenes_compra').insert(payload);
           break;
         case 'updateOrden':
           await supabase.from('erp_ordenes_compra').update({ estado: next.payload.estado }).eq('id', next.payload.id);
           break;
         case 'addProveedor':
-          await supabase.from('erp_proveedores').insert(next.payload);
+          await supabase.from('erp_proveedores').insert(payload);
           break;
         case 'updateProveedor':
-          await supabase.from('erp_proveedores').update(next.payload).eq('id', next.payload.id);
+          await supabase.from('erp_proveedores').update(payload).eq('id', next.payload.id);
           break;
         case 'deleteProveedor':
           await supabase.from('erp_proveedores').delete().eq('id', next.payload.id);
           break;
         case 'addEvento':
-          await supabase.from('erp_eventos_calendario').insert(next.payload);
+          await supabase.from('erp_eventos_calendario').insert(payload);
           break;
         case 'updateEvento':
-          await supabase.from('erp_eventos_calendario').update(next.payload).eq('id', next.payload.id);
+          await supabase.from('erp_eventos_calendario').update(payload).eq('id', next.payload.id);
           break;
         case 'deleteEvento':
           await supabase.from('erp_eventos_calendario').delete().eq('id', next.payload.id);
           break;
         case 'addBitacora':
-          await supabase.from('erp_bitacora').insert(next.payload);
+          await supabase.from('erp_bitacora').insert(payload);
           break;
         case 'updateBitacora':
-          await supabase.from('erp_bitacora').update(next.payload).eq('id', next.payload.id);
+          await supabase.from('erp_bitacora').update(payload).eq('id', next.payload.id);
           break;
         case 'deleteBitacora':
           await supabase.from('erp_bitacora').delete().eq('id', next.payload.id);
           break;
       }
     } catch (err) {
+      console.error('Error processing mutation queue:', err);
       setMutationQueue(q => [next, ...q]);
     }
-  }, [isOnline, mutationQueue]);
+  }, [isOnline, mutationQueue, user]);
 
   useEffect(() => {
     if (isOnline) {
