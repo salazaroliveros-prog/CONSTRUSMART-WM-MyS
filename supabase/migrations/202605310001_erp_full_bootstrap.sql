@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "profiles_self_read" ON public.profiles;
+DROP POLICY IF EXISTS "profiles_self_update" ON public.profiles;
+
 CREATE POLICY "profiles_self_read" ON public.profiles
   FOR SELECT TO authenticated USING (auth.uid() = id);
 
