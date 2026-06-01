@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
-import AppProvider from "@/contexts/AppContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -17,7 +16,6 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ErrorBoundary>
-          <AppProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -26,7 +24,6 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
-          </AppProvider>
         </ErrorBoundary>
       </TooltipProvider>
     </QueryClientProvider>

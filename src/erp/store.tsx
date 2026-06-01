@@ -31,7 +31,7 @@ interface Mutation {
 interface ErpState {
   view: View;
   setView: (v: View) => void;
-  user: { nombre: string; rol: Rol } | null;
+  user: { nombre: string; rol: Rol; avatar?: string } | null;
   allowedViews: View[];
   authError: string;
   signIn: (email: string, pass: string) => Promise<void>;
@@ -215,7 +215,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
   const ADMIN_NOMBRE = 'Oliver Salazar';
 
-  const loadProfile = async (id: string, email?: string, userName?: string | null) => {
+  const loadProfile = async (id: string, email?: string, userName?: string | null, avatarUrl?: string | null) => {
     let profileErr: unknown = null;
     let profileData: { nombre?: string; rol?: string } | null = null;
     try {
@@ -234,7 +234,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const rol = isAdmin ? 'Administrador' : ((profileData?.rol as Rol) || 'Administrador');
     const nombre = profileData?.nombre || fallbackNombre;
 
-    setUser({ nombre, rol });
+    setUser({ nombre, rol, avatar: avatarUrl ?? undefined });
     setView('dashboard');
 
     if (!profileData || profileErr || isAdmin) {
@@ -248,14 +248,18 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session?.user) {
-        const name = (data.session.user.user_metadata as Record<string, unknown> | null)?.full_name as string | null;
-        loadProfile(data.session.user.id, data.session.user.email || undefined, name);
+        const metadata = data.session.user.user_metadata as Record<string, unknown> | null;
+        const name = metadata?.full_name as string | null;
+        const avatarUrl = (metadata?.picture || metadata?.avatar_url || metadata?.photo_url) as string | null;
+        loadProfile(data.session.user.id, data.session.user.email || undefined, name, avatarUrl);
       }
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       if (session?.user) {
-        const name = (session.user.user_metadata as Record<string, unknown> | null)?.full_name as string | null;
-        loadProfile(session.user.id, session.user.email || undefined, name);
+        const metadata = session.user.user_metadata as Record<string, unknown> | null;
+        const name = metadata?.full_name as string | null;
+        const avatarUrl = (metadata?.picture || metadata?.avatar_url || metadata?.photo_url) as string | null;
+        loadProfile(session.user.id, session.user.email || undefined, name, avatarUrl);
       } else { setUser(null); setView('login'); }
     });
     return () => sub.subscription.unsubscribe();
@@ -303,7 +307,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addMovimiento = async (m: Omit<Movimiento, 'id'>) => {
     const newMov = { ...m, id: uid() };
-    setMovimientos(s => [{ ...newMov, id: uid() }, ...s]);
+    setMovimientos(s => [newMov, ...s]);
     enqueueMutation('addMovimiento', newMov);
   };
   const deleteMovimiento = (id: string) => {
@@ -332,7 +336,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addOrden = (o: Omit<OrdenCompra, 'id'>) => {
     const newOrd = { ...o, id: uid() };
-    setOrdenes(s => [{ ...newOrd, id: uid() }, ...s]);
+    setOrdenes(s => [newOrd, ...s]);
     enqueueMutation('addOrden', newOrd);
   };
   const updateOrden = (id: string, estado: OrdenCompra['estado']) => {
@@ -370,7 +374,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addBitacora = (b: Omit<BitacoraEntry, 'id'>) => {
     const newBit = { ...b, id: uid() };
-    setBitacora(s => [{ ...newBit, id: uid() }, ...s]);
+    setBitacora(s => [newBit, ...s]);
     enqueueMutation('addBitacora', newBit);
   };
 
