@@ -47,7 +47,7 @@ const Dashboard: React.FC = () => {
   ];
 
   const SkeletonCard: React.FC<{ h?: string }> = ({ h = 'h-10' }) => (
-    <div className="rounded-2xl border border-slate-100 bg-white animate-pulse">
+    <div className="rounded-2xl bg-white animate-pulse">
       <div className={`${h} bg-slate-100 rounded-2xl`} />
     </div>
   );
@@ -62,7 +62,7 @@ const Dashboard: React.FC = () => {
           <p className="text-sm text-slate-500">Centro de comando — métricas en tiempo real</p>
         </div>
         <select value={filtroProy} onChange={e => setFiltroProy(e.target.value)}
-          className="px-4 py-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-orange-400 bg-white">
+          className="px-4 py-2 rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-100 bg-white">
           <option value="">Todos los proyectos</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>

@@ -109,13 +109,13 @@ const Financiero: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 mt-4 p-4 overflow-x-auto">
+          <div className="bg-white rounded-2xl shadow-sm mt-4 p-4 overflow-x-auto">
             <h3 className="font-bold text-slate-700 text-sm mb-2">Utilidad Neta por Centro de Costo</h3>
             <table className="w-full text-xs min-w-[320px]">
               <thead className="text-slate-400"><tr><th className="text-left pb-1">Proyecto</th><th className="text-right">Ingresos</th><th className="text-right">Egresos</th><th className="text-right">Margen</th></tr></thead>
               <tbody>
                 {centrosCosto.map(c => (
-                  <tr key={c.nombre} className="border-t border-slate-50"><td className="py-1.5 text-slate-600">{c.nombre}</td><td className="text-right text-emerald-600">{fmtQ(c.ing)}</td><td className="text-right text-red-500">{fmtQ(c.gas)}</td><td className={`text-right font-bold ${c.margen >= 0 ? 'text-slate-700' : 'text-red-600'}`}>{fmtQ(c.margen)}</td></tr>
+                  <tr key={c.nombre} className=""><td className="py-1.5 text-slate-600">{c.nombre}</td><td className="text-right text-emerald-600">{fmtQ(c.ing)}</td><td className="text-right text-red-500">{fmtQ(c.gas)}</td><td className={`text-right font-bold ${c.margen >= 0 ? 'text-slate-700' : 'text-red-600'}`}>{fmtQ(c.margen)}</td></tr>
                 ))}
               </tbody>
             </table>
