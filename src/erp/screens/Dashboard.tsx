@@ -58,8 +58,8 @@ const Dashboard: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800">Tablero Principal</h1>
-          <p className="text-sm text-slate-400">Centro de comando — métricas en tiempo real</p>
+          <h1 className="text-2xl font-black text-slate-800 mb-1">Tablero Principal</h1>
+          <p className="text-sm text-slate-500">Centro de comando — métricas en tiempo real</p>
         </div>
         <select value={filtroProy} onChange={e => setFiltroProy(e.target.value)}
           className="px-4 py-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-orange-400 bg-white">

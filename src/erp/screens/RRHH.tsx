@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useErp } from '../store';
 import { fmtQ, factorSalarioReal, FSR_PRESTACIONES } from '../utils';
-import { CARD, CARD_TITLE, BUTTON_DARK, BUTTON_ACCENT } from '../ui';
+import { CARD, CARD_TITLE, BUTTON_DARK, BUTTON_ACCENT, INPUT, ERROR_STATE } from '../ui';
 import { Users, Plus, Trash2 } from 'lucide-react';
 
 const empleadoSchema = z.object({
@@ -83,8 +83,6 @@ const RRHH: React.FC = () => {
   };
 
   const inp = INPUT;
-
-  const errorClass = "border-red-500 focus:border-red-500";
 
 
   return (
@@ -199,13 +197,13 @@ const RRHH: React.FC = () => {
             <input
               {...register('nombre')}
               placeholder="Nombre"
-              className={`${inp} ${errors.nombre ? errorClass : ''}`}
+              className={`${inp} ${errors.nombre ? ERROR_STATE : ''}`}
             />
             {errors.nombre && <p className="text-xs text-red-500">{errors.nombre.message}</p>}
             <input
               {...register('puesto')}
               placeholder="Puesto"
-              className={`${inp} ${errors.puesto ? errorClass : ''}`}
+              className={`${inp} ${errors.puesto ? ERROR_STATE : ''}`}
             />
             {errors.puesto && <p className="text-xs text-red-500">{errors.puesto.message}</p>}
             <div className="grid grid-cols-2 gap-2">
@@ -213,12 +211,12 @@ const RRHH: React.FC = () => {
                 type="number"
                 {...register('salarioDiario')}
                 placeholder="Salario/día"
-                className={`${inp} ${errors.salarioDiario ? errorClass : ''}`}
+                className={`${inp} ${errors.salarioDiario ? ERROR_STATE : ''}`}
               />
               {errors.salarioDiario && <p className="text-xs text-red-500">{errors.salarioDiario.message}</p>}
               <select
                 {...register('tipo')}
-                className={`${inp} ${errors.tipo ? errorClass : ''}`}
+                className={`${inp} ${errors.tipo ? ERROR_STATE : ''}`}
               >
                 <option value="planilla">Planilla</option>
                 <option value="destajo">Destajo</option>
@@ -226,7 +224,7 @@ const RRHH: React.FC = () => {
             </div>
             <select
               {...register('proyectoId')}
-              className={`${inp} ${errors.proyectoId ? errorClass : ''}`}
+              className={`${inp} ${errors.proyectoId ? ERROR_STATE : ''}`}
             >
               <option value="">Sin proyecto</option>
               {proyectos.map(p => (
@@ -237,7 +235,7 @@ const RRHH: React.FC = () => {
               type="number"
               {...register('diasTrabajados')}
               placeholder="Días trabajados"
-              className={`${inp} ${errors.diasTrabajados ? errorClass : ''}`}
+              className={`${inp} ${errors.diasTrabajados ? ERROR_STATE : ''}`}
             />
             {errors.diasTrabajados && <p className="text-xs text-red-500">{errors.diasTrabajados.message}</p>}
             <button type="submit" className={BUTTON_DARK}>
