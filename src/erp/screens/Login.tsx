@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useErp, Rol } from '../store';
 import { EMPRESA } from '../utils';
-import { Building2, ArrowRight, ShieldCheck } from 'lucide-react';
-import { INPUT, ERROR_STATE } from '../ui';
+import { Building2, ArrowRight, ShieldCheck, Chrome } from 'lucide-react';
+import { INPUT, ERROR_STATE, BUTTON_SECONDARY } from '../ui';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -18,7 +18,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const ROLES: Rol[] = ['Administrador', 'Gerente', 'Residente', 'Compras', 'Bodeguero'];
 
 const Login: React.FC = () => {
-  const { signIn, signUp, authError } = useErp();
+  const { signIn, signUp, signInWithGoogle, authError } = useErp();
   const [mode, setMode] = React.useState<'in' | 'up'>('in');
   const [loading, setLoading] = React.useState(false);
 
@@ -121,6 +121,14 @@ const Login: React.FC = () => {
             className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-3 sm:py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 disabled:opacity-60 active:scale-[0.98] transition-all"
           >
             {loading ? 'Procesando...' : mode === 'in' ? 'Ingresar' : 'Registrarme'} <ArrowRight className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={async () => { setLoading(true); try { await signInWithGoogle(); } finally { setLoading(false); } }}
+            className={`${BUTTON_SECONDARY} w-full justify-center`}
+          >
+            <Chrome className="w-4 h-4" /> Continuar con Google
           </button>
           <button
             type="button"

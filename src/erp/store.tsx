@@ -26,6 +26,7 @@ interface ErpState {
   authError: string;
   signIn: (email: string, pass: string) => Promise<void>;
   signUp: (email: string, pass: string, nombre: string, rol: Rol) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => void;
 
   proyectos: Proyecto[];
@@ -88,9 +89,13 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [bitacora, setBitacora] = usePersist<BitacoraEntry[]>('bitacora', []);
 
   const loadProfile = async (id: string, email?: string) => {
-    const { data } = await supabase.from('profiles').select('nombre,rol').eq('id', id).single();
-    const rol = (data?.rol as Rol) || 'Administrador';
-    setUser({ nombre: data?.nombre || email?.split('@')[0] || 'Usuario', rol });
+    try {
+      const { data } = await supabase.from('profiles').select('nombre,rol').eq('id', id).single();
+      const rol = (data?.rol as Rol) || 'Administrador';
+      setUser({ nombre: data?.nombre || email?.split('@')[0] || 'Usuario', rol });
+    } catch {
+      setUser({ nombre: email?.split('@')[0] || 'Usuario', rol: 'Administrador' });
+    }
     setView('dashboard');
   };
 
@@ -117,6 +122,34 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
   const logout = async () => { await supabase.auth.signOut(); setUser(null); setView('login'); };
 
+  const signInWithGoogle = async () => {
+    setAuthError('');
+    const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+        queryParams: { prompt: 'select_account' },
+      },
+    });
+    if (error) setAuthError(error.message);
+    if (error) return;
+    if (typeof window !== 'undefined') {
+      const stored = (() => {
+        try {
+          const raw = localStorage.getItem('erp_pending_google_admin');
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      })();
+      const shouldForceAdmin = stored?.email === ADMIN_EMAIL;
+      if (!stored || stored.email !== ADMIN_EMAIL) {
+        localStorage.setItem('erp_pending_google_admin', JSON.stringify({ email: ADMIN_EMAIL, force_admin: shouldForceAdmin }));
+      }
+    }
+  };
+
   const allowedViews = user ? ALLOWED[user.rol] : [];
 
   const addProyecto = (p: Omit<Proyecto, 'id'>) => setProyectos(s => [...s, { ...p, id: uid() }]);
@@ -140,7 +173,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   return (
     <Ctx.Provider value={{
-      view, setView, user, allowedViews, authError, signIn, signUp, logout,
+      view, setView, user, allowedViews, authError, signIn, signUp, signInWithGoogle, logout,
       proyectos, addProyecto, updateProyecto, deleteProyecto,
       movimientos, addMovimiento, deleteMovimiento,
       empleados, addEmpleado, updateEmpleado, deleteEmpleado,
