@@ -6,6 +6,7 @@ import { useErp } from '../store';
 import { fmtQ, factorSalarioReal, FSR_PRESTACIONES } from '../utils';
 import { CARD, CARD_TITLE, BUTTON_DARK, BUTTON_ACCENT, INPUT, ERROR_STATE } from '../ui';
 import { Users, Plus, Trash2 } from 'lucide-react';
+import { BarChart } from '../components/Charts';
 
 const empleadoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
