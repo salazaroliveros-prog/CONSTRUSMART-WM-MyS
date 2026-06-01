@@ -116,7 +116,13 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Listen for Supabase auth state changes
   useEffect(() => {
+    let mounted = true;
+
     const handleAuth = (session: any) => {
+      if (!mounted) return;
+      
+      console.log('Handling Auth, session user:', session?.user?.email);
+      
       if (session?.user) {
         const userData = session.user.user_metadata;
         setUser({
@@ -134,20 +140,28 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                              window.location.hash.includes('error=') ||
                              window.location.search.includes('code=');
         
+        console.log('No user session. isAuthCallback:', isAuthCallback);
+
         if (!isAuthCallback) {
           setView('login');
           setInitializing(false);
         }
+        // If it IS a callback, we stay in 'initializing' (true) until onAuthStateChange picks it up
       }
     };
 
-    // Initial check
+    // Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial getSession result:', session ? 'Session found' : 'No session');
       handleAuth(session);
+    }).catch(err => {
+      console.error('getSession error:', err);
+      if (mounted) setInitializing(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Supabase Auth Event:', event);
+      console.log('Supabase Auth Event Triggered:', event, 'Session user:', session?.user?.email);
+      
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         handleAuth(session);
       } else if (event === 'SIGNED_OUT') {
@@ -155,16 +169,27 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setView('login');
         setInitializing(false);
       } else if (event === 'INITIAL_SESSION') {
-        handleAuth(session);
+        // INITIAL_SESSION can sometimes fire after we manually checked getSession
+        if (session) handleAuth(session);
       }
     });
 
-    // Timeout safety for initializing state
+    // Timeout safety for initializing state - increased to 8s for slower OAuth processing
     const timeout = setTimeout(() => {
-      setInitializing(false);
-    }, 5000);
+      if (mounted && initializing) {
+        console.log('Auth initialization timeout reached');
+        // If we're still stuck but have no session, go to login
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (!session) {
+            setView('login');
+          }
+          setInitializing(false);
+        });
+      }
+    }, 8000);
 
     return () => {
+      mounted = false;
       subscription?.unsubscribe();
       clearTimeout(timeout);
     };
