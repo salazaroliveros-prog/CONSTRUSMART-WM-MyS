@@ -1,7 +1,6 @@
-import { defineConfig } from "tailwindcss";
-import animate from "tailwindcss-animate";
+import tailwindAnimate from "tailwindcss-animate";
 
-export default defineConfig({
+export default {
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -78,8 +77,8 @@ export default defineConfig({
           to: { height: 'var(--radix-accordion-content-height)' },
         },
         'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
         },
         'fade-in': {
           from: { opacity: '0' },
@@ -98,7 +97,5 @@ export default defineConfig({
       },
     }
   },
-  plugins: [
-    animate,
-  ],
-});
+  plugins: [tailwindAnimate],
+};

@@ -106,7 +106,24 @@
 }
 
 .markdown-preview {
-  @apply prose max-w-none prose-blue dark:prose-invert;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.65;
+  color: hsl(var(--foreground));
+  max-width: none;
+}
+.markdown-preview pre {
+  @apply bg-secondary p-4 rounded-md overflow-x-auto;
+}
+.markdown-preview code {
+  @apply text-sm font-mono text-primary;
+}
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+  @apply font-sans font-semibold text-foreground;
 }
 
 .markdown-preview pre {
