@@ -204,7 +204,7 @@ const Proyectos: React.FC = () => {
                   <Progress value={p.avanceFinanciero} color="#f97316" />
                 </div>
               </div>
-              <div className="pt-3.5 border-t border-slate-100 flex justify-between text-xs">
+              <div className="pt-3.5 flex justify-between text-xs">
                 <div>
                   <span className="text-slate-400 block text-[10px] mb-0.5">Presupuesto</span>
                   <b className="text-slate-700 font-semibold">{fmtQ(p.presupuestoTotal)}</b>

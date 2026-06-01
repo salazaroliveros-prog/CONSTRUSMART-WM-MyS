@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
@@ -18,6 +18,16 @@ export const ALLOWED: Record<Rol, View[]> = {
   Bodeguero: ['dashboard', 'bodega'],
 };
 
+interface Mutation {
+  id: string;
+  type: 'addProyecto' | 'updateProyecto' | 'deleteProyecto' | 'addMovimiento' | 'deleteMovimiento' |
+         'addEmpleado' | 'updateEmpleado' | 'deleteEmpleado' | 'updateMaterial' |
+         'addOrden' | 'updateOrden' | 'addProveedor' | 'updateProveedor' | 'deleteProveedor' |
+         'addEvento' | 'updateEvento' | 'deleteEvento' | 'addBitacora';
+  payload: Record<string, unknown>;
+  timestamp: number;
+}
+
 interface ErpState {
   view: View;
   setView: (v: View) => void;
@@ -28,6 +38,7 @@ interface ErpState {
   signUp: (email: string, pass: string, nombre: string, rol: Rol) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   logout: () => void;
+  isOnline: boolean;
 
   proyectos: Proyecto[];
   addProyecto: (p: Omit<Proyecto, 'id'>) => Promise<void>;
@@ -66,44 +77,140 @@ export const uid = (): string => {
   return Math.random().toString(36).slice(2, 10);
 };
 
+const STORAGE_KEY = 'wm_erp_data';
+const QUEUE_KEY = 'wm_erp_queue';
+
+function loadFromStorage<T>(key: string, initial: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : initial;
+  } catch { return initial; }
+}
+
+function saveToStorage<T>(key: string, data: T) {
+  try { localStorage.setItem(key, JSON.stringify(data)); } catch {}
+}
+
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [view, setView] = useState<View>('login');
   const [user, setUser] = useState<ErpState['user']>(null);
   const [authError, setAuthError] = useState('');
+  const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
-  const [proyectos, setProyectos] = useState<Proyecto[]>(() => {
-    try { const raw = localStorage.getItem('wm_proyectos'); return raw ? JSON.parse(raw) : SEED_PROYECTOS; } catch { return SEED_PROYECTOS; }
-  });
-  const [movimientos, setMovimientos] = useState<Movimiento[]>(() => {
-    try { const raw = localStorage.getItem('wm_movimientos'); return raw ? JSON.parse(raw) : SEED_MOVIMIENTOS; } catch { return SEED_MOVIMIENTOS; }
-  });
-  const [empleados, setEmpleados] = useState<Empleado[]>(() => {
-    try { const raw = localStorage.getItem('wm_empleados'); return raw ? JSON.parse(raw) : SEED_EMPLEADOS; } catch { return SEED_EMPLEADOS; }
-  });
-  const [materiales, setMateriales] = useState<Material[]>(() => {
-    try { const raw = localStorage.getItem('wm_materiales'); return raw ? JSON.parse(raw) : SEED_MATERIALES; } catch { return SEED_MATERIALES; }
-  });
-  const [ordenes, setOrdenes] = useState<OrdenCompra[]>(() => {
-    try { const raw = localStorage.getItem('wm_ordenes'); return raw ? JSON.parse(raw) : SEED_OC; } catch { return SEED_OC; }
-  });
-  const [proveedores, setProveedores] = useState<Proveedor[]>(() => {
-    try { const raw = localStorage.getItem('wm_proveedores'); return raw ? JSON.parse(raw) : SEED_PROVEEDORES; } catch { return SEED_PROVEEDORES; }
-  });
-  const [eventos, setEventos] = useState<EventoCalendario[]>(() => {
-    try { const raw = localStorage.getItem('wm_eventos'); return raw ? JSON.parse(raw) : []; } catch { return []; }
-  });
-  const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => {
-    try { const raw = localStorage.getItem('wm_bitacora'); return raw ? JSON.parse(raw) : []; } catch { return []; }
-  });
+  const [proyectos, setProyectos] = useState<Proyecto[]>(() => loadFromStorage(STORAGE_KEY + '_proyectos', SEED_PROYECTOS));
+  const [movimientos, setMovimientos] = useState<Movimiento[]>(() => loadFromStorage(STORAGE_KEY + '_movimientos', SEED_MOVIMIENTOS));
+  const [empleados, setEmpleados] = useState<Empleado[]>(() => loadFromStorage(STORAGE_KEY + '_empleados', SEED_EMPLEADOS));
+  const [materiales, setMateriales] = useState<Material[]>(() => loadFromStorage(STORAGE_KEY + '_materiales', SEED_MATERIALES));
+  const [ordenes, setOrdenes] = useState<OrdenCompra[]>(() => loadFromStorage(STORAGE_KEY + '_ordenes', SEED_OC));
+  const [proveedores, setProveedores] = useState<Proveedor[]>(() => loadFromStorage(STORAGE_KEY + '_proveedores', SEED_PROVEEDORES));
+  const [eventos, setEventos] = useState<EventoCalendario[]>(() => loadFromStorage(STORAGE_KEY + '_eventos', []));
+  const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => loadFromStorage(STORAGE_KEY + '_bitacora', []));
 
-  useEffect(() => { localStorage.setItem('wm_proyectos', JSON.stringify(proyectos)); }, [proyectos]);
-  useEffect(() => { localStorage.setItem('wm_movimientos', JSON.stringify(movimientos)); }, [movimientos]);
-  useEffect(() => { localStorage.setItem('wm_empleados', JSON.stringify(empleados)); }, [empleados]);
-  useEffect(() => { localStorage.setItem('wm_materiales', JSON.stringify(materiales)); }, [materiales]);
-  useEffect(() => { localStorage.setItem('wm_ordenes', JSON.stringify(ordenes)); }, [ordenes]);
-  useEffect(() => { localStorage.setItem('wm_proveedores', JSON.stringify(proveedores)); }, [proveedores]);
-  useEffect(() => { localStorage.setItem('wm_eventos', JSON.stringify(eventos)); }, [eventos]);
-  useEffect(() => { localStorage.setItem('wm_bitacora', JSON.stringify(bitacora)); }, [bitacora]);
+  const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+       
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_proyectos', proyectos); }, [proyectos]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_movimientos', movimientos); }, [movimientos]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_empleados', empleados); }, [empleados]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_materiales', materiales); }, [materiales]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_ordenes', ordenes); }, [ordenes]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_proveedores', proveedores); }, [proveedores]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_eventos', eventos); }, [eventos]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_bitacora', bitacora); }, [bitacora]);
+  useEffect(() => { saveToStorage(QUEUE_KEY, mutationQueue); }, [mutationQueue]);
+
+  const enqueueMutation = useCallback((type: Mutation['type'], payload: Record<string, unknown>) => {
+    const mutation: Mutation = { id: uid(), type, payload, timestamp: Date.now() };
+    setMutationQueue(q => [...q, mutation]);
+    return mutation.id;
+  }, []);
+
+  const processQueue = useCallback(async () => {
+    if (!isOnline || mutationQueue.length === 0) return;
+    
+    const [next, ...rest] = mutationQueue;
+    setMutationQueue(rest);
+
+    try {
+      switch (next.type) {
+        case 'addProyecto':
+          await supabase.from('erp_proyectos').insert(next.payload);
+          break;
+        case 'updateProyecto':
+          await supabase.from('erp_proyectos').update(next.payload).eq('id', next.payload.id);
+          break;
+        case 'deleteProyecto':
+          await supabase.from('erp_proyectos').delete().eq('id', next.payload.id);
+          break;
+        case 'addMovimiento':
+          await supabase.from('erp_movimientos').insert(next.payload);
+          break;
+        case 'deleteMovimiento':
+          await supabase.from('erp_movimientos').delete().eq('id', next.payload.id);
+          break;
+        case 'addEmpleado':
+          await supabase.from('erp_empleados').insert(next.payload);
+          break;
+        case 'updateEmpleado':
+          await supabase.from('erp_empleados').update(next.payload).eq('id', next.payload.id);
+          break;
+        case 'deleteEmpleado':
+          await supabase.from('erp_empleados').delete().eq('id', next.payload.id);
+          break;
+        case 'updateMaterial':
+          await supabase.from('erp_materiales').update(next.payload).eq('id', next.payload.id);
+          break;
+        case 'addOrden':
+          await supabase.from('erp_ordenes_compra').insert(next.payload);
+          break;
+        case 'updateOrden':
+          await supabase.from('erp_ordenes_compra').update({ estado: next.payload.estado }).eq('id', next.payload.id);
+          break;
+        case 'addProveedor':
+          await supabase.from('erp_proveedores').insert(next.payload);
+          break;
+        case 'updateProveedor':
+          await supabase.from('erp_proveedores').update(next.payload).eq('id', next.payload.id);
+          break;
+        case 'deleteProveedor':
+          await supabase.from('erp_proveedores').delete().eq('id', next.payload.id);
+          break;
+        case 'addEvento':
+          await supabase.from('erp_eventos_calendario').insert(next.payload);
+          break;
+        case 'updateEvento':
+          await supabase.from('erp_eventos_calendario').update(next.payload).eq('id', next.payload.id);
+          break;
+        case 'deleteEvento':
+          await supabase.from('erp_eventos_calendario').delete().eq('id', next.payload.id);
+          break;
+        case 'addBitacora':
+          await supabase.from('erp_bitacora').insert(next.payload);
+          break;
+      }
+    } catch (err) {
+      setMutationQueue(q => [next, ...q]);
+    }
+  }, [isOnline, mutationQueue]);
+
+  useEffect(() => {
+    if (isOnline) {
+      const timer = setTimeout(processQueue, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isOnline, mutationQueue, processQueue]);
 
   const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
   const ADMIN_NOMBRE = 'Oliver Salazar';
@@ -131,16 +238,10 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setView('dashboard');
 
     if (!profileData || profileErr || isAdmin) {
-      const upsertPayload: Record<string, unknown> = {
-        id,
-        rol,
-        nombre,
-      };
+      const upsertPayload: Record<string, unknown> = { id, rol, nombre };
       try {
         await supabase.from('profiles').upsert(upsertPayload);
-      } catch {
-        // ignore profile repair errors
-      }
+      } catch {}
     }
   };
 
@@ -189,40 +290,94 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addProyecto = async (p: Omit<Proyecto, 'id'>) => {
     const newProj = { ...p, id: uid() };
     setProyectos(s => [...s, newProj]);
+    enqueueMutation('addProyecto', newProj);
   };
-  const updateProyecto = (id: string, patch: Partial<Proyecto>) => setProyectos(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
-  const deleteProyecto = (id: string) => setProyectos(s => s.filter(p => p.id !== id));
+  const updateProyecto = (id: string, patch: Partial<Proyecto>) => {
+    setProyectos(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateProyecto', { id, ...patch });
+  };
+  const deleteProyecto = (id: string) => {
+    setProyectos(s => s.filter(p => p.id !== id));
+    enqueueMutation('deleteProyecto', { id });
+  };
+
   const addMovimiento = async (m: Omit<Movimiento, 'id'>) => {
     const newMov = { ...m, id: uid() };
     setMovimientos(s => [{ ...newMov, id: uid() }, ...s]);
+    enqueueMutation('addMovimiento', newMov);
   };
-  const deleteMovimiento = (id: string) => setMovimientos(s => s.filter(m => m.id !== id));
+  const deleteMovimiento = (id: string) => {
+    setMovimientos(s => s.filter(m => m.id !== id));
+    enqueueMutation('deleteMovimiento', { id });
+  };
+
   const addEmpleado = async (e: Omit<Empleado, 'id'>) => {
     const newEmp = { ...e, id: uid() };
     setEmpleados(s => [...s, newEmp]);
+    enqueueMutation('addEmpleado', newEmp);
   };
-  const updateEmpleado = (id: string, patch: Partial<Empleado>) => setEmpleados(s => s.map(e => e.id === id ? { ...e, ...patch } : e));
-  const deleteEmpleado = (id: string) => setEmpleados(s => s.filter(e => e.id !== id));
-  const updateMaterial = (id: string, patch: Partial<Material>) => setMateriales(s => s.map(m => m.id === id ? { ...m, ...patch } : m));
-  const updateOrden = (id: string, estado: OrdenCompra['estado']) => setOrdenes(s => s.map(o => o.id === id ? { ...o, estado } : o));
-  const addOrden = (o: Omit<OrdenCompra, 'id'>) => setOrdenes(s => [{ ...o, id: uid() }, ...s]);
-  const addEvento = async (e: Omit<EventoCalendario, 'id'>) => {
-    const newEvt = { ...e, id: uid() };
-    setEventos(s => [...s, newEvt]);
+  const updateEmpleado = (id: string, patch: Partial<Empleado>) => {
+    setEmpleados(s => s.map(e => e.id === id ? { ...e, ...patch } : e));
+    enqueueMutation('updateEmpleado', { id, ...patch });
   };
-  const updateEvento = (id: string, patch: Partial<EventoCalendario>) => setEventos(s => s.map(e => e.id === id ? { ...e, ...patch } : e));
-  const deleteEvento = (id: string) => setEventos(s => s.filter(e => e.id !== id));
+  const deleteEmpleado = (id: string) => {
+    setEmpleados(s => s.filter(e => e.id !== id));
+    enqueueMutation('deleteEmpleado', { id });
+  };
+
+  const updateMaterial = (id: string, patch: Partial<Material>) => {
+    setMateriales(s => s.map(m => m.id === id ? { ...m, ...patch } : m));
+    enqueueMutation('updateMaterial', { id, ...patch });
+  };
+
+  const addOrden = (o: Omit<OrdenCompra, 'id'>) => {
+    const newOrd = { ...o, id: uid() };
+    setOrdenes(s => [{ ...newOrd, id: uid() }, ...s]);
+    enqueueMutation('addOrden', newOrd);
+  };
+  const updateOrden = (id: string, estado: OrdenCompra['estado']) => {
+    setOrdenes(s => s.map(o => o.id === id ? { ...o, estado } : o));
+    enqueueMutation('updateOrden', { id, estado });
+  };
+
   const addProveedor = async (p: Omit<Proveedor, 'id'>) => {
     const newProv = { ...p, id: uid() };
     setProveedores(s => [...s, newProv]);
+    enqueueMutation('addProveedor', newProv);
   };
-  const updateProveedor = (id: string, patch: Partial<Proveedor>) => setProveedores(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
-  const deleteProveedor = (id: string) => setProveedores(s => s.filter(p => p.id !== id));
-  const addBitacora = (b: Omit<BitacoraEntry, 'id'>) => setBitacora(s => [{ ...b, id: uid() }, ...s]);
+  const updateProveedor = (id: string, patch: Partial<Proveedor>) => {
+    setProveedores(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateProveedor', { id, ...patch });
+  };
+  const deleteProveedor = (id: string) => {
+    setProveedores(s => s.filter(p => p.id !== id));
+    enqueueMutation('deleteProveedor', { id });
+  };
+
+  const addEvento = async (e: Omit<EventoCalendario, 'id'>) => {
+    const newEvt = { ...e, id: uid() };
+    setEventos(s => [...s, newEvt]);
+    enqueueMutation('addEvento', newEvt);
+  };
+  const updateEvento = (id: string, patch: Partial<EventoCalendario>) => {
+    setEventos(s => s.map(e => e.id === id ? { ...e, ...patch } : e));
+    enqueueMutation('updateEvento', { id, ...patch });
+  };
+  const deleteEvento = (id: string) => {
+    setEventos(s => s.filter(e => e.id !== id));
+    enqueueMutation('deleteEvento', { id });
+  };
+
+  const addBitacora = (b: Omit<BitacoraEntry, 'id'>) => {
+    const newBit = { ...b, id: uid() };
+    setBitacora(s => [{ ...newBit, id: uid() }, ...s]);
+    enqueueMutation('addBitacora', newBit);
+  };
 
   return (
     <Ctx.Provider value={{
       view, setView, user, allowedViews, authError, signIn, signUp, signInWithGoogle, logout,
+      isOnline,
       proyectos, addProyecto, updateProyecto, deleteProyecto,
       movimientos, addMovimiento, deleteMovimiento,
       empleados, addEmpleado, updateEmpleado, deleteEmpleado,
@@ -236,3 +391,5 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     </Ctx.Provider>
   );
 };
+
+

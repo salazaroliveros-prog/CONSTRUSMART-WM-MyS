@@ -166,7 +166,7 @@ const RRHH: React.FC = () => {
                         type="number"
                         value={e.diasTrabajados}
                         onChange={ev => updateEmpleado(e.id, { diasTrabajados: +ev.target.value })}
-                        className="w-14 px-1 py-0.5 rounded border border-slate-200 text-center"
+                        className="w-14 px-1 py-0.5 rounded bg-white text-center"
                       />
                     </td>
                     <td className="p-2 text-center font-bold text-orange-600">
