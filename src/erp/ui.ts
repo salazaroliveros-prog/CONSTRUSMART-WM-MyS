@@ -1,0 +1,9 @@
+export const CARD = 'bg-white rounded-2xl p-4 shadow-sm border border-slate-100';
+export const CARD_TITLE = 'font-bold text-slate-700 text-sm mb-2';
+export const BADGE_SM = 'text-[10px] px-1.5 py-0.5 rounded-full';
+export const BADGE_ESTADO_PENDIENTE = 'bg-amber-50 text-amber-600';
+export const BADGE_ESTADO_APROBADO = 'bg-emerald-50 text-emerald-600';
+export const BADGE_ESTADO_RECHAZADO = 'bg-red-50 text-red-500';
+export const INPUT = 'w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none mb-4';
+export const BUTTON_PRIMARY = 'bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5';
+export const BUTTON_DARK = 'bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5';

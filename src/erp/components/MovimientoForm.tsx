@@ -1,0 +1,140 @@
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useErp } from '../store';
+import { Categoria } from '../types';
+import { CATEGORIA_LABEL, todayISO } from '../utils';
+import { Plus } from 'lucide-react';
+
+const movimientoSchema = z.object({
+  tipo: z.enum(['ingreso', 'gasto']),
+  proyectoId: z.string().optional(),
+  descripcion: z.string().min(1, 'La descripción es requerida'),
+  cantidad: z.coerce.number().min(0, 'La cantidad debe ser positiva'),
+  unidad: z.string().min(1, 'La unidad es requerida'),
+  categoria: z.enum(['materiales', 'mano_obra', 'herramienta', 'sub_contrato', 'administrativo', 'personal', 'transporte', 'fijos', 'hogar', 'aporte', 'trabajos_extra']),
+  costoUnitario: z.coerce.number().min(0, 'El costo debe ser positivo'),
+  fecha: z.string().min(1, 'La fecha es requerida'),
+});
+
+type MovimientoFormData = z.infer<typeof movimientoSchema>;
+
+const MovimientoForm: React.FC<{ compact?: boolean }> = ({ compact }) => {
+  const { proyectos, addMovimiento } = useErp();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<MovimientoFormData>({
+    resolver: zodResolver(movimientoSchema),
+    defaultValues: {
+      tipo: 'gasto',
+      proyectoId: '',
+      descripcion: '',
+      cantidad: 1,
+      unidad: 'global',
+      categoria: 'materiales',
+      costoUnitario: 0,
+      fecha: todayISO(),
+    },
+  });
+
+  const tipo = watch('tipo');
+  const cantidad = watch('cantidad', 1);
+  const costoUnitario = watch('costoUnitario', 0);
+  const total = (Number(cantidad) || 0) * (Number(costoUnitario) || 0);
+
+  const onSubmit = (data: MovimientoFormData) => {
+    addMovimiento({
+      tipo: data.tipo,
+      proyectoId: data.proyectoId || null,
+      descripcion: data.descripcion,
+      cantidad: data.cantidad,
+      unidad: data.unidad,
+      categoria: data.categoria,
+      costoUnitario: data.costoUnitario,
+      costoTotal: total,
+      fecha: data.fecha,
+    });
+    reset({ ...data, descripcion: '', costoUnitario: 0, cantidad: 1 });
+  };
+
+  const inp = "w-full px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-300";
+  const errorClass = "border-red-500 focus:border-red-500";
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+      <div className="flex items-center gap-2 mb-3">
+        <button
+          type="button"
+          onClick={() => setValue('tipo', 'ingreso')}
+          className={`flex-1 py-2 rounded-lg text-sm font-semibold ${tipo === 'ingreso' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500'}`}
+        >
+          Ingreso
+        </button>
+        <button
+          type="button"
+          onClick={() => setValue('tipo', 'gasto')}
+          className={`flex-1 py-2 rounded-lg text-sm font-semibold ${tipo === 'gasto' ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-500'}`}
+        >
+          Gasto
+        </button>
+      </div>
+      <div className={`grid ${compact ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3'} gap-2`}>
+        <select
+          {...register('proyectoId')}
+          className={inp + ' col-span-2'}
+        >
+          <option value="">— Sin proyecto (operativo/personal) —</option>
+          {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+        </select>
+        <input
+          {...register('descripcion')}
+          placeholder="Descripción"
+          className={`${inp} ${errors.descripcion ? errorClass : ''} col-span-2`}
+        />
+        <input
+          type="number"
+          {...register('cantidad')}
+          placeholder="Cantidad"
+          className={`${inp} ${errors.cantidad ? errorClass : ''}`}
+        />
+        <input
+          {...register('unidad')}
+          placeholder="Unidad"
+          className={`${inp} ${errors.unidad ? errorClass : ''}`}
+        />
+        <select {...register('categoria')} className={inp}>
+          {(Object.keys(CATEGORIA_LABEL) as Categoria[]).map(c => <option key={c} value={c}>{CATEGORIA_LABEL[c]}</option>)}
+        </select>
+        <input
+          type="number"
+          {...register('costoUnitario')}
+          placeholder="Costo unit."
+          className={`${inp} ${errors.costoUnitario ? errorClass : ''}`}
+        />
+        <input
+          type="date"
+          {...register('fecha')}
+          className={inp}
+        />
+        <div className={`${inp} bg-slate-50 flex items-center font-semibold text-slate-700`}>Q {total.toFixed(2)}</div>
+      </div>
+      {errors.descripcion && <p className="text-xs text-red-500 mt-1">{errors.descripcion.message}</p>}
+      {errors.costoUnitario && <p className="text-xs text-red-500 mt-1">{errors.costoUnitario.message}</p>}
+      <button
+        type="submit"
+        className="mt-3 w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5"
+      >
+        <Plus className="w-4 h-4" /> Registrar {tipo}
+      </button>
+    </form>
+  );
+};
+
+export default MovimientoForm;
