@@ -62,7 +62,7 @@
 | 37 | Error Boundaries | 🟡 Media | Implementar global | ⚠️ Pendiente |
 | 38 | Loading states consistentes | 🟡 Media | Agregar Skeletons | ⚠️ Pendiente |
 | 39 | Estilos inline duplicados | 🟡 Baja | Refactorizar Tailwind | ⚠️ Pendiente |
-| 40 | Manejo de offline/PWA | 🟡 Baja | Evaluar necesidad | ✅ Implementado (manifest.json) |
+| 40 | Manejo de offline/PWA | 🟡 Baja | Evaluar necesidad | ✅ Implementado (manifest.json, offline-first) |
 
 ---
 
@@ -70,7 +70,7 @@
 - **Críticas:** 4/4 ✅
 - **Altas:** 5/5 ✅
 - **Medias:** 2/3 ✅ (1 pendiente: seed data)
-- **Bajas:** 4/6 ✅ (2 pendientes: tests, error boundaries, loading states)
+- **Bajas:** 5/6 ✅ (1 pendiente: tests, error boundaries, loading states)
 
 ---
 
