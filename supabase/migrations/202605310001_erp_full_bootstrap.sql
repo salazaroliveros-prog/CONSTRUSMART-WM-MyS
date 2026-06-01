@@ -1,7 +1,7 @@
 -- ============================================================
 -- ERP CONSTRUSMART - Migración completa para Supabase
 -- Ejecutar TODO en el SQL Editor.
--- NOTA: para re-ejecutar previo agregar DROP IF EXISTS arriba.
+-- NOTA: para re-ejecutar, usar el script completo con DROP IF EXISTS
 -- ============================================================
 
 DROP TABLE IF EXISTS public.profiles CASCADE;
@@ -13,9 +13,10 @@ DROP TABLE IF EXISTS erp_materiales CASCADE;
 DROP TABLE IF EXISTS erp_empleados CASCADE;
 DROP TABLE IF EXISTS erp_movimientos CASCADE;
 DROP TABLE IF EXISTS erp_proyectos CASCADE;
+DROP TABLE IF EXISTS erp_seguimiento CASCADE;
 
 -- 0) Perfiles de usuario (tabla base para RLS)
-CREATE TABLE public.profiles (
+CREATE TABLE IF NOT EXISTS public.profiles (
   id uuid REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   nombre text NOT NULL DEFAULT '',
   rol text NOT NULL DEFAULT 'usuario' CHECK (rol = ANY (ARRAY['Administrador','Gerente','Residente','Compras','Bodeguero','usuario'])),
@@ -41,7 +42,7 @@ CREATE POLICY "profiles_self_insert" ON public.profiles
 -- 1) Tablas ERP
 -- ============================================================
 
-CREATE TABLE erp_proyectos (
+CREATE TABLE IF NOT EXISTS erp_proyectos (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     nombre text NOT NULL,
     cliente text NOT NULL,
@@ -61,7 +62,7 @@ CREATE TABLE erp_proyectos (
     updated_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE TABLE erp_movimientos (
+CREATE TABLE IF NOT EXISTS erp_movimientos (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     tipo text NOT NULL CHECK (tipo = ANY (ARRAY['ingreso','gasto'])),
     proyecto_id uuid REFERENCES erp_proyectos(id) ON DELETE SET NULL,
@@ -76,7 +77,7 @@ CREATE TABLE erp_movimientos (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE TABLE erp_empleados (
+CREATE TABLE IF NOT EXISTS erp_empleados (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     nombre text NOT NULL,
     puesto text NOT NULL,
@@ -87,7 +88,7 @@ CREATE TABLE erp_empleados (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE TABLE erp_materiales (
+CREATE TABLE IF NOT EXISTS erp_materiales (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     nombre text NOT NULL,
     unidad text NOT NULL,
@@ -98,7 +99,7 @@ CREATE TABLE erp_materiales (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE TABLE erp_ordenes_compra (
+CREATE TABLE IF NOT EXISTS erp_ordenes_compra (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     proveedor text NOT NULL,
     material text NOT NULL,
@@ -109,7 +110,7 @@ CREATE TABLE erp_ordenes_compra (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE TABLE erp_proveedores (
+CREATE TABLE IF NOT EXISTS erp_proveedores (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     nombre text NOT NULL,
     contacto text,
@@ -118,7 +119,7 @@ CREATE TABLE erp_proveedores (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE TABLE erp_eventos_calendario (
+CREATE TABLE IF NOT EXISTS erp_eventos_calendario (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     fecha date NOT NULL,
     titulo text NOT NULL,
@@ -126,7 +127,7 @@ CREATE TABLE erp_eventos_calendario (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE TABLE erp_bitacora (
+CREATE TABLE IF NOT EXISTS erp_bitacora (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     proyecto_id uuid NOT NULL REFERENCES erp_proyectos(id) ON DELETE CASCADE,
     fecha date NOT NULL DEFAULT CURRENT_DATE,
@@ -138,7 +139,7 @@ CREATE TABLE erp_bitacora (
     created_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE TABLE erp_seguimiento (
+CREATE TABLE IF NOT EXISTS erp_seguimiento (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     proyecto_id uuid NOT NULL REFERENCES erp_proyectos(id) ON DELETE CASCADE,
     fecha date NOT NULL DEFAULT CURRENT_DATE,
@@ -233,8 +234,9 @@ CREATE INDEX idx_erp_movimientos_fecha ON erp_movimientos(fecha);
 CREATE INDEX idx_erp_empleados_proyecto ON erp_empleados(proyecto_id);
 CREATE INDEX idx_erp_eventos_proyecto ON erp_eventos_calendario(proyecto_id);
 CREATE INDEX idx_erp_eventos_fecha ON erp_eventos_calendario(fecha);
-CREATE INDEX idx_erp_bitacora_proyecto ON erp_bitacora(proyecto_id);
 CREATE INDEX idx_erp_seguimiento_proyecto ON erp_seguimiento(proyecto_id);
+CREATE INDEX idx_erp_bitacora_proyecto ON erp_bitacora(proyecto_id);
+CREATE INDEX idx_erp_seguimiento_fecha ON erp_seguimiento(fecha);
 
 -- ============================================================
 -- 5) Trigger updated_at automático
