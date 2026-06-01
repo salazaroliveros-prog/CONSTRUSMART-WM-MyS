@@ -112,6 +112,27 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
 
+  // Listen for Supabase auth state changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const userData = session.user.user_metadata;
+        setUser({
+          nombre: userData?.nombre || session.user.email?.split('@')[0] || 'Usuario',
+          rol: (userData?.rol || 'Residente') as Rol,
+          avatar: session.user.user_metadata?.avatar_url,
+        });
+        setView('dashboard');
+        setAuthError('');
+      } else {
+        setUser(null);
+        setView('login');
+      }
+    });
+
+    return () => subscription?.unsubscribe();
+  }, []);
+
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
