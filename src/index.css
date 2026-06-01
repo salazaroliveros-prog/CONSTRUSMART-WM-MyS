@@ -88,8 +88,8 @@
 }
 
 @layer base {
-  * {
-    border: 1px solid hsl(var(--border));
+  *, *::before, *::after {
+    box-sizing: border-box;
   }
 
   body {

@@ -29,13 +29,15 @@ const Shell: React.FC = () => {
     bodega: <Bodega />,
   };
 
+  const currentScreen = screens[view] ?? <Dashboard />;
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <Header onMenu={toggleSidebar} />
       <div className="flex">
         <Sidebar open={sidebarOpen} onClose={toggleSidebar} />
         <main className="flex-1 min-w-0">
-          <div key={view} className="animate-[fadeIn_0.3s_ease]">{screens[view]}</div>
+          <div key={view} className="animate-[fadeIn_0.3s_ease]">{currentScreen}</div>
         </main>
       </div>
       <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}`}</style>

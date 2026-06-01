@@ -6,7 +6,7 @@ import { LogOut, Home, Menu, Upload } from 'lucide-react';
 const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, title }) => {
   const { user, logout, setView, view } = useErp();
   const [now, setNow] = useState(new Date());
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [customPhoto, setCustomPhoto] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -15,7 +15,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
   useEffect(() => {
     try {
       const saved = localStorage.getItem('wm_photo');
-      if (saved) setPhoto(saved);
+      if (saved) setCustomPhoto(saved);
     } catch {}
   }, []);
 
@@ -27,13 +27,14 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
     reader.onload = () => {
       const data = typeof reader.result === 'string' ? reader.result : null;
       if (data) {
-        setPhoto(data);
+        setCustomPhoto(data);
         try { localStorage.setItem('wm_photo', data); } catch {}
       }
     };
     reader.readAsDataURL(f);
   };
 
+  const avatarSrc = user?.avatar ?? customPhoto;
   const initials = (user?.nombre || 'WM').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 
   return (
@@ -66,8 +67,8 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         )}
         <div className="flex items-center gap-2">
           <button onClick={onPick} className="relative" title="Cambiar foto">
-            {photo ? (
-              <img src={photo} alt="avatar" className="w-9 h-9 rounded-full object-cover border border-white/20" />
+            {avatarSrc ? (
+              <img src={avatarSrc} alt="avatar" className="w-9 h-9 rounded-full object-cover border border-white/20" />
             ) : (
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-xs font-bold">{initials}</div>
             )}
