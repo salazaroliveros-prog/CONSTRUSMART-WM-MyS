@@ -38,7 +38,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
   const initials = (user?.nombre || 'WM').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 
   return (
-    <header className="bg-slate-900 text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sticky top-0 z-30 shadow-lg">
+    <header className="bg-slate-900/80 backdrop-blur-md text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sticky top-0 z-30 shadow-lg">
       <div className="flex items-center gap-3 min-w-0">
         {onMenu && (
           <button onClick={onMenu} className="lg:hidden p-1.5 hover:bg-white/10 rounded-lg">

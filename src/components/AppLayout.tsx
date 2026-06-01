@@ -15,7 +15,7 @@ import Bodega from '@/erp/screens/Bodega';
 
 const Shell: React.FC = () => {
   const { view, initializing } = useErp();
-  const { sidebarOpen, toggleSidebar } = useAppContext();
+  const { sidebarOpen, toggleSidebar, sidebarCollapsed } = useAppContext();
 
   if (initializing) {
     return (
@@ -43,11 +43,11 @@ const Shell: React.FC = () => {
   const currentScreen = screens[view] ?? <Dashboard />;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       <Header onMenu={toggleSidebar} />
-      <div className="flex">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar open={sidebarOpen} onClose={toggleSidebar} />
-        <main className="flex-1 min-w-0">
+        <main className={`flex-1 min-w-0 overflow-auto transition-all ${sidebarCollapsed ? 'lg:ml-0' : ''}`}>
           <div key={view} className="animate-[fadeIn_0.3s_ease]">{currentScreen}</div>
         </main>
       </div>

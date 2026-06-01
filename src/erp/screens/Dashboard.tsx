@@ -25,8 +25,6 @@ const Dashboard: React.FC = () => {
 
   const avanceData = useMemo(() => {
     const prog = [0, 12, 28, 45, 62, 78, 90, 100];
-    const real = [0, 10, 25, 42, 58, 70, 82, 0].slice(0, 7).concat([0]);
-    void real;
     return { prog, real: [0, 10, 24, 40, 55, 67, 79, 88] };
   }, []);
 
@@ -46,7 +44,7 @@ const Dashboard: React.FC = () => {
     { id: 'bodega', label: 'Bodega', icon: Warehouse, c: 'from-cyan-500 to-sky-600' },
   ];
 
-  const SkeletonCard: React.FC<{ h?: string }> = ({ h = 'h-10' }) => (
+  const SkeletonCard: React.FC<{ h?: string }> = ({ h = 'h-8' }) => (
     <div className="rounded-2xl bg-white animate-pulse">
       <div className={`${h} bg-slate-100 rounded-2xl`} />
     </div>
@@ -55,64 +53,68 @@ const Dashboard: React.FC = () => {
   const loading = proyectos.length === 0 && movimientos.length === 0;
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+    <div className="h-full flex flex-col p-3 sm:p-4 max-w-[1600px] mx-auto overflow-hidden">
+      <div className="flex flex-wrap items-end justify-between gap-2 mb-2 flex-shrink-0">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 mb-1">Tablero Principal</h1>
-          <p className="text-sm text-slate-500">Centro de comando — métricas en tiempo real</p>
+          <h1 className="text-lg sm:text-xl font-black text-slate-800 leading-tight">Tablero Principal</h1>
+          <p className="text-xs text-slate-500">Centro de comando — métricas en tiempo real</p>
         </div>
         <select value={filtroProy} onChange={e => setFiltroProy(e.target.value)}
-          className="px-4 py-2 rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-100 bg-white">
+          className="px-3 py-1.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-orange-100 bg-white border border-slate-200">
           <option value="">Todos los proyectos</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
       </div>
 
       {loading
-        ? <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        ? <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2 flex-shrink-0">
             {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
-        : <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            <KpiCard label="Margen de Utilidad Prom." value={fmtPct(margenProm)} icon={<TrendingUp className="w-5 h-5" />} trend="+2.4%" trendUp accent="from-emerald-500 to-teal-500" />
-            <KpiCard label="Proyectos Activos" value={String(activos.length)} icon={<Building2 className="w-5 h-5" />} trend={`${proyectos.length} total`} trendUp accent="from-blue-500 to-indigo-500" />
-            <KpiCard label="Presupuesto en Ejecución" value={fmtQ(presupuestoTotal)} icon={<DollarSign className="w-5 h-5" />} accent="from-orange-500 to-amber-500" />
-            <KpiCard label="Desviación Global Costos" value={fmtPct(desviacion)} icon={<AlertTriangle className="w-5 h-5" />} trend={desviacion > 0 ? 'Riesgo' : 'Sano'} trendUp={desviacion <= 0} accent="from-red-500 to-rose-500" />
+        : <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2 flex-shrink-0">
+            <KpiCard label="Margen de Utilidad Prom." value={fmtPct(margenProm)} icon={<TrendingUp className="w-4 h-4" />} trend="+2.4%" trendUp accent="from-emerald-500 to-teal-500" />
+            <KpiCard label="Proyectos Activos" value={String(activos.length)} icon={<Building2 className="w-4 h-4" />} trend={`${proyectos.length} total`} trendUp accent="from-blue-500 to-indigo-500" />
+            <KpiCard label="Presupuesto en Ejecución" value={fmtQ(presupuestoTotal)} icon={<DollarSign className="w-4 h-4" />} accent="from-orange-500 to-amber-500" />
+            <KpiCard label="Desviación Global Costos" value={fmtPct(desviacion)} icon={<AlertTriangle className="w-4 h-4" />} trend={desviacion > 0 ? 'Riesgo' : 'Sano'} trendUp={desviacion <= 0} accent="from-red-500 to-rose-500" />
           </div>
       }
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        <div className={`${CARD} lg:col-span-2`}>
-          <div className="flex items-center justify-between mb-2">
-            <h3 className={`${CARD_TITLE} flex items-center gap-2`}><Activity className="w-4 h-4 text-orange-500" /> Curva S Consolidada</h3>
-            <div className="flex gap-3 text-[10px]">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-2 min-h-0">
+        <div className={`${CARD} lg:col-span-2 flex flex-col min-h-0 p-3`}>
+          <div className="flex items-center justify-between mb-1 flex-shrink-0">
+            <h3 className={`${CARD_TITLE} flex items-center gap-1 text-sm mb-0`}><Activity className="w-3.5 h-3.5 text-orange-500" /> Curva S Consolidada</h3>
+            <div className="flex gap-2 text-[9px]">
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500" /> Programado</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> Real</span>
             </div>
           </div>
-          <LineChart labels={['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A']}
-            series={[
-              { label: 'Programado', color: '#3b82f6', data: avanceData.prog },
-              { label: 'Real', color: '#f97316', data: avanceData.real },
-            ]} />
+          <div className="flex-1 min-h-0">
+            <LineChart labels={['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A']}
+              series={[
+                { label: 'Programado', color: '#3b82f6', data: avanceData.prog },
+                { label: 'Real', color: '#f97316', data: avanceData.real },
+              ]} />
+          </div>
         </div>
 
-        <div className="row-span-2">
+        <div className="row-span-2 overflow-hidden">
           <Calendar />
         </div>
 
-        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className={CARD}>
-            <h3 className={CARD_TITLE}>Gastos por Categoría</h3>
-            {movPorCategoria.length ? <BarChart data={movPorCategoria} height={160} /> : <p className="text-xs text-slate-400">Sin datos</p>}
+        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2 min-h-0">
+          <div className={`${CARD} flex flex-col p-3 min-h-0`}>
+            <h3 className={`${CARD_TITLE} text-sm mb-1`}>Gastos por Categoria</h3>
+            <div className="flex-1 min-h-0">
+              {movPorCategoria.length ? <BarChart data={movPorCategoria} height={100} /> : <p className="text-xs text-slate-400">Sin datos</p>}
+            </div>
           </div>
-          <div className={`${CARD} flex flex-col`}>
-            <h3 className={CARD_TITLE}>Ingresos vs Gastos</h3>
-            <div className="flex items-center gap-4">
-              <Donut size={120} data={[
+          <div className={`${CARD} flex flex-col p-3 min-h-0`}>
+            <h3 className={`${CARD_TITLE} text-sm mb-1`}>Ingresos vs Gastos</h3>
+            <div className="flex-1 flex items-center gap-3 min-h-0">
+              <Donut size={80} data={[
                 { label: 'Ingresos', value: ingresos, color: '#10b981' },
                 { label: 'Gastos', value: gastos, color: '#ef4444' },
               ]} />
-              <div className="text-xs space-y-2">
+              <div className="text-[10px] space-y-1">
                 <div><span className="w-2 h-2 inline-block rounded-full bg-emerald-500 mr-1" />Ingresos<br /><b className="text-slate-700">{fmtQ(ingresos)}</b></div>
                 <div><span className="w-2 h-2 inline-block rounded-full bg-red-500 mr-1" />Gastos<br /><b className="text-slate-700">{fmtQ(gastos)}</b></div>
               </div>
@@ -121,21 +123,21 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 mt-2 flex-shrink-0">
         <div className="lg:col-span-2">
-          <h3 className="font-bold text-slate-700 text-sm mb-2">Registro Rápido de Ingresos y Gastos</h3>
-          <MovimientoForm />
+          <h3 className="font-bold text-slate-700 text-xs mb-1">Registro Rapido de Ingresos y Gastos</h3>
+          <MovimientoForm compact />
         </div>
         <div>
-          <h3 className="font-bold text-slate-700 text-sm mb-2">Acceso a Módulos</h3>
-          <div className="grid grid-cols-2 gap-2">
+          <h3 className="font-bold text-slate-700 text-xs mb-1">Acceso a Modulos</h3>
+          <div className="grid grid-cols-2 gap-1.5">
             {modulos.map(m => {
               const Icon = m.icon;
               return (
                 <button key={m.id} onClick={() => setView(m.id as View)}
-                  className={`bg-gradient-to-br ${m.c} text-white rounded-2xl p-3 flex flex-col items-start gap-2 hover:scale-[1.03] transition-transform shadow-sm`}>
-                  <Icon className="w-5 h-5" />
-                  <span className="text-xs font-semibold flex items-center gap-1">{m.label} <ArrowRight className="w-3 h-3" /></span>
+                  className={`bg-gradient-to-br ${m.c} text-white rounded-xl p-2 flex flex-col items-start gap-1 hover:scale-[1.03] transition-transform shadow-sm`}>
+                  <Icon className="w-4 h-4" />
+                  <span className="text-[10px] font-semibold flex items-center gap-1">{m.label} <ArrowRight className="w-2.5 h-2.5" /></span>
                 </button>
               );
             })}
