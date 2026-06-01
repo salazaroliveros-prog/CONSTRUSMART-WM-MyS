@@ -9,7 +9,7 @@ import { exportCSV, exportPDF } from '../export';
 import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X } from 'lucide-react';
 
 const Presupuestos: React.FC = () => {
-  const { setView: _setView } = useErp();
+  useErp();
   const [tipologia, setTipologia] = useState<Tipologia>('residencial');
   const [proyecto, setProyecto] = useState('Nuevo Presupuesto');
   const [items, setItems] = useState<RenglonPresupuesto[]>([]);
@@ -90,7 +90,7 @@ const Presupuestos: React.FC = () => {
     return Object.entries(materiales).map(([nombre, data]) => ({ nombre, ...data }));
   }, [items]);
 
-  const save = () => { try { localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(items)); } catch {} setSaved(true); setTimeout(() => setSaved(false), 1500); };
+  const save = () => { try { localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(items)); } catch { /* ignore */ } setSaved(true); setTimeout(() => setSaved(false), 1500); };
 
   const ninp = "w-full px-2 py-1 text-xs rounded border border-slate-200 outline-none focus:border-orange-400 text-right";
   const SkeletonRow = (

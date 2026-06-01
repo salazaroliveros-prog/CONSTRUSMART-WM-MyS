@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useErp } from '../store';
+import { useErp, type View } from '../store';
 import { fmtQ, fmtPct } from '../utils';
 import KpiCard from '../components/KpiCard';
 import Calendar from '../components/Calendar';
@@ -132,7 +132,7 @@ const Dashboard: React.FC = () => {
             {modulos.map(m => {
               const Icon = m.icon;
               return (
-                <button key={m.id} onClick={() => setView(m.id as any)}
+                <button key={m.id} onClick={() => setView(m.id as View)}
                   className={`bg-gradient-to-br ${m.c} text-white rounded-2xl p-3 flex flex-col items-start gap-2 hover:scale-[1.03] transition-transform shadow-sm`}>
                   <Icon className="w-5 h-5" />
                   <span className="text-xs font-semibold flex items-center gap-1">{m.label} <ArrowRight className="w-3 h-3" /></span>

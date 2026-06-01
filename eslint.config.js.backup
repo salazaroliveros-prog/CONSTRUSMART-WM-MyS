@@ -6,11 +6,15 @@ import hooksPlugin from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 
 export default [
+  // Global ignores
   {
-    ignores: ["dist/**", "node_modules/**", "assets/**", "docs/assets/**", "src/functions/**"],
+    ignores: ["dist/**", "node_modules/**"],
   },
+  // Base configuration for JS files
   pluginJs.configs.recommended,
+  // TypeScript configuration
   ...tseslint.configs.recommended,
+  // React configuration
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
     plugins: {
@@ -24,6 +28,7 @@ export default [
         ecmaFeatures: { jsx: true },
         ecmaVersion: "latest",
         sourceType: "module",
+        project: ["./tsconfig.json", "./tsconfig.node.json"],
       },
       globals: {
         ...globals.browser,
@@ -37,7 +42,7 @@ export default [
     },
     rules: {
       ...pluginReact.configs.recommended.rules,
-      ...pluginReact.configs["jsx-runtime"].rules,
+      ...pluginReact.configs["jsx-runtime"].rules, // Use the new JSX transform
       ...hooksPlugin.configs.recommended.rules,
       "react-refresh/only-export-components": "warn",
       "react/prop-types": "off",

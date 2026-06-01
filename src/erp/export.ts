@@ -30,7 +30,7 @@ const getResumenMateriales = (renglones: RenglonPresupuesto[]) => {
 
 export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tipologia: string) => {
   const rows: string[] = [];
-  rows.push(`Logo: WM`);
+  rows.push(`${EMPRESA.nombre}`);
   rows.push(`${EMPRESA.nombre} - ${EMPRESA.eslogan}`);
   rows.push(`Proyecto: ${proyecto};Tipologia: ${TIPOLOGIA_LABEL[tipologia as keyof typeof TIPOLOGIA_LABEL] || tipologia}`);
   rows.push('');
@@ -108,7 +108,7 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   <style>
     body{font-family:Arial,sans-serif;color:#334155;margin:32px;font-size:11px}
     .head{display:flex;align-items:center;gap:14px;border-bottom:3px solid #f97316;padding-bottom:12px;margin-bottom:8px}
-    .logo{width:54px;height:54px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #e2e8f0}
+    .logo{width:54px;height:54px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#0f172a;box-shadow:0 0 6px rgba(249,115,22,0.35);outline:1px solid rgba(249,115,22,0.3)}
 .logo img{width:100%;height:100%;object-fit:contain;display:block}
     h1{margin:0;font-size:18px;color:#1e293b}
     .slogan{color:#f97316;font-style:italic;font-size:12px}

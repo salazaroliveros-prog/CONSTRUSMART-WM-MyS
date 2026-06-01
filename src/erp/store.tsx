@@ -11,6 +11,7 @@ import {
 export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega';
 export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeguero';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const ALLOWED: Record<Rol, View[]> = {
   Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega'],
   Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega'],
@@ -73,7 +74,9 @@ interface ErpState {
 }
 
 const Ctx = createContext<ErpState>({} as ErpState);
+// eslint-disable-next-line react-refresh/only-export-components
 export const useErp = () => useContext(Ctx);
+// eslint-disable-next-line react-refresh/only-export-components
 export const uid = (): string => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -92,11 +95,11 @@ function loadFromStorage<T>(key: string, initial: T): T {
   try {
     const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : initial;
-  } catch { return initial; }
+    } catch { return initial; }
 }
 
 function saveToStorage<T>(key: string, data: T) {
-  try { localStorage.setItem(key, JSON.stringify(data)); } catch {}
+  try { localStorage.setItem(key, JSON.stringify(data)); } catch { /* ignore */ }
 }
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -133,8 +136,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         supabase.from('erp_bitacora').select('*').order('fecha', { ascending: false }),
       ]);
 
-      const mapFromSnakeCase = (obj: any) => {
-        const mapped: any = {};
+      const mapFromSnakeCase = (obj: Record<string, unknown>) => {
+        const mapped: Record<string, unknown> = {};
         for (const key in obj) {
           const camelKey = key.replace(/_([a-z])/g, g => g[1].toUpperCase());
           mapped[camelKey] = obj[key];
@@ -155,88 +158,67 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
-  // Listen for Supabase auth state changes
   useEffect(() => {
     let mounted = true;
 
-    const handleAuth = (session: any) => {
-      if (!mounted) return;
-      
-      console.log('Handling Auth, session user:', session?.user?.email);
-      
-      if (session?.user) {
-        const userData = session.user.user_metadata;
-        setUser({
-          id: session.user.id,
-          nombre: userData?.full_name || userData?.name || userData?.nombre || session.user.email?.split('@')[0] || 'Usuario',
-          rol: (userData?.rol || 'Residente') as Rol,
-          avatar: userData?.avatar_url || userData?.picture || userData?.avatar,
-        });
-        setView('dashboard');
-        setAuthError('');
-        setInitializing(false);
-        fetchInitialData();
-      } else {
-        setUser(null);
-        // Detect if we are in an OAuth redirect flow
-        const isAuthCallback = window.location.hash.includes('access_token=') || 
-                             window.location.hash.includes('error=') ||
-                             window.location.search.includes('code=');
-        
-        console.log('No user session. isAuthCallback:', isAuthCallback);
+    console.log('[Auth] Mount, URL:', window.location.href);
+    const params = new URL(window.location.href).searchParams;
+    console.log('[Auth] URL params:', Object.fromEntries(params.entries()));
+    console.log('[Auth] URL hash:', window.location.hash);
+    const sbKeys = Object.keys(localStorage).filter(k => k.includes('sb-') || k.includes('supabase'));
+    console.log('[Auth] localStorage sb- keys:', sbKeys);
+    sbKeys.forEach(k => console.log('[Auth] localStorage', k, '=', localStorage.getItem(k)?.substring(0, 60)));
 
-        if (!isAuthCallback) {
-          setView('login');
-          setInitializing(false);
+    const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
+
+    const mapRol = (dbRol: string): Rol => {
+      if (dbRol === 'usuario' || !dbRol) return 'Residente';
+      return dbRol as Rol;
+    };
+
+    const loadProfile = async (id: string, email?: string) => {
+      console.log('[Auth] loadProfile', id, email);
+      const defaultRol: Rol = email === ADMIN_EMAIL ? 'Administrador' : 'Residente';
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('nombre,rol')
+          .eq('id', id)
+          .single();
+        console.log('[Auth] profile query:', data, error);
+        if (error || !data) {
+          const name = email?.split('@')[0] || 'Usuario';
+          await supabase.from('profiles').insert({ id, nombre: name, rol: defaultRol }).maybeSingle();
+          setUser({ id, nombre: name, rol: defaultRol });
+        } else {
+          setUser({ id, nombre: data.nombre, rol: mapRol(data.rol) });
         }
-        // If it IS a callback, we stay in 'initializing' (true) until onAuthStateChange picks it up
+        if (mounted) { setView('dashboard'); setInitializing(false); fetchInitialData(); }
+      } catch {
+        const name = email?.split('@')[0] || 'Usuario';
+        if (mounted) { setUser({ id, nombre: name, rol: defaultRol }); setView('dashboard'); setInitializing(false); fetchInitialData(); }
       }
     };
 
-    // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial getSession result:', session ? 'Session found' : 'No session');
-      handleAuth(session);
-    }).catch(err => {
-      console.error('getSession error:', err);
-      if (mounted) setInitializing(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Supabase Auth Event Triggered:', event, 'Session user:', session?.user?.email);
-      
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-        handleAuth(session);
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[Auth] Event:', event, session?.user?.email);
+      if (!mounted) return;
+      if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')) {
+        loadProfile(session.user.id, session.user.email || undefined);
       } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setView('login');
-        setInitializing(false);
-      } else if (event === 'INITIAL_SESSION') {
-        // INITIAL_SESSION can sometimes fire after we manually checked getSession
-        if (session) handleAuth(session);
+        setUser(null); setView('login'); setInitializing(false);
       }
     });
 
-    // Timeout safety for initializing state - increased to 8s for slower OAuth processing
-    const timeout = setTimeout(() => {
-      if (mounted && initializing) {
-        console.log('Auth initialization timeout reached');
-        // If we're still stuck but have no session, go to login
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (!session) {
-            setView('login');
-          }
-          setInitializing(false);
-        });
-      }
-    }, 8000);
+    supabase.auth.getSession().then(({ data }) => {
+      console.log('[Auth] getSession result:', data.session ? 'SESSION: ' + data.session.user.email : 'NO SESSION');
+      if (!mounted) return;
+      if (data.session?.user) loadProfile(data.session.user.id, data.session.user.email || undefined);
+      else setInitializing(false);
+    });
 
-    return () => {
-      mounted = false;
-      subscription?.unsubscribe();
-      clearTimeout(timeout);
-    };
-  }, []);
+    return () => { mounted = false; sub.subscription.unsubscribe(); };
+  }, [fetchInitialData]);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -274,8 +256,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [next, ...rest] = mutationQueue;
     setMutationQueue(rest);
 
-    const mapToSnakeCase = (obj: any) => {
-      const mapped: any = {};
+    const mapToSnakeCase = (obj: Record<string, unknown>) => {
+      const mapped: Record<string, unknown> = {};
       for (const key in obj) {
         const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
         mapped[snakeKey] = obj[key];
@@ -362,9 +344,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const timer = setTimeout(processQueue, 1000);
       return () => clearTimeout(timer);
     }
-  }, [isOnline, mutationQueue, processQueue]);
-
-  const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
+  }, [isOnline, processQueue]);
 
   const requestNotificationPermission = useCallback(async () => {
     if (typeof window === 'undefined' || !('Notification' in window)) return;
@@ -444,19 +424,24 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const signInWithGoogle = async () => {
     setAuthError('');
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin,
           queryParams: {
             prompt: 'select_account',
           },
+          skipBrowserRedirect: true,
         },
       });
       if (error) throw error;
-    } catch (err: any) {
+      if (data?.url) {
+        console.log('[Auth] Redirecting to:', data.url);
+        window.location.href = data.url;
+      }
+    } catch (err) {
       console.error('Google Sign In Error:', err);
-      setAuthError(err.message || 'Error al conectar con Google');
+      setAuthError(err instanceof Error ? err.message : 'Error al conectar con Google');
     }
   };
 

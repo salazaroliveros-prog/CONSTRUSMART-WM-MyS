@@ -18,7 +18,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
   return (
     <>
       {open && <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={onClose} />}
-      <aside className={`fixed lg:sticky top-0 left-0 h-screen lg:h-[calc(100vh-60px)] w-60 bg-white border-r border-slate-100 z-50 transition-transform lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed lg:sticky top-0 lg:top-[60px] left-0 h-screen lg:h-[calc(100vh-60px)] w-60 bg-white border-r border-slate-100 z-50 transition-transform lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between p-4 lg:hidden">
           <span className="font-bold text-slate-700">Módulos</span>
           <button onClick={onClose}><X className="w-5 h-5" /></button>
