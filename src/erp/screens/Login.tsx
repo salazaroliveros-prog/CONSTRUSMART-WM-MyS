@@ -45,6 +45,10 @@ const Login: React.FC = () => {
       } catch {}
     } else {
       await signIn(data.email, data.password);
+      if (data.email === 'salazaroliveros@gmail.com') {
+        window.location.href = 'https://erp-construsmart-wm-app-01.vercel.app/';
+        return;
+      }
     }
     setLoading(false);
   };
