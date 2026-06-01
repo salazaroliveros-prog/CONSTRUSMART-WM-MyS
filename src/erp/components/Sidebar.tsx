@@ -22,7 +22,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
   return (
     <>
       {open && <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={onClose} />}
-      <aside className={`fixed lg:sticky top-0 lg:top-[60px] left-0 h-screen lg:h-[calc(100vh-60px)] ${asideW} bg-white border-r border-slate-100 z-50 transition-all lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} flex flex-col overflow-hidden`}>
+      <aside className={`fixed lg:sticky top-0 lg:top-[60px] left-0 h-screen lg:h-[calc(100vh-60px)] ${asideW} bg-white border-r border-slate-100 z-50 transition-all lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>
         <div className="flex items-center justify-between p-4 lg:hidden">
           <span className="font-bold text-slate-700">Módulos</span>
           <button onClick={onClose}><X className="w-5 h-5" /></button>
@@ -30,7 +30,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
         <div className="px-4 pt-4 pb-2 hidden lg:block flex-shrink-0">
           <span className="text-[10px] uppercase tracking-wide text-slate-400 font-semibold">{collapsed ? user?.rol?.charAt(0).toUpperCase() : `Rol: ${user?.rol}`}</span>
         </div>
-        <nav className="p-3 space-y-1 flex-1 overflow-hidden">
+        <nav className="p-3 space-y-1 flex-1 overflow-y-auto">
           {items.map(it => {
             const Icon = it.icon;
             const active = view === it.id;
