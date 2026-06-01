@@ -9,6 +9,15 @@ export interface Insumo {
   rendimiento: number; // cantidad de insumo por unidad de obra
 }
 
+export interface SubRenglon {
+  id: string;
+  nombreMaterial: string;
+  unidad: string;
+  cantidadUnitaria: number; // cantidad por unidad de obra
+  precioUnitario: number;
+  total?: number;
+}
+
 export interface RenglonBase {
   codigo: string;
   nombre: string;
@@ -19,6 +28,7 @@ export interface RenglonBase {
   costoManoObra: number; // por unidad de obra
   costoEquipo: number; // por unidad de obra
   insumos: Insumo[];
+  subrenglones?: SubRenglon[]; // desglose detallado de materiales
 }
 
 export interface RenglonPresupuesto extends RenglonBase {

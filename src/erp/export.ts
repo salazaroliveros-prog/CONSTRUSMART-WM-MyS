@@ -7,6 +7,27 @@ const calcRow = (r: RenglonPresupuesto) => {
   return { cd, pv, total: pv * r.cantidad };
 };
 
+// Función para generar resumen de materiales
+const getResumenMateriales = (renglones: RenglonPresupuesto[]) => {
+  const materiales: Record<string, { unidad: string; cantidad: number; total: number }> = {};
+  renglones.forEach(r => {
+    if (r.subrenglones) {
+      r.subrenglones.forEach(sub => {
+        const key = `${sub.nombreMaterial}-${sub.unidad}`;
+        const cant = sub.cantidadUnitaria * r.cantidad;
+        const tot = cant * sub.precioUnitario;
+        if (!materiales[key]) {
+          materiales[key] = { unidad: sub.unidad, cantidad: 0, total: 0 };
+        }
+        materiales[key].cantidad += cant;
+        materiales[key].total += tot;
+      });
+    }
+  });
+  return Object.entries(materiales).map(([nombre, data]) => ({ nombre, ...data }));
+};
+
+
 export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tipologia: string) => {
   const rows: string[] = [];
   rows.push(`Logo: WM`);
@@ -22,6 +43,22 @@ export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tip
   });
   rows.push('');
   rows.push(`;;;;;;;;TOTAL;${gran.toFixed(2)}`);
+
+  // Agregar resumen de materiales
+  const materiales = getResumenMateriales(renglones);
+  if (materiales.length > 0) {
+    rows.push('');
+    rows.push('=== RESUMEN DE MATERIALES ===');
+    rows.push('Material;Cantidad;Unidad;Subtotal');
+    let totalMateriales = 0;
+    materiales.forEach(m => {
+      totalMateriales += m.total;
+      rows.push(`${m.nombre};${m.cantidad.toFixed(2)};${m.unidad};${m.total.toFixed(2)}`);
+    });
+    rows.push('');
+    rows.push(`Total Materiales;;${totalMateriales.toFixed(2)}`);
+  }
+
   const blob = new Blob(['\ufeff' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -40,10 +77,31 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
     </tr>`;
   }).join('');
 
+  // Resumen de materiales para PDF
+  const materiales = getResumenMateriales(renglones);
+  let resumenMatHTML = '';
+  if (materiales.length > 0) {
+    let totalMat = 0;
+    const filasMateria = materiales.map(m => {
+      totalMat += m.total;
+      return `<tr><td style="text-align:left">${m.nombre}</td><td>${m.cantidad.toFixed(2)}</td><td>${m.unidad}</td><td style="text-align:right">${fmtQ(m.total)}</td></tr>`;
+    }).join('');
+    resumenMatHTML = `<h2>Resumen de Materiales a Utilizar</h2>
+      <table class="t"><thead><tr><th style="text-align:left">Material</th><th>Cantidad</th><th>Unidad</th><th>Subtotal</th></tr></thead>
+      <tbody>${filasMateria}<tr class="total"><td style="text-align:left">TOTAL MATERIALES</td><td></td><td></td><td style="text-align:right">${fmtQ(totalMat)}</td></tr></tbody></table>`;
+  }
+
   const desglose = renglones.map(r => {
-    const ins = r.insumos.map(s => `<tr><td style="text-align:left">${s.nombre}</td><td>${s.tipo}</td><td>${s.unidad}</td><td style="text-align:right">${fmtQ(s.precio)}</td></tr>`).join('');
+    const insHTML = r.insumos.map(s => `<tr><td style="text-align:left">${s.nombre}</td><td>${s.tipo}</td><td>${s.unidad}</td><td style="text-align:right">${fmtQ(s.precio)}</td></tr>`).join('');
+    const subrenglonHTML = r.subrenglones && r.subrenglones.length > 0 ? 
+      `<div style="margin-top:8px;padding:8px;background:#f0fdf4;border-left:3px solid #10b981">
+        <b style="color:#047857">Desglose de Materiales:</b>
+        <table class="t" style="margin-top:4px"><tbody>
+          ${r.subrenglones.map(s => `<tr><td style="text-align:left">${s.nombreMaterial}</td><td>${(s.cantidadUnitaria * r.cantidad).toFixed(2)}</td><td>${s.unidad}</td><td style="text-align:right">${fmtQ(s.cantidadUnitaria * r.cantidad * s.precioUnitario)}</td></tr>`).join('')}
+        </tbody></table>
+      </div>` : '';
     return `<h4 style="margin:14px 0 4px;color:#1e293b">${r.codigo} — ${r.nombre}</h4>
-      <table class="t"><thead><tr><th style="text-align:left">Insumo</th><th>Tipo</th><th>Unidad</th><th>Precio</th></tr></thead><tbody>${ins}</tbody></table>`;
+      <table class="t"><thead><tr><th style="text-align:left">Insumo</th><th>Tipo</th><th>Unidad</th><th>Precio</th></tr></thead><tbody>${insHTML}</tbody></table>${subrenglonHTML}`;
   }).join('');
 
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Presupuesto ${proyecto}</title>
@@ -71,6 +129,7 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   <h2>Resumen de Renglones</h2>
   <table class="t"><thead><tr><th>#</th><th>Código</th><th style="text-align:left">Descripción</th><th>Unidad</th><th>Cant.</th><th>C. Directo</th><th>P. Unitario</th><th>Total</th></tr></thead>
   <tbody>${filas}<tr class="total"><td colspan="7" style="text-align:right">TOTAL DEL PRESUPUESTO</td><td style="text-align:right">${fmtQ(gran)}</td></tr></tbody></table>
+  ${resumenMatHTML}
   <h2>Desglose Unitario de Materiales (APU)</h2>
   ${desglose}
   <div class="foot">Documento generado por el ERP de ${EMPRESA.nombre} — ${EMPRESA.eslogan}<br>Precios sujetos a variación de mercado · Guatemala</div>
