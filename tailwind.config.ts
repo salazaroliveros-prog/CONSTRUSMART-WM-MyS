@@ -1,6 +1,5 @@
 import { defineConfig } from "tailwindcss";
 import animate from "tailwindcss-animate";
-import typography from "@tailwindcss/typography";
 
 export default defineConfig({
   content: [
@@ -97,17 +96,9 @@ export default defineConfig({
         'fade-in': 'fade-in 0.3s ease-out',
         'slide-in': 'slide-in 0.3s ease-out',
       },
-      typography: {
-        DEFAULT: {
-          css: {
-            maxWidth: 'none',
-          },
-        },
-      },
     }
   },
   plugins: [
     animate,
-    typography,
   ],
 });
