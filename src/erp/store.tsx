@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
+import { z } from 'zod';
 import { toast } from '@/components/ui/sonner';
 import {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio,
@@ -7,6 +8,214 @@ import {
 import {
   SEED_PROYECTOS, SEED_MOVIMIENTOS, SEED_EMPLEADOS, SEED_MATERIALES, SEED_OC, SEED_PROVEEDORES,
 } from './data';
+
+// Zod schemas for validation
+const proyectoSchema = z.object({
+  id: z.string(),
+  nombre: z.string(),
+  ubicacion: z.string(),
+  tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']),
+  presupuestoTotal: z.number(),
+  montoContrato: z.number().optional(),
+  cliente: z.string().optional(),
+  presupuestoActualId: z.string().optional(),
+  fechaInicio: z.string(),
+  fechaFin: z.string(),
+  avanceFisico: z.number(),
+  avanceFinanciero: z.number(),
+  estado: z.enum(['planeacion', 'ejecucion', 'pausado', 'finalizado']),
+  factorSobrecosto: z.object({
+    indirectos: z.number(),
+    administracion: z.number(),
+    imprevistos: z.number(),
+    utilidad: z.number(),
+  }).optional(),
+  presupuesto: z.number().optional(),
+  latitud: z.number().optional(),
+  longitud: z.number().optional(),
+});
+
+const movimientoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  tipo: z.enum(['ingreso', 'gasto', 'egreso']),
+  categoria: z.enum(['materiales', 'mano_obra', 'equipo', 'subcontrato', 'administracion', 'transporte', 'imprevistos', 'marketing', 'licencias', 'seguros', 'otros']),
+  monto: z.number(),
+  costoTotal: z.number().optional(),
+  costoUnitario: z.number().optional(),
+  cantidad: z.number().optional(),
+  unidad: z.string().optional(),
+  descripcion: z.string(),
+  fecha: z.string(),
+  proveedor: z.string().optional(),
+  factura: z.string().optional(),
+});
+
+const empleadoSchema = z.object({
+  id: z.string(),
+  nombre: z.string(),
+  puesto: z.string(),
+  salarioDiario: z.number(),
+  tipo: z.enum(['planilla', 'destajo']),
+  activo: z.boolean(),
+  proyectoIds: z.array(z.string()),
+  telefono: z.string().optional(),
+  diasTrabajados: z.number().optional(),
+});
+
+const materialSchema = z.object({
+  id: z.string(),
+  nombre: z.string(),
+  unidad: z.string(),
+  stock: z.number(),
+  stockMinimo: z.number(),
+  precio: z.number(),
+  categoria: z.string(),
+  proyectoIds: z.array(z.string()),
+  critico: z.boolean().optional(),
+});
+
+const ordenCompraSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string().optional(),
+  proveedor: z.string(),
+  material: z.string(),
+  cantidad: z.number(),
+  monto: z.number(),
+  fecha: z.string(),
+  estado: z.enum(['pendiente', 'aprobado', 'recibida', 'cancelada']),
+  proveedorId: z.string().optional(),
+  total: z.number().optional(),
+  items: z.array(z.object({
+    materialId: z.string(),
+    cantidad: z.number(),
+    precioUnitario: z.number(),
+  })).optional(),
+});
+
+const proveedorSchema = z.object({
+  id: z.string(),
+  nombre: z.string(),
+  contacto: z.string(),
+  telefono: z.string(),
+  email: z.string(),
+  categoria: z.enum(['materiales', 'mano_obra', 'equipo', 'subcontrato', 'administracion', 'transporte', 'imprevistos', 'marketing', 'licencias', 'seguros', 'otros']),
+});
+
+const eventoCalendarioSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  titulo: z.string(),
+  fecha: z.string(),
+  hora: z.string(),
+  tipo: z.enum(['reunion', 'inspeccion', 'entrega', 'pago', 'otros']),
+  descripcion: z.string().optional(),
+  participantes: z.array(z.string()),
+});
+
+const bitacoraEntrySchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  fecha: z.string(),
+  clima: z.enum(['soleado', 'nublado', 'lluvia']),
+  personalPresente: z.number(),
+  maquinaria: z.string(),
+  tareasRealizadas: z.string(),
+  observaciones: z.string(),
+  fotos: z.array(z.string()),
+  firma: z.string().optional(),
+  latitud: z.number().optional(),
+  longitud: z.number().optional(),
+});
+
+const presupuestoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']),
+  renglones: z.array(z.object({
+    id: z.string(),
+    cantidad: z.number(),
+    avanceFisico: z.number().optional(),
+    avanceFinanciero: z.number().optional(),
+    codigo: z.string(),
+    nombre: z.string(),
+    unidad: z.string(),
+    subRenglones: z.array(z.object({
+      id: z.string(),
+      nombre: z.string(),
+      descripcion: z.string(),
+      unidad: z.string(),
+      cantidad: z.number(),
+      costoUnitario: z.number(),
+    })),
+    factorSobrecosto: z.object({
+      indirectos: z.number(),
+      administracion: z.number(),
+      imprevistos: z.number(),
+      utilidad: z.number(),
+    }).optional(),
+    totalCD: z.number(),
+    totalPV: z.number(),
+  })),
+  estado: z.enum(['borrador', 'aprobado', 'revisado', 'rechazado']),
+  totalCalculado: z.number(),
+  costoDirectoTotal: z.number(),
+  fechaCreacion: z.string(),
+  fechaActualizacion: z.string(),
+  versionPresupuesto: z.number().optional(),
+  notas: z.string().optional(),
+});
+
+function loadFromStorage<T>(key: string, initial: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : initial;
+    } catch { return initial; }
+}
+
+function saveToStorage<T>(key: string, data: T) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    if (error instanceof Error && error.name === 'QuotaExceededError') {
+      console.warn(`Storage quota exceeded for key: ${key}`);
+      // Try to clear some space by removing oldest entries
+      const storageKeys = Object.keys(localStorage).sort((a, b) => {
+        const aTime = localStorage.getItem(a + '_timestamp') || '0';
+        const bTime = localStorage.getItem(b + '_timestamp') || '0';
+        return parseInt(aTime) - parseInt(bTime);
+      });
+      
+      // Remove oldest 50% of entries
+      const keysToRemove = storageKeys.slice(0, Math.floor(storageKeys.length / 2));
+      keysToRemove.forEach(k => {
+        localStorage.removeItem(k);
+        localStorage.removeItem(k + '_timestamp');
+      });
+      
+      // Try saving again after clearing space
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+      } catch {
+        console.error(`Failed to save to storage even after clearing space for key: ${key}`);
+      }
+    }
+  }
+}
+
+const mapFromSnakeCase = <T extends z.ZodType<any, any, any>>(schema: T, obj: Record<string, unknown>): z.infer<T> | null => {
+  try {
+    const mapped: Record<string, unknown> = {};
+    for (const key in obj) {
+      const camelKey = key.replace(/_([a-z])/g, g => g[1].toUpperCase());
+      mapped[camelKey] = obj[key];
+    }
+    return schema.parse(mapped);
+  } catch (error) {
+    console.error('Validation error:', error);
+    return null;
+  }
+};
 
 export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen';
 export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeguero';
@@ -127,17 +336,6 @@ export const uid = (): string => {
 const STORAGE_KEY = 'wm_erp_data';
 const QUEUE_KEY = 'wm_erp_queue';
 
-function loadFromStorage<T>(key: string, initial: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : initial;
-    } catch { return initial; }
-}
-
-function saveToStorage<T>(key: string, data: T) {
-  try { localStorage.setItem(key, JSON.stringify(data)); } catch { /* ignore */ }
-}
-
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [view, setView] = useState<View>('login');
   const [user, setUser] = useState<ErpState['user']>(null);
@@ -253,24 +451,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         supabase.from('erp_presupuestos').select('*'),
       ]);
 
-      const mapFromSnakeCase = (obj: Record<string, unknown>) => {
-        const mapped: Record<string, unknown> = {};
-        for (const key in obj) {
-          const camelKey = key.replace(/_([a-z])/g, g => g[1].toUpperCase());
-          mapped[camelKey] = obj[key];
-        }
-        return mapped;
-      };
-
-      if (p) setProyectos(p.map(mapFromSnakeCase));
-      if (m) setMovimientos(m.map(mapFromSnakeCase));
-      if (e) setEmpleados(e.map(mapFromSnakeCase));
-      if (mat) setMateriales(mat.map(mapFromSnakeCase));
-      if (o) setOrdenes(o.map(mapFromSnakeCase));
-      if (prov) setProveedores(prov.map(mapFromSnakeCase));
-      if (evt) setEventos(evt.map(mapFromSnakeCase));
-      if (bit) setBitacora(bit.map(mapFromSnakeCase));
-      if (presup) setPresupuestos(presup.map(mapFromSnakeCase));
+      if (p) setProyectos(p.map(obj => mapFromSnakeCase(proyectoSchema, obj)).filter(Boolean) as Proyecto[]);
+      if (m) setMovimientos(m.map(obj => mapFromSnakeCase(movimientoSchema, obj)).filter(Boolean) as Movimiento[]);
+      if (e) setEmpleados(e.map(obj => mapFromSnakeCase(empleadoSchema, obj)).filter(Boolean) as Empleado[]);
+      if (mat) setMateriales(mat.map(obj => mapFromSnakeCase(materialSchema, obj)).filter(Boolean) as Material[]);
+      if (o) setOrdenes(o.map(obj => mapFromSnakeCase(ordenCompraSchema, obj)).filter(Boolean) as OrdenCompra[]);
+      if (prov) setProveedores(prov.map(obj => mapFromSnakeCase(proveedorSchema, obj)).filter(Boolean) as Proveedor[]);
+      if (evt) setEventos(evt.map(obj => mapFromSnakeCase(eventoCalendarioSchema, obj)).filter(Boolean) as EventoCalendario[]);
+      if (bit) setBitacora(bit.map(obj => mapFromSnakeCase(bitacoraEntrySchema, obj)).filter(Boolean) as BitacoraEntry[]);
+      if (presup) setPresupuestos(presup.map(obj => mapFromSnakeCase(presupuestoSchema, obj)).filter(Boolean) as Presupuesto[]);
     } catch (err) {
       console.error('Error fetching initial data:', err);
     }

@@ -57,10 +57,16 @@ export interface RenglonBase {
   codigo: string;
   nombre: string;
   unidad: string;
-  subRenglones: SubRenglon[];
+  tipologia: Tipologia;
+  rendimientoCuadrilla: number;
+  costoMateriales: number;
+  costoManoObra: number;
+  costoEquipo: number;
+  insumos: Insumo[];
+  subRenglones?: SubRenglon[];
   factorSobrecosto?: FactorSobrecosto;
-  totalCD: number;
-  totalPV: number;
+  totalCD?: number;
+  totalPV?: number;
 }
 
 export interface RenglonPresupuesto extends RenglonBase {
@@ -100,6 +106,8 @@ export interface Proyecto {
   estado: 'planeacion' | 'ejecucion' | 'pausado' | 'finalizado';
   factorSobrecosto?: FactorSobrecosto;
   presupuesto?: number;
+  lat?: number;
+  lng?: number;
 }
 
 export type Categoria = 'materiales' | 'mano_obra' | 'equipo' | 'subcontrato' | 'administracion' | 'transporte' | 'imprevistos' | 'marketing' | 'licencias' | 'seguros' | 'otros';
@@ -125,10 +133,11 @@ export interface Empleado {
   nombre: string;
   puesto: string;
   salarioDiario: number;
-  tipo: 'administrativo' | 'operativo';
+  tipo: 'planilla' | 'destajo';
   activo: boolean;
   proyectoIds: string[];
   telefono?: string;
+  diasTrabajados?: number;
 }
 
 export interface Material {
@@ -137,9 +146,10 @@ export interface Material {
   unidad: string;
   stock: number;
   stockMinimo: number;
-  precioUnitario: number;
+  precio: number;
   categoria: string;
   proyectoIds: string[];
+  critico?: boolean;
 }
 
 export interface ValeSalida {
@@ -159,12 +169,16 @@ export interface ValeSalidaItem {
 
 export interface OrdenCompra {
   id: string;
-  proyectoId: string;
-  proveedorId: string;
+  proyectoId?: string;
+  proveedor: string;
+  material: string;
+  cantidad: number;
+  monto: number;
   fecha: string;
-  estado: 'pendiente' | 'aprobada' | 'recibida' | 'cancelada';
-  total: number;
-  items: { materialId: string; cantidad: number; precioUnitario: number }[];
+  estado: 'pendiente' | 'aprobado' | 'recibida' | 'cancelada';
+  proveedorId?: string;
+  total?: number;
+  items?: { materialId: string; cantidad: number; precioUnitario: number }[];
 }
 
 export interface Proveedor {
