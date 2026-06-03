@@ -216,9 +216,8 @@ DROP POLICY IF EXISTS "Enable read access for all users" ON public.profiles;
 DROP POLICY IF EXISTS "Users can insert their own profile." ON public.profiles;
 DROP POLICY IF EXISTS "Users can update their own profile." ON public.profiles;
 DROP POLICY IF EXISTS "Users can delete their own profile." ON public.profiles;
-CREATE POLICY profiles_select ON public.profiles FOR SELECT TO authenticated USING (true);
-CREATE POLICY profiles_insert ON public.profiles FOR INSERT TO authenticated WITH CHECK (id = auth.uid());
-CREATE POLICY profiles_update ON public.profiles FOR UPDATE TO authenticated USING (id = auth.uid()) WITH CHECK (id = auth.uid());
+DROP POLICY IF EXISTS p_profiles_all ON public.profiles;
+CREATE POLICY p_profiles_all ON public.profiles FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_proyectos
 DROP POLICY IF EXISTS proyectos_select ON public.erp_proyectos;
@@ -231,16 +230,8 @@ DROP POLICY IF EXISTS "Allow authenticated users to view own projects" ON public
 DROP POLICY IF EXISTS "Allow authenticated users to create projects" ON public.erp_proyectos;
 DROP POLICY IF EXISTS "Allow authenticated users to update own projects" ON public.erp_proyectos;
 DROP POLICY IF EXISTS "Allow authenticated users to delete own projects" ON public.erp_proyectos;
-CREATE POLICY proyectos_select ON public.erp_proyectos FOR SELECT TO authenticated USING (true);
-CREATE POLICY proyectos_insert ON public.erp_proyectos FOR INSERT TO authenticated WITH CHECK (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol IN ('Administrador','Gerente'))
-);
-CREATE POLICY proyectos_update ON public.erp_proyectos FOR UPDATE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol IN ('Administrador','Gerente','Residente'))
-);
-CREATE POLICY proyectos_delete ON public.erp_proyectos FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_proyectos_all ON public.erp_proyectos;
+CREATE POLICY p_proyectos_all ON public.erp_proyectos FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_movimientos
 DROP POLICY IF EXISTS movimientos_select ON public.erp_movimientos;
@@ -253,12 +244,8 @@ DROP POLICY IF EXISTS "Allow authenticated users to view own movements" ON publi
 DROP POLICY IF EXISTS "Allow authenticated users to create movements" ON public.erp_movimientos;
 DROP POLICY IF EXISTS "Allow authenticated users to update own movements" ON public.erp_movimientos;
 DROP POLICY IF EXISTS "Allow authenticated users to delete own movements" ON public.erp_movimientos;
-CREATE POLICY movimientos_select ON public.erp_movimientos FOR SELECT TO authenticated USING (true);
-CREATE POLICY movimientos_insert ON public.erp_movimientos FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY movimientos_update ON public.erp_movimientos FOR UPDATE TO authenticated USING (true);
-CREATE POLICY movimientos_delete ON public.erp_movimientos FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_movimientos_all ON public.erp_movimientos;
+CREATE POLICY p_movimientos_all ON public.erp_movimientos FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_empleados
 DROP POLICY IF EXISTS empleados_select ON public.erp_empleados;
@@ -271,12 +258,8 @@ DROP POLICY IF EXISTS "Allow authenticated users to view own employees" ON publi
 DROP POLICY IF EXISTS "Allow authenticated users to create employees" ON public.erp_empleados;
 DROP POLICY IF EXISTS "Allow authenticated users to update own employees" ON public.erp_empleados;
 DROP POLICY IF EXISTS "Allow authenticated users to delete own employees" ON public.erp_empleados;
-CREATE POLICY empleados_select ON public.erp_empleados FOR SELECT TO authenticated USING (true);
-CREATE POLICY empleados_insert ON public.erp_empleados FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY empleados_update ON public.erp_empleados FOR UPDATE TO authenticated USING (true);
-CREATE POLICY empleados_delete ON public.erp_empleados FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_empleados_all ON public.erp_empleados;
+CREATE POLICY p_empleados_all ON public.erp_empleados FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_materiales
 DROP POLICY IF EXISTS materiales_select ON public.erp_materiales;
@@ -286,12 +269,8 @@ DROP POLICY IF EXISTS materiales_delete ON public.erp_materiales;
 DROP POLICY IF EXISTS "erp_materiales_read" ON public.erp_materiales;
 DROP POLICY IF EXISTS "erp_materiales_write" ON public.erp_materiales;
 DROP POLICY IF EXISTS "Allow authenticated users to view materials" ON public.erp_materiales;
-CREATE POLICY materiales_select ON public.erp_materiales FOR SELECT TO authenticated USING (true);
-CREATE POLICY materiales_insert ON public.erp_materiales FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY materiales_update ON public.erp_materiales FOR UPDATE TO authenticated USING (true);
-CREATE POLICY materiales_delete ON public.erp_materiales FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_materiales_all ON public.erp_materiales;
+CREATE POLICY p_materiales_all ON public.erp_materiales FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_ordenes_compra
 DROP POLICY IF EXISTS oc_select ON public.erp_ordenes_compra;
@@ -300,12 +279,8 @@ DROP POLICY IF EXISTS oc_update ON public.erp_ordenes_compra;
 DROP POLICY IF EXISTS oc_delete ON public.erp_ordenes_compra;
 DROP POLICY IF EXISTS "erp_ordenes_compra_read" ON public.erp_ordenes_compra;
 DROP POLICY IF EXISTS "erp_ordenes_compra_write" ON public.erp_ordenes_compra;
-CREATE POLICY oc_select ON public.erp_ordenes_compra FOR SELECT TO authenticated USING (true);
-CREATE POLICY oc_insert ON public.erp_ordenes_compra FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY oc_update ON public.erp_ordenes_compra FOR UPDATE TO authenticated USING (true);
-CREATE POLICY oc_delete ON public.erp_ordenes_compra FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_oc_all ON public.erp_ordenes_compra;
+CREATE POLICY p_oc_all ON public.erp_ordenes_compra FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_proveedores
 DROP POLICY IF EXISTS proveedores_select ON public.erp_proveedores;
@@ -314,12 +289,8 @@ DROP POLICY IF EXISTS proveedores_update ON public.erp_proveedores;
 DROP POLICY IF EXISTS proveedores_delete ON public.erp_proveedores;
 DROP POLICY IF EXISTS "erp_proveedores_read" ON public.erp_proveedores;
 DROP POLICY IF EXISTS "erp_proveedores_write" ON public.erp_proveedores;
-CREATE POLICY proveedores_select ON public.erp_proveedores FOR SELECT TO authenticated USING (true);
-CREATE POLICY proveedores_insert ON public.erp_proveedores FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY proveedores_update ON public.erp_proveedores FOR UPDATE TO authenticated USING (true);
-CREATE POLICY proveedores_delete ON public.erp_proveedores FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_proveedores_all ON public.erp_proveedores;
+CREATE POLICY p_proveedores_all ON public.erp_proveedores FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_eventos_calendario
 DROP POLICY IF EXISTS eventos_select ON public.erp_eventos_calendario;
@@ -328,12 +299,8 @@ DROP POLICY IF EXISTS eventos_update ON public.erp_eventos_calendario;
 DROP POLICY IF EXISTS eventos_delete ON public.erp_eventos_calendario;
 DROP POLICY IF EXISTS "erp_eventos_calendario_read" ON public.erp_eventos_calendario;
 DROP POLICY IF EXISTS "erp_eventos_calendario_write" ON public.erp_eventos_calendario;
-CREATE POLICY eventos_select ON public.erp_eventos_calendario FOR SELECT TO authenticated USING (true);
-CREATE POLICY eventos_insert ON public.erp_eventos_calendario FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY eventos_update ON public.erp_eventos_calendario FOR UPDATE TO authenticated USING (true);
-CREATE POLICY eventos_delete ON public.erp_eventos_calendario FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_eventos_all ON public.erp_eventos_calendario;
+CREATE POLICY p_eventos_all ON public.erp_eventos_calendario FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_bitacora
 DROP POLICY IF EXISTS bitacora_select ON public.erp_bitacora;
@@ -342,12 +309,8 @@ DROP POLICY IF EXISTS bitacora_update ON public.erp_bitacora;
 DROP POLICY IF EXISTS bitacora_delete ON public.erp_bitacora;
 DROP POLICY IF EXISTS "erp_bitacora_read" ON public.erp_bitacora;
 DROP POLICY IF EXISTS "erp_bitacora_write" ON public.erp_bitacora;
-CREATE POLICY bitacora_select ON public.erp_bitacora FOR SELECT TO authenticated USING (true);
-CREATE POLICY bitacora_insert ON public.erp_bitacora FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY bitacora_update ON public.erp_bitacora FOR UPDATE TO authenticated USING (true);
-CREATE POLICY bitacora_delete ON public.erp_bitacora FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_bitacora_all ON public.erp_bitacora;
+CREATE POLICY p_bitacora_all ON public.erp_bitacora FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_presupuestos
 DROP POLICY IF EXISTS presupuestos_select ON public.erp_presupuestos;
@@ -358,16 +321,8 @@ DROP POLICY IF EXISTS logs_sistema_select ON public.erp_presupuestos;
 DROP POLICY IF EXISTS logs_sistema_create ON public.erp_presupuestos;
 DROP POLICY IF EXISTS logs_sistema_update ON public.erp_presupuestos;
 DROP POLICY IF EXISTS logs_sistema_delete ON public.erp_presupuestos;
-CREATE POLICY presupuestos_select ON public.erp_presupuestos FOR SELECT TO authenticated USING (true);
-CREATE POLICY presupuestos_insert ON public.erp_presupuestos FOR INSERT TO authenticated WITH CHECK (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol IN ('Administrador','Gerente','Residente'))
-);
-CREATE POLICY presupuestos_update ON public.erp_presupuestos FOR UPDATE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol IN ('Administrador','Gerente','Residente'))
-);
-CREATE POLICY presupuestos_delete ON public.erp_presupuestos FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_presupuestos_all ON public.erp_presupuestos;
+CREATE POLICY p_presupuestos_all ON public.erp_presupuestos FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_seguimiento
 DROP POLICY IF EXISTS seguimiento_select ON public.erp_seguimiento;
@@ -376,12 +331,8 @@ DROP POLICY IF EXISTS seguimiento_update ON public.erp_seguimiento;
 DROP POLICY IF EXISTS seguimiento_delete ON public.erp_seguimiento;
 DROP POLICY IF EXISTS "erp_seguimiento_read" ON public.erp_seguimiento;
 DROP POLICY IF EXISTS "erp_seguimiento_write" ON public.erp_seguimiento;
-CREATE POLICY seguimiento_select ON public.erp_seguimiento FOR SELECT TO authenticated USING (true);
-CREATE POLICY seguimiento_insert ON public.erp_seguimiento FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY seguimiento_update ON public.erp_seguimiento FOR UPDATE TO authenticated USING (true);
-CREATE POLICY seguimiento_delete ON public.erp_seguimiento FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_seguimiento_all ON public.erp_seguimiento;
+CREATE POLICY p_seguimiento_all ON public.erp_seguimiento FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_renglones
 DROP POLICY IF EXISTS renglones_select ON public.erp_renglones;
@@ -390,12 +341,8 @@ DROP POLICY IF EXISTS renglones_update ON public.erp_renglones;
 DROP POLICY IF EXISTS renglones_delete ON public.erp_renglones;
 DROP POLICY IF EXISTS "erp_renglones_read" ON public.erp_renglones;
 DROP POLICY IF EXISTS "erp_renglones_write" ON public.erp_renglones;
-CREATE POLICY renglones_select ON public.erp_renglones FOR SELECT TO authenticated USING (true);
-CREATE POLICY renglones_insert ON public.erp_renglones FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY renglones_update ON public.erp_renglones FOR UPDATE TO authenticated USING (true);
-CREATE POLICY renglones_delete ON public.erp_renglones FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_renglones_all ON public.erp_renglones;
+CREATE POLICY p_renglones_all ON public.erp_renglones FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_insumos
 DROP POLICY IF EXISTS insumos_select ON public.erp_insumos;
@@ -404,12 +351,8 @@ DROP POLICY IF EXISTS insumos_update ON public.erp_insumos;
 DROP POLICY IF EXISTS insumos_delete ON public.erp_insumos;
 DROP POLICY IF EXISTS "erp_insumos_read" ON public.erp_insumos;
 DROP POLICY IF EXISTS "erp_insumos_write" ON public.erp_insumos;
-CREATE POLICY insumos_select ON public.erp_insumos FOR SELECT TO authenticated USING (true);
-CREATE POLICY insumos_insert ON public.erp_insumos FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY insumos_update ON public.erp_insumos FOR UPDATE TO authenticated USING (true);
-CREATE POLICY insumos_delete ON public.erp_insumos FOR DELETE TO authenticated USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'Administrador')
-);
+DROP POLICY IF EXISTS p_insumos_all ON public.erp_insumos;
+CREATE POLICY p_insumos_all ON public.erp_insumos FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- erp_sub_renglones
 DROP POLICY IF EXISTS subrenglones_select ON public.erp_sub_renglones;
