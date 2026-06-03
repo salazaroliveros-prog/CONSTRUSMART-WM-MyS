@@ -6,6 +6,8 @@ import SignaturePad from './SignaturePad';
 import { INPUT, BUTTON_PRIMARY } from '../ui';
 import { CARD, CARD_TITLE } from '../ui';
 import { todayISO } from '../utils';
+import { uploadBase64Image } from '@/lib/storage';
+import { supabase } from '@/lib/supabase';
 
 interface ChecklistItem {
   id: string;
@@ -95,6 +97,48 @@ const ChecklistCalidad: React.FC = () => {
     return 'pendiente';
   };
 
+  /**
+   * Cifra un string usando AES-GCM con una clave derivada del userId
+   * Almacena IV + ciphertext como base64
+   */
+  async function encryptData(plaintext: string, userId: string): Promise<string> {
+    try {
+      // Generar una clave AES-GCM a partir del userId + salt fijo
+      const encoder = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(userId + '::construsmart-checklist-salt'),
+        'PBKDF2',
+        false,
+        ['deriveKey']
+      );
+      const key = await crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt: encoder.encode('construsmart-salt-2026'), iterations: 100000, hash: 'SHA-256' },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt']
+      );
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        encoder.encode(plaintext)
+      );
+      // Concatenar IV + ciphertext y codificar como base64
+      const combined = new Uint8Array(iv.length + ciphertext.byteLength);
+      combined.set(iv, 0);
+      combined.set(new Uint8Array(ciphertext), iv.length);
+      return btoa(String.fromCharCode(...combined));
+    } catch {
+      // Fallback: si Web Crypto no está disponible, usar btoa simple
+      return btoa(plaintext);
+    }
+  }
+
+  // Obtener userId del contexto o session
+  const userSession = supabase.auth.getSession();
+
   const guardarChecklist = async () => {
     if (!proyectoId) {
       toast.error('Selecciona un proyecto');
@@ -114,19 +158,45 @@ const ChecklistCalidad: React.FC = () => {
 
     setGuardando(true);
     try {
+      // Subir fotos a Supabase Storage en lugar de guardarlas en localStorage
+      const { data: sessionData } = await userSession;
+      const userId = sessionData?.user?.id || 'anonymous';
+      
+      let fotosUrls: string[] = [];
+      if (fotos.length > 0) {
+        for (const foto of fotos) {
+          const url = await uploadBase64Image('erp_documentos', foto, userId);
+          if (url) fotosUrls.push(url);
+        }
+      }
+
+      // Subir firmas a Supabase Storage
+      let firmaSuperUrl = '';
+      let firmaResUrl = '';
+      if (firmaSupervisor) {
+        firmaSuperUrl = (await uploadBase64Image('erp_documentos', firmaSupervisor, userId)) || '';
+      }
+      if (firmaResidente) {
+        firmaResUrl = (await uploadBase64Image('erp_documentos', firmaResidente, userId)) || '';
+      }
+
+      // Preparar checklist con URLs en lugar de base64
       const checklist: ChecklistRecord = {
         id: crypto.randomUUID(),
         proyectoId,
         fecha: todayISO(),
         items,
-        firmaSupervisor: firmaSupervisor || undefined,
-        firmaResidente: firmaResidente || undefined,
-        fotos: fotos.length > 0 ? fotos : undefined,
+        firmaSupervisor: firmaSuperUrl || undefined,
+        firmaResidente: firmaResUrl || undefined,
+        fotos: fotosUrls.length > 0 ? fotosUrls : undefined,
         estado: estadoGeneral,
         observaciones: observaciones || undefined,
       };
 
-      localStorage.setItem(`wm_checklist_${proyectoId}_${todayISO()}`, JSON.stringify(checklist));
+      // Cifrar antes de guardar en localStorage (solo metadata, no fotos/firmas que ya están en Storage)
+      const checklistJson = JSON.stringify(checklist);
+      const checklistCifrado = await encryptData(checklistJson, userId);
+      localStorage.setItem(`wm_checklist_${proyectoId}_${todayISO()}`, checklistCifrado);
       
       toast.success(
         estadoGeneral === 'aprobado' 
