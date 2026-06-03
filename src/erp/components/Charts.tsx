@@ -29,8 +29,8 @@ export const LineChart: React.FC<{ series: Series[]; labels?: string[]; height?:
         <text key={i} x={x(i)} y={height - 8} fontSize={8} textAnchor="middle" fill="#94a3b8">{l}</text>
       ))}
     </svg>
-  ));
-};
+  );
+});
 
 export const AreaChart: React.FC<{ series: Series[]; labels?: string[] }> = React.memo(({ series, labels }) => {
   const all = series.flatMap(s => s.data);
@@ -55,7 +55,7 @@ export const AreaChart: React.FC<{ series: Series[]; labels?: string[] }> = Reac
       ))}
     </svg>
   );
-};
+});
 
 export const BarChart: React.FC<{ data: { label: string; value: number; color?: string }[]; height?: number }> = React.memo(({ data, height = H }) => {
   const max = Math.max(...data.map(d => d.value), 1);
@@ -73,7 +73,7 @@ export const BarChart: React.FC<{ data: { label: string; value: number; color?: 
       })}
     </svg>
   );
-};
+});
 
 export const Donut: React.FC<{ data: { label: string; value: number; color: string }[]; size?: number }> = React.memo(({ data, size = 150 }) => {
   const total = data.reduce((a, b) => a + b.value, 0) || 1;
@@ -93,7 +93,7 @@ export const Donut: React.FC<{ data: { label: string; value: number; color: stri
       <circle cx={cx} cy={cy} r={r * 0.55} fill="#fff" />
     </svg>
   );
-};
+});
 
 export const Gauge: React.FC<{ value: number; max: number; label: string; color?: string }> = React.memo(({ value, max, label, color = '#10b981' }) => {
   const pct = Math.max(-1, Math.min(1, value / (max || 1)));
@@ -111,10 +111,10 @@ export const Gauge: React.FC<{ value: number; max: number; label: string; color?
       <text x={80} y={97} fontSize={9} textAnchor="middle" fill="#64748b">{label}</text>
     </svg>
   );
-};
+});
 
 export const Progress: React.FC<{ value: number; color?: string; bg?: string }> = React.memo(({ value, color = '#f97316', bg = '#e2e8f0' }) => (
   <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: bg }}>
     <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(100, Math.max(0, value))}%`, background: color }} />
   </div>
-);
+));
