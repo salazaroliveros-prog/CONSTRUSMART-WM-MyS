@@ -38,15 +38,15 @@ export const duracionPorRendimiento = (cantidad: number, rendimiento: number) =>
 export const CATEGORIA_LABEL: Record<Categoria, string> = {
   materiales: 'Materiales',
   mano_obra: 'Mano de Obra',
-  herramienta: 'Herramienta',
-  sub_contrato: 'Sub-contrato',
-  administrativo: 'Administrativo',
-  personal: 'Personal',
+  equipo: 'Equipo',
+  subcontrato: 'Subcontrato',
+  administracion: 'Administración',
   transporte: 'Transporte',
-  fijos: 'Fijos',
-  hogar: 'Hogar',
-  aporte: 'Aporte',
-  trabajos_extra: 'Trabajos Extra',
+  imprevistos: 'Imprevistos',
+  marketing: 'Marketing',
+  licencias: 'Licencias',
+  seguros: 'Seguros',
+  otros: 'Otros',
 };
 
 export const TIPOLOGIA_LABEL: Record<Tipologia, string> = {

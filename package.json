@@ -71,7 +71,7 @@
     "three": "^0.184.0",
     "uuid": "^11.1.0",
     "vaul": "^0.9.3",
-    "web-ifc": "^0.0.77",
+    "web-ifc": "^0.0.81",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -79,7 +79,6 @@
     "@types/node": "^22.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@typescript-eslint/parser": "^8.60.0",
     "@vitejs/plugin-react-swc": "^3.11.0",
     "autoprefixer": "^10.5.0",
     "eslint": "^9.39.4",
