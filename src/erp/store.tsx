@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { sanitizarObjeto } from '@/lib/security';
 import { getServerRole } from '@/lib/security';
@@ -649,24 +649,28 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastRolRef = useRef<Rol | null>(null);
+
   useEffect(() => {
-    if (!isOnline) return;
-    let active = true;
+    if (!isOnline) {
+      if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+      return;
+    }
+    if (!user?.id) return;
     const check = async () => {
-      if (!active || !user?.id) return;
       try {
         const serverRole = await getServerRole();
-        if (!active) return;
-        if (serverRole?.rol && serverRole.rol !== user.rol) {
-          setUser(prev => prev ? { ...prev, rol: serverRole.rol as Rol } : prev);
+        if (serverRole?.rol && serverRole.rol !== lastRolRef.current) {
+          lastRolRef.current = serverRole.rol as Rol;
+          setUser(prev => prev ? { ...prev, rol: lastRolRef.current! } : prev);
         }
-      } catch {
-        // keep current role until next check
-      }
+      } catch { /* silent */ }
     };
-    const id = window.setInterval(check, 30000);
-    return () => { active = false; window.clearInterval(id); };
-  }, [isOnline, user?.id, user?.rol]);
+    check();
+    intervalRef.current = setInterval(check, 30000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [isOnline, user?.id]); // ← SIN user?.rol: evita el loop infinito
 
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_proyectos', proyectos); }, [proyectos]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_movimientos', movimientos); }, [movimientos]);
