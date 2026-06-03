@@ -12,9 +12,30 @@ import Seguimiento from '@/erp/screens/Seguimiento';
 import Financiero from '@/erp/screens/Financiero';
 import RRHH from '@/erp/screens/RRHH';
 import Bodega from '@/erp/screens/Bodega';
+import CRM from '@/erp/screens/CRM';
+import APUAvanzado from '@/erp/screens/APUAvanzado';
+import CurvasS from '@/erp/screens/CurvasS';
+import Rendimientos from '@/erp/screens/Rendimientos';
+import BasePrecios from '@/erp/screens/BasePrecios';
+import ReportesTecnicos from '@/erp/screens/ReportesTecnicos';
+import MuroObra from '@/erp/screens/MuroObra';
+import OrdenesCambio from '@/erp/screens/OrdenesCambio';
+import Notificaciones from '@/erp/screens/Notificaciones';
+import SSOCalidad from '@/erp/screens/SSOCalidad';
+import GestionDocumental from '@/erp/screens/GestionDocumental';
+import VisorBIM from '@/erp/screens/VisorBIM';
+import DashboardPredictivo from '@/erp/screens/DashboardPredictivo';
+import ExportacionInteligente from '@/erp/screens/ExportacionInteligente';
+import LogisticaCompras from '@/erp/screens/LogisticaCompras';
+import RendimientoCampo from '@/erp/screens/RendimientoCampo';
+import ComercialFinanzas from '@/erp/screens/ComercialFinanzas';
+import Administracion from '@/erp/screens/Administracion';
+import PlanillaDestajos from '@/erp/screens/PlanillaDestajos';
+import Impuestos from '@/erp/screens/Impuestos';
+import EntradasAlmacenOC from '@/erp/screens/EntradasAlmacenOC';
 
 const Shell: React.FC = () => {
-  const { view, initializing } = useErp();
+  const { view, initializing, allowedViews, setView } = useErp();
   const { sidebarOpen, toggleSidebar, sidebarCollapsed } = useAppContext();
 
   if (initializing) {
@@ -37,10 +58,43 @@ const Shell: React.FC = () => {
     seguimiento: <Seguimiento />,
     financiero: <Financiero />,
     rrhh: <RRHH />,
+    apu: <APUAvanzado />,
+    curvas: <CurvasS />,
+    rendimientos: <Rendimientos />,
+    baseprecios: <BasePrecios />,
+    reportes: <ReportesTecnicos />,
+    muro: <MuroObra />,
+    'ordenes-cambio': <OrdenesCambio />,
+    notificaciones: <Notificaciones />,
     bodega: <Bodega />,
+    crm: <CRM />,
+    'sso-calidad': <SSOCalidad />,
+    'documentos': <GestionDocumental />,
+    'predictivo': <DashboardPredictivo />,
+    'exportacion': <ExportacionInteligente />,
+    'visor-bim': <VisorBIM />,
+    'logistica': <LogisticaCompras />,
+    'rendimiento-campo': <RendimientoCampo />,
+    'comercial-fin': <ComercialFinanzas />,
+    'admin-sistema': <Administracion />,
+    'planilla-destajos': <PlanillaDestajos />,
+    'impuestos': <Impuestos />,
+    'entradas-almacen': <EntradasAlmacenOC />,
   };
 
-  const currentScreen = screens[view] ?? <Dashboard />;
+  const currentScreen = allowedViews.includes(view)
+    ? screens[view] ?? <Dashboard />
+    : (
+      <div className="min-h-[calc(100vh-60px)] flex flex-col items-center justify-center p-8 text-center">
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
+          <h2 className="text-xl font-semibold text-slate-900 mb-3">Acceso no autorizado</h2>
+          <p className="text-slate-600 mb-5">No tienes permiso para ver esta sección. Selecciona otro módulo o regresa al tablero.</p>
+          <button onClick={() => setView('dashboard')} className="inline-flex items-center justify-center rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600 transition">
+            Volver al Tablero
+          </button>
+        </div>
+      </div>
+    );
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">

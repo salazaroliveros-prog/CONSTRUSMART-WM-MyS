@@ -1,0 +1,157 @@
+import React from 'react';
+import { useErp } from '../store';
+import { CARD, CARD_TITLE } from '../ui';
+import { Bell, Check, CheckCheck, AlertTriangle, ClipboardList, Package, TrendingDown, Activity, CalendarClock } from 'lucide-react';
+
+const MAPA_ICONOS: Record<string, React.ReactNode> = {
+  checklist_rechazado: <AlertTriangle className="w-5 h-5 text-red-500" />,
+  orden_cambio_pendiente: <ClipboardList className="w-5 h-5 text-amber-500" />,
+  stock_critico: <Package className="w-5 h-5 text-orange-500" />,
+  desviacion_rendimiento: <TrendingDown className="w-5 h-5 text-red-500" />,
+  avance_registrado: <Activity className="w-5 h-5 text-green-500" />,
+  general: <Bell className="w-5 h-5 text-blue-500" />,
+};
+
+const MAPA_COLORES: Record<string, string> = {
+  checklist_rechazado: 'bg-red-50 border-red-200',
+  orden_cambio_pendiente: 'bg-amber-50 border-amber-200',
+  stock_critico: 'bg-orange-50 border-orange-200',
+  desviacion_rendimiento: 'bg-red-50 border-red-200',
+  avance_registrado: 'bg-green-50 border-green-200',
+  general: 'bg-blue-50 border-blue-200',
+};
+
+const MAPA_LABEL: Record<string, string> = {
+  checklist_rechazado: 'Checklist Rechazado',
+  orden_cambio_pendiente: 'Orden de Cambio Pendiente',
+  stock_critico: 'Stock Crítico',
+  desviacion_rendimiento: 'Desviación de Rendimiento',
+  avance_registrado: 'Avance Registrado',
+  general: 'General',
+};
+
+export default function Notificaciones() {
+  const { notificaciones, markNotificacionLeida, marcarTodasLeidas, proyectos } = useErp();
+  const [filtroTipo, setFiltroTipo] = React.useState<string | null>(null);
+
+  const filtradas = filtroTipo
+    ? notificaciones.filter(n => n.tipo === filtroTipo)
+    : notificaciones;
+
+  const tiposExistentes = [...new Set(notificaciones.map(n => n.tipo))];
+
+  const getProyectoNombre = (proyectoId?: string) => {
+    if (!proyectoId) return '';
+    const p = proyectos.find(pr => pr.id === proyectoId);
+    return p ? p.nombre : '';
+  };
+
+  const formatDate = (iso: string) => {
+    const d = new Date(iso);
+    return d.toLocaleDateString('es-GT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <div className="p-4 max-w-4xl mx-auto space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Bell className="w-6 h-6" />
+            Notificaciones
+          </h1>
+          <p className="text-sm text-gray-500">
+            {notificaciones.filter(n => !n.leido).length} sin leer · {notificaciones.length} total
+          </p>
+        </div>
+        <button
+          onClick={marcarTodasLeidas}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors"
+        >
+          <CheckCheck className="w-4 h-4" />
+          Marcar todas leídas
+        </button>
+      </div>
+
+      {/* Filtros por tipo */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setFiltroTipo(null)}
+          className={`px-3 py-1 text-xs rounded-full transition-colors ${
+            filtroTipo === null
+              ? 'bg-gray-800 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Todas
+        </button>
+        {tiposExistentes.map(tipo => (
+          <button
+            key={tipo}
+            onClick={() => setFiltroTipo(tipo)}
+            className={`px-3 py-1 text-xs rounded-full transition-colors ${
+              filtroTipo === tipo
+                ? 'bg-gray-800 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {MAPA_LABEL[tipo] || tipo}
+          </button>
+        ))}
+      </div>
+
+      {/* Lista de notificaciones */}
+      {filtradas.length === 0 ? (
+        <div className="text-center py-16 text-gray-400">
+          <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
+          <p className="text-lg font-medium">No hay notificaciones</p>
+          <p className="text-sm">Las notificaciones aparecerán aquí cuando ocurran eventos importantes.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtradas.map(notif => (
+            <div
+              key={notif.id}
+              className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${
+                MAPA_COLORES[notif.tipo] || 'bg-gray-50 border-gray-200'
+              } ${notif.leido ? 'opacity-60' : 'shadow-sm'}`}
+              onClick={() => !notif.leido && markNotificacionLeida(notif.id)}
+            >
+              <div className="mt-0.5 shrink-0">
+                {MAPA_ICONOS[notif.tipo] || <Bell className="w-5 h-5 text-gray-400" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    {MAPA_LABEL[notif.tipo] || notif.tipo}
+                  </span>
+                  {!notif.leido && (
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0" />
+                  )}
+                </div>
+                <p className="text-sm font-medium text-gray-900">{notif.titulo}</p>
+                <p className="text-xs text-gray-600 mt-0.5">{notif.mensaje}</p>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span className="text-[10px] text-gray-400">{formatDate(notif.createdAt)}</span>
+                  {notif.proyectoId && (
+                    <span className="text-[10px] text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded">
+                      {getProyectoNombre(notif.proyectoId)}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {!notif.leido && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); markNotificacionLeida(notif.id); }}
+                  className="p-1.5 hover:bg-white/50 rounded-full transition-colors shrink-0"
+                  title="Marcar como leída"
+                >
+                  <Check className="w-4 h-4 text-gray-400" />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

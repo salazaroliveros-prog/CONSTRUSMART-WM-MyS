@@ -446,13 +446,13 @@ const resumen = resumenMateriales;
 
 ---
 
-## 🚀 Próximas Mejoras
+## 🚀 Mejoras Implementadas
 
-1. **Validación:** Alertas si precio es 0 o cantidad es negativa
-2. **Plantillas:** Pre-cargar sub-renglones típicos para cada tipo de renglon
-3. **Importación:** Cargar materiales desde catálogo
-4. **Historial:** Guardar cambios en Supabase para auditoría
-5. **APU Dinámico:** Generar APU automático desde sub-renglones
+1. **Validación:** Alertas si precio es 0, negativo o excesivo (>Q10,000) — ✅ Implementado en `Administracion.tsx` (tab Validación Precios) y `useNuevosModulos.ts::validarPrecioSubrenglon()`
+2. **Plantillas:** Pre-cargar sub-renglones típicos para cada tipo de renglon — ✅ Implementado en `RendimientoCampo.tsx` (tab Plantillas) con 4 plantillas predefinidas (Concreto, Acero, Mampostería, Encofrado)
+3. **Importación:** Cargar materiales desde catálogo — ✅ Implementado en migración v1.2.0 — tabla `erp_insumos_base` con 24 insumos precargados con precios de referencia
+4. **Historial:** Guardar cambios en Supabase para auditoría — ✅ Implementado (store.tsx CRUD + `logs_sistema` + `fn_log_audit` trigger)
+5. **APU Dinámico:** Generar APU automático desde sub-renglones — ✅ Implementado (cálculo de resumenMateriales con useMemo)
 
 ---
 

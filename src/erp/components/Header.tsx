@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
-import { LogOut, Home, Menu, Upload } from 'lucide-react';
+import { LogOut, Home, Menu, Upload, Bell } from 'lucide-react';
+import SyncIndicator from './SyncIndicator';
 
 const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, title }) => {
-  const { user, logout, setView, view } = useErp();
+  const { user, logout, setView, view, notificacionesNoLeidas } = useErp();
   const [now, setNow] = useState(new Date());
   const [customPhoto, setCustomPhoto] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -54,11 +55,24 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         </div>
       </div>
 
+      {/* SyncIndicator - estado de conexión y pendientes */}
+      <div className="hidden sm:block">
+        <SyncIndicator />
+      </div>
+
       <div className="hidden md:block text-center">
         <div className="font-mono text-lg font-bold tabular-nums text-orange-300">{now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
         <div className="text-[10px] text-slate-400 capitalize">{now.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
       </div>
 
+      <button onClick={() => setView('notificaciones')} className="relative p-2 hover:bg-white/10 rounded-lg" title="Notificaciones">
+        <Bell className="w-5 h-5" />
+        {notificacionesNoLeidas > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+            {notificacionesNoLeidas > 99 ? '99+' : notificacionesNoLeidas}
+          </span>
+        )}
+      </button>
       <div className="flex items-center gap-2">
         {view !== 'dashboard' && (
           <button onClick={() => setView('dashboard')} className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-medium">

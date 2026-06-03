@@ -5,8 +5,11 @@ import KpiCard from '../components/KpiCard';
 import Calendar from '../components/Calendar';
 import MovimientoForm from '../components/MovimientoForm';
 import { LineChart, BarChart, Donut } from '../components/Charts';
-import { Building2, TrendingUp, DollarSign, AlertTriangle, Activity, Calculator, ClipboardCheck, Wallet, Users, Warehouse, ArrowRight } from 'lucide-react';
+import { Building2, TrendingUp, DollarSign, AlertTriangle, Activity, Calculator, ClipboardCheck, Wallet, Users, Warehouse, ArrowRight, Target } from 'lucide-react';
 import { CARD, CARD_TITLE } from '../ui';
+import CriticalRenglonAlert from '../components/CriticalRenglonAlert';
+import LicitacionesDashboard from '../components/LicitacionesDashboard';
+import CajasChicasWidget from '../components/CajasChicasWidget';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
 
@@ -40,6 +43,7 @@ const Dashboard: React.FC = () => {
     { id: 'presupuestos', label: 'Presupuestos', icon: Calculator, c: 'from-orange-500 to-amber-500' },
     { id: 'seguimiento', label: 'Seguimiento', icon: ClipboardCheck, c: 'from-emerald-500 to-teal-600' },
     { id: 'financiero', label: 'Financiero', icon: Wallet, c: 'from-violet-500 to-purple-600' },
+    { id: 'crm', label: 'CRM', icon: Target, c: 'from-purple-500 to-pink-600' },
     { id: 'rrhh', label: 'RRHH', icon: Users, c: 'from-pink-500 to-rose-600' },
     { id: 'bodega', label: 'Bodega', icon: Warehouse, c: 'from-cyan-500 to-sky-600' },
   ];
@@ -123,10 +127,16 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 mt-2 flex-shrink-0">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 mt-2 flex-shrink-0">
+        <div>
           <h3 className="font-bold text-slate-700 text-xs mb-1">Registro Rapido de Ingresos y Gastos</h3>
           <MovimientoForm compact />
+        </div>
+        <div>
+          <LicitacionesDashboard />
+        </div>
+        <div>
+          <CajasChicasWidget />
         </div>
         <div>
           <h3 className="font-bold text-slate-700 text-xs mb-1">Acceso a Modulos</h3>

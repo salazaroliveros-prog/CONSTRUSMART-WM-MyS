@@ -1,20 +1,97 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { CARD, INPUT, BUTTON_DARK } from '../ui';
 
 import { useErp } from '../store';
-import { Tipologia, RenglonPresupuesto, SubRenglon } from '../types';
+import { Tipologia, RenglonPresupuesto, SubRenglon, Presupuesto } from '../types';
 import { generarRenglones } from '../data';
 import { fmtQ, TIPOLOGIA_LABEL, costoDirectoUnitario, precioUnitarioVenta, duracionPorRendimiento, HERRAMIENTA_MENOR, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD } from '../utils';
 import { exportCSV, exportPDF } from '../export';
 import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X } from 'lucide-react';
+import PresupuestosList from '../components/PresupuestosList';
+import CubicacionAutomatica from '../components/CubicacionAutomatica';
+import HistorialPresupuestosModal from '../components/HistorialPresupuestosModal';
 
 const Presupuestos: React.FC = () => {
-  useErp();
+  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, updateProyecto, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores } = useErp();
+  const [tab, setTab] = useState<'crear' | 'guardados'>('crear');
   const [tipologia, setTipologia] = useState<Tipologia>('residencial');
   const [proyecto, setProyecto] = useState('Nuevo Presupuesto');
+  const [projectId, setProjectId] = useState('');
   const [items, setItems] = useState<RenglonPresupuesto[]>([]);
   const [sel, setSel] = useState('');
+  const [selectedProveedorId, setSelectedProveedorId] = useState('');
+  const [nuevoProveedorNombre, setNuevoProveedorNombre] = useState('');
+  const [nuevoProveedorContacto, setNuevoProveedorContacto] = useState('');
   const [saved, setSaved] = useState(false);
+  const [editingPresupuesto, setEditingPresupuesto] = useState<Presupuesto | null>(null);
+  const [histOpen, setHistOpen] = useState(false);
+
+  useEffect(() => {
+    if (selectedProyectoId) {
+      setProjectId(selectedProyectoId);
+      const proyectoSeleccionado = proyectos.find(p => p.id === selectedProyectoId);
+      if (proyectoSeleccionado) {
+        setTipologia(proyectoSeleccionado.tipologia);
+        setProyecto(`Presupuesto ${proyectoSeleccionado.nombre}`);
+      }
+      return;
+    }
+
+    if (!projectId && proyectos.length > 0) {
+      setProjectId(proyectos[0].id);
+    }
+  }, [proyectos, projectId, selectedProyectoId]);
+
+  useEffect(() => {
+    if (proveedores.length > 0 && !selectedProveedorId) {
+      setSelectedProveedorId(proveedores[0].id);
+    }
+  }, [proveedores, selectedProveedorId]);
+
+  useEffect(() => {
+    if (!selectedProyectoId) return;
+
+    const presupuestoExistente = presupuestos
+      .filter(p => p.proyectoId === selectedProyectoId)
+      .sort((a, b) => new Date(b.fechaActualizacion).getTime() - new Date(a.fechaActualizacion).getTime())[0];
+
+    if (presupuestoExistente) {
+      setItems((presupuestoExistente.renglones || []) as RenglonPresupuesto[]);
+      setTipologia(presupuestoExistente.tipologia);
+      setProyecto(presupuestoExistente.notas || `Presupuesto ${proyectos.find(p => p.id === selectedProyectoId)?.nombre || ''}`);
+      setEditingPresupuesto(presupuestoExistente);
+    } else {
+      setItems([]);
+      setEditingPresupuesto(null);
+    }
+  }, [selectedProyectoId, presupuestos, proyectos]);
+
+  const openHistorial = () => setHistOpen(true);
+
+  const handleApplyVersion = (p: Presupuesto) => {
+    // Load selected version into editor
+    setEditingPresupuesto(p);
+    setItems((p.renglones || []) as RenglonPresupuesto[]);
+    setTipologia(p.tipologia);
+    setProyecto(p.notas || `Presupuesto ${proyectos.find(pr => pr.id === p.proyectoId)?.nombre || ''}`);
+    setHistOpen(false);
+  };
+
+  const handleApprovePresupuesto = async (p: Presupuesto) => {
+    await updatePresupuesto(p.id, { estado: 'aprobado' });
+    addNotificacion('general', 'Presupuesto aprobado', `El presupuesto "${p.notas || 'sin nombre'}" fue aprobado.`, p.proyectoId, p.id);
+    if (editingPresupuesto?.id === p.id) {
+      setEditingPresupuesto({ ...editingPresupuesto, estado: 'aprobado' });
+    }
+  };
+
+  const handleRejectPresupuesto = async (p: Presupuesto) => {
+    await updatePresupuesto(p.id, { estado: 'rechazado' });
+    addNotificacion('general', 'Presupuesto rechazado', `El presupuesto "${p.notas || 'sin nombre'}" fue rechazado.`, p.proyectoId, p.id);
+    if (editingPresupuesto?.id === p.id) {
+      setEditingPresupuesto({ ...editingPresupuesto, estado: 'rechazado' });
+    }
+  };
 
   const catalogo = useMemo(() => generarRenglones(tipologia), [tipologia]);
   const disponibles = catalogo.filter(c => !items.some(i => i.codigo === c.codigo));
@@ -47,6 +124,49 @@ const Presupuestos: React.FC = () => {
         } as SubRenglon
       ]
     });
+  };
+
+  const handleRegistrarGastoRenglon = async (r: RenglonPresupuesto) => {
+    if (!projectId) return;
+    try {
+      const c = calc(r);
+      await addMovimiento({
+        tipo: 'gasto',
+        proyectoId: projectId,
+        descripcion: `Gasto desde presupuesto - ${r.nombre}`,
+        cantidad: 1,
+        unidad: r.unidad || 'u',
+        categoria: 'materiales',
+        costoUnitario: c.total,
+        fecha: new Date().toISOString().slice(0, 10),
+      });
+      addNotificacion('general', 'Gasto registrado', `Se registró gasto Q${c.total.toFixed(2)} para renglón ${r.nombre}`, projectId);
+    } catch (err) {
+      console.error('Error registrando gasto por renglón:', err);
+    }
+  };
+
+  const handleCrearOCDesdeRenglon = async (r: RenglonPresupuesto) => {
+    if (!projectId) return;
+    if (!selectedProveedorId) {
+      addNotificacion('general', 'Proveedor faltante', 'Selecciona un proveedor antes de crear la OC.', projectId);
+      return;
+    }
+
+    try {
+      const c = calc(r);
+      await addOrden({
+        proyectoId: projectId,
+        proveedorId: selectedProveedorId,
+        fecha: new Date().toISOString().slice(0, 10),
+        estado: 'pendiente',
+        total: c.total,
+        items: [{ materialId: r.id, cantidad: r.cantidad, precioUnitario: c.pv }],
+      });
+      addNotificacion('general', 'Orden de Compra creada', `OC por Q${c.total.toFixed(2)} creada desde renglón ${r.nombre}`, projectId);
+    } catch (err) {
+      console.error('Error creando OC desde renglón:', err);
+    }
   };
 
   const updSubrenglon = (renglonId: string, subId: string, patch: Partial<SubRenglon>) => {
@@ -90,7 +210,89 @@ const Presupuestos: React.FC = () => {
     return Object.entries(materiales).map(([nombre, data]) => ({ nombre, ...data }));
   }, [items]);
 
-  const save = () => { try { localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(items)); } catch { /* ignore */ } setSaved(true); setTimeout(() => setSaved(false), 1500); };
+  const save = async () => {
+    if (editingPresupuesto) {
+      // Editar presupuesto existente
+      await updatePresupuesto(editingPresupuesto.id, {
+        renglones: items,
+        totalCalculado: granTotal,
+        costoDirectoTotal: granDir,
+        fechaActualizacion: new Date().toISOString(),
+        notas: proyecto,
+        versionPresupuesto: (editingPresupuesto.versionPresupuesto || 1) + 1,
+      });
+      setEditingPresupuesto(null);
+    } else if (projectId) {
+      // Crear nuevo presupuesto
+      await addPresupuesto({
+        proyectoId: projectId,
+        tipologia,
+        renglones: items,
+        totalCalculado: granTotal,
+        costoDirectoTotal: granDir,
+        estado: 'borrador',
+        fechaCreacion: new Date().toISOString(),
+        fechaActualizacion: new Date().toISOString(),
+        notas: proyecto,
+        versionPresupuesto: 1,
+      });
+    } else {
+      try { localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(items)); } catch { /* ignore */ }
+    }
+
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
+  };
+
+  const handleRegistrarGastoTotal = async () => {
+    if (!projectId) return;
+    try {
+      await addMovimiento({
+        tipo: 'gasto',
+        proyectoId: projectId,
+        descripcion: `Gasto registrado desde presupuesto: ${proyecto}`,
+        cantidad: 1,
+        unidad: 'global',
+        categoria: 'materiales',
+        costoUnitario: granTotal,
+        fecha: new Date().toISOString().slice(0, 10),
+      });
+      addNotificacion('general', 'Gasto registrado', `Se registró un gasto Q${granTotal.toFixed(2)} para el proyecto.`, projectId);
+    } catch (err) {
+      console.error('Error registrando gasto desde presupuesto:', err);
+    }
+  };
+
+  const handleEditPresupuesto = (p: Presupuesto) => {
+    setEditingPresupuesto(p);
+    setTab('crear');
+    setProyecto(p.notas || 'Presupuesto');
+    setProjectId(p.proyectoId);
+    setTipologia(p.tipologia);
+    setItems((p.renglones || []) as RenglonPresupuesto[]);
+  };
+
+  const handleDuplicatePresupuesto = (p: Presupuesto) => {
+    setEditingPresupuesto(null);
+    setTab('crear');
+    setProyecto(p.notas + ' (Copia)' || 'Presupuesto (Copia)');
+    setProjectId(p.proyectoId);
+    setTipologia(p.tipologia);
+    setItems((p.renglones || []) as RenglonPresupuesto[]);
+  };
+
+  const handleExportPresupuesto = (p: Presupuesto) => {
+    exportPDF(p.renglones || [], p.notas || 'Presupuesto', p.tipologia);
+  };
+
+  const presupuestosDelProyecto = projectId ? presupuestos
+    .filter(p => p.proyectoId === projectId)
+    .sort((a, b) => new Date(b.fechaActualizacion).getTime() - new Date(a.fechaActualizacion).getTime())
+    : presupuestos;
+
+  const presupuestoActual = presupuestosDelProyecto[0];
+  const gastoReal = projectId ? movimientos.filter(m => m.proyectoId === projectId && m.tipo === 'egreso').reduce((sum, m) => sum + m.monto, 0) : 0;
+  const variacionReal = presupuestoActual ? gastoReal - presupuestoActual.totalCalculado : 0;
 
   const ninp = "w-full px-2 py-1 text-xs rounded border border-slate-200 outline-none focus:border-orange-400 text-right";
   const SkeletonRow = (
@@ -111,18 +313,74 @@ const Presupuestos: React.FC = () => {
           <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2"><Calculator className="w-6 h-6 text-orange-500" /> Calculadora de Presupuestos APU</h1>
           <p className="text-sm text-slate-400">Motor de cálculo con FSR, herramienta menor {(HERRAMIENTA_MENOR*100)}%, indirectos {(COSTOS_INDIRECTOS*100)}%, admin {(ADMINISTRACION*100)}%, imprevistos {(IMPREVISTOS*100)}%, utilidad {(UTILIDAD*100)}%</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={save} className={BUTTON_DARK}><Save className="w-4 h-4" /> {saved ? 'Guardado' : 'Guardar'}</button>
-          <button disabled={!items.length} onClick={() => exportPDF(items, proyecto, tipologia)} className="bg-red-500 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><FileText className="w-4 h-4" /> PDF</button>
-          <button disabled={!items.length} onClick={() => exportCSV(items, proyecto, tipologia)} className="bg-emerald-600 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><FileSpreadsheet className="w-4 h-4" /> CSV</button>
+        <div className="flex items-center gap-2">
+          <button onClick={openHistorial} className="bg-slate-100 px-3 py-1 rounded-xl text-sm text-slate-700 hover:bg-slate-200">📜 Historial</button>
         </div>
       </div>
 
-      <div className={`${CARD}`}>
+      {/* Tabs */}
+      <div className="flex gap-2 mb-4 border-b border-slate-200">
+        <button 
+          onClick={() => { setTab('crear'); setEditingPresupuesto(null); }}
+          className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
+            tab === 'crear' 
+              ? 'text-orange-600 border-orange-600' 
+              : 'text-slate-500 border-transparent hover:text-slate-700'
+          }`}
+        >
+          ➕ {editingPresupuesto ? 'Editar Presupuesto' : 'Crear Nuevo'}
+        </button>
+        <button 
+          onClick={() => setTab('guardados')}
+          className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
+            tab === 'guardados' 
+              ? 'text-orange-600 border-orange-600' 
+              : 'text-slate-500 border-transparent hover:text-slate-700'
+          }`}
+        >
+          📋 Guardados ({presupuestosDelProyecto.length})
+        </button>
+      </div>
+
+      {tab === 'guardados' ? (
+        <div className="space-y-4">
+          <PresupuestosList 
+            presupuestos={presupuestosDelProyecto}
+            onEdit={handleEditPresupuesto}
+            onDelete={deletePresupuesto}
+            onDuplicate={handleDuplicatePresupuesto}
+            onExport={handleExportPresupuesto}
+            onApprove={handleApprovePresupuesto}
+            onReject={handleRejectPresupuesto}
+          />
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+            <div>
+              {editingPresupuesto && <p className="text-xs text-orange-600 font-semibold">✏️ Editando versión {editingPresupuesto.versionPresupuesto}</p>}
+            </div>
+            <div className="flex gap-2">
+              <button onClick={save} className={BUTTON_DARK} disabled={!items.length || !projectId}><Save className="w-4 h-4" /> {saved ? 'Guardado' : editingPresupuesto ? 'Guardar Cambios' : 'Guardar'}</button>
+              <button onClick={handleRegistrarGastoTotal} disabled={!projectId || !granTotal} className="bg-indigo-600 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5">Registrar Gasto</button>
+              <button disabled={!items.length} onClick={() => exportPDF(items, proyecto, tipologia)} className="bg-red-500 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><FileText className="w-4 h-4" /> PDF</button>
+              <button disabled={!items.length} onClick={() => exportCSV(items, proyecto, tipologia)} className="bg-emerald-600 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><FileSpreadsheet className="w-4 h-4" /> CSV</button>
+              {editingPresupuesto && <button onClick={() => { setEditingPresupuesto(null); setItems([]); }} className="bg-slate-400 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><X className="w-4 h-4" /> Cancelar</button>}
+            </div>
+          </div>
+
+          <div className={`${CARD}`}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
             <label className="text-xs font-semibold text-slate-500">Nombre del presupuesto</label>
             <input value={proyecto} onChange={e => setProyecto(e.target.value)} placeholder="Ej. Presupuesto obra casa" className={INPUT} />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-500">Proyecto asociado</label>
+            <select value={projectId} onChange={e => setProjectId(e.target.value)} className={INPUT}>
+              <option value="">Selecciona un proyecto</option>
+              {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-slate-500">Tipología (40+ renglones c/u)</label>
@@ -139,6 +397,26 @@ const Presupuestos: React.FC = () => {
               </select>
               <button onClick={addTodos} className="bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap flex items-center gap-1"><Plus className="w-4 h-4" /> Todos</button>
             </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-500">Proveedor OC</label>
+            <select value={selectedProveedorId} onChange={e => setSelectedProveedorId(e.target.value)} className={INPUT}>
+              <option value="">Selecciona proveedor para OC</option>
+              {proveedores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+            </select>
+            <div className="mt-2 grid gap-2">
+              <input value={nuevoProveedorNombre} onChange={e => setNuevoProveedorNombre(e.target.value)} placeholder="Nombre proveedor" className={`${INPUT} text-xs`} />
+              <input value={nuevoProveedorContacto} onChange={e => setNuevoProveedorContacto(e.target.value)} placeholder="Contacto proveedor" className={`${INPUT} text-xs`} />
+              <button onClick={async () => {
+                if (!nuevoProveedorNombre) return;
+                await addProveedor({ nombre: nuevoProveedorNombre, contacto: nuevoProveedorContacto, telefono: '', email: '', categoria: 'materiales' });
+                setNuevoProveedorNombre('');
+                setNuevoProveedorContacto('');
+              }} className="bg-slate-900 text-white px-3 py-2 rounded-xl text-xs">+ Agregar proveedor</button>
+            </div>
+            {proveedores.length === 0 && (
+              <p className="text-[10px] text-amber-600 mt-1">Agrega proveedores en el módulo de compras para crear OCs desde presupuestos.</p>
+            )}
           </div>
         </div>
       </div>
@@ -244,6 +522,11 @@ const Presupuestos: React.FC = () => {
                       ) : (
                         <div className="text-[10px] text-slate-400 italic py-2">Sin desglose de materiales. Agrega uno con el botón + Material</div>
                       )}
+                      <div className="mt-3 flex gap-2">
+                        <button onClick={() => handleRegistrarGastoRenglon(r)} className="text-[11px] bg-indigo-600 text-white px-3 py-1.5 rounded-lg">Registrar gasto renglón</button>
+                        <button onClick={() => handleCrearOCDesdeRenglon(r)} className="text-[11px] bg-amber-500 text-white px-3 py-1.5 rounded-lg">Crear OC</button>
+                        <button onClick={() => { navigator.clipboard?.writeText(`${r.codigo} · ${r.nombre}`); }} className="text-[11px] bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg">Copiar</button>
+                      </div>
                     </div>
 
                     <div className="mt-2">
@@ -284,6 +567,23 @@ const Presupuestos: React.FC = () => {
             </div>
           )}
 
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
+            <div className="bg-white rounded-xl border border-slate-200 p-4">
+              <div className="text-[10px] uppercase text-slate-400 mb-2">Gasto real del proyecto</div>
+              <div className="text-2xl font-bold text-slate-900">{fmtQ(gastoReal)}</div>
+              <div className="text-xs text-slate-500 mt-1">Solo egresos registrados</div>
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 p-4">
+              <div className="text-[10px] uppercase text-slate-400 mb-2">Presupuesto vigente</div>
+              <div className="text-2xl font-bold text-slate-900">{presupuestoActual ? fmtQ(presupuestoActual.totalCalculado) : 'N/A'}</div>
+              <div className="text-xs text-slate-500 mt-1">Última versión disponible</div>
+            </div>
+            <div className={`rounded-xl border p-4 ${variacionReal > 0 ? 'border-red-200 bg-red-50' : 'border-emerald-200 bg-emerald-50'}`}>
+              <div className="text-[10px] uppercase text-slate-500 mb-2">Variación real vs presupuesto</div>
+              <div className="text-2xl font-bold text-slate-900">{fmtQ(variacionReal)}</div>
+              <div className="text-xs text-slate-600 mt-1">{variacionReal > 0 ? 'Sobre presupuesto' : 'Bajo presupuesto'}</div>
+            </div>
+          </div>
           <div className="bg-slate-900 text-white rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 sticky bottom-2">
             <div className="flex gap-6 text-sm">
               <div><span className="text-slate-400 text-xs block">Costo Directo</span><b>{fmtQ(granDir)}</b></div>
@@ -295,6 +595,8 @@ const Presupuestos: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );
