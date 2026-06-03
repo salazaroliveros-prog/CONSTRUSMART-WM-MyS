@@ -174,9 +174,9 @@ CREATE POLICY p_auditoria_all ON public.erp_auditoria
 
 -- PASO 5: VERIFICAR QUE RLS FUNCIONA
 SELECT
-  tablename,
+  t.tablename,
   (SELECT count(*) FROM pg_policies p WHERE p.tablename = t.tablename AND p.schemaname = 'public') AS politicas
 FROM pg_tables t
 WHERE t.schemaname = 'public'
-  AND t.relrowsecurity = true
+  AND t.rowsecurity = true
 ORDER BY t.tablename;

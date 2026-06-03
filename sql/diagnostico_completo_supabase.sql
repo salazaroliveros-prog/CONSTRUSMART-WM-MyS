@@ -70,7 +70,7 @@ FROM pg_policies
 WHERE schemaname = 'public'
 GROUP BY tablename, cmd
 HAVING COUNT(*) > 1
-ORDER BY tabla, veces DESC;
+ORDER BY tablename, veces DESC;
 
 
 -- =============================================================
