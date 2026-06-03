@@ -45,7 +45,7 @@
 
 ## 🔧 ERRORES ADICIONALES CORREGIDOS
 - [x] RLS recursion → Error 500 en todas las tablas → Función helper `get_current_user_role()` SECURITY DEFINER
-- [x] React error #426 (too many re-renders) → `verificarStockCritico` sin dependencia circular de `notificaciones`
+- [x] React error #426 (too many re-renders) → `materialesRef` en vez de state en `verificarStockCritico`
 - [x] PKCE code exchange → sessionStorage guard + limpiar URL después del intercambio
 - [x] Transiciones suaves → Componente `FadeView` con fade-in de 200ms
 - [x] Charts.tsx syntax error → React.memo con `});` correcto (6 componentes)
@@ -59,8 +59,9 @@
 
 ### Commits de la sesión:
 ```
+9f3b443 - fix: React #426 render loop - materialesRef
 0ab304f - feat: PWA completa - manifest, sw.js offline, offline.html, meta tags
-62c6445 - fix: PKCE, React #426, FadeView transitions
+62c6445 - fix: PKCE, React #426 initial, FadeView transitions
 e1f3738 - fix: RLS recursion error 500
 b88d2e0 - fix: React.memo syntax in Charts.tsx
 cb7f5b5 - docs: TODO_CHECKLIST.md 19/19 completado
