@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useErp } from '../store';
 import type { Plano, RFI, Submittal } from '../types';
 import { toast } from 'sonner';
-import { FileText, Plus, Upload, Trash2, Check, X, Send, Clock, CheckCircle2, AlertCircle, Search, Layers, MessageSquare, Package } from 'lucide-react';
+import { FileText, Plus, Upload, Send, MessageSquare, Package } from 'lucide-react';
 import { INPUT } from '../ui';
 import { todayISO } from '../utils';
 
@@ -37,9 +37,9 @@ const GestionDocumental: React.FC = () => {
     localStorage.setItem(key, JSON.stringify(data));
   };
 
-  const proyectoActual = proyectos.find(p => p.id === selProyecto);
-  const rfiCount = rfis.filter(r => !selProyecto || r.proyectoId === selProyecto).length;
-  const subCount = submittals.filter(s => !selProyecto || s.proyectoId === selProyecto).length;
+  const _proyectoActual = proyectos.find(p => p.id === selProyecto);
+  const _rfiCount = rfis.filter(r => !selProyecto || r.proyectoId === selProyecto).length;
+  const _subCount = submittals.filter(s => !selProyecto || s.proyectoId === selProyecto).length;
 
   // === PLANO FORM ===
   const [showPlanoForm, setShowPlanoForm] = useState(false);
