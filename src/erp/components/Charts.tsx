@@ -4,7 +4,7 @@ const W = 320, H = 180, PAD = 28;
 
 interface Series { label: string; color: string; data: number[]; }
 
-export const LineChart: React.FC<{ series: Series[]; labels?: string[]; height?: number }> = ({ series, labels, height = H }) => {
+export const LineChart: React.FC<{ series: Series[]; labels?: string[]; height?: number }> = React.memo(({ series, labels, height = H }) => {
   const all = series.flatMap(s => s.data);
   const max = Math.max(...all, 1);
   const min = Math.min(...all, 0);
@@ -29,10 +29,10 @@ export const LineChart: React.FC<{ series: Series[]; labels?: string[]; height?:
         <text key={i} x={x(i)} y={height - 8} fontSize={8} textAnchor="middle" fill="#94a3b8">{l}</text>
       ))}
     </svg>
-  );
+  ));
 };
 
-export const AreaChart: React.FC<{ series: Series[]; labels?: string[] }> = ({ series, labels }) => {
+export const AreaChart: React.FC<{ series: Series[]; labels?: string[] }> = React.memo(({ series, labels }) => {
   const all = series.flatMap(s => s.data);
   const max = Math.max(...all, 1);
   const n = Math.max(...series.map(s => s.data.length), 2);
@@ -57,7 +57,7 @@ export const AreaChart: React.FC<{ series: Series[]; labels?: string[] }> = ({ s
   );
 };
 
-export const BarChart: React.FC<{ data: { label: string; value: number; color?: string }[]; height?: number }> = ({ data, height = H }) => {
+export const BarChart: React.FC<{ data: { label: string; value: number; color?: string }[]; height?: number }> = React.memo(({ data, height = H }) => {
   const max = Math.max(...data.map(d => d.value), 1);
   const bw = (W - PAD * 2) / data.length;
   return (
@@ -75,7 +75,7 @@ export const BarChart: React.FC<{ data: { label: string; value: number; color?: 
   );
 };
 
-export const Donut: React.FC<{ data: { label: string; value: number; color: string }[]; size?: number }> = ({ data, size = 150 }) => {
+export const Donut: React.FC<{ data: { label: string; value: number; color: string }[]; size?: number }> = React.memo(({ data, size = 150 }) => {
   const total = data.reduce((a, b) => a + b.value, 0) || 1;
   let acc = 0;
   const r = size / 2 - 10, cx = size / 2, cy = size / 2;
@@ -95,7 +95,7 @@ export const Donut: React.FC<{ data: { label: string; value: number; color: stri
   );
 };
 
-export const Gauge: React.FC<{ value: number; max: number; label: string; color?: string }> = ({ value, max, label, color = '#10b981' }) => {
+export const Gauge: React.FC<{ value: number; max: number; label: string; color?: string }> = React.memo(({ value, max, label, color = '#10b981' }) => {
   const pct = Math.max(-1, Math.min(1, value / (max || 1)));
   const angle = pct * 90; // -90..90
   const r = 60, cx = 80, cy = 80;
@@ -113,7 +113,7 @@ export const Gauge: React.FC<{ value: number; max: number; label: string; color?
   );
 };
 
-export const Progress: React.FC<{ value: number; color?: string; bg?: string }> = ({ value, color = '#f97316', bg = '#e2e8f0' }) => (
+export const Progress: React.FC<{ value: number; color?: string; bg?: string }> = React.memo(({ value, color = '#f97316', bg = '#e2e8f0' }) => (
   <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: bg }}>
     <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(100, Math.max(0, value))}%`, background: color }} />
   </div>
