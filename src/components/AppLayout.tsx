@@ -105,7 +105,7 @@ const Shell: React.FC = () => {
     'entradas-almacen': <EntradasAlmacenOC />,
   };
 
-  const currentScreen = allowedViews.includes(view)
+  const screenContent = allowedViews.includes(view)
     ? screens[view] ?? <Dashboard />
     : (
       <div className="min-h-[calc(100vh-60px)] flex flex-col items-center justify-center p-8 text-center">
@@ -125,7 +125,9 @@ const Shell: React.FC = () => {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar open={sidebarOpen} onClose={toggleSidebar} />
         <main className={`flex-1 min-w-0 overflow-auto transition-all ${sidebarCollapsed ? 'lg:ml-0' : ''}`}>
-          <FadeView key={view} view={view}><ErrorBoundary>{currentScreen}</ErrorBoundary></FadeView>
+          <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center animate-pulse"><div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>}>
+            <FadeView key={view} view={view}><ErrorBoundary>{screenContent}</ErrorBoundary></FadeView>
+          </Suspense>
         </main>
       </div>
       <style>{`
