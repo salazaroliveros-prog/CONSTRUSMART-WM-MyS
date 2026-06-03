@@ -1,7 +1,7 @@
 // ERP CONSTRUSMART - Service Worker endurecido
 // Estrategia: Network First con validaciones de seguridad
 
-const CACHE_NAME = 'construsmart-v1';
+const CACHE_NAME = 'construsmart-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -15,7 +15,7 @@ const STATIC_ASSETS = [
 
 const ALLOWED_ORIGIN = self.location.origin;
 
-function isSameOrigin(url: string): boolean {
+function isSameOrigin(url) {
   try {
     const parsed = new URL(url);
     return parsed.origin === ALLOWED_ORIGIN;
@@ -24,15 +24,17 @@ function isSameOrigin(url: string): boolean {
   }
 }
 
-function hasAuthHeader(request: Request): boolean {
+function hasAuthHeader(request) {
   const authHeaders = ['authorization', 'x-api-key', 'apikey'];
-  for (const name of request.headers) {
-    if (authHeaders.includes(name[0].toLowerCase())) return true;
-  }
+  try {
+    for (const header of request.headers.entries()) {
+      if (authHeaders.includes(header[0].toLowerCase())) return true;
+    }
+  } catch { /* headers might not be iterable in some SW contexts */ }
   return false;
 }
 
-function isStaticAsset(request: Request): boolean {
+function isStaticAsset(request) {
   const url = new URL(request.url);
   const pathname = url.pathname.toLowerCase();
   const staticExtensions = ['.js', '.css', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.json', '.txt'];

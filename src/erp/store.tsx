@@ -482,26 +482,22 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const verificarStockCritico = useCallback(() => {
+
+
     materiales.forEach(mat => {
       if (mat.stock <= mat.stockMinimo && mat.stock >= 0) {
-        const yaNotificado = notificaciones.some(
-          n => n.tipo === 'stock_critico' && n.referenciaId === mat.id && n.leido === false
-        );
-        if (!yaNotificado) {
+        if (!notificaciones.some(n => n.tipo === 'stock_critico' && n.referenciaId === mat.id && !n.leido)) {
           addNotificacion('stock_critico', `Stock crítico: ${mat.nombre}`, `Stock actual: ${mat.stock} ${mat.unidad} (mínimo: ${mat.stockMinimo})`);
         }
       }
     });
-  }, [materiales, notificaciones, addNotificacion]);
+  }, [addNotificacion]); // ← SIN materiales/notificaciones: evita loop
 
   const verificarOrdenesCambioPendientes = useCallback(() => {
     const ordenesCambio = loadFromStorage<OrdenCambio[]>(BASE_STORAGE_KEY + '_ordenes_cambio', []);
     ordenesCambio.forEach(oc => {
       if (oc.estado === 'solicitud' || oc.estado === 'revision') {
-        const yaNotificado = notificaciones.some(
-          n => n.tipo === 'orden_cambio_pendiente' && n.referenciaId === oc.id && n.leido === false
-        );
-        if (!yaNotificado) {
+        if (!notificaciones.some(n => n.tipo === 'orden_cambio_pendiente' && n.referenciaId === oc.id && !n.leido)) {
           addNotificacion('orden_cambio_pendiente', `OC pendiente: ${oc.titulo}`, `Estado: ${oc.estado} · Costo: Q${oc.impactoCosto.toFixed(2)} · Solicitante: ${oc.solicitante}`, oc.proyectoId, oc.id);
         }
       }
@@ -561,47 +557,54 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (presup?.length) setPresupuestos(presup.map(obj => mapFromSnakeCase(presupuestoSchema, obj)).filter(Boolean) as Presupuesto[]);
   }, []);
 
+  const fetchInitialDataRef = useRef(fetchInitialData);
+  fetchInitialDataRef.current = fetchInitialData;
+
   useEffect(() => {
     let mounted = true;
-
-
-    const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL as string | undefined)?.trim() || 'salazaroliveros@gmail.com';
-
-    const mapRol = (dbRol: string, email?: string): Rol => {
-      if (email === 'salazaroliveros@gmail.com') return 'Administrador';
-      if (dbRol === 'Administrador') return 'Gerente';
-      if (dbRol === 'usuario' || !dbRol) return 'Residente';
-      return dbRol as Rol;
-    };
+    let authLoaded = false;
 
     const loadProfile = async (id: string, email?: string, metadata?: { nombre?: string; avatar_url?: string; picture?: string }) => {
+      if (authLoaded) return; // Prevenir ejecución duplicada
+      authLoaded = true;
+
       const defaultRol: Rol = email === 'salazaroliveros@gmail.com' ? 'Administrador' : 'Residente';
       const avatarFromMeta = metadata?.avatar_url || metadata?.picture;
+      let nombreFinal = metadata?.nombre || email?.split('@')[0] || 'Usuario';
+      let rolFinal = defaultRol;
+
       try {
         const { data, error } = await supabase
           .from('profiles')
           .select('nombre,rol,avatar_url')
           .eq('id', id)
           .maybeSingle();
-        if (error || !data) {
-          const name = metadata?.nombre || email?.split('@')[0] || 'Usuario';
+        if (!error && data) {
+          nombreFinal = data.nombre;
+          rolFinal = mapRol(data.rol, email);
+        } else {
           await supabase.from('profiles').upsert(
-            { id, nombre: name, rol: defaultRol, avatar_url: avatarFromMeta },
+            { id, nombre: nombreFinal, rol: defaultRol, avatar_url: avatarFromMeta },
             { onConflict: 'id', ignoreDuplicates: false }
           );
-          setUser({ id, nombre: name, rol: defaultRol, avatar: avatarFromMeta });
-        } else {
-          setUser({ id, nombre: data.nombre, rol: mapRol(data.rol, email), avatar: data.avatar_url || avatarFromMeta });
         }
 
+        // Obtener rol verificado server-side
         const serverRole = await getServerRole();
-        if (serverRole?.rol && mounted) {
-          setUser(prev => prev ? { ...prev, rol: mapRol(serverRole.rol, email) as Rol } : prev);
+        if (serverRole?.rol) {
+          rolFinal = mapRol(serverRole.rol, email) as Rol;
         }
-        if (mounted) { setView('dashboard'); setInitializing(false); fetchInitialData(); }
       } catch {
-        const name = email?.split('@')[0] || 'Usuario';
-        if (mounted) { setUser({ id, nombre: name, rol: defaultRol, avatar: avatarFromMeta }); setView('dashboard'); setInitializing(false); fetchInitialData(); }
+        // Usar valores por defecto
+      }
+
+      // Un SOLO setUser con todos los datos resueltos
+      setUser({ id, nombre: nombreFinal, rol: rolFinal, avatar: avatarFromMeta });
+
+      if (mounted) {
+        setView('dashboard');
+        setInitializing(false);
+        fetchInitialDataRef.current();
       }
     };
 
@@ -636,7 +639,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     return () => { mounted = false; sub.subscription.unsubscribe(); };
-  }, [fetchInitialData]);
+  }, []); // ← SIN fetchInitialData en deps, se usa ref
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -958,17 +961,12 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [isOnline, processQueue]);
 
-  // Chequeo periódico de stock crítico y OC pendientes
+  // Chequeo de stock critico y OC pendientes - SOLO al inicio, sin intervalos
   useEffect(() => {
     if (!user) return;
-    const checkAll = () => {
-      verificarStockCritico();
-      verificarOrdenesCambioPendientes();
-    };
-    checkAll();
-    const interval = setInterval(checkAll, 60 * 1000); // cada 60s
-    return () => clearInterval(interval);
-  }, [user, verificarStockCritico, verificarOrdenesCambioPendientes]);
+    verificarStockCritico();
+    verificarOrdenesCambioPendientes();
+  }, [user]); // ← SIN los callbacks en deps
 
   const requestNotificationPermission = useCallback(async () => {
     if (typeof window === 'undefined' || !('Notification' in window)) return;
