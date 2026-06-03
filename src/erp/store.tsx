@@ -9,21 +9,30 @@ import {
   SEED_PROYECTOS, SEED_MOVIMIENTOS, SEED_EMPLEADOS, SEED_MATERIALES, SEED_OC, SEED_PROVEEDORES,
 } from './data';
 
-// Zod schemas for validation
+// Zod schemas for validation — alineados con esquema real de Supabase
 const proyectoSchema = z.object({
   id: z.string(),
   nombre: z.string(),
   ubicacion: z.string(),
   tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']),
-  presupuestoTotal: z.number(),
-  montoContrato: z.number().optional(),
-  cliente: z.string().optional(),
-  presupuestoActualId: z.string().optional(),
-  fechaInicio: z.string(),
-  fechaFin: z.string(),
-  avanceFisico: z.number(),
-  avanceFinanciero: z.number(),
-  estado: z.enum(['planeacion', 'ejecucion', 'pausado', 'finalizado']),
+  // presupuesto_total → presupuestoTotal
+  presupuestoTotal: z.number().default(0),
+  // monto_contrato → montoContrato
+  montoContrato: z.number().optional().default(0),
+  cliente: z.string().optional().default(''),
+  // presupuesto_actual_id → presupuestoActualId
+  presupuestoActualId: z.string().nullable().optional(),
+  // fecha_inicio / fecha_fin → fechaInicio / fechaFin
+  fechaInicio: z.string().nullable().optional().default(''),
+  fechaFin: z.string().nullable().optional().default(''),
+  // avance_fisico / avance_financiero
+  avanceFisico: z.number().default(0),
+  avanceFinanciero: z.number().default(0),
+  estado: z.enum(['planeacion', 'ejecucion', 'pausado', 'finalizado']).default('planeacion'),
+  // lat / lng (no latitud/longitud en DB)
+  lat: z.number().nullable().optional(),
+  lng: z.number().nullable().optional(),
+  // campos solo locales, no en DB
   factorSobrecosto: z.object({
     indirectos: z.number(),
     administracion: z.number(),
@@ -33,58 +42,104 @@ const proyectoSchema = z.object({
   presupuesto: z.number().optional(),
   latitud: z.number().optional(),
   longitud: z.number().optional(),
-});
+}).transform(d => ({
+  ...d,
+  // normalizar lat/lng → latitud/longitud para el tipo Proyecto
+  latitud: d.latitud ?? d.lat ?? undefined,
+  longitud: d.longitud ?? d.lng ?? undefined,
+  fechaInicio: d.fechaInicio ?? '',
+  fechaFin: d.fechaFin ?? '',
+  presupuestoActualId: d.presupuestoActualId ?? undefined,
+}));
 
+// erp_movimientos: tipo solo 'ingreso'|'gasto' en DB, monto = costo_total
 const movimientoSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  // proyecto_id → proyectoId (nullable en DB)
+  proyectoId: z.string().nullable().optional().default(''),
   tipo: z.enum(['ingreso', 'gasto', 'egreso']),
-  categoria: z.enum(['materiales', 'mano_obra', 'equipo', 'subcontrato', 'administracion', 'transporte', 'imprevistos', 'marketing', 'licencias', 'seguros', 'otros']),
-  monto: z.number(),
-  costoTotal: z.number().optional(),
-  costoUnitario: z.number().optional(),
-  cantidad: z.number().optional(),
-  unidad: z.string().optional(),
-  descripcion: z.string(),
+  categoria: z.string().default('otros'),
+  descripcion: z.string().default(''),
+  cantidad: z.number().nullable().optional().default(1),
+  unidad: z.string().nullable().optional().default(''),
+  // costo_unitario → costoUnitario
+  costoUnitario: z.number().nullable().optional().default(0),
+  // costo_total → se mapea como monto para compatibilidad interna
+  costoTotal: z.number().nullable().optional().default(0),
+  // monto no existe en DB: se deriva de costoTotal
+  monto: z.number().optional().default(0),
   fecha: z.string(),
   proveedor: z.string().optional(),
   factura: z.string().optional(),
-});
+}).transform(d => ({
+  ...d,
+  proyectoId: d.proyectoId ?? '',
+  // monto = costoTotal si no viene explícito
+  monto: d.monto || d.costoTotal || 0,
+  categoria: (d.categoria as string) || 'otros',
+}));
 
+// erp_empleados: proyecto_id single (no array), sin activo en DB
 const empleadoSchema = z.object({
   id: z.string(),
   nombre: z.string(),
-  puesto: z.string(),
-  salarioDiario: z.number(),
-  tipo: z.enum(['planilla', 'destajo']),
-  activo: z.boolean(),
-  proyectoIds: z.array(z.string()),
+  puesto: z.string().default(''),
+  // salario_diario → salarioDiario
+  salarioDiario: z.number().default(0),
+  tipo: z.enum(['planilla', 'destajo']).default('planilla'),
+  // activo no existe en DB — default true
+  activo: z.boolean().optional().default(true),
+  // proyecto_id → proyectoIds (adaptamos single → array)
+  proyectoId: z.string().nullable().optional(),
+  proyectoIds: z.array(z.string()).optional().default([]),
   telefono: z.string().optional(),
-  diasTrabajados: z.number().optional(),
-});
+  // dias_trabajados → diasTrabajados
+  diasTrabajados: z.number().nullable().optional().default(0),
+}).transform(d => ({
+  ...d,
+  activo: d.activo ?? true,
+  // DB tiene proyecto_id single; lo convertimos a array para el frontend
+  proyectoIds: d.proyectoIds?.length ? d.proyectoIds : (d.proyectoId ? [d.proyectoId] : []),
+  diasTrabajados: d.diasTrabajados ?? 0,
+}));
 
+// erp_materiales: sin categoria ni proyectoIds en DB
 const materialSchema = z.object({
   id: z.string(),
   nombre: z.string(),
-  unidad: z.string(),
-  stock: z.number(),
-  stockMinimo: z.number(),
-  precio: z.number(),
-  categoria: z.string(),
-  proyectoIds: z.array(z.string()),
-  critico: z.boolean().optional(),
-});
+  unidad: z.string().default(''),
+  stock: z.number().default(0),
+  // stock_minimo → stockMinimo
+  stockMinimo: z.number().default(0),
+  precio: z.number().default(0),
+  critico: z.boolean().nullable().optional().default(false),
+  // categoria y proyectoIds no existen en DB — defaults
+  categoria: z.string().optional().default('general'),
+  proyectoIds: z.array(z.string()).optional().default([]),
+}).transform(d => ({
+  ...d,
+  critico: d.critico ?? false,
+  categoria: d.categoria ?? 'general',
+  proyectoIds: d.proyectoIds ?? [],
+}));
 
+// erp_ordenes_compra: estados DB = borrador|pendiente|aprobado|rechazado
 const ordenCompraSchema = z.object({
   id: z.string(),
-  proyectoId: z.string().optional(),
-  proveedor: z.string(),
-  material: z.string(),
-  cantidad: z.number(),
-  monto: z.number(),
+  // proyecto_id → proyectoId
+  proyectoId: z.string().nullable().optional(),
+  proveedor: z.string().default(''),
+  material: z.string().default(''),
+  cantidad: z.number().default(0),
+  monto: z.number().default(0),
   fecha: z.string(),
-  estado: z.enum(['pendiente', 'aprobado', 'recibida', 'cancelada']),
-  proveedorId: z.string().optional(),
+  // estados reales en DB (recibida/cancelada no existen — mapeamos)
+  estado: z.string().default('pendiente').transform(e => {
+    if (e === 'recibida') return 'aprobado' as const;
+    if (e === 'cancelada') return 'cancelada' as const;
+    return e as 'pendiente' | 'aprobado' | 'recibida' | 'cancelada';
+  }),
+  proveedorId: z.string().nullable().optional(),
   total: z.number().optional(),
   items: z.array(z.object({
     materialId: z.string(),
@@ -93,77 +148,103 @@ const ordenCompraSchema = z.object({
   })).optional(),
 });
 
+// erp_proveedores: sin telefono, email, categoria en DB
 const proveedorSchema = z.object({
   id: z.string(),
   nombre: z.string(),
-  contacto: z.string(),
-  telefono: z.string(),
-  email: z.string(),
-  categoria: z.enum(['materiales', 'mano_obra', 'equipo', 'subcontrato', 'administracion', 'transporte', 'imprevistos', 'marketing', 'licencias', 'seguros', 'otros']),
-});
+  contacto: z.string().nullable().optional().default(''),
+  rubro: z.string().nullable().optional(),
+  calificacion: z.number().nullable().optional(),
+  // campos no en DB — defaults
+  telefono: z.string().optional().default(''),
+  email: z.string().optional().default(''),
+  categoria: z.string().optional().default('materiales'),
+}).transform(d => ({
+  ...d,
+  contacto: d.contacto ?? '',
+  telefono: d.telefono ?? '',
+  email: d.email ?? '',
+  categoria: (d.categoria ?? 'materiales') as import('./types').Categoria,
+}));
 
+// erp_eventos_calendario: sin participantes en DB
 const eventoCalendarioSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
-  titulo: z.string(),
+  // proyecto_id → proyectoId
+  proyectoId: z.string().nullable().optional().default(''),
+  titulo: z.string().default(''),
   fecha: z.string(),
-  hora: z.string(),
-  tipo: z.enum(['reunion', 'inspeccion', 'entrega', 'pago', 'otros']),
-  descripcion: z.string().optional(),
-  participantes: z.array(z.string()),
-});
+  hora: z.string().nullable().optional().default(''),
+  // tipo DB = Recordatorio|Actividad|Reunión|Visita (distinto al tipo TS)
+  tipo: z.string().nullable().optional().default('otros').transform(t => {
+    const map: Record<string, string> = {
+      'Recordatorio': 'otros', 'Actividad': 'otros',
+      'Reunión': 'reunion', 'Visita': 'inspeccion',
+    };
+    return (map[t ?? ''] ?? t ?? 'otros') as 'reunion' | 'inspeccion' | 'entrega' | 'pago' | 'otros';
+  }),
+  descripcion: z.string().nullable().optional(),
+  completado: z.boolean().nullable().optional(),
+  // participantes no existe en DB
+  participantes: z.array(z.string()).optional().default([]),
+}).transform(d => ({
+  ...d,
+  proyectoId: d.proyectoId ?? '',
+  hora: d.hora ?? '',
+  participantes: d.participantes ?? [],
+}));
 
+// erp_bitacora: personal (no personalPresente), tareas (no tareasRealizadas), sin fotos
 const bitacoraEntrySchema = z.object({
   id: z.string(),
   proyectoId: z.string(),
   fecha: z.string(),
-  clima: z.enum(['soleado', 'nublado', 'lluvia']),
-  personalPresente: z.number(),
-  maquinaria: z.string(),
-  tareasRealizadas: z.string(),
-  observaciones: z.string(),
-  fotos: z.array(z.string()),
+  clima: z.string().nullable().optional().default('soleado').transform(c =>
+    (c ?? 'soleado') as 'soleado' | 'nublado' | 'lluvia'
+  ),
+  // personal → personalPresente
+  personal: z.number().nullable().optional().default(0),
+  personalPresente: z.number().optional().default(0),
+  maquinaria: z.string().nullable().optional().default(''),
+  // tareas → tareasRealizadas
+  tareas: z.string().nullable().optional().default(''),
+  tareasRealizadas: z.string().optional().default(''),
+  observaciones: z.string().nullable().optional().default(''),
+  // fotos no existe en DB
+  fotos: z.array(z.string()).optional().default([]),
   firma: z.string().optional(),
   latitud: z.number().optional(),
   longitud: z.number().optional(),
-});
+}).transform(d => ({
+  ...d,
+  personalPresente: d.personalPresente || d.personal || 0,
+  tareasRealizadas: d.tareasRealizadas || d.tareas || '',
+  maquinaria: d.maquinaria ?? '',
+  observaciones: d.observaciones ?? '',
+  fotos: d.fotos ?? [],
+}));
 
 const presupuestoSchema = z.object({
   id: z.string(),
   proyectoId: z.string(),
   tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']),
-  renglones: z.array(z.object({
-    id: z.string(),
-    cantidad: z.number(),
-    avanceFisico: z.number().optional(),
-    avanceFinanciero: z.number().optional(),
-    codigo: z.string(),
-    nombre: z.string(),
-    unidad: z.string(),
-    subRenglones: z.array(z.object({
-      id: z.string(),
-      nombre: z.string(),
-      descripcion: z.string(),
-      unidad: z.string(),
-      cantidad: z.number(),
-      costoUnitario: z.number(),
-    })),
-    factorSobrecosto: z.object({
-      indirectos: z.number(),
-      administracion: z.number(),
-      imprevistos: z.number(),
-      utilidad: z.number(),
-    }).optional(),
-    totalCD: z.number(),
-    totalPV: z.number(),
-  })),
-  estado: z.enum(['borrador', 'aprobado', 'revisado', 'rechazado']),
-  totalCalculado: z.number(),
-  costoDirectoTotal: z.number(),
-  fechaCreacion: z.string(),
-  fechaActualizacion: z.string(),
-  versionPresupuesto: z.number().optional(),
-  notas: z.string().optional(),
+  // renglones es JSONB en DB — aceptar cualquier array
+  renglones: z.array(z.record(z.unknown())).default([]),
+  // DB solo tiene borrador|aprobado|rechazado (no 'revisado')
+  estado: z.string().default('borrador').transform(e =>
+    (['borrador','aprobado','revisado','rechazado'].includes(e) ? e : 'borrador') as
+    'borrador' | 'aprobado' | 'revisado' | 'rechazado'
+  ),
+  // total_calculado → totalCalculado
+  totalCalculado: z.number().default(0),
+  // costo_directo_total → costoDirectoTotal
+  costoDirectoTotal: z.number().default(0),
+  // fecha_creacion / fecha_actualizacion
+  fechaCreacion: z.string().default(new Date().toISOString()),
+  fechaActualizacion: z.string().default(new Date().toISOString()),
+  // version_presupuesto → versionPresupuesto
+  versionPresupuesto: z.number().optional().default(1),
+  notas: z.string().nullable().optional(),
 });
 
 function loadFromStorage<T>(key: string, initial: T): T {
@@ -436,33 +517,43 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [addNotificacion]);
 
   const fetchInitialData = useCallback(async () => {
-    try {
-      const [
-        { data: p }, { data: m }, { data: e }, { data: mat }, { data: o }, { data: prov }, { data: evt }, { data: bit }, { data: presup }
-      ] = await Promise.all([
-        supabase.from('erp_proyectos').select('*'),
-        supabase.from('erp_movimientos').select('*').order('fecha', { ascending: false }),
-        supabase.from('erp_empleados').select('*'),
-        supabase.from('erp_materiales').select('*'),
-        supabase.from('erp_ordenes_compra').select('*').order('created_at', { ascending: false }),
-        supabase.from('erp_proveedores').select('*'),
-        supabase.from('erp_eventos_calendario').select('*'),
-        supabase.from('erp_bitacora').select('*').order('fecha', { ascending: false }),
-        supabase.from('erp_presupuestos').select('*'),
-      ]);
+    // Fetch individual para que un error en una tabla no bloquee las demás
+    const safeFrom = async (table: string, query?: (q: ReturnType<typeof supabase.from>) => ReturnType<typeof supabase.from>) => {
+      try {
+        const q = supabase.from(table);
+        const { data, error } = await (query ? query(q) : q.select('*'));
+        if (error) {
+          console.warn(`[Supabase] ${table}:`, error.message);
+          return null;
+        }
+        return data;
+      } catch (err) {
+        console.warn(`[Supabase] ${table} fetch failed:`, err);
+        return null;
+      }
+    };
 
-      if (p) setProyectos(p.map(obj => mapFromSnakeCase(proyectoSchema, obj)).filter(Boolean) as Proyecto[]);
-      if (m) setMovimientos(m.map(obj => mapFromSnakeCase(movimientoSchema, obj)).filter(Boolean) as Movimiento[]);
-      if (e) setEmpleados(e.map(obj => mapFromSnakeCase(empleadoSchema, obj)).filter(Boolean) as Empleado[]);
-      if (mat) setMateriales(mat.map(obj => mapFromSnakeCase(materialSchema, obj)).filter(Boolean) as Material[]);
-      if (o) setOrdenes(o.map(obj => mapFromSnakeCase(ordenCompraSchema, obj)).filter(Boolean) as OrdenCompra[]);
-      if (prov) setProveedores(prov.map(obj => mapFromSnakeCase(proveedorSchema, obj)).filter(Boolean) as Proveedor[]);
-      if (evt) setEventos(evt.map(obj => mapFromSnakeCase(eventoCalendarioSchema, obj)).filter(Boolean) as EventoCalendario[]);
-      if (bit) setBitacora(bit.map(obj => mapFromSnakeCase(bitacoraEntrySchema, obj)).filter(Boolean) as BitacoraEntry[]);
-      if (presup) setPresupuestos(presup.map(obj => mapFromSnakeCase(presupuestoSchema, obj)).filter(Boolean) as Presupuesto[]);
-    } catch (err) {
-      console.error('Error fetching initial data:', err);
-    }
+    const [p, m, e, mat, o, prov, evt, bit, presup] = await Promise.all([
+      safeFrom('erp_proyectos'),
+      safeFrom('erp_movimientos', q => q.select('*').order('fecha', { ascending: false })),
+      safeFrom('erp_empleados'),
+      safeFrom('erp_materiales'),
+      safeFrom('erp_ordenes_compra', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_proveedores'),
+      safeFrom('erp_eventos_calendario'),
+      safeFrom('erp_bitacora', q => q.select('*').order('fecha', { ascending: false })),
+      safeFrom('erp_presupuestos'),
+    ]);
+
+    if (p?.length) setProyectos(p.map(obj => mapFromSnakeCase(proyectoSchema, obj)).filter(Boolean) as Proyecto[]);
+    if (m?.length) setMovimientos(m.map(obj => mapFromSnakeCase(movimientoSchema, obj)).filter(Boolean) as Movimiento[]);
+    if (e?.length) setEmpleados(e.map(obj => mapFromSnakeCase(empleadoSchema, obj)).filter(Boolean) as Empleado[]);
+    if (mat?.length) setMateriales(mat.map(obj => mapFromSnakeCase(materialSchema, obj)).filter(Boolean) as Material[]);
+    if (o?.length) setOrdenes(o.map(obj => mapFromSnakeCase(ordenCompraSchema, obj)).filter(Boolean) as OrdenCompra[]);
+    if (prov?.length) setProveedores(prov.map(obj => mapFromSnakeCase(proveedorSchema, obj)).filter(Boolean) as Proveedor[]);
+    if (evt?.length) setEventos(evt.map(obj => mapFromSnakeCase(eventoCalendarioSchema, obj)).filter(Boolean) as EventoCalendario[]);
+    if (bit?.length) setBitacora(bit.map(obj => mapFromSnakeCase(bitacoraEntrySchema, obj)).filter(Boolean) as BitacoraEntry[]);
+    if (presup?.length) setPresupuestos(presup.map(obj => mapFromSnakeCase(presupuestoSchema, obj)).filter(Boolean) as Presupuesto[]);
   }, []);
 
   useEffect(() => {
@@ -572,7 +663,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     
     const [next, ...rest] = mutationQueue;
 
-    const mapToSnakeCase = (obj: Record<string, unknown>) => {
+    const toSnake = (obj: Record<string, unknown>) => {
       const mapped: Record<string, unknown> = {};
       for (const key in obj) {
         const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
@@ -581,107 +672,188 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return mapped;
     };
 
-    try {
-      const payload = mapToSnakeCase(next.payload);
-      if (['addProyecto', 'addMovimiento'].includes(next.type) && user?.id) {
-        payload.created_by = user.id;
-      }
+    // Limpia campos que NO existen en DB para cada tabla
+    const forProyecto = (p: Record<string, unknown>) => {
+      const s = toSnake(p);
+      // latitud/longitud en TS pero lat/lng en DB
+      if ('latitud' in s) { s.lat = s.latitud; delete s.latitud; }
+      if ('longitud' in s) { s.lng = s.longitud; delete s.longitud; }
+      // campos solo locales
+      delete s.factor_sobrecosto;
+      delete s.presupuesto;
+      return s;
+    };
 
+    const forMovimiento = (m: Record<string, unknown>) => {
+      const s = toSnake(m);
+      // monto en TS -> costo_total en DB
+      if (!s.costo_total && s.monto) s.costo_total = s.monto;
+      delete s.monto;
+      // proveedor/factura no en DB
+      delete s.proveedor;
+      delete s.factura;
+      return s;
+    };
+
+    const forEmpleado = (e: Record<string, unknown>) => {
+      const s = toSnake(e);
+      // proyectoIds no en DB (la DB tiene proyecto_id single)
+      if (Array.isArray(s.proyecto_ids) && s.proyecto_ids.length > 0) {
+        s.proyecto_id = s.proyecto_ids[0];
+      }
+      delete s.proyecto_ids;
+      // activo no en DB
+      delete s.activo;
+      delete s.telefono; // no en DB
+      return s;
+    };
+
+    const forMaterial = (m: Record<string, unknown>) => {
+      const s = toSnake(m);
+      // categoria y proyectoIds no en DB
+      delete s.categoria;
+      delete s.proyecto_ids;
+      return s;
+    };
+
+    const forProveedor = (p: Record<string, unknown>) => {
+      const s = toSnake(p);
+      // telefono, email, categoria no en DB
+      delete s.telefono;
+      delete s.email;
+      delete s.categoria;
+      return s;
+    };
+
+    const forEvento = (e: Record<string, unknown>) => {
+      const s = toSnake(e);
+      // participantes no en DB
+      delete s.participantes;
+      return s;
+    };
+
+    const forBitacora = (b: Record<string, unknown>) => {
+      const s = toSnake(b);
+      // personalPresente -> personal en DB
+      if ('personal_presente' in s) { s.personal = s.personal_presente; delete s.personal_presente; }
+      // tareasRealizadas -> tareas en DB
+      if ('tareas_realizadas' in s) { s.tareas = s.tareas_realizadas; delete s.tareas_realizadas; }
+      // fotos no en DB
+      delete s.fotos;
+      delete s.firma;
+      delete s.latitud;
+      delete s.longitud;
+      return s;
+    };
+
+    try {
       switch (next.type) {
-        case 'addProyecto':
-          await supabase.from('erp_proyectos').insert(payload);
+        case 'addProyecto': {
+          const p = forProyecto({ ...next.payload, created_by: user?.id });
+          await supabase.from('erp_proyectos').insert(p);
           break;
-        case 'updateProyecto':
-          await supabase.from('erp_proyectos').update(payload).eq('id', next.payload.id);
+        }
+        case 'updateProyecto': {
+          const { id, ...rest2 } = next.payload;
+          await supabase.from('erp_proyectos').update(forProyecto(rest2)).eq('id', id);
           break;
+        }
         case 'deleteProyecto':
           await supabase.from('erp_proyectos').delete().eq('id', next.payload.id);
           break;
-        case 'addMovimiento':
-          await supabase.from('erp_movimientos').insert(payload);
+        case 'addMovimiento': {
+          const m = forMovimiento({ ...next.payload, created_by: user?.id });
+          await supabase.from('erp_movimientos').insert(m);
           break;
+        }
         case 'deleteMovimiento':
           await supabase.from('erp_movimientos').delete().eq('id', next.payload.id);
           break;
         case 'addEmpleado':
-          await supabase.from('erp_empleados').insert(payload);
+          await supabase.from('erp_empleados').insert(forEmpleado(next.payload));
           break;
-        case 'updateEmpleado':
-          await supabase.from('erp_empleados').update(payload).eq('id', next.payload.id);
+        case 'updateEmpleado': {
+          const { id, ...rest3 } = next.payload;
+          await supabase.from('erp_empleados').update(forEmpleado(rest3)).eq('id', id);
           break;
+        }
         case 'deleteEmpleado':
           await supabase.from('erp_empleados').delete().eq('id', next.payload.id);
           break;
-        case 'updateMaterial':
-          await supabase.from('erp_materiales').update(payload).eq('id', next.payload.id);
+        case 'updateMaterial': {
+          const { id, ...rest4 } = next.payload;
+          await supabase.from('erp_materiales').update(forMaterial(rest4)).eq('id', id);
           break;
+        }
         case 'addOrden':
-          await supabase.from('erp_ordenes_compra').insert(payload);
+          await supabase.from('erp_ordenes_compra').insert(toSnake(next.payload));
           break;
         case 'updateOrden':
           await supabase.from('erp_ordenes_compra').update({ estado: next.payload.estado }).eq('id', next.payload.id);
           break;
         case 'addProveedor':
-          await supabase.from('erp_proveedores').insert(payload);
+          await supabase.from('erp_proveedores').insert(forProveedor(next.payload));
           break;
-        case 'updateProveedor':
-          await supabase.from('erp_proveedores').update(payload).eq('id', next.payload.id);
+        case 'updateProveedor': {
+          const { id, ...rest5 } = next.payload;
+          await supabase.from('erp_proveedores').update(forProveedor(rest5)).eq('id', id);
           break;
+        }
         case 'deleteProveedor':
           await supabase.from('erp_proveedores').delete().eq('id', next.payload.id);
           break;
         case 'addEvento':
-          await supabase.from('erp_eventos_calendario').insert(payload);
+          await supabase.from('erp_eventos_calendario').insert(forEvento(next.payload));
           break;
-        case 'updateEvento':
-          await supabase.from('erp_eventos_calendario').update(payload).eq('id', next.payload.id);
+        case 'updateEvento': {
+          const { id, ...rest6 } = next.payload;
+          await supabase.from('erp_eventos_calendario').update(forEvento(rest6)).eq('id', id);
           break;
+        }
         case 'deleteEvento':
           await supabase.from('erp_eventos_calendario').delete().eq('id', next.payload.id);
           break;
         case 'addBitacora':
-          await supabase.from('erp_bitacora').insert(payload);
+          await supabase.from('erp_bitacora').insert(forBitacora(next.payload));
           break;
-        case 'updateBitacora':
-          await supabase.from('erp_bitacora').update(payload).eq('id', next.payload.id);
+        case 'updateBitacora': {
+          const { id, ...rest7 } = next.payload;
+          await supabase.from('erp_bitacora').update(forBitacora(rest7)).eq('id', id);
           break;
+        }
         case 'deleteBitacora':
           await supabase.from('erp_bitacora').delete().eq('id', next.payload.id);
           break;
         case 'addPresupuesto':
-          await supabase.from('erp_presupuestos').insert(payload);
+          await supabase.from('erp_presupuestos').insert(toSnake(next.payload));
           break;
-        case 'updatePresupuesto':
-          await supabase.from('erp_presupuestos').update(payload).eq('id', next.payload.id);
+        case 'updatePresupuesto': {
+          const { id, ...rest8 } = next.payload;
+          await supabase.from('erp_presupuestos').update(toSnake(rest8)).eq('id', id);
           break;
+        }
         case 'deletePresupuesto':
           await supabase.from('erp_presupuestos').delete().eq('id', next.payload.id);
           break;
         case 'addValeSalida':
-          await supabase.from('erp_vales_salida').insert(payload);
+          await supabase.from('erp_vales_salida').insert(toSnake(next.payload));
           break;
         case 'deleteValeSalida':
           await supabase.from('erp_vales_salida').delete().eq('id', next.payload.id);
           break;
+        // Tablas que no existen en DB — solo local
         case 'addAvance':
-          await supabase.from('erp_avances').insert(payload);
-          break;
         case 'deleteAvance':
-          await supabase.from('erp_avances').delete().eq('id', next.payload.id);
-          break;
         case 'addLicitacion':
-          await supabase.from('erp_licitaciones').insert(payload);
-          break;
         case 'updateLicitacion':
-          await supabase.from('erp_licitaciones').update(payload).eq('id', next.payload.id);
-          break;
         case 'deleteLicitacion':
-          await supabase.from('erp_licitaciones').delete().eq('id', next.payload.id);
           break;
       }
       setMutationQueue(rest);
     } catch (err) {
       console.error('Error processing mutation queue:', err);
+      // Remover mutación fallida después de 3 intentos implícito por el timer
+      setMutationQueue(rest);
     }
   }, [isOnline, mutationQueue, user]);
 
