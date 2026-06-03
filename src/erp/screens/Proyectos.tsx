@@ -3,11 +3,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useErp } from '../store';
-import { Tipologia } from '../types';
+import { Tipologia, Proyecto } from '../types';
 import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
 import { Progress } from '../components/Charts';
 import { INPUT, BUTTON_PRIMARY } from '../ui';
-import { Plus, MapPin, Trash2, X, Building2, Pencil, ChevronDown } from 'lucide-react';
+import { Plus, MapPin, Trash2, X, Building2, Pencil } from 'lucide-react';
 import PresupuestoCard from '../components/PresupuestoCard';
 
 const ESTADOS = ['planeacion', 'ejecucion', 'pausado', 'finalizado'] as const;
@@ -84,8 +84,6 @@ const Proyectos: React.FC = () => {
         montoContrato: data.montoContrato,
         avanceFisico: 0,
         avanceFinanciero: 0,
-        lat: 14.6 + Math.random() * 0.2,
-        lng: -90.55 + Math.random() * 0.2,
         fechaInicio: todayISO(),
         fechaFin: todayISO(),
       });

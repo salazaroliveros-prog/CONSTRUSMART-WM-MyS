@@ -12,7 +12,7 @@ export interface GanttTask {
   fechaFin: string;
   avance: number; // 0-100
   expanded?: boolean;
-  subrenglones?: { nombre: string; cantidad: number; unidad: string }[];
+  subRenglones?: { nombre: string; cantidad: number; unidad: string }[];
 }
 
 interface GanttChartProps {
@@ -359,11 +359,11 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, projectStart, projectEnd
                               {formatDate(t.fechaInicio)} → {formatDate(t.fechaFin)}
                             </span>
                           </div>
-                          {t.subrenglones && t.subrenglones.length > 0 && (
+                          {t.subRenglones && t.subRenglones.length > 0 && (
                             <div className="md:col-span-2">
-                              <span className="text-slate-400 text-[10px] block">Materiales ({t.subrenglones.length})</span>
+                              <span className="text-slate-400 text-[10px] block">Materiales ({t.subRenglones.length})</span>
                               <div className="flex flex-wrap gap-1 mt-0.5">
-                                {t.subrenglones.map((s, si) => (
+                                {t.subRenglones.map((s, si) => (
                                   <span key={si} className="text-[9px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded">
                                     {s.nombre}: {s.cantidad} {s.unidad}
                                   </span>
