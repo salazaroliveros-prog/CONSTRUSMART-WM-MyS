@@ -41,9 +41,9 @@ const proyectoSchema = z.object({
     imprevistos: z.number(),
     utilidad: z.number(),
   }).optional(),
-  presupuesto: z.number().optional(),
-  latitud: z.number().optional(),
-  longitud: z.number().optional(),
+  presupuesto: z.number().nullable().optional(),
+  latitud: z.number().nullable().optional(),
+  longitud: z.number().nullable().optional(),
 }).transform(d => ({
   ...d,
   // normalizar lat/lng → latitud/longitud para el tipo Proyecto
@@ -72,7 +72,7 @@ const movimientoSchema = z.object({
   monto: z.number().optional().default(0),
   fecha: z.string(),
   proveedor: z.string().optional(),
-  factura: z.string().optional(),
+  factura: z.string().nullable().optional(),
 }).transform(d => ({
   ...d,
   proyectoId: d.proyectoId ?? '',
@@ -94,7 +94,7 @@ const empleadoSchema = z.object({
   // proyecto_id → proyectoIds (adaptamos single → array)
   proyectoId: z.string().nullable().optional(),
   proyectoIds: z.array(z.string()).optional().default([]),
-  telefono: z.string().optional(),
+  telefono: z.string().nullable().optional(),
   // dias_trabajados → diasTrabajados
   diasTrabajados: z.number().nullable().optional().default(0),
 }).transform(d => ({
@@ -214,9 +214,9 @@ const bitacoraEntrySchema = z.object({
   observaciones: z.string().nullable().optional().default(''),
   // fotos no existe en DB
   fotos: z.array(z.string()).optional().default([]),
-  firma: z.string().optional(),
-  latitud: z.number().optional(),
-  longitud: z.number().optional(),
+  firma: z.string().nullable().optional(),
+  latitud: z.number().nullable().optional(),
+  longitud: z.number().nullable().optional(),
 }).transform(d => ({
   ...d,
   personalPresente: d.personalPresente || d.personal || 0,
