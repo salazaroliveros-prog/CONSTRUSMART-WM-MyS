@@ -22,21 +22,37 @@ export function useNuevosModulos() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Mapea ActivoHerramienta (camelCase) → snake_case para DB
+  const activoToDb = (a: Omit<ActivoHerramienta, 'id'> & { id?: string }) => ({
+    id: a.id,
+    nombre: a.nombre,
+    codigo_inventario: a.codigoInventario,
+    tipo: a.tipo,
+    marca: a.marca,
+    modelo: a.modelo,
+    numero_serie: a.numeroSerie,
+    valor_adquisicion: a.valorAdquisicion,
+    estado: a.estado,
+    ubicacion: a.ubicacion,
+    asignado_a: a.asignadoA,
+    proyecto_id: a.proyectoId,
+    fecha_asignacion: a.fechaAsignacion,
+    fecha_adquisicion: a.fechaAdquisicion,
+  });
+
   const addActivo = useCallback(async (a: Omit<ActivoHerramienta, 'id'>) => {
     const nuevo: ActivoHerramienta = { ...a, id: uid() };
-    if (isOnline) {
-      await supabase.from('activos_herramientas').insert([nuevo]).maybeSingle();
-    }
     const updated = [...activos, nuevo];
     setActivos(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'activos', JSON.stringify(updated));
+    if (isOnline) await supabase.from('activos_herramientas').insert([activoToDb(nuevo)]);
   }, [activos]);
 
   const updateActivo = useCallback(async (id: string, patch: Partial<ActivoHerramienta>) => {
     const updated = activos.map(a => a.id === id ? { ...a, ...patch } : a);
     setActivos(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'activos', JSON.stringify(updated));
-    if (isOnline) await supabase.from('activos_herramientas').update(patch).eq('id', id);
+    if (isOnline) await supabase.from('activos_herramientas').update(activoToDb(patch as ActivoHerramienta)).eq('id', id);
   }, [activos]);
 
   const deleteActivo = useCallback(async (id: string) => {
@@ -56,26 +72,40 @@ export function useNuevosModulos() {
 
   const addCuadro = useCallback(async (c: Omit<CuadroComparativo, 'id' | 'cotizaciones'>) => {
     const nuevo: CuadroComparativo = { ...c, id: uid(), cotizaciones: [] };
-    if (isOnline) {
-      await supabase.from('cuadro_comparativo_proveedores').insert([nuevo]).maybeSingle();
-    }
     const updated = [...cuadros, nuevo];
     setCuadros(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'cuadros', JSON.stringify(updated));
+    if (isOnline) {
+      await supabase.from('cuadro_comparativo_proveedores').insert([{
+        id: nuevo.id,
+        solicitud: nuevo.solicitud,
+        fecha_solicitud: nuevo.fechaSolicitud,
+        fecha_cierre: nuevo.fechaCierre,
+        estado: nuevo.estado,
+        observaciones: nuevo.observaciones,
+        proyecto_id: nuevo.proyectoId,
+      }]);
+    }
   }, [cuadros]);
 
   const addCotizacion = useCallback(async (cuadroId: string, cot: Omit<CotizacionItem, 'id'>) => {
     const cotizacion: CotizacionItem = { ...cot, id: uid() };
-    const updated = cuadros.map(c => {
-      if (c.id === cuadroId) {
-        return { ...c, cotizaciones: [...c.cotizaciones, cotizacion] };
-      }
-      return c;
-    });
+    const updated = cuadros.map(c =>
+      c.id === cuadroId ? { ...c, cotizaciones: [...c.cotizaciones, cotizacion] } : c
+    );
     setCuadros(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'cuadros', JSON.stringify(updated));
     if (isOnline) {
-      await supabase.from('cotizaciones').insert([{ ...cotizacion, cuadro_id: cuadroId }]).maybeSingle();
+      await supabase.from('cotizaciones').insert([{
+        id: cotizacion.id,
+        cuadro_id: cuadroId,
+        proveedor_id: cotizacion.proveedorId,
+        monto_total: cotizacion.montoTotal,
+        plazo_entrega: cotizacion.plazoEntrega,
+        condiciones_pago: cotizacion.condicionesPago,
+        validez_oferta: cotizacion.validezOferta,
+        seleccionada: cotizacion.seleccionada,
+      }]);
     }
   }, [cuadros]);
 
@@ -132,7 +162,18 @@ export function useNuevosModulos() {
     setDestajos(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'destajos', JSON.stringify(updated));
     if (isOnline) {
-      await supabase.from('destajos').insert([nuevo]).maybeSingle();
+      await supabase.from('destajos').insert([{
+        id: nuevo.id,
+        proyecto_id: nuevo.proyectoId,
+        renglon_codigo: nuevo.renglonCodigo,
+        cuadrilla: nuevo.cuadrilla,
+        fecha: nuevo.fecha,
+        cantidad_ejecutada: nuevo.cantidadEjecutada,
+        unidad: nuevo.unidad,
+        horas_trabajadas: nuevo.horasTrabajadas,
+        rendimiento_teorico: nuevo.rendimientoTeorico,
+        observaciones: nuevo.observaciones,
+      }]);
     }
   }, [destajos]);
 
@@ -199,14 +240,37 @@ export function useNuevosModulos() {
     const updated = [...ventas, nuevo];
     setVentas(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'ventas', JSON.stringify(updated));
-    if (isOnline) await supabase.from('ventas_paquetes').insert([nuevo]).maybeSingle();
+    if (isOnline) await supabase.from('ventas_paquetes').insert([{
+      id: nuevo.id,
+      proyecto_id: nuevo.proyectoId,
+      tipo: nuevo.tipo,
+      identificador: nuevo.identificador,
+      precio_venta: nuevo.precioVenta,
+      precio_contrato: nuevo.precioContrato,
+      estado: nuevo.estado,
+      cliente: nuevo.cliente,
+      fecha_reserva: nuevo.fechaReserva,
+      fecha_venta: nuevo.fechaVenta,
+      plan_pago: nuevo.planPago,
+      notas: nuevo.notas,
+    }]);
   }, [ventas]);
 
   const updateVenta = useCallback(async (id: string, patch: Partial<VentaPaquete>) => {
     const updated = ventas.map(v => v.id === id ? { ...v, ...patch } : v);
     setVentas(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'ventas', JSON.stringify(updated));
-    if (isOnline) await supabase.from('ventas_paquetes').update(patch).eq('id', id);
+    if (isOnline) {
+      const dbPatch: Record<string, unknown> = {};
+      if (patch.estado)        dbPatch.estado         = patch.estado;
+      if (patch.cliente)       dbPatch.cliente        = patch.cliente;
+      if (patch.precioVenta)   dbPatch.precio_venta   = patch.precioVenta;
+      if (patch.fechaReserva)  dbPatch.fecha_reserva  = patch.fechaReserva;
+      if (patch.fechaVenta)    dbPatch.fecha_venta    = patch.fechaVenta;
+      if (patch.planPago)      dbPatch.plan_pago      = patch.planPago;
+      if (patch.notas)         dbPatch.notas          = patch.notas;
+      await supabase.from('ventas_paquetes').update(dbPatch).eq('id', id);
+    }
   }, [ventas]);
 
   // ============================================================
@@ -222,7 +286,17 @@ export function useNuevosModulos() {
     const updated = [...anticipos, nuevo];
     setAnticipos(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'anticipos', JSON.stringify(updated));
-    if (isOnline) await supabase.from('anticipos').insert([nuevo]).maybeSingle();
+    if (isOnline) await supabase.from('anticipos').insert([{
+      id: nuevo.id,
+      proyecto_id: nuevo.proyectoId,
+      monto_total: nuevo.montoTotal,
+      saldo_pendiente: nuevo.saldoPendiente,
+      tipo: nuevo.tipo,
+      beneficiario: nuevo.beneficiario,
+      concepto: nuevo.concepto,
+      fecha_entrega: nuevo.fechaEntrega,
+      estado: nuevo.estado,
+    }]);
   }, [anticipos]);
 
   const addAmortizacion = useCallback(async (anticipoId: string, am: Omit<AmortizacionItem, 'id'>) => {
@@ -243,7 +317,22 @@ export function useNuevosModulos() {
     setAnticipos(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'anticipos', JSON.stringify(updated));
     if (isOnline) {
-      await supabase.from('amortizaciones').insert([{ ...amort, anticipo_id: anticipoId }]).maybeSingle();
+      await supabase.from('amortizaciones').insert([{
+        id: amort.id,
+        anticipo_id: anticipoId,
+        monto: amort.monto,
+        fecha: amort.fecha,
+        referencia: amort.referencia,
+      }]);
+      // Actualizar saldo en DB
+      const ant = updated.find(a => a.id === anticipoId);
+      if (ant) {
+        await supabase.from('anticipos').update({
+          saldo_pendiente: ant.saldoPendiente,
+          fecha_ultima_amortizacion: am.fecha,
+          estado: ant.estado,
+        }).eq('id', anticipoId);
+      }
     }
   }, [anticipos]);
 
@@ -251,7 +340,13 @@ export function useNuevosModulos() {
     const updated = anticipos.map(a => a.id === id ? { ...a, ...patch } : a);
     setAnticipos(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'anticipos', JSON.stringify(updated));
-    if (isOnline) await supabase.from('anticipos').update(patch).eq('id', id);
+    if (isOnline) {
+      const dbPatch: Record<string, unknown> = {};
+      if (patch.estado !== undefined)              dbPatch.estado                    = patch.estado;
+      if (patch.saldoPendiente !== undefined)      dbPatch.saldo_pendiente           = patch.saldoPendiente;
+      if (patch.fechaUltimaAmortizacion)           dbPatch.fecha_ultima_amortizacion = patch.fechaUltimaAmortizacion;
+      await supabase.from('anticipos').update(dbPatch).eq('id', id);
+    }
   }, [anticipos]);
 
   // ============================================================
@@ -267,14 +362,34 @@ export function useNuevosModulos() {
     const updated = [...cajasChicas, nuevo];
     setCajasChicas(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'cajas_chicas', JSON.stringify(updated));
-    if (isOnline) await supabase.from('cajas_chicas').insert([nuevo]).maybeSingle();
+    if (isOnline) await supabase.from('cajas_chicas').insert([{
+      id: nuevo.id,
+      proyecto_id: nuevo.proyectoId,
+      monto: nuevo.monto,
+      descripcion: nuevo.descripcion,
+      categoria: nuevo.categoria,
+      fecha_gasto: nuevo.fechaGasto,
+      factura_url: nuevo.facturaUrl,
+      foto_url: nuevo.fotoUrl,
+      solicitante: nuevo.solicitante,
+      estado: nuevo.estado,
+      latitud: nuevo.latitud,
+      longitud: nuevo.longitud,
+    }]);
   }, [cajasChicas]);
 
   const updateCajaChica = useCallback(async (id: string, patch: Partial<CajaChica>) => {
     const updated = cajasChicas.map(c => c.id === id ? { ...c, ...patch } : c);
     setCajasChicas(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'cajas_chicas', JSON.stringify(updated));
-    if (isOnline) await supabase.from('cajas_chicas').update(patch).eq('id', id);
+    if (isOnline) {
+      const dbPatch: Record<string, unknown> = {};
+      if (patch.estado !== undefined)         dbPatch.estado            = patch.estado;
+      if (patch.aprobadoPor)                  dbPatch.aprobado_por      = patch.aprobadoPor;
+      if (patch.fechaAprobacion)              dbPatch.fecha_aprobacion  = patch.fechaAprobacion;
+      if (patch.monto !== undefined)          dbPatch.monto             = patch.monto;
+      await supabase.from('cajas_chicas').update(dbPatch).eq('id', id);
+    }
   }, [cajasChicas]);
 
   // ============================================================
@@ -290,14 +405,32 @@ export function useNuevosModulos() {
     const updated = [...pagos, nuevo];
     setPagos(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'pagos', JSON.stringify(updated));
-    if (isOnline) await supabase.from('pagos_proveedores').insert([nuevo]).maybeSingle();
+    if (isOnline) await supabase.from('pagos_proveedores').insert([{
+      id: nuevo.id,
+      proyecto_id: nuevo.proyectoId,
+      proveedor_id: nuevo.proveedorId,
+      monto: nuevo.monto,
+      concepto: nuevo.concepto,
+      fecha_emision: nuevo.fechaEmision,
+      fecha_vencimiento: nuevo.fechaVencimiento,
+      fecha_pago: nuevo.fechaPago,
+      estado: nuevo.estado,
+      factura_url: nuevo.facturaUrl,
+    }]);
   }, [pagos]);
 
   const updatePago = useCallback(async (id: string, patch: Partial<PagoProveedor>) => {
     const updated = pagos.map(p => p.id === id ? { ...p, ...patch } : p);
     setPagos(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'pagos', JSON.stringify(updated));
-    if (isOnline) await supabase.from('pagos_proveedores').update(patch).eq('id', id);
+    if (isOnline) {
+      const dbPatch: Record<string, unknown> = {};
+      if (patch.estado !== undefined)        dbPatch.estado            = patch.estado;
+      if (patch.fechaPago)                   dbPatch.fecha_pago        = patch.fechaPago;
+      if (patch.monto !== undefined)         dbPatch.monto             = patch.monto;
+      if (patch.facturaUrl)                  dbPatch.factura_url       = patch.facturaUrl;
+      await supabase.from('pagos_proveedores').update(dbPatch).eq('id', id);
+    }
   }, [pagos]);
 
   const pagosVencidos = pagos.filter(p => p.estado === 'pendiente' && new Date(p.fechaVencimiento) < new Date());
@@ -316,14 +449,28 @@ export function useNuevosModulos() {
     const updated = [...centrosCosto, nuevo];
     setCentrosCosto(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'centros_costo', JSON.stringify(updated));
-    if (isOnline) await supabase.from('centros_costo').insert([nuevo]).maybeSingle();
+    if (isOnline) await supabase.from('centros_costo').insert([{
+      id: nuevo.id,
+      proyecto_id: nuevo.proyectoId,
+      codigo: nuevo.codigo,
+      nombre: nuevo.nombre,
+      presupuesto_asignado: nuevo.presupuestoAsignado,
+      gasto_actual: nuevo.gastoActual,
+      tipo: nuevo.tipo,
+    }]);
   }, [centrosCosto]);
 
   const updateCentroCosto = useCallback(async (id: string, patch: Partial<CentroCosto>) => {
     const updated = centrosCosto.map(c => c.id === id ? { ...c, ...patch } : c);
     setCentrosCosto(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'centros_costo', JSON.stringify(updated));
-    if (isOnline) await supabase.from('centros_costo').update(patch).eq('id', id);
+    if (isOnline) {
+      const dbPatch: Record<string, unknown> = {};
+      if (patch.gastoActual !== undefined)          dbPatch.gasto_actual          = patch.gastoActual;
+      if (patch.presupuestoAsignado !== undefined)  dbPatch.presupuesto_asignado  = patch.presupuestoAsignado;
+      if (patch.nombre)                             dbPatch.nombre                = patch.nombre;
+      await supabase.from('centros_costo').update(dbPatch).eq('id', id);
+    }
   }, [centrosCosto]);
 
   // ============================================================

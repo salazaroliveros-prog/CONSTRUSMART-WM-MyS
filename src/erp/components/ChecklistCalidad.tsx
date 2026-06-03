@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useErp } from '../store';
 import { toast } from 'sonner';
-import { CheckCircle, XCircle, Clock, Camera, Save, AlertTriangle, ClipboardCheck, FileText } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Camera, Save, AlertTriangle, ClipboardCheck } from 'lucide-react';
 import SignaturePad from './SignaturePad';
 import { INPUT, BUTTON_PRIMARY } from '../ui';
 import { CARD, CARD_TITLE } from '../ui';
@@ -41,7 +41,7 @@ const DEFAULT_CHECKLIST_ITEMS: ChecklistItem[] = [
 ];
 
 const ChecklistCalidad: React.FC = () => {
-  const { proyectos, user } = useErp();
+  const { proyectos } = useErp();
   const [proyectoId, setProyectoId] = useState('');
   const [items, setItems] = useState<ChecklistItem[]>(DEFAULT_CHECKLIST_ITEMS);
   const [firmaSupervisor, setFirmaSupervisor] = useState('');

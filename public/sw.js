@@ -1,5 +1,5 @@
-// ERP CONSTRUSMART - Service Worker
-// Estrategia: Network First, fallback to cache
+// ERP CONSTRUSMART - Service Worker endurecido
+// Estrategia: Network First con validaciones de seguridad
 
 const CACHE_NAME = 'construsmart-v1';
 const STATIC_ASSETS = [
@@ -13,7 +13,39 @@ const STATIC_ASSETS = [
   '/wm-logo.svg',
 ];
 
-// Instalación: cachear assets estáticos
+const ALLOWED_ORIGIN = self.location.origin;
+
+function isSameOrigin(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.origin === ALLOWED_ORIGIN;
+  } catch {
+    return false;
+  }
+}
+
+function hasAuthHeader(request: Request): boolean {
+  const authHeaders = ['authorization', 'x-api-key', 'apikey'];
+  for (const name of request.headers) {
+    if (authHeaders.includes(name[0].toLowerCase())) return true;
+  }
+  return false;
+}
+
+function isStaticAsset(request: Request): boolean {
+  const url = new URL(request.url);
+  const pathname = url.pathname.toLowerCase();
+  const staticExtensions = ['.js', '.css', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.json', '.txt'];
+  if (staticExtensions.some(ext => pathname.endsWith(ext))) return true;
+  const contentType = request.headers.get('content-type') || '';
+  if (contentType.startsWith('text/')) return true;
+  if (contentType.startsWith('application/javascript')) return true;
+  if (contentType.startsWith('application/css')) return true;
+  if (contentType.startsWith('image/')) return true;
+  if (contentType.startsWith('font/')) return true;
+  return false;
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -23,7 +55,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activación: limpiar caches viejos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -35,29 +66,33 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Estrategia: Network First con fallback a cache
 self.addEventListener('fetch', (event) => {
-  // Solo interceptar requests GET
   if (event.request.method !== 'GET') return;
 
-  // No cachear requests a Supabase (datos dinámicos)
-  if (event.request.url.includes('supabase.co')) return;
+  const url = new URL(event.request.url);
+
+  // No interceptar peticiones a Supabase ni orígenes dinámicos distintos
+  if (url.hostname.includes('supabase.co')) return;
+  if (!isSameOrigin(event.request.url)) return;
+  if (hasAuthHeader(event.request)) return;
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cachear respuesta exitosa
         const cloned = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, cloned);
-        });
+        const status = response.status;
+        const contentType = response.headers.get('content-type') || '';
+
+        if (status === 200 && isStaticAsset(event.request)) {
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, cloned);
+          });
+        }
         return response;
       })
       .catch(() => {
-        // Fallback a cache
         return caches.match(event.request).then((cached) => {
           if (cached) return cached;
-          // Si es navegación, devolver index.html
           if (event.request.mode === 'navigate') {
             return caches.match('/index.html');
           }

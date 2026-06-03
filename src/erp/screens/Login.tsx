@@ -33,6 +33,8 @@ const Login: React.FC = () => {
 
   const [registroError, setRegistroError] = React.useState<string | null>(null);
 
+  const CRM_ENDPOINT = import.meta.env.VITE_CRM_ENDPOINT as string | undefined;
+
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
     setRegistroError(null);
@@ -43,13 +45,20 @@ const Login: React.FC = () => {
         return;
       }
       await signUp(data.email, data.password, data.nombre || '', data.rol);
-      try {
-        await fetch('https://famous.ai/api/crm/6a1cb30ef2abfd8042cf3b53/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: data.email, name: data.nombre || undefined, source: 'erp-signup', tags: ['erp-user', data.rol] }),
-        });
-      } catch { /* ignore */ }
+
+      if (CRM_ENDPOINT) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          await fetch(CRM_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: data.email, name: data.nombre || undefined, source: 'erp-signup', tags: ['erp-user', data.rol] }),
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+        } catch { /* ignore */ }
+      }
     } else {
       await signIn(data.email, data.password);
     }

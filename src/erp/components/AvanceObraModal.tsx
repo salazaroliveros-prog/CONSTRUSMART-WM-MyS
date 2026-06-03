@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useErp } from '../store';
 import { toast } from 'sonner';
 import { Camera, Save, X, MapPin, BarChart3, Upload } from 'lucide-react';
-import { CARD, CARD_TITLE, INPUT } from '../ui';
+import { CARD, INPUT } from '../ui';
 import { todayISO, fmtQ } from '../utils';
 import { uploadBase64Image } from '@/lib/storage';
 import { hasSupabase } from '@/lib/supabase';

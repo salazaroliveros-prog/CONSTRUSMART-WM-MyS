@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
 import type { KitMaterial } from '../types';
-import { Layers, Package, Plus, Trash2, BarChart3, Check, X } from 'lucide-react';
-import { fmtQ, todayISO } from '../utils';
+import { Layers, Package, Plus, Trash2, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 const KitsMateriales: React.FC = () => {
@@ -17,7 +16,7 @@ const KitsMateriales: React.FC = () => {
   const [selRenglon, setSelRenglon] = useState('');
   const [selMaterial, setSelMaterial] = useState('');
   const [cantidad, setCantidad] = useState(1);
-  const [editKitId, setEditKitId] = useState<string | null>(null);
+  const [_editKitId, _setEditKitId] = useState<string | null>(null);
 
   const saveKits = (k: KitMaterial[]) => {
     setKits(k);

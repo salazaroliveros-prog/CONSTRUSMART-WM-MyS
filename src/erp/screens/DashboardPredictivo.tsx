@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
-import { fmtQ, todayISO } from '../utils';
-import { TrendingUp, Calendar, AlertTriangle, DollarSign, Clock, Activity, Target, Zap, ArrowUp, ArrowDown } from 'lucide-react';
+import { fmtQ } from '../utils';
+import { TrendingUp, Calendar, AlertTriangle, DollarSign, Activity, Target, Zap } from 'lucide-react';
 
 const DashboardPredictivo: React.FC = () => {
   const { proyectos, movimientos, presupuestos, avances, empleados } = useErp();
@@ -12,10 +12,7 @@ const DashboardPredictivo: React.FC = () => {
 
   // --- Cálculos ---
   const gastos = movimientos.filter(m => m.proyectoId === selProyecto && (m.tipo === 'gasto' || m.tipo === 'egreso'));
-  const ingresos = movimientos.filter(m => m.proyectoId === selProyecto && m.tipo === 'ingreso');
   const totalGastos = gastos.reduce((a, m) => a + (m.costoTotal ?? m.monto), 0);
-  const totalIngresos = ingresos.reduce((a, m) => a + (m.costoTotal ?? m.monto), 0);
-  const avancesProyecto = avances.filter(a => a.proyectoId === selProyecto);
 
   // Costo final proyectado (EAC = AC + (BAC - EV) / CPI)
   const BAC = proyecto?.presupuestoTotal || proyecto?.presupuesto || presupuesto?.totalPV || 0;
@@ -37,7 +34,6 @@ const DashboardPredictivo: React.FC = () => {
   const desviacionDias = diasEstimadosRestantes - (diasTotales - diasTranscurridos);
 
   // Riesgos: renglones con desviación
-  const renglones = presupuesto?.renglones ?? [];
   const renglonesConAvance = useMemo(() => {
     const _renglones = presupuesto?.renglones ?? [];
     const _avancesProyecto = avances.filter(a => a.proyectoId === selProyecto);

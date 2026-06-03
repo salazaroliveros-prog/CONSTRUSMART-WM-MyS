@@ -1,7 +1,7 @@
 import React from 'react';
 import { Presupuesto } from '../types';
 import { fmtQ } from '../utils';
-import { X, Eye, Check, GitBranch } from 'lucide-react';
+import { X, Eye, GitBranch } from 'lucide-react';
 
 interface Props {
   open: boolean;
