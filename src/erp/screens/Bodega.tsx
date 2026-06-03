@@ -11,7 +11,7 @@ import RecepcionMateriales from '../components/RecepcionMateriales';
 import ConteoCiclico from '../components/ConteoCiclico';
 import KitsMateriales from '../components/KitsMateriales';
 import type { KitMaterial, RecepcionMaterial } from '../types';
-import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2, Search, TrendingUp, DollarSign, Package, Filter, FileText, ClipboardList, QrCode, Receipt, Layers, RefreshCw, Truck, RotateCcw } from 'lucide-react';
+import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2, Search, TrendingUp, DollarSign, Package, Filter, FileText, ClipboardList, Layers, Truck, RotateCcw } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT_COMPACT } from '../ui';
 import { toast } from 'sonner';
@@ -59,7 +59,6 @@ const Bodega: React.FC = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   // Alertas de stock crítico
   useEffect(() => {
     const criticosActuales = materiales.filter(m => m.stock < m.stockMinimo);
@@ -72,12 +71,11 @@ const Bodega: React.FC = () => {
         updateMaterial(m.id, { critico: true });
       }
     });
-    // Resetear críticos si ya se reabasteció
     materiales.filter(m => m.critico && m.stock >= m.stockMinimo).forEach(m => {
       updateMaterial(m.id, { critico: false });
       toast.success(`✅ ${m.nombre} reabastecido (${m.stock} ${m.unidad})`);
     });
-  }, [materiales]);
+  }, [materiales, updateMaterial]);
 
   const criticos = materiales.filter(m => m.stock < m.stockMinimo);
   const pendientes = ordenes.filter(o => o.estado === 'pendiente');

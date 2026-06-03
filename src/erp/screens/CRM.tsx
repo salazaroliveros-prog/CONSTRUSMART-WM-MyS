@@ -46,8 +46,6 @@ const CRM: React.FC = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // Seed data demo if empty
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     if (licitaciones.length === 0) {
       const demoData: Omit<Licitacion, 'id'>[] = [
@@ -59,6 +57,8 @@ const CRM: React.FC = () => {
       ];
       demoData.forEach(d => addLicitacion(d));
     }
+  // Solo ejecutar una vez al montar, el seed es datos iniciales
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Agrupar por estado

@@ -1,10 +1,10 @@
-import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import React, { useMemo, useState, useCallback, useRef } from 'react';
 import { useErp } from '../store';
 import type { BitacoraEntry } from '../types';
 import { fmtQ, todayISO, duracionPorRendimiento } from '../utils';
 import { Progress, Gauge, BarChart } from '../components/Charts';
 import { CARD, CARD_TITLE, INPUT } from '../ui';
-import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X, Calendar, MapPin, Upload, Fingerprint, Cloud } from 'lucide-react';
+import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X, Calendar, MapPin, Fingerprint } from 'lucide-react';
 import { uploadBase64Image } from '@/lib/storage';
 import { hasSupabase } from '@/lib/supabase';
 import GanttChart, { type GanttTask } from '../components/GanttChart';
@@ -30,7 +30,7 @@ const Seguimiento: React.FC = () => {
   const [ganttProy, setGanttProy] = useState(proyectos[0]?.id || '');
   const [bit, setBit] = useState({ clima: 'Despejado', personal: '12', maquinaria: 'Retroexcavadora', tareas: '', observaciones: '' });
   const [bitFotos, setBitFotos] = useState<string[]>([]);
-  const [subiendoFoto, setSubiendoFoto] = useState(false);
+  const [_subiendoFoto, setSubiendoFoto] = useState(false);
   const [bitFirma, setBitFirma] = useState('');
   const [bitGeo, setBitGeo] = useState<{lat: number; lng: number} | null>(null);
   const [geoLoading, setGeoLoading] = useState(false);

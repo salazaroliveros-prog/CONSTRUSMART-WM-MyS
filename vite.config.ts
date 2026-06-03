@@ -40,7 +40,7 @@ export default defineConfig(({ mode: _mode }) => ({
             '@radix-ui/react-toggle-group'
           ],
           three: ['three'],
-          'web-ifc': ['web-ifc'],
+          // web-ifc se carga dinámicamente, no incluir aquí
           pdf: ['jspdf', 'html2canvas'],
           charts: ['recharts'],
           icons: ['lucide-react'],
@@ -50,7 +50,7 @@ export default defineConfig(({ mode: _mode }) => ({
         },
       },
     },
-    chunkSizeWarningLimit: 800,
+    chunkSizeWarningLimit: 4000,
     sourcemap: false,
     minify: 'esbuild',
     cssMinify: true,
