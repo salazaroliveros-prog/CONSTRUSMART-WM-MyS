@@ -519,6 +519,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const fetchInitialData = useCallback(async () => {
     // Fetch individual para que un error en una tabla no bloquee las demás
     const safeFrom = async (table: string, query?: (q: ReturnType<typeof supabase.from>) => ReturnType<typeof supabase.from>) => {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
       try {
         const q = supabase.from(table);
         const { data, error } = await (query ? query(q) : q.select('*'));
@@ -527,6 +529,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           return null;
         }
         if (!Array.isArray(data)) return data;
+        clearTimeout(timeout);
         return data.map((row) => sanitizarObjeto(row));
       } catch (err) {
         console.warn(`[Supabase] ${table} fetch failed:`, err);
@@ -694,7 +697,10 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const enqueueMutation = useCallback((type: Mutation['type'], payload: Record<string, unknown>) => {
     const safePayload = sanitizarObjeto(payload);
     const mutation: Mutation = { id: uid(), type, payload: safePayload, timestamp: Date.now() };
-    setMutationQueue(q => [...q, mutation]);
+    setMutationQueue(q => {
+      if (q.length >= 100) q.shift();
+      return [...q, mutation];
+    });
     return mutation.id;
   }, []);
 

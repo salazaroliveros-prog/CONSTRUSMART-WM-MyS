@@ -1,4 +1,5 @@
 import { RenglonPresupuesto } from './types';
+import { sanitizarTexto } from '@/lib/security';
 import { EMPRESA, fmtQ, costoDirectoUnitario, precioUnitarioVenta, TIPOLOGIA_LABEL, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD, HERRAMIENTA_MENOR } from './utils';
 
 const calcRow = (r: RenglonPresupuesto) => {
@@ -77,7 +78,24 @@ export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tip
   URL.revokeObjectURL(url);
 };
 
+/**
+ * Valida que una URL de imagen use esquemas permitidos (solo https o data:image)
+ */
+function validarUrlImagen(url: string): boolean {
+  if (!url) return false;
+  return url.startsWith('https://') || url.startsWith('data:image/') || url.startsWith('/');
+}
+
 export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tipologia: string, firma?: string) => {
+  // Sanitizar todos los textos de usuario
+  const proyectoSanitizado = sanitizarTexto(proyecto);
+  const tipologiaSanitizada = sanitizarTexto(tipologia);
+  const firmaSanitizada = firma && validarUrlImagen(firma) ? firma : undefined;
+  const empresaNombre = sanitizarTexto(EMPRESA.nombre);
+  const empresaEslogan = sanitizarTexto(EMPRESA.eslogan);
+  const empresaDireccion = sanitizarTexto(EMPRESA.direccion || 'Guatemala');
+  const empresaTelefono = sanitizarTexto(EMPRESA.telefono || '');
+  const empresaEmail = sanitizarTexto(EMPRESA.email || '');
   let gran = 0;
   let granDir = 0;
   const filas = renglones.map((r, i) => {
@@ -131,10 +149,10 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   }).join('');
 
   const fecha = new Date().toLocaleDateString('es-GT', { year: 'numeric', month: 'long', day: 'numeric' });
-  const firmaHTML = firma 
+  const firmaHTML = firmaSanitizada 
     ? `<div style="margin-top:30px;padding-top:20px;border-top:2px solid #e2e8f0">
         <div style="margin-bottom:4px;font-size:10px;color:#64748b">Firma del responsable:</div>
-        <img src="${firma}" style="max-height:60px;border:1px solid #e2e8f0;border-radius:4px;padding:4px" />
+        <img src="${firmaSanitizada}" style="max-height:60px;border:1px solid #e2e8f0;border-radius:4px;padding:4px" />
         <div style="margin-top:4px;font-size:9px;color:#94a3b8">Vo.Bo. Residente de Obra</div>
        </div>`
     : '';
@@ -145,7 +163,8 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   const imprevistos = (granDir + indirectos + administracion) * IMPREVISTOS;
   const utilidad = (granDir + indirectos + administracion + imprevistos) * UTILIDAD;
 
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Presupuesto ${proyecto}</title>
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Presupuesto ${proyectoSanitizado}</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'unsafe-inline' 'self'; script-src 'none'">
   <style>
     @page { margin: 20mm 15mm }
     body{font-family:Arial,Helvetica,sans-serif;color:#334155;margin:0;padding:0;font-size:11px;line-height:1.4}
@@ -181,9 +200,9 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   <div class="header">
     <div class="logo"><img src="/logo.png" alt="WM" /></div>
     <div class="empresa-info">
-      <h1>${EMPRESA.nombre}</h1>
-      <div class="slogan">“${EMPRESA.eslogan}”</div>
-      <div class="datos">${EMPRESA.direccion || 'Guatemala'} · ${EMPRESA.telefono ? 'Tel: ' + EMPRESA.telefono : ''} ${EMPRESA.email ? '· ' + EMPRESA.email : ''}</div>
+      <h1>${empresaNombre}</h1>
+      <div class="slogan">“${empresaEslogan}”</div>
+      <div class="datos">${empresaDireccion} · ${empresaTelefono ? 'Tel: ' + empresaTelefono : ''} ${empresaEmail ? '· ' + empresaEmail : ''}</div>
     </div>
     <div class="doc-ref">
       <div class="tit">PRESUPUESTO</div>
@@ -193,8 +212,8 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   </div>
 
   <div class="meta">
-    <div class="meta-item"><span class="label">Proyecto</span><span class="value">${proyecto}</span></div>
-    <div class="meta-item"><span class="label">Tipolog&iacute;a</span><span class="value">${TIPOLOGIA_LABEL[tipologia as keyof typeof TIPOLOGIA_LABEL] || tipologia}</span></div>
+    <div class="meta-item"><span class="label">Proyecto</span><span class="value">${proyectoSanitizado}</span></div>
+    <div class="meta-item"><span class="label">Tipolog&iacute;a</span><span class="value">${sanitizarTexto(TIPOLOGIA_LABEL[tipologia as keyof typeof TIPOLOGIA_LABEL] || tipologia)}</span></div>
     <div class="meta-item"><span class="label">Renglones</span><span class="value">${renglones.length}</span></div>
     <div class="meta-item"><span class="label">Moneda</span><span class="value">Quetzales (GTQ)</span></div>
     <div class="meta-item"><span class="label">Herramienta Menor</span><span class="value">${(HERRAMIENTA_MENOR * 100).toFixed(0)}%</span></div>
@@ -233,8 +252,8 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   ${firmaHTML}
 
   <div class="foot">
-    <strong>${EMPRESA.nombre}</strong> — ${EMPRESA.eslogan}<br>
-    ${EMPRESA.direccion || 'Guatemala'} ${EMPRESA.telefono ? '· Tel: ' + EMPRESA.telefono : ''} ${EMPRESA.email ? '· ' + EMPRESA.email : ''}<br>
+    <strong>${empresaNombre}</strong> — ${empresaEslogan}<br>
+    ${empresaDireccion} ${empresaTelefono ? '· Tel: ' + empresaTelefono : ''} ${empresaEmail ? '· ' + empresaEmail : ''}<br>
     Documento generado por el ERP CONSTRUSMART &mdash; Los precios est&aacute;n sujetos a variaci&oacute;n del mercado.<br>
     Precios V&aacute;lidos por 30 d&iacute;as a partir de la fecha de emisi&oacute;n.
   </div>

@@ -22,7 +22,12 @@ export async function uploadFile(
   userId: string
 ): Promise<string | null> {
   try {
-    const ext = file.name.split('.').pop() || 'jpg';
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    // Validar extensión antes de continuar
+    if (!EXTENSIONES_PERMITIDAS.has(ext)) {
+      console.error(`Extensión no permitida: .${ext}`);
+      return null;
+    }
     const fileName = `${userId}/${Date.now()}_${uid().slice(0, 8)}.${ext}`;
 
     const { error } = await supabase.storage
@@ -84,6 +89,35 @@ export async function uploadSignature(
 }
 
 /**
+ * Extensiones de archivo permitidas para subida
+ */
+const EXTENSIONES_PERMITIDAS = new Set([
+  'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
+  'pdf', 'doc', 'docx', 'xls', 'xlsx',
+  'txt', 'csv',
+]);
+
+/**
+ * Caracteres peligrosos no permitidos en nombres de archivo
+ */
+const CARACTERES_PELIGROSOS = /[<>:"/\\|?*\x00-\x1f]/;
+
+/**
+ * Valida que un fileName no contenga path traversal
+ */
+function validarFileName(fileName: string): boolean {
+  if (!fileName || typeof fileName !== 'string') return false;
+  // Rechazar path traversal
+  if (fileName.includes('..') || fileName.startsWith('/') || fileName.startsWith('\\')) return false;
+  // Rechazar caracteres peligrosos
+  if (CARACTERES_PELIGROSOS.test(fileName)) return false;
+  // Verificar extensión
+  const ext = fileName.split('.').pop()?.toLowerCase();
+  if (!ext || !EXTENSIONES_PERMITIDAS.has(ext)) return false;
+  return true;
+}
+
+/**
  * Elimina un archivo por su URL pública
  */
 export async function deleteFile(publicUrl: string): Promise<boolean> {
@@ -97,6 +131,15 @@ export async function deleteFile(publicUrl: string): Promise<boolean> {
 
     const bucket = pathParts[bucketIndex];
     const filePath = pathParts.slice(bucketIndex + 1).join('/');
+
+    // Validar path segments individualmente contra path traversal
+    const segments = filePath.split('/');
+    for (const segment of segments) {
+      if (segment === '..' || segment === '.') return false;
+    }
+    // Validar que el bucket esté en la lista permitida
+    const BUCKETS_PERMITIDOS = ['erp_fotos_avances', 'erp_documentos', 'erp_facturas'];
+    if (!BUCKETS_PERMITIDOS.includes(bucket)) return false;
 
     const { error } = await supabase.storage
       .from(bucket)
