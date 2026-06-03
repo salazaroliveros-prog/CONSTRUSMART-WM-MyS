@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { ErpProvider, useErp } from '@/erp/store';
 import AppProvider from '@/contexts/AppContext';
 import { useAppContext } from '@/contexts/AppContext';
@@ -37,10 +37,25 @@ const VisorBIM = lazy(() => import('@/erp/screens/VisorBIM'));
 const DashboardPredictivo = lazy(() => import('@/erp/screens/DashboardPredictivo'));
 
 const LazyScreen: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>}>
+  <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center animate-pulse"><div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>}>
     {children}
   </Suspense>
 );
+
+// Transición suave entre módulos
+const FadeView: React.FC<{ view: string; children: React.ReactNode }> = ({ view, children }) => {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    setVisible(false);
+    const t = setTimeout(() => setVisible(true), 50);
+    return () => clearTimeout(t);
+  }, [view]);
+  return (
+    <div className={`transition-all duration-200 ease-in-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'}`}>
+      {children}
+    </div>
+  );
+};
 
 const Shell: React.FC = () => {
   const { view, initializing, allowedViews, setView } = useErp();
@@ -110,10 +125,14 @@ const Shell: React.FC = () => {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar open={sidebarOpen} onClose={toggleSidebar} />
         <main className={`flex-1 min-w-0 overflow-auto transition-all ${sidebarCollapsed ? 'lg:ml-0' : ''}`}>
-          <div key={view} className="animate-[fadeIn_0.3s_ease]"><ErrorBoundary>{currentScreen}</ErrorBoundary></div>
+          <FadeView key={view} view={view}><ErrorBoundary>{currentScreen}</ErrorBoundary></FadeView>
         </main>
       </div>
-      <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}`}</style>
+      <style>{`
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        .transition-opacity{transition-property:opacity}
+        .transition-transform{transition-property:transform}
+      `}</style>
     </div>
   );
 };

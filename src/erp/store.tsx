@@ -482,27 +482,25 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const verificarStockCritico = useCallback(() => {
-
-
+    const currentNotifs = loadFromStorage<Notificacion[]>(NOTIF_KEY, []);
+    const pending = currentNotifs.filter(n => !n.leido && n.tipo === 'stock_critico').map(n => n.referenciaId);
     materiales.forEach(mat => {
-      if (mat.stock <= mat.stockMinimo && mat.stock >= 0) {
-        if (!notificaciones.some(n => n.tipo === 'stock_critico' && n.referenciaId === mat.id && !n.leido)) {
-          addNotificacion('stock_critico', `Stock crítico: ${mat.nombre}`, `Stock actual: ${mat.stock} ${mat.unidad} (mínimo: ${mat.stockMinimo})`);
-        }
+      if (mat.stock <= mat.stockMinimo && mat.stock >= 0 && !pending.includes(mat.id)) {
+        addNotificacion('stock_critico', `Stock crítico: ${mat.nombre}`, `Stock actual: ${mat.stock} ${mat.unidad} (mínimo: ${mat.stockMinimo})`);
       }
     });
-  }, [addNotificacion]); // ← SIN materiales/notificaciones: evita loop
+  }, [addNotificacion, materiales]); // ← materiales sí es necesario aquí
 
   const verificarOrdenesCambioPendientes = useCallback(() => {
     const ordenesCambio = loadFromStorage<OrdenCambio[]>(BASE_STORAGE_KEY + '_ordenes_cambio', []);
+    const currentNotifs = loadFromStorage<Notificacion[]>(NOTIF_KEY, []);
+    const pending = currentNotifs.filter(n => !n.leido && n.tipo === 'orden_cambio_pendiente').map(n => n.referenciaId);
     ordenesCambio.forEach(oc => {
-      if (oc.estado === 'solicitud' || oc.estado === 'revision') {
-        if (!notificaciones.some(n => n.tipo === 'orden_cambio_pendiente' && n.referenciaId === oc.id && !n.leido)) {
-          addNotificacion('orden_cambio_pendiente', `OC pendiente: ${oc.titulo}`, `Estado: ${oc.estado} · Costo: Q${oc.impactoCosto.toFixed(2)} · Solicitante: ${oc.solicitante}`, oc.proyectoId, oc.id);
-        }
+      if ((oc.estado === 'solicitud' || oc.estado === 'revision') && !pending.includes(oc.id)) {
+        addNotificacion('orden_cambio_pendiente', `OC pendiente: ${oc.titulo}`, `Estado: ${oc.estado} · Costo: Q${oc.impactoCosto.toFixed(2)} · Solicitante: ${oc.solicitante}`, oc.proyectoId, oc.id);
       }
     });
-  }, [notificaciones, addNotificacion]);
+  }, [addNotificacion]);
 
   const verificarChecklistRechazado = useCallback((proyectoId: string) => {
     addNotificacion('checklist_rechazado', 'Checklist de calidad rechazado', 'Un checklist ha sido rechazado. Se requiere evidencia fotográfica y nueva revisión.', proyectoId);
@@ -621,14 +619,21 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     });
 
-    // OAuth PKCE code exchange
+    // OAuth PKCE code exchange — solo una vez, limpiar URL después
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('code')) {
-      supabase.auth.exchangeCodeForSession(urlParams.get('code')!).then(({ data, error }) => {
+    const authCode = urlParams.get('code');
+    if (authCode && !sessionStorage.getItem('wm_auth_code_exchanged')) {
+      sessionStorage.setItem('wm_auth_code_exchanged', '1');
+      supabase.auth.exchangeCodeForSession(authCode).then(({ data, error }) => {
         if (error) {
           console.error('[Auth] Code exchange failed:', error.message);
           setInitializing(false);
+          // Limpiar URL para evitar reintentos
+          window.history.replaceState({}, document.title, window.location.pathname);
         } else if (data.session) {
+          // Limpiar URL después de intercambio exitoso
+          window.history.replaceState({}, document.title, window.location.pathname);
+          sessionStorage.removeItem('wm_auth_code_exchanged');
           const meta = data.session.user.user_metadata || {};
           loadProfile(data.session.user.id, data.session.user.email || undefined, { nombre: meta.full_name || meta.nombre, avatar_url: meta.picture || meta.avatar_url });
         }
