@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Calculator, Ruler, Weight, Square, Box, Trash2, Plus, Download } from 'lucide-react';
-import { CARD, CARD_TITLE, BUTTON_PRIMARY } from '../ui';
+import { CARD, CARD_TITLE } from '../ui';
 import { fmtNum } from '../utils';
 import { toast } from 'sonner';
 
@@ -67,9 +67,9 @@ const CubicacionAutomatica: React.FC = () => {
       }
       case 'acero': {
         const diam = diametro || 12;
-        const peso = pesoUnitario || PESOS_ACERO[diam] || 0.888;
+        const _peso = pesoUnitario || PESOS_ACERO[diam] || 0.888;
         const long = longitudBarra || 6;
-        const total = Math.PI * Math.pow(diam / 1000, 2) / 4 * long * (cantidad || 1) * 7850;
+        const _total = Math.PI * Math.pow(diam / 1000, 2) / 4 * long * (cantidad || 1) * 7850;
         // Usar fórmula simplificada: peso = diam² × cantidad × longitud × 0.006165
         const totalSimple = Math.pow(diam / 10, 2) * (cantidad || 1) * long * 0.6165 / 10;
         return { cantidad: totalSimple, unidad: 'kg', formula: `∅${diam}² × ${cantidad} × ${long}m × 0.006165` };

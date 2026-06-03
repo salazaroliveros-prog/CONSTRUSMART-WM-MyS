@@ -3,7 +3,6 @@ import { useErp } from '../store';
 import QRScanner from './QRScanner';
 import { toast } from 'sonner';
 import { QrCode, Package, Check, RotateCcw, Search } from 'lucide-react';
-import { INPUT } from '../ui';
 
 const ConteoCiclico: React.FC = () => {
   const { materiales, updateMaterial } = useErp();
@@ -24,7 +23,7 @@ const ConteoCiclico: React.FC = () => {
     }
   };
 
-  const materialSeleccionado = selectedMatId ? materiales.find(m => m.id === selectedMatId) : null;
+  const _materialSeleccionado = selectedMatId ? materiales.find(m => m.id === selectedMatId) : null;
 
   const filteredMateriales = searchTerm
     ? materiales.filter(m => m.nombre.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -40,7 +39,7 @@ const ConteoCiclico: React.FC = () => {
     setSelectedMatId(null);
   };
 
-  const getDiferencia = (materialId: string) => {
+  const _getDiferencia = (materialId: string) => {
     const data = conteo[materialId];
     const mat = materiales.find(m => m.id === materialId);
     if (!data || !mat) return 0;

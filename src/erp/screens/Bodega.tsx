@@ -10,7 +10,7 @@ import QRScanner from '../components/QRScanner';
 import RecepcionMateriales from '../components/RecepcionMateriales';
 import ConteoCiclico from '../components/ConteoCiclico';
 import KitsMateriales from '../components/KitsMateriales';
-import type { KitMaterial, RecepcionMaterial } from '../types';
+
 import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2, Search, TrendingUp, DollarSign, Package, Filter, FileText, ClipboardList, Layers, Truck, RotateCcw } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT_COMPACT } from '../ui';

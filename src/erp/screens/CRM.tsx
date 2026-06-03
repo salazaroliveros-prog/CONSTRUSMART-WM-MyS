@@ -45,21 +45,19 @@ const CRM: React.FC = () => {
     const t = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(t);
   }, []);
-
+  const seededRef = React.useRef(false);
   React.useEffect(() => {
-    if (licitaciones.length === 0) {
-      const demoData: Omit<Licitacion, 'id'>[] = [
-        { titulo: 'Edificio Comercial Plaza Norte', cliente: 'Inmobiliaria del Valle', descripcion: 'Construcción de edificio de 5 niveles', monto: 2500000, estado: 'identificado', fechaCreacion: '2026-01-02', probabilidad: 30, notas: 'Cliente potencial, primera reunión programada' },
-        { titulo: 'Residencial Los Pinos - Fase 2', cliente: 'Constructora Maya', descripcion: '20 casas unifamiliares', monto: 1800000, estado: 'en_estudio', fechaCreacion: '2025-12-15', probabilidad: 60, notas: 'Presupuesto en elaboración' },
-        { titulo: 'Centro Comercial San Cristóbal', cliente: 'Grupo Inmobiliario GT', descripcion: 'Remodelación y ampliación', monto: 950000, estado: 'presentado', fechaCreacion: '2025-11-20', probabilidad: 75, notas: 'Propuesta entregada, esperando respuesta' },
-        { titulo: 'Puente Vehicular Ruta 5', cliente: 'Municipalidad de Guatemala', descripcion: 'Construcción de puente de 40m', monto: 3200000, estado: 'ganado', fechaCreacion: '2025-10-01', probabilidad: 100, notas: 'Contrato firmado, inicio en febrero 2026' },
-        { titulo: 'Oficinas Corporativas Torre Sur', cliente: 'Empresas ABC', descripcion: 'Remodelación de 3 pisos', monto: 750000, estado: 'perdido', fechaCreacion: '2025-09-15', probabilidad: 0, notas: 'Cliente eligió otra empresa' },
-      ];
-      demoData.forEach(d => addLicitacion(d));
-    }
-  // Solo ejecutar una vez al montar, el seed es datos iniciales
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (seededRef.current || licitaciones.length > 0) { seededRef.current = true; return; }
+    seededRef.current = true;
+    const demoData = [
+      { titulo: 'Edificio Comercial Plaza Norte', cliente: 'Inmobiliaria del Valle', descripcion: 'Construcción de edificio de 5 niveles', monto: 2500000, estado: 'identificado' as const, fechaCreacion: '2026-01-02', probabilidad: 30, notas: 'Cliente potencial, primera reunión programada' },
+      { titulo: 'Residencial Los Pinos - Fase 2', cliente: 'Constructora Maya', descripcion: '20 casas unifamiliares', monto: 1800000, estado: 'en_estudio' as const, fechaCreacion: '2025-12-15', probabilidad: 60, notas: 'Presupuesto en elaboración' },
+      { titulo: 'Centro Comercial San Cristóbal', cliente: 'Grupo Inmobiliario GT', descripcion: 'Remodelación y ampliación', monto: 950000, estado: 'presentado' as const, fechaCreacion: '2025-11-20', probabilidad: 75, notas: 'Propuesta entregada, esperando respuesta' },
+      { titulo: 'Puente Vehicular Ruta 5', cliente: 'Municipalidad de Guatemala', descripcion: 'Construcción de puente de 40m', monto: 3200000, estado: 'ganado' as const, fechaCreacion: '2025-10-01', probabilidad: 100, notas: 'Contrato firmado, inicio en febrero 2026' },
+      { titulo: 'Oficinas Corporativas Torre Sur', cliente: 'Empresas ABC', descripcion: 'Remodelación de 3 pisos', monto: 750000, estado: 'perdido' as const, fechaCreacion: '2025-09-15', probabilidad: 0, notas: 'Cliente eligió otra empresa' },
+    ];
+    demoData.forEach(d => addLicitacion(d));
+  }, [addLicitacion, licitaciones.length]);
 
   // Agrupar por estado
   const columns = useMemo(() => {

@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { sanitizarObjeto } from '@/lib/security';
+import { getServerRole } from '@/lib/security';
 import { z } from 'zod';
 import { toast } from '@/components/ui/sonner';
 import {
@@ -250,8 +252,10 @@ const presupuestoSchema = z.object({
 function loadFromStorage<T>(key: string, initial: T): T {
   try {
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : initial;
-    } catch { return initial; }
+    if (!raw) return initial;
+    const parsed = JSON.parse(raw);
+    return sanitizarObjeto(parsed) as T;
+  } catch { return initial; }
 }
 
 function saveToStorage<T>(key: string, data: T) {
@@ -414,7 +418,7 @@ export const uid = (): string => {
   });
 };
 
-const STORAGE_KEY = 'wm_erp_data';
+const BASE_STORAGE_KEY = 'wm_erp_data';
 const QUEUE_KEY = 'wm_erp_queue';
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -424,24 +428,24 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [authError, setAuthError] = useState('');
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
-  const [proyectos, setProyectos] = useState<Proyecto[]>(() => loadFromStorage(STORAGE_KEY + '_proyectos', SEED_PROYECTOS));
-  const [movimientos, setMovimientos] = useState<Movimiento[]>(() => loadFromStorage(STORAGE_KEY + '_movimientos', SEED_MOVIMIENTOS));
-  const [empleados, setEmpleados] = useState<Empleado[]>(() => loadFromStorage(STORAGE_KEY + '_empleados', SEED_EMPLEADOS));
-  const [materiales, setMateriales] = useState<Material[]>(() => loadFromStorage(STORAGE_KEY + '_materiales', SEED_MATERIALES));
-  const [ordenes, setOrdenes] = useState<OrdenCompra[]>(() => loadFromStorage(STORAGE_KEY + '_ordenes', SEED_OC));
-  const [proveedores, setProveedores] = useState<Proveedor[]>(() => loadFromStorage(STORAGE_KEY + '_proveedores', SEED_PROVEEDORES));
-  const [eventos, setEventos] = useState<EventoCalendario[]>(() => loadFromStorage(STORAGE_KEY + '_eventos', []));
-  const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => loadFromStorage(STORAGE_KEY + '_bitacora', []));
-  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>(() => loadFromStorage(STORAGE_KEY + '_presupuestos', []));
-  const [selectedProyectoId, setSelectedProyectoId] = useState<string | null>(() => loadFromStorage(STORAGE_KEY + '_selected_proyecto_id', null));
-  const [licitaciones, setLicitaciones] = useState<Licitacion[]>(() => loadFromStorage(STORAGE_KEY + '_licitaciones', []));
-  const [avances, setAvances] = useState<AvanceObra[]>(() => loadFromStorage(STORAGE_KEY + '_avances', []));
-  const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => loadFromStorage(STORAGE_KEY + '_vales_salida', []));
-  const [notifiedEventos, setNotifiedEventos] = useState<string[]>(() => loadFromStorage(STORAGE_KEY + '_notified_eventos', []));
+  const [proyectos, setProyectos] = useState<Proyecto[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_proyectos', SEED_PROYECTOS));
+  const [movimientos, setMovimientos] = useState<Movimiento[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_movimientos', SEED_MOVIMIENTOS));
+  const [empleados, setEmpleados] = useState<Empleado[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_empleados', SEED_EMPLEADOS));
+  const [materiales, setMateriales] = useState<Material[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_materiales', SEED_MATERIALES));
+  const [ordenes, setOrdenes] = useState<OrdenCompra[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_ordenes', SEED_OC));
+  const [proveedores, setProveedores] = useState<Proveedor[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_proveedores', SEED_PROVEEDORES));
+  const [eventos, setEventos] = useState<EventoCalendario[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_eventos', []));
+  const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_bitacora', []));
+  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_presupuestos', []));
+  const [selectedProyectoId, setSelectedProyectoId] = useState<string | null>(() => loadFromStorage(BASE_STORAGE_KEY + '_selected_proyecto_id', null));
+  const [licitaciones, setLicitaciones] = useState<Licitacion[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_licitaciones', []));
+  const [avances, setAvances] = useState<AvanceObra[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_avances', []));
+  const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_vales_salida', []));
+  const [notifiedEventos, setNotifiedEventos] = useState<string[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_notified_eventos', []));
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
 
-  const NOTIF_KEY = STORAGE_KEY + '_notificaciones';
+  const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>(() => loadFromStorage(NOTIF_KEY, []));
   useEffect(() => { saveToStorage(NOTIF_KEY, notificaciones); }, [notificaciones, NOTIF_KEY]);
   const notificacionesNoLeidas = notificaciones.filter(n => !n.leido).length;
@@ -491,7 +495,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [materiales, notificaciones, addNotificacion]);
 
   const verificarOrdenesCambioPendientes = useCallback(() => {
-    const ordenesCambio = loadFromStorage<OrdenCambio[]>(STORAGE_KEY + '_ordenes_cambio', []);
+    const ordenesCambio = loadFromStorage<OrdenCambio[]>(BASE_STORAGE_KEY + '_ordenes_cambio', []);
     ordenesCambio.forEach(oc => {
       if (oc.estado === 'solicitud' || oc.estado === 'revision') {
         const yaNotificado = notificaciones.some(
@@ -526,7 +530,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           console.warn(`[Supabase] ${table}:`, error.message);
           return null;
         }
-        return data;
+        if (!Array.isArray(data)) return data;
+        return data.map((row) => sanitizarObjeto(row));
       } catch (err) {
         console.warn(`[Supabase] ${table} fetch failed:`, err);
         return null;
@@ -560,28 +565,38 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     let mounted = true;
 
 
-    const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
+    const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL as string | undefined)?.trim() || 'salazaroliveros@gmail.com';
 
-    const mapRol = (dbRol: string): Rol => {
+    const mapRol = (dbRol: string, email?: string): Rol => {
+      if (email === 'salazaroliveros@gmail.com') return 'Administrador';
+      if (dbRol === 'Administrador') return 'Gerente';
       if (dbRol === 'usuario' || !dbRol) return 'Residente';
       return dbRol as Rol;
     };
 
     const loadProfile = async (id: string, email?: string, metadata?: { nombre?: string; avatar_url?: string; picture?: string }) => {
-      const defaultRol: Rol = email === ADMIN_EMAIL ? 'Administrador' : 'Residente';
+      const defaultRol: Rol = email === 'salazaroliveros@gmail.com' ? 'Administrador' : 'Residente';
       const avatarFromMeta = metadata?.avatar_url || metadata?.picture;
       try {
         const { data, error } = await supabase
           .from('profiles')
           .select('nombre,rol,avatar_url')
           .eq('id', id)
-          .single();
+          .maybeSingle();
         if (error || !data) {
           const name = metadata?.nombre || email?.split('@')[0] || 'Usuario';
-          await supabase.from('profiles').insert({ id, nombre: name, rol: defaultRol, avatar_url: avatarFromMeta }).maybeSingle();
+          await supabase.from('profiles').upsert(
+            { id, nombre: name, rol: defaultRol, avatar_url: avatarFromMeta },
+            { onConflict: 'id', ignoreDuplicates: false }
+          );
           setUser({ id, nombre: name, rol: defaultRol, avatar: avatarFromMeta });
         } else {
-          setUser({ id, nombre: data.nombre, rol: mapRol(data.rol), avatar: data.avatar_url || avatarFromMeta });
+          setUser({ id, nombre: data.nombre, rol: mapRol(data.rol, email), avatar: data.avatar_url || avatarFromMeta });
+        }
+
+        const serverRole = await getServerRole();
+        if (serverRole?.rol && mounted) {
+          setUser(prev => prev ? { ...prev, rol: mapRol(serverRole.rol, email) as Rol } : prev);
         }
         if (mounted) { setView('dashboard'); setInitializing(false); fetchInitialData(); }
       } catch {
@@ -626,34 +641,52 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-       
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
 
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_proyectos', proyectos); }, [proyectos]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_movimientos', movimientos); }, [movimientos]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_empleados', empleados); }, [empleados]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_materiales', materiales); }, [materiales]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_ordenes', ordenes); }, [ordenes]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_proveedores', proveedores); }, [proveedores]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_eventos', eventos); }, [eventos]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_bitacora', bitacora); }, [bitacora]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_presupuestos', presupuestos); }, [presupuestos]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_selected_proyecto_id', selectedProyectoId); }, [selectedProyectoId]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_licitaciones', licitaciones); }, [licitaciones]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_avances', avances); }, [avances]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_vales_salida', valesSalida); }, [valesSalida]);
-  useEffect(() => { saveToStorage(STORAGE_KEY + '_notified_eventos', notifiedEventos); }, [notifiedEventos]);
+  useEffect(() => {
+    if (!isOnline) return;
+    let active = true;
+    const check = async () => {
+      if (!active || !user?.id) return;
+      try {
+        const serverRole = await getServerRole();
+        if (!active) return;
+        if (serverRole?.rol && serverRole.rol !== user.rol) {
+          setUser(prev => prev ? { ...prev, rol: serverRole.rol as Rol } : prev);
+        }
+      } catch {
+        // keep current role until next check
+      }
+    };
+    const id = window.setInterval(check, 30000);
+    return () => { active = false; window.clearInterval(id); };
+  }, [isOnline, user?.id, user?.rol]);
+
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_proyectos', proyectos); }, [proyectos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_movimientos', movimientos); }, [movimientos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_empleados', empleados); }, [empleados]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_materiales', materiales); }, [materiales]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_ordenes', ordenes); }, [ordenes]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_proveedores', proveedores); }, [proveedores]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_eventos', eventos); }, [eventos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_bitacora', bitacora); }, [bitacora]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_presupuestos', presupuestos); }, [presupuestos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_selected_proyecto_id', selectedProyectoId); }, [selectedProyectoId]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_licitaciones', licitaciones); }, [licitaciones]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_avances', avances); }, [avances]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_vales_salida', valesSalida); }, [valesSalida]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_notified_eventos', notifiedEventos); }, [notifiedEventos]);
   useEffect(() => { saveToStorage(QUEUE_KEY, mutationQueue); }, [mutationQueue]);
 
   const enqueueMutation = useCallback((type: Mutation['type'], payload: Record<string, unknown>) => {
-    const mutation: Mutation = { id: uid(), type, payload, timestamp: Date.now() };
+    const safePayload = sanitizarObjeto(payload);
+    const mutation: Mutation = { id: uid(), type, payload: safePayload, timestamp: Date.now() };
     setMutationQueue(q => [...q, mutation]);
     return mutation.id;
   }, []);

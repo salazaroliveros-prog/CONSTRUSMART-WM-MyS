@@ -2,7 +2,6 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Calendar } from 'lucide-react';
 
 export interface GanttTask {
-  id: string;
   codigo: string;
   nombre: string;
   cantidad: number;
@@ -29,7 +28,7 @@ function daysBetween(a: string, b: string) {
   return Math.round((new Date(b).getTime() - new Date(a).getTime()) / DAY_MS) + 1;
 }
 
-function addDays(date: string, days: number) {
+function _addDays(date: string, days: number) {
   const d = new Date(date);
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);

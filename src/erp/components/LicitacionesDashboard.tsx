@@ -1,7 +1,7 @@
 import React from 'react';
 import { useErp, type View } from '../store';
 import { fmtQ } from '../utils';
-import { Target, ArrowRight, Briefcase, TrendingUp } from 'lucide-react';
+import { Target, ArrowRight, Briefcase } from 'lucide-react';
 
 const ESTADO_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
   identificado: { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400' },

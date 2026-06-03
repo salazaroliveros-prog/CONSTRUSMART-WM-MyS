@@ -7,15 +7,21 @@
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react-jsx",
-    
     "paths": {
       "@/*": ["./src/*"]
     },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
+    "noImplicitAny": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
     "skipLibCheck": true,
     "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false
-  }
+    "strictNullChecks": true,
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "isolatedModules": true
+  },
+  "exclude": ["node_modules"]
 }
