@@ -6,7 +6,9 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_KEY as string | undefined;
 export const hasSupabase = Boolean(supabaseUrl && supabaseKey);
 
 export const supabase: SupabaseClient = hasSupabase
-  ? createClient(supabaseUrl as string, supabaseKey as string)
+  ? createClient(supabaseUrl as string, supabaseKey as string, {
+      auth: { flowType: 'pkce' },
+    })
   : ({} as unknown as SupabaseClient);
 
 export function assertSupabase(): SupabaseClient {

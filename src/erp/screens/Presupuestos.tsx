@@ -291,7 +291,7 @@ const Presupuestos: React.FC = () => {
     : presupuestos;
 
   const presupuestoActual = presupuestosDelProyecto[0];
-  const gastoReal = projectId ? movimientos.filter(m => m.proyectoId === projectId && m.tipo === 'egreso').reduce((sum, m) => sum + m.monto, 0) : 0;
+  const gastoReal = projectId ? movimientos.filter(m => m.proyectoId === projectId && (m.tipo === 'gasto' || m.tipo === 'egreso')).reduce((sum, m) => sum + (m.costoTotal ?? m.monto), 0) : 0;
   const variacionReal = presupuestoActual ? gastoReal - presupuestoActual.totalCalculado : 0;
 
   const ninp = "w-full px-2 py-1 text-xs rounded border border-slate-200 outline-none focus:border-orange-400 text-right";

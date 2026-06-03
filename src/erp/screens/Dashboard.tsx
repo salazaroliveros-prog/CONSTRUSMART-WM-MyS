@@ -128,15 +128,21 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 mt-2 flex-shrink-0">
-        <div>
-          <h3 className="font-bold text-slate-700 text-xs mb-1">Registro Rapido de Ingresos y Gastos</h3>
-          <MovimientoForm compact />
+        <div className="lg:col-span-2">
+          <CriticalRenglonAlert />
         </div>
         <div>
           <LicitacionesDashboard />
         </div>
         <div>
           <CajasChicasWidget />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 mt-2 flex-shrink-0">
+        <div>
+          <h3 className="font-bold text-slate-700 text-xs mb-1">Registro Rapido de Ingresos y Gastos</h3>
+          <MovimientoForm compact />
         </div>
         <div>
           <h3 className="font-bold text-slate-700 text-xs mb-1">Acceso a Modulos</h3>
@@ -153,6 +159,7 @@ const Dashboard: React.FC = () => {
             })}
           </div>
         </div>
+        <div className="lg:col-span-2" />
       </div>
     </div>
   );

@@ -312,17 +312,9 @@ CREATE INDEX IF NOT EXISTS idx_centros_costo_proyecto ON centros_costo(proyecto_
 -- PARTE 2: SEED DATA
 -- ============================================================
 
--- Solo insertar si las tablas están vacías
-DO $$
-BEGIN
-  -- Seed: Insumos Base (24 registros)
-  IF NOT EXISTS (SELECT 1 FROM erp_insumos LIMIT 1) THEN
-    INSERT INTO erp_insumos (id, renglon_id, nombre, tipo, unidad, precio, rendimiento) VALUES
-    -- Estos se insertarán a través de la app desde data.ts
-    -- Por ahora, dejamos plantilla para inserción manual
-    NULL;
-  END IF;
-END $$;
+-- Nota: Los datos seed se insertan a través de la aplicación desde data.ts
+-- cuando no hay datos en localStorage. Opcionalmente, ejecutar:
+-- 000000000004_seed_data.sql para datos pre-cargados en Supabase.
 
 -- ============================================================
 -- PARTE 3: FUNCIÓN DE AUDITORÍA (trigger genérico)

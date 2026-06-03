@@ -293,27 +293,28 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return dbRol as Rol;
     };
 
-    const loadProfile = async (id: string, email?: string) => {
+    const loadProfile = async (id: string, email?: string, metadata?: { nombre?: string; avatar_url?: string; picture?: string }) => {
       console.log('[Auth] loadProfile', id, email);
       const defaultRol: Rol = email === ADMIN_EMAIL ? 'Administrador' : 'Residente';
+      const avatarFromMeta = metadata?.avatar_url || metadata?.picture;
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('nombre,rol')
+          .select('nombre,rol,avatar_url')
           .eq('id', id)
           .single();
         console.log('[Auth] profile query:', data, error);
         if (error || !data) {
-          const name = email?.split('@')[0] || 'Usuario';
-          await supabase.from('profiles').insert({ id, nombre: name, rol: defaultRol }).maybeSingle();
-          setUser({ id, nombre: name, rol: defaultRol });
+          const name = metadata?.nombre || email?.split('@')[0] || 'Usuario';
+          await supabase.from('profiles').insert({ id, nombre: name, rol: defaultRol, avatar_url: avatarFromMeta }).maybeSingle();
+          setUser({ id, nombre: name, rol: defaultRol, avatar: avatarFromMeta });
         } else {
-          setUser({ id, nombre: data.nombre, rol: mapRol(data.rol) });
+          setUser({ id, nombre: data.nombre, rol: mapRol(data.rol), avatar: data.avatar_url || avatarFromMeta });
         }
         if (mounted) { setView('dashboard'); setInitializing(false); fetchInitialData(); }
       } catch {
         const name = email?.split('@')[0] || 'Usuario';
-        if (mounted) { setUser({ id, nombre: name, rol: defaultRol }); setView('dashboard'); setInitializing(false); fetchInitialData(); }
+        if (mounted) { setUser({ id, nombre: name, rol: defaultRol, avatar: avatarFromMeta }); setView('dashboard'); setInitializing(false); fetchInitialData(); }
       }
     };
 
@@ -321,18 +322,35 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.log('[Auth] Event:', event, session?.user?.email);
       if (!mounted) return;
       if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')) {
-        loadProfile(session.user.id, session.user.email || undefined);
+        const meta = session.user.user_metadata || {};
+        loadProfile(session.user.id, session.user.email || undefined, { nombre: meta.full_name || meta.nombre, avatar_url: meta.picture || meta.avatar_url });
       } else if (event === 'SIGNED_OUT') {
         setUser(null); setView('login'); setInitializing(false);
       }
     });
 
-    supabase.auth.getSession().then(({ data }) => {
-      console.log('[Auth] getSession result:', data.session ? 'SESSION: ' + data.session.user.email : 'NO SESSION');
-      if (!mounted) return;
-      if (data.session?.user) loadProfile(data.session.user.id, data.session.user.email || undefined);
-      else setInitializing(false);
-    });
+    // OAuth PKCE code exchange
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('code')) {
+      console.log('[Auth] OAuth PKCE code detected, exchanging...');
+      supabase.auth.exchangeCodeForSession(urlParams.get('code')!).then(({ data, error }) => {
+        if (error) {
+          console.error('[Auth] Code exchange failed:', error.message);
+          setInitializing(false);
+        } else if (data.session) {
+          console.log('[Auth] Code exchange successful for:', data.session.user.email);
+          const meta = data.session.user.user_metadata || {};
+          loadProfile(data.session.user.id, data.session.user.email || undefined, { nombre: meta.full_name || meta.nombre, avatar_url: meta.picture || meta.avatar_url });
+        }
+      });
+    } else {
+      supabase.auth.getSession().then(({ data }) => {
+        console.log('[Auth] getSession result:', data.session ? 'SESSION: ' + data.session.user.email : 'NO SESSION');
+        if (!mounted) return;
+        if (data.session?.user) loadProfile(data.session.user.id, data.session.user.email || undefined);
+        else setInitializing(false);
+      });
+    }
 
     return () => { mounted = false; sub.subscription.unsubscribe(); };
   }, [fetchInitialData]);
@@ -563,9 +581,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
     if (error) setAuthError(error.message);
   };
-  const signUp = async (email: string, pass: string, nombre: string, rol: Rol) => {
+  const signUp = async (email: string, pass: string, nombre: string, _rol: Rol) => {
     setAuthError('');
-    const { error } = await supabase.auth.signUp({ email, password: pass, options: { data: { nombre, rol } } });
+    const { error } = await supabase.auth.signUp({ email, password: pass, options: { data: { full_name: nombre, nombre, rol: _rol } } });
     if (error) setAuthError(error.message);
   };
   const logout = async () => { await supabase.auth.signOut(); setUser(null); setView('login'); };

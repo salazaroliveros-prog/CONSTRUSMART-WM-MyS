@@ -247,10 +247,10 @@ TOTAL: 5 archivos | 150 líneas de código | 50 minutos
 - [x] Reportes de presupuestos vs real
 
 ### **Fase 3 (Integración)**
-- [ ] Vincular a módulo Financiero (gasto real)
-- [ ] Mostrar variancia (presupuesto vs real)
-- [ ] Análisis de rentabilidad por proyecto
-- [ ] Alertas de desviaciones
+- [x] Vincular a módulo Financiero (gasto real) — CriticalRenglonAlert compara APU vs gastos reales, Financiero.tsx muestra rentabilidad
+- [x] Mostrar variancia (presupuesto vs real) — DashboardPredictivo.tsx + CriticalRenglonAlert.tsx
+- [x] Análisis de rentabilidad por proyecto — Financiero.tsx (línea 358)
+- [x] Alertas de desviaciones — CriticalRenglonAlert.tsx + DashboardPredictivo.tsx
 
 ---
 
@@ -276,7 +276,7 @@ TOTAL: 5 archivos | 150 líneas de código | 50 minutos
 
 ---
 
-**Última actualización:** 6 de Enero de 2026
-**Estado:** ✅ COMPLETADO — Vinculación proyecto-presupuesto implementada
+**Última actualización:** 2 de Junio de 2026
+**Estado:** ✅ COMPLETADO — Vinculación proyecto-presupuesto implementada + Fase 3 completada
 **Complejidad:** Media
 **Tiempo:** 2-3 horas (implementado)

@@ -5,10 +5,10 @@ El login con Google regresaba al login después de OAuth redirect. **Causa encon
 
 ### Fix aplicado en código:
 - ✅ `src/lib/supabase.ts`: Se agregó `auth: { flowType: 'pkce' }` explícito
-- ✅ `src/erp/store.tsx`: Se agregó `exchangeCodeForSession()` explícito + `ensureProfile()` para crear perfil automático
+- ✅ `src/erp/store.tsx`: Se agregó `exchangeCodeForSession()` explícito para manejo OAuth PKCE
 
 ### Pendiente (dashboard):
-- [ ] Actualizar `Site URL` en Supabase → Authentication → URL Configuration
+- [ ] Actualizar `Site URL` en Supabase Dashboard → Authentication → URL Configuration
 
 ---
 
