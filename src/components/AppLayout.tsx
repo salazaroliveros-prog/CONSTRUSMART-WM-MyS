@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { ErpProvider, useErp } from '@/erp/store';
 import AppProvider from '@/contexts/AppContext';
 import { useAppContext } from '@/contexts/AppContext';
@@ -23,8 +23,6 @@ import OrdenesCambio from '@/erp/screens/OrdenesCambio';
 import Notificaciones from '@/erp/screens/Notificaciones';
 import SSOCalidad from '@/erp/screens/SSOCalidad';
 import GestionDocumental from '@/erp/screens/GestionDocumental';
-import VisorBIM from '@/erp/screens/VisorBIM';
-import DashboardPredictivo from '@/erp/screens/DashboardPredictivo';
 import ExportacionInteligente from '@/erp/screens/ExportacionInteligente';
 import LogisticaCompras from '@/erp/screens/LogisticaCompras';
 import RendimientoCampo from '@/erp/screens/RendimientoCampo';
@@ -33,6 +31,16 @@ import Administracion from '@/erp/screens/Administracion';
 import PlanillaDestajos from '@/erp/screens/PlanillaDestajos';
 import Impuestos from '@/erp/screens/Impuestos';
 import EntradasAlmacenOC from '@/erp/screens/EntradasAlmacenOC';
+
+// Dynamic imports for heavy screens (web-ifc = 3.6MB)
+const VisorBIM = lazy(() => import('@/erp/screens/VisorBIM'));
+const DashboardPredictivo = lazy(() => import('@/erp/screens/DashboardPredictivo'));
+
+const LazyScreen: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>}>
+    {children}
+  </Suspense>
+);
 
 const Shell: React.FC = () => {
   const { view, initializing, allowedViews, setView } = useErp();
@@ -70,9 +78,9 @@ const Shell: React.FC = () => {
     crm: <CRM />,
     'sso-calidad': <SSOCalidad />,
     'documentos': <GestionDocumental />,
-    'predictivo': <DashboardPredictivo />,
+    'predictivo': <LazyScreen><DashboardPredictivo /></LazyScreen>,
     'exportacion': <ExportacionInteligente />,
-    'visor-bim': <VisorBIM />,
+    'visor-bim': <LazyScreen><VisorBIM /></LazyScreen>,
     'logistica': <LogisticaCompras />,
     'rendimiento-campo': <RendimientoCampo />,
     'comercial-fin': <ComercialFinanzas />,
