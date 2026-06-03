@@ -481,15 +481,19 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setNotificaciones(prev => prev.map(n => ({ ...n, leido: true })));
   }, []);
 
+  const materialesRef = useRef(materiales);
+  materialesRef.current = materiales;
+
   const verificarStockCritico = useCallback(() => {
+    const mats = materialesRef.current;
     const currentNotifs = loadFromStorage<Notificacion[]>(NOTIF_KEY, []);
     const pending = currentNotifs.filter(n => !n.leido && n.tipo === 'stock_critico').map(n => n.referenciaId);
-    materiales.forEach(mat => {
+    mats.forEach(mat => {
       if (mat.stock <= mat.stockMinimo && mat.stock >= 0 && !pending.includes(mat.id)) {
         addNotificacion('stock_critico', `Stock crítico: ${mat.nombre}`, `Stock actual: ${mat.stock} ${mat.unidad} (mínimo: ${mat.stockMinimo})`);
       }
     });
-  }, [addNotificacion, materiales]); // ← materiales sí es necesario aquí
+  }, [addNotificacion]); // ← SIN materiales en deps: usa ref
 
   const verificarOrdenesCambioPendientes = useCallback(() => {
     const ordenesCambio = loadFromStorage<OrdenCambio[]>(BASE_STORAGE_KEY + '_ordenes_cambio', []);
