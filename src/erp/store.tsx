@@ -783,104 +783,161 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       switch (next.type) {
         case 'addProyecto': {
           const p = forProyecto({ ...next.payload, created_by: user?.id });
-          await supabase.from('erp_proyectos').insert(p);
+          const { data, error } = await supabase.from('erp_proyectos').insert(p);
+          if (error) throw new Error(`Failed to add proyecto: ${error.message}`);
           break;
         }
         case 'updateProyecto': {
           const { id, ...rest2 } = next.payload;
-          await supabase.from('erp_proyectos').update(forProyecto(rest2)).eq('id', id);
+          const { data, error } = await supabase.from('erp_proyectos').update(forProyecto(rest2)).eq('id', id);
+          if (error) throw new Error(`Failed to update proyecto: ${error.message}`);
           break;
         }
-        case 'deleteProyecto':
-          await supabase.from('erp_proyectos').delete().eq('id', next.payload.id);
+        case 'deleteProyecto': {
+          const { error } = await supabase.from('erp_proyectos').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete proyecto: ${error.message}`);
           break;
+        }
         case 'addMovimiento': {
           const m = forMovimiento({ ...next.payload, created_by: user?.id });
-          await supabase.from('erp_movimientos').insert(m);
+          const { data, error } = await supabase.from('erp_movimientos').insert(m);
+          if (error) throw new Error(`Failed to add movimiento: ${error.message}`);
           break;
         }
-        case 'deleteMovimiento':
-          await supabase.from('erp_movimientos').delete().eq('id', next.payload.id);
+        case 'deleteMovimiento': {
+          const { error } = await supabase.from('erp_movimientos').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete movimiento: ${error.message}`);
           break;
-        case 'addEmpleado':
-          await supabase.from('erp_empleados').insert(forEmpleado(next.payload));
+        }
+                case 'addEmpleado': {
+          const { error } = await supabase.from('erp_empleados').insert(forEmpleado(next.payload));
+          if (error) throw new Error(`Failed to add empleado: ${error.message}`);
           break;
+        }
         case 'updateEmpleado': {
           const { id, ...rest3 } = next.payload;
-          await supabase.from('erp_empleados').update(forEmpleado(rest3)).eq('id', id);
+          const { error } = await supabase.from('erp_empleados').update(forEmpleado(rest3)).eq('id', id);
+          if (error) throw new Error(`Failed to update empleado: ${error.message}`);
           break;
         }
-        case 'deleteEmpleado':
-          await supabase.from('erp_empleados').delete().eq('id', next.payload.id);
+        case 'deleteEmpleado': {
+          const { error } = await supabase.from('erp_empleados').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete empleado: ${error.message}`);
           break;
+        }
         case 'updateMaterial': {
           const { id, ...rest4 } = next.payload;
-          await supabase.from('erp_materiales').update(forMaterial(rest4)).eq('id', id);
+          const { error } = await supabase.from('erp_materiales').update(forMaterial(rest4)).eq('id', id);
+          if (error) throw new Error(`Failed to update material: ${error.message}`);
           break;
         }
-        case 'addOrden':
-          await supabase.from('erp_ordenes_compra').insert(toSnake(next.payload));
+        case 'addOrden': {
+          const { error } = await supabase.from('erp_ordenes_compra').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add orden: ${error.message}`);
           break;
-        case 'updateOrden':
-          await supabase.from('erp_ordenes_compra').update({ estado: next.payload.estado }).eq('id', next.payload.id);
+        }
+        case 'updateOrden': {
+          const { error } = await supabase.from('erp_ordenes_compra').update({ estado: next.payload.estado }).eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to update orden: ${error.message}`);
           break;
-        case 'addProveedor':
-          await supabase.from('erp_proveedores').insert(forProveedor(next.payload));
+        }
+        case 'addProveedor': {
+          const { error } = await supabase.from('erp_proveedores').insert(forProveedor(next.payload));
+          if (error) throw new Error(`Failed to add proveedor: ${error.message}`);
           break;
+        }
         case 'updateProveedor': {
           const { id, ...rest5 } = next.payload;
-          await supabase.from('erp_proveedores').update(forProveedor(rest5)).eq('id', id);
+          const { error } = await supabase.from('erp_proveedores').update(forProveedor(rest5)).eq('id', id);
+          if (error) throw new Error(`Failed to update proveedor: ${error.message}`);
           break;
         }
-        case 'deleteProveedor':
-          await supabase.from('erp_proveedores').delete().eq('id', next.payload.id);
+        case 'deleteProveedor': {
+          const { error } = await supabase.from('erp_proveedores').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete proveedor: ${error.message}`);
           break;
-        case 'addEvento':
-          await supabase.from('erp_eventos_calendario').insert(forEvento(next.payload));
+        }
+        case 'addEvento': {
+          const { error } = await supabase.from('erp_eventos_calendario').insert(forEvento(next.payload));
+          if (error) throw new Error(`Failed to add evento: ${error.message}`);
           break;
+        }
         case 'updateEvento': {
           const { id, ...rest6 } = next.payload;
-          await supabase.from('erp_eventos_calendario').update(forEvento(rest6)).eq('id', id);
+          const { error } = await supabase.from('erp_eventos_calendario').update(forEvento(rest6)).eq('id', id);
+          if (error) throw new Error(`Failed to update evento: ${error.message}`);
           break;
         }
-        case 'deleteEvento':
-          await supabase.from('erp_eventos_calendario').delete().eq('id', next.payload.id);
+        case 'deleteEvento': {
+          const { error } = await supabase.from('erp_eventos_calendario').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete evento: ${error.message}`);
           break;
-        case 'addBitacora':
-          await supabase.from('erp_bitacora').insert(forBitacora(next.payload));
+        }
+        case 'addBitacora': {
+          const { error } = await supabase.from('erp_bitacora').insert(forBitacora(next.payload));
+          if (error) throw new Error(`Failed to add bitacora: ${error.message}`);
           break;
+        }
         case 'updateBitacora': {
           const { id, ...rest7 } = next.payload;
-          await supabase.from('erp_bitacora').update(forBitacora(rest7)).eq('id', id);
+          const { error } = await supabase.from('erp_bitacora').update(forBitacora(rest7)).eq('id', id);
+          if (error) throw new Error(`Failed to update bitacora: ${error.message}`);
           break;
         }
-        case 'deleteBitacora':
-          await supabase.from('erp_bitacora').delete().eq('id', next.payload.id);
+        case 'deleteBitacora': {
+          const { error } = await supabase.from('erp_bitacora').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete bitacora: ${error.message}`);
           break;
-        case 'addPresupuesto':
-          await supabase.from('erp_presupuestos').insert(toSnake(next.payload));
+        }
+        case 'addPresupuesto': {
+          const { error } = await supabase.from('erp_presupuestos').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add presupuesto: ${error.message}`);
           break;
+        }
         case 'updatePresupuesto': {
           const { id, ...rest8 } = next.payload;
-          await supabase.from('erp_presupuestos').update(toSnake(rest8)).eq('id', id);
+          const { error } = await supabase.from('erp_presupuestos').update(toSnake(rest8)).eq('id', id);
+          if (error) throw new Error(`Failed to update presupuesto: ${error.message}`);
           break;
         }
-        case 'deletePresupuesto':
-          await supabase.from('erp_presupuestos').delete().eq('id', next.payload.id);
+        case 'deletePresupuesto': {
+          const { error } = await supabase.from('erp_presupuestos').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete presupuesto: ${error.message}`);
           break;
+        }
         case 'addValeSalida':
           await supabase.from('erp_vales_salida').insert(toSnake(next.payload));
           break;
         case 'deleteValeSalida':
           await supabase.from('erp_vales_salida').delete().eq('id', next.payload.id);
           break;
-        // Tablas que no existen en DB — solo local
-        case 'addAvance':
-        case 'deleteAvance':
-        case 'addLicitacion':
-        case 'updateLicitacion':
-        case 'deleteLicitacion':
+        // Tablas en DB
+        case 'addAvance': {
+          const { error } = await supabase.from('erp_avances').insert([next.payload]);
+          if (error) throw new Error(`Failed to add avance: ${error.message}`);
           break;
+        }
+        case 'deleteAvance': {
+          const { error } = await supabase.from('erp_avances').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete avance: ${error.message}`);
+          break;
+        }
+        case 'addLicitacion': {
+          const { error } = await supabase.from('erp_licitaciones').insert([next.payload]);
+          if (error) throw new Error(`Failed to add licitacion: ${error.message}`);
+          break;
+        }
+        case 'updateLicitacion': {
+          const { id, ...restL } = next.payload;
+          const { error } = await supabase.from('erp_licitaciones').update(restL).eq('id', id);
+          if (error) throw new Error(`Failed to update licitacion: ${error.message}`);
+          break;
+        }
+        case 'deleteLicitacion': {
+          const { error } = await supabase.from('erp_licitaciones').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete licitacion: ${error.message}`);
+          break;
+        }
       }
       setMutationQueue(rest);
     } catch (err) {

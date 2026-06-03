@@ -12,11 +12,10 @@ export interface Insumo {
 
 export interface SubRenglon {
   id: string;
-  nombre: string;
-  descripcion: string;
+  nombreMaterial: string;
   unidad: string;
-  cantidad: number;
-  costoUnitario: number;
+  cantidadUnitaria: number;
+  precioUnitario: number;
 }
 
 export interface InsumoBase {
@@ -28,6 +27,7 @@ export interface InsumoBase {
   precioReferencia: number;
   rubro: string;
   activo: boolean;
+  fechaActualizacion?: string;
 }
 
 export interface HistorialPrecio {
