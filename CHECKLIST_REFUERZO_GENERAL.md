@@ -11,24 +11,23 @@
 - **Archivo**: `src/erp/export.ts`
 - **Problema**: Datos de usuario insertados directamente en HTML/PDF sin sanitizar. Permite inyección XSS.
 - **Instrucciones**:
-  1. Abrir `src/erp/export.ts`
-  2. Envolver todo texto de usuario con `sanitizarTexto()` de `@/lib/security`
-  3. Validar que las URLs de imágenes usen esquemas permitidos (https://, data:image/)
-  4. Escapar caracteres HTML en nombres de proyecto, cliente, descripciones
-  5. Agregar `Content-Security-Policy` en PDF generado
-- [ ] Implementar sanitización XSS en export.ts
-- [ ] Validar URLs de imágenes en exportación
+  1. ✔ Envolver todo texto de usuario con `sanitizarTexto()` de `@/lib/security`
+  2. ✔ Validar que las URLs de imágenes usen esquemas permitidos (https://, data:image/)
+  3. ✔ Escapar caracteres HTML en nombres de proyecto, cliente, descripciones
+  4. ✔ Agregar `Content-Security-Policy` en PDF generado
+- [x] Implementar sanitización XSS en export.ts
+- [x] Validar URLs de imágenes en exportación
 
 ### CRIT-02: Path Traversal en storage.ts
 - **Archivo**: `src/lib/storage.ts`
 - **Problema**: Función `deleteFile()` permite path traversal si `fileName` contiene `../`
 - **Instrucciones**:
-  1. Abrir `src/lib/storage.ts`
-  2. Agregar validación `path.normalize(fileName) !== fileName` o `fileName.includes('..')`
-  3. Restringir caracteres peligrosos en nombres de archivo
-  4. Usar whitelist de extensiones permitidas
-- [ ] Implementar protección path traversal en storage.ts
-- [ ] Restringir extensiones de archivo permitidas
+  1. ✔ Agregar validación de segments `..` en deleteFile
+  2. ✔ Restringir buckets permitidos (whitelist)
+  3. ✔ Validar extensiones de archivo en uploadFile (whitelist)
+  4. ✔ Rechazar caracteres peligrosos en nombres de archivo
+- [x] Implementar protección path traversal en storage.ts
+- [x] Restringir extensiones de archivo permitidas
 
 ### CRIT-03: Datos sensibles en localStorage sin cifrar (ChecklistCalidad)
 - **Archivo**: `src/erp/components/ChecklistCalidad.tsx`
@@ -45,11 +44,11 @@
 - **Archivo**: `src/lib/supabase.ts`
 - **Problema**: La `anon key` se expone en el bundle del cliente (necesario para Supabase, pero debe rotarse si se sospecha compromiso).
 - **Instrucciones**:
-  1. Verificar que `VITE_SUPABASE_KEY` en `.env` sea la `anon key` (NO la `service_role key`)
-  2. Configurar RLS para restringir lo que la anon key puede hacer
-  3. Verificar que no hay `service_role key` en `.env`
+  1. ✔ Verificar que `VITE_SUPABASE_KEY` en `.env` sea la `anon key` (NO la `service_role key`)
+  2. ✔ Configurar RLS para restringir lo que la anon key puede hacer
+  3. ✔ Verificar que no hay `service_role key` en `.env`
   4. Rotar la anon key en Supabase Dashboard si hay sospecha
-- [ ] Verificar que solo se usa anon key (no service_role)
+- [x] Verificar que solo se usa anon key (no service_role)
 - [ ] Confirmar políticas RLS activas para proteger datos
 
 ### CRIT-05: RPC verificar_rol_usuario no ejecutado en Supabase
@@ -122,14 +121,14 @@
 - **Instrucciones**:
   1. Buscar variables con prefijo `_` que no se usan
   2. Eliminar o implementar la funcionalidad faltante
-- [ ] Limpiar variables muertas
+- [x] Limpiar variables muertas
 
 ### CODE-02: Import `React` innecesario en React 18+
 - **Archivos**: `src/contexts/AppContext.tsx` línea 1
 - **Instrucciones**:
   1. Eliminar `import React from 'react'` donde solo se usa JSX
   2. Verificar que `tsconfig.json` tenga `"jsx": "react-jsx"`
-- [ ] Eliminar imports React innecesarios
+- [x] Eliminar imports React innecesarios
 
 ### CODE-03: Falta de validación Zod en datos entrantes
 - **Archivos**: `Charts.tsx`, `Calendar.tsx`, varios screens
@@ -154,15 +153,15 @@
 
 ### CONF-02: Falta script de typecheck
 - **Instrucciones**:
-  1. Agregar a `package.json` scripts: `"typecheck": "tsc --noEmit"`
-  2. Agregar `"typecheck": "tsc --noEmit"` a CI
-- [ ] Agregar script typecheck
+  1. ✔ Agregar a `package.json` scripts: `"typecheck": "tsc --noEmit"`
+  2. ✔ Agregar `"typecheck": "tsc --noEmit"` al CI
+- [x] Agregar script typecheck
 
 ### CONF-03: Falta `engines` en package.json
 - **Instrucciones**:
-  1. Agregar `"engines": { "node": ">=18.0.0" }` en `package.json`
-  2. Agregar `"engines": { "npm": ">=9.0.0" }`
-- [ ] Agregar engines en package.json
+  1. ✔ Agregar `"engines": { "node": ">=18.0.0" }` en `package.json`
+  2. ✔ Agregar `"engines": { "npm": ">=9.0.0" }`
+- [x] Agregar engines en package.json
 
 ---
 
@@ -194,10 +193,10 @@
 
 ### DEPLOY-03: Push a GitHub
 - **Instrucciones**:
-  1. `git add .`
-  2. `git commit -m "fix: refuerzo general de seguridad y alineación DB"`
-  3. `git push origin main`
-- [ ] Push a GitHub
+  1. ✔ `git add .`
+  2. ✔ `git commit -m "fix: refuerzo general de seguridad y alineación DB"`
+  3. ✔ `git push origin main`
+- [x] Push a GitHub
 
 ---
 
@@ -205,12 +204,12 @@
 
 | Categoría | Total Items | Completados | % |
 |-----------|------------|-------------|---|
-| 🔴 Crítico | 5 | 0 | 0% |
+| 🔴 Crítico | 5 | 2.5 | 50% |
 | 🟠 Alto | 2 | 0 | 0% |
 | 🟡 Medio | 3 | 1 | 33% |
-| 🟢 Bajo | 3 | 0 | 0% |
-| ⚙️ Config | 3 | 0 | 0% |
-| 🚀 Deploy | 3 | 0 | 0% |
-| **TOTAL** | **19** | **1** | **5%** |
+| 🟢 Bajo | 3 | 2 | 67% |
+| ⚙️ Config | 3 | 2 | 67% |
+| 🚀 Deploy | 3 | 1 | 33% |
+| **TOTAL** | **19** | **8.5** | **45%** |
 
 > **Instrucciones**: Al completar cada item en el código, cambiar `- [ ]` a `- [x]` y actualizar el resumen de progreso.
