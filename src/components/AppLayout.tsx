@@ -6,6 +6,7 @@ import Header from '@/erp/components/Header';
 import Sidebar from '@/erp/components/Sidebar';
 import Login from '@/erp/screens/Login';
 import { ErrorBoundary } from './ErrorBoundary';
+import LoaderSpinner from './LoaderSpinner';
 
 const Dashboard = lazy(() => import('@/erp/screens/Dashboard'));
 const Proyectos = lazy(() => import('@/erp/screens/Proyectos'));
@@ -37,7 +38,7 @@ const VisorBIM = lazy(() => import('@/erp/screens/VisorBIM'));
 const DashboardPredictivo = lazy(() => import('@/erp/screens/DashboardPredictivo'));
 
 const LazyScreen: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center animate-pulse"><div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>}>
+  <Suspense fallback={<LoaderSpinner size={60} text="Cargando..." />}>
     {children}
   </Suspense>
 );
@@ -62,14 +63,7 @@ const Shell: React.FC = () => {
   const { sidebarOpen, toggleSidebar, sidebarCollapsed } = useAppContext();
 
   if (initializing) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-slate-500 text-sm font-medium animate-pulse">Cargando...</p>
-        </div>
-      </div>
-    );
+    return <LoaderSpinner size={80} text="Cargando sistema..." fullScreen />;
   }
 
   if (view === 'login') return <Login />;
@@ -125,7 +119,7 @@ const Shell: React.FC = () => {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar open={sidebarOpen} onClose={toggleSidebar} />
         <main className={`flex-1 min-w-0 overflow-auto transition-all ${sidebarCollapsed ? 'lg:ml-0' : ''}`}>
-          <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center animate-pulse"><div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>}>
+          <Suspense fallback={<LoaderSpinner size={60} text="Cargando módulo..." />}>
             <FadeView key={view} view={view}><ErrorBoundary>{screenContent}</ErrorBoundary></FadeView>
           </Suspense>
         </main>
