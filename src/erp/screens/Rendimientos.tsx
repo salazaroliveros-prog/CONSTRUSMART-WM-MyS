@@ -385,7 +385,7 @@ const Rendimientos: React.FC = () => {
                   ))}
                 </datalist>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block font-medium">Cuadrilla</label>
                   <input
@@ -408,7 +408,7 @@ const Rendimientos: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block font-medium">Cantidad Ejecutada *</label>
                   <input

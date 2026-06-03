@@ -143,7 +143,7 @@ const CRM: React.FC = () => {
     return (
       <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
         <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Skeleton className="h-24 rounded-2xl" />
           <Skeleton className="h-24 rounded-2xl" />
           <Skeleton className="h-24 rounded-2xl" />
@@ -325,7 +325,7 @@ const CRM: React.FC = () => {
                   className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">Cliente *</label>
                   <input
@@ -356,7 +356,7 @@ const CRM: React.FC = () => {
                   className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400 resize-none"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">Probabilidad (%)</label>
                   <input

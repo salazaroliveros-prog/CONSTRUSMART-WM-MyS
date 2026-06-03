@@ -89,7 +89,7 @@ export const PlanillaDestajos: React.FC = () => {
       </div>
 
       {/* Filtros */}
-      <div className="flex gap-3 mb-4">
+      <div className="flex flex-wrap gap-3 mb-4">
         <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)}
           className="text-sm px-3 py-2 border rounded">
           <option value="">Todos los proyectos</option>
@@ -100,7 +100,7 @@ export const PlanillaDestajos: React.FC = () => {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <div className="p-3 bg-blue-50 rounded-lg text-center">
           <p className="text-xs text-blue-600">Cuadrillas</p>
           <p className="text-xl font-bold text-blue-700">{planilla.length}</p>

@@ -153,7 +153,7 @@ const APUAvanzado: React.FC = () => {
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
               <h2 className="font-bold text-slate-700 text-sm">Catálogo de Insumos Base</h2>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <select
                   value={rubroFilter}
                   onChange={e => setRubroFilter(e.target.value)}

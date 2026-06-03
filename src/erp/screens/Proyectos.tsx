@@ -7,8 +7,10 @@ import { Tipologia } from '../types';
 import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
 import { Progress } from '../components/Charts';
 import { INPUT, BUTTON_PRIMARY } from '../ui';
-import { Plus, MapPin, Trash2, X, Building2, Pencil } from 'lucide-react';
+import { Plus, MapPin, Trash2, X, Building2, Pencil, ChevronDown } from 'lucide-react';
 import PresupuestoCard from '../components/PresupuestoCard';
+
+const ESTADOS = ['planeacion', 'ejecucion', 'pausado', 'finalizado'] as const;
 
 const proyectoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -17,13 +19,22 @@ const proyectoSchema = z.object({
   tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica'] as const),
   presupuestoTotal: z.coerce.number().min(0, 'Valor requerido'),
   montoContrato: z.coerce.number().min(0, 'Valor requerido'),
+  estado: z.enum(ESTADOS).optional(),
 });
 
 type ProyectoFormData = z.infer<typeof proyectoSchema>;
 
+const estadoLabel: Record<string, string> = {
+  planeacion: 'Planeación',
+  ejecucion: 'Ejecución',
+  pausado: 'Pausado',
+  finalizado: 'Finalizado',
+};
 const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado: string }) => {
   const dev = p.avanceFinanciero - p.avanceFisico;
   if (p.estado === 'planeacion') return '#94a3b8';
+  if (p.estado === 'finalizado') return '#10b981';
+  if (p.estado === 'pausado') return '#f59e0b';
   if (dev > 8) return '#ef4444';
   if (dev > 3) return '#fbbf24';
   return '#10b981';
@@ -60,6 +71,7 @@ const Proyectos: React.FC = () => {
         tipologia: data.tipologia,
         presupuestoTotal: data.presupuestoTotal,
         montoContrato: data.montoContrato,
+        estado: data.estado || 'planeacion',
       });
     } else {
       addProyecto({
@@ -105,6 +117,7 @@ const Proyectos: React.FC = () => {
       tipologia: p.tipologia,
       presupuestoTotal: p.presupuestoTotal,
       montoContrato: p.montoContrato,
+      estado: p.estado,
     });
     setShow(true);
   };
@@ -187,7 +200,15 @@ const Proyectos: React.FC = () => {
               </div>
               <div className="flex gap-2 mb-4">
                 <span className="text-[10px] px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">{TIPOLOGIA_LABEL[p.tipologia]}</span>
-                <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium ${p.estado === 'ejecucion' ? 'bg-emerald-50 text-emerald-700' : p.estado === 'planeacion' ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>{p.estado}</span>
+                <select
+                  value={p.estado}
+                  onChange={e => updateProyecto(p.id, { estado: e.target.value as any })}
+                  className={`text-[10px] px-2 py-1 rounded-full font-medium border-0 cursor-pointer outline-none ${p.estado === 'ejecucion' ? 'bg-emerald-50 text-emerald-700' : p.estado === 'planeacion' ? 'bg-amber-50 text-amber-700' : p.estado === 'finalizado' ? 'bg-slate-100 text-slate-600' : 'bg-orange-50 text-orange-700'}`}
+                >
+                  {ESTADOS.map(e => (
+                    <option key={e} value={e}>{estadoLabel[e]}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-2.5 mb-4">
                 <div>
@@ -249,6 +270,9 @@ const Proyectos: React.FC = () => {
               {errors.ubicacion && <p className="text-xs text-red-500">{errors.ubicacion.message}</p>}
               <select {...register('tipologia')} className={INPUT}>
                 {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]}</option>)}
+              </select>
+              <select {...register('estado')} className={INPUT}>
+                {ESTADOS.map(e => <option key={e} value={e}>{estadoLabel[e]}</option>)}
               </select>
               <div className="grid grid-cols-2 gap-3">
                 <input type="number" {...register('presupuestoTotal')} placeholder="Presupuesto Q" className={INPUT} />

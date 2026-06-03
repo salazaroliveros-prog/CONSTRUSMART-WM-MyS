@@ -254,7 +254,7 @@ const SSOCalidad: React.FC = () => {
 
           {showIncForm && (
             <div className="bg-red-50 rounded-xl p-4 mb-4 border border-red-200 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <select value={incForm.tipo} onChange={e => setIncForm(prev => ({ ...prev, tipo: e.target.value as Incidente['tipo'] }))} className={INPUT}>
                   <option value="accidente">Accidente</option>
                   <option value="cuasi-accidente">Cuasi-accidente</option>
@@ -266,7 +266,7 @@ const SSOCalidad: React.FC = () => {
                 </button>
               </div>
               <textarea value={incForm.descripcion} onChange={e => setIncForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Describe el incidente..." className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400 min-h-[60px]" />
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input value={incForm.afectados} onChange={e => setIncForm(prev => ({ ...prev, afectados: e.target.value }))} placeholder="Afectados" className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400" />
                 <input value={incForm.testigos} onChange={e => setIncForm(prev => ({ ...prev, testigos: e.target.value }))} placeholder="Testigos (opcional)" className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400" />
               </div>
@@ -466,7 +466,7 @@ const SSOCalidad: React.FC = () => {
 
           {showPruebaForm && (
             <div className="bg-purple-50 rounded-xl p-4 mb-4 border border-purple-200 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <select value={pruebaForm.tipo} onChange={e => setPruebaForm(prev => ({ ...prev, tipo: e.target.value as PruebaLaboratorio['tipo'] }))} className={INPUT}>
                   <option value="concreto">Concreto</option>
                   <option value="suelos">Suelos</option>
@@ -537,7 +537,7 @@ const SSOCalidad: React.FC = () => {
 
           {showNCForm && (
             <div className="bg-red-50 rounded-xl p-4 mb-4 border border-red-200 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <select value={ncForm.categoria} onChange={e => setNcForm(prev => ({ ...prev, categoria: e.target.value as NoConformidad['categoria'] }))} className={INPUT}>
                   <option value="material">Material</option>
                   <option value="proceso">Proceso</option>
@@ -614,7 +614,7 @@ const SSOCalidad: React.FC = () => {
           {showLibForm && (
             <div className="bg-emerald-50 rounded-xl p-4 mb-4 border border-emerald-200 space-y-2">
               <input value={libForm.renglonNombre} onChange={e => setLibForm(prev => ({ ...prev, renglonNombre: e.target.value }))} placeholder="Actividad / Partida a liberar" className="w-full px-3 py-2 text-xs rounded-lg border border-emerald-200 outline-none focus:border-emerald-400" />
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input value={libForm.solicitante} onChange={e => setLibForm(prev => ({ ...prev, solicitante: e.target.value }))} placeholder="Solicitante" className={INPUT} />
                 <input value={libForm.supervisor} onChange={e => setLibForm(prev => ({ ...prev, supervisor: e.target.value }))} placeholder="Supervisor" className={INPUT} />
               </div>

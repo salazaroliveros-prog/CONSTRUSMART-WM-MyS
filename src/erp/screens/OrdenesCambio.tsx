@@ -114,7 +114,7 @@ const OrdenesCambio: React.FC = () => {
         <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
           <GitBranch className="w-6 h-6 text-amber-500" /> Órdenes de Cambio
         </h1>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)} className="text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none bg-white">
             <option value="">Todos los proyectos</option>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
@@ -126,7 +126,7 @@ const OrdenesCambio: React.FC = () => {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="bg-white rounded-xl p-3 border border-slate-100">
           <div className="text-[10px] text-slate-400">Total Órdenes</div>
           <div className="text-lg font-bold text-slate-800">{ordenes.length}</div>
@@ -148,7 +148,7 @@ const OrdenesCambio: React.FC = () => {
           <div className="space-y-2">
             <input value={fTitulo} onChange={e => setFTitulo(e.target.value)} placeholder="Título del cambio *" className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-amber-400" />
             <textarea value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Descripción detallada del cambio..." rows={2} className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-amber-400 resize-none" />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
                 <label className="text-[10px] text-slate-500 mb-0.5 block">Impacto Costo (Q)</label>
                 <input type="number" value={fCosto || ''} onChange={e => setFCosto(+e.target.value)} min={0} className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none" />

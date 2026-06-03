@@ -394,7 +394,7 @@ const CurvasS: React.FC = () => {
             </div>
 
             {/* Resumen flujo */}
-            <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div className="bg-emerald-50 rounded-xl p-2 text-center">
                 <div className="text-[9px] text-emerald-600 font-medium">Total Ingresos</div>
                 <div className="text-sm font-bold text-emerald-700">

@@ -97,7 +97,7 @@ export interface Proyecto {
   fechaFin: string;
   avanceFisico: number;
   avanceFinanciero: number;
-  estado: 'planificacion' | 'ejecucion' | 'pausado' | 'finalizado';
+  estado: 'planeacion' | 'ejecucion' | 'pausado' | 'finalizado';
   factorSobrecosto?: FactorSobrecosto;
   presupuesto?: number;
 }

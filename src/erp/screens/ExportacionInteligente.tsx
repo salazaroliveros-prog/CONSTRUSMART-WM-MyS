@@ -284,7 +284,7 @@ const ExportacionInteligente: React.FC = () => {
 
         {showForm && (
           <div className="bg-purple-50 rounded-xl p-4 mb-4 border border-purple-200 space-y-2">
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input value={form.nombre} onChange={e => setForm(prev => ({ ...prev, nombre: e.target.value }))} placeholder="Nombre del reporte" className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
               <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value as ReporteProgramado['tipo'] }))} className={INPUT}>
                 <option value="ejecutivo">Ejecutivo</option>
@@ -294,7 +294,7 @@ const ExportacionInteligente: React.FC = () => {
                 <option value="rendimientos">Rendimientos</option>
               </select>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <select value={form.formato} onChange={e => setForm(prev => ({ ...prev, formato: e.target.value as ExportFormat }))} className={INPUT}>
                 <option value="json">JSON</option>
                 <option value="csv">CSV</option>
