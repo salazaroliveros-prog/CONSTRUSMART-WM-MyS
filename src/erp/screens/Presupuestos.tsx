@@ -110,6 +110,48 @@ const Presupuestos: React.FC = () => {
     setItems(s => s.map(i => i.id === id ? { ...i, ...patch } : i));
   const del = (id: string) => setItems(s => s.filter(i => i.id !== id));
 
+  // Desglose de mano de obra por renglón
+  const getManoObraRenglon = (r: RenglonPresupuesto) => {
+    const jornalBase = r.costoManoObra;
+    const rend = r.rendimientoCuadrilla;
+    const horasJornal = 8; // jornada estándar 8 horas
+    const diasTrabajo = rend > 0 ? Math.ceil(1 / rend) : 1;
+    return {
+      jornalDiario: jornalBase,
+      rendimientoDiario: rend,
+      costoPorUnidad: jornalBase,
+      horasJornal,
+      diasEstimados: diasTrabajo,
+      trabajadores: Math.max(1, Math.round(rend * jornalBase / 150)),
+    };
+  };
+
+  // Resumen de explosion de materiales por tipo
+  const explosionPorTipo = useMemo(() => {
+    const tipos: Record<string, { cantidad: number; total: number; unidad: string }> = {};
+    items.forEach(r => {
+      if (r.subRenglones) {
+        r.subRenglones.forEach(sub => {
+          const cant = sub.cantidadUnitaria * r.cantidad;
+          const tot = cant * sub.precioUnitario;
+          const tipo = sub.nombreMaterial.includes('Cemento') ? 'Cemento' :
+            sub.nombreMaterial.includes('Hierro') ? 'Acero' :
+            sub.nombreMaterial.includes('Block') ? 'Mampostería' :
+            sub.nombreMaterial.includes('Arena') || sub.nombreMaterial.includes('Piedrín') ? 'Concreto' :
+            sub.nombreMaterial.includes('Lámina') || sub.nombreMaterial.includes('Pintura') ? 'Acabados' :
+            sub.nombreMaterial.includes('Alambre') || sub.nombreMaterial.includes('Tubo') ? 'Instalaciones' :
+            'Otros';
+          if (!tipos[tipo]) {
+            tipos[tipo] = { cantidad: 0, total: 0, unidad: sub.unidad };
+          }
+          tipos[tipo].cantidad += cant;
+          tipos[tipo].total += tot;
+        });
+      }
+    });
+    return Object.entries(tipos).map(([tipo, data]) => ({ tipo, ...data }));
+  }, [items]);
+
   // Funciones para sub-renglones
   const addSubrenglon = (renglonId: string) => {
     upd(renglonId, {
@@ -541,6 +583,54 @@ const Presupuestos: React.FC = () => {
                         ))}
                       </div>
                     </div>
+
+                    {/* Cuadrilla de Mano de Obra */}
+                    <div className="mt-3 border-t pt-3">
+                      <div className="text-[10px] font-semibold text-slate-500 mb-2">👷 Cuadrilla de Mano de Obra</div>
+                      <div className="bg-white rounded-lg p-2 border border-slate-100">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                          <div>
+                            <label className="text-slate-400 text-[9px]">Jornal Unitario</label>
+                            <input type="number" value={r.costoManoObra} onChange={e => upd(r.id, { costoManoObra: +e.target.value })} className="w-full px-1 py-0.5 rounded border border-slate-200 text-right text-[11px]" />
+                          </div>
+                          <div>
+                            <label className="text-slate-400 text-[9px]">Rendimiento/día</label>
+                            <input type="number" value={r.rendimientoCuadrilla} onChange={e => upd(r.id, { rendimientoCuadrilla: +e.target.value })} className="w-full px-1 py-0.5 rounded border border-slate-200 text-right text-[11px]" />
+                          </div>
+                          <div>
+                            <label className="text-slate-400 text-[9px]">Días Estimados</label>
+                            <div className="px-1 py-0.5 rounded bg-slate-50 text-right text-[11px] text-slate-600">{getManoObraRenglon(r).diasEstimados}</div>
+                          </div>
+                          <div>
+                            <label className="text-slate-400 text-[9px]">Trabajadores</label>
+                            <div className="px-1 py-0.5 rounded bg-slate-50 text-right text-[11px] text-slate-600">{getManoObraRenglon(r).trabajadores}</div>
+                          </div>
+                        </div>
+                        <div className="mt-2 flex justify-between text-[10px] text-slate-500">
+                          <span>Total Mano Obra: <b className="text-blue-600">{fmtQ(r.costoManoObra * r.cantidad)}</b></span>
+                          <span>Costo Directo Unit.: <b className="text-slate-700">{fmtQ(c.cd)}</b></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Resumen de Explosión de Materiales por Tipo */}
+                    {explosionPorTipo.length > 0 && (
+                      <div className="mt-3 border-t pt-3">
+                        <div className="text-[10px] font-semibold text-slate-500 mb-2">📊 Explosión de Materiales por Tipo</div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+                          {explosionPorTipo.map((t, i) => (
+                            <div key={i} className="bg-white rounded p-1.5 border border-slate-100 text-[10px]">
+                              <div className="font-semibold text-slate-700">{t.tipo}</div>
+                              <div className="text-slate-500">{t.cantidad.toFixed(2)} {t.unidad}</div>
+                              <div className="font-bold text-emerald-600">{fmtQ(t.total)}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-1 text-[10px] text-slate-600">
+                          Total materiales: <b>{fmtQ(resumenMateriales.reduce((a, m) => a + m.total, 0))}</b> · {resumenMateriales.length} tipos
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
