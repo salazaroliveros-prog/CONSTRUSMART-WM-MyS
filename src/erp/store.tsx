@@ -447,9 +447,12 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>(() => loadFromStorage(NOTIF_KEY, []));
   useEffect(() => { saveToStorage(NOTIF_KEY, notificaciones); }, [notificaciones, NOTIF_KEY]);
-  const notificacionesNoLeidas = notificaciones.filter(n => !n.leido).length;
+  const notificacionesNoLeidas = React.useMemo(() => notificaciones.filter(n => !n.leido).length, [notificaciones]);
 
-  const addNotificacion = useCallback(async (tipo: Notificacion['tipo'], titulo: string, mensaje: string, proyectoId?: string, referenciaId?: string) => {
+  // Flag para evitar toasts al cargar notificaciones existentes en el render inicial
+  const readyRef = useRef(false);
+
+  const addNotificacion = useCallback(async (tipo: Notificacion['tipo'], titulo: string, mensaje: string, proyectoId?: string, referenciaId?: string, showToast = true) => {
     const nueva: Notificacion = {
       id: uid(),
       tipo,
@@ -461,15 +464,23 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       createdAt: new Date().toISOString(),
     };
     setNotificaciones(prev => [nueva, ...prev]);
-    // Browser notification
+    // Solo mostrar notificaciones en pantalla si NO es carga inicial
+    if (!showToast) return;
+    if (!readyRef.current) return;
+    // Browser notification (native)
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
       new Notification(titulo, {
         body: mensaje,
         icon: '/logo.png',
       });
     }
-    // In-app toast
-    toast(titulo, { description: mensaje });
+    // In-app toast (solo una vez, no se repite)
+    toast(titulo, { description: mensaje, duration: 4000 });
+  }, []);
+
+  // Marcar ready después del primer render
+  useEffect(() => {
+    readyRef.current = true;
   }, []);
 
   const markNotificacionLeida = useCallback((id: string) => {
@@ -489,7 +500,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const pending = currentNotifs.filter(n => !n.leido && n.tipo === 'stock_critico').map(n => n.referenciaId);
     mats.forEach(mat => {
       if (mat.stock <= mat.stockMinimo && mat.stock >= 0 && !pending.includes(mat.id)) {
-        addNotificacion('stock_critico', `Stock crítico: ${mat.nombre}`, `Stock actual: ${mat.stock} ${mat.unidad} (mínimo: ${mat.stockMinimo})`);
+        addNotificacion('stock_critico', `Stock crítico: ${mat.nombre}`, `Stock actual: ${mat.stock} ${mat.unidad} (mínimo: ${mat.stockMinimo})`, undefined, undefined, true);
       }
     });
   }, [addNotificacion]); // ← SIN materiales en deps: usa ref
@@ -500,7 +511,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const pending = currentNotifs.filter(n => !n.leido && n.tipo === 'orden_cambio_pendiente').map(n => n.referenciaId);
     ordenesCambio.forEach(oc => {
       if ((oc.estado === 'solicitud' || oc.estado === 'revision') && !pending.includes(oc.id)) {
-        addNotificacion('orden_cambio_pendiente', `OC pendiente: ${oc.titulo}`, `Estado: ${oc.estado} · Costo: Q${oc.impactoCosto.toFixed(2)} · Solicitante: ${oc.solicitante}`, oc.proyectoId, oc.id);
+        addNotificacion('orden_cambio_pendiente', `OC pendiente: ${oc.titulo}`, `Estado: ${oc.estado} · Costo: Q${oc.impactoCosto.toFixed(2)} · Solicitante: ${oc.solicitante}`, oc.proyectoId, oc.id, true);
       }
     });
   }, [addNotificacion]);
