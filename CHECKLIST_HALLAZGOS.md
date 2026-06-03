@@ -12,7 +12,7 @@
 | Build | ✅ | 0 errores |
 | TypeScript | ✅ | 0 errores |
 | Lint | ✅ | 90 warnings (solo imports no usados) |
-| Seguridad | ✅ Parcial | RLS mejorado pero requiere ejecución en Supabase |
+| Seguridad | ✅ Parcial | RLS implementado (RPC verificar_rol_usuario ejecutado) |
 | Deuda técnica | ⚠️ | Imports no usados, código muerto |
 
 ---
@@ -116,7 +116,23 @@
 | `supabase/migrations/202606030002_rls_policies_by_role.sql` | 🆕 Pendiente ejecutar en Supabase |
 | `supabase/migrations/202606030003_rls_delta.sql` | 🆕 Pendiente ejecutar en Supabase |
 | `supabase/migrations/202606030004_rls_alignment.sql` | 🆕 Pendiente ejecutar en Supabase |
-| `supabase/migrations/202606030005_rls_rpc_verificar_rol.sql` | 🆕 RPC verificar_rol_usuario faltante |
+| `supabase/migrations/202606030005_rls_rpc_verificar_rol.sql` | ✅ Ejecutado en Supabase |
+| `supabase/migrations/202606030006_combined_rls_policies.sql` | 🆕 Políticas RLS consolidadas |
+
+### Diagnóstico RLS (ejecutar para ver estado actual)
+```sql
+-- Tablas con RLS habilitado
+SELECT tablename, rowsecurity 
+FROM pg_tables 
+WHERE schemaname = 'public' 
+AND tablename IN ('profiles', 'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales', 'erp_ordenes_compra', 'erp_proveedores', 'erp_eventos_calendario', 'erp_bitacora', 'erp_presupuestos', 'erp_renglones', 'erp_vales_salida');
+
+-- Políticas existentes por tabla
+SELECT tablename, policyname, cmd, roles 
+FROM pg_policies 
+WHERE tablename IN ('profiles', 'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales', 'erp_ordenes_compra', 'erp_proveedores', 'erp_eventos_calendario', 'erp_bitacora', 'erp_presupuestos', 'erp_renglones', 'erp_vales_salida')
+ORDER BY tablename;
+```
 
 ---
 
@@ -147,12 +163,13 @@ src/
 ### Inmediatas (P0)
 1. ✅ Corregido: ArrowUpDown import en BasePrecios.tsx
 2. ✅ Corregido: fechaActualizacion agregada a InsumoBase interface
-3. Ejecutar migraciones RLS en Supabase (202606030001-0005)
-4. Configurar secrets en GitHub: `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY`, `VERCEL_TOKEN`
-5. Hacer push a GitHub: `git push origin main`
+3. ✅ Ejecutado: RPC verificar_rol_usuario en Supabase
+4. Ejecutar migraciones RLS restantes en Supabase (202606030001-0004)
+5. Configurar secrets en GitHub: `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY`, `VERCEL_TOKEN`
+6. Hacer push a GitHub: `git push origin main`
 
 ### Deuda técnica futura
-6. Refactorizar store.tsx en módulos más pequeños
-7. Eliminar imports no usados en 15 archivos
-8. Agregar tests unitarios para lógica crítica del store
-9. Configurar ESLint con reglas de seguridad (eslint-plugin-security)
+1. Refactorizar store.tsx en módulos más pequeños
+2. Eliminar imports no usados en 15 archivos
+3. Agregar tests unitarios para lógica crítica del store
+4. Configurar ESLint con reglas de seguridad (eslint-plugin-security)
