@@ -11,8 +11,8 @@ const calcRow = (r: RenglonPresupuesto) => {
 const getResumenMateriales = (renglones: RenglonPresupuesto[]) => {
   const materiales: Record<string, { unidad: string; cantidad: number; total: number }> = {};
   renglones.forEach(r => {
-    if (r.subrenglones) {
-      r.subrenglones.forEach(sub => {
+    if (r.subRenglones) {
+      r.subRenglones.forEach(sub => {
         const key = `${sub.nombreMaterial}-${sub.unidad}`;
         const cant = sub.cantidadUnitaria * r.cantidad;
         const tot = cant * sub.precioUnitario;
@@ -29,8 +29,8 @@ const getResumenMateriales = (renglones: RenglonPresupuesto[]) => {
 
 // Materiales totales por renglón (para la tabla principal)
 const getMaterialesPorRenglon = (r: RenglonPresupuesto) => {
-  if (!r.subrenglones || r.subrenglones.length === 0) return 0;
-  return r.subrenglones.reduce((sum, sub) => sum + sub.cantidadUnitaria * r.cantidad, 0);
+  if (!r.subRenglones || r.subRenglones.length === 0) return 0;
+  return r.subRenglones.reduce((sum, sub) => sum + sub.cantidadUnitaria * r.cantidad, 0);
 };
 
 
@@ -119,11 +119,11 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
 
   const desglose = renglones.map(r => {
     const insHTML = r.insumos.map(s => `<tr><td style="text-align:left">${s.nombre}</td><td>${s.tipo}</td><td>${s.unidad}</td><td style="text-align:right">${fmtQ(s.precio)}</td></tr>`).join('');
-    const subrenglonHTML = r.subrenglones && r.subrenglones.length > 0 ? 
+    const subrenglonHTML = r.subRenglones && r.subRenglones.length > 0 ? 
       `<div style="margin-top:8px;padding:8px;background:#f0fdf4;border-left:3px solid #10b981">
         <b style="color:#047857">Desglose de Materiales:</b>
         <table class="t" style="margin-top:4px"><tbody>
-          ${r.subrenglones.map(s => `<tr><td style="text-align:left">${s.nombreMaterial}</td><td>${(s.cantidadUnitaria * r.cantidad).toFixed(2)}</td><td>${s.unidad}</td><td style="text-align:right">${fmtQ(s.cantidadUnitaria * r.cantidad * s.precioUnitario)}</td></tr>`).join('')}
+          ${r.subRenglones.map(s => `<tr><td style="text-align:left">${s.nombreMaterial}</td><td>${(s.cantidadUnitaria * r.cantidad).toFixed(2)}</td><td>${s.unidad}</td><td style="text-align:right">${fmtQ(s.cantidadUnitaria * r.cantidad * s.precioUnitario)}</td></tr>`).join('')}
         </tbody></table>
       </div>` : '';
     return `<h4 style="margin:14px 0 4px;color:#1e293b">${r.codigo} — ${r.nombre}</h4>
