@@ -1,4 +1,4 @@
-# TODO_CHECKLIST.md — ✅ 19/19 COMPLETADO
+# TODO_CHECKLIST.md — ✅ 19/19 + PWA COMPLETADO
 
 ## Deuda Técnica
 - [x] Eliminar `src/erp/screens/_tmp_presupuestos_patch.txt`
@@ -41,16 +41,25 @@
 - [x] **CONF-03**: Engines configurado (node>=18, npm>=9)
 - [x] **DEPLOY-01**: Migraciones RLS ejecutadas
 - [x] **DEPLOY-02**: Secrets GitHub configurados (VITE_SUPABASE_URL, VITE_SUPABASE_KEY, VERCEL_TOKEN)
-- [x] **DEPLOY-03**: Push a GitHub (9 commits)
+- [x] **DEPLOY-03**: Push a GitHub (10 commits)
 
 ## 🔧 ERRORES ADICIONALES CORREGIDOS
-- [x] RLS recursion → Error 500 en todas las tablas Supabase → Función helper `get_current_user_role()` SECURITY DEFINER
+- [x] RLS recursion → Error 500 en todas las tablas → Función helper `get_current_user_role()` SECURITY DEFINER
 - [x] React error #426 (too many re-renders) → `verificarStockCritico` sin dependencia circular de `notificaciones`
 - [x] PKCE code exchange → sessionStorage guard + limpiar URL después del intercambio
 - [x] Transiciones suaves → Componente `FadeView` con fade-in de 200ms
+- [x] Charts.tsx syntax error → React.memo con `});` correcto (6 componentes)
+
+## 📱 PWA — INSTALABLE, OFFLINE Y REAL-TIME
+- [x] **index.html**: `<link rel="manifest">` + meta tags mobile (apple-mobile-web-app, viewport)
+- [x] **manifest.json**: Iconos 192/512 maskable, scope, categories, shortcuts
+- [x] **sw.js**: Cache First para assets Vite, Network First para HTML, offline fallback
+- [x] **offline.html**: Página de fallback con funcionalidades offline disponibles
+- [x] **Real-time sync**: Mutation queue en store.tsx + polling RPC cada 30s
 
 ### Commits de la sesión:
 ```
+0ab304f - feat: PWA completa - manifest, sw.js offline, offline.html, meta tags
 62c6445 - fix: PKCE, React #426, FadeView transitions
 e1f3738 - fix: RLS recursion error 500
 b88d2e0 - fix: React.memo syntax in Charts.tsx
