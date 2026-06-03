@@ -199,7 +199,7 @@ const GestionDocumental: React.FC = () => {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="bg-white rounded-xl p-3 border border-slate-100">
           <div className="text-[10px] text-slate-400">Planos</div>
           <div className="text-lg font-bold text-slate-800">{planos.filter(p => !selProyecto || p.proyectoId === selProyecto).length}</div>
@@ -248,13 +248,13 @@ const GestionDocumental: React.FC = () => {
 
           {showPlanoForm && (
             <div className="bg-blue-50 rounded-xl p-4 mb-4 border border-blue-200 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input value={planoForm.nombre} onChange={e => setPlanoForm(prev => ({ ...prev, nombre: e.target.value }))} placeholder="Nombre del plano" className="w-full px-3 py-2 text-xs rounded-lg border border-blue-200 outline-none focus:border-blue-400" />
                 <select value={planoForm.disciplina} onChange={e => setPlanoForm(prev => ({ ...prev, disciplina: e.target.value as Plano['disciplina'] }))} className={INPUT}>
                   {disciplinas.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input value={planoForm.version} onChange={e => setPlanoForm(prev => ({ ...prev, version: e.target.value }))} placeholder="Versión (ej: 1.0)" className={INPUT} />
                 <input value={planoForm.descripcion} onChange={e => setPlanoForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Descripción (opcional)" className={INPUT} />
               </div>
@@ -410,7 +410,7 @@ const GestionDocumental: React.FC = () => {
 
           {showSubForm && (
             <div className="bg-purple-50 rounded-xl p-4 mb-4 border border-purple-200 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input value={subForm.titulo} onChange={e => setSubForm(prev => ({ ...prev, titulo: e.target.value }))} placeholder="Título" className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
                 <select value={subForm.categoria} onChange={e => setSubForm(prev => ({ ...prev, categoria: e.target.value as Submittal['categoria'] }))} className={INPUT}>
                   <option value="material">Material</option>

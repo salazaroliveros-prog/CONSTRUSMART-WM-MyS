@@ -457,7 +457,7 @@ const Presupuestos: React.FC = () => {
                       <div><label className="text-slate-400 block mb-0.5">Equipo Q</label><input type="number" value={r.costoEquipo} onChange={e => upd(r.id, { costoEquipo: +e.target.value })} placeholder="Equipo Q" className={ninp} /></div>
                       <div><label className="text-slate-400 block mb-0.5">Duración (días)</label><div className={ninp + ' bg-white text-slate-600'}>{c.dur}</div></div>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 text-xs">
                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">Costo Directo Unit.</div><b className="text-slate-700">{fmtQ(c.cd)}</b></div>
                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">Precio Unit. Venta</div><b className="text-orange-600">{fmtQ(c.pv)}</b></div>
                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">Total Renglón</div><b className="text-emerald-600">{fmtQ(c.total)}</b></div>
@@ -492,6 +492,7 @@ const Presupuestos: React.FC = () => {
                                   placeholder="Cant/u"
                                   className="w-12 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
                                 />
+                                <span className="text-slate-500 text-[10px] w-14 text-right">{(sub.cantidadUnitaria * r.cantidad).toFixed(2)}</span>
                                 <select 
                                   value={sub.unidad} 
                                   onChange={e => updSubrenglon(r.id, sub.id, { unidad: e.target.value })}

@@ -134,7 +134,7 @@ const ValeSalidaModal: React.FC<Props> = ({ open, onClose }) => {
           </div>
 
           {/* Renglón (opcional) */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-slate-500 mb-1 block font-medium">Código de renglón (opcional)</label>
               <input

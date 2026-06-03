@@ -67,7 +67,7 @@ export const EntradasAlmacenOC: React.FC = () => {
       </div>
 
       {/* Filtros */}
-      <div className="flex gap-3 mb-4">
+      <div className="flex flex-wrap gap-3 mb-4">
         <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
           {(['todas', 'pendientes', 'aprobadas'] as const).map(f => (
             <button key={f} onClick={() => setOcFilter(f)}

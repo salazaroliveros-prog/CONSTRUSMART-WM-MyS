@@ -27,6 +27,12 @@ const getResumenMateriales = (renglones: RenglonPresupuesto[]) => {
   return Object.entries(materiales).map(([nombre, data]) => ({ nombre, ...data }));
 };
 
+// Materiales totales por renglón (para la tabla principal)
+const getMaterialesPorRenglon = (r: RenglonPresupuesto) => {
+  if (!r.subrenglones || r.subrenglones.length === 0) return 0;
+  return r.subrenglones.reduce((sum, sub) => sum + sub.cantidadUnitaria * r.cantidad, 0);
+};
+
 
 export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tipologia: string) => {
   const fecha = new Date().toLocaleDateString('es-GT');
@@ -38,15 +44,16 @@ export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tip
   rows.push(`Fecha: ${fecha}`);
   rows.push(`Proyecto: ${proyecto};Tipologia: ${TIPOLOGIA_LABEL[tipologia as keyof typeof TIPOLOGIA_LABEL] || tipologia}`);
   rows.push('');
-  rows.push('Codigo;Renglon;Unidad;Cantidad;Materiales;Mano Obra;Equipo;Costo Directo;Precio Unitario;Total');
+  rows.push('Codigo;Renglon;Unidad;Cantidad;Cant.Materiales;Materiales;Mano Obra;Equipo;Costo Directo;Precio Unitario;Total');
   let gran = 0;
   renglones.forEach(r => {
     const { cd, pv, total } = calcRow(r);
+    const cantMat = getMaterialesPorRenglon(r);
     gran += total;
-    rows.push(`${r.codigo};${r.nombre};${r.unidad};${r.cantidad};${r.costoMateriales.toFixed(2)};${r.costoManoObra.toFixed(2)};${r.costoEquipo.toFixed(2)};${cd.toFixed(2)};${pv.toFixed(2)};${total.toFixed(2)}`);
+    rows.push(`${r.codigo};${r.nombre};${r.unidad};${r.cantidad};${cantMat.toFixed(2)};${r.costoMateriales.toFixed(2)};${r.costoManoObra.toFixed(2)};${r.costoEquipo.toFixed(2)};${cd.toFixed(2)};${pv.toFixed(2)};${total.toFixed(2)}`);
   });
   rows.push('');
-  rows.push(`;;;;;;;;TOTAL;${gran.toFixed(2)}`);
+  rows.push(`;;;;;;;;;;TOTAL;${gran.toFixed(2)}`);
 
   // Agregar resumen de materiales
   const materiales = getResumenMateriales(renglones);
@@ -75,11 +82,12 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   let granDir = 0;
   const filas = renglones.map((r, i) => {
     const { cd, pv, total } = calcRow(r);
+    const cantMat = getMaterialesPorRenglon(r);
     gran += total;
     granDir += cd * r.cantidad;
     return `<tr>
       <td>${i + 1}</td><td>${r.codigo}</td><td style="text-align:left">${r.nombre}</td>
-      <td>${r.unidad}</td><td>${r.cantidad}</td><td>${fmtQ(cd)}</td><td>${fmtQ(pv)}</td><td style="text-align:right">${fmtQ(total)}</td>
+      <td>${r.unidad}</td><td>${r.cantidad}</td><td>${cantMat.toFixed(2)}</td><td>${fmtQ(cd)}</td><td>${fmtQ(pv)}</td><td style="text-align:right">${fmtQ(total)}</td>
     </tr>`;
   }).join('');
 
@@ -88,15 +96,24 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   let resumenMatHTML = '';
   if (materiales.length > 0) {
     let totalMat = 0;
+    let granCant = 0;
+    const porUnidad: Record<string, { cantidad: number; total: number }> = {};
     const filasMateria = materiales.map(m => {
       totalMat += m.total;
+      granCant += m.cantidad;
+      if (!porUnidad[m.unidad]) porUnidad[m.unidad] = { cantidad: 0, total: 0 };
+      porUnidad[m.unidad].cantidad += m.cantidad;
+      porUnidad[m.unidad].total += m.total;
       return `<tr><td style="text-align:left">${m.nombre}</td><td>${m.cantidad.toFixed(2)}</td><td>${m.unidad}</td><td style="text-align:right">${fmtQ(m.total)}</td></tr>`;
     }).join('');
+    const filasPorUnidad = Object.entries(porUnidad).map(([unidad, data]) =>
+      `<tr><td style="text-align:left;padding-left:16px;color:#64748b">Total en ${unidad}</td><td>${data.cantidad.toFixed(2)}</td><td>${unidad}</td><td style="text-align:right">${fmtQ(data.total)}</td></tr>`
+    ).join('');
     resumenMatHTML = `
       <div class="section">
         <div class="section-title">📦 Resumen de Materiales a Utilizar</div>
         <table class="t"><thead><tr><th style="text-align:left">Material</th><th>Cantidad</th><th>Unidad</th><th>Subtotal</th></tr></thead>
-        <tbody>${filasMateria}<tr class="total"><td style="text-align:left;font-weight:bold">TOTAL MATERIALES</td><td></td><td></td><td style="text-align:right;font-weight:bold">${fmtQ(totalMat)}</td></tr></tbody></table>
+        <tbody>${filasMateria}<tr style="background:#f1f5f9"><td colspan="4" style="font-weight:bold;font-size:10px">── Total por tipo de unidad ──</td></tr>${filasPorUnidad}<tr class="total"><td style="text-align:left;font-weight:bold">TOTAL MATERIALES</td><td style="font-weight:bold">${granCant.toFixed(2)}</td><td></td><td style="text-align:right;font-weight:bold">${fmtQ(totalMat)}</td></tr></tbody></table>
       </div>`;
   }
 
@@ -186,8 +203,8 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   <div class="section">
     <div class="section-title">📋 Resumen de Renglones</div>
     <table class="t">
-      <thead><tr><th>#</th><th>C&oacute;digo</th><th style="text-align:left">Descripci&oacute;n</th><th>Unidad</th><th>Cant.</th><th>C. Directo</th><th>P. Unitario</th><th>TOTAL</th></tr></thead>
-      <tbody>${filas}<tr class="total-row"><td colspan="7" style="text-align:right">TOTAL DEL PRESUPUESTO</td><td style="text-align:right">${fmtQ(gran)}</td></tr></tbody>
+      <thead><tr><th>#</th><th>C&oacute;digo</th><th style="text-align:left">Descripci&oacute;n</th><th>Unidad</th><th>Cant.</th><th>Cant. Mat.</th><th>C. Directo</th><th>P. Unitario</th><th>TOTAL</th></tr></thead>
+      <tbody>${filas}<tr class="total-row"><td colspan="8" style="text-align:right">TOTAL DEL PRESUPUESTO</td><td style="text-align:right">${fmtQ(gran)}</td></tr></tbody>
     </table>
   </div>
 

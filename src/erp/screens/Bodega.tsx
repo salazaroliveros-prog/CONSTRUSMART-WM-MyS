@@ -609,7 +609,7 @@ const Bodega: React.FC = () => {
                 <input {...registerOrd('material')} placeholder="Nombre del material" className={`${inp} ${errorsOrd.material ? 'border-red-500' : ''}`} />
                 {errorsOrd.material && <p className="text-xs text-red-500">{errorsOrd.material.message}</p>}
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">Cantidad*</label>
                   <input type="number" {...registerOrd('cantidad')} placeholder="Cantidad" className={`${inp} ${errorsOrd.cantidad ? 'border-red-500' : ''}`} />

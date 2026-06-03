@@ -27,7 +27,7 @@ export const Administracion: React.FC = () => {
         </div>
 
         {/* KPIs */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <div className="p-3 bg-blue-50 rounded-lg text-center">
             <p className="text-xs text-blue-600">Centros</p>
             <p className="text-xl font-bold text-blue-700">{centrosCosto.length}</p>

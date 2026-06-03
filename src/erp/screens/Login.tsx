@@ -31,9 +31,17 @@ const Login: React.FC = () => {
     defaultValues: { email: '', password: '', nombre: '', rol: 'Administrador' },
   });
 
+  const [registroError, setRegistroError] = React.useState<string | null>(null);
+
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
+    setRegistroError(null);
     if (mode === 'up') {
+      if (data.rol === 'Administrador') {
+        setRegistroError('El rol Administrador no está disponible para registro.');
+        setLoading(false);
+        return;
+      }
       await signUp(data.email, data.password, data.nombre || '', data.rol);
       try {
         await fetch('https://famous.ai/api/crm/6a1cb30ef2abfd8042cf3b53/subscribe', {
@@ -51,8 +59,8 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50">
       <div className="hidden lg:flex flex-1 bg-slate-900 relative overflow-hidden items-center justify-center p-12">
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-orange-900/40" />
+        <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'url(/empresa_b.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-slate-900/30 to-orange-900/20" />
         <div className="relative z-10 text-white max-w-md">
           <div className="w-20 h-20 rounded-2xl mb-6 bg-slate-900 flex items-center justify-center ring-1 ring-orange-400/30 shadow-[0_0_8px_rgba(249,115,22,0.35)]">
             <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
@@ -97,8 +105,13 @@ const Login: React.FC = () => {
               />
               {errors.nombre && <p className="text-xs text-red-500 mb-2">{errors.nombre.message}</p>}
               <select {...register('rol')} className={INPUT}>
-                {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                {ROLES.map(r => (
+                  <option key={r} value={r} disabled={r === 'Administrador'}>
+                    {r}{r === 'Administrador' ? ' (Ocupado)' : ''}
+                  </option>
+                ))}
               </select>
+              <p className="text-[10px] text-amber-600 mt-1">El rol Administrador ya está asignado y no está disponible para registro.</p>
             </>
           )}
           <input
@@ -117,6 +130,7 @@ const Login: React.FC = () => {
           {errors.password && <p className="text-xs text-red-500 mb-2">{errors.password.message}</p>}
 
           {authError && <p className="text-xs text-red-500 mb-3">{authError}</p>}
+          {registroError && <p className="text-xs text-red-500 mb-3">{registroError}</p>}
 
           <button
             type="submit"

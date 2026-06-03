@@ -69,7 +69,7 @@ const DashboardPredictivo: React.FC = () => {
           className="text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-purple-400 bg-white"
         >
           <option value="">— Todos los proyectos —</option>
-          {proyectos.filter(p => p.estado === 'ejecucion' || p.estado === 'planificacion').map(p => (
+          {proyectos.filter(p => p.estado === 'ejecucion' || p.estado === 'planeacion').map(p => (
             <option key={p.id} value={p.id}>{p.nombre}</option>
           ))}
         </select>

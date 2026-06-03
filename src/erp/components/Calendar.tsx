@@ -120,7 +120,7 @@ const Calendar: React.FC = () => {
               <span className="text-[10px] text-slate-400">Fecha: {sel || 'Sin seleccionar'}</span>
             </div>
             <div className="space-y-2">
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <input
                   value={titulo}
                   onChange={e => setTitulo(e.target.value)}
@@ -141,7 +141,7 @@ const Calendar: React.FC = () => {
                 placeholder="Descripción opcional"
                 className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400 min-h-[80px] resize-none"
               />
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <select
                   value={tipo}
                   onChange={e => setTipo(e.target.value as 'Recordatorio' | 'Actividad' | 'Reunión' | 'Visita')}

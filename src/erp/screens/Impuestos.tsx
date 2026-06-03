@@ -76,7 +76,7 @@ export const Impuestos: React.FC = () => {
       </div>
 
       {/* Filtros */}
-      <div className="flex gap-3 mb-6">
+      <div className="flex flex-wrap gap-3 mb-6">
         <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)}
           className="text-sm px-3 py-2 border rounded">
           <option value="">Consolidado (todos)</option>
@@ -87,10 +87,10 @@ export const Impuestos: React.FC = () => {
       </div>
 
       {/* Resumen del período */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="bg-white border rounded-lg p-4">
           <h3 className="text-sm font-semibold text-gray-500 mb-3">RESUMEN DEL PERÍODO</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="p-3 bg-green-50 rounded-lg">
               <p className="text-xs text-green-600">Ingresos</p>
               <p className="text-xl font-bold text-green-700">Q{calculos.ingresos.toLocaleString()}</p>
@@ -149,7 +149,7 @@ export const Impuestos: React.FC = () => {
       {/* Base de cálculo detallada */}
       <div className="bg-white border rounded-lg p-4 mb-6">
         <h3 className="text-sm font-semibold text-gray-500 mb-3">📋 DETALLE DE CÁLCULO</h3>
-        <div className="grid grid-cols-2 gap-6 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
           <div>
             <h4 className="font-medium mb-2">Cálculo del ISR</h4>
             <div className="space-y-1 text-gray-600">

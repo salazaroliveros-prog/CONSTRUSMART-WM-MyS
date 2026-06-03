@@ -132,7 +132,7 @@ export const RendimientoCampo: React.FC = () => {
         </div>
 
         {capturasFiltradas.length > 0 && (
-          <div className="mb-4 grid grid-cols-3 gap-3">
+          <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="p-3 bg-blue-50 rounded-lg text-center">
               <p className="text-xs text-blue-600">Capturas</p>
               <p className="text-xl font-bold text-blue-700">{capturasFiltradas.length}</p>
