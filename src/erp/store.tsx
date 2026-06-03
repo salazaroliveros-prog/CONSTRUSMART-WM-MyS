@@ -253,8 +253,7 @@ function loadFromStorage<T>(key: string, initial: T): T {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return initial;
-    const parsed = JSON.parse(raw);
-    return sanitizarObjeto(parsed) as T;
+    return JSON.parse(raw) as T;
   } catch { return initial; }
 }
 

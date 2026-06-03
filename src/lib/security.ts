@@ -143,8 +143,9 @@ export function sanitizarTexto(input: string | null | undefined): string {
   const s = String(input);
   // Escapado manual de caracteres HTML usando codigos de entidad numericos
   // para evitar problemas de encoding
+  // Solo reemplaza & que NO sean parte de una entidad HTML existente (&#xx;)
   return s
-    .replace(/&/g, '&#38;')
+    .replace(/&(?!(?:#\d+|#x[\da-fA-F]+|[a-zA-Z]+);)/g, '&#38;')
     .replace(/</g, '&#60;')
     .replace(/>/g, '&#62;')
     .replace(/"/g, '&#34;')
