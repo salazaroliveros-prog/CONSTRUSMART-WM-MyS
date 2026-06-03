@@ -1,4 +1,4 @@
-import { RenglonBase, Tipologia, Insumo, Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor } from './types';
+import { RenglonBase, Tipologia, Insumo, Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, InsumoBase, RendimientoCuadrilla } from './types';
 
 interface BaseDef {
   nombre: string;
@@ -161,4 +161,49 @@ export const SEED_PROVEEDORES: Proveedor[] = [
   { id: 'pr3', nombre: 'Agregados del Sur', contacto: '2266-7788', rubro: 'Arena y piedrín', calificacion: 4 },
   { id: 'pr4', nombre: 'Distribuidora Láminas', contacto: '2277-8899', rubro: 'Techos y láminas', calificacion: 3 },
   { id: 'pr5', nombre: 'Ferretería Central', contacto: '2288-9900', rubro: 'Ferretería general', calificacion: 5 },
+];
+
+export const SEED_INSUMOS_BASE: InsumoBase[] = [
+  { id: 'ib1', nombre: 'Cemento UGC 42.5 kg', categoria: 'material', unidad: 'saco', precioReferencia: 92, rubro: 'concreto', fechaActualizacion: '2026-01-15' },
+  { id: 'ib2', nombre: 'Arena de río', categoria: 'material', unidad: 'm³', precioReferencia: 145, rubro: 'concreto', fechaActualizacion: '2026-01-15' },
+  { id: 'ib3', nombre: 'Piedrín 3/4"', categoria: 'material', unidad: 'm³', precioReferencia: 195, rubro: 'concreto', fechaActualizacion: '2026-01-15' },
+  { id: 'ib4', nombre: 'Hierro 3/8" grado 40', categoria: 'material', unidad: 'qq', precioReferencia: 285, rubro: 'acero', fechaActualizacion: '2026-01-15' },
+  { id: 'ib5', nombre: 'Hierro 1/2" grado 40', categoria: 'material', unidad: 'qq', precioReferencia: 275, rubro: 'acero', fechaActualizacion: '2026-01-15' },
+  { id: 'ib6', nombre: 'Alambre de amarre', categoria: 'material', unidad: 'qq', precioReferencia: 320, rubro: 'acero', fechaActualizacion: '2026-01-15' },
+  { id: 'ib7', nombre: 'Block 0.15x0.20x0.40', categoria: 'material', unidad: 'u', precioReferencia: 5.5, rubro: 'mamposteria', fechaActualizacion: '2026-01-15' },
+  { id: 'ib8', nombre: 'Block 0.20x0.20x0.40', categoria: 'material', unidad: 'u', precioReferencia: 7.5, rubro: 'mamposteria', fechaActualizacion: '2026-01-15' },
+  { id: 'ib9', nombre: 'Cal hidratada', categoria: 'material', unidad: 'saco', precioReferencia: 48, rubro: 'mamposteria', fechaActualizacion: '2026-01-15' },
+  { id: 'ib10', nombre: 'Lámina galvanizada cal.28', categoria: 'material', unidad: 'u', precioReferencia: 165, rubro: 'techos', fechaActualizacion: '2026-01-15' },
+  { id: 'ib11', nombre: 'Tubo PVC 1/2"', categoria: 'material', unidad: 'u', precioReferencia: 38, rubro: 'instalaciones', fechaActualizacion: '2026-01-15' },
+  { id: 'ib12', nombre: 'Cable THW #12', categoria: 'material', unidad: 'm', precioReferencia: 4.5, rubro: 'instalaciones', fechaActualizacion: '2026-01-15' },
+  { id: 'ib13', nombre: 'Piso cerámico 45x45', categoria: 'material', unidad: 'm²', precioReferencia: 135, rubro: 'acabados', fechaActualizacion: '2026-01-15' },
+  { id: 'ib14', nombre: 'Pintura vinílica', categoria: 'material', unidad: 'galon', precioReferencia: 120, rubro: 'acabados', fechaActualizacion: '2026-01-15' },
+  { id: 'ib15', nombre: 'Madera pino para formaleta', categoria: 'material', unidad: 'pt', precioReferencia: 8.5, rubro: 'encofrado', fechaActualizacion: '2026-01-15' },
+  { id: 'ib16', nombre: 'Albañil', categoria: 'mano_obra', unidad: 'jornal', precioReferencia: 150, rubro: 'general', fechaActualizacion: '2026-01-15' },
+  { id: 'ib17', nombre: 'Ayudante', categoria: 'mano_obra', unidad: 'jornal', precioReferencia: 100, rubro: 'general', fechaActualizacion: '2026-01-15' },
+  { id: 'ib18', nombre: 'Armador de acero', categoria: 'mano_obra', unidad: 'jornal', precioReferencia: 160, rubro: 'acero', fechaActualizacion: '2026-01-15' },
+  { id: 'ib19', nombre: 'Carpintero de formaleta', categoria: 'mano_obra', unidad: 'jornal', precioReferencia: 155, rubro: 'encofrado', fechaActualizacion: '2026-01-15' },
+  { id: 'ib20', nombre: 'Electricista', categoria: 'mano_obra', unidad: 'jornal', precioReferencia: 175, rubro: 'instalaciones', fechaActualizacion: '2026-01-15' },
+  { id: 'ib21', nombre: 'Vibrador de concreto', categoria: 'equipo', unidad: 'hora', precioReferencia: 35, rubro: 'concreto', fechaActualizacion: '2026-01-15' },
+  { id: 'ib22', nombre: 'Mezcladora de concreto', categoria: 'equipo', unidad: 'hora', precioReferencia: 45, rubro: 'concreto', fechaActualizacion: '2026-01-15' },
+  { id: 'ib23', nombre: 'Compactador', categoria: 'equipo', unidad: 'hora', precioReferencia: 40, rubro: 'movimiento_tierras', fechaActualizacion: '2026-01-15' },
+  { id: 'ib24', nombre: 'Andamio metálico', categoria: 'equipo', unidad: 'hora', precioReferencia: 8, rubro: 'general', fechaActualizacion: '2026-01-15' },
+];
+
+export const SEED_RENDIMIENTOS: RendimientoCuadrilla[] = [
+  { id: 'r1', actividad: 'Excavación de cimientos', cuadrilla: '1 Ayudante', rendimientoDiario: 6, unidad: 'm³' },
+  { id: 'r2', actividad: 'Concreto en cimientos', cuadrilla: '2 Albañiles + 2 Ayudantes', rendimientoDiario: 3, unidad: 'm³' },
+  { id: 'r3', actividad: 'Concreto en columnas', cuadrilla: '2 Albañiles + 2 Ayudantes', rendimientoDiario: 1.5, unidad: 'm³' },
+  { id: 'r4', actividad: 'Concreto en losas', cuadrilla: '3 Albañiles + 3 Ayudantes', rendimientoDiario: 8, unidad: 'm²' },
+  { id: 'r5', actividad: 'Muro block 0.15', cuadrilla: '1 Albañil + 1 Ayudante', rendimientoDiario: 14, unidad: 'm²' },
+  { id: 'r6', actividad: 'Muro block 0.20', cuadrilla: '1 Albañil + 1 Ayudante', rendimientoDiario: 11, unidad: 'm²' },
+  { id: 'r7', actividad: 'Repello de muros', cuadrilla: '1 Albañil + 1 Ayudante', rendimientoDiario: 22, unidad: 'm²' },
+  { id: 'r8', actividad: 'Cernido fino', cuadrilla: '1 Albañil + 1 Ayudante', rendimientoDiario: 25, unidad: 'm²' },
+  { id: 'r9', actividad: 'Piso cerámico', cuadrilla: '1 Albañil + 1 Ayudante', rendimientoDiario: 16, unidad: 'm²' },
+  { id: 'r10', actividad: 'Pintura interior', cuadrilla: '1 Albañil + 1 Ayudante', rendimientoDiario: 40, unidad: 'm²' },
+  { id: 'r11', actividad: 'Acero de refuerzo', cuadrilla: '1 Armador + 1 Ayudante', rendimientoDiario: 200, unidad: 'kg' },
+  { id: 'r12', actividad: 'Instalación eléctrica', cuadrilla: '1 Electricista + 1 Ayudante', rendimientoDiario: 10, unidad: 'pto' },
+  { id: 'r13', actividad: 'Instalación agua potable', cuadrilla: '1 Albañil + 1 Ayudante', rendimientoDiario: 8, unidad: 'pto' },
+  { id: 'r14', actividad: 'Estructura metálica', cuadrilla: '2 Armadores + 1 Ayudante', rendimientoDiario: 120, unidad: 'kg' },
+  { id: 'r15', actividad: 'Encofrado de losa', cuadrilla: '1 Carpintero + 1 Ayudante', rendimientoDiario: 12, unidad: 'm²' },
 ];

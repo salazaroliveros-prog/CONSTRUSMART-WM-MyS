@@ -11,6 +11,8 @@ ERP web para gestión constructora (proyectos, presupuestos APU, finanzas, RRHH,
 
 ## Módulos
 - Dashboard, Proyectos, Presupuestos, Financiero, RRHH, Bodega, Seguimiento
+- Presupuestos con APU, registro de gastos y creación de OC desde renglones de presupuesto
+- Integración de presupuesto -> finanzas para seguimiento de gastos y compromisos
 - Login/registro con RBAC: Administrador, Gerente, Residente, Compras, Bodeguero
 - Motor de APU y métricas de Valor Ganado (EVM)
 - Google OAuth integrado
@@ -26,6 +28,7 @@ ERP web para gestión constructora (proyectos, presupuestos APU, finanzas, RRHH,
 - npm run dev
 - npm run build
 - npm run lint
+- npm run test
 
 ## Nota de seguridad
 No se usan claves o tokens hardcodeados. El modo sin Supabase queda soportado para flujo offline/local.

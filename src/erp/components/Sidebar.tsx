@@ -1,22 +1,44 @@
 import React from 'react';
 import { useErp, View } from '../store';
 import { useAppContext } from '@/contexts/AppContext';
-import { LayoutDashboard, Building2, Calculator, ClipboardCheck, Wallet, Users, Warehouse, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Building2, Calculator, ClipboardCheck, Wallet, Users, Warehouse, X, ChevronLeft, ChevronRight, Target, Receipt, TrendingUp, BarChart3, Database, FileText, MessageSquare, GitBranch, Bell, Shield, Layers, Box, Zap, Download, Wrench, Activity, ShoppingCart, Settings, ClipboardList, DollarSign, Truck } from 'lucide-react';
 
 const ITEMS: { id: View; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'Tablero', icon: LayoutDashboard },
   { id: 'proyectos', label: 'Proyectos', icon: Building2 },
   { id: 'presupuestos', label: 'Presupuestos', icon: Calculator },
+  { id: 'apu', label: 'APU Avanzado', icon: Receipt },
   { id: 'seguimiento', label: 'Seguimiento', icon: ClipboardCheck },
+  { id: 'curvas', label: 'Curvas S', icon: TrendingUp },
+  { id: 'rendimientos', label: 'Rendimientos', icon: BarChart3 },
+  { id: 'muro', label: 'Muro Obra', icon: MessageSquare },
+  { id: 'ordenes-cambio', label: 'Órdenes Cambio', icon: GitBranch },
   { id: 'financiero', label: 'Financiero', icon: Wallet },
   { id: 'rrhh', label: 'RRHH', icon: Users },
+  { id: 'crm', label: 'CRM', icon: Target },
   { id: 'bodega', label: 'Bodega', icon: Warehouse },
+  { id: 'baseprecios', label: 'Base Precios', icon: Database },
+  { id: 'notificaciones', label: 'Notificaciones', icon: Bell },
+  { id: 'sso-calidad', label: 'SSO & Calidad', icon: Shield },
+  { id: 'predictivo', label: 'Predictivo', icon: Zap },
+  { id: 'visor-bim', label: 'Visor BIM', icon: Box },
+  { id: 'documentos', label: 'Docs / Planos', icon: Layers },
+  { id: 'reportes', label: 'Reportes', icon: FileText },
+  { id: 'exportacion', label: 'Exportar Datos', icon: Download },
+  // Nuevos módulos
+  { id: 'logistica', label: 'Logística', icon: ShoppingCart },
+  { id: 'rendimiento-campo', label: 'Rendimiento', icon: Activity },
+  { id: 'comercial-fin', label: 'Comercial/Fin', icon: Wallet },
+  { id: 'admin-sistema', label: 'Admin Sistema', icon: Settings },
+  { id: 'planilla-destajos', label: 'Planilla Destajos', icon: ClipboardList },
+  { id: 'impuestos', label: 'Impuestos', icon: DollarSign },
+  { id: 'entradas-almacen', label: 'Entradas Almacén', icon: Truck },
 ];
 
 const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
-  const { view, setView, user } = useErp();
+  const { view, setView, user, allowedViews } = useErp();
   const { sidebarCollapsed, toggleCollapse } = useAppContext();
-  const items = ITEMS;
+  const items = ITEMS.filter(item => allowedViews.includes(item.id));
   const collapsed = sidebarCollapsed;
   const asideW = collapsed ? 'w-16' : 'w-60';
   return (

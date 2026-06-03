@@ -285,13 +285,13 @@ Para cada material (agrupado por nombre + unidad):
 
 ---
 
-## 📈 Próximas Mejoras Posibles
+## ✅ Mejoras Implementadas
 
-- [ ] Importar catálogo de materiales predefinidos
-- [ ] Validaciones de precios (alertas si precio es 0 o muy alto)
-- [ ] Plantillas de sub-renglones para cada tipo de renglon
-- [ ] Historial de cambios en presupuestos
-- [ ] Comparativa de presupuestos
+- [x] **Catálogo de materiales predefinidos:** Implementado en migración v1.2.0 — tabla `erp_insumos_base` con 24 insumos (materiales, MO, equipo) precargados con precios de referencia, rubro y categoría.
+- [x] **Validaciones de precios:** Implementado en `Administracion.tsx` (tab Validación Precios) y `useNuevosModulos.ts` — alertas si precio = 0, negativo o > Q10,000.
+- [x] **Plantillas de sub-renglones por tipo de renglón:** Implementado en `RendimientoCampo.tsx` (tab Plantillas) — 4 plantillas predefinidas (Concreto cimientos, Acero refuerzo, Muro block, Encofrado losa) con carga con un clic.
+- [x] **Historial de cambios en presupuestos:** ✅ Implementado (versiones + CRUD en Supabase)
+- [x] **Comparativa de presupuestos:** ✅ Implementado (múltiples versiones visibles en `PresupuestosList`)
 
 ---
 

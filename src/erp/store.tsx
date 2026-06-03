@@ -1,21 +1,21 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/sonner';
 import {
-  Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
+  Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio,
 } from './types';
 import {
   SEED_PROYECTOS, SEED_MOVIMIENTOS, SEED_EMPLEADOS, SEED_MATERIALES, SEED_OC, SEED_PROVEEDORES,
 } from './data';
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen';
 export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeguero';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const ALLOWED: Record<Rol, View[]> = {
-  Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega'],
-  Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega'],
-  Residente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento'],
+  Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen'],
+  Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen'],
+  Residente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos'],
   Compras: ['dashboard', 'bodega', 'proyectos'],
   Bodeguero: ['dashboard', 'bodega'],
 };
@@ -25,10 +25,15 @@ interface Mutation {
   type: 'addProyecto' | 'updateProyecto' | 'deleteProyecto' | 'addMovimiento' | 'deleteMovimiento' |
          'addEmpleado' | 'updateEmpleado' | 'deleteEmpleado' | 'updateMaterial' |
          'addOrden' | 'updateOrden' | 'addProveedor' | 'updateProveedor' | 'deleteProveedor' |
-         'addEvento' | 'updateEvento' | 'deleteEvento' | 'addBitacora' | 'updateBitacora' | 'deleteBitacora';
+         'addEvento' | 'updateEvento' | 'deleteEvento' | 'addBitacora' | 'updateBitacora' | 'deleteBitacora' |
+  'addPresupuesto' | 'updatePresupuesto' | 'deletePresupuesto' |
+  'addLicitacion' | 'updateLicitacion' | 'deleteLicitacion' |
+  'addValeSalida' | 'deleteValeSalida';
   payload: Record<string, unknown>;
   timestamp: number;
 }
+
+export type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
 
 interface ErpState {
   view: View;
@@ -71,6 +76,36 @@ interface ErpState {
   addBitacora: (b: Omit<BitacoraEntry, 'id'>) => Promise<void>;
   updateBitacora: (id: string, patch: Partial<BitacoraEntry>) => Promise<void>;
   deleteBitacora: (id: string) => Promise<void>;
+  presupuestos: Presupuesto[];
+  addPresupuesto: (p: Omit<Presupuesto, 'id'>) => Promise<void>;
+  updatePresupuesto: (id: string, patch: Partial<Presupuesto>) => Promise<void>;
+  deletePresupuesto: (id: string) => Promise<void>;
+  getPresupuestoByProyecto: (proyectoId: string) => Presupuesto | undefined;
+  selectedProyectoId: string | null;
+  setSelectedProyectoId: (id: string | null) => void;
+  licitaciones: Licitacion[];
+  addLicitacion: (l: Omit<Licitacion, 'id'>) => Promise<void>;
+  updateLicitacion: (id: string, patch: Partial<Licitacion>) => Promise<void>;
+  deleteLicitacion: (id: string) => Promise<void>;
+  avances: AvanceObra[];
+  addAvance: (a: Omit<AvanceObra, 'id'>) => Promise<void>;
+  deleteAvance: (id: string) => Promise<void>;
+  valesSalida: ValeSalida[];
+  addValeSalida: (v: Omit<ValeSalida, 'id'>) => Promise<void>;
+  deleteValeSalida: (id: string) => Promise<void>;
+  mutationQueue: Mutation[];
+  syncMessage: string;
+  forceSync: () => Promise<void>;
+  notificaciones: Notificacion[];
+  notificacionesNoLeidas: number;
+  addNotificacion: (tipo: Notificacion['tipo'], titulo: string, mensaje: string, proyectoId?: string, referenciaId?: string) => Promise<void>;
+  markNotificacionLeida: (id: string) => void;
+  marcarTodasLeidas: () => void;
+  verificarStockCritico: () => void;
+  verificarOrdenesCambioPendientes: () => void;
+  verificarChecklistRechazado: (proyectoId: string) => void;
+  notifyAvanceRegistrado: (proyectoId: string, renglonNombre: string, avance: number) => void;
+  notifyDesviacionRendimiento: (actividad: string, eficiencia: number, proyectoId: string) => void;
 }
 
 const Ctx = createContext<ErpState>({} as ErpState);
@@ -117,14 +152,94 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [proveedores, setProveedores] = useState<Proveedor[]>(() => loadFromStorage(STORAGE_KEY + '_proveedores', SEED_PROVEEDORES));
   const [eventos, setEventos] = useState<EventoCalendario[]>(() => loadFromStorage(STORAGE_KEY + '_eventos', []));
   const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => loadFromStorage(STORAGE_KEY + '_bitacora', []));
+  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>(() => loadFromStorage(STORAGE_KEY + '_presupuestos', []));
+  const [selectedProyectoId, setSelectedProyectoId] = useState<string | null>(() => loadFromStorage(STORAGE_KEY + '_selected_proyecto_id', null));
+  const [licitaciones, setLicitaciones] = useState<Licitacion[]>(() => loadFromStorage(STORAGE_KEY + '_licitaciones', []));
+  const [avances, setAvances] = useState<AvanceObra[]>(() => loadFromStorage(STORAGE_KEY + '_avances', []));
+  const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => loadFromStorage(STORAGE_KEY + '_vales_salida', []));
   const [notifiedEventos, setNotifiedEventos] = useState<string[]>(() => loadFromStorage(STORAGE_KEY + '_notified_eventos', []));
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
 
+  const NOTIF_KEY = STORAGE_KEY + '_notificaciones';
+  const [notificaciones, setNotificaciones] = useState<Notificacion[]>(() => loadFromStorage(NOTIF_KEY, []));
+  useEffect(() => { saveToStorage(NOTIF_KEY, notificaciones); }, [notificaciones]);
+  const notificacionesNoLeidas = notificaciones.filter(n => !n.leido).length;
+
+  const addNotificacion = useCallback(async (tipo: Notificacion['tipo'], titulo: string, mensaje: string, proyectoId?: string, referenciaId?: string) => {
+    const nueva: Notificacion = {
+      id: uid(),
+      tipo,
+      titulo,
+      mensaje,
+      proyectoId,
+      referenciaId,
+      leido: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotificaciones(prev => [nueva, ...prev]);
+    // Browser notification
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      new Notification(titulo, {
+        body: mensaje,
+        icon: '/logo.png',
+      });
+    }
+    // In-app toast
+    toast(titulo, { description: mensaje });
+  }, []);
+
+  const markNotificacionLeida = useCallback((id: string) => {
+    setNotificaciones(prev => prev.map(n => n.id === id ? { ...n, leido: true } : n));
+  }, []);
+
+  const marcarTodasLeidas = useCallback(() => {
+    setNotificaciones(prev => prev.map(n => ({ ...n, leido: true })));
+  }, []);
+
+  const verificarStockCritico = useCallback(() => {
+    materiales.forEach(mat => {
+      if (mat.stock <= mat.stockMinimo && mat.stock >= 0) {
+        const yaNotificado = notificaciones.some(
+          n => n.tipo === 'stock_critico' && n.referenciaId === mat.id && n.leido === false
+        );
+        if (!yaNotificado) {
+          addNotificacion('stock_critico', `Stock crítico: ${mat.nombre}`, `Stock actual: ${mat.stock} ${mat.unidad} (mínimo: ${mat.stockMinimo})`);
+        }
+      }
+    });
+  }, [materiales, notificaciones, addNotificacion]);
+
+  const verificarOrdenesCambioPendientes = useCallback(() => {
+    const ordenesCambio = loadFromStorage<OrdenCambio[]>(STORAGE_KEY + '_ordenes_cambio', []);
+    ordenesCambio.forEach(oc => {
+      if (oc.estado === 'solicitud' || oc.estado === 'revision') {
+        const yaNotificado = notificaciones.some(
+          n => n.tipo === 'orden_cambio_pendiente' && n.referenciaId === oc.id && n.leido === false
+        );
+        if (!yaNotificado) {
+          addNotificacion('orden_cambio_pendiente', `OC pendiente: ${oc.titulo}`, `Estado: ${oc.estado} · Costo: Q${oc.impactoCosto.toFixed(2)} · Solicitante: ${oc.solicitante}`, oc.proyectoId, oc.id);
+        }
+      }
+    });
+  }, [notificaciones, addNotificacion]);
+
+  const verificarChecklistRechazado = useCallback((proyectoId: string) => {
+    addNotificacion('checklist_rechazado', 'Checklist de calidad rechazado', 'Un checklist ha sido rechazado. Se requiere evidencia fotográfica y nueva revisión.', proyectoId);
+  }, [addNotificacion]);
+
+  const notifyAvanceRegistrado = useCallback((proyectoId: string, renglonNombre: string, avance: number) => {
+    addNotificacion('avance_registrado', `Avance registrado: ${renglonNombre}`, `Se registró ${avance}% de avance físico en ${renglonNombre}`, proyectoId);
+  }, [addNotificacion]);
+
+  const notifyDesviacionRendimiento = useCallback((actividad: string, eficiencia: number, proyectoId: string) => {
+    addNotificacion('desviacion_rendimiento', `Rendimiento bajo: ${actividad}`, `Eficiencia: ${eficiencia.toFixed(0)}% (umbral: 80%)`, proyectoId);
+  }, [addNotificacion]);
+
   const fetchInitialData = useCallback(async () => {
     try {
       const [
-        { data: p }, { data: m }, { data: e }, { data: mat }, { data: o }, { data: prov }, { data: evt }, { data: bit }
+        { data: p }, { data: m }, { data: e }, { data: mat }, { data: o }, { data: prov }, { data: evt }, { data: bit }, { data: presup }
       ] = await Promise.all([
         supabase.from('erp_proyectos').select('*'),
         supabase.from('erp_movimientos').select('*').order('fecha', { ascending: false }),
@@ -134,6 +249,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         supabase.from('erp_proveedores').select('*'),
         supabase.from('erp_eventos_calendario').select('*'),
         supabase.from('erp_bitacora').select('*').order('fecha', { ascending: false }),
+        supabase.from('erp_presupuestos').select('*'),
       ]);
 
       const mapFromSnakeCase = (obj: Record<string, unknown>) => {
@@ -153,6 +269,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (prov) setProveedores(prov.map(mapFromSnakeCase));
       if (evt) setEventos(evt.map(mapFromSnakeCase));
       if (bit) setBitacora(bit.map(mapFromSnakeCase));
+      if (presup) setPresupuestos(presup.map(mapFromSnakeCase));
     } catch (err) {
       console.error('Error fetching initial data:', err);
     }
@@ -241,6 +358,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => { saveToStorage(STORAGE_KEY + '_proveedores', proveedores); }, [proveedores]);
   useEffect(() => { saveToStorage(STORAGE_KEY + '_eventos', eventos); }, [eventos]);
   useEffect(() => { saveToStorage(STORAGE_KEY + '_bitacora', bitacora); }, [bitacora]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_presupuestos', presupuestos); }, [presupuestos]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_selected_proyecto_id', selectedProyectoId); }, [selectedProyectoId]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_licitaciones', licitaciones); }, [licitaciones]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_avances', avances); }, [avances]);
+  useEffect(() => { saveToStorage(STORAGE_KEY + '_vales_salida', valesSalida); }, [valesSalida]);
   useEffect(() => { saveToStorage(STORAGE_KEY + '_notified_eventos', notifiedEventos); }, [notifiedEventos]);
   useEffect(() => { saveToStorage(QUEUE_KEY, mutationQueue); }, [mutationQueue]);
 
@@ -332,6 +454,21 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         case 'deleteBitacora':
           await supabase.from('erp_bitacora').delete().eq('id', next.payload.id);
           break;
+        case 'addPresupuesto':
+          await supabase.from('erp_presupuestos').insert(payload);
+          break;
+        case 'updatePresupuesto':
+          await supabase.from('erp_presupuestos').update(payload).eq('id', next.payload.id);
+          break;
+        case 'deletePresupuesto':
+          await supabase.from('erp_presupuestos').delete().eq('id', next.payload.id);
+          break;
+        case 'addValeSalida':
+          await supabase.from('erp_vales_salida').insert(payload);
+          break;
+        case 'deleteValeSalida':
+          await supabase.from('erp_vales_salida').delete().eq('id', next.payload.id);
+          break;
       }
     } catch (err) {
       console.error('Error processing mutation queue:', err);
@@ -345,6 +482,18 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return () => clearTimeout(timer);
     }
   }, [isOnline, processQueue]);
+
+  // Chequeo periódico de stock crítico y OC pendientes
+  useEffect(() => {
+    if (!user) return;
+    const checkAll = () => {
+      verificarStockCritico();
+      verificarOrdenesCambioPendientes();
+    };
+    checkAll();
+    const interval = setInterval(checkAll, 60 * 1000); // cada 60s
+    return () => clearInterval(interval);
+  }, [user, verificarStockCritico, verificarOrdenesCambioPendientes]);
 
   const requestNotificationPermission = useCallback(async () => {
     if (typeof window === 'undefined' || !('Notification' in window)) return;
@@ -485,6 +634,111 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     enqueueMutation('deleteEmpleado', { id });
   };
 
+  const addPresupuesto = async (p: Omit<Presupuesto, 'id'>) => {
+    const versionesExistentes = presupuestos.filter(pr => pr.proyectoId === p.proyectoId);
+    const nextVersion = versionesExistentes.length > 0
+      ? Math.max(...versionesExistentes.map(pr => pr.versionPresupuesto || 1)) + 1
+      : (p.versionPresupuesto ?? 1);
+
+    const newPresupuesto: Presupuesto = {
+      ...p,
+      id: uid(),
+      versionPresupuesto: nextVersion,
+    };
+
+    if (isOnline) {
+      const { error } = await supabase.from('erp_presupuestos').insert([newPresupuesto]);
+      if (error) { console.error('Error inserting presupuesto:', error); }
+    }
+
+    setPresupuestos(s => [...s, newPresupuesto]);
+
+    if (p.proyectoId) {
+      try {
+        await updateProyecto(p.proyectoId, {
+          presupuestoActualId: newPresupuesto.id,
+          presupuestoTotal: newPresupuesto.totalCalculado,
+        });
+      } catch (err) {
+        console.error('Error actualizando proyecto con presupuesto:', err);
+      }
+    }
+  };
+
+  const updatePresupuesto = async (id: string, patch: Partial<Presupuesto>) => {
+    const updated = presupuestos.map(p => p.id === id ? { ...p, ...patch, fechaActualizacion: new Date().toISOString() } : p);
+
+    if (isOnline) {
+      const { error } = await supabase.from('erp_presupuestos').update(patch).eq('id', id);
+      if (error) { console.error('Error actualizando presupuesto:', error); }
+    }
+
+    setPresupuestos(updated);
+
+    const presupuestoActualizado = updated.find(p => p.id === id);
+    if (presupuestoActualizado) {
+      const proyectoActual = proyectos.find(proy => proy.id === presupuestoActualizado.proyectoId);
+      if (proyectoActual?.presupuestoActualId === id) {
+        try {
+          await updateProyecto(presupuestoActualizado.proyectoId, {
+            presupuestoTotal: presupuestoActualizado.totalCalculado,
+          });
+        } catch (err) {
+          console.error('Error actualizando proyecto tras editar presupuesto:', err);
+        }
+      }
+    }
+  };
+
+  const deletePresupuesto = async (id: string) => {
+    const presupuestoEliminado = presupuestos.find(p => p.id === id);
+    if (isOnline) {
+      const { error } = await supabase.from('erp_presupuestos').delete().eq('id', id);
+      if (error) { console.error('Error eliminando presupuesto:', error); }
+    }
+
+    const remainingPresupuestos = presupuestos.filter(p => p.id !== id);
+    setPresupuestos(remainingPresupuestos);
+
+    if (presupuestoEliminado?.proyectoId) {
+      const proyectoActual = proyectos.find(proy => proy.id === presupuestoEliminado.proyectoId);
+      if (proyectoActual?.presupuestoActualId === id) {
+        const ultimoPresupuesto = remainingPresupuestos
+          .filter(p => p.proyectoId === presupuestoEliminado.proyectoId)
+          .sort((a, b) => new Date(b.fechaActualizacion).getTime() - new Date(a.fechaActualizacion).getTime())[0];
+
+        try {
+          await updateProyecto(presupuestoEliminado.proyectoId, {
+            presupuestoActualId: ultimoPresupuesto?.id ?? null,
+            presupuestoTotal: ultimoPresupuesto?.totalCalculado ?? 0,
+          });
+        } catch (err) {
+          console.error('Error actualizando proyecto tras eliminar presupuesto:', err);
+        }
+      }
+    }
+  };
+
+  const getPresupuestoByProyecto = useCallback((proyectoId: string) => {
+    return presupuestos.find(p => p.proyectoId === proyectoId);
+  }, [presupuestos]);
+
+  const addLicitacion = async (l: Omit<Licitacion, 'id'>) => {
+    const newLicitacion = { ...l, id: uid() };
+    setLicitaciones(s => [newLicitacion, ...s]);
+    enqueueMutation('addLicitacion', newLicitacion);
+  };
+
+  const updateLicitacion = async (id: string, patch: Partial<Licitacion>) => {
+    setLicitaciones(s => s.map(l => l.id === id ? { ...l, ...patch } : l));
+    enqueueMutation('updateLicitacion', { id, ...patch });
+  };
+
+  const deleteLicitacion = async (id: string) => {
+    setLicitaciones(s => s.filter(l => l.id !== id));
+    enqueueMutation('deleteLicitacion', { id });
+  };
+
   const updateMaterial = async (id: string, patch: Partial<Material>) => {
     setMateriales(s => s.map(m => m.id === id ? { ...m, ...patch } : m));
     enqueueMutation('updateMaterial', { id, ...patch });
@@ -544,6 +798,65 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     enqueueMutation('deleteBitacora', { id });
   };
 
+  const addAvance = async (a: Omit<AvanceObra, 'id'>) => {
+    const newAvance: AvanceObra = { ...a, id: uid() };
+    setAvances(s => [newAvance, ...s]);
+    enqueueMutation('addAvance', newAvance);
+    const todosAvances = [newAvance, ...avances].filter(av => av.proyectoId === a.proyectoId);
+    const promedioAvance = todosAvances.length > 0
+      ? todosAvances.reduce((sum, av) => sum + av.avanceFisico, 0) / todosAvances.length
+      : 0;
+    await updateProyecto(a.proyectoId, { avanceFisico: Math.round(promedioAvance) });
+  };
+
+  const deleteAvance = async (id: string) => {
+    setAvances(s => s.filter(a => a.id !== id));
+    enqueueMutation('deleteAvance', { id });
+  };
+
+  const addValeSalida = async (v: Omit<ValeSalida, 'id'>) => {
+    const newVale = { ...v, id: uid() };
+    setValesSalida(s => [newVale, ...s]);
+    // Descontar stock de cada material
+    newVale.items.forEach(item => {
+      const mat = materiales.find(m => m.id === item.materialId);
+      if (mat) {
+        const nuevoStock = mat.stock - item.cantidad;
+        setMateriales(prev => prev.map(m => m.id === item.materialId ? { ...m, stock: nuevoStock } : m));
+      }
+    });
+    enqueueMutation('addValeSalida', newVale);
+  };
+
+  const deleteValeSalida = async (id: string) => {
+    setValesSalida(s => s.filter(v => v.id !== id));
+    enqueueMutation('deleteValeSalida', { id });
+  };
+
+  const [syncMessage, setSyncMessage] = useState('');
+
+  const forceSync = useCallback(async () => {
+    if (!isOnline) {
+      setSyncMessage('Sin conexión');
+      setTimeout(() => setSyncMessage(''), 3000);
+      return;
+    }
+    if (mutationQueue.length === 0) {
+      setSyncMessage('Todo sincronizado ✅');
+      setTimeout(() => setSyncMessage(''), 3000);
+      return;
+    }
+    setSyncMessage('Sincronizando...');
+    await processQueue();
+    const remaining = mutationQueue.length - 1;
+    if (remaining <= 0) {
+      setSyncMessage('Sincronizado ✅');
+    } else {
+      setSyncMessage(`${remaining} pendientes`);
+    }
+    setTimeout(() => setSyncMessage(''), 3000);
+  }, [isOnline, mutationQueue, processQueue]);
+
   return (
     <Ctx.Provider value={{
       view, setView, user, initializing, allowedViews, authError, signIn, signUp, signInWithGoogle, logout,
@@ -556,6 +869,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       proveedores, addProveedor, updateProveedor, deleteProveedor,
       eventos, addEvento, updateEvento, deleteEvento,
       bitacora, addBitacora, updateBitacora, deleteBitacora,
+      presupuestos, addPresupuesto, updatePresupuesto, deletePresupuesto, getPresupuestoByProyecto,
+      selectedProyectoId, setSelectedProyectoId,
+      licitaciones, addLicitacion, updateLicitacion, deleteLicitacion,
+      avances, addAvance, deleteAvance,
+      valesSalida, addValeSalida, deleteValeSalida,
+      notificaciones, notificacionesNoLeidas, addNotificacion, markNotificacionLeida, marcarTodasLeidas,
+      verificarStockCritico, verificarOrdenesCambioPendientes, verificarChecklistRechazado,
+      notifyAvanceRegistrado, notifyDesviacionRendimiento,
+      mutationQueue, syncMessage, forceSync,
     }}>
       {children}
     </Ctx.Provider>

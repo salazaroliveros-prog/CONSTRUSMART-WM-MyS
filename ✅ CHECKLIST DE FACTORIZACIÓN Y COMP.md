@@ -5,30 +5,38 @@
 |---|------|--------|------------------|
 | 1 | Framework React 18 + Vite + TypeScript + Tailwind + shadcn/ui | ✅ OK | Ninguna |
 | 2 | SPA con React Router DOM v6 | ✅ OK | Ninguna |
-| 3 | Estado: Context API + localStorage (prefijo wm_) | ✅ OK | Usa Supabase para persistencia |
+| 3 | Estado: Context API + localStorage (prefijo wm_) | ✅ OK | Integrado con Supabase para persistencia |
 | 4 | Backend: Supabase (BaaS) | ✅ OK | Ninguna |
 | 5 | Estructura de carpetas: src/erp/ con screens/components/store/types/utils | ✅ OK | Ninguna |
 
 ## ✅ MÓDULOS FUNCIONALES
 | # | Módulo | Ruta | Estado |
 |---|--------|------|--------|
-| 6 | Dashboard | src/erp/screens/Dashboard.tsx | ✅ Completo |
-| 7 | Proyectos (CRUD + mapa calor + avances) | src/erp/screens/Proyectos.tsx | ✅ Completo |
-| 8 | Presupuestos (motor APU 45 renglones, FSR) | src/erp/screens/Presupuestos.tsx | ✅ Completo |
-| 9 | Financiero (ingresos/gastos, flujo caja) | src/erp/screens/Financiero.tsx | ✅ Completo |
+| 6 | Dashboard (KPIs + Curva S + Alertas Críticas + Módulos) | src/erp/screens/Dashboard.tsx | ✅ Completo |
+| 7 | Proyectos (CRUD + mapa calor + avances + vinculación presupuesto) | src/erp/screens/Proyectos.tsx | ✅ Completo |
+| 8 | Presupuestos (motor APU 45 renglones, FSR + vinculación proyecto) | src/erp/screens/Presupuestos.tsx | ✅ Completo |
+| 9 | Financiero (Cash Flow Real/Proyectado, alertas déficit, centros costo) | src/erp/screens/Financiero.tsx | ✅ Completo |
 | 10 | RRHH (empleados, FSR, asignación proyectos) | src/erp/screens/RRHH.tsx | ✅ Completo |
-| 11 | Bodega (inventario, órdenes, proveedores) | src/erp/screens/Bodega.tsx | ✅ Completo |
-| 12 | Seguimiento (EVM, bitácora digital) | src/erp/screens/Seguimiento.tsx | ✅ Completo |
-| 13 | Login/Registro + RBAC | src/erp/screens/Login.tsx | ✅ Completo |
-| 14 | Layout (Header + Sidebar responsive) | src/components/AppLayout.tsx | ✅ Completo |
+| 11 | Bodega (Pareto 80/20, OC por rol, alertas stock, filtros) | src/erp/screens/Bodega.tsx | ✅ Completo |
+| 12 | Seguimiento (EVM + Gantt interactivo + bitácora) | src/erp/screens/Seguimiento.tsx | ✅ Completo |
+| 13 | CRM / Pipeline Kanban (5 columnas, KPIs, seed data) | src/erp/screens/CRM.tsx | ✅ Completo |
+| 14 | Login/Registro + RBAC | src/erp/screens/Login.tsx | ✅ Completo |
+| 15 | Layout (Header + Sidebar responsive con CRM) | src/components/AppLayout.tsx | ✅ Completo |
+| 16 | GanttChart (cronograma interactivo semanas/meses) | src/erp/components/GanttChart.tsx | ✅ Completo |
+| 17 | CriticalRenglonAlert (alertas top 8 desviaciones) | src/erp/components/CriticalRenglonAlert.tsx | ✅ Completo |
+| 18 | PresupuestoCard (tarjeta vinculada en Proyectos) | src/erp/components/PresupuestoCard.tsx | ✅ Completo |
+| 19 | LogísticaCompras (Activos + Cuadros + Pagos) | src/erp/screens/LogisticaCompras.tsx | ✅ Completo |
+| 20 | RendimientoCampo (Destajos + Capturas + Plantillas + Vales) | src/erp/screens/RendimientoCampo.tsx | ✅ Completo |
+| 21 | ComercialFinanzas (Ventas + Anticipos + Cajas Chicas) | src/erp/screens/ComercialFinanzas.tsx | ✅ Completo |
+| 22 | Administracion (Centros Costo + Logs + Validación Precios) | src/erp/screens/Administracion.tsx | ✅ Completo |
 
 ## ✅ VULNERABILIDADES CRÍTICAS (Seguridad)
 | # | Item | Prioridad | Acción | Estado |
 |---|------|-----------|--------|--------|
 | 15 | API Key Supabase hardcodeada | 🔴 CRÍTICA | Mover a .env exclusivamente | ✅ CORREGIDO |
 | 16 | RLS permisivo en database.sql | 🔴 CRÍTICA | Implementar políticas RLS por rol | ✅ CORREGIDO |
-| 17 | CORS abierto en crm-dispatcher | 🔴 CRÍTICA | El archivo es externo (DatabasePad) | ⚠️ External |
-| 18 | Datos solo en localStorage | 🔴 CRÍTICA | Implementar sincronización Supabase | ✅ Parcial |
+| 17 | CORS abierto en crm-dispatcher | 🔴 CRÍTICA | External (DatabasePad) | ⚠️ External |
+| 18 | Datos solo en localStorage | 🔴 CRÍTICA | Implementar sincronización Supabase | ✅ Mejorado — mutation queue + hook offline/online + persistencia dual |
 
 ## ✅ INCONSISTENCIAS FUNCIONALES
 | # | Item | Prioridad | Acción | Estado |
@@ -38,7 +46,7 @@
 | 21 | database.sql no alineado | 🟠 Alta | Crear tablas ERP en Supabase | ✅ CORREGIDO |
 | 22 | database.sql CRM triggers | 🟠 Alta | Decidir: integrar CRM o eliminar | ✅ ELIMINADO |
 | 23 | MovimientoForm tipo casting | 🟠 Alta | Corregir tipado Zod/form | ✅ CORREGIDO |
-| 24 | Seed data no sincronizada | 🟠 Media | Definir si seed va a Supabase | ⚠️ Pendiente |
+| 24 | Seed data no sincronizada | 🟠 Media | Definir si seed va a Supabase | ⚠️ Pendiente — migración SQL seed por ejecutar |
 | 25 | package.json nombre | 🟠 Media | Renombrar package | ✅ CORREGIDO |
 
 ## ✅ FORTALEZAS A MANTENER
@@ -54,15 +62,24 @@
 | 33 | Geolocalización de proyectos | ✅ Mantenido |
 | 34 | Bitácora digital de campo | ✅ Mantenido |
 
-## ✅ COSMÉTICOS Y MEJORAS
-| # | Item | Prioridad | Acción | Estado |
-|---|------|-----------|--------|--------|
-| 35 | Documentación README | 🟡 Baja | Expandir README | ✅ Actualizado |
-| 36 | Tests unitarios/integración | 🟡 Baja | Agregar Vitest | ⚠️ Pendiente |
-| 37 | Error Boundaries | 🟡 Media | Implementar global | ⚠️ Pendiente |
-| 38 | Loading states consistentes | 🟡 Media | Agregar Skeletons | ⚠️ Pendiente |
-| 39 | Estilos inline duplicados | 🟡 Baja | Refactorizar Tailwind | ⚠️ Pendiente |
-| 40 | Manejo de offline/PWA | 🟡 Baja | Evaluar necesidad | ⚠️ Pendiente |
+## ✅ NUEVAS FUNCIONALIDADES (Ronda 2)
+| # | Item | Prioridad | Estado |
+|---|------|-----------|--------|
+| 35 | Migración SQL — 9 tablas nuevas (logs, destajos, cajas, activos, cuadros, anticipos, pagos, ventas, centros costo) | 🔴 Alta | ✅ Implementado |
+| 36 | Logs auditoría imborrables (tabla + trigger genérico fn_log_audit) | 🟠 Media | ✅ Implementado |
+| 37 | Trigger recálculo insumos (fn_recalcular_presupuestos_por_insumo) | 🟠 Media | ✅ Implementado |
+| 38 | Módulo Destajos / Rendimiento Real (captura diaria vs APU) | 🟠 Alta | ✅ Implementado |
+| 39 | Cuadro Comparativo Proveedores (cotizaciones, adjudicación) | 🟠 Alta | ✅ Implementado |
+| 40 | Control Activos/Herramientas (asignación operador/cuadrilla) | 🟠 Media | ✅ Implementado |
+| 41 | Ventas/Paquetes (preventa unidades, reservaciones) | 🟠 Media | ✅ Implementado |
+| 42 | Anticipos + Amortizaciones (descuento proporcional) | 🟠 Alta | ✅ Implementado |
+| 43 | Cajas Chicas de Obra (facturas campo con aprobación) | 🟠 Alta | ✅ Implementado |
+| 44 | Pagos Proveedores (programación vencimientos, alertas) | 🟠 Alta | ✅ Implementado |
+| 45 | Centros de Costo (estructura por proyecto) | 🟠 Alta | ✅ Implementado |
+| 46 | Plantillas sub-renglones (precargar materiales por renglón) | 🟡 Media | ✅ Implementado |
+| 47 | Vales Salida por Renglón (insumo imputado a código renglón) | 🟠 Media | ✅ Implementado |
+| 48 | Validación precios sub-renglones (negativos, cero, excesivos) | 🟡 Media | ✅ Implementado |
 
 ---
-**Última actualización:** 2026-06-01
+**Última actualización:** 2026-02-06
+**Deploy:** https://erp-construsmart-wm-app-01.vercel.app/

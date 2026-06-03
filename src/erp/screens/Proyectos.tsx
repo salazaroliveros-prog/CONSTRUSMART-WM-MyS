@@ -8,6 +8,7 @@ import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
 import { Progress } from '../components/Charts';
 import { INPUT, BUTTON_PRIMARY } from '../ui';
 import { Plus, MapPin, Trash2, X, Building2, Pencil } from 'lucide-react';
+import PresupuestoCard from '../components/PresupuestoCard';
 
 const proyectoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -29,7 +30,7 @@ const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado
 };
 
 const Proyectos: React.FC = () => {
-  const { proyectos, addProyecto, updateProyecto, deleteProyecto } = useErp();
+  const { proyectos, addProyecto, updateProyecto, deleteProyecto, presupuestos, setView, setSelectedProyectoId } = useErp();
   const [show, setShow] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
 
@@ -204,7 +205,7 @@ const Proyectos: React.FC = () => {
                   <Progress value={p.avanceFinanciero} color="#f97316" />
                 </div>
               </div>
-              <div className="pt-3.5 flex justify-between text-xs">
+              <div className="pt-3.5 flex justify-between text-xs mb-3">
                 <div>
                   <span className="text-slate-400 block text-[10px] mb-0.5">Presupuesto</span>
                   <b className="text-slate-700 font-semibold">{fmtQ(p.presupuestoTotal)}</b>
@@ -213,6 +214,19 @@ const Proyectos: React.FC = () => {
                   <span className="text-slate-400 block text-[10px] mb-0.5">Contrato</span>
                   <b className="text-emerald-600 font-semibold">{fmtQ(p.montoContrato)}</b>
                 </div>
+              </div>
+              <div className="border-t pt-3">
+                <PresupuestoCard 
+                  presupuesto={presupuestos.find(pr => pr.id === p.presupuestoActualId)}
+                  onViewPresupuesto={() => {
+                    setSelectedProyectoId(p.id);
+                    setView('presupuestos');
+                  }}
+                  onEditPresupuesto={() => {
+                    setSelectedProyectoId(p.id);
+                    setView('presupuestos');
+                  }}
+                />
               </div>
             </div>
           </div>

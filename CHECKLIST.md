@@ -12,15 +12,19 @@
 ## ✅ MÓDULOS FUNCIONALES
 | # | Módulo | Ruta | Estado |
 |---|--------|------|--------|
-| 6 | Dashboard | src/erp/screens/Dashboard.tsx | ✅ Completo |
+| 6 | Dashboard (KPIs + Curva S + Alertas Críticas + Módulos) | src/erp/screens/Dashboard.tsx | ✅ Completo |
 | 7 | Proyectos (CRUD + mapa calor + avances) | src/erp/screens/Proyectos.tsx | ✅ Completo |
-| 8 | Presupuestos (motor APU 45 renglones, FSR) | src/erp/screens/Presupuestos.tsx | ✅ Completo |
-| 9 | Financiero (ingresos/gastos, flujo caja) | src/erp/screens/Financiero.tsx | ✅ Completo |
+| 8 | Presupuestos (motor APU 45 renglones, FSR + vinculación proyecto) | src/erp/screens/Presupuestos.tsx | ✅ Completo |
+| 9 | Financiero (Cash Flow Real/Proyectado, alertas déficit, centros costo) | src/erp/screens/Financiero.tsx | ✅ Completo |
 | 10 | RRHH (empleados, FSR, asignación proyectos) | src/erp/screens/RRHH.tsx | ✅ Completo |
-| 11 | Bodega (inventario, órdenes, proveedores) | src/erp/screens/Bodega.tsx | ✅ Completo |
-| 12 | Seguimiento (EVM, bitácora digital) | src/erp/screens/Seguimiento.tsx | ✅ Completo |
-| 13 | Login/Registro + RBAC | src/erp/screens/Login.tsx | ✅ Completo |
-| 14 | Layout (Header + Sidebar responsive) | src/components/AppLayout.tsx | ✅ Completo |
+| 11 | Bodega (Pareto 80/20, OC por rol, alertas stock, filtros) | src/erp/screens/Bodega.tsx | ✅ Completo |
+| 12 | Seguimiento (EVM + Gantt interactivo + bitácora) | src/erp/screens/Seguimiento.tsx | ✅ Completo |
+| 13 | CRM / Pipeline Kanban (5 columnas, KPIs, seed data) | src/erp/screens/CRM.tsx | ✅ Completo |
+| 14 | Login/Registro + RBAC | src/erp/screens/Login.tsx | ✅ Completo |
+| 15 | Layout (Header + Sidebar responsive con CRM) | src/components/AppLayout.tsx | ✅ Completo |
+| 16 | GanttChart (cronograma interactivo semanas/meses) | src/erp/components/GanttChart.tsx | ✅ Completo |
+| 17 | CriticalRenglonAlert (alertas top 8 desviaciones) | src/erp/components/CriticalRenglonAlert.tsx | ✅ Completo |
+| 18 | PresupuestoCard (tarjeta vinculada en Proyectos) | src/erp/components/PresupuestoCard.tsx | ✅ Completo |
 
 ## ✅ VULNERABILIDADES CRÍTICAS (Seguridad)
 | # | Item | Prioridad | Acción | Estado |
@@ -74,5 +78,5 @@
 
 ---
 
-**Última actualización:** 2026-06-01
+**Última actualización:** 2026-01-06
 **Deploy:** https://erp-construsmart-wm-app-01.vercel.app/
