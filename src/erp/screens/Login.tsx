@@ -61,14 +61,17 @@ const Login: React.FC = () => {
       <div className="hidden lg:flex flex-1 bg-slate-900 relative overflow-hidden items-center justify-center p-12">
         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'url(/empresa_b.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-slate-900/30 to-orange-900/20" />
-        <div className="relative z-10 text-white max-w-md">
-          <div className="w-20 h-20 rounded-2xl mb-6 bg-slate-900 flex items-center justify-center ring-1 ring-orange-400/30 shadow-[0_0_8px_rgba(249,115,22,0.35)]">
-            <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
+        <div className="relative z-10 text-white max-w-md text-center">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="w-20 h-20 rounded-2xl bg-slate-900 flex items-center justify-center ring-1 ring-orange-400/30 shadow-[0_0_8px_rgba(249,115,22,0.35)]">
+              <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
+            </div>
+            <img src="/construmys.png" alt="Construmys" className="h-[5.5rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
           </div>
-          <h1 className="text-4xl font-black leading-tight">{EMPRESA.nombre}</h1>
+          <h1 className="text-4xl font-black leading-tight">CONSTRUCTORA<br /><span className="text-3xl">WM / M&amp;S</span></h1>
           <p className="text-orange-300 text-lg italic mt-2">{EMPRESA.eslogan}</p>
           <p className="text-slate-300 mt-6 leading-relaxed">ERP Integral con control de acceso por roles: Administrador, Gerente, Residente, Compras y Bodeguero.</p>
-          <div className="flex gap-6 mt-8">
+          <div className="flex gap-6 mt-8 justify-center">
             {['Presupuestos', 'Control', 'Finanzas'].map(t => (
               <div key={t} className="text-center">
                 <ShieldCheck className="w-5 h-5 mx-auto text-orange-400" />
