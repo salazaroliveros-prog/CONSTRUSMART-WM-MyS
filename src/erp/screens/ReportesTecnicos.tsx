@@ -131,7 +131,7 @@ const ReportesTecnicos: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-black text-slate-800">CONSTRUCTORA WM/M&S</h2>
-              <p className="text-xs text-slate-500 italic">"Edificando el Futuro"</p>
+              <p className="text-xs text-slate-500 italic">&quot;Edificando el Futuro&quot;</p>
             </div>
             <div className="text-right text-xs text-slate-500">
               <div className="font-semibold text-slate-700">
@@ -250,7 +250,7 @@ const ReportesTecnicos: React.FC = () => {
             </div>
 
             <div className="text-xs text-slate-500 italic">
-              * Rendimiento calculado según APU por actividad. Consultar módulo "Rendimientos" para datos detallados de producción diaria.
+              * Rendimiento calculado según APU por actividad. Consultar módulo &quot;Rendimientos&quot; para datos detallados de producción diaria.
             </div>
           </div>
         ) : (

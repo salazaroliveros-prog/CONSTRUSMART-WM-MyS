@@ -25,7 +25,7 @@ export const PlanillaDestajos: React.FC = () => {
 
   // Filtro de destajos por proyecto y semana
   const destajosSemana = useMemo(() => {
-    let filtered = proyectoFilter
+    const filtered = proyectoFilter
       ? getDestajosByProyecto(proyectoFilter)
       : destajos;
 

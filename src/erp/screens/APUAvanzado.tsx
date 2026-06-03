@@ -445,7 +445,7 @@ const APUAvanzado: React.FC = () => {
                   <tr className="border-b border-slate-100 text-slate-400">
                     <th className="text-left py-2 px-2 font-medium">Fecha</th>
                     <th className="text-right py-2 px-2 font-medium">Cemento</th>
-                    <th className="text-right py-2 px-2 font-medium">Hierro 3/8"</th>
+                    <th className="text-right py-2 px-2 font-medium">Hierro 3/8&quot;</th>
                     <th className="text-right py-2 px-2 font-medium">Arena</th>
                     <th className="text-right py-2 px-2 font-medium">Block</th>
                   </tr>
@@ -474,7 +474,7 @@ const APUAvanzado: React.FC = () => {
                 </div>
               </div>
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <div className="text-[10px] text-slate-500">Hierro 3/8"</div>
+                <div className="text-[10px] text-slate-500">Hierro 3/8&quot;</div>
                 <div className="text-sm font-bold text-blue-600">
                   Q{historial[historial.length-1].hierro.toFixed(0)}
                   <span className="text-[10px] ml-1 text-red-500">↑ {((historial[historial.length-1].hierro - historial[0].hierro) / historial[0].hierro * 100).toFixed(1)}%</span>

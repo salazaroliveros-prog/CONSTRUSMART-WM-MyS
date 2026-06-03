@@ -37,16 +37,20 @@ const DashboardPredictivo: React.FC = () => {
   const desviacionDias = diasEstimadosRestantes - (diasTotales - diasTranscurridos);
 
   // Riesgos: renglones con desviación
-  const renglones = presupuesto?.renglones || [];
+  const renglones = presupuesto?.renglones ?? [];
   const renglonesConAvance = useMemo(() => {
-    return renglones.map(r => {
-      const avancesRenglon = avancesProyecto.filter(a => a.renglonNombre === r.nombre || a.renglonId === r.id);
+    const _renglones = presupuesto?.renglones ?? [];
+    const _avancesProyecto = avances.filter(a => a.proyectoId === selProyecto);
+    const _diasTotales = fechaInicio && fechaFin ? Math.round((new Date(fechaFin).getTime() - new Date(fechaInicio).getTime()) / 86400000) : 1;
+    const _diasTranscurridos = fechaInicio ? Math.round((Date.now() - new Date(fechaInicio).getTime()) / 86400000) : 0;
+    return _renglones.map(r => {
+      const avancesRenglon = _avancesProyecto.filter(a => a.renglonNombre === r.nombre || a.renglonId === r.id);
       const pctAvance = avancesRenglon.length > 0 ? Math.max(...avancesRenglon.map(a => a.avanceFisico)) : 0;
-      const avanceEsperado = diasTotales > 0 ? (diasTranscurridos / diasTotales) * 100 : 0;
+      const avanceEsperado = _diasTotales > 0 ? (_diasTranscurridos / _diasTotales) * 100 : 0;
       const desviacion = pctAvance - avanceEsperado;
       return { ...r, pctAvance, avanceEsperado, desviacion };
     });
-  }, [renglones, avancesProyecto, diasTranscurridos, diasTotales]);
+  }, [presupuesto, avances, selProyecto, fechaInicio, fechaFin]);
 
   const riesgosAltos = renglonesConAvance.filter(r => r.pctAvance < 50 && r.desviacion < -20);
   const riesgosMedios = renglonesConAvance.filter(r => r.desviacion < -10 && r.desviacion >= -20);
