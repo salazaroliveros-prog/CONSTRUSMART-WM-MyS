@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { toast } from 'sonner';
-import { Upload, Move, ZoomIn, ZoomOut, Rotate3d, Box, Maximize2, Sun } from 'lucide-react';
+import { Upload, Rotate3d, Box, Maximize2 } from 'lucide-react';
 
 interface IFCViewerProps {
   className?: string;
@@ -19,31 +19,27 @@ const IFCViewer: React.FC<IFCViewerProps> = ({ className }) => {
   const [loaded, setLoaded] = useState(false);
   const [modelName, setModelName] = useState('');
   const [sectionMode, setSectionMode] = useState(false);
-  const [clipPlane, setClipPlane] = useState<THREE.Plane | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Scene
+    const container = containerRef.current;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf0f0f0);
     sceneRef.current = scene;
 
-    // Camera
-    const camera = new THREE.PerspectiveCamera(45, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
     camera.position.set(10, 10, 10);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
-    // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+    renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
-    containerRef.current.appendChild(renderer.domElement);
+    container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.1;
@@ -51,7 +47,6 @@ const IFCViewer: React.FC<IFCViewerProps> = ({ className }) => {
     controls.target.set(0, 0, 0);
     controlsRef.current = controls;
 
-    // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
@@ -64,15 +59,12 @@ const IFCViewer: React.FC<IFCViewerProps> = ({ className }) => {
     fillLight.position.set(-5, 0, 5);
     scene.add(fillLight);
 
-    // Grid
     const gridHelper = new THREE.GridHelper(20, 20, 0x888888, 0x444444);
     scene.add(gridHelper);
 
-    // Axes
     const axesHelper = new THREE.AxesHelper(5);
     scene.add(axesHelper);
 
-    // Animation loop
     const animate = () => {
       animationRef.current = requestAnimationFrame(animate);
       controls.update();
@@ -80,11 +72,10 @@ const IFCViewer: React.FC<IFCViewerProps> = ({ className }) => {
     };
     animate();
 
-    // Resize handler
     const handleResize = () => {
-      if (!containerRef.current) return;
-      const w = containerRef.current.clientWidth;
-      const h = containerRef.current.clientHeight;
+      if (!container) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
@@ -95,8 +86,8 @@ const IFCViewer: React.FC<IFCViewerProps> = ({ className }) => {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationRef.current);
       renderer.dispose();
-      if (containerRef.current?.contains(renderer.domElement)) {
-        containerRef.current.removeChild(renderer.domElement);
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
       }
     };
   }, []);
@@ -159,7 +150,6 @@ const IFCViewer: React.FC<IFCViewerProps> = ({ className }) => {
     if (!sceneRef.current || !ifcModelRef.current) return;
     setSectionMode(prev => {
       if (!prev) {
-        // Enable clipping
         const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
         const clipPlanes = [plane];
         ifcModelRef.current?.traverse((child) => {
@@ -170,18 +160,15 @@ const IFCViewer: React.FC<IFCViewerProps> = ({ className }) => {
             child.material.needsUpdate = true;
           }
         });
-        setClipPlane(plane);
         if (rendererRef.current) rendererRef.current.localClippingEnabled = true;
         return true;
       } else {
-        // Disable clipping
         ifcModelRef.current?.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.material.clippingPlanes = [];
             child.material.needsUpdate = true;
           }
         });
-        setClipPlane(null);
         if (rendererRef.current) rendererRef.current.localClippingEnabled = false;
         return false;
       }
