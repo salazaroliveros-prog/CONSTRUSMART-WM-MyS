@@ -10,24 +10,20 @@ export const Impuestos: React.FC = () => {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   });
 
-  // Calcular mes seleccionado
-  const [year, month] = mesFilter.split('-').map(Number);
-  const fechaInicioMes = new Date(year, month - 1, 1);
-  const fechaFinMes = new Date(year, month, 0);
-
-  // Filtrar movimientos
+  // Impuestos: fechas calculadas dentro del useMemo para evitar dependencias inestables
   const movimientosFiltrados = useMemo(() => {
+    const [y, m] = mesFilter.split('-').map(Number);
+    const fechaInicio = new Date(y, m - 1, 1);
+    const fechaFin = new Date(y, m, 0);
     let filtered = movimientos;
-
     if (proyectoFilter) {
-      filtered = filtered.filter(m => m.proyectoId === proyectoFilter);
+      filtered = filtered.filter(mv => mv.proyectoId === proyectoFilter);
     }
-
-    return filtered.filter(m => {
-      const fecha = new Date(m.fecha);
-      return fecha >= fechaInicioMes && fecha <= fechaFinMes;
+    return filtered.filter(mv => {
+      const fecha = new Date(mv.fecha);
+      return fecha >= fechaInicio && fecha <= fechaFin;
     });
-  }, [movimientos, proyectoFilter, fechaInicioMes, fechaFinMes]);
+  }, [movimientos, proyectoFilter, mesFilter]);
 
   // Cálculos de impuestos
   const calculos = useMemo(() => {

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import {
   ActivoHerramienta, CuadroComparativo, CotizacionItem, Destajo,
   VentaPaquete, Anticipo, AmortizacionItem, CajaChica,
@@ -6,26 +6,13 @@ import {
   PlantillaSubrenglon, ValeSalidaRenglon, VinculacionOCExplosion
 } from '../types';
 import { supabase } from '../../lib/supabase';
-import { useErp } from '../store';
 
 const STORAGE_KEY_PREFIX = 'wm_erp_';
 const uid = () => Math.random().toString(36).substr(2, 9);
 
-// Helper: mapFromSnakeCase for new tables
-const mapFromSnakeCase = (obj: any) => {
-  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
-  const mapped: any = {};
-  for (const key of Object.keys(obj)) {
-    const camelKey = key.replace(/_([a-z])/g, (_, l) => l.toUpperCase());
-    mapped[camelKey] = obj[key];
-  }
-  return mapped;
-};
-
 const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
 export function useNuevosModulos() {
-  const { proyectos, materiales } = useErp();
 
   // ============================================================
   // 1. ACTIVOS Y HERRAMIENTAS

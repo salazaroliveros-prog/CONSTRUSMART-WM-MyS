@@ -106,46 +106,46 @@ export const generarRenglones = (tipologia: Tipologia): RenglonBase[] => {
 
 // ===== SEED DATA =====
 export const SEED_PROYECTOS: Proyecto[] = [
-  { id: 'p1', nombre: 'Residencial Las Cumbres', cliente: 'Inversiones GT', ubicacion: 'Ciudad de Guatemala', tipologia: 'residencial', estado: 'ejecucion', presupuestoTotal: 4850000, montoContrato: 5800000, avanceFisico: 62, avanceFinanciero: 58, lat: 14.6349, lng: -90.5069, fechaInicio: '2026-01-15', fechaFin: '2026-09-30' },
-  { id: 'p2', nombre: 'Centro Comercial Plaza Norte', cliente: 'Grupo Comercial SA', ubicacion: 'Mixco', tipologia: 'comercial', estado: 'ejecucion', presupuestoTotal: 12500000, montoContrato: 14800000, avanceFisico: 45, avanceFinanciero: 52, lat: 14.6133, lng: -90.6064, fechaInicio: '2025-11-01', fechaFin: '2026-12-15' },
-  { id: 'p3', nombre: 'Planta Industrial Amatitlán', cliente: 'Manufacturas del Sur', ubicacion: 'Amatitlán', tipologia: 'industrial', estado: 'ejecucion', presupuestoTotal: 8900000, montoContrato: 10200000, avanceFisico: 30, avanceFinanciero: 38, lat: 14.4769, lng: -90.6164, fechaInicio: '2026-02-10', fechaFin: '2026-11-20' },
-  { id: 'p4', nombre: 'Puente Vehicular Río Las Vacas', cliente: 'Municipalidad', ubicacion: 'Chinautla', tipologia: 'civil', estado: 'ejecucion', presupuestoTotal: 6200000, montoContrato: 7100000, avanceFisico: 78, avanceFinanciero: 72, lat: 14.6850, lng: -90.5000, fechaInicio: '2025-09-01', fechaFin: '2026-07-30' },
-  { id: 'p5', nombre: 'Escuela Pública Zona 18', cliente: 'MINEDUC', ubicacion: 'Guatemala Z.18', tipologia: 'publica', estado: 'ejecucion', presupuestoTotal: 3100000, montoContrato: 3450000, avanceFisico: 88, avanceFinanciero: 85, lat: 14.6700, lng: -90.4800, fechaInicio: '2025-08-15', fechaFin: '2026-06-30' },
-  { id: 'p6', nombre: 'Condominio Villas del Lago', cliente: 'Desarrolladora Lago', ubicacion: 'Santa Catarina Pinula', tipologia: 'residencial', estado: 'planeacion', presupuestoTotal: 9500000, montoContrato: 11200000, avanceFisico: 0, avanceFinanciero: 5, lat: 14.5700, lng: -90.4960, fechaInicio: '2026-07-01', fechaFin: '2027-08-30' },
-  { id: 'p7', nombre: 'Bodega Logística CA-9', cliente: 'Transportes Unidos', ubicacion: 'Villa Nueva', tipologia: 'industrial', estado: 'planeacion', presupuestoTotal: 5400000, montoContrato: 6100000, avanceFisico: 0, avanceFinanciero: 0, lat: 14.5260, lng: -90.5870, fechaInicio: '2026-08-15', fechaFin: '2027-05-30' },
-  { id: 'p8', nombre: 'Remodelación Edificio Centro', cliente: 'Banco Regional', ubicacion: 'Guatemala Z.1', tipologia: 'comercial', estado: 'planeacion', presupuestoTotal: 2800000, montoContrato: 3300000, avanceFisico: 0, avanceFinanciero: 8, lat: 14.6420, lng: -90.5130, fechaInicio: '2026-06-20', fechaFin: '2026-12-20' },
+  { id: 'p1', nombre: 'Residencial Las Cumbres', cliente: 'Inversiones GT', ubicacion: 'Ciudad de Guatemala', tipologia: 'residencial', estado: 'ejecucion', presupuestoTotal: 4850000, montoContrato: 5800000, avanceFisico: 62, avanceFinanciero: 58, fechaInicio: '2026-01-15', fechaFin: '2026-09-30' },
+  { id: 'p2', nombre: 'Centro Comercial Plaza Norte', cliente: 'Grupo Comercial SA', ubicacion: 'Mixco', tipologia: 'comercial', estado: 'ejecucion', presupuestoTotal: 12500000, montoContrato: 14800000, avanceFisico: 45, avanceFinanciero: 52, fechaInicio: '2025-11-01', fechaFin: '2026-12-15' },
+  { id: 'p3', nombre: 'Planta Industrial Amatitlán', cliente: 'Manufacturas del Sur', ubicacion: 'Amatitlán', tipologia: 'industrial', estado: 'ejecucion', presupuestoTotal: 8900000, montoContrato: 10200000, avanceFisico: 30, avanceFinanciero: 38, fechaInicio: '2026-02-10', fechaFin: '2026-11-20' },
+  { id: 'p4', nombre: 'Puente Vehicular Río Las Vacas', cliente: 'Municipalidad', ubicacion: 'Chinautla', tipologia: 'civil', estado: 'ejecucion', presupuestoTotal: 6200000, montoContrato: 7100000, avanceFisico: 78, avanceFinanciero: 72, fechaInicio: '2025-09-01', fechaFin: '2026-07-30' },
+  { id: 'p5', nombre: 'Escuela Pública Zona 18', cliente: 'MINEDUC', ubicacion: 'Guatemala Z.18', tipologia: 'publica', estado: 'ejecucion', presupuestoTotal: 3100000, montoContrato: 3450000, avanceFisico: 88, avanceFinanciero: 85, fechaInicio: '2025-08-15', fechaFin: '2026-06-30' },
+  { id: 'p6', nombre: 'Condominio Villas del Lago', cliente: 'Desarrolladora Lago', ubicacion: 'Santa Catarina Pinula', tipologia: 'residencial', estado: 'planeacion', presupuestoTotal: 9500000, montoContrato: 11200000, avanceFisico: 0, avanceFinanciero: 5, fechaInicio: '2026-07-01', fechaFin: '2027-08-30' },
+  { id: 'p7', nombre: 'Bodega Logística CA-9', cliente: 'Transportes Unidos', ubicacion: 'Villa Nueva', tipologia: 'industrial', estado: 'planeacion', presupuestoTotal: 5400000, montoContrato: 6100000, avanceFisico: 0, avanceFinanciero: 0, fechaInicio: '2026-08-15', fechaFin: '2027-05-30' },
+  { id: 'p8', nombre: 'Remodelación Edificio Centro', cliente: 'Banco Regional', ubicacion: 'Guatemala Z.1', tipologia: 'comercial', estado: 'planeacion', presupuestoTotal: 2800000, montoContrato: 3300000, avanceFisico: 0, avanceFinanciero: 8, fechaInicio: '2026-06-20', fechaFin: '2026-12-20' },
 ];
 
 export const SEED_MOVIMIENTOS: Movimiento[] = [
-  { id: 'm1', tipo: 'ingreso', proyectoId: 'p1', descripcion: 'Estimación #3 cobrada', cantidad: 1, unidad: 'global', categoria: 'aporte', costoUnitario: 980000, costoTotal: 980000, fecha: '2026-05-10' },
-  { id: 'm2', tipo: 'gasto', proyectoId: 'p1', descripcion: 'Compra de cemento', cantidad: 850, unidad: 'saco', categoria: 'materiales', costoUnitario: 92, costoTotal: 78200, fecha: '2026-05-12' },
-  { id: 'm3', tipo: 'gasto', proyectoId: 'p2', descripcion: 'Planilla semanal', cantidad: 1, unidad: 'global', categoria: 'mano_obra', costoUnitario: 145000, costoTotal: 145000, fecha: '2026-05-15' },
-  { id: 'm4', tipo: 'ingreso', proyectoId: 'p4', descripcion: 'Valuación municipal', cantidad: 1, unidad: 'global', categoria: 'aporte', costoUnitario: 620000, costoTotal: 620000, fecha: '2026-05-18' },
-  { id: 'm5', tipo: 'gasto', proyectoId: null, descripcion: 'Renta de oficina', cantidad: 1, unidad: 'mes', categoria: 'fijos', costoUnitario: 12000, costoTotal: 12000, fecha: '2026-05-01' },
-  { id: 'm6', tipo: 'gasto', proyectoId: null, descripcion: 'Gastos personales hogar', cantidad: 1, unidad: 'mes', categoria: 'hogar', costoUnitario: 8500, costoTotal: 8500, fecha: '2026-05-02' },
-  { id: 'm7', tipo: 'gasto', proyectoId: 'p3', descripcion: 'Subcontrato estructura metálica', cantidad: 1, unidad: 'global', categoria: 'sub_contrato', costoUnitario: 320000, costoTotal: 320000, fecha: '2026-05-20' },
-  { id: 'm8', tipo: 'gasto', proyectoId: null, descripcion: 'Combustible flotilla', cantidad: 1, unidad: 'mes', categoria: 'transporte', costoUnitario: 9800, costoTotal: 9800, fecha: '2026-05-08' },
+  { id: 'm1', tipo: 'ingreso', proyectoId: 'p1', descripcion: 'Estimación #3 cobrada', cantidad: 1, unidad: 'global', categoria: 'administracion', monto: 980000, costoUnitario: 980000, costoTotal: 980000, fecha: '2026-05-10' },
+  { id: 'm2', tipo: 'gasto', proyectoId: 'p1', descripcion: 'Compra de cemento', cantidad: 850, unidad: 'saco', categoria: 'materiales', monto: 78200, costoUnitario: 92, costoTotal: 78200, fecha: '2026-05-12' },
+  { id: 'm3', tipo: 'gasto', proyectoId: 'p2', descripcion: 'Planilla semanal', cantidad: 1, unidad: 'global', categoria: 'mano_obra', monto: 145000, costoUnitario: 145000, costoTotal: 145000, fecha: '2026-05-15' },
+  { id: 'm4', tipo: 'ingreso', proyectoId: 'p4', descripcion: 'Valuación municipal', cantidad: 1, unidad: 'global', categoria: 'administracion', monto: 620000, costoUnitario: 620000, costoTotal: 620000, fecha: '2026-05-18' },
+  { id: 'm5', tipo: 'gasto', proyectoId: 'p1', descripcion: 'Renta de oficina', cantidad: 1, unidad: 'mes', categoria: 'administracion', monto: 12000, costoUnitario: 12000, costoTotal: 12000, fecha: '2026-05-01' },
+  { id: 'm6', tipo: 'gasto', proyectoId: 'p1', descripcion: 'Gastos administrativos', cantidad: 1, unidad: 'mes', categoria: 'administracion', monto: 8500, costoUnitario: 8500, costoTotal: 8500, fecha: '2026-05-02' },
+  { id: 'm7', tipo: 'gasto', proyectoId: 'p3', descripcion: 'Subcontrato estructura metálica', cantidad: 1, unidad: 'global', categoria: 'subcontrato', monto: 320000, costoUnitario: 320000, costoTotal: 320000, fecha: '2026-05-20' },
+  { id: 'm8', tipo: 'gasto', proyectoId: 'p1', descripcion: 'Combustible flotilla', cantidad: 1, unidad: 'mes', categoria: 'transporte', monto: 9800, costoUnitario: 9800, costoTotal: 9800, fecha: '2026-05-08' },
 ];
 
 export const SEED_EMPLEADOS: Empleado[] = [
-  { id: 'e1', nombre: 'Carlos Méndez', puesto: 'Maestro de obra', proyectoId: 'p1', salarioDiario: 175, diasTrabajados: 26, tipo: 'planilla' },
-  { id: 'e2', nombre: 'José Ramírez', puesto: 'Albañil', proyectoId: 'p1', salarioDiario: 130, diasTrabajados: 24, tipo: 'destajo' },
-  { id: 'e3', nombre: 'Luis García', puesto: 'Armador', proyectoId: 'p2', salarioDiario: 140, diasTrabajados: 25, tipo: 'planilla' },
-  { id: 'e4', nombre: 'Ana López', puesto: 'Ing. Residente', proyectoId: 'p3', salarioDiario: 380, diasTrabajados: 26, tipo: 'planilla' },
-  { id: 'e5', nombre: 'Pedro Cux', puesto: 'Ayudante', proyectoId: 'p4', salarioDiario: 95, diasTrabajados: 23, tipo: 'destajo' },
-  { id: 'e6', nombre: 'Marvin Tzoc', puesto: 'Operador', proyectoId: 'p2', salarioDiario: 165, diasTrabajados: 26, tipo: 'planilla' },
-  { id: 'e7', nombre: 'Sandra Pérez', puesto: 'Bodeguero', proyectoId: 'p1', salarioDiario: 120, diasTrabajados: 26, tipo: 'planilla' },
+  { id: 'e1', nombre: 'Carlos Méndez', puesto: 'Maestro de obra', proyectoIds: ['p1'], salarioDiario: 175, diasTrabajados: 26, tipo: 'planilla', activo: true },
+  { id: 'e2', nombre: 'José Ramírez', puesto: 'Albañil', proyectoIds: ['p1'], salarioDiario: 130, diasTrabajados: 24, tipo: 'destajo', activo: true },
+  { id: 'e3', nombre: 'Luis García', puesto: 'Armador', proyectoIds: ['p2'], salarioDiario: 140, diasTrabajados: 25, tipo: 'planilla', activo: true },
+  { id: 'e4', nombre: 'Ana López', puesto: 'Ing. Residente', proyectoIds: ['p3'], salarioDiario: 380, diasTrabajados: 26, tipo: 'planilla', activo: true },
+  { id: 'e5', nombre: 'Pedro Cux', puesto: 'Ayudante', proyectoIds: ['p4'], salarioDiario: 95, diasTrabajados: 23, tipo: 'destajo', activo: true },
+  { id: 'e6', nombre: 'Marvin Tzoc', puesto: 'Operador', proyectoIds: ['p2'], salarioDiario: 165, diasTrabajados: 26, tipo: 'planilla', activo: true },
+  { id: 'e7', nombre: 'Sandra Pérez', puesto: 'Bodeguero', proyectoIds: ['p1'], salarioDiario: 120, diasTrabajados: 26, tipo: 'planilla', activo: true },
 ];
 
 export const SEED_MATERIALES: Material[] = [
-  { id: 'mt1', nombre: 'Cemento UGC 42.5 kg', unidad: 'saco', stock: 120, stockMinimo: 200, precio: 92, critico: true },
-  { id: 'mt2', nombre: 'Hierro 3/8" grado 40', unidad: 'qq', stock: 45, stockMinimo: 60, precio: 285, critico: true },
-  { id: 'mt3', nombre: 'Block 0.15x0.20x0.40', unidad: 'u', stock: 3200, stockMinimo: 1500, precio: 5.5, critico: false },
-  { id: 'mt4', nombre: 'Arena de río', unidad: 'm³', stock: 18, stockMinimo: 10, precio: 145, critico: false },
-  { id: 'mt5', nombre: 'Piedrín 3/4"', unidad: 'm³', stock: 8, stockMinimo: 12, precio: 195, critico: true },
-  { id: 'mt6', nombre: 'Cal hidratada', unidad: 'saco', stock: 60, stockMinimo: 40, precio: 48, critico: false },
-  { id: 'mt7', nombre: 'Alambre de amarre', unidad: 'qq', stock: 6, stockMinimo: 5, precio: 320, critico: false },
-  { id: 'mt8', nombre: 'Lámina galvanizada cal.28', unidad: 'u', stock: 25, stockMinimo: 30, precio: 165, critico: true },
+  { id: 'mt1', nombre: 'Cemento UGC 42.5 kg', unidad: 'saco', stock: 120, stockMinimo: 200, precio: 92, categoria: 'concreto', proyectoIds: [], critico: true },
+  { id: 'mt2', nombre: 'Hierro 3/8" grado 40', unidad: 'qq', stock: 45, stockMinimo: 60, precio: 285, categoria: 'acero', proyectoIds: [], critico: true },
+  { id: 'mt3', nombre: 'Block 0.15x0.20x0.40', unidad: 'u', stock: 3200, stockMinimo: 1500, precio: 5.5, categoria: 'mamposteria', proyectoIds: [], critico: false },
+  { id: 'mt4', nombre: 'Arena de río', unidad: 'm³', stock: 18, stockMinimo: 10, precio: 145, categoria: 'concreto', proyectoIds: [], critico: false },
+  { id: 'mt5', nombre: 'Piedrín 3/4"', unidad: 'm³', stock: 8, stockMinimo: 12, precio: 195, categoria: 'concreto', proyectoIds: [], critico: true },
+  { id: 'mt6', nombre: 'Cal hidratada', unidad: 'saco', stock: 60, stockMinimo: 40, precio: 48, categoria: 'mamposteria', proyectoIds: [], critico: false },
+  { id: 'mt7', nombre: 'Alambre de amarre', unidad: 'qq', stock: 6, stockMinimo: 5, precio: 320, categoria: 'acero', proyectoIds: [], critico: false },
+  { id: 'mt8', nombre: 'Lámina galvanizada cal.28', unidad: 'u', stock: 25, stockMinimo: 30, precio: 165, categoria: 'techos', proyectoIds: [], critico: true },
 ];
 
 export const SEED_OC: OrdenCompra[] = [
@@ -156,11 +156,11 @@ export const SEED_OC: OrdenCompra[] = [
 ];
 
 export const SEED_PROVEEDORES: Proveedor[] = [
-  { id: 'pr1', nombre: 'Cementos Progreso', contacto: '2222-3344', rubro: 'Cemento y agregados', calificacion: 5 },
-  { id: 'pr2', nombre: 'Aceros de Guatemala', contacto: '2255-6677', rubro: 'Acero estructural', calificacion: 4 },
-  { id: 'pr3', nombre: 'Agregados del Sur', contacto: '2266-7788', rubro: 'Arena y piedrín', calificacion: 4 },
-  { id: 'pr4', nombre: 'Distribuidora Láminas', contacto: '2277-8899', rubro: 'Techos y láminas', calificacion: 3 },
-  { id: 'pr5', nombre: 'Ferretería Central', contacto: '2288-9900', rubro: 'Ferretería general', calificacion: 5 },
+  { id: 'pr1', nombre: 'Cementos Progreso', contacto: 'Ventas', telefono: '2222-3344', email: 'ventas@cementosprogreso.com', categoria: 'materiales' },
+  { id: 'pr2', nombre: 'Aceros de Guatemala', contacto: 'Comercial', telefono: '2255-6677', email: 'ventas@acerogt.com', categoria: 'materiales' },
+  { id: 'pr3', nombre: 'Agregados del Sur', contacto: 'Despacho', telefono: '2266-7788', email: 'despacho@agregadossur.com', categoria: 'materiales' },
+  { id: 'pr4', nombre: 'Distribuidora Láminas', contacto: 'Ventas', telefono: '2277-8899', email: 'ventas@laminas.com', categoria: 'materiales' },
+  { id: 'pr5', nombre: 'Ferretería Central', contacto: 'Mostrador', telefono: '2288-9900', email: 'info@ferreteriacentral.com', categoria: 'materiales' },
 ];
 
 export const SEED_INSUMOS_BASE: InsumoBase[] = [

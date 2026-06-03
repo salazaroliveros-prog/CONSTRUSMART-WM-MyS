@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { z } from 'zod';
 import { toast } from '@/components/ui/sonner';
@@ -362,7 +362,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const NOTIF_KEY = STORAGE_KEY + '_notificaciones';
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>(() => loadFromStorage(NOTIF_KEY, []));
-  useEffect(() => { saveToStorage(NOTIF_KEY, notificaciones); }, [notificaciones]);
+  useEffect(() => { saveToStorage(NOTIF_KEY, notificaciones); }, [notificaciones, NOTIF_KEY]);
   const notificacionesNoLeidas = notificaciones.filter(n => !n.leido).length;
 
   const addNotificacion = useCallback(async (tipo: Notificacion['tipo'], titulo: string, mensaje: string, proyectoId?: string, referenciaId?: string) => {
@@ -468,13 +468,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     let mounted = true;
 
-    console.log('[Auth] Mount, URL:', window.location.href);
-    const params = new URL(window.location.href).searchParams;
-    console.log('[Auth] URL params:', Object.fromEntries(params.entries()));
-    console.log('[Auth] URL hash:', window.location.hash);
-    const sbKeys = Object.keys(localStorage).filter(k => k.includes('sb-') || k.includes('supabase'));
-    console.log('[Auth] localStorage sb- keys:', sbKeys);
-    sbKeys.forEach(k => console.log('[Auth] localStorage', k, '=', localStorage.getItem(k)?.substring(0, 60)));
 
     const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
 
@@ -484,7 +477,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const loadProfile = async (id: string, email?: string, metadata?: { nombre?: string; avatar_url?: string; picture?: string }) => {
-      console.log('[Auth] loadProfile', id, email);
       const defaultRol: Rol = email === ADMIN_EMAIL ? 'Administrador' : 'Residente';
       const avatarFromMeta = metadata?.avatar_url || metadata?.picture;
       try {
@@ -493,7 +485,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           .select('nombre,rol,avatar_url')
           .eq('id', id)
           .single();
-        console.log('[Auth] profile query:', data, error);
         if (error || !data) {
           const name = metadata?.nombre || email?.split('@')[0] || 'Usuario';
           await supabase.from('profiles').insert({ id, nombre: name, rol: defaultRol, avatar_url: avatarFromMeta }).maybeSingle();
@@ -509,7 +500,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('[Auth] Event:', event, session?.user?.email);
       if (!mounted) return;
       if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')) {
         const meta = session.user.user_metadata || {};
@@ -522,20 +512,17 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // OAuth PKCE code exchange
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('code')) {
-      console.log('[Auth] OAuth PKCE code detected, exchanging...');
       supabase.auth.exchangeCodeForSession(urlParams.get('code')!).then(({ data, error }) => {
         if (error) {
           console.error('[Auth] Code exchange failed:', error.message);
           setInitializing(false);
         } else if (data.session) {
-          console.log('[Auth] Code exchange successful for:', data.session.user.email);
           const meta = data.session.user.user_metadata || {};
           loadProfile(data.session.user.id, data.session.user.email || undefined, { nombre: meta.full_name || meta.nombre, avatar_url: meta.picture || meta.avatar_url });
         }
       });
     } else {
       supabase.auth.getSession().then(({ data }) => {
-        console.log('[Auth] getSession result:', data.session ? 'SESSION: ' + data.session.user.email : 'NO SESSION');
         if (!mounted) return;
         if (data.session?.user) loadProfile(data.session.user.id, data.session.user.email || undefined);
         else setInitializing(false);
@@ -807,7 +794,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
       if (error) throw error;
       if (data?.url) {
-        console.log('[Auth] Redirecting to:', data.url);
         window.location.href = data.url;
       }
     } catch (err) {
