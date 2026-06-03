@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899', '#14b8a6', '#a855f7', '#f43f5e'];
 
 const Financiero: React.FC = () => {
-  const { movimientos, deleteMovimiento, proyectos, ordenes } = useErp();
+  const { movimientos, deleteMovimiento, proyectos, ordenes, presupuestos } = useErp();
   const [filtro, setFiltro] = useState<'todos' | 'ingreso' | 'gasto'>('todos');
   const [loading, setLoading] = useState(true);
   const [vistaCF, setVistaCF] = useState<'real' | 'proyectado'>('real');
@@ -105,9 +105,12 @@ const Financiero: React.FC = () => {
 
   const centrosCosto = useMemo(() => proyectos.map(p => {
     const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
-    const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
-    return { nombre: p.nombre, ing, gas, margen: ing - gas };
-  }), [proyectos, movimientos]);
+    const gas = movimientos.filter(m => m.proyectoId === p.id && (m.tipo === 'gasto' || m.tipo === 'egreso')).reduce((a, b) => a + (b.costoTotal ?? b.monto), 0);
+    const presupuestoVinculado = presupuestos.find(pr => pr.proyectoId === p.id);
+    const presupuestoTotal = p.presupuestoTotal || presupuestoVinculado?.totalCalculado || 0;
+    const variacion = presupuestoTotal > 0 ? ((gas - presupuestoTotal) / presupuestoTotal) * 100 : 0;
+    return { nombre: p.nombre, ing, gas, margen: ing - gas, presupuestoTotal, variacion };
+  }), [proyectos, movimientos, presupuestos]);
 
   const lista = movimientos.filter(m => filtro === 'todos' || m.tipo === filtro);
 
@@ -336,19 +339,20 @@ const Financiero: React.FC = () => {
             </div>
           </div>
 
-          {/* Centros de Costo */}
+          {/* Centros de Costo con Variación vs Presupuesto */}
           <div className="bg-white rounded-2xl shadow-sm mt-4 p-4 border border-slate-100">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-slate-700 text-sm">Utilidad Neta por Centro de Costo</h3>
+              <h3 className="font-bold text-slate-700 text-sm">Rentabilidad y Variación vs Presupuesto</h3>
               <span className="text-[10px] text-slate-400">{proyectos.length} proyectos</span>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-xs min-w-[400px]">
+              <table className="w-full text-xs min-w-[600px]">
                 <thead className="text-slate-400">
                   <tr>
                     <th className="text-left pb-2 font-medium">Proyecto</th>
-                    <th className="text-right pb-2 font-medium">Ingresos</th>
-                    <th className="text-right pb-2 font-medium">Egresos</th>
+                    <th className="text-right pb-2 font-medium">Presupuesto</th>
+                    <th className="text-right pb-2 font-medium">Real</th>
+                    <th className="text-right pb-2 font-medium">Variac.</th>
                     <th className="text-right pb-2 font-medium">Margen</th>
                     <th className="text-right pb-2 font-medium">Rentab.</th>
                   </tr>
@@ -359,8 +363,11 @@ const Financiero: React.FC = () => {
                     return (
                       <tr key={c.nombre} className="border-t border-slate-50">
                         <td className="py-2 text-slate-600 font-medium">{c.nombre}</td>
-                        <td className="py-2 text-right text-emerald-600">{fmtQ(c.ing)}</td>
+                        <td className="py-2 text-right text-blue-600">{fmtQ(c.presupuestoTotal)}</td>
                         <td className="py-2 text-right text-red-500">{fmtQ(c.gas)}</td>
+                        <td className={`py-2 text-right font-bold ${c.variacion <= 5 ? 'text-emerald-600' : c.variacion <= 15 ? 'text-amber-500' : 'text-red-500'}`}>
+                          {c.presupuestoTotal > 0 ? (c.variacion >= 0 ? '+' : '') + c.variacion.toFixed(1) + '%' : '-'}
+                        </td>
                         <td className={`py-2 text-right font-bold ${c.margen >= 0 ? 'text-slate-700' : 'text-red-600'}`}>
                           {fmtQ(c.margen)}
                         </td>

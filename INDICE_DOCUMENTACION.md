@@ -296,8 +296,8 @@ Si necesitas refrescar conceptos:
 ## 📝 VERSIÓN DE DOCUMENTACIÓN
 
 - **Creada:** 1 de Junio de 2026
-- **Última actualización:** 6 de Enero de 2026
-- **Versión:** 1.1
+- **Última actualización:** 2 de Junio de 2026
+- **Versión:** 1.2
 
 ---
 

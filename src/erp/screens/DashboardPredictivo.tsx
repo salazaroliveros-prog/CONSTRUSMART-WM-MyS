@@ -11,14 +11,14 @@ const DashboardPredictivo: React.FC = () => {
   const presupuesto = presupuestos.find(p => p.proyectoId === selProyecto);
 
   // --- Cálculos ---
-  const gastos = movimientos.filter(m => m.proyectoId === selProyecto && m.tipo === 'egreso');
+  const gastos = movimientos.filter(m => m.proyectoId === selProyecto && (m.tipo === 'gasto' || m.tipo === 'egreso'));
   const ingresos = movimientos.filter(m => m.proyectoId === selProyecto && m.tipo === 'ingreso');
-  const totalGastos = gastos.reduce((a, m) => a + m.monto, 0);
-  const totalIngresos = ingresos.reduce((a, m) => a + m.monto, 0);
+  const totalGastos = gastos.reduce((a, m) => a + (m.costoTotal ?? m.monto), 0);
+  const totalIngresos = ingresos.reduce((a, m) => a + (m.costoTotal ?? m.monto), 0);
   const avancesProyecto = avances.filter(a => a.proyectoId === selProyecto);
 
   // Costo final proyectado (EAC = AC + (BAC - EV) / CPI)
-  const BAC = proyecto?.presupuesto || presupuesto?.totalPV || 0;
+  const BAC = proyecto?.presupuestoTotal || proyecto?.presupuesto || presupuesto?.totalPV || 0;
   const avanceReal = proyecto?.avanceFisico || 0;
   const EV = BAC * (avanceReal / 100);
   const CPI = EV > 0 ? EV / Math.max(totalGastos, 1) : 1;

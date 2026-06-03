@@ -49,7 +49,7 @@ const ExportacionInteligente: React.FC = () => {
       const data = {
         proyectos: proyectos.map(p => ({
           id: p.id, nombre: p.nombre, ubicacion: p.ubicacion, tipologia: p.tipologia,
-          presupuesto: p.presupuesto, fechaInicio: p.fechaInicio, fechaFin: p.fechaFin,
+          presupuesto: p.presupuestoTotal, fechaInicio: p.fechaInicio, fechaFin: p.fechaFin,
           avanceFisico: p.avanceFisico, avanceFinanciero: p.avanceFinanciero, estado: p.estado,
           factorSobrecosto: p.factorSobrecosto,
         })),
@@ -92,7 +92,7 @@ const ExportacionInteligente: React.FC = () => {
       rows.push(['']);
       rows.push(['PROYECTOS']);
       rows.push(['ID', 'Nombre', 'Ubicación', 'Tipología', 'Presupuesto', 'Inicio', 'Fin', 'AvanceFísico%', 'AvanceFinanciero%', 'Estado']);
-      proyectos.forEach(p => rows.push([p.id, p.nombre, p.ubicacion, p.tipologia, String(p.presupuesto), p.fechaInicio, p.fechaFin, String(p.avanceFisico), String(p.avanceFinanciero), p.estado]));
+      proyectos.forEach(p => rows.push([p.id, p.nombre, p.ubicacion, p.tipologia, String(p.presupuestoTotal), p.fechaInicio, p.fechaFin, String(p.avanceFisico), String(p.avanceFinanciero), p.estado]));
       rows.push(['']);
       rows.push(['MOVIMIENTOS FINANCIEROS']);
       rows.push(['ID', 'Proyecto', 'Tipo', 'Categoría', 'Monto', 'Fecha', 'Descripción']);
@@ -149,7 +149,7 @@ const ExportacionInteligente: React.FC = () => {
           </tr>
           <tr style="background:#f8fafc">
             <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px"><b>Presupuesto Total</b></td>
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px">Q${fmtQ(proyectos.reduce((a, p) => a + (p.presupuesto || 0), 0))}</td>
+            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px">Q${fmtQ(proyectos.reduce((a, p) => a + (p.presupuestoTotal || 0), 0))}</td>
             <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px"><b>Avance Promedio</b></td>
             <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px">${proyectos.length > 0 ? (proyectos.reduce((a, p) => a + (p.avanceFisico || 0), 0) / proyectos.length).toFixed(0) : 0}%</td>
           </tr>
@@ -165,7 +165,7 @@ const ExportacionInteligente: React.FC = () => {
           ${proyectos.map(p => `<tr>
             <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">${p.nombre}</td>
             <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">${p.estado}</td>
-            <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">Q${fmtQ(p.presupuesto || 0)}</td>
+            <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">Q${fmtQ(p.presupuestoTotal || 0)}</td>
             <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">${p.avanceFisico || 0}%</td>
           </tr>`).join('')}
         </table>

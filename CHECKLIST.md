@@ -32,7 +32,7 @@
 | 15 | API Key Supabase hardcodeada | 🔴 CRÍTICA | Mover a .env exclusivamente | ✅ CORREGIDO |
 | 16 | RLS permisivo en database.sql | 🔴 CRÍTICA | Implementar políticas RLS por rol | ✅ CORREGIDO |
 | 17 | CORS abierto en crm-dispatcher | 🔴 CRÍTICA | External (DatabasePad) | ⚠️ External |
-| 18 | Datos solo en localStorage | 🔴 CRÍTICA | Implementar sincronización Supabase | ✅ Parcial |
+| 18 | Datos solo en localStorage | 🔴 CRÍTICA | Implementar sincronización Supabase | ✅ Completo — mutation queue + offline/online + persistencia dual + Supabase Storage para fotos |
 
 ## ✅ INCONSISTENCIAS FUNCIONALES
 | # | Item | Prioridad | Acción | Estado |
@@ -42,7 +42,7 @@
 | 21 | database.sql no alineado | 🟠 Alta | Crear tablas ERP en Supabase | ✅ CORREGIDO |
 | 22 | database.sql CRM triggers | 🟠 Alta | Decidir: integrar CRM o eliminar | ✅ ELIMINADO |
 | 23 | MovimientoForm tipo casting | 🟠 Alta | Corregir tipado Zod/form | ✅ CORREGIDO |
-| 24 | Seed data no sincronizada | 🟠 Media | Definir si seed va a Supabase | ⚠️ Pendiente |
+| 24 | Seed data no sincronizada | 🟠 Media | Definir si seed va a Supabase | ✅ CORREGIDO — migración SQL seed creada (000000000004_seed_data.sql), pendiente ejecutar en Supabase |
 | 25 | package.json nombre | 🟠 Media | Renombrar package | ✅ CORREGIDO |
 
 ## ✅ FORTALEZAS A MANTENER
@@ -76,7 +76,18 @@
 - **Medias:** 3/3 ✅
 - **Bajas:** 6/6 ✅
 
+## 📋 PENDIENTES CONOCIDOS
+| # | Item | Tipo | Estado |
+|---|------|------|--------|
+| 1 | Ejecutar migración seed data en Supabase (000000000004_seed_data.sql) | 🔧 Operación | Pendiente — SQL listo |
+| 2 | Overlay de planos vs modelo en Visor BIM | 🏗️ Feature | Pendiente — requiere desarrollo |
+| 3 | CORS crm-dispatcher (DatabasePad external) | 🔒 External | ⚠️ No controlado por nosotros |
+| 4 | Actualizar Site URL en Supabase Dashboard (5173 → 8080) | ⚙️ Config | Pendiente — Google OAuth |
+| 5 | Ejecutar migración 000000000006 (tabla erp_vales_salida + constraints) | 🔧 Operación | Pendiente — SQL creado |
+| 6 | Tablas en DB sin sync Supabase (erp_seguimiento, erp_renglones, erp_insumos, erp_sub_renglones) | 🏗️ Feature | ⚠️ Gestionadas localmente/JSONB |
+| 7 | Ejecutar migración 000000000007 (avatar_url + roles fix) | 🔧 Operación | Pendiente — SQL creado |
+
 ---
 
-**Última actualización:** 2026-01-06
+**Última actualización:** 2026-06-02
 **Deploy:** https://erp-construsmart-wm-app-01.vercel.app/

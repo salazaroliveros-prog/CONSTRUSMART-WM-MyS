@@ -89,13 +89,17 @@ export interface Proyecto {
   nombre: string;
   ubicacion: string;
   tipologia: Tipologia;
-  presupuesto: number;
+  presupuestoTotal: number;
+  montoContrato?: number;
+  cliente?: string;
+  presupuestoActualId?: string;
   fechaInicio: string;
   fechaFin: string;
   avanceFisico: number;
   avanceFinanciero: number;
   estado: 'planificacion' | 'ejecucion' | 'pausado' | 'finalizado';
   factorSobrecosto?: FactorSobrecosto;
+  presupuesto?: number;
 }
 
 export type Categoria = 'materiales' | 'mano_obra' | 'equipo' | 'subcontrato' | 'administracion' | 'transporte' | 'imprevistos' | 'marketing' | 'licencias' | 'seguros' | 'otros';
@@ -103,9 +107,13 @@ export type Categoria = 'materiales' | 'mano_obra' | 'equipo' | 'subcontrato' | 
 export interface Movimiento {
   id: string;
   proyectoId: string;
-  tipo: 'ingreso' | 'egreso';
+  tipo: 'ingreso' | 'gasto' | 'egreso';
   categoria: Categoria;
   monto: number;
+  costoTotal?: number;
+  costoUnitario?: number;
+  cantidad?: number;
+  unidad?: string;
   descripcion: string;
   fecha: string;
   proveedor?: string;

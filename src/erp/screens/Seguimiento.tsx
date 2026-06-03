@@ -4,7 +4,9 @@ import type { BitacoraEntry } from '../types';
 import { fmtQ, todayISO, duracionPorRendimiento } from '../utils';
 import { Progress, Gauge, BarChart } from '../components/Charts';
 import { CARD, CARD_TITLE, INPUT } from '../ui';
-import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X, Calendar, MapPin, Upload, Fingerprint } from 'lucide-react';
+import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X, Calendar, MapPin, Upload, Fingerprint, Cloud } from 'lucide-react';
+import { uploadBase64Image } from '@/lib/storage';
+import { hasSupabase } from '@/lib/supabase';
 import GanttChart, { type GanttTask } from '../components/GanttChart';
 import SignaturePad from '../components/SignaturePad';
 import ChecklistCalidad from '../components/ChecklistCalidad';
@@ -23,11 +25,12 @@ function addDays(date: string, days: number) {
 }
 
 const Seguimiento: React.FC = () => {
-  const { proyectos, movimientos, bitacora, presupuestos, addBitacora, updateProyecto, updateBitacora, deleteBitacora } = useErp();
+  const { proyectos, movimientos, bitacora, presupuestos, addBitacora, updateProyecto, updateBitacora, deleteBitacora, user } = useErp();
   const [selProy, setSelProy] = useState(proyectos[0]?.id || '');
   const [ganttProy, setGanttProy] = useState(proyectos[0]?.id || '');
   const [bit, setBit] = useState({ clima: 'Despejado', personal: '12', maquinaria: 'Retroexcavadora', tareas: '', observaciones: '' });
   const [bitFotos, setBitFotos] = useState<string[]>([]);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
   const [bitFirma, setBitFirma] = useState('');
   const [bitGeo, setBitGeo] = useState<{lat: number; lng: number} | null>(null);
   const [geoLoading, setGeoLoading] = useState(false);
@@ -162,16 +165,37 @@ const Seguimiento: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  const onFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!hasSupabase || !user?.id) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const data = typeof reader.result === 'string' ? reader.result : null;
+        if (data) {
+          setBitFotos(prev => [...prev, data]);
+          toast.success('Foto agregada (local)');
+        }
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+      return;
+    }
+    setSubiendoFoto(true);
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const data = typeof reader.result === 'string' ? reader.result : null;
       if (data) {
-        setBitFotos(prev => [...prev, data]);
-        if (bitFotos.length === 0) toast.success('Foto agregada');
+        const url = await uploadBase64Image('erp_fotos_avances', data, user.id);
+        if (url) {
+          setBitFotos(prev => [...prev, url]);
+          toast.success('Foto subida a la nube');
+        } else {
+          setBitFotos(prev => [...prev, data]);
+          toast.warning('No se pudo subir, guardando localmente');
+        }
       }
+      setSubiendoFoto(false);
     };
     reader.readAsDataURL(file);
     e.target.value = '';

@@ -33,10 +33,15 @@ const MAPA_LABEL: Record<string, string> = {
 export default function Notificaciones() {
   const { notificaciones, markNotificacionLeida, marcarTodasLeidas, proyectos } = useErp();
   const [filtroTipo, setFiltroTipo] = React.useState<string | null>(null);
+  const [tab, setTab] = React.useState<'alertas' | 'historial'>('alertas');
 
+  const noLeidas = notificaciones.filter(n => !n.leido);
+  const leidas = notificaciones.filter(n => n.leido);
+
+  const baseList = tab === 'alertas' ? noLeidas : notificaciones;
   const filtradas = filtroTipo
-    ? notificaciones.filter(n => n.tipo === filtroTipo)
-    : notificaciones;
+    ? baseList.filter(n => n.tipo === filtroTipo)
+    : baseList;
 
   const tiposExistentes = [...new Set(notificaciones.map(n => n.tipo))];
 
@@ -60,7 +65,7 @@ export default function Notificaciones() {
             Notificaciones
           </h1>
           <p className="text-sm text-gray-500">
-            {notificaciones.filter(n => !n.leido).length} sin leer · {notificaciones.length} total
+            {noLeidas.length} alertas · {leidas.length} en historial
           </p>
         </div>
         <button
@@ -69,6 +74,30 @@ export default function Notificaciones() {
         >
           <CheckCheck className="w-4 h-4" />
           Marcar todas leídas
+        </button>
+      </div>
+
+      {/* Tabs: Alertas | Historial */}
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+        <button
+          onClick={() => setTab('alertas')}
+          className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+            tab === 'alertas'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Alertas {noLeidas.length > 0 && `(${noLeidas.length})`}
+        </button>
+        <button
+          onClick={() => setTab('historial')}
+          className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+            tab === 'historial'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Historial
         </button>
       </div>
 
@@ -103,8 +132,14 @@ export default function Notificaciones() {
       {filtradas.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p className="text-lg font-medium">No hay notificaciones</p>
-          <p className="text-sm">Las notificaciones aparecerán aquí cuando ocurran eventos importantes.</p>
+          <p className="text-lg font-medium">
+            {tab === 'alertas' ? 'No hay alertas pendientes' : 'No hay historial'}
+          </p>
+          <p className="text-sm">
+            {tab === 'alertas'
+              ? 'Todas las notificaciones han sido revisadas. ¡Buen trabajo!'
+              : 'Las notificaciones leídas aparecerán aquí.'}
+          </p>
         </div>
       ) : (
         <div className="space-y-2">

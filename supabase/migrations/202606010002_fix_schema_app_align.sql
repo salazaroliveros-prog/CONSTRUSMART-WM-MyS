@@ -136,7 +136,7 @@ CREATE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id, nombre, rol, user_metadata)
-  VALUES (NEW.id, NEW.raw_user_meta_data->>\'full_name\', \'Residente\', NEW.raw_user_meta_data);
+  VALUES (NEW.id, NEW.raw_user_meta_data->>'full_name', 'Residente', NEW.raw_user_meta_data);
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

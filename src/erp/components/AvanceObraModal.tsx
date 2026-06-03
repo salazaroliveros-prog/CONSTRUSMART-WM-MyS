@@ -1,18 +1,21 @@
 import React, { useState, useRef } from 'react';
 import { useErp } from '../store';
 import { toast } from 'sonner';
-import { Camera, Save, X, MapPin, BarChart3 } from 'lucide-react';
+import { Camera, Save, X, MapPin, BarChart3, Upload } from 'lucide-react';
 import { CARD, CARD_TITLE, INPUT } from '../ui';
 import { todayISO, fmtQ } from '../utils';
+import { uploadBase64Image } from '@/lib/storage';
+import { hasSupabase } from '@/lib/supabase';
 
 const AvanceObraModal: React.FC = () => {
-  const { proyectos, presupuestos, avances, addAvance, deleteAvance, notifyAvanceRegistrado } = useErp();
+  const { proyectos, presupuestos, avances, addAvance, deleteAvance, notifyAvanceRegistrado, user } = useErp();
   const [proyectoId, setProyectoId] = useState('');
   const [presupuestoId, setPresupuestoId] = useState('');
   const [renglonCodigo, setRenglonCodigo] = useState('');
   const [avanceFisico, setAvanceFisico] = useState(0);
   const [cantidadEjecutada, setCantidadEjecutada] = useState(0);
   const [foto, setFoto] = useState('');
+  const [subiendo, setSubiendo] = useState(false);
   const [lat, setLat] = useState<number>();
   const [lng, setLng] = useState<number>();
   const [notas, setNotas] = useState('');
@@ -33,13 +36,34 @@ const AvanceObraModal: React.FC = () => {
   };
 
   const agregarFoto = () => fileRef.current?.click();
-  const onFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!hasSupabase || !user?.id) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const data = typeof reader.result === 'string' ? reader.result : null;
+        if (data) { setFoto(data); toast.success('Foto agregada (local)'); }
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+      return;
+    }
+    setSubiendo(true);
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const data = typeof reader.result === 'string' ? reader.result : null;
-      if (data) { setFoto(data); toast.success('Foto agregada'); }
+      if (data) {
+        const url = await uploadBase64Image('erp_fotos_avances', data, user.id);
+        if (url) {
+          setFoto(url);
+          toast.success('Foto subida a la nube');
+        } else {
+          setFoto(data);
+          toast.warning('No se pudo subir, guardando localmente');
+        }
+      }
+      setSubiendo(false);
     };
     reader.readAsDataURL(file);
     e.target.value = '';
@@ -99,10 +123,18 @@ const AvanceObraModal: React.FC = () => {
           {avanceFisico > 0 && <div className="bg-blue-50 rounded-lg p-2 mb-3 text-xs text-blue-700">Avance Financiero Estimado: {fmtQ(avanceFinanciero)}</div>}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFileSelected} />
-            <button onClick={agregarFoto} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed border-slate-300 text-xs text-slate-600 hover:border-blue-400"><Camera className="w-4 h-4" /> {foto ? '📷 Foto agregada' : 'Foto del avance'}</button>
+            <button onClick={agregarFoto} disabled={subiendo} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed border-slate-300 text-xs text-slate-600 hover:border-blue-400 disabled:opacity-50">
+              {subiendo ? <Upload className="w-4 h-4 animate-pulse" /> : <Camera className="w-4 h-4" />}
+              {subiendo ? 'Subiendo...' : foto ? (foto.startsWith('http') ? '📷 Foto en nube' : '📷 Foto local') : 'Foto del avance'}
+            </button>
             <button onClick={capturarGeo} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed border-slate-300 text-xs text-slate-600 hover:border-blue-400"><MapPin className="w-4 h-4" /> {lat ? `📍 ${lat.toFixed(4)}, ${lng?.toFixed(4)}` : 'Geolocalizar'}</button>
             <input value={notas} onChange={e => setNotas(e.target.value)} placeholder="Notas del avance" className={INPUT} />
           </div>
+          {foto && (
+            <div className="mb-3">
+              <img src={foto} alt="Preview" className="w-24 h-24 object-cover rounded-lg border" />
+            </div>
+          )}
           <button onClick={guardarAvance} className="w-full bg-blue-500 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-blue-600"><Save className="w-4 h-4" /> Registrar Avance</button>
         </>
       )}
