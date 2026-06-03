@@ -1,105 +1,114 @@
-// ERP CONSTRUSMART - Service Worker endurecido
-// Estrategia: Network First con validaciones de seguridad
+// CONSTRUSMART ERP - Service Worker PWA Offline-First
+// Estrategia: Cache First para assets estáticos, Network First para API
 
-const CACHE_NAME = 'construsmart-v2';
-const STATIC_ASSETS = [
+const CACHE_NAME = 'construsmart-v3';
+const OFFLINE_URL = '/offline.html';
+
+// Assets estáticos que se cachean al instalar (app shell)
+const PRECACHE_ASSETS = [
   '/',
   '/index.html',
-  '/favicon.ico',
-  '/logo.png',
+  '/offline.html',
   '/manifest.json',
-  '/placeholder.svg',
-  '/robots.txt',
+  '/logo.png',
+  '/favicon.ico',
   '/wm-logo.svg',
 ];
 
-const ALLOWED_ORIGIN = self.location.origin;
-
-function isSameOrigin(url) {
-  try {
-    const parsed = new URL(url);
-    return parsed.origin === ALLOWED_ORIGIN;
-  } catch {
-    return false;
-  }
-}
-
-function hasAuthHeader(request) {
-  const authHeaders = ['authorization', 'x-api-key', 'apikey'];
-  try {
-    for (const header of request.headers.entries()) {
-      if (authHeaders.includes(header[0].toLowerCase())) return true;
-    }
-  } catch { /* headers might not be iterable in some SW contexts */ }
-  return false;
-}
-
-function isStaticAsset(request) {
-  const url = new URL(request.url);
-  const pathname = url.pathname.toLowerCase();
-  const staticExtensions = ['.js', '.css', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.json', '.txt'];
-  if (staticExtensions.some(ext => pathname.endsWith(ext))) return true;
-  const contentType = request.headers.get('content-type') || '';
-  if (contentType.startsWith('text/')) return true;
-  if (contentType.startsWith('application/javascript')) return true;
-  if (contentType.startsWith('application/css')) return true;
-  if (contentType.startsWith('image/')) return true;
-  if (contentType.startsWith('font/')) return true;
-  return false;
-}
-
+// === INSTALL: Pre-cachear app shell ===
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      try {
+        await cache.addAll(PRECACHE_ASSETS);
+      } catch (err) {
+        console.warn('[SW] Precache parcial:', err);
+      }
     })
   );
   self.skipWaiting();
 });
 
+// === ACTIVATE: Limpiar caches antiguos ===
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
+    caches.keys().then((keys) =>
+      Promise.all(
         keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-      );
-    })
+      )
+    )
   );
   self.clients.claim();
 });
 
+// === FETCH: Network First para HTML/API, Cache First para assets ===
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const { request } = event;
+  if (request.method !== 'GET') return;
 
-  const url = new URL(event.request.url);
+  const url = new URL(request.url);
 
-  // No interceptar peticiones a Supabase ni orígenes dinámicos distintos
+  // No interceptar Supabase API ni otras APIs externas
   if (url.hostname.includes('supabase.co')) return;
-  if (!isSameOrigin(event.request.url)) return;
-  if (hasAuthHeader(event.request)) return;
+  if (url.hostname !== self.location.hostname) return;
 
+  // Para assets Vite (.js, .css hashes): Cache First
+  const isAsset = url.pathname.startsWith('/assets/') ||
+    /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot)$/.test(url.pathname);
+
+  if (isAsset) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        }).catch(() => caches.match('/offline.html') || new Response('Sin conexión', { status: 503 }));
+      })
+    );
+    return;
+  }
+
+  // Para HTML (navegación): Network First con fallback a cache
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          return response;
+        })
+        .catch(() => caches.match(request).then((cached) => cached || caches.match('/offline.html')))
+    );
+    return;
+  }
+
+  // Para otros (fuentes, etc): Network First
   event.respondWith(
-    fetch(event.request)
+    fetch(request)
       .then((response) => {
-        const cloned = response.clone();
-        const status = response.status;
-        const contentType = response.headers.get('content-type') || '';
-
-        if (status === 200 && isStaticAsset(event.request)) {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, cloned);
-          });
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }
         return response;
       })
-      .catch(() => {
-        return caches.match(event.request).then((cached) => {
-          if (cached) return cached;
-          if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
-          }
-          return new Response('Offline', { status: 503 });
+      .catch(() => caches.match(request))
+  );
+});
+
+// === BACKGROUND SYNC: Sincronizar cuando vuelve la conexión ===
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-erp-data') {
+    event.waitUntil(
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'SYNC_TRIGGERED' });
         });
       })
-  );
+    );
+  }
 });
