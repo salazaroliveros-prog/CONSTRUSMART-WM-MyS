@@ -28,7 +28,8 @@ interface Mutation {
          'addEvento' | 'updateEvento' | 'deleteEvento' | 'addBitacora' | 'updateBitacora' | 'deleteBitacora' |
   'addPresupuesto' | 'updatePresupuesto' | 'deletePresupuesto' |
   'addLicitacion' | 'updateLicitacion' | 'deleteLicitacion' |
-  'addValeSalida' | 'deleteValeSalida';
+  'addValeSalida' | 'deleteValeSalida' |
+  'addAvance' | 'deleteAvance';
   payload: Record<string, unknown>;
   timestamp: number;
 }
@@ -394,7 +395,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!isOnline || mutationQueue.length === 0) return;
     
     const [next, ...rest] = mutationQueue;
-    setMutationQueue(rest);
 
     const mapToSnakeCase = (obj: Record<string, unknown>) => {
       const mapped: Record<string, unknown> = {};
@@ -487,10 +487,25 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         case 'deleteValeSalida':
           await supabase.from('erp_vales_salida').delete().eq('id', next.payload.id);
           break;
+        case 'addAvance':
+          await supabase.from('erp_avances').insert(payload);
+          break;
+        case 'deleteAvance':
+          await supabase.from('erp_avances').delete().eq('id', next.payload.id);
+          break;
+        case 'addLicitacion':
+          await supabase.from('erp_licitaciones').insert(payload);
+          break;
+        case 'updateLicitacion':
+          await supabase.from('erp_licitaciones').update(payload).eq('id', next.payload.id);
+          break;
+        case 'deleteLicitacion':
+          await supabase.from('erp_licitaciones').delete().eq('id', next.payload.id);
+          break;
       }
+      setMutationQueue(rest);
     } catch (err) {
       console.error('Error processing mutation queue:', err);
-      setMutationQueue(q => [next, ...q]);
     }
   }, [isOnline, mutationQueue, user]);
 
@@ -664,11 +679,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       versionPresupuesto: nextVersion,
     };
 
-    if (isOnline) {
-      const { error } = await supabase.from('erp_presupuestos').insert([newPresupuesto]);
-      if (error) { console.error('Error inserting presupuesto:', error); }
-    }
-
+    enqueueMutation('addPresupuesto', newPresupuesto);
     setPresupuestos(s => [...s, newPresupuesto]);
 
     if (p.proyectoId) {
@@ -686,11 +697,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updatePresupuesto = async (id: string, patch: Partial<Presupuesto>) => {
     const updated = presupuestos.map(p => p.id === id ? { ...p, ...patch, fechaActualizacion: new Date().toISOString() } : p);
 
-    if (isOnline) {
-      const { error } = await supabase.from('erp_presupuestos').update(patch).eq('id', id);
-      if (error) { console.error('Error actualizando presupuesto:', error); }
-    }
-
+    enqueueMutation('updatePresupuesto', { id, ...patch });
     setPresupuestos(updated);
 
     const presupuestoActualizado = updated.find(p => p.id === id);
@@ -710,10 +717,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const deletePresupuesto = async (id: string) => {
     const presupuestoEliminado = presupuestos.find(p => p.id === id);
-    if (isOnline) {
-      const { error } = await supabase.from('erp_presupuestos').delete().eq('id', id);
-      if (error) { console.error('Error eliminando presupuesto:', error); }
-    }
+    enqueueMutation('deletePresupuesto', { id });
 
     const remainingPresupuestos = presupuestos.filter(p => p.id !== id);
     setPresupuestos(remainingPresupuestos);

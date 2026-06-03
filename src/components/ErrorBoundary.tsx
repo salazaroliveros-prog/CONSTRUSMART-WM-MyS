@@ -1,43 +1,31 @@
 import React from 'react';
 
-type ErrorBoundaryProps = {
-  children: React.ReactNode;
-};
+interface Props { children: React.ReactNode; }
+interface State { hasError: boolean; error?: Error; }
 
-type ErrorBoundaryState = {
-  hasError: boolean;
-  error?: Error;
-};
+export class ErrorBoundary extends React.Component<Props, State> {
+  state: State = { hasError: false };
 
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error('ErrorBoundary caught:', error, info);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
-          <div className="bg-card rounded-2xl shadow-sm p-6 max-w-md w-full text-center">
-            <h2 className="text-xl font-bold text-foreground mb-2">Algo salió mal</h2>
-            <p className="text-sm text-muted-foreground mb-4">Ocurrió un error inesperado en la aplicación.</p>
-            <pre className="text-xs text-destructive bg-red-50 rounded-lg p-3 overflow-auto max-h-40 text-left mb-4">
-              {this.state.error?.message}
-            </pre>
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-8">
+          <div className="max-w-md text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <h1 className="text-xl font-bold text-slate-800 mb-2">Error inesperado</h1>
+            <p className="text-slate-500 mb-2 text-sm">{this.state.error?.message}</p>
+            <p className="text-slate-400 text-xs mb-6">Si el problema persiste, contacta al administrador.</p>
             <button
-              onClick={() => this.setState({ hasError: false, error: undefined })}
-              className="mt-2 w-full bg-slate-900 text-white py-2.5 rounded-lg text-sm font-semibold"
+              onClick={() => { this.setState({ hasError: false }); window.location.reload(); }}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-medium transition"
             >
-              Reintentar
+              Recargar página
             </button>
           </div>
         </div>

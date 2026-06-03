@@ -99,11 +99,11 @@ const Presupuestos: React.FC = () => {
   const addRenglon = (codigo: string) => {
     const base = catalogo.find(c => c.codigo === codigo);
     if (!base) return;
-    setItems(s => [...s, { ...base, id: codigo, cantidad: 1, expanded: false, subrenglones: [] }]);
+    setItems(s => [...s, { ...base, id: codigo, cantidad: 1, expanded: false, subRenglones: [] }]);
     setSel('');
   };
   const addTodos = () => {
-    setItems(catalogo.map(c => ({ ...c, id: c.codigo, cantidad: 1, expanded: false, subrenglones: [] })));
+    setItems(catalogo.map(c => ({ ...c, id: c.codigo, cantidad: 1, expanded: false, subRenglones: [] })));
   };
 
   const upd = (id: string, patch: Partial<RenglonPresupuesto>) =>
@@ -113,8 +113,8 @@ const Presupuestos: React.FC = () => {
   // Funciones para sub-renglones
   const addSubrenglon = (renglonId: string) => {
     upd(renglonId, {
-      subrenglones: [
-        ...(items.find(r => r.id === renglonId)?.subrenglones || []),
+      subRenglones: [
+        ...(items.find(r => r.id === renglonId)?.subRenglones || []),
         {
           id: 'sub-' + Math.random().toString(36).slice(2, 9),
           nombreMaterial: '',
@@ -171,15 +171,15 @@ const Presupuestos: React.FC = () => {
 
   const updSubrenglon = (renglonId: string, subId: string, patch: Partial<SubRenglon>) => {
     const renglon = items.find(r => r.id === renglonId);
-    if (!renglon?.subrenglones) return;
-    const subs = renglon.subrenglones.map(s => s.id === subId ? { ...s, ...patch } : s);
-    upd(renglonId, { subrenglones: subs });
+    if (!renglon?.subRenglones) return;
+    const subs = renglon.subRenglones.map(s => s.id === subId ? { ...s, ...patch } : s);
+    upd(renglonId, { subRenglones: subs });
   };
 
   const delSubrenglon = (renglonId: string, subId: string) => {
     const renglon = items.find(r => r.id === renglonId);
-    if (!renglon?.subrenglones) return;
-    upd(renglonId, { subrenglones: renglon.subrenglones.filter(s => s.id !== subId) });
+    if (!renglon?.subRenglones) return;
+    upd(renglonId, { subRenglones: renglon.subRenglones.filter(s => s.id !== subId) });
   };
 
   const calc = (r: RenglonPresupuesto) => {
@@ -194,8 +194,8 @@ const Presupuestos: React.FC = () => {
   const resumenMateriales = useMemo(() => {
     const materiales: Record<string, { unidad: string; cantidad: number; total: number }> = {};
     items.forEach(r => {
-      if (r.subrenglones) {
-        r.subrenglones.forEach(sub => {
+      if (r.subRenglones) {
+        r.subRenglones.forEach(sub => {
           const key = `${sub.nombreMaterial}-${sub.unidad}`;
           const cant = sub.cantidadUnitaria * r.cantidad;
           const tot = cant * sub.precioUnitario;
@@ -471,9 +471,9 @@ const Presupuestos: React.FC = () => {
                           <Plus className="w-3 h-3" /> Material
                         </button>
                       </div>
-                      {r.subrenglones && r.subrenglones.length > 0 ? (
+                      {r.subRenglones && r.subRenglones.length > 0 ? (
                         <div className="space-y-1.5">
-                          {r.subrenglones.map((sub, subIdx) => {
+                          {r.subRenglones.map((sub, subIdx) => {
                             const subTotal = (sub.cantidadUnitaria * r.cantidad * sub.precioUnitario);
                             return (
                               <div key={sub.id} className="bg-white rounded p-2 border border-slate-150 flex items-center gap-1.5 text-xs">

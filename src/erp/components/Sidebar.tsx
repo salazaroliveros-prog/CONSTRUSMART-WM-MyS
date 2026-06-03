@@ -1,7 +1,7 @@
 import React from 'react';
 import { useErp, View } from '../store';
 import { useAppContext } from '@/contexts/AppContext';
-import { LayoutDashboard, Building2, Calculator, ClipboardCheck, Wallet, Users, Warehouse, X, ChevronLeft, ChevronRight, Target, Receipt, TrendingUp, BarChart3, Database, FileText, MessageSquare, GitBranch, Bell, Shield, Layers, Box, Zap, Download, Wrench, Activity, ShoppingCart, Settings, ClipboardList, DollarSign, Truck } from 'lucide-react';
+import { LayoutDashboard, Building2, Calculator, ClipboardCheck, Wallet, Users, Warehouse, X, ChevronLeft, ChevronRight, Target, Receipt, TrendingUp, BarChart3, Database, FileText, MessageSquare, GitBranch, Bell, Shield, Layers, Box, Zap, Download, Activity, ShoppingCart, Settings, ClipboardList, DollarSign, Truck } from 'lucide-react';
 
 const ITEMS: { id: View; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'Tablero', icon: LayoutDashboard },
