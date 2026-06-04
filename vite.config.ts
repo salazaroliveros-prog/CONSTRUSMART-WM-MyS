@@ -47,6 +47,7 @@ export default defineConfig(({ mode: _mode }) => ({
           'react-query': ['@tanstack/react-query'],
           forms: ['react-hook-form', '@hookform/resolvers'],
           supabase: ['@supabase/supabase-js'],
+          antd: ['antd', '@ant-design/icons'],
         },
       },
     },
