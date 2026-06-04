@@ -370,16 +370,31 @@ const mapFromSnakeCase = <T extends z.ZodType<any, any, any>>(schema: T, obj: Re
   }
 };
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes';
+export type UIMode = 'shadcn' | 'antd';
+export type AppThemeMode = 'light' | 'dark' | 'high-contrast';
+
+export interface AppSettings {
+  uiMode: UIMode;
+  appTheme: AppThemeMode;
+  primaryColor: string;
+  language: 'es' | 'en';
+  dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
+  currency: 'GTQ' | 'USD';
+  sidebarCollapsed: boolean;
+  animationsEnabled: boolean;
+  compactMode: boolean;
+  fontSize: 'small' | 'medium' | 'large';
+}
 export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeguero';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const ALLOWED: Record<Rol, View[]> = {
-  Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen'],
-  Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen'],
-  Residente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos'],
-  Compras: ['dashboard', 'bodega', 'proyectos'],
-  Bodeguero: ['dashboard', 'bodega'],
+  Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes'],
+  Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes'],
+  Residente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'ajustes'],
+  Compras: ['dashboard', 'bodega', 'proyectos', 'ajustes'],
+  Bodeguero: ['dashboard', 'bodega', 'ajustes'],
 };
 
 interface Mutation {
@@ -469,6 +484,8 @@ interface ErpState {
   verificarChecklistRechazado: (proyectoId: string) => void;
   notifyAvanceRegistrado: (proyectoId: string, renglonNombre: string, avance: number) => void;
   notifyDesviacionRendimiento: (actividad: string, eficiencia: number, proyectoId: string) => void;
+  appSettings: AppSettings;
+  updateAppSettings: (patch: Partial<AppSettings>) => void;
 }
 
 const Ctx = createContext<ErpState>({} as ErpState);
@@ -1441,6 +1458,31 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     enqueueMutation('deleteValeSalida', { id });
   };
 
+  const DEFAULT_SETTINGS: AppSettings = {
+    uiMode: 'shadcn',
+    appTheme: 'light',
+    primaryColor: '#E8752F',
+    language: 'es',
+    dateFormat: 'DD/MM/YYYY',
+    currency: 'GTQ',
+    sidebarCollapsed: false,
+    animationsEnabled: true,
+    compactMode: false,
+    fontSize: 'medium',
+  };
+
+  const [appSettings, setAppSettings] = useState<AppSettings>(
+    () => loadFromStorage(BASE_STORAGE_KEY + '_settings', DEFAULT_SETTINGS)
+  );
+
+  const updateAppSettings = useCallback((patch: Partial<AppSettings>) => {
+    setAppSettings(prev => {
+      const next = { ...prev, ...patch };
+      saveToStorage(BASE_STORAGE_KEY + '_settings', next);
+      return next;
+    });
+  }, []);
+
   const [syncMessage, setSyncMessage] = useState('');
 
   const forceSync = useCallback(async () => {
@@ -1487,6 +1529,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       verificarStockCritico, verificarOrdenesCambioPendientes, verificarChecklistRechazado,
       notifyAvanceRegistrado, notifyDesviacionRendimiento,
       mutationQueue, syncMessage, forceSync,
+      appSettings, updateAppSettings,
     }}>
       {children}
     </Ctx.Provider>

@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -49,6 +49,12 @@
     --sidebar-accent-foreground: 30 10% 90%;
     --sidebar-border: 220 12% 22%;
     --sidebar-ring: 18 80% 52%;
+
+    /* Mode-specific: SHADCN (Clásico) */
+    --mode-bg-gradient-start: #fef7f0;
+    --mode-bg-gradient-end: #faf5f0;
+    --mode-card-shadow: 0 4px 16px rgba(232, 117, 47, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    --mode-card-border: 1px solid rgba(232, 117, 47, 0.08);
   }
 
   .dark {
@@ -88,6 +94,11 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 215 25% 27%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --mode-bg-gradient-start: #0f0f14;
+    --mode-bg-gradient-end: #14141c;
+    --mode-card-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1);
+    --mode-card-border: 1px solid rgba(255, 255, 255, 0.06);
   }
 }
 
@@ -97,13 +108,120 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans dark:bg-background dark:text-foreground;
+    @apply bg-background text-foreground dark:bg-background dark:text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
   pre, code {
     @apply font-mono;
   }
 }
+
+/* ═══════════════════════════════════════════════
+   MODE: SHADCN / CLÁSICO — Cálido, orgánico, texturizado
+   ═══════════════════════════════════════════════ */
+.mode-shadcn {
+  /* Fondo con textura sutil */
+  --mode-font: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.mode-shadcn body,
+.mode-shadcn .bg-background {
+  background:
+    linear-gradient(135deg, var(--mode-bg-gradient-start) 0%, var(--mode-bg-gradient-end) 100%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 40px,
+      rgba(232, 117, 47, 0.015) 40px,
+      rgba(232, 117, 47, 0.015) 41px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 40px,
+      rgba(232, 117, 47, 0.015) 40px,
+      rgba(232, 117, 47, 0.015) 41px
+    );
+}
+
+.mode-shadcn .dark body,
+.mode-shadcn .dark .bg-background {
+  background:
+    linear-gradient(135deg, #0f0f14 0%, #1a1a24 100%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 40px,
+      rgba(255, 255, 255, 0.02) 40px,
+      rgba(255, 255, 255, 0.02) 41px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 40px,
+      rgba(255, 255, 255, 0.02) 40px,
+      rgba(255, 255, 255, 0.02) 41px
+    );
+}
+
+/* Cards con estilo "papel artesanal" en modo Clásico */
+.mode-shadcn .rounded-2xl.border.border-border.bg-card {
+  background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(30, 12%, 98%) 100%);
+  box-shadow: var(--mode-card-shadow);
+  border: var(--mode-card-border);
+  backdrop-filter: blur(2px);
+}
+
+/* ═══════════════════════════════════════════════
+   MODE: ANTD / MODERNO — Limpio, plano, profesional
+   ═══════════════════════════════════════════════ */
+.mode-antd {
+  --mode-font: "'Segoe UI', system-ui, -apple-system, sans-serif";
+}
+
+.mode-antd body,
+.mode-antd .bg-background {
+  background: #f5f5f5;
+}
+
+.mode-antd .dark body,
+.mode-antd .dark .bg-background {
+  background: #141414;
+}
+
+/* Ant Design content area gets a clean white card background */
+.mode-antd .ant-layout-content {
+  background: transparent;
+}
+
+/* Brillo sutil en hover para cards antd en modo moderno */
+.mode-antd .ant-card-hoverable:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ═══════════════════════════════════════════════
+   TYPOGRAPHY PER MODE
+   ═══════════════════════════════════════════════ */
+.mode-shadcn h1, .mode-shadcn h2, .mode-shadcn h3,
+.mode-shadcn .text-foreground {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.mode-shadcn h1 { font-weight: 800; }
+.mode-shadcn h2 { font-weight: 700; }
+.mode-shadcn h3 { font-weight: 600; }
+
+.mode-antd h1, .mode-antd h2, .mode-antd h3,
+.mode-antd .ant-typography {
+  font-family: "'Segoe UI', system-ui, -apple-system, sans-serif";
+  letter-spacing: -0.01em;
+}
+
+.mode-antd h1 { font-weight: 600; }
+.mode-antd h2 { font-weight: 600; }
+.mode-antd h3 { font-weight: 600; }
 
 .markdown-editor {
   @apply font-mono text-base leading-relaxed;
