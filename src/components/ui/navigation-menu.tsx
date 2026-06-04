@@ -1,9 +1,10 @@
-import * as React from "react"
-import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
-import { cva } from "class-variance-authority"
-import { ChevronDown } from "lucide-react"
+import * as React from 'react'
+import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu'
+import { cva } from 'class-variance-authority'
+import { ChevronDown } from 'lucide-react'
+import { Sheet } from '@/components/ui/sheet'
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils'
 
 const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
@@ -115,6 +116,62 @@ const NavigationMenuIndicator = React.forwardRef<
 NavigationMenuIndicator.displayName =
   NavigationMenuPrimitive.Indicator.displayName
 
+const ResponsiveNavigationMenu = React.forwardRef<
+  React.ElementRef<typeof NavigationMenuPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Root>
+>(({ className, children, ...props }, ref) => {
+  const [isMobile, setIsMobile] = React.useState(false)
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false)
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+  const closeMenu = () => setIsMenuOpen(false)
+
+  return (
+    <NavigationMenuPrimitive.Root
+      ref={ref}
+      className={cn('relative z-10 flex max-w-max flex-1 items-center justify-center', className)}
+      {...props}
+    >
+      {isMobile ? (
+        <>
+          <button
+            className="flex h-10 w-10 items-center justify-center rounded-md bg-background/50 px-2 hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-ring"
+            onClick={toggleMenu}
+            aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={isMenuOpen}
+          >
+            {isMenuOpen ? '✕' : '☰'}
+          </button>
+          {isMenuOpen && (
+            <div className="fixed inset-0 z-20 bg-background/80 backdrop-blur-sm md:hidden">
+              <nav className="absolute left-0 top-0 h-full w-64 overflow-y-auto bg-popover p-4 shadow-lg" role="navigation" aria-label="Menú principal">
+                {children}
+                <button
+                  className="mt-4 w-full rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
+                  onClick={closeMenu}
+                >
+                  Cerrar menú
+                </button>
+              </nav>
+            </div>
+          )}
+        </>
+      ) : (
+        <>{children}</>
+      )}
+      <NavigationMenuViewport />
+    </NavigationMenuPrimitive.Root>
+  )
+})
+ResponsiveNavigationMenu.displayName = 'ResponsiveNavigationMenu'
+
 /* eslint-disable react-refresh/only-export-components */
 export {
   navigationMenuTriggerStyle,
@@ -126,4 +183,5 @@ export {
   NavigationMenuLink,
   NavigationMenuIndicator,
   NavigationMenuViewport,
+  ResponsiveNavigationMenu,
 }
