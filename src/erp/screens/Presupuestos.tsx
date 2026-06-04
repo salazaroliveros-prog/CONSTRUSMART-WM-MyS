@@ -79,6 +79,18 @@ const PERSONAL_POR_ACTIVIDAD: Record<string, number> = {
 
 const ACTIVIDADES_TIPICAS = Object.keys(MATERIALES_POR_ACTIVIDAD);
 
+// Mapeo automático: código de renglón → actividad sugerida
+const ACTIVIDAD_POR_RENGLON: Record<string, string> = {
+  '05': 'humedad', '06': 'humedad', '07': 'humedad', '08': 'humedad', '09': 'humedad',
+  '10': 'mamposteria', '11': 'mamposteria', '12': 'acabados', '13': 'acabados',
+  '14': 'acero', '15': 'acero', '16': 'acero',
+  '17': 'plomeria', '18': 'plomeria', '19': 'electricidad', '20': 'electricidad',
+  '21': 'electricidad', '22': 'acabados', '23': 'acabados', '24': 'acabados',
+  '25': 'acabados', '26': 'acabados', '27': 'acabados', '28': 'acabados',
+  '29': 'acabados', '30': 'plomeria', '31': 'plomeria',
+  '32': 'encofrado', '33': 'acero', '34': 'encofrado',
+};
+
 const Presupuestos: React.FC = () => {
   const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, updateProyecto, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores } = useErp();
   const [tab, setTab] = useState<'crear' | 'guardados'>('crear');
@@ -177,6 +189,18 @@ const Presupuestos: React.FC = () => {
 
   const upd = (id: string, patch: Partial<RenglonPresupuesto>) =>
     setItems(s => s.map(i => i.id === id ? { ...i, ...patch } : i));
+
+  // Auto-sugerir actividad al expandir un renglón sin sub-renglones
+  const toggleExpand = (id: string) => {
+    const renglon = items.find(r => r.id === id);
+    if (renglon && (!renglon.subRenglones || renglon.subRenglones.length === 0)) {
+      const sugerida = ACTIVIDAD_POR_RENGLON[renglon.codigo];
+      if (sugerida) {
+        setActividadSeleccionada(sugerida);
+      }
+    }
+    upd(id, { expanded: !renglon?.expanded });
+  };
   const del = (id: string) => setItems(s => s.filter(i => i.id !== id));
 
   // Desglose de mano de obra por renglón
@@ -574,7 +598,7 @@ const Presupuestos: React.FC = () => {
             return (
               <div key={r.id} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
                 <div className="flex items-center gap-2 p-3">
-                  <button onClick={() => upd(r.id, { expanded: !r.expanded })} className="text-slate-400">
+                  <button onClick={() => toggleExpand(r.id)} className="text-slate-400">
                     {r.expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </button>
                   <span className="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">{r.codigo}</span>
@@ -608,19 +632,24 @@ const Presupuestos: React.FC = () => {
                     {/* Sub-renglones de materiales */}
                     <div className="mt-3 border-t pt-3">
                       <div className="flex justify-between items-center mb-2">
-                        <div className="text-[10px] font-semibold text-slate-500">📦 Desglose de Materiales por Renglón</div>
-                        <div className="flex gap-1 items-center">
-                          <select
-                            value={actividadSeleccionada || ''}
-                            onChange={e => {
-                              if (e.target.value) {
-                                addMaterialesActividad(r.id, e.target.value);
-                                setActividadSeleccionada(null);
-                              }
-                            }}
-                            className="text-[10px] px-2 py-1 rounded border border-orange-200 outline-none focus:border-orange-400 bg-white"
-                          >
-                            <option value="">Tipo de actividad...</option>
+                      <div className="text-[10px] font-semibold text-slate-500">
+                        📦 Desglose de Materiales por Renglón
+                        {ACTIVIDAD_POR_RENGLON[r.codigo] && (
+                          <span className="text-orange-500 ml-1">({ACTIVIDAD_POR_RENGLON[r.codigo]} sugerido)</span>
+                        )}
+                      </div>
+                      <div className="flex gap-1 items-center">
+                        <select
+                          value={actividadSeleccionada || ''}
+                          onChange={e => {
+                            if (e.target.value) {
+                              addMaterialesActividad(r.id, e.target.value);
+                              setActividadSeleccionada(null);
+                            }
+                          }}
+                          className="text-[10px] px-2 py-1 rounded border border-orange-200 outline-none focus:border-orange-400 bg-white"
+                        >
+                          <option value="">Tipo de actividad...</option>
                             {ACTIVIDADES_TIPICAS.map(act => (
                               <option key={act} value={act}>{act.charAt(0).toUpperCase() + act.slice(1)} ({MATERIALES_POR_ACTIVIDAD[act].length} materiales)</option>
                             ))}
