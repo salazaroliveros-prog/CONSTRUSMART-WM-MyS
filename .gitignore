@@ -48,3 +48,4 @@ temp_untracked_files/
 
 # Embedded git repos
 CONSTRUSMART-DEVELOP/
+.vercel

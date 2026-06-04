@@ -443,7 +443,7 @@ const Presupuestos: React.FC = () => {
                     <span className="text-slate-400">{r.unidad}</span>
                   </div>
                   <span className="text-sm font-bold text-orange-600 w-24 text-right">{fmtQ(c.total)}</span>
-                  <button onClick={() => del(r.id)}><Trash2 className="w-4 h-4 text-slate-300 hover:text-red-500" /></button>
+          <button onClick={() => del(r.id)} aria-label="Eliminar renglón"><Trash2 className="w-4 h-4 text-slate-300 hover:text-red-500" /></button>
                 </div>
                 {r.expanded && (
                   <div className="bg-slate-50 px-3 pb-3 pt-1 border-t border-slate-100">

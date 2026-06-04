@@ -5,7 +5,7 @@ import { getServerRole } from '@/lib/security';
 import { z } from 'zod';
 import { toast } from '@/components/ui/sonner';
 import {
-  Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio,
+  Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, Hito, Riesgo, CuentaCobrar, CuentaPagar,
 } from './types';
 import {
   SEED_PROYECTOS, SEED_MOVIMIENTOS, SEED_EMPLEADOS, SEED_MATERIALES, SEED_OC, SEED_PROVEEDORES,
@@ -257,32 +257,101 @@ function loadFromStorage<T>(key: string, initial: T): T {
   } catch { return initial; }
 }
 
+const STORAGE_MAX_BYTES = 4.5 * 1024 * 1024; // 4.5MB límite seguro (localStorage permite ~5MB)
+const STORAGE_WARN_THRESHOLD = 3 * 1024 * 1024; // 3MB advertencia
+
+/**
+ * Estima el tamaño en bytes de una cadena JSON
+ */
+function estimarTamanoJSON<T>(data: T): number {
+  const json = JSON.stringify(data);
+  return new Blob([json]).size;
+}
+
+/**
+ * Verifica el espacio en localStorage y emite advertencias
+ */
+function verificarEspacioStorage(tamanoNuevo: number): boolean {
+  let espacioUsado = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key) {
+      espacioUsado += localStorage.getItem(key)?.length || 0;
+    }
+  }
+
+  if (espacioUsado + tamanoNuevo > STORAGE_MAX_BYTES) {
+    console.warn(`[Storage] Espacio insuficiente: usado ${(espacioUsado / 1024 / 1024).toFixed(2)}MB, necesario ${((espacioUsado + tamanoNuevo) / 1024 / 1024).toFixed(2)}MB`);
+    return false;
+  }
+
+  if (espacioUsado + tamanoNuevo > STORAGE_WARN_THRESHOLD) {
+    console.info(`[Storage] Almacenamiento al ${((espacioUsado + tamanoNuevo) / STORAGE_MAX_BYTES * 100).toFixed(0)}% de capacidad`);
+  }
+
+  return true;
+}
+
 function saveToStorage<T>(key: string, data: T) {
   try {
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch (error) {
-    if (error instanceof Error && error.name === 'QuotaExceededError') {
-      console.warn(`Storage quota exceeded for key: ${key}`);
-      // Try to clear some space by removing oldest entries
-      const storageKeys = Object.keys(localStorage).sort((a, b) => {
-        const aTime = localStorage.getItem(a + '_timestamp') || '0';
-        const bTime = localStorage.getItem(b + '_timestamp') || '0';
-        return parseInt(aTime) - parseInt(bTime);
-      });
+    const jsonData = JSON.stringify(data);
+    const tamano = new Blob([jsonData]).size;
+    
+    // No guardar datos vacíos o nulos (protege contra corrupción)
+    if (tamano === 0) {
+      console.warn(`[Storage] Intento de guardar datos vacíos para key: ${key}`);
+      return;
+    }
+    
+    // Limitar tamaño máximo por clave (500KB por entidad)
+    const MAX_KEY_SIZE = 500 * 1024; // 500KB
+    if (tamano > MAX_KEY_SIZE) {
+      console.warn(`[Storage] Datos demasiado grandes para key ${key}: ${(tamano / 1024).toFixed(1)}KB (límite: ${MAX_KEY_SIZE / 1024}KB)`);
+      // Truncar a los últimos MAX_KEY_SIZE bytes (mantener datos más recientes)
+      const truncated = jsonData.slice(-MAX_KEY_SIZE);
+      localStorage.setItem(key, truncated);
+      return;
+    }
+    
+    // Verificar espacio disponible
+    if (!verificarEspacioStorage(tamano)) {
+      // Limpiar espacio eliminando entradas antiguas
+      const storageKeys = Object.keys(localStorage)
+        .filter(k => k.startsWith(BASE_STORAGE_KEY))
+        .sort((a, b) => {
+          const aTime = localStorage.getItem(a + '_timestamp') || '0';
+          const bTime = localStorage.getItem(b + '_timestamp') || '0';
+          return parseInt(aTime) - parseInt(bTime);
+        });
       
-      // Remove oldest 50% of entries
-      const keysToRemove = storageKeys.slice(0, Math.floor(storageKeys.length / 2));
+      // Eliminar 30% de las entradas más antiguas
+      const keysToRemove = storageKeys.slice(0, Math.max(1, Math.floor(storageKeys.length * 0.3)));
       keysToRemove.forEach(k => {
         localStorage.removeItem(k);
         localStorage.removeItem(k + '_timestamp');
       });
+    }
+    
+    localStorage.setItem(key, jsonData);
+  } catch (error) {
+    if (error instanceof Error && error.name === 'QuotaExceededError') {
+      console.warn(`[Storage] Cuota excedida para key: ${key}`);
+      // Limpieza de emergencia: eliminar mitad de las entradas
+      const storageKeys = Object.keys(localStorage)
+        .filter(k => k.startsWith(BASE_STORAGE_KEY))
+        .sort();
       
-      // Try saving again after clearing space
+      const keysToRemove = storageKeys.slice(0, Math.floor(storageKeys.length / 2));
+      keysToRemove.forEach(k => localStorage.removeItem(k));
+      
+      // Reintentar una vez
       try {
         localStorage.setItem(key, JSON.stringify(data));
       } catch {
-        console.error(`Failed to save to storage even after clearing space for key: ${key}`);
+        console.error(`[Storage] Error crítico: no se pudo guardar "${key}" incluso tras limpieza`);
       }
+    } else {
+      console.error(`[Storage] Error al guardar "${key}":`, error);
     }
   }
 }
@@ -420,6 +489,17 @@ export const uid = (): string => {
 const BASE_STORAGE_KEY = 'wm_erp_data';
 const QUEUE_KEY = 'wm_erp_queue';
 
+/**
+ * Mapea un rol de base de datos a un rol válido del sistema
+ */
+const mapRol = (rol: string, email?: string): Rol => {
+  const validRoles: Rol[] = ['Administrador', 'Gerente', 'Residente', 'Compras', 'Bodeguero'];
+  if (validRoles.includes(rol as Rol)) return rol as Rol;
+  // Fallback por email para migración
+  if (email === 'salazaroliveros@gmail.com') return 'Administrador';
+  return 'Residente';
+};
+
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [view, setView] = useState<View>('login');
   const [user, setUser] = useState<ErpState['user']>(null);
@@ -453,11 +533,18 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const readyRef = useRef(false);
 
   const addNotificacion = useCallback(async (tipo: Notificacion['tipo'], titulo: string, mensaje: string, proyectoId?: string, referenciaId?: string, showToast = true) => {
+    // Sanitizar títulos y mensajes contra XSS
+    const safeTitulo = sanitizarTexto(titulo);
+    const safeMensaje = sanitizarTexto(mensaje);
+    // Validar que no haya inyección
+    if (safeTitulo !== titulo || safeMensaje !== mensaje) {
+      console.warn('[Security] Intento de XSS bloqueado en notificación');
+    }
     const nueva: Notificacion = {
       id: uid(),
       tipo,
-      titulo,
-      mensaje,
+      titulo: safeTitulo,
+      mensaje: safeMensaje,
       proyectoId,
       referenciaId,
       leido: false,
@@ -1091,6 +1178,37 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // M-05: Costo por hora/hombre
+  const costoPorHoraHombre = useCallback((proyectoId?: string): { total: number; empleados: number; promedioSalario: number } => {
+    const empFiltrados = proyectoId
+      ? empleados.filter(e => e.proyectoIds?.includes(proyectoId))
+      : empleados;
+    const activos = empFiltrados.filter(e => e.activo);
+    const totalSalarios = activos.reduce((sum, e) => sum + (e.salarioDiario || 0), 0);
+    const horasDiarias = 8;
+    return {
+      total: totalSalarios,
+      empleados: activos.length,
+      promedioSalario: activos.length > 0 ? totalSalarios / activos.length / horasDiarias : 0,
+    };
+  }, [empleados]);
+
+  // M-08: Empleados disponibles (no asignados al proyecto especificado)
+  const empleadosDisponibles = useCallback((proyectoId: string): Empleado[] => {
+    return empleados.filter(e => e.activo && (!e.proyectoIds?.includes(proyectoId) || e.proyectoIds.length === 0));
+  }, [empleados]);
+
+  // F-04: Cálculo automático avance financiero derivado de movimientos
+  const avanceFinancieroCalculado = useCallback((proyectoId: string): number => {
+    const proy = proyectos.find(p => p.id === proyectoId);
+    if (!proy || !proy.montoContrato || proy.montoContrato <= 0) return 0;
+    const ingresos = movimientos
+      .filter(m => m.proyectoId === proyectoId && m.tipo === 'ingreso')
+      .reduce((a, b) => a + b.costoTotal, 0);
+    const ejecutado = Math.min(100, Math.round((ingresos / proy.montoContrato) * 100));
+    return ejecutado;
+  }, [proyectos, movimientos]);
+
   const allowedViews = user ? ALLOWED[user.rol] : [];
 
   const addProyecto = async (p: Omit<Proyecto, 'id'>) => {
@@ -1284,11 +1402,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     enqueueMutation('deleteBitacora', { id });
   };
 
+  const avancesRef = useRef(avances);
+  avancesRef.current = avances;
+
   const addAvance = async (a: Omit<AvanceObra, 'id'>) => {
     const newAvance: AvanceObra = { ...a, id: uid() };
-    setAvances(s => [newAvance, ...s]);
+    const avancesActualizados = [newAvance, ...avancesRef.current];
+    setAvances(avancesActualizados);
     enqueueMutation('addAvance', newAvance);
-    const todosAvances = [newAvance, ...avances].filter(av => av.proyectoId === a.proyectoId);
+    const todosAvances = avancesActualizados.filter(av => av.proyectoId === a.proyectoId);
     const promedioAvance = todosAvances.length > 0
       ? todosAvances.reduce((sum, av) => sum + av.avanceFisico, 0) / todosAvances.length
       : 0;
@@ -1360,6 +1482,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       licitaciones, addLicitacion, updateLicitacion, deleteLicitacion,
       avances, addAvance, deleteAvance,
       valesSalida, addValeSalida, deleteValeSalida,
+      costoPorHoraHombre, empleadosDisponibles,
       notificaciones, notificacionesNoLeidas, addNotificacion, markNotificacionLeida, marcarTodasLeidas,
       verificarStockCritico, verificarOrdenesCambioPendientes, verificarChecklistRechazado,
       notifyAvanceRegistrado, notifyDesviacionRendimiento,

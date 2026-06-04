@@ -22,12 +22,14 @@ export async function uploadFile(
   userId: string
 ): Promise<string | null> {
   try {
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-    // Validar extensión antes de continuar
-    if (!EXTENSIONES_PERMITIDAS.has(ext)) {
-      console.error(`Extensión no permitida: .${ext}`);
+    // Validación completa pre-subida
+    const errorValidacion = validarArchivoPreSubida(file);
+    if (errorValidacion) {
+      console.error(`[Storage] Error de validación: ${errorValidacion}`);
       return null;
     }
+    
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const fileName = `${userId}/${Date.now()}_${uid().slice(0, 8)}.${ext}`;
 
     const { error } = await supabase.storage
@@ -67,6 +69,18 @@ export async function uploadBase64Image(
   userId: string
 ): Promise<string | null> {
   try {
+    // Validar tamaño de base64 antes de procesar
+    if (base64Data.length > TAMANO_MAXIMO_BASE64) {
+      console.error(`[Storage] Imagen base64 demasiado grande: ${(base64Data.length / 1024 / 1024).toFixed(2)}MB`);
+      return null;
+    }
+    
+    // Validar que sea una imagen base64 válida
+    if (!base64Data.startsWith('data:image/')) {
+      console.error('[Storage] Formato base64 inválido - no es una imagen');
+      return null;
+    }
+    
     // Convertir base64 a Blob
     const response = await fetch(base64Data);
     const blob = await response.blob();
@@ -98,9 +112,65 @@ const EXTENSIONES_PERMITIDAS = new Set([
 ]);
 
 /**
+ * Tamaño máximo por archivo en bytes
+ */
+const TAMANO_MAXIMO_ARCHIVO = 10 * 1024 * 1024; // 10MB
+
+/**
+ * Tamaño máximo para imágenes base64 en bytes
+ */
+const TAMANO_MAXIMO_BASE64 = 5 * 1024 * 1024; // 5MB
+
+/**
  * Caracteres peligrosos no permitidos en nombres de archivo
  */
 const CARACTERES_PELIGROSOS = /[<>:"/\\|?*\x00-\x1f]/;
+
+/**
+ * Validación mejorada de archivo previa a subida
+ */
+function validarArchivoPreSubida(file: File): string | null {
+  const ext = file.name.split('.').pop()?.toLowerCase() || '';
+  
+  // Validar extensión
+  if (!EXTENSIONES_PERMITIDAS.has(ext)) {
+    return `Extensión no permitida: .${ext}`;
+  }
+  
+  // Validar tamaño máximo
+  if (file.size > TAMANO_MAXIMO_ARCHIVO) {
+    return `Archivo demasiado grande: ${(file.size / 1024 / 1024).toFixed(2)}MB. Máximo: ${TAMANO_MAXIMO_ARCHIVO / 1024 / 1024}MB`;
+  }
+  
+  // Validar nombre contra caracteres peligrosos
+  if (CARACTERES_PELIGROSOS.test(file.name)) {
+    return 'El nombre del archivo contiene caracteres no permitidos';
+  }
+  
+  // Validar MIME type para imágenes
+  const mimeMap: Record<string, string[]> = {
+    jpg: ['image/jpeg'],
+    jpeg: ['image/jpeg'],
+    png: ['image/png'],
+    gif: ['image/gif'],
+    webp: ['image/webp'],
+    svg: ['image/svg+xml'],
+    pdf: ['application/pdf'],
+    doc: ['application/msword'],
+    docx: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    xls: ['application/vnd.ms-excel'],
+    xlsx: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+    txt: ['text/plain'],
+    csv: ['text/csv', 'application/csv'],
+  };
+  
+  const mimesPermitidos = mimeMap[ext];
+  if (mimesPermitidos && !mimesPermitidos.includes(file.type) && file.type !== '') {
+    return `Tipo MIME no coincide con la extensión: ${file.type} para .${ext}`;
+  }
+  
+  return null; // Sin errores
+}
 
 /**
  * Valida que un fileName no contenga path traversal

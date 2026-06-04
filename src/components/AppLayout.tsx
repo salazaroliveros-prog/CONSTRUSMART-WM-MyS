@@ -31,6 +31,10 @@ const LogisticaCompras = lazy(() => import('@/erp/screens/LogisticaCompras'));
 const RendimientoCampo = lazy(() => import('@/erp/screens/RendimientoCampo'));
 const ComercialFinanzas = lazy(() => import('@/erp/screens/ComercialFinanzas'));
 const Administracion = lazy(() => import('@/erp/screens/Administracion'));
+const Riesgos = lazy(() => import('@/erp/screens/Riesgos'));
+const HitosScreen = lazy(() => import('@/erp/screens/Hitos'));
+const CuentasCobrarScreen = lazy(() => import('@/erp/screens/CuentasCobrar'));
+const CuentasPagarScreen = lazy(() => import('@/erp/screens/CuentasPagar'));
 const PlanillaDestajos = lazy(() => import('@/erp/screens/PlanillaDestajos'));
 const Impuestos = lazy(() => import('@/erp/screens/Impuestos'));
 const EntradasAlmacenOC = lazy(() => import('@/erp/screens/EntradasAlmacenOC'));
@@ -96,6 +100,10 @@ const Shell: React.FC = () => {
     'admin-sistema': <Administracion />,
     'planilla-destajos': <PlanillaDestajos />,
     'impuestos': <Impuestos />,
+    'riesgos': <Riesgos />,
+    'hitos': <HitosScreen />,
+    'cuentas-cobrar': <CuentasCobrarScreen />,
+    'cuentas-pagar': <CuentasPagarScreen />,
     'entradas-almacen': <EntradasAlmacenOC />,
   };
 

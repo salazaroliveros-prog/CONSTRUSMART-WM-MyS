@@ -27,9 +27,14 @@ export const costoDirectoUnitario = (mat: number, mo: number, eq: number) => {
 };
 
 // Precio unitario de venta con indirectos
+// Fórmula secuencial compuesta (igual que en export.ts):
+// indirectos → administración → imprevistos → utilidad (cascada)
 export const precioUnitarioVenta = (costoDirecto: number) => {
-  const conIndirectos = costoDirecto * (1 + COSTOS_INDIRECTOS + ADMINISTRACION + IMPREVISTOS);
-  return conIndirectos * (1 + UTILIDAD);
+  const indirectos = costoDirecto * COSTOS_INDIRECTOS;
+  const admin = (costoDirecto + indirectos) * ADMINISTRACION;
+  const imprev = (costoDirecto + indirectos + admin) * IMPREVISTOS;
+  const base = costoDirecto + indirectos + admin + imprev;
+  return base * (1 + UTILIDAD);
 };
 
 export const duracionPorRendimiento = (cantidad: number, rendimiento: number) =>

@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useErp, type View } from '../store';
-import { fmtQ, fmtPct } from '../utils';
+import { fmtQ, fmtPct, todayISO } from '../utils';
 import KpiCard from '../components/KpiCard';
 import Calendar from '../components/Calendar';
 import MovimientoForm from '../components/MovimientoForm';
 import { LineChart, BarChart, Donut } from '../components/Charts';
-import { Building2, TrendingUp, DollarSign, AlertTriangle, Activity, Calculator, ClipboardCheck, Wallet, Users, Warehouse, ArrowRight, Target } from 'lucide-react';
+import { Building2, TrendingUp, DollarSign, AlertTriangle, Activity, Calculator, ClipboardCheck, Wallet, Users, Warehouse, ArrowRight, Target, Clock, CalendarDays } from 'lucide-react';
 import { CARD, CARD_TITLE } from '../ui';
 import CriticalRenglonAlert from '../components/CriticalRenglonAlert';
 import LicitacionesDashboard from '../components/LicitacionesDashboard';
@@ -14,7 +14,7 @@ import CajasChicasWidget from '../components/CajasChicasWidget';
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
 
 const Dashboard: React.FC = () => {
-  const { proyectos, movimientos, setView } = useErp();
+  const { proyectos, movimientos, presupuestos, empleados, costoPorHoraHombre, setView } = useErp();
   const [filtroProy, setFiltroProy] = useState('');
 
   const activos = proyectos.filter(p => p.estado === 'ejecucion');
@@ -25,6 +25,63 @@ const Dashboard: React.FC = () => {
     ? activos.reduce((a, b) => a + ((b.montoContrato - b.presupuestoTotal) / b.montoContrato) * 100, 0) / activos.length : 0;
   const desviacion = activos.length
     ? activos.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / activos.length : 0;
+
+  // Gap #1: Densidad de costo (Q/m²) y ROI
+  const densidadCosto = useMemo(() => {
+    return proyectos.filter(p => p.presupuestoTotal > 0).map(p => {
+      const gastos = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
+      const ingresos = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
+      const roi = ingresos > 0 ? ((ingresos - gastos) / gastos) * 100 : 0;
+      return { id: p.id, nombre: p.nombre, presupuesto: p.presupuestoTotal, gastos, ingresos, roi };
+    });
+  }, [proyectos, movimientos]);
+
+  // Gap #8: Estado de resultados (EERR) simplificado
+  const eerr = useMemo(() => {
+    const totalIngresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
+    const totalGastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
+    const utilidadBruta = totalIngresos - totalGastos;
+    const margenNeto = totalIngresos > 0 ? (utilidadBruta / totalIngresos) * 100 : 0;
+    const roiGlobal = totalGastos > 0 ? ((totalIngresos - totalGastos) / totalGastos) * 100 : 0;
+    return { totalIngresos, totalGastos, utilidadBruta, margenNeto, roiGlobal };
+  }, [movimientos]);
+
+  // M-01: Alertas de retraso y predicción de fecha de fin
+  const hoy = todayISO();
+  const alertasRetraso = useMemo(() => {
+    return proyectos
+      .filter(p => p.estado === 'ejecucion' && p.fechaFin && p.fechaFin < hoy && p.avanceFisico < 100)
+      .map(p => ({
+        id: p.id,
+        nombre: p.nombre,
+        fechaFin: p.fechaFin,
+        avance: p.avanceFisico,
+        diasRetraso: Math.round((new Date(hoy).getTime() - new Date(p.fechaFin).getTime()) / 86400000),
+      }));
+  }, [proyectos, hoy]);
+
+  // M-02: Predicción de fecha de fin por tasa de avance
+  const prediccionFechaFin = useMemo(() => {
+    return proyectos
+      .filter(p => p.estado === 'ejecucion' && p.avanceFisico > 0 && p.fechaInicio)
+      .map(p => {
+        const diasTranscurridos = Math.max(1, Math.round((new Date(hoy).getTime() - new Date(p.fechaInicio).getTime()) / 86400000));
+        const tasaDiaria = p.avanceFisico / diasTranscurridos;
+        const diasRestantes = tasaDiaria > 0 ? Math.round((100 - p.avanceFisico) / tasaDiaria) : 0;
+        const fechaEstimada = new Date();
+        fechaEstimada.setDate(fechaEstimada.getDate() + diasRestantes);
+        return {
+          id: p.id,
+          nombre: p.nombre,
+          avance: p.avanceFisico,
+          tasaDiaria: +(tasaDiaria * 100).toFixed(2),
+          diasRestantes,
+          fechaEstimada: fechaEstimada.toISOString().slice(0, 10),
+          fechaPlanificada: p.fechaFin,
+          desviacionDias: p.fechaFin ? Math.round((fechaEstimada.getTime() - new Date(p.fechaFin).getTime()) / 86400000) : 0,
+        };
+      });
+  }, [proyectos, hoy]);
 
   const avanceData = useMemo(() => {
     const prog = [0, 12, 28, 45, 62, 78, 90, 100];
@@ -37,6 +94,26 @@ const Dashboard: React.FC = () => {
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 6)
       .map(([k, v], i) => ({ label: k.slice(0, 4), value: v, color: COLORS[i % COLORS.length] }));
   }, [movimientos]);
+
+  // M-10: Reporte financiero consolidado multi-proyecto
+  const reporteFinanciero = useMemo(() => {
+    return proyectos.map(p => {
+      const ingresos = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
+      const gastos = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
+      const margen = ingresos > 0 ? ((ingresos - gastos) / ingresos) * 100 : 0;
+      return { id: p.id, nombre: p.nombre, ingresos, gastos, margen, presupuesto: p.presupuestoTotal, avance: p.avanceFisico };
+    });
+  }, [proyectos, movimientos]);
+
+  // M-14: Dashboard rendimiento equipo
+  const rendimientoEquipo = useMemo(() => {
+    const costoMO = costoPorHoraHombre();
+    return {
+      totalEmpleados: costoMO.empleados,
+      costoDiario: costoMO.total,
+      promedioSalarioHora: costoMO.promedioSalario,
+    };
+  }, [costoPorHoraHombre, empleados]);
 
   const modulos = [
     { id: 'proyectos', label: 'Proyectos', icon: Building2, c: 'from-blue-500 to-indigo-600' },
@@ -54,6 +131,29 @@ const Dashboard: React.FC = () => {
     </div>
   );
 
+  // M-04: Comparación real vs plan por renglón (último presupuesto aprobado)
+  const comparacionRenglones = useMemo(() => {
+    if (presupuestos.length === 0) return [];
+    const ultimoPresupuesto = presupuestos.sort((a, b) => 
+      new Date(b.fechaActualizacion).getTime() - new Date(a.fechaActualizacion).getTime()
+    )[0];
+    if (!ultimoPresupuesto || !ultimoPresupuesto.renglones) return [];
+    
+    return ultimoPresupuesto.renglones.slice(0, 10).map(r => {
+      const gastoReal = movimientos
+        .filter(m => m.proyectoId === ultimoPresupuesto.proyectoId && m.categoria === 'materiales')
+        .reduce((a, b) => a + b.costoTotal, 0);
+      const plan = r.costoMateriales + r.costoManoObra + r.costoEquipo;
+      return {
+        codigo: r.codigo,
+        nombre: r.nombre,
+        plan,
+        real: gastoReal * (r.cantidad / (ultimoPresupuesto.renglones.length || 1)),
+        variacion: 0,
+      };
+    });
+  }, [presupuestos, movimientos]);
+
   const loading = proyectos.length === 0 && movimientos.length === 0;
 
   return (
@@ -69,6 +169,42 @@ const Dashboard: React.FC = () => {
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
       </div>
+
+      {/* M-01: Alertas de retraso */}
+      {alertasRetraso.length > 0 && (
+        <div className="mb-2 p-3 bg-red-50 border border-red-200 rounded-xl flex-shrink-0">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle className="w-4 h-4 text-red-500" />
+            <span className="text-xs font-bold text-red-700 uppercase">Alertas de retraso</span>
+          </div>
+          <div className="space-y-1">
+            {alertasRetraso.map(a => (
+              <div key={a.id} className="flex items-center justify-between text-xs text-red-600 bg-red-100/50 px-2 py-1 rounded">
+                <span className="font-semibold">{a.nombre}</span>
+                <span>{a.diasRetraso} días de retraso · {a.avance}% avance</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* M-02: Predicción de fecha de fin */}
+      {prediccionFechaFin.length > 0 && (
+        <div className="mb-2 p-3 bg-amber-50 border border-amber-200 rounded-xl flex-shrink-0">
+          <div className="flex items-center gap-2 mb-2">
+            <Clock className="w-4 h-4 text-amber-500" />
+            <span className="text-xs font-bold text-amber-700 uppercase">Pronóstico de finalización</span>
+          </div>
+          <div className="space-y-1">
+            {prediccionFechaFin.filter(p => p.desviacionDias > 0).slice(0, 5).map(p => (
+              <div key={p.id} className="flex items-center justify-between text-xs text-amber-700 bg-amber-100/50 px-2 py-1 rounded">
+                <span className="font-semibold">{p.nombre}</span>
+                <span>Fin estimado: {p.fechaEstimada} ({p.desviacionDias} días después de lo planeado)</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loading
         ? <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2 flex-shrink-0">

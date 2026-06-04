@@ -338,7 +338,7 @@ const ExportacionInteligente: React.FC = () => {
                   <button onClick={() => ejecutarReporteAhora(r)} className="px-2 py-1 bg-blue-500 text-white rounded text-[10px] hover:bg-blue-600 flex items-center gap-1">
                     <Send className="w-3 h-3" /> Ejecutar
                   </button>
-                  <button onClick={() => eliminarReporte(r.id)} className="p-1 text-slate-400 hover:text-red-500">
+                  <button onClick={() => eliminarReporte(r.id)} aria-label="Eliminar reporte" className="p-1 text-slate-400 hover:text-red-500">
                     <Trash2 className="w-3 h-3" />
                   </button>
                 </div>

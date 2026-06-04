@@ -260,6 +260,15 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
 
   </body></html>`;
 
+  // Abrir ventana para impresión con verificación de popup blocker
   const w = window.open('', '_blank');
-  if (w) { w.document.write(html); w.document.close(); setTimeout(() => w.print(), 500); }
+  if (!w || w.closed || typeof w.closed === 'undefined') {
+    console.warn('[Export] El navegador bloqueó la ventana emergente. Verifica la configuración de popups.');
+    return;
+  }
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => {
+    try { w.print(); } catch { console.warn('[Export] No se pudo imprimir automáticamente.'); }
+  }, 500);
 };

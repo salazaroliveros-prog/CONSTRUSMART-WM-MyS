@@ -23,8 +23,6 @@ const ConteoCiclico: React.FC = () => {
     }
   };
 
-  const _materialSeleccionado = selectedMatId ? materiales.find(m => m.id === selectedMatId) : null;
-
   const filteredMateriales = searchTerm
     ? materiales.filter(m => m.nombre.toLowerCase().includes(searchTerm.toLowerCase()))
     : materiales;
@@ -37,13 +35,6 @@ const ConteoCiclico: React.FC = () => {
     updateMaterial(materialId, { stock: data.fisico });
     toast.success(`✅ ${mat.nombre}: stock actualizado a ${data.fisico} ${mat.unidad}`);
     setSelectedMatId(null);
-  };
-
-  const _getDiferencia = (materialId: string) => {
-    const data = conteo[materialId];
-    const mat = materiales.find(m => m.id === materialId);
-    if (!data || !mat) return 0;
-    return data.fisico - mat.stock;
   };
 
   return (

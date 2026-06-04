@@ -38,6 +38,17 @@ const Seguimiento: React.FC = () => {
   const [editingProject, setEditingProject] = useState<string | null>(null);
   const [pendingProgress, setPendingProgress] = useState<Record<string, string>>({});
   const [editingBit, setEditingBit] = useState<BitacoraEntry | null>(null);
+  // M-11: Eficiencia - tiempo planificado vs real
+  const eficienciaTiempo = useMemo(() => {
+    const totalPersonal = bitacora.reduce((a, b) => a + (b.personalPresente || 0), 0);
+    const totalDias = bitacora.length;
+    const horasPlan = totalDias * 8 * (bitacora.length > 0 ? totalPersonal / totalDias : 0);
+    return {
+      diasRegistrados: totalDias,
+      personalPromedio: totalDias > 0 ? Math.round(totalPersonal / totalDias) : 0,
+      horasHombreEstimadas: horasPlan,
+    };
+  }, [bitacora]);
 
   const proyData = useMemo(() => proyectos.map(p => {
     const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);

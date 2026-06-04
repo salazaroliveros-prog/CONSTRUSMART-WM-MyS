@@ -7,44 +7,48 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
+    /* Paleta cálida CONSTRUSMART — naranja-cobre como primary */
+    --background: 30 20% 98%;          /* crema cálido */
+    --foreground: 20 15% 12%;          /* marrón muy oscuro */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 30 10% 100%;               /* blanco cálido */
+    --card-foreground: 20 15% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 30 10% 100%;
+    --popover-foreground: 20 15% 12%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 18 80% 52%;             /* naranja CONSTRUSMART #E8752F */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 30 15% 94%;           /* crema claro */
+    --secondary-foreground: 20 12% 18%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 30 12% 95%;
+    --muted-foreground: 25 10% 48%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 170 45% 48%;             /* teal accent */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 2 70% 52%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
+    --success: 152 55% 42%;
+    --warning: 38 90% 55%;
 
-    --radius: 0.5rem;
+    --border: 30 12% 90%;
+    --input: 30 12% 90%;
+    --ring: 18 80% 52%;
 
-    --sidebar-background: 220 23% 95%;
-    --sidebar-foreground: 215 25% 27%;
-    --sidebar-primary: 221 83% 53%;
+    --radius: 0.75rem;
+
+    --sidebar-background: 220 25% 15%;
+    --sidebar-foreground: 30 10% 90%;
+    --sidebar-primary: 18 80% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 90%;
-    --sidebar-accent-foreground: 215 25% 27%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-accent: 220 18% 22%;
+    --sidebar-accent-foreground: 30 10% 90%;
+    --sidebar-border: 220 12% 22%;
+    --sidebar-ring: 18 80% 52%;
   }
 
   .dark {

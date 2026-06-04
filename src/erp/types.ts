@@ -74,6 +74,8 @@ export interface RenglonPresupuesto extends RenglonBase {
   cantidad: number;
   avanceFisico?: number;
   avanceFinanciero?: number;
+  /** IDs de renglones predecesores para dependencias en Gantt (M-03) */
+  predecesores?: string[];
 }
 
 export interface Presupuesto {
@@ -138,6 +140,7 @@ export interface Empleado {
   proyectoIds: string[];
   telefono?: string;
   diasTrabajados?: number;
+  fechaAsignacion?: string; // F-03: Fecha de asignación al proyecto
 }
 
 export interface Material {
@@ -285,6 +288,20 @@ export interface Notificacion {
   proyectoId?: string;
   referenciaId?: string;
   leido: boolean;
+  createdAt: string;
+}
+
+export interface Hito {
+  id: string;
+  proyectoId: string;
+  nombre: string;
+  descripcion?: string;
+  fecha: string;
+  tipo: 'inicio' | 'hito' | 'entrega' | 'cierre';
+  estado: 'pendiente' | 'completado' | 'retrasado';
+  responsable?: string;
+  dependeDe?: string[]; // IDs de hitos predecesores
+  completadoEn?: string;
   createdAt: string;
 }
 
@@ -541,6 +558,52 @@ export interface LogAuditoria {
 // ============================================================
 // INTERFACES PARA RENDIMIENTO Y DESTAJOS
 // ============================================================
+
+export interface Riesgo {
+  id: string;
+  proyectoId: string;
+  nombre: string;
+  descripcion?: string;
+  tipo: 'tecnico' | 'financiero' | 'cronograma' | 'legal' | 'ambiental' | 'seguridad' | 'otro';
+  probabilidad: 1 | 2 | 3 | 4 | 5;
+  impacto: 1 | 2 | 3 | 4 | 5;
+  nivel: 'bajo' | 'medio' | 'alto' | 'critico';
+  planMitigacion?: string;
+  planContingencia?: string;
+  responsable?: string;
+  fechaIdentificacion: string;
+  estado: 'identificado' | 'en_mitigacion' | 'mitigado' | 'materializado';
+  costoSoporte?: number;
+  createdAt: string;
+}
+
+export interface CuentaCobrar {
+  id: string;
+  proyectoId: string;
+  cliente: string;
+  concepto: string;
+  monto: number;
+  saldoPendiente: number;
+  fechaEmision: string;
+  fechaVencimiento: string;
+  fechaCobro?: string;
+  estado: 'pendiente' | 'parcial' | 'cobrado' | 'vencido' | 'incobrable';
+  notas?: string;
+}
+
+export interface CuentaPagar {
+  id: string;
+  proyectoId: string;
+  proveedor: string;
+  concepto: string;
+  monto: number;
+  saldoPendiente: number;
+  fechaEmision: string;
+  fechaVencimiento: string;
+  fechaPago?: string;
+  estado: 'pendiente' | 'parcial' | 'pagado' | 'vencido';
+  facturaUrl?: string;
+}
 
 export interface CapturaRendimiento {
   id: string;

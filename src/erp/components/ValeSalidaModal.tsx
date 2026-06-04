@@ -23,9 +23,13 @@ const ValeSalidaModal: React.FC<Props> = ({ open, onClose }) => {
 
   const proyectosActivos = proyectos.filter(p => p.estado !== 'finalizado');
 
-  const materialesFiltrados = materiales.filter(m =>
-    !searchMat || m.nombre.toLowerCase().includes(searchMat.toLowerCase())
-  );
+  // M-13: Filtrar materiales por proyecto seleccionado
+  const materialesFiltrados = materiales.filter(m => {
+    if (proyectoId && m.proyectoIds && m.proyectoIds.length > 0) {
+      return m.proyectoIds.includes(proyectoId) && (!searchMat || m.nombre.toLowerCase().includes(searchMat.toLowerCase()));
+    }
+    return !searchMat || m.nombre.toLowerCase().includes(searchMat.toLowerCase());
+  });
 
   const handleAddItem = (mat: typeof materiales[0]) => {
     if (items.find(i => i.materialId === mat.id)) return;
