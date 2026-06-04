@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNuevosModulos } from '../hooks/useNuevosModulos';
-import { ActivoHerramienta, CuadroComparativo, CotizacionItem, PagoProveedor } from '../types';
+import { ActivoHerramienta, PagoProveedor } from '../types';
 import { supabase } from '../../lib/supabase';
 
 const uid = () => Math.random().toString(36).substr(2, 9);
@@ -51,7 +51,7 @@ export const LogisticaCompras: React.FC = () => {
                   }`}>{a.tipo}</span>
                 </td>
                 <td className="p-2">
-                  <select value={a.estado} onChange={e => updateActivo(a.id, { estado: e.target.value as any })}
+                  <select value={a.estado} onChange={e => updateActivo(a.id, { estado: e.target.value as ActivoHerramienta['estado'] })}
                     className={`text-xs px-1 py-0.5 rounded border ${
                       a.estado === 'disponible' ? 'text-green-700' :
                       a.estado === 'asignado' ? 'text-blue-700' :
@@ -184,7 +184,7 @@ export const LogisticaCompras: React.FC = () => {
                 <td className="p-2 text-right font-mono">Q{p.monto.toFixed(2)}</td>
                 <td className="p-2 text-xs">{new Date(p.fechaVencimiento).toLocaleDateString()}</td>
                 <td className="p-2">
-                  <select value={p.estado} onChange={e => updatePago(p.id, { estado: e.target.value as any })}
+                  <select value={p.estado} onChange={e => updatePago(p.id, { estado: e.target.value as PagoProveedor['estado'] })}
                     className={`text-xs px-1 py-0.5 rounded border ${
                       p.estado === 'pagado' ? 'text-green-700 bg-green-50 border-green-200' :
                       p.estado === 'vencido' ? 'text-red-700 bg-red-50 border-red-200' :
@@ -221,7 +221,7 @@ export const LogisticaCompras: React.FC = () => {
           { key: 'cuadros', label: '📊 Cotizaciones' },
           { key: 'pagos', label: '💰 Pagos' },
         ].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key as any)}
+          <button key={t.key} onClick={() => setTab(t.key as 'activos' | 'cuadros' | 'pagos')}
             className={`px-4 py-2 rounded-t text-sm font-medium ${
               tab === t.key ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-500' : 'text-gray-500 hover:text-gray-700'
             }`}>{t.label}</button>

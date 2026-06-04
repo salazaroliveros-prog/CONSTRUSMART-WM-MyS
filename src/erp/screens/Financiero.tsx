@@ -10,7 +10,7 @@ const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4'
 
 const Financiero: React.FC = () => {
   const { movimientos, deleteMovimiento, proyectos, ordenes, presupuestos } = useErp();
-  const [filtro, setFiltro] = useState<'todos' | 'ingreso' | 'gasto'>('todos');
+  const [filtro, setFiltro] = useState<'todos' | 'ingreso' | 'gasto' | 'egreso'>('todos');
   const [loading, setLoading] = useState(true);
   const [vistaCF, setVistaCF] = useState<'real' | 'proyectado'>('real');
   const [mesesProy, setMesesProy] = useState(3);
@@ -20,8 +20,8 @@ const Financiero: React.FC = () => {
     return () => clearTimeout(t);
   }, []);
 
-  const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
-  const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
+  const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.costoTotal ?? b.monto ?? 0), 0);
+  const gastos = movimientos.filter(m => m.tipo === 'gasto' || m.tipo === 'egreso').reduce((a, b) => a + (b.costoTotal ?? b.monto ?? 0), 0);
   const utilidad = ingresos - gastos;
 
   // Agrupar movimientos por mes (últimos 12 meses)
@@ -65,7 +65,7 @@ const Financiero: React.FC = () => {
     // Pendiente de cobro por contratos
     const pendienteCobro = proyectos
       .filter(p => p.estado === 'ejecucion')
-      .reduce((a, p) => a + Math.max(0, p.montoContrato - movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((s, m) => s + m.costoTotal, 0)), 0);
+      .reduce((a, p) => a + Math.max(0, p.montoContrato - movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((s, m) => s + (m.costoTotal ?? m.monto ?? 0), 0)), 0);
     
     // Compromisos por OC
     const egresosCompromiso = ordenes.filter(o => o.estado === 'aprobado' || o.estado === 'pendiente').reduce((a, o) => a + o.monto, 0);
@@ -99,13 +99,13 @@ const Financiero: React.FC = () => {
 
   const porCategoria = useMemo(() => {
     const map: Record<string, number> = {};
-    movimientos.filter(m => m.tipo === 'gasto').forEach(m => { map[m.categoria] = (map[m.categoria] || 0) + m.costoTotal; });
-    return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([k, v], i) => ({ label: CATEGORIA_LABEL[k as keyof typeof CATEGORIA_LABEL], value: v, color: COLORS[i % COLORS.length] }));
+    movimientos.filter(m => m.tipo === 'gasto' || m.tipo === 'egreso').forEach(m => { map[m.categoria] = (map[m.categoria] || 0) + (m.costoTotal ?? m.monto ?? 0); });
+    return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([k, v], i) => ({ label: CATEGORIA_LABEL[k as keyof typeof CATEGORIA_LABEL] ?? k, value: v, color: COLORS[i % COLORS.length] }));
   }, [movimientos]);
 
   const centrosCosto = useMemo(() => proyectos.map(p => {
-    const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
-    const gas = movimientos.filter(m => m.proyectoId === p.id && (m.tipo === 'gasto' || m.tipo === 'egreso')).reduce((a, b) => a + (b.costoTotal ?? b.monto), 0);
+    const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + (b.costoTotal ?? b.monto ?? 0), 0);
+    const gas = movimientos.filter(m => m.proyectoId === p.id && (m.tipo === 'gasto' || m.tipo === 'egreso')).reduce((a, b) => a + (b.costoTotal ?? b.monto ?? 0), 0);
     const presupuestoVinculado = presupuestos.find(pr => pr.proyectoId === p.id);
     const presupuestoTotal = p.presupuestoTotal || presupuestoVinculado?.totalCalculado || 0;
     const variacion = presupuestoTotal > 0 ? ((gas - presupuestoTotal) / presupuestoTotal) * 100 : 0;
@@ -289,7 +289,7 @@ const Financiero: React.FC = () => {
                 <span className="font-bold text-blue-600">
                   {fmtQ(proyectos
                     .filter(p => p.estado === 'ejecucion')
-                    .reduce((a, p) => a + Math.max(0, p.montoContrato - movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((s, m) => s + m.costoTotal, 0)), 0)
+                    .reduce((a, p) => a + Math.max(0, p.montoContrato - movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((s, m) => s + (m.costoTotal ?? m.monto ?? 0), 0)), 0)
                   )}
                 </span>
               </div>
@@ -306,7 +306,7 @@ const Financiero: React.FC = () => {
             <div className="flex items-center justify-between p-3 border-b border-slate-100">
               <h3 className="font-bold text-slate-700 text-sm">Movimientos</h3>
               <div className="flex gap-1">
-                {(['todos', 'ingreso', 'gasto'] as const).map(f => (
+                {(['todos', 'ingreso', 'gasto', 'egreso'] as const).map(f => (
                   <button key={f} onClick={() => setFiltro(f)} className={`text-xs px-2.5 py-1 rounded-lg capitalize ${filtro === f ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-500'}`}>{f}</button>
                 ))}
               </div>
@@ -320,7 +320,7 @@ const Financiero: React.FC = () => {
                         <td className="p-2">
                           <div className="font-semibold text-slate-700">{m.descripcion}</div>
                           <div className="text-slate-400">
-                            {CATEGORIA_LABEL[m.categoria]} · {proyectos.find(p => p.id === m.proyectoId)?.nombre || 'Operativo'} · {m.fecha}
+                            {CATEGORIA_LABEL[m.categoria as keyof typeof CATEGORIA_LABEL] ?? m.categoria} · {proyectos.find(p => p.id === m.proyectoId)?.nombre || 'Operativo'} · {m.fecha}
                           </div>
                         </td>
                         <td className={`p-2 text-right font-bold ${m.tipo === 'ingreso' ? 'text-emerald-600' : 'text-red-500'}`}>

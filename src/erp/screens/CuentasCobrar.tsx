@@ -57,7 +57,7 @@ const CuentasCobrarScreen: React.FC = () => {
             <input value={form.concepto} onChange={e => setForm(prev => ({ ...prev, concepto: e.target.value }))} placeholder="Concepto *" className={INPUT} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <input type="number" value={form.monto || ''} onChange={e => setForm(prev => ({ ...prev, monto: +e.target.value }))} placeholder="Monto Q *" className={INPUT} />
+            <input type="number" value={form.monto ?? ''} onChange={e => setForm(prev => ({ ...prev, monto: +e.target.value }))} placeholder="Monto Q *" className={INPUT} />
             <input type="date" value={form.fechaEmision} onChange={e => setForm(prev => ({ ...prev, fechaEmision: e.target.value }))} className={INPUT} />
             <input type="date" value={form.fechaVencimiento} onChange={e => setForm(prev => ({ ...prev, fechaVencimiento: e.target.value }))} placeholder="Fecha vencimiento" className={INPUT} />
           </div>
@@ -68,7 +68,7 @@ const CuentasCobrarScreen: React.FC = () => {
       )}
       <div className="space-y-2">
         {cuentas.length === 0 ? <div className="text-center py-10 text-slate-400"><DollarSign className="w-10 h-10 mx-auto mb-2 text-slate-300" /><p className="text-sm">Sin cuentas por cobrar</p></div>
-        : cuentas.sort((a, b) => a.fechaVencimiento.localeCompare(b.fechaVencimiento)).map(c => {
+        : [...cuentas].sort((a, b) => a.fechaVencimiento.localeCompare(b.fechaVencimiento)).map(c => {
           const vencida = c.estado === 'pendiente' && c.fechaVencimiento < todayISO();
           return (
             <div key={c.id} className={`bg-white rounded-xl border p-4 ${c.estado === 'cobrado' ? 'border-emerald-200 bg-emerald-50/30' : vencida ? 'border-red-200 bg-red-50/30' : 'border-slate-100'}`}>

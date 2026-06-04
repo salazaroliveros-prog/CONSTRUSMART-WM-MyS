@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -53,6 +53,7 @@ const Bodega: React.FC = () => {
   const [stockSearch, setStockSearch] = useState('');
   const [proveedorSearch, setProveedorSearch] = useState('');
   const [stockFilter, setStockFilter] = useState<'todos' | 'criticos' | 'bajo'>('todos');
+  const [filtroOC, setFiltroOC] = useState<string>('todas');
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 300);
@@ -60,10 +61,12 @@ const Bodega: React.FC = () => {
   }, []);
 
   // Alertas de stock crítico
+  const processedCriticos = useRef(new Set<string>());
   useEffect(() => {
     const criticosActuales = materiales.filter(m => m.stock < m.stockMinimo);
     criticosActuales.forEach(m => {
-      if (!m.critico) {
+      if (!m.critico && !processedCriticos.current.has(m.id)) {
+        processedCriticos.current.add(m.id);
         toast.warning(`⚠️ Stock crítico: ${m.nombre} (${m.stock} ${m.unidad})`, {
           description: `Mínimo requerido: ${m.stockMinimo} ${m.unidad}. ¡Reabastecer urgente!`,
           duration: 5000,
@@ -72,6 +75,9 @@ const Bodega: React.FC = () => {
       }
     });
     materiales.filter(m => m.critico && m.stock >= m.stockMinimo).forEach(m => {
+      if (processedCriticos.current.has(m.id)) {
+        processedCriticos.current.delete(m.id);
+      }
       updateMaterial(m.id, { critico: false });
       toast.success(`✅ ${m.nombre} reabastecido (${m.stock} ${m.unidad})`);
     });
@@ -79,6 +85,7 @@ const Bodega: React.FC = () => {
 
   const criticos = materiales.filter(m => m.stock < m.stockMinimo);
   const pendientes = ordenes.filter(o => o.estado === 'pendiente');
+  const ordenesFiltradas = filtroOC === 'todas' ? ordenes : ordenes.filter(o => o.estado === filtroOC);
 
   // Stock filtrado
   const filteredMateriales = useMemo(() => {
@@ -448,8 +455,12 @@ const Bodega: React.FC = () => {
                 {(['todas', 'pendiente', 'aprobado', 'rechazado'] as const).map(estado => (
                   <button
                     key={estado}
-                    onClick={() => {/* filtro simplificado */}}
-                    className="text-[9px] px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
+                    onClick={() => setFiltroOC(estado)}
+                    className={`text-[9px] px-2 py-0.5 rounded-full border ${
+                      filtroOC === estado
+                        ? 'bg-blue-500 text-white border-blue-500'
+                        : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                    }`}
                   >
                     {estado === 'todas' ? 'Todas' : estado.charAt(0).toUpperCase() + estado.slice(1)}
                   </button>
@@ -457,12 +468,12 @@ const Bodega: React.FC = () => {
               </div>
             </div>
             <div className="divide-y divide-slate-50 max-h-64 overflow-y-auto">
-              {ordenes.length === 0 ? (
+              {ordenesFiltradas.length === 0 ? (
                 <div className="p-6 text-center text-slate-400 text-sm">
                   <FileText className="w-6 h-6 mx-auto mb-1 text-slate-300" />
                   Sin órdenes de compra
                 </div>
-              ) : ordenes.map(o => (
+              ) : ordenesFiltradas.map(o => (
                 <div key={o.id} className="p-3 text-xs hover:bg-slate-50 transition-colors">
                   <div className="flex justify-between items-start">
                     <div className="min-w-0 flex-1">

@@ -40,6 +40,18 @@ export const precioUnitarioVenta = (costoDirecto: number) => {
 export const duracionPorRendimiento = (cantidad: number, rendimiento: number) =>
   rendimiento > 0 ? Math.ceil(cantidad / rendimiento) : 0;
 
+// Precio unitario de venta con factores sobrecosto customizables por proyecto
+export const precioUnitarioVentaConFactores = (
+  costoDirecto: number,
+  factors: { indirectos: number; administracion: number; imprevistos: number; utilidad: number }
+) => {
+  const indirectos = costoDirecto * factors.indirectos;
+  const admin = (costoDirecto + indirectos) * factors.administracion;
+  const imprev = (costoDirecto + indirectos + admin) * factors.imprevistos;
+  const base = costoDirecto + indirectos + admin + imprev;
+  return base * (1 + factors.utilidad);
+};
+
 export const CATEGORIA_LABEL: Record<Categoria, string> = {
   materiales: 'Materiales',
   mano_obra: 'Mano de Obra',

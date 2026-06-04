@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useErp } from '../store';
+import { CATEGORIA_LABEL } from '../utils';
 
 export const Impuestos: React.FC = () => {
   const { movimientos, proyectos } = useErp();
@@ -14,14 +15,14 @@ export const Impuestos: React.FC = () => {
   const movimientosFiltrados = useMemo(() => {
     const [y, m] = mesFilter.split('-').map(Number);
     const fechaInicio = new Date(y, m - 1, 1);
-    const fechaFin = new Date(y, m, 0);
+    const fechaFin = new Date(y, m, 1);
     let filtered = movimientos;
     if (proyectoFilter) {
       filtered = filtered.filter(mv => mv.proyectoId === proyectoFilter);
     }
     return filtered.filter(mv => {
       const fecha = new Date(mv.fecha);
-      return fecha >= fechaInicio && fecha <= fechaFin;
+      return fecha >= fechaInicio && fecha < fechaFin;
     });
   }, [movimientos, proyectoFilter, mesFilter]);
 
@@ -32,7 +33,7 @@ export const Impuestos: React.FC = () => {
       .reduce((a, m) => a + m.monto, 0);
 
     const egresos = movimientosFiltrados
-      .filter(m => m.tipo === 'egreso')
+      .filter(m => m.tipo === 'gasto' || m.tipo === 'egreso')
       .reduce((a, m) => a + m.monto, 0);
 
     const utilidadBruta = ingresos - egresos;
@@ -194,7 +195,7 @@ export const Impuestos: React.FC = () => {
                     }`}>{m.tipo}</span>
                   </td>
                   <td className="p-2 text-right font-mono text-xs">Q{m.monto.toLocaleString()}</td>
-                  <td className="p-2 text-xs text-gray-500">{m.categoria}</td>
+                  <td className="p-2 text-xs text-gray-500">{CATEGORIA_LABEL[m.categoria as keyof typeof CATEGORIA_LABEL] ?? m.categoria}</td>
                 </tr>
               ))}
             </tbody>

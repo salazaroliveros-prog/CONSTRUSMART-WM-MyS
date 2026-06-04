@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useErp } from '../store';
 
 export const EntradasAlmacenOC: React.FC = () => {
-  const { ordenes, materiales, updateMaterial } = useErp();
+  const { ordenes, materiales, updateMaterial, updateOrden } = useErp();
   const [ocFilter, setOcFilter] = useState<'todas' | 'pendientes' | 'aprobadas'>('todas');
   const [recepciones, setRecepciones] = useState<Record<string, number>>({});
   const [showForm, setShowForm] = useState<string | null>(null);
@@ -22,12 +22,15 @@ export const EntradasAlmacenOC: React.FC = () => {
     const cantidad = recepciones[ocId] || 0;
     if (cantidad <= 0) return;
 
-    // Actualizar stock de materiales (asumiendo que el material es el primero)
+    // Actualizar stock de materiales - matching exacto primero, luego por ID, luego fuzzy
     const materialNombre = orden.material?.toLowerCase() || '';
-    const material = materiales.find(m =>
-      m.nombre.toLowerCase().includes(materialNombre) ||
-      materialNombre.includes(m.nombre.toLowerCase().split(' ')[0].toLowerCase())
-    );
+    const material =
+      materiales.find(m => m.nombre.toLowerCase() === materialNombre) ||
+      materiales.find(m => m.id === materialNombre || m.codigo === materialNombre) ||
+      materiales.find(m =>
+        m.nombre.toLowerCase().includes(materialNombre) ||
+        materialNombre.includes(m.nombre.toLowerCase().split(' ')[0].toLowerCase())
+      );
 
     if (material) {
       updateMaterial(material.id, {
@@ -35,12 +38,13 @@ export const EntradasAlmacenOC: React.FC = () => {
       });
     }
 
+    updateOrden(ocId, 'recibida');
+
     // Actualizar estado de OC
     const recibidoTotal = cantidad;
     const diferencia = orden.cantidad - recibidoTotal;
 
     // Registrar recepción en store
-    const recepcionKey = `oc_rec_${ocId}`;
     const recepcionesActuales = JSON.parse(localStorage.getItem('wm_erp_recepciones_oc') || '[]');
     recepcionesActuales.push({
       id: Date.now().toString(),
@@ -58,7 +62,9 @@ export const EntradasAlmacenOC: React.FC = () => {
     setFormCantidad(0);
   };
 
-  const historialRecepciones = JSON.parse(localStorage.getItem('wm_erp_recepciones_oc') || '[]');
+  const historialRecepciones = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem('wm_erp_recepciones_oc') || '[]'); } catch { return []; }
+  }, []);
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
@@ -206,7 +212,7 @@ export const EntradasAlmacenOC: React.FC = () => {
                     <td className="p-2 text-right font-mono text-xs">{r.cantidadRecibida}</td>
                     <td className="p-2 text-right font-mono text-xs">{r.cantidadOC}</td>
                     <td className={`p-2 text-right font-mono text-xs ${r.diferencia < 0 ? 'text-red-600 font-bold' : 'text-green-600'}`}>
-                      {r.diferencia >= 0 ? `+${r.diferencia}` : r.diferencia}
+                      {r.diferencia > 0 ? `Faltan: ${r.diferencia}` : r.diferencia === 0 ? '0' : r.diferencia}
                     </td>
                   </tr>
                 ))}
