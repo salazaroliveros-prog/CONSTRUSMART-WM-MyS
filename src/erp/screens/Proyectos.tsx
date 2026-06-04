@@ -30,7 +30,7 @@ const estadoLabel: Record<string, string> = {
   pausado: 'Pausado',
   finalizado: 'Finalizado',
 };
-const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado: string }) => {
+const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado: Proyecto['estado'] }) => {
   const dev = p.avanceFinanciero - p.avanceFisico;
   if (p.estado === 'planeacion') return '#94a3b8';
   if (p.estado === 'finalizado') return '#10b981';
@@ -44,6 +44,7 @@ const Proyectos: React.FC = () => {
   const { proyectos, addProyecto, updateProyecto, deleteProyecto, presupuestos, setView, setSelectedProyectoId } = useErp();
   const [show, setShow] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [imgError, setImgError] = React.useState(false);
 
   const {
     register,
@@ -57,6 +58,7 @@ const Proyectos: React.FC = () => {
       cliente: '',
       ubicacion: '',
       tipologia: 'residencial',
+      estado: 'planeacion',
       presupuestoTotal: 0,
       montoContrato: 0,
     },
@@ -85,7 +87,7 @@ const Proyectos: React.FC = () => {
         avanceFisico: 0,
         avanceFinanciero: 0,
         fechaInicio: todayISO(),
-        fechaFin: todayISO(),
+        fechaFin: '',
       });
     }
     reset();
@@ -100,6 +102,7 @@ const Proyectos: React.FC = () => {
       cliente: '',
       ubicacion: '',
       tipologia: 'residencial',
+      estado: 'planeacion',
       presupuestoTotal: 0,
       montoContrato: 0,
     });
@@ -156,7 +159,16 @@ const Proyectos: React.FC = () => {
       </div>
 
       <div className="bg-slate-900 rounded-2xl p-4 mb-4 relative overflow-hidden" style={{ height: 220 }}>
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200)', backgroundSize: 'cover' }} />
+        {imgError ? (
+          <div className="absolute inset-0 opacity-20 bg-slate-600" />
+        ) : (
+          <img
+            src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200"
+            alt=""
+            className="absolute inset-0 opacity-20 object-cover w-full h-full"
+            onError={() => setImgError(true)}
+          />
+        )}
         <div className="relative z-10 flex items-center gap-2 text-white mb-1">
           <MapPin className="w-4 h-4 text-orange-400" /><span className="text-sm font-bold">Mapa de Calor - Geolocalización de Obras</span>
         </div>
@@ -166,17 +178,19 @@ const Proyectos: React.FC = () => {
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" />Desviado</span>
         </div>
         <div className="relative z-10 h-[130px]">
-          {proyectos.map((p) => (
-            <div key={p.id} className="absolute group" style={{ left: `${Math.round(((p.lng + 90.7) / 0.4) * 100)}%`, top: `${Math.round(((14.7 - p.lat) / 0.3) * 100)}%` }}>
-              <div className="w-4 h-4 rounded-full ring-2 ring-white animate-pulse cursor-pointer" style={{ background: estadoColor(p) }} />
-              <div className="hidden group-hover:block absolute left-5 -top-1 bg-white text-slate-800 text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-20">{p.nombre}</div>
-            </div>
-          ))}
+          {proyectos.map((p) =>
+            p.lat != null && p.lng != null ? (
+              <div key={p.id} className="absolute group" style={{ left: `${Math.round(((p.lng + 90.7) / 0.4) * 100)}%`, top: `${Math.round(((14.7 - p.lat) / 0.3) * 100)}%` }}>
+                <div className="w-4 h-4 rounded-full ring-2 ring-white animate-pulse cursor-pointer" style={{ background: estadoColor(p) }} />
+                <div className="hidden group-hover:block absolute left-5 -top-1 bg-white text-slate-800 text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-20">{p.nombre}</div>
+              </div>
+            ) : null
+          )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {proyectos.length === 0 ? Array.from({ length: 3 }).map((_, i) => <div key={i}>{Skeleton}</div>) : proyectos.map(p => (
+        {proyectos.length === 0 ? Array.from({ length: 3 }).map((_, i) => <React.Fragment key={i}>{Skeleton}</React.Fragment>) : proyectos.map(p => (
           <div key={p.id} className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-200">
             <div className="p-5">
               <div className="flex items-start gap-3 mb-4">
@@ -200,7 +214,7 @@ const Proyectos: React.FC = () => {
                 <span className="text-[10px] px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">{TIPOLOGIA_LABEL[p.tipologia]}</span>
                 <select
                   value={p.estado}
-                  onChange={e => updateProyecto(p.id, { estado: e.target.value as any })}
+                  onChange={e => updateProyecto(p.id, { estado: e.target.value as Proyecto['estado'] })}
                   className={`text-[10px] px-2 py-1 rounded-full font-medium border-0 cursor-pointer outline-none ${p.estado === 'ejecucion' ? 'bg-emerald-50 text-emerald-700' : p.estado === 'planeacion' ? 'bg-amber-50 text-amber-700' : p.estado === 'finalizado' ? 'bg-slate-100 text-slate-600' : 'bg-orange-50 text-orange-700'}`}
                 >
                   {ESTADOS.map(e => (
@@ -241,10 +255,7 @@ const Proyectos: React.FC = () => {
                     setSelectedProyectoId(p.id);
                     setView('presupuestos');
                   }}
-                  onEditPresupuesto={() => {
-                    setSelectedProyectoId(p.id);
-                    setView('presupuestos');
-                  }}
+                  onEditPresupuesto={() => {}}
                 />
               </div>
             </div>

@@ -78,9 +78,22 @@ const AvanceObraModal: React.FC = () => {
       toast.error('Ingresa un % de avance válido');
       return;
     }
+    const today = todayISO();
+    const mesActual = today.slice(0, 7);
+    const yaRegistrado = avances.some(a => 
+      a.proyectoId === proyectoId && 
+      a.renglonCodigo === renglonCodigo && 
+      a.fecha?.startsWith(mesActual)
+    );
+    if (yaRegistrado) {
+      toast.warning('Ya existe un avance para este renglón este mes');
+      return;
+    }
     const renglon = renglonesDisponibles.find(r => r.codigo === renglonCodigo);
     await addAvance({
-      proyectoId, presupuestoId, renglonCodigo,
+      proyectoId, presupuestoId,
+      renglonId: renglon?.id || renglonCodigo,
+      renglonCodigo,
       renglonNombre: renglon?.nombre || renglonCodigo,
       avanceFisico, cantidadEjecutada: cantidadEjecutada || 0,
       fecha: todayISO(),

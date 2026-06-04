@@ -107,7 +107,6 @@ export interface Proyecto {
   avanceFinanciero: number;
   estado: 'planeacion' | 'ejecucion' | 'pausado' | 'finalizado';
   factorSobrecosto?: FactorSobrecosto;
-  presupuesto?: number;
   lat?: number;
   lng?: number;
 }
@@ -178,7 +177,7 @@ export interface OrdenCompra {
   cantidad: number;
   monto: number;
   fecha: string;
-  estado: 'pendiente' | 'aprobado' | 'recibida' | 'cancelada';
+  estado: 'pendiente' | 'aprobado' | 'recibida' | 'rechazado' | 'cancelada';
   proveedorId?: string;
   total?: number;
   items?: { materialId: string; cantidad: number; precioUnitario: number }[];
@@ -191,6 +190,8 @@ export interface Proveedor {
   telefono: string;
   email: string;
   categoria: Categoria;
+  rubro?: string;
+  calificacion?: number;
 }
 
 export interface EventoCalendario {
@@ -202,6 +203,7 @@ export interface EventoCalendario {
   tipo: 'reunion' | 'inspeccion' | 'entrega' | 'pago' | 'otros';
   descripcion?: string;
   participantes: string[];
+  completado?: boolean;
 }
 
 export interface BitacoraEntry {
@@ -224,12 +226,15 @@ export interface AvanceObra {
   proyectoId: string;
   presupuestoId: string;
   renglonId: string;
+  renglonCodigo?: string;
+  renglonNombre?: string;
   fecha: string;
   avanceFisico: number;
   cantidadEjecutada: number;
   foto?: string;
-  latitud?: number;
-  longitud?: number;
+  notas?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface Licitacion {

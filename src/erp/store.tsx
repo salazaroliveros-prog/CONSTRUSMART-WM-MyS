@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { sanitizarObjeto } from '@/lib/security';
-import { getServerRole } from '@/lib/security';
+import { sanitizarObjeto, sanitizarTexto, getServerRole } from '@/lib/security';
 import { z } from 'zod';
 import { toast } from '@/components/ui/sonner';
 import {
-  Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, Hito, Riesgo, CuentaCobrar, CuentaPagar,
+  Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio,
 } from './types';
 import {
   SEED_PROYECTOS, SEED_MOVIMIENTOS, SEED_EMPLEADOS, SEED_MATERIALES, SEED_OC, SEED_PROVEEDORES,
@@ -44,14 +43,13 @@ const proyectoSchema = z.object({
   presupuesto: z.number().nullable().optional(),
   latitud: z.number().nullable().optional(),
   longitud: z.number().nullable().optional(),
-}).transform(d => ({
-  ...d,
-  // normalizar lat/lng → latitud/longitud para el tipo Proyecto
-  latitud: d.latitud ?? d.lat ?? undefined,
-  longitud: d.longitud ?? d.lng ?? undefined,
-  fechaInicio: d.fechaInicio ?? '',
-  fechaFin: d.fechaFin ?? '',
-  presupuestoActualId: d.presupuestoActualId ?? undefined,
+}).transform(({ latitud, longitud, ...rest }) => ({
+  ...rest,
+  lat: rest.lat ?? latitud ?? undefined,
+  lng: rest.lng ?? longitud ?? undefined,
+  fechaInicio: rest.fechaInicio ?? '',
+  fechaFin: rest.fechaFin ?? '',
+  presupuestoActualId: rest.presupuestoActualId ?? undefined,
 }));
 
 // erp_movimientos: tipo solo 'ingreso'|'gasto' en DB, monto = costo_total
@@ -253,8 +251,12 @@ function loadFromStorage<T>(key: string, initial: T): T {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return initial;
-    return JSON.parse(raw) as T;
-  } catch { return initial; }
+    const parsed = JSON.parse(raw);
+    return parsed as T;
+  } catch {
+    console.warn(`[Storage] Datos corruptos en localStorage para key: ${key}. Usando valores por defecto.`);
+    return initial;
+  }
 }
 
 const STORAGE_MAX_BYTES = 4.5 * 1024 * 1024; // 4.5MB límite seguro (localStorage permite ~5MB)
@@ -302,14 +304,19 @@ function saveToStorage<T>(key: string, data: T) {
       console.warn(`[Storage] Intento de guardar datos vacíos para key: ${key}`);
       return;
     }
+    if (Array.isArray(data) && data.length === 0) {
+      console.warn(`[Storage] Intento de guardar array vacío para key: ${key}`);
+      return;
+    }
+    if (typeof data === 'object' && data !== null && !Array.isArray(data) && Object.keys(data).length === 0) {
+      console.warn(`[Storage] Intento de guardar objeto vacío para key: ${key}`);
+      return;
+    }
     
     // Limitar tamaño máximo por clave (500KB por entidad)
     const MAX_KEY_SIZE = 500 * 1024; // 500KB
     if (tamano > MAX_KEY_SIZE) {
-      console.warn(`[Storage] Datos demasiado grandes para key ${key}: ${(tamano / 1024).toFixed(1)}KB (límite: ${MAX_KEY_SIZE / 1024}KB)`);
-      // Truncar a los últimos MAX_KEY_SIZE bytes (mantener datos más recientes)
-      const truncated = jsonData.slice(-MAX_KEY_SIZE);
-      localStorage.setItem(key, truncated);
+      console.warn(`[Storage] Datos demasiado grandes para key ${key}: ${(tamano / 1024).toFixed(1)}KB (límite: ${MAX_KEY_SIZE / 1024}KB). NO se guardó.`);
       return;
     }
     
@@ -333,6 +340,7 @@ function saveToStorage<T>(key: string, data: T) {
     }
     
     localStorage.setItem(key, jsonData);
+    localStorage.setItem(key + '_timestamp', String(Date.now()));
   } catch (error) {
     if (error instanceof Error && error.name === 'QuotaExceededError') {
       console.warn(`[Storage] Cuota excedida para key: ${key}`);
@@ -409,6 +417,7 @@ interface Mutation {
   'addAvance' | 'deleteAvance';
   payload: Record<string, unknown>;
   timestamp: number;
+  retryCount: number;
 }
 
 export type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
@@ -486,8 +495,10 @@ interface ErpState {
   notifyDesviacionRendimiento: (actividad: string, eficiencia: number, proyectoId: string) => void;
   appSettings: AppSettings;
   updateAppSettings: (patch: Partial<AppSettings>) => void;
+  avanceFinancieroCalculado: (proyectoId: string) => number;
 }
 
+// ⚠️ Los consumidores DEBEN estar dentro de <ErpProvider>
 const Ctx = createContext<ErpState>({} as ErpState);
 // eslint-disable-next-line react-refresh/only-export-components
 export const useErp = () => useContext(Ctx);
@@ -509,11 +520,14 @@ const QUEUE_KEY = 'wm_erp_queue';
 /**
  * Mapea un rol de base de datos a un rol válido del sistema
  */
+// Configurable: correo del administrador principal (cambiar en producción)
+const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
+
 const mapRol = (rol: string, email?: string): Rol => {
   const validRoles: Rol[] = ['Administrador', 'Gerente', 'Residente', 'Compras', 'Bodeguero'];
   if (validRoles.includes(rol as Rol)) return rol as Rol;
   // Fallback por email para migración
-  if (email === 'salazaroliveros@gmail.com') return 'Administrador';
+  if (email === ADMIN_EMAIL) return 'Administrador';
   return 'Residente';
 };
 
@@ -573,6 +587,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!readyRef.current) return;
     // Browser notification (native)
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      // Configurable: ruta del logo de la empresa (icono para notificaciones nativas)
       new Notification(titulo, {
         body: mensaje,
         icon: '/logo.png',
@@ -665,15 +680,40 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       safeFrom('erp_presupuestos'),
     ]);
 
+    // Nota: as Proyecto[] — asume que ZodSchema y la interfaz están alineados
     if (p?.length) setProyectos(p.map(obj => mapFromSnakeCase(proyectoSchema, obj)).filter(Boolean) as Proyecto[]);
+    // Nota: as Movimiento[] — asume que ZodSchema y la interfaz están alineados
     if (m?.length) setMovimientos(m.map(obj => mapFromSnakeCase(movimientoSchema, obj)).filter(Boolean) as Movimiento[]);
+    // Nota: as Empleado[] — asume que ZodSchema y la interfaz están alineados
     if (e?.length) setEmpleados(e.map(obj => mapFromSnakeCase(empleadoSchema, obj)).filter(Boolean) as Empleado[]);
+    // Nota: as Material[] — asume que ZodSchema y la interfaz están alineados
     if (mat?.length) setMateriales(mat.map(obj => mapFromSnakeCase(materialSchema, obj)).filter(Boolean) as Material[]);
+    // Nota: as OrdenCompra[] — asume que ZodSchema y la interfaz están alineados
     if (o?.length) setOrdenes(o.map(obj => mapFromSnakeCase(ordenCompraSchema, obj)).filter(Boolean) as OrdenCompra[]);
+    // Nota: as Proveedor[] — asume que ZodSchema y la interfaz están alineados
     if (prov?.length) setProveedores(prov.map(obj => mapFromSnakeCase(proveedorSchema, obj)).filter(Boolean) as Proveedor[]);
+    // Nota: as EventoCalendario[] — asume que ZodSchema y la interfaz están alineados
     if (evt?.length) setEventos(evt.map(obj => mapFromSnakeCase(eventoCalendarioSchema, obj)).filter(Boolean) as EventoCalendario[]);
+    // Nota: as BitacoraEntry[] — asume que ZodSchema y la interfaz están alineados
     if (bit?.length) setBitacora(bit.map(obj => mapFromSnakeCase(bitacoraEntrySchema, obj)).filter(Boolean) as BitacoraEntry[]);
+    // Nota: as Presupuesto[] — asume que ZodSchema y la interfaz están alineados
     if (presup?.length) setPresupuestos(presup.map(obj => mapFromSnakeCase(presupuestoSchema, obj)).filter(Boolean) as Presupuesto[]);
+
+    const failedTables = [
+      !p && 'erp_proyectos',
+      !m && 'erp_movimientos',
+      !e && 'erp_empleados',
+      !mat && 'erp_materiales',
+      !o && 'erp_ordenes_compra',
+      !prov && 'erp_proveedores',
+      !evt && 'erp_eventos_calendario',
+      !bit && 'erp_bitacora',
+      !presup && 'erp_presupuestos',
+    ].filter(Boolean);
+    if (failedTables.length > 0) {
+      console.warn(`[Supabase] Carga parcial: ${failedTables.length} tabla(s) fallaron`);
+      toast.warning(`Algunos datos no se cargaron desde el servidor. Revisa tu conexión.`);
+    }
   }, []);
 
   const fetchInitialDataRef = useRef(fetchInitialData);
@@ -687,7 +727,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (authLoaded) return; // Prevenir ejecución duplicada
       authLoaded = true;
 
-      const defaultRol: Rol = email === 'salazaroliveros@gmail.com' ? 'Administrador' : 'Residente';
+      const defaultRol: Rol = email === ADMIN_EMAIL ? 'Administrador' : 'Residente';
       const avatarFromMeta = metadata?.avatar_url || metadata?.picture;
       let nombreFinal = metadata?.nombre || email?.split('@')[0] || 'Usuario';
       let rolFinal = defaultRol;
@@ -817,15 +857,24 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_notified_eventos', notifiedEventos); }, [notifiedEventos]);
   useEffect(() => { saveToStorage(QUEUE_KEY, mutationQueue); }, [mutationQueue]);
 
+  /**
+   * @returns mutation ID for tracking
+   */
   const enqueueMutation = useCallback((type: Mutation['type'], payload: Record<string, unknown>) => {
     const safePayload = sanitizarObjeto(payload);
-    const mutation: Mutation = { id: uid(), type, payload: safePayload, timestamp: Date.now() };
+    const mutation: Mutation = { id: uid(), type, payload: safePayload, timestamp: Date.now(), retryCount: 0 };
     setMutationQueue(q => {
       if (q.length >= 100) q.shift();
+      if (q.length >= 90) {
+        console.warn(`[Sync] Cola de sincronización al ${Math.round(q.length / 100 * 100)}% de capacidad`);
+      }
       return [...q, mutation];
     });
+    if (!isOnline) {
+      console.info(`[Sync] Mutación encolada sin conexión: ${type} (${mutation.id})`);
+    }
     return mutation.id;
-  }, []);
+  }, [isOnline]);
 
   const processQueue = useCallback(async () => {
     if (!isOnline || mutationQueue.length === 0) return;
@@ -1047,9 +1096,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         case 'deleteValeSalida':
           await supabase.from('erp_vales_salida').delete().eq('id', next.payload.id);
           break;
-        // Tablas en DB
+        // Tablas en DB (usar toSnake para camelCase → snake_case)
         case 'addAvance': {
-          const { error } = await supabase.from('erp_avances').insert([next.payload]);
+          const { error } = await supabase.from('erp_avances').insert([toSnake(next.payload)]);
           if (error) throw new Error(`Failed to add avance: ${error.message}`);
           break;
         }
@@ -1059,13 +1108,13 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           break;
         }
         case 'addLicitacion': {
-          const { error } = await supabase.from('erp_licitaciones').insert([next.payload]);
+          const { error } = await supabase.from('erp_licitaciones').insert([toSnake(next.payload)]);
           if (error) throw new Error(`Failed to add licitacion: ${error.message}`);
           break;
         }
         case 'updateLicitacion': {
           const { id, ...restL } = next.payload;
-          const { error } = await supabase.from('erp_licitaciones').update(restL).eq('id', id);
+          const { error } = await supabase.from('erp_licitaciones').update(toSnake(restL)).eq('id', id);
           if (error) throw new Error(`Failed to update licitacion: ${error.message}`);
           break;
         }
@@ -1078,14 +1127,20 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setMutationQueue(rest);
     } catch (err) {
       console.error('Error processing mutation queue:', err);
-      // Remover mutación fallida después de 3 intentos implícito por el timer
-      setMutationQueue(rest);
+      // Reintentar hasta 3 veces con backoff
+      if (next.retryCount < 3) {
+        const retryMutation: Mutation = { ...next, retryCount: next.retryCount + 1 };
+        setMutationQueue(q => [retryMutation, ...rest]);
+      } else {
+        console.error(`Mutation ${next.type} (${next.id}) falló tras ${next.retryCount} intentos. Descartada.`);
+        setMutationQueue(rest);
+      }
     }
   }, [isOnline, mutationQueue, user]);
 
   useEffect(() => {
     if (isOnline) {
-      const timer = setTimeout(processQueue, 1000);
+      const timer = setTimeout(processQueue, 300);
       return () => clearTimeout(timer);
     }
   }, [isOnline, processQueue]);
@@ -1115,7 +1170,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
       new Notification(title, {
         body: description,
-        icon: '/logo.png',
+        icon: '/logo.png', // Configurable: ruta del logo de la empresa
       });
     } else {
       toast(title, {
@@ -1165,9 +1220,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
     if (error) setAuthError(error.message);
   };
-  const signUp = async (email: string, pass: string, nombre: string, _rol: Rol) => {
+  const signUp = async (email: string, pass: string, nombre: string, rol: Rol) => {
     setAuthError('');
-    const { error } = await supabase.auth.signUp({ email, password: pass, options: { data: { full_name: nombre, nombre, rol: _rol } } });
+    const { error } = await supabase.auth.signUp({ email, password: pass, options: { data: { full_name: nombre, nombre, rol } } });
     if (error) setAuthError(error.message);
   };
   const logout = async () => { await supabase.auth.signOut(); setUser(null); setView('login'); };
@@ -1427,11 +1482,32 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const avancesActualizados = [newAvance, ...avancesRef.current];
     setAvances(avancesActualizados);
     enqueueMutation('addAvance', newAvance);
-    const todosAvances = avancesActualizados.filter(av => av.proyectoId === a.proyectoId);
-    const promedioAvance = todosAvances.length > 0
-      ? todosAvances.reduce((sum, av) => sum + av.avanceFisico, 0) / todosAvances.length
-      : 0;
-    await updateProyecto(a.proyectoId, { avanceFisico: Math.round(promedioAvance) });
+
+    // Cascade avance to presupuesto renglon + compute weighted project avance
+    let weightedAvance = 0;
+    if (a.presupuestoId && a.renglonId) {
+      setPresupuestos(s => s.map(p => {
+        if (p.id !== a.presupuestoId) return p;
+        const updatedRenglones = p.renglones.map(r => {
+          if (r.id !== a.renglonId) return r;
+          return { ...r, avanceFisico: a.avanceFisico, avanceFinanciero: a.avanceFisico };
+        });
+        const totalCost = updatedRenglones.reduce((sum, r) =>
+          sum + r.costoMateriales + r.costoManoObra + r.costoEquipo, 0);
+        weightedAvance = totalCost > 0
+          ? updatedRenglones.reduce((sum, r) =>
+              sum + ((r.avanceFisico ?? 0) * (r.costoMateriales + r.costoManoObra + r.costoEquipo) / totalCost), 0)
+          : 0;
+        return { ...p, renglones: updatedRenglones };
+      }));
+    } else {
+      const todosAvances = avancesActualizados.filter(av => av.proyectoId === a.proyectoId);
+      weightedAvance = todosAvances.length > 0
+        ? todosAvances.reduce((sum, av) => sum + av.avanceFisico, 0) / todosAvances.length
+        : 0;
+    }
+
+    await updateProyecto(a.proyectoId, { avanceFisico: Math.round(weightedAvance) });
   };
 
   const deleteAvance = async (id: string) => {
@@ -1459,7 +1535,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const DEFAULT_SETTINGS: AppSettings = {
-    uiMode: 'shadcn',
+    uiMode: (typeof window !== 'undefined' ? localStorage.getItem('wm_ui_mode') as UIMode : null) || 'shadcn',
     appTheme: 'light',
     primaryColor: '#E8752F',
     language: 'es',
@@ -1479,6 +1555,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setAppSettings(prev => {
       const next = { ...prev, ...patch };
       saveToStorage(BASE_STORAGE_KEY + '_settings', next);
+      if (patch.uiMode) localStorage.setItem('wm_ui_mode', patch.uiMode);
       return next;
     });
   }, []);
@@ -1524,7 +1601,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       licitaciones, addLicitacion, updateLicitacion, deleteLicitacion,
       avances, addAvance, deleteAvance,
       valesSalida, addValeSalida, deleteValeSalida,
-      costoPorHoraHombre, empleadosDisponibles,
+      costoPorHoraHombre, empleadosDisponibles, avanceFinancieroCalculado,
       notificaciones, notificacionesNoLeidas, addNotificacion, markNotificacionLeida, marcarTodasLeidas,
       verificarStockCritico, verificarOrdenesCambioPendientes, verificarChecklistRechazado,
       notifyAvanceRegistrado, notifyDesviacionRendimiento,

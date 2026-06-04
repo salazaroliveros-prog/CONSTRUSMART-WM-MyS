@@ -4,7 +4,7 @@ import { CARD, INPUT, BUTTON_DARK } from '../ui';
 import { useErp } from '../store';
 import { Tipologia, RenglonPresupuesto, SubRenglon, Presupuesto } from '../types';
 import { generarRenglones } from '../data';
-import { fmtQ, TIPOLOGIA_LABEL, costoDirectoUnitario, precioUnitarioVenta, duracionPorRendimiento, HERRAMIENTA_MENOR, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD } from '../utils';
+import { fmtQ, TIPOLOGIA_LABEL, costoDirectoUnitario, precioUnitarioVenta, precioUnitarioVentaConFactores, duracionPorRendimiento, HERRAMIENTA_MENOR, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD } from '../utils';
 import { exportCSV, exportPDF } from '../export';
 import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X, Users, Package } from 'lucide-react';
 import PresupuestosList from '../components/PresupuestosList';
@@ -258,38 +258,30 @@ const Presupuestos: React.FC = () => {
       cantidadUnitaria: 1,
       precioUnitario: m.precioRef,
     }));
+    const todasLasSubs = [...existentes, ...nuevosSubs];
+    const costoMat = todasLasSubs.reduce((a, s) => a + (s.cantidadUnitaria * s.precioUnitario), 0);
 
     upd(renglonId, {
-      subRenglones: [...existentes, ...nuevosSubs],
-      costoManoObra: personal * 350, // jornal base Q350
+      subRenglones: todasLasSubs,
+      costoManoObra: personal * 350,
+      costoMateriales: costoMat,
     });
-
-    // Cascada: recalcular costos del renglón
-    setTimeout(() => {
-      const renglon = items.find(r => r.id === renglonId);
-      if (renglon) {
-        const costoMatTotal = nuevosSubs.reduce((a, s) => a + (s.cantidadUnitaria * s.precioUnitario), 0);
-        upd(renglonId, {
-          costoMateriales: renglon.costoMateriales + costoMatTotal,
-          totalCD: (renglon.costoMateriales + costoMatTotal) + renglon.costoManoObra + renglon.costoEquipo,
-        });
-      }
-    }, 100);
   };
 
   const addSubrenglon = (renglonId: string) => {
-    upd(renglonId, {
-      subRenglones: [
-        ...(items.find(r => r.id === renglonId)?.subRenglones || []),
-        {
-          id: 'sub-' + crypto.randomUUID().slice(0, 9),
-          nombreMaterial: '',
-          unidad: 'kg',
-          cantidadUnitaria: 0,
-          precioUnitario: 0,
-        } as SubRenglon
-      ]
-    });
+    const existentes = items.find(r => r.id === renglonId)?.subRenglones || [];
+    const nuevasSubs: SubRenglon[] = [
+      ...existentes,
+      {
+        id: 'sub-' + crypto.randomUUID().slice(0, 9),
+        nombreMaterial: '',
+        unidad: 'kg',
+        cantidadUnitaria: 0,
+        precioUnitario: 0,
+      }
+    ];
+    const costoMat = nuevasSubs.reduce((sum, s) => sum + (s.cantidadUnitaria * s.precioUnitario), 0);
+    upd(renglonId, { subRenglones: nuevasSubs, costoMateriales: costoMat });
   };
 
   const handleRegistrarGastoRenglon = async (r: RenglonPresupuesto) => {
@@ -339,18 +331,26 @@ const Presupuestos: React.FC = () => {
     const renglon = items.find(r => r.id === renglonId);
     if (!renglon?.subRenglones) return;
     const subs = renglon.subRenglones.map(s => s.id === subId ? { ...s, ...patch } : s);
-    upd(renglonId, { subRenglones: subs });
+    const costoMat = subs.reduce((sum, s) => sum + (s.cantidadUnitaria * s.precioUnitario), 0);
+    upd(renglonId, { subRenglones: subs, costoMateriales: costoMat });
   };
 
   const delSubrenglon = (renglonId: string, subId: string) => {
     const renglon = items.find(r => r.id === renglonId);
     if (!renglon?.subRenglones) return;
-    upd(renglonId, { subRenglones: renglon.subRenglones.filter(s => s.id !== subId) });
+    const subs = renglon.subRenglones.filter(s => s.id !== subId);
+    const costoMat = subs.length > 0
+      ? subs.reduce((sum, s) => sum + (s.cantidadUnitaria * s.precioUnitario), 0)
+      : renglon.costoMateriales;
+    upd(renglonId, { subRenglones: subs, costoMateriales: costoMat });
   };
 
+  const proyectoActual = projectId ? proyectos.find(p => p.id === projectId) : null;
   const calc = (r: RenglonPresupuesto) => {
     const cd = costoDirectoUnitario(r.costoMateriales, r.costoManoObra, r.costoEquipo);
-    const pv = precioUnitarioVenta(cd);
+    const pv = proyectoActual?.factorSobrecosto
+      ? precioUnitarioVentaConFactores(cd, proyectoActual.factorSobrecosto)
+      : precioUnitarioVenta(cd);
     return { cd, pv, total: pv * r.cantidad, dur: duracionPorRendimiento(r.cantidad, r.rendimientoCuadrilla) };
   };
   const granTotal = items.reduce((a, r) => a + calc(r).total, 0);
@@ -377,25 +377,32 @@ const Presupuestos: React.FC = () => {
   }, [items]);
 
   const save = async () => {
+    // Safety: ensure costoMateriales is synced from subRenglones before saving
+    const itemsSeguros = items.map(r => {
+      if (!r.subRenglones || r.subRenglones.length === 0) return r;
+      const costoMat = r.subRenglones.reduce((sum, s) => sum + (s.cantidadUnitaria * s.precioUnitario), 0);
+      return { ...r, costoMateriales: costoMat };
+    });
+    const totalCalc = itemsSeguros.reduce((a, r) => a + calc(r).total, 0);
+    const costoDir = itemsSeguros.reduce((a, r) => a + costoDirectoUnitario(r.costoMateriales, r.costoManoObra, r.costoEquipo) * r.cantidad, 0);
+
     if (editingPresupuesto) {
-      // Editar presupuesto existente
       await updatePresupuesto(editingPresupuesto.id, {
-        renglones: items,
-        totalCalculado: granTotal,
-        costoDirectoTotal: granDir,
+        renglones: itemsSeguros,
+        totalCalculado: totalCalc,
+        costoDirectoTotal: costoDir,
         fechaActualizacion: new Date().toISOString(),
         notas: proyecto,
         versionPresupuesto: (editingPresupuesto.versionPresupuesto || 1) + 1,
       });
       setEditingPresupuesto(null);
     } else if (projectId) {
-      // Crear nuevo presupuesto
       await addPresupuesto({
         proyectoId: projectId,
         tipologia,
-        renglones: items,
-        totalCalculado: granTotal,
-        costoDirectoTotal: granDir,
+        renglones: itemsSeguros,
+        totalCalculado: totalCalc,
+        costoDirectoTotal: costoDir,
         estado: 'borrador',
         fechaCreacion: new Date().toISOString(),
         fechaActualizacion: new Date().toISOString(),
@@ -403,7 +410,7 @@ const Presupuestos: React.FC = () => {
         versionPresupuesto: 1,
       });
     } else {
-      try { localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(items)); } catch { /* ignore */ }
+      try { localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(itemsSeguros)); } catch { /* ignore */ }
     }
 
     setSaved(true);
@@ -618,7 +625,7 @@ const Presupuestos: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 text-xs">
                       <div><label className="text-slate-400 block mb-0.5">Rendimiento/día</label><input type="number" value={r.rendimientoCuadrilla} onChange={e => upd(r.id, { rendimientoCuadrilla: +e.target.value })} placeholder="Rendimiento/día" className={ninp} /></div>
-                      <div><label className="text-slate-400 block mb-0.5">Materiales Q</label><input type="number" value={r.costoMateriales} onChange={e => upd(r.id, { costoMateriales: +e.target.value })} placeholder="Materiales Q" className={ninp} /></div>
+                      <div><label className="text-slate-400 block mb-0.5">Materiales Q {(r.subRenglones?.length ?? 0) > 0 && <span className="text-orange-400 text-[9px]">(auto)</span>}</label><input type="number" value={r.costoMateriales} onChange={e => upd(r.id, { costoMateriales: +e.target.value })} placeholder="Materiales Q" className={ninp} readOnly={(r.subRenglones?.length ?? 0) > 0} /></div>
                       <div><label className="text-slate-400 block mb-0.5">Mano Obra Q</label><input type="number" value={r.costoManoObra} onChange={e => upd(r.id, { costoManoObra: +e.target.value })} placeholder="Mano Obra Q" className={ninp} /></div>
                       <div><label className="text-slate-400 block mb-0.5">Equipo Q</label><input type="number" value={r.costoEquipo} onChange={e => upd(r.id, { costoEquipo: +e.target.value })} placeholder="Equipo Q" className={ninp} /></div>
                       <div><label className="text-slate-400 block mb-0.5">Duración (días)</label><div className={ninp + ' bg-white text-slate-600'}>{c.dur}</div></div>

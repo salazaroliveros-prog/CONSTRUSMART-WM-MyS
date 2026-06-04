@@ -20,7 +20,7 @@ const RecepcionMateriales: React.FC = () => {
     if (oc) {
       setSelectedOC(oc.id);
       const initial: Record<string, number> = {};
-      oc.items.forEach(item => { initial[item.materialId] = item.cantidad; });
+      oc.items?.forEach(item => { initial[item.materialId] = item.cantidad; });
       setRecepcionItems(initial);
       toast.success(`OC encontrada: ${oc.id.slice(0, 8)}...`);
       return;
@@ -37,7 +37,7 @@ const RecepcionMateriales: React.FC = () => {
   const handleRecibir = () => {
     if (!ocSeleccionada) return;
     // Actualizar stock de cada material
-    ocSeleccionada.items.forEach(item => {
+    ocSeleccionada.items?.forEach(item => {
       const recibido = recepcionItems[item.materialId] || 0;
       if (recibido > 0) {
         const mat = materiales.find(m => m.id === item.materialId);
@@ -47,7 +47,7 @@ const RecepcionMateriales: React.FC = () => {
       }
     });
     updateOrden(ocSeleccionada.id, 'recibida');
-    toast.success(`OC recibida: ${ocSeleccionada.items.length} materiales actualizados`);
+    toast.success(`OC recibida: ${ocSeleccionada.items?.length} materiales actualizados`);
     setSelectedOC(null);
     setRecepcionItems({});
   };
@@ -79,12 +79,12 @@ const RecepcionMateriales: React.FC = () => {
               <div key={oc.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer" onClick={() => {
                 setSelectedOC(oc.id);
                 const initial: Record<string, number> = {};
-                oc.items.forEach(item => { initial[item.materialId] = item.cantidad; });
+                oc.items?.forEach(item => { initial[item.materialId] = item.cantidad; });
                 setRecepcionItems(initial);
               }}>
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-slate-700">{oc.id.slice(0, 8)}...</p>
-                  <p className="text-xs text-slate-400">{oc.items.length} materiales · {fmtQ(oc.total)}</p>
+                  <p className="text-xs text-slate-400">{oc.items?.length} materiales · {fmtQ(oc.total ?? 0)}</p>
                 </div>
                 <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">Pendiente</span>
               </div>
@@ -99,12 +99,12 @@ const RecepcionMateriales: React.FC = () => {
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="text-sm font-semibold text-slate-700">OC: {selectedOC.slice(0, 8)}...</p>
-              <p className="text-xs text-slate-400">Total: {fmtQ(ocSeleccionada.total)}</p>
+              <p className="text-xs text-slate-400">Total: {fmtQ(ocSeleccionada.total ?? 0)}</p>
             </div>
             <button onClick={() => setSelectedOC(null)} className="text-xs text-slate-400 hover:text-slate-600">Cambiar OC</button>
           </div>
           <div className="space-y-2 mb-4">
-            {ocSeleccionada.items.map(item => {
+            {ocSeleccionada.items?.map(item => {
               const mat = materiales.find(m => m.id === item.materialId);
               return (
                 <div key={item.materialId} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">

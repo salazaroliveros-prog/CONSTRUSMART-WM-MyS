@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   ActivoHerramienta, CuadroComparativo, CotizacionItem, Destajo,
   VentaPaquete, Anticipo, AmortizacionItem, CajaChica,
@@ -10,9 +10,18 @@ import { supabase } from '../../lib/supabase';
 const STORAGE_KEY_PREFIX = 'wm_erp_';
 const uid = () => Math.random().toString(36).substr(2, 9);
 
-const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
-
 export function useNuevosModulos() {
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // ============================================================
   // 1. ACTIVOS Y HERRAMIENTAS
@@ -40,6 +49,25 @@ export function useNuevosModulos() {
     fecha_adquisicion: a.fechaAdquisicion,
   });
 
+  // Only map fields present in patch (safe for partial updates)
+  const activoToDbPatch = (p: Partial<ActivoHerramienta>) => {
+    const db: Record<string, unknown> = {};
+    if (p.nombre !== undefined) db.nombre = p.nombre;
+    if (p.codigoInventario !== undefined) db.codigo_inventario = p.codigoInventario;
+    if (p.tipo !== undefined) db.tipo = p.tipo;
+    if (p.marca !== undefined) db.marca = p.marca;
+    if (p.modelo !== undefined) db.modelo = p.modelo;
+    if (p.numeroSerie !== undefined) db.numero_serie = p.numeroSerie;
+    if (p.valorAdquisicion !== undefined) db.valor_adquisicion = p.valorAdquisicion;
+    if (p.estado !== undefined) db.estado = p.estado;
+    if (p.ubicacion !== undefined) db.ubicacion = p.ubicacion;
+    if (p.asignadoA !== undefined) db.asignado_a = p.asignadoA;
+    if (p.proyectoId !== undefined) db.proyecto_id = p.proyectoId;
+    if (p.fechaAsignacion !== undefined) db.fecha_asignacion = p.fechaAsignacion;
+    if (p.fechaAdquisicion !== undefined) db.fecha_adquisicion = p.fechaAdquisicion;
+    return db;
+  };
+
   const addActivo = useCallback(async (a: Omit<ActivoHerramienta, 'id'>) => {
     const nuevo: ActivoHerramienta = { ...a, id: uid() };
     const updated = [...activos, nuevo];
@@ -52,7 +80,7 @@ export function useNuevosModulos() {
     const updated = activos.map(a => a.id === id ? { ...a, ...patch } : a);
     setActivos(updated);
     localStorage.setItem(STORAGE_KEY_PREFIX + 'activos', JSON.stringify(updated));
-    if (isOnline) await supabase.from('activos_herramientas').update(activoToDb(patch as ActivoHerramienta)).eq('id', id);
+    if (isOnline) await supabase.from('activos_herramientas').update(activoToDbPatch(patch)).eq('id', id);
   }, [activos]);
 
   const deleteActivo = useCallback(async (id: string) => {

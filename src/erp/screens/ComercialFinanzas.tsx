@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { useNuevosModulos } from '../hooks/useNuevosModulos';
 import { useErp } from '../store';
-
-const uid = () => Math.random().toString(36).substr(2, 9);
+import { toast } from 'sonner';
 
 export const ComercialFinanzas: React.FC = () => {
   const { proyectos } = useErp();
   const {
     ventas, addVenta, updateVenta,
-    anticipos, addAnticipo, addAmortizacion, updateAnticipo,
+    anticipos, addAnticipo, addAmortizacion,
     cajasChicas, addCajaChica, updateCajaChica
   } = useNuevosModulos();
 
   const [tab, setTab] = useState<'ventas' | 'anticipos' | 'cajas'>('ventas');
   const [showForm, setShowForm] = useState<string | null>(null);
   const [form, setForm] = useState<any>({});
+  const [amortInputs, setAmortInputs] = useState<Record<string, string>>({});
 
   // ---- VENTAS ----
   const renderVentas = () => (
@@ -125,10 +125,10 @@ export const ComercialFinanzas: React.FC = () => {
                 <div className="mt-2 flex gap-2">
                   <input type="number" placeholder="Monto a amortizar"
                     className="text-xs px-2 py-1 border rounded w-32"
-                    id={`amort-${a.id}`} />
+                    value={amortInputs[a.id] || ''}
+                    onChange={e => setAmortInputs(prev => ({ ...prev, [a.id]: e.target.value }))} />
                   <button onClick={() => {
-                    const input = document.getElementById(`amort-${a.id}`) as HTMLInputElement;
-                    const monto = parseFloat(input?.value || '0');
+                    const monto = parseFloat(amortInputs[a.id] || '0');
                     if (monto > 0) {
                       addAmortizacion(a.id, {
                         anticipoId: a.id,
@@ -136,7 +136,7 @@ export const ComercialFinanzas: React.FC = () => {
                         fecha: new Date().toISOString().split('T')[0],
                         referencia: 'Amortización manual'
                       });
-                      input.value = '';
+                      setAmortInputs(prev => ({ ...prev, [a.id]: '' }));
                     }
                   }} className="bg-green-500 text-white px-2 py-1 rounded text-xs">Amortizar</button>
                 </div>
@@ -289,8 +289,9 @@ export const ComercialFinanzas: React.FC = () => {
                 <input placeholder="Cliente (opcional)" className="w-full px-3 py-2 border rounded text-sm"
                   value={form.cliente || ''} onChange={e => setForm({ ...form, cliente: e.target.value })} />
                 <button onClick={() => {
+                  if (!form.proyectoId) { toast.error('Selecciona un proyecto'); return; }
                   addVenta({
-                    proyectoId: form.proyectoId || 'p1',
+                    proyectoId: form.proyectoId,
                     tipo: form.tipo || 'unidad',
                     identificador: form.identificador || 'Nueva unidad',
                     precioVenta: form.precioVenta || 0,
@@ -321,9 +322,10 @@ export const ComercialFinanzas: React.FC = () => {
                 <input placeholder="Monto total Q" type="number" className="w-full px-3 py-2 border rounded text-sm"
                   value={form.montoTotal || ''} onChange={e => setForm({ ...form, montoTotal: +e.target.value })} />
                 <button onClick={() => {
+                  if (!form.proyectoId) { toast.error('Selecciona un proyecto'); return; }
                   const monto = form.montoTotal || 0;
                   addAnticipo({
-                    proyectoId: form.proyectoId || 'p1',
+                    proyectoId: form.proyectoId,
                     montoTotal: monto,
                     saldoPendiente: monto,
                     tipo: form.tipo || 'proveedor',
@@ -351,8 +353,9 @@ export const ComercialFinanzas: React.FC = () => {
                 <input placeholder="Solicitante" className="w-full px-3 py-2 border rounded text-sm"
                   value={form.solicitante || ''} onChange={e => setForm({ ...form, solicitante: e.target.value })} />
                 <button onClick={() => {
+                  if (!form.proyectoId) { toast.error('Selecciona un proyecto'); return; }
                   addCajaChica({
-                    proyectoId: form.proyectoId || 'p1',
+                    proyectoId: form.proyectoId,
                     monto: form.monto || 0,
                     descripcion: form.descripcion || 'Gasto',
                     categoria: form.categoria || 'materiales',
