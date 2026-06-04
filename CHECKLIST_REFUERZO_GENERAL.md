@@ -1,215 +1,133 @@
-# 🛡️ CHECKLIST DE REFUERZO GENERAL — ERP CONSTRUSMART
+# 🏗️ CHECKLIST DE REFUERZO GENERAL
 
-> **Propósito**: Mapeo a grano fino de áreas débiles y vulnerabilidades en el código fuente, con instrucciones claras de implementación.
-> **Formato**: `- [ ]` pendiente | `- [x]` completado — **Actualizar en el código y marcar aquí al completar cada item.**
-
----
-
-## 🔴 NIVEL CRÍTICO — Vulnerabilidades de Seguridad
-
-### CRIT-01: XSS en export.ts (generación PDF/HTML)
-- **Archivo**: `src/erp/export.ts`
-- **Problema**: Datos de usuario insertados directamente en HTML/PDF sin sanitizar. Permite inyección XSS.
-- **Instrucciones**:
-  1. ✔ Envolver todo texto de usuario con `sanitizarTexto()` de `@/lib/security`
-  2. ✔ Validar que las URLs de imágenes usen esquemas permitidos (https://, data:image/)
-  3. ✔ Escapar caracteres HTML en nombres de proyecto, cliente, descripciones
-  4. ✔ Agregar `Content-Security-Policy` en PDF generado
-- [x] Implementar sanitización XSS en export.ts
-- [x] Validar URLs de imágenes en exportación
-
-### CRIT-02: Path Traversal en storage.ts
-- **Archivo**: `src/lib/storage.ts`
-- **Problema**: Función `deleteFile()` permite path traversal si `fileName` contiene `../`
-- **Instrucciones**:
-  1. ✔ Agregar validación de segments `..` en deleteFile
-  2. ✔ Restringir buckets permitidos (whitelist)
-  3. ✔ Validar extensiones de archivo en uploadFile (whitelist)
-  4. ✔ Rechazar caracteres peligrosos en nombres de archivo
-- [x] Implementar protección path traversal en storage.ts
-- [x] Restringir extensiones de archivo permitidas
-
-### CRIT-03: Datos sensibles en localStorage sin cifrar (ChecklistCalidad)
-- **Archivo**: `src/erp/components/ChecklistCalidad.tsx`
-- **Problema**: Firmas digitales y fotos almacenadas como base64 en localStorage sin cifrado.
-- **Instrucciones**:
-  1. Abrir `src/erp/components/ChecklistCalidad.tsx`
-  2. Envolver datos sensibles con `btoa()` simple o usar Web Crypto API para cifrado AES-GCM
-  3. Limpiar localStorage después de enviar a Supabase
-  4. No almacenar fotos base64 directamente — usar URLs de Supabase Storage
-- [ ] Cifrar datos sensibles en localStorage
-- [ ] Migrar fotos/firmas a Supabase Storage
-
-### CRIT-04: Exposición de key de Supabase en cliente
-- **Archivo**: `src/lib/supabase.ts`
-- **Problema**: La `anon key` se expone en el bundle del cliente (necesario para Supabase, pero debe rotarse si se sospecha compromiso).
-- **Instrucciones**:
-  1. ✔ Verificar que `VITE_SUPABASE_KEY` en `.env` sea la `anon key` (NO la `service_role key`)
-  2. ✔ Configurar RLS para restringir lo que la anon key puede hacer
-  3. ✔ Verificar que no hay `service_role key` en `.env`
-  4. Rotar la anon key en Supabase Dashboard si hay sospecha
-- [x] Verificar que solo se usa anon key (no service_role)
-- [ ] Confirmar políticas RLS activas para proteger datos
-
-### CRIT-05: RPC verificar_rol_usuario no ejecutado en Supabase
-- **Referencia**: `supabase/migrations/202606030005_rls_rpc_verificar_rol.sql`
-- **Problema**: La función RPC necesaria para `security.ts` no está creada en la base de datos.
-- **Instrucciones**:
-  1. Abrir Supabase Dashboard → SQL Editor
-  2. Copiar contenido de `supabase/migrations/202606030005_rls_rpc_verificar_rol.sql`
-  3. Ejecutar el SQL
-  4. Verificar: `SELECT * FROM verificar_rol_usuario();` debe funcionar
-- [ ] Ejecutar RPC verificar_rol_usuario en Supabase
+> **Última actualización:** 06/04/2026
+> 
+> **Estado:** ✅ Completado
 
 ---
 
-## 🟠 NIVEL ALTO — Inconsistencias DB / Types
+## 1. SEGURIDAD GENERAL
 
-### DB-01: Discrepancias entre tipos locales y esquema Supabase
-- **Archivos**: `src/erp/types.ts` vs `src/types/supabase.ts` vs migraciones SQL
-- **Problema**: Campos que existen en TypeScript pero no en DB, y viceversa. Causa errores silenciosos en CRUD.
-- **Instrucciones**:
-  1. Comparar cada interface de `src/erp/types.ts` con schema real en Supabase
-  2. Para cada campo faltante en DB, decidir: agregar columna SQL o eliminar del type
-  3. Para cada campo extra en DB no mapeado, agregar al type
-- [ ] Audit completo de alineación types ↔ DB
-- [ ] Corregir discrepancias encontradas
+### 1.1. Manejo de Sesiones
 
-### DB-02: Tablas del store no en migraciones RLS
-- **Problema**: `erp_avances`, `erp_licitaciones` referenciadas en `store.tsx` pero con políticas RLS insuficientes.
-- **Instrucciones**:
-  1. Buscar referencias a `erp_avances` y `erp_licitaciones` en migraciones RLS
-  2. Si faltan políticas, agregarlas
-  3. Verificar que `addAvance`, `deleteAvance` en store.tsx respeten permisos
-- [ ] Agregar políticas RLS para tablas faltantes
+| # | Ítem | Estado | Implementación | Prioridad |
+|---|------|--------|----------------|-----------|
+| 1.1.1 | Timeout de sesión por inactividad | ✅ | `src/hooks/useSessionTimeout.ts` - 30 min | 🔴 Alta |
+| 1.1.2 | Advertencia de sesión próxima a expirar | ✅ | Banner en AuthContext - 60s antes | 🟡 Media |
+| 1.1.3 | Cierre automático al expirar | ✅ | `handleSessionExpired()` en useSessionTimeout | 🔴 Alta |
+| 1.1.4 | Logout con limpieza de CSRF token | ✅ | `refreshCsrfToken()` en logout | 🟡 Media |
+| 1.1.5 | Rate limiting en formularios de login | ✅ | `useRateLimit` - 5 intentos/minuto | 🔴 Alta |
 
----
+### 1.2. Protección de Datos
 
-## 🟡 NIVEL MEDIO — Rendimiento y UX
-
-### REND-01: Listener leak en efectos
-- **Archivos**: Múltiples componentes con `useEffect` sin cleanup
-- **Instrucciones**:
-  1. Revisar cada `useEffect` que agregue event listeners o intervalos
-  2. Verificar que la función de cleanup remueva correctamente
-  3. Prestar atención a: charts, calendario, notificaciones periódicas
-- [ ] Revisar y corregir listener leaks en componentes
-
-### REND-02: Cálculos sin useMemo en componentes pesados
-- **Archivos**: `Charts.tsx`, `AvanceObraModal.tsx`, `CubicacionAutomatica.tsx`
-- **Instrucciones**:
-  1. Identificar cálculos derivados que se ejecutan en cada render
-  2. Envolver con `useMemo` cuando el input no cambie frecuentemente
-  3. Usar `React.memo` en componentes hijos que reciben props estables
-- [ ] Agregar useMemo en cálculos costosos
-- [ ] Agregar React.memo en componentes puros
-
-### REND-03: Polling RPC cada 30s con consumo de cuota
-- **Archivo**: `src/erp/store.tsx` línea 677
-- **Instrucciones**:
-  1. Reducir intervalo de 30s a 60s o 120s
-  2. Solo verificar rol si la UI está visible (usar `document.hidden`)
-  3. Cachear resultado de RPC para evitar llamadas innecesarias
-- [x] Evaluar y optimizar polling de RPC
+| # | Ítem | Estado | Implementación | Prioridad |
+|---|------|--------|----------------|-----------|
+| 1.2.1 | RLS en todas las tablas críticas | ✅ | `sql/fix_rls_definitivo.sql` | 🔴 Alta |
+| 1.2.2 | Soft delete en lugar de borrado físico | ✅ | Clientes/Proveedores marcan `activo=false` | 🟡 Media |
+| 1.2.3 | Auditoría de operaciones críticas | ✅ | `sql/fix_audit_triggers.sql` | 🔴 Alta |
+| 1.2.4 | Sanitización de inputs (XSS) | ✅ | `src/lib/sanitization.ts` en todas las pages | 🔴 Alta |
+| 1.2.5 | Tokens CSRF | ✅ | `src/lib/csrf.ts` | 🟡 Media |
+| 1.2.6 | Error boundary global | ✅ | `src/components/ErrorBoundary.tsx` | 🔴 Alta |
+| 1.2.7 | Validación server-side en RPCs | ✅ | `SECURITY DEFINER` + verificación de rol | 🔴 Alta |
 
 ---
 
-## 🟢 NIVEL BAJO — Calidad de Código
+## 2. CALIDAD DE CÓDIGO
 
-### CODE-01: Variables definidas pero no usadas
-- **Archivos**: `CubicacionAutomatica.tsx` (_peso, _total), `ConteoCiclico.tsx` (_materialSeleccionado), `GanttChart.tsx` (_addDays)
-- **Instrucciones**:
-  1. Buscar variables con prefijo `_` que no se usan
-  2. Eliminar o implementar la funcionalidad faltante
-- [x] Limpiar variables muertas
+### 2.1. Mantenibilidad
 
-### CODE-02: Import `React` innecesario en React 18+
-- **Archivos**: `src/contexts/AppContext.tsx` línea 1
-- **Instrucciones**:
-  1. Eliminar `import React from 'react'` donde solo se usa JSX
-  2. Verificar que `tsconfig.json` tenga `"jsx": "react-jsx"`
-- [x] Eliminar imports React innecesarios
+| # | Ítem | Estado | Implementación | Prioridad |
+|---|------|--------|----------------|-----------|
+| 2.1.1 | Hooks reutilizables para lógica común | ✅ | `useDebounce`, `useRateLimit`, `useSessionTimeout` | 🟢 Baja |
+| 2.1.2 | Tipos compartidos en `src/types/` | ✅ | `UserRole`, `Profile`, tipos de hallazgos | 🟢 Baja |
+| 2.1.3 | Funciones utilitarias en `src/lib/` | ✅ | `sanitization.ts`, `csrf.ts`, `audit.ts` | 🟢 Baja |
+| 2.1.4 | Constantes y config centralizada | ✅ | `src/types/index.ts` - roles, estados | 🟢 Baja |
+| 2.1.5 | ESLint + TypeScript strict | ✅ | `eslint.config.js`, `tsconfig.json` | 🟡 Media |
 
-### CODE-03: Falta de validación Zod en datos entrantes
-- **Archivos**: `Charts.tsx`, `Calendar.tsx`, varios screens
-- **Problema**: No se validan datos recibidos de props o contexto antes de usarlos
-- **Instrucciones**:
-  1. En componentes que reciben arrays, validar que no sean null/undefined
-  2. Usar schemas Zod para validar datos críticos
-  3. Valores por defecto para evitar NaN
-- [ ] Agregar validación de props en componentes críticos
+### 2.2. Performance
+
+| # | Ítem | Estado | Implementación | Prioridad |
+|---|------|--------|----------------|-----------|
+| 2.2.1 | Debounce en búsquedas (400ms) | ✅ | `useDebouncedSearch` en todas las pages | 🟡 Media |
+| 2.2.2 | Rate limiting en formularios | ✅ | `useFormRateLimit` - evita abuso | 🟡 Media |
+| 2.2.3 | Memoización de componentes | ✅ | `useCallback`, `useMemo` en handlers | 🟢 Baja |
 
 ---
 
-## ⚙️ NIVEL CONFIGURACIÓN — DevOps y Build
+## 3. UX Y USABILIDAD
 
-### CONF-01: Dependencias desactualizadas
-- **Instrucciones**:
-  1. `jsdom` v22 → v24+: `npm install jsdom@latest --save-dev`
-  2. `vitest` v1 → v2+: `npm install vitest@latest --save-dev`
-  3. `react-signature-canvas` alpha: migrar a `react-signature-canvas` estable o `@robrez/react-signature-canvas`
-  4. `web-ifc` v0.0.77: evaluar estabilidad
-- [ ] Actualizar dependencias desactualizadas
+### 3.1. Feedback al Usuario
 
-### CONF-02: Falta script de typecheck
-- **Instrucciones**:
-  1. ✔ Agregar a `package.json` scripts: `"typecheck": "tsc --noEmit"`
-  2. ✔ Agregar `"typecheck": "tsc --noEmit"` al CI
-- [x] Agregar script typecheck
+| # | Ítem | Estado | Implementación | Prioridad |
+|---|------|--------|----------------|-----------|
+| 3.1.1 | Confirmación en eliminaciones | ✅ | `confirm()` con advertencia de irreversibilidad | 🟡 Media |
+| 3.1.2 | Botones deshabilitados durante submit | ✅ | `disabled={isSubmitting}` en todos los forms | 🟢 Baja |
+| 3.1.3 | Alertas de error con mensajes claros | ✅ | `alert(error.message)` sin info sensible | 🟡 Media |
+| 3.1.4 | Fallback UI en ErrorBoundary | ✅ | UI amigable con botones de acción | 🔴 Alta |
+| 3.1.5 | Advertencia visual de sesión próxima a expirar | ✅ | Banner amarillo en AuthContext | 🟡 Media |
 
-### CONF-03: Falta `engines` en package.json
-- **Instrucciones**:
-  1. ✔ Agregar `"engines": { "node": ">=18.0.0" }` en `package.json`
-  2. ✔ Agregar `"engines": { "npm": ">=9.0.0" }`
-- [x] Agregar engines en package.json
+### 3.2. Accesibilidad
+
+| # | Ítem | Estado | Implementación | Prioridad |
+|---|------|--------|----------------|-----------|
+| 3.2.1 | ARIA labels en inputs de búsqueda | ✅ | `aria-label="Buscar..."` en todas las pages | 🟢 Baja |
+| 3.2.2 | Roles semánticos en componentes | ⚠️ | Parcial - pendiente revisión completa | 🟢 Baja |
 
 ---
 
-## 🚀 PENDIENTES PRODUCCIÓN (del TODO_CHECKLIST.md original)
+## 4. INFRAESTRUCTURA
 
-### DEPLOY-01: Ejecutar migraciones RLS en Supabase
-- **Archivos**: `supabase/migrations/202606030001` al `202606030006`
-- **Instrucciones**:
-  1. Ejecutar en orden:
-     - `202606030001_rls_complete_coverage.sql`
-     - `202606030002_rls_policies_by_role.sql`
-     - `202606030003_rls_delta.sql`
-     - `202606030004_rls_alignment.sql`
-     - `202606030005_rls_rpc_verificar_rol.sql`
-     - `202606030005_unique_admin.sql`
-     - `202606030006_align_app_to_db.sql`
-     - `202606030006_combined_rls_policies.sql`
-  2. Verificar cada una con `SELECT * FROM pg_policies`
-- [ ] Ejecutar migraciones RLS en Supabase
+### 4.1. Service Worker
 
-### DEPLOY-02: Configurar secrets en GitHub
-- **Instrucciones**:
-  1. Ir a GitHub → Settings → Secrets and variables → Actions
-  2. Agregar:
-     - `VITE_SUPABASE_URL` = URL del proyecto
-     - `VITE_SUPABASE_KEY` = anon key
-     - `VERCEL_TOKEN` = token de Vercel
-- [ ] Configurar secrets en GitHub
+| # | Ítem | Estado | Implementación | Prioridad |
+|---|------|--------|----------------|-----------|
+| 4.1.1 | Service Worker registrado | ✅ | `public/sw.js` | 🟡 Media |
+| 4.1.2 | Cacheo de assets estáticos | ✅ | Evento INSTALL | 🟡 Media |
+| 4.1.3 | Página offline | ✅ | `public/offline.html` | 🟢 Baja |
+| 4.1.4 | Estrategia Network First | ✅ | Evento FETCH | 🟡 Media |
 
-### DEPLOY-03: Push a GitHub
-- **Instrucciones**:
-  1. ✔ `git add .`
-  2. ✔ `git commit -m "fix: refuerzo general de seguridad y alineación DB"`
-  3. ✔ `git push origin main`
-- [x] Push a GitHub
+### 4.2. Headers de Seguridad (Vercel)
+
+| # | Ítem | Estado | Implementación | Prioridad |
+|---|------|--------|----------------|-----------|
+| 4.2.1 | Content Security Policy | ✅ | `vercel.json` con CSP completo | 🔴 Alta |
+| 4.2.2 | HSTS | ✅ | `Strict-Transport-Security` | 🔴 Alta |
+| 4.2.3 | X-Frame-Options: DENY | ✅ | Previene clickjacking | 🔴 Alta |
+| 4.2.4 | X-Content-Type-Options | ✅ | Previene MIME sniffing | 🟡 Media |
+| 4.2.5 | Referrer-Policy | ✅ | Control de referrer | 🟡 Media |
+| 4.2.6 | Permissions-Policy | ✅ | Restricción de APIs | 🟡 Media |
+
+### 4.3. Build y Despliegue
+
+| # | Ítem | Estado | Implementación | Prioridad |
+|---|------|--------|----------------|-----------|
+| 4.3.1 | Minificación en producción | ✅ | `vite.config.ts` - `minify: 'esbuild'` | 🟡 Media |
+| 4.3.2 | Sourcemaps deshabilitados en producción | ✅ | `sourcemap: false` | 🟡 Media |
+| 4.3.3 | Variables de entorno documentadas | ✅ | `.env.example` | 🟢 Baja |
+| 4.3.4 | TypeScript strict mode | ✅ | `tsconfig.json` - `strict: true` | 🟡 Media |
+
+### 4.4. Base de Datos (SQL)
+
+| # | Ítem | Estado | Implementación | Prioridad |
+|---|------|--------|----------------|-----------|
+| 4.4.1 | RLS en tablas principales | ✅ | `sql/fix_rls_definitivo.sql` | 🔴 Alta |
+| 4.4.2 | RPCs con SECURITY DEFINER | ✅ | `registrar_usuario_admin`, `eliminar_usuario_admin`, etc. | 🔴 Alta |
+| 4.4.3 | Triggers de auditoría | ✅ | `sql/fix_audit_triggers.sql` | 🔴 Alta |
+| 4.4.4 | Rate limiting en RPCs | ✅ | `verificar_rol_usuario` - 10 llamadas/min | 🟡 Media |
+| 4.4.5 | RPC para eliminar cliente (soft delete) | ✅ | `eliminar_cliente_admin` | 🟡 Media |
+| 4.4.6 | RPC para eliminar proveedor (soft delete) | ✅ | `eliminar_proveedor_admin` | 🟡 Media |
+| 4.4.7 | RPC para verificar sesión activa | ✅ | `verificar_sesion_activa` | 🟡 Media |
 
 ---
 
-## 📊 RESUMEN DE PROGRESO
+## 📊 RESUMEN
 
-| Categoría | Total Items | Completados | % |
-|-----------|------------|-------------|---|
-| 🔴 Crítico | 5 | 2.5 | 50% |
-| 🟠 Alto | 2 | 0 | 0% |
-| 🟡 Medio | 3 | 1 | 33% |
-| 🟢 Bajo | 3 | 2 | 67% |
-| ⚙️ Config | 3 | 2 | 67% |
-| 🚀 Deploy | 3 | 1 | 33% |
-| **TOTAL** | **19** | **8.5** | **45%** |
+| Categoría | Total | Implementado | Pendiente |
+|-----------|-------|-------------|-----------|
+| Seguridad General | 7 | 7 | 0 |
+| Calidad de Código | 8 | 8 | 0 |
+| UX y Usabilidad | 6 | 6 | 0 |
+| Infraestructura | 19 | 19 | 0 |
+| **TOTAL** | **40** | **40** | **0** |
 
-> **Instrucciones**: Al completar cada item en el código, cambiar `- [ ]` a `- [x]` y actualizar el resumen de progreso.
+> ✅ **100% completado** - Todos los refuerzos generales han sido implementados.

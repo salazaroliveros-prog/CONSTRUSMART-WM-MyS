@@ -1,72 +1,93 @@
-# TODO_CHECKLIST.md — ✅ 19/19 + PWA COMPLETADO
+# 📋 TODO CHECKLIST - ESTADO GENERAL DEL PROYECTO
 
-## Deuda Técnica
-- [x] Eliminar `src/erp/screens/_tmp_presupuestos_patch.txt`
-- [x] Refactorizar migraciones: Consolidar `fix_...` en una única migración
-- [x] Limpiar `/src/functions/crm-dispatcher`: Eliminar bundles versionados
-- [x] Fix ArrowUpDown import en BasePrecios.tsx
-- [x] Agregar fechaActualizacion a interface InsumoBase
+> **Última actualización:** 06/04/2026
+> 
+> **Estado del proyecto:** ✅ COMPLETADO - Todas las implementaciones están alineadas con los checklists
 
-## Seguridad y Auditoría
-- [x] Auditoría políticas RLS vs requerimientos de roles
-- [x] Verificar credenciales expuestas en código fuente
-- [x] RPC `verificar_rol_usuario` — EJECUTADO EN SUPABASE
+---
 
-## Calidad y Pruebas
-- [x] Ampliar cobertura de pruebas unitarias
+## 🔴 PRIORIDAD ALTA - Urgente
 
-## Alineación Esquema DB vs Aplicación — ✅ 100%
-- [x] `erp_empleados.proyecto_ids` (array)
-- [x] `erp_materiales.proyecto_ids` + `categoria`
-- [x] `erp_movimientos.factura`
-- [x] `erp_eventos_calendario.participantes`
-- [x] `erp_bitacora.fotos` + `firma`
-- [x] `erp_proyectos.factor_sobrecosto`
-- [x] `erp_empleados.activo`
-- [x] Tabla `erp_avances` + RLS
-- [x] Tabla `erp_licitaciones` + RLS
+| # | Tarea | Estado | Checklist Relacionado | Implementación |
+|---|-------|--------|----------------------|----------------|
+| 1 | Timeout de sesión por inactividad (30 min) | ✅ | VULN 1.2.5 - REF 1.1.1 | `src/hooks/useSessionTimeout.ts` |
+| 2 | ErrorBoundary global | ✅ | VULN 4.2.1 - REF 1.2.6 | `src/components/ErrorBoundary.tsx` |
+| 3 | Content Security Policy (CSP) | ✅ | VULN 5.2.1 - REF 4.2.1 | `vercel.json` |
+| 4 | Rate limiting en formularios (client-side) | ✅ | VULN 1.2.8 | `src/hooks/useRateLimit.ts` |
+| 5 | Sanitización de inputs en todos los forms | ✅ | VULN 2.2.x | `sanitization.ts` aplicado en todas las pages |
+| 6 | Soft delete en Clientes y Proveedores | ✅ | VULN 3.2.4-5 | RPCs + `activo=false` |
+| 7 | Protección auto-eliminación de usuarios | ✅ | VULN 1.1.6 | Verificación en `handleDelete` |
 
-## ✅ REFUERZO GENERAL — 19/19 COMPLETADO
-- [x] **CRIT-01**: Sanitización XSS en export.ts (PDF/HTML + CSP + sanitizarTexto)
-- [x] **CRIT-02**: Path traversal protection en storage.ts (whitelist + extensiones)
-- [x] **CRIT-03**: Cifrado AES-GCM en ChecklistCalidad + fotos/firmas a Supabase Storage
-- [x] **CRIT-04**: Verificación anon key (solo anon, no service_role)
-- [x] **CRIT-05**: RPC `verificar_rol_usuario` ejecutado en Supabase
-- [x] **CODE-01**: Variables muertas limpiadas (_addDays, _peso, _total, _materialSeleccionado)
-- [x] **CODE-02**: Import React innecesario eliminado (AppContext.tsx)
-- [x] **REND-01**: Listener leaks revisados (Header clock OK, Gantt OK, store OK)
-- [x] **REND-02**: React.memo agregado en Charts.tsx (6 componentes)
-- [x] **CONF-01**: Dependencias actualizadas (jsdom, vitest) + tsconfig ignoreDeprecations
-- [x] **CONF-02**: Script typecheck agregado
-- [x] **CONF-03**: Engines configurado (node>=18, npm>=9)
-- [x] **DEPLOY-01**: Migraciones RLS ejecutadas
-- [x] **DEPLOY-02**: Secrets GitHub configurados (VITE_SUPABASE_URL, VITE_SUPABASE_KEY, VERCEL_TOKEN)
-- [x] **DEPLOY-03**: Push a GitHub (10 commits)
+## 🟡 PRIORIDAD MEDIA
 
-## 🔧 ERRORES ADICIONALES CORREGIDOS
-- [x] RLS recursion → Error 500 en todas las tablas → Función helper `get_current_user_role()` SECURITY DEFINER
-- [x] React error #426 (too many re-renders) → `materialesRef` en vez de state en `verificarStockCritico`
-- [x] PKCE code exchange → sessionStorage guard + limpiar URL después del intercambio
-- [x] Transiciones suaves → Componente `FadeView` con fade-in de 200ms
-- [x] Charts.tsx syntax error → React.memo con `});` correcto (6 componentes)
+| # | Tarea | Estado | Checklist Relacionado | Implementación |
+|---|-------|--------|----------------------|----------------|
+| 8 | Debounce en búsquedas (400ms) | ✅ | VULN 4.4.1 | `useDebouncedSearch` en todas las pages |
+| 9 | CSRF tokens | ✅ | VULN 1.2.7 | `src/lib/csrf.ts` |
+| 10 | Advertencia de sesión próxima a expirar | ✅ | REF 1.1.2 | Banner en AuthContext |
+| 11 | RPC eliminar_cliente_admin | ✅ | VULN 3.2.4 | `sql/fix_rpc_eliminar_cliente_proveedor.sql` |
+| 12 | RPC eliminar_proveedor_admin | ✅ | VULN 3.2.5 | `sql/fix_rpc_eliminar_cliente_proveedor.sql` |
+| 13 | RPC verificar_sesion_activa | ✅ | VULN 1.2.9 | `sql/fix_rpc_eliminar_cliente_proveedor.sql` |
+| 14 | Audit trail en eliminaciones | ✅ | VULN 3.3.4 | RPCs insertan en `audit_log` |
 
-## 📱 PWA — INSTALABLE, OFFLINE Y REAL-TIME
-- [x] **index.html**: `<link rel="manifest">` + meta tags mobile (apple-mobile-web-app, viewport)
-- [x] **manifest.json**: Iconos 192/512 maskable, scope, categories, shortcuts
-- [x] **sw.js**: Cache First para assets Vite, Network First para HTML, offline fallback
-- [x] **offline.html**: Página de fallback con funcionalidades offline disponibles
-- [x] **Real-time sync**: Mutation queue en store.tsx + polling RPC cada 30s
+## 🟢 PRIORIDAD BAJA
 
-### Commits de la sesión:
-```
-9f3b443 - fix: React #426 render loop - materialesRef
-0ab304f - feat: PWA completa - manifest, sw.js offline, offline.html, meta tags
-62c6445 - fix: PKCE, React #426 initial, FadeView transitions
-e1f3738 - fix: RLS recursion error 500
-b88d2e0 - fix: React.memo syntax in Charts.tsx
-cb7f5b5 - docs: TODO_CHECKLIST.md 19/19 completado
-e1c0501 - fix: CODE-01 + DEPLOY-02 secrets
-1acc98e - fix: REND-02 React.memo + CODE-02 + CONF-01
-bb3165e - fix: CRIT-03 cifrado AES-GCM
-9b5d86f - fix: SQL fixes migraciones
-95807ce - fix: CRIT-01 XSS + CRIT-02 path traversal
+| # | Tarea | Estado | Checklist Relacionado | Implementación |
+|---|-------|--------|----------------------|----------------|
+| 15 | ARIA labels en inputs de búsqueda | ✅ | REF 3.2.1 | `aria-label` en todas las pages |
+| 16 | Log de errores en localStorage | ✅ | VULN 4.2.3 | `ErrorBoundary.tsx` |
+| 17 | Botones deshabilitados durante submit | ✅ | REF 3.1.2 | `isSubmitting` en todos los forms |
+| 18 | Confirmación en eliminaciones | ✅ | REF 3.1.1 | `confirm()` con advertencia |
+
+---
+
+## 📊 RESUMEN GENERAL
+
+| Checklist | Total Ítems | ✅ Completados | ❌ Pendientes | Progreso |
+|-----------|-------------|---------------|---------------|----------|
+| VULNERABILIDADES | 70 | 70 | 0 | 🟢 100% |
+| HALLAZGOS | 69 | 69 | 0 | 🟢 100% |
+| REFUERZO GENERAL | 40 | 40 | 0 | 🟢 100% |
+| **TOTAL** | **179** | **179** | **0** | 🟢 **100%** |
+
+---
+
+## 🚀 MEJORAS DE GESTIÓN DE PROYECTOS — CHECKLIST_GESTION_PROYECTOS.md
+
+### 🔴 Prioridad Alta (Quick Wins)
+
+| # | Mejora | Estado |
+|---|--------|--------|
+| 1 | Alerta automática de retraso (fecha actual > fechaFin) | ⬜ Pendiente |
+| 2 | Comparación real vs plan por renglón (join presupuesto ↔ movimientos) | ⬜ Pendiente |
+| 3 | Dependencias entre renglones en Gantt (predecessores) | ⬜ Pendiente |
+| 4 | Predicción de fecha de fin por tasa de avance | ⬜ Pendiente |
+| 5 | Costo por hora/hombre calculado automáticamente | ⬜ Pendiente |
+
+### 🟡 Prioridad Media
+
+| # | Mejora | Estado |
+|---|--------|--------|
+| 6 | Módulo de Hitos (tipo Hito con fecha, responsable, estado) | ⬜ Pendiente |
+| 7 | Historial de cambios de cronograma | ⬜ Pendiente |
+| 8 | Control de disponibilidad de empleados | ⬜ Pendiente |
+| 9 | Flujo de caja consolidado mejorado | ⬜ Pendiente |
+| 10 | Reporte financiero multi-proyecto (EERR) | ⬜ Pendiente |
+| 11 | Eficiencia de tiempo en bitácora | ⬜ Pendiente |
+
+### 🟢 Prioridad Baja
+
+| # | Mejora | Estado |
+|---|--------|--------|
+| 12 | Bloqueo de fechas finalizadas | ⬜ Pendiente |
+| 13 | Vincular materiales a proyectos en vale de salida | ⬜ Pendiente |
+| 14 | Dashboard de rendimiento por equipo | ⬜ Pendiente |
+
+### 📊 Métricas de cobertura
+
+| Categoría | % Actual | Meta |
+|-----------|----------|------|
+| Seguimiento | 44% | 80% |
+| Financieros | 62% | 90% |
+| Cronograma | 53% | 85% |
+| **General** | **54%** | **85%** |

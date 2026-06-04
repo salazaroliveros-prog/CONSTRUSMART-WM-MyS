@@ -1,7 +1,7 @@
 import React from 'react';
 import { useErp, View } from '../store';
 import { useAppContext } from '@/contexts/AppContext';
-import { LayoutDashboard, Building2, Calculator, ClipboardCheck, Wallet, Users, Warehouse, X, ChevronLeft, ChevronRight, Target, Receipt, TrendingUp, BarChart3, Database, FileText, MessageSquare, GitBranch, Bell, Shield, Layers, Box, Zap, Download, Activity, ShoppingCart, Settings, ClipboardList, DollarSign, Truck } from 'lucide-react';
+import { LayoutDashboard, Building2, Calculator, ClipboardCheck, Wallet, Users, Warehouse, X, ChevronLeft, ChevronRight, Target, Receipt, TrendingUp, BarChart3, Database, FileText, MessageSquare, GitBranch, Bell, Shield, Layers, Box, Zap, Download, Activity, ShoppingCart, Settings, ClipboardList, DollarSign, Truck, AlertTriangle, Flag, TrendingDown } from 'lucide-react';
 
 const ITEMS: { id: View; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'Tablero', icon: LayoutDashboard },
@@ -33,6 +33,10 @@ const ITEMS: { id: View; label: string; icon: React.ElementType }[] = [
   { id: 'planilla-destajos', label: 'Planilla Destajos', icon: ClipboardList },
   { id: 'impuestos', label: 'Impuestos', icon: DollarSign },
   { id: 'entradas-almacen', label: 'Entradas Almacén', icon: Truck },
+  { id: 'riesgos', label: 'Riesgos', icon: AlertTriangle },
+  { id: 'hitos', label: 'Hitos', icon: Flag },
+  { id: 'cuentas-cobrar', label: 'CxC', icon: DollarSign },
+  { id: 'cuentas-pagar', label: 'CxP', icon: TrendingDown },
 ];
 
 const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
@@ -47,7 +51,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
       <aside className={`fixed lg:sticky top-0 lg:top-[60px] left-0 h-screen lg:h-[calc(100vh-60px)] ${asideW} bg-white border-r border-slate-100 z-50 transition-all lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>
         <div className="flex items-center justify-between p-4 lg:hidden">
           <span className="font-bold text-slate-700">Módulos</span>
-          <button onClick={onClose}><X className="w-5 h-5" /></button>
+          <button onClick={onClose} aria-label="Cerrar menú lateral"><X className="w-5 h-5" /></button>
         </div>
         <div className="px-4 pt-4 pb-2 hidden lg:block flex-shrink-0">
           <span className="text-[10px] uppercase tracking-wide text-slate-400 font-semibold">{collapsed ? user?.rol?.charAt(0).toUpperCase() : `Rol: ${user?.rol}`}</span>

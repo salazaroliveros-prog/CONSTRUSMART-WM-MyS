@@ -1,8 +1,4 @@
-"use client"
-
-import React, { Component, type ErrorInfo, type ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -17,108 +13,212 @@ interface State {
 }
 
 /**
- * ErrorBoundary mejorado con:
- * - Captura de errores controlados y no controlados
- * - Logging sanitizado (sin exponer datos sensibles)
- * - Botón de recarga para el usuario
- * - Modo desarrollo muestra detalles técnicos
- * - Callback onError para reporte externo
+ * ErrorBoundary - Componente global para capturar errores no controlados
+ * Previene que toda la app se caiga y muestra una UI amigable
  */
-export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null,
-    errorInfo: null,
-  };
+class ErrorBoundary extends Component<Props, State> {
+  private errorCount: number = 0;
+  private lastErrorTime: number = 0;
 
-  public static getDerivedStateFromError(error: Error): Partial<State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null,
+    };
+  }
+
+  static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     this.setState({ errorInfo });
 
-    // Log sanitizado — sin exponer datos sensibles
-    const sanitizedError = {
-      name: error.name,
-      message: error.message,
-      stack: error.stack?.split('\n').slice(0, 3).join('\n'), // Solo primeras 3 líneas
-      componentStack: errorInfo.componentStack?.split('\n').slice(0, 5).join('\n'),
-      timestamp: new Date().toISOString(),
-    };
+    // Rate limiting: máximo 3 errores en 10 segundos
+    const now = Date.now();
+    if (now - this.lastErrorTime < 10000) {
+      this.errorCount++;
+    } else {
+      this.errorCount = 1;
+    }
+    this.lastErrorTime = now;
 
-    if (import.meta.env.DEV) {
-      console.group('🔴 Error Boundary caught an error:');
-      console.error('Error:', sanitizedError);
-      console.groupEnd();
+    if (this.errorCount > 3) {
+      console.error('[ErrorBoundary] Demasiados errores en poco tiempo, posible ataque o bug crítico');
+      // Forzar recarga si hay demasiados errores
+      setTimeout(() => window.location.reload(), 5000);
     }
 
-    // Callback para reporte externo (Sentry, etc.)
-    this.props.onError?.(error, errorInfo);
+    // Registrar en audit si está disponible
+    try {
+      this.logErrorToStorage(error, errorInfo);
+    } catch {
+      // Silencioso - no podemos fallar al fallar
+    }
+
+    // Callback personalizado
+    if (this.props.onError) {
+      this.props.onError(error, errorInfo);
+    }
+  }
+
+  private logErrorToStorage(error: Error, errorInfo: ErrorInfo): void {
+    const errorLog = {
+      timestamp: new Date().toISOString(),
+      message: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+    };
+
+    try {
+      const stored = JSON.parse(localStorage.getItem('app_error_log') || '[]');
+      stored.push(errorLog);
+      // Mantener solo los últimos 50 errores
+      if (stored.length > 50) stored.shift();
+      localStorage.setItem('app_error_log', JSON.stringify(stored));
+    } catch {
+      console.warn('[ErrorBoundary] No se pudo guardar el log de errores');
+    }
   }
 
   private handleReset = (): void => {
     this.setState({ hasError: false, error: null, errorInfo: null });
+    this.errorCount = 0;
   };
 
   private handleReload = (): void => {
     window.location.reload();
   };
 
-  public render(): ReactNode {
+  render(): ReactNode {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
       return (
-        <div className="flex items-center justify-center min-h-screen bg-background p-4">
-          <Card className="max-w-md w-full p-6 space-y-4">
-            <div className="text-center space-y-2">
-              <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-destructive"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="2"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-lg font-semibold">Algo salió mal</h2>
-              <p className="text-sm text-muted-foreground">
-                Ha ocurrido un error inesperado. Puedes intentar recargar la página o contactar al administrador.
-              </p>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          padding: '2rem',
+          backgroundColor: '#f8f9fa',
+          color: '#333',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          textAlign: 'center',
+        }}>
+          <div style={{
+            maxWidth: '500px',
+            padding: '2rem',
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.1)',
+          }}>
+            <div style={{
+              fontSize: '3rem',
+              marginBottom: '1rem',
+            }}>
+              ⚠️
             </div>
-
-            {/* Solo mostrar detalles técnicos en desarrollo */}
-            {import.meta.env.DEV && this.state.error && (
-              <div className="space-y-2">
-                <details className="text-xs">
-                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
-                    Detalles técnicos (solo desarrollo)
-                  </summary>
-                  <pre className="mt-2 p-3 rounded bg-muted overflow-auto max-h-40 text-xs text-muted-foreground">
-                  {this.state.error.name}: {this.state.error.message}
-                  </pre>
-                </details>
-              </div>
+            <h1 style={{
+              fontSize: '1.5rem',
+              fontWeight: 600,
+              marginBottom: '0.5rem',
+              color: '#e53e3e',
+            }}>
+              Algo salió mal
+            </h1>
+            <p style={{
+              color: '#666',
+              marginBottom: '0.5rem',
+              lineHeight: 1.5,
+            }}>
+              Ha ocurrido un error inesperado. No te preocupes, tus datos están seguros.
+            </p>
+            {process.env.NODE_ENV === 'development' && this.state.error && (
+              <details style={{
+                marginTop: '1rem',
+                marginBottom: '1rem',
+                textAlign: 'left',
+                backgroundColor: '#f7f7f7',
+                padding: '1rem',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+              }}>
+                <summary style={{ cursor: 'pointer', fontWeight: 600, color: '#555' }}>
+                  Detalles del error (desarrollo)
+                </summary>
+                <pre style={{
+                  marginTop: '0.5rem',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  color: '#c53030',
+                  fontSize: '0.8rem',
+                }}>
+                  {this.state.error.message}
+                  {'\n\n'}
+                  {this.state.error.stack}
+                </pre>
+              </details>
             )}
-
-            <div className="flex gap-2 justify-center">
-              <Button variant="outline" onClick={this.handleReset}>
-                Reintentar
-              </Button>
-              <Button onClick={this.handleReload}>
+            <div style={{
+              display: 'flex',
+              gap: '0.75rem',
+              justifyContent: 'center',
+              marginTop: '1.5rem',
+              flexWrap: 'wrap',
+            }}>
+              <button
+                onClick={this.handleReset}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#3182ce',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  fontSize: '0.95rem',
+                  transition: 'background-color 0.2s',
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#2c5282')}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#3182ce')}
+              >
+                Intentar de nuevo
+              </button>
+              <button
+                onClick={this.handleReload}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#e2e8f0',
+                  color: '#333',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  fontSize: '0.95rem',
+                  transition: 'background-color 0.2s',
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#cbd5e0')}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#e2e8f0')}
+              >
                 Recargar página
-              </Button>
+              </button>
             </div>
-          </Card>
+            <p style={{
+              marginTop: '1.5rem',
+              fontSize: '0.8rem',
+              color: '#999',
+            }}>
+              Si este error persiste, contacta al administrador del sistema
+            </p>
+          </div>
         </div>
       );
     }
@@ -127,4 +227,5 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 }
 
+export { ErrorBoundary };
 export default ErrorBoundary;

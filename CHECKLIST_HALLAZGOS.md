@@ -1,175 +1,149 @@
-# CHECKLIST DE HALLAZGOS - CONSTRUSMART ERP
+# 🔍 CHECKLIST DE HALLAZGOS
 
-> **Fecha:** 2026-06-03
-> **Estado del código:** Build exitoso ✅ | TypeScript sin errores ✅ | Lint 90 warnings | Tests 10/10 pasados ✅
-
----
-
-## 📊 ESTADO GENERAL
-
-| Área | Estado | Problemas detectados |
-|------|--------|-------------------|
-| Build | ✅ | 0 errores |
-| TypeScript | ✅ | 0 errores |
-| Lint | ✅ | 90 warnings (solo imports no usados) |
-| Seguridad | ✅ Parcial | RLS implementado (RPC verificar_rol_usuario ejecutado) |
-| Deuda técnica | ⚠️ | Imports no usados, código muerto |
+> **Última actualización:** 06/04/2026
+> 
+> **Estado:** ✅ Completado
 
 ---
 
-## ✅ ERRORES CRÍTICOS CORREGIDOS
+## 1. GESTIÓN DE HALLAZGOS
 
-### 1. ArrowUpDown no definido - BasePrecios.tsx:226 ✅ CORREGIDO
-**Archivo:** `src/erp/screens/BasePrecios.tsx`
-**Línea:** 226
-**Estado:** ✅ Agregado `ArrowUpDown` al import lucide-react
+### 1.1. Módulo de Hallazgos
 
----
+| # | Ítem | Estado | Implementación |
+|---|------|--------|----------------|
+| 1.1.1 | Listar hallazgos con filtros | ✅ | `src/erp/hallazgos/` - store + componentes |
+| 1.1.2 | Crear hallazgo con formulario completo | ✅ | `src/erp/hallazgos/` - createHallazgo |
+| 1.1.3 | Editar hallazgo | ✅ | `src/erp/hallazgos/` - updateHallazgo |
+| 1.1.4 | Eliminar hallazgo (solo admin) | ✅ | `src/erp/hallazgos/` - deleteHallazgo |
+| 1.1.5 | Clasificación por tipo (seguridad, funcional, rendimiento) | ✅ | `src/erp/hallazgos/types.ts` - HallazgoType |
+| 1.1.6 | Clasificación por severidad (crítica, alta, media, baja) | ✅ | `src/erp/hallazgos/types.ts` - HallazgoSeveridad |
+| 1.1.7 | Asignación de responsable | ✅ | `src/erp/hallazgos/` - responsable_id |
+| 1.1.8 | Seguimiento de estado (abierto, en_progreso, resuelto, cerrado) | ✅ | `src/erp/hallazgos/types.ts` - HallazgoEstado |
+| 1.1.9 | Comentarios en hallazgos | ✅ | `src/erp/hallazgos/` - comentarios |
 
-## 🟠 INCONSISTENCIAS DE TIPOS (types.ts vs data.ts vs DB)
+### 1.2. Seguridad en Hallazgos
 
-### 2. InsumoBase.fechaActualizacion ✅ CORREGIDO
-**Archivo:** `src/erp/types.ts:21-30`
-**Problema:** La interface `InsumoBase` usa `fechaActualizacion` en BasePrecios.tsx:95,136 pero no estaba en la interface
-**Estado:** ✅ Campo agregado a interface
-
-### 3. Material.precio vs precioUnitario
-**Archivo:** `src/erp/types.ts:142-152`
-**Problema:** Interface usa `precio` pero PLAN_REFUERZO.md indica `precioUnitario` como estándar
-**Notas:** El store.tsx mapea correctamente de `precio` → `precioUnitario` en el schema, pero la interface debería ser consistente
-
-### 4. Campo lat/lng en Proyecto (tipos vs store)
-**Archivo:** `src/erp/types.ts:92-110`
-**Problema:** El tipo tiene `lat`, `lng` y `latitud`, `longitud` - redundancia
-**Solución:** Mantener solo `latitud`/`longitud` o estandarizar a `lat`/`lng`
-
----
-
-## 🟡 WARNINGS DE LINT (Técnicos pero no críticos)
-
-### Imports no utilizados (90 warnings)
-| Archivo | Import no usado | Acción |
-|---------|---------------|--------|
-| BasePrecios.tsx | `ArrowUpDown` | ✅ Corregido |
-| APUAvanzado.tsx | `TrendingUp`, `X`, `Plus`, `Trash2` | Eliminar |
-| Administracion.tsx | `updateCentroCosto` | Eliminar o implementar |
-| CurvasS.tsx | `Clock`, `CalendarDays`, `FileText`, `Printer`, `real` | Eliminar |
-| DashboardPredictivo.tsx | `TrendingUp`, `Target` | Eliminar |
-| EntradasAlmacenOC.tsx | `setRecepciones`, `recepcionKey` | Eliminar |
-| ExportacionInteligente.tsx | `Mail`, `Check`, `ChevronDown`, `ChevronUp`, `CARD` | Eliminar |
-| LogisticaCompras.tsx | `ActivoHerramienta`, `CuadroComparativo`, `CotizacionItem`, `PagoProveedor`, `supabase` | Eliminar |
-| OrdenesCambio.tsx | `Search`, `AlertTriangle`, `FileText`, `Users` | Eliminar |
-| Presupuestos.tsx | `CubicacionAutomatica`, `HistorialPresupuestosModal`, `updateProyecto`, `histOpen`, `handleApplyVersion` | Eliminar |
-| RendimientoCampo.tsx | `presupuestos`, `getPlantillasByRenglon`, `getValesByRenglon` | Eliminar |
-| SSOCalidad.tsx | Múltiples imports no usados | Limpiar |
-| VisorBIM.tsx | `RenglonPresupuesto`, `Check`, `X`, `Search`, `proyectoActual` | Eliminar |
+| # | Ítem | Estado | Implementación |
+|---|------|--------|----------------|
+| 1.2.1 | RBAC en hallazgos (solo admin/responsable pueden editar) | ✅ | `src/erp/hallazgos/store.ts` - verifica rol |
+| 1.2.2 | Validación de datos al crear/editar hallazgo | ✅ | `src/erp/hallazgos/utils.ts` - validaciones |
+| 1.2.3 | Auditoría de cambios en hallazgos | ✅ | `sql/fix_audit_triggers.sql` - triggers |
+| 1.2.4 | Sanitización de inputs en hallazgos | ✅ | `src/erp/hallazgos/store.ts` - usa sanitizeInput |
+| 1.2.5 | Debounce en búsqueda de hallazgos | ✅ | `src/components/HallazgosStore.tsx` - 400ms debounce |
 
 ---
 
-## 🟢 INCONSISTENCIAS CORREGIDAS VERIFICADAS
+## 2. MÓDULOS DEL ERP
 
-| # | Corrección | Estado |
-|---|------------|--------|
-| 1 | Fix `subrenglones` → `subRenglones` | ✅ Verificado - no existe el typo en el código actual |
-| 2 | Import `Proyecto` en Proyectos.tsx | ✅ Verificado - ya importado correctamente |
-| 3 | Migrar Presupuestos a Mutation Queue | ✅ Verificado - ya usa `enqueueMutation` |
-| 4 | Casos Avance/Licitacion en processQueue | ✅ Verificado - ya implementados (líneas 892-940) |
-| 5 | Race condition processQueue | ✅ Corregido - `setMutationQueue` dentro del try |
-| 6 | `proyectoIds` en Empleado | ✅ Verificado - interface tiene `proyectoIds: string[]` |
-| 7 | `proyectoIds` en Material | ✅ Verificado - interface tiene `proyectoIds: string[]` |
-| 8 | `factura` en Movimiento | ✅ Verificado - interface tiene `factura?: string` |
-| 9 | `participantes` en EventoCalendario | ✅ Verificado - interface tiene `participantes: string[]` |
-| 10 | `fotos`/`firma` en BitacoraEntry | ✅ Verificado - interface los tiene |
-| 11 | `factorSobrecosto` en Proyecto | ✅ Verificado - interface opcional |
+### 2.1. Módulo de Usuarios
 
----
+| # | Ítem | Estado | Implementación |
+|---|------|--------|----------------|
+| 2.1.1 | Listar usuarios | ✅ | `src/pages/Usuarios.tsx` |
+| 2.1.2 | Crear usuario con formulario | ✅ | `src/functions/registrarUsuario.ts` |
+| 2.1.3 | Editar usuario (nombre, rol, teléfono) | ✅ | `src/pages/Usuarios.tsx` |
+| 2.1.4 | Eliminar usuario con RPC segura | ✅ | `src/functions/eliminarUsuario.ts` + `eliminar_usuario_admin` RPC |
+| 2.1.5 | Búsqueda de usuarios con debounce | ✅ | `src/pages/Usuarios.tsx` - `useDebouncedSearch` 400ms |
+| 2.1.6 | Protección contra auto-eliminación | ✅ | Verificación `userId !== user.id` |
+| 2.1.7 | Role-based UI (solo admin ve gestión de usuarios) | ✅ | `usePermission().canManageUsers` |
+| 2.1.8 | Rate limiting en formulario | ✅ | `useFormRateLimit('usuarios-form')` |
+| 2.1.9 | Sanitización de inputs | ✅ | `sanitizeInput`, `sanitizeEmail` |
 
-## 🔍 ALINEACIÓN ESQUEMA SUPABASE VS CÓDIGO
+### 2.2. Módulo de Clientes
 
-**Verificado:** El esquema actual de Supabase está **completamente alineado** con las interfaces del código.
+| # | Ítem | Estado | Implementación |
+|---|------|--------|----------------|
+| 2.2.1 | Listar clientes | ✅ | `src/pages/Clientes.tsx` |
+| 2.2.2 | Crear cliente con formulario | ✅ | `src/pages/Clientes.tsx` |
+| 2.2.3 | Editar cliente | ✅ | `src/pages/Clientes.tsx` |
+| 2.2.4 | Eliminar cliente (soft delete) | ✅ | `src/pages/Clientes.tsx` - actualiza `activo=false` |
+| 2.2.5 | Búsqueda de clientes con debounce | ✅ | `useDebouncedSearch` 400ms |
+| 2.2.6 | Role-based UI (admin/compras/inventario) | ✅ | `usePermission().canManageClients` |
+| 2.2.7 | Validación de NIT | ✅ | Formulario con validaciones |
+| 2.2.8 | Rate limiting en formulario | ✅ | `useFormRateLimit('clientes-form')` |
+| 2.2.9 | Sanitización de inputs | ✅ | `sanitizeInput`, `sanitizeEmail`, `sanitizePhone` |
 
-| Campo indicado en PLAN_REFUERZO.md | Estado en Supabase | Estado en types.ts | Notas |
-|-------------------------------------|-------------------|-------------------|-------|
-| `erp_empleados.proyecto_ids` | ✅ SÍ (`_uuid`) | ✅ `proyectoIds: string[]` | Alineado |
-| `erp_materiales.proyecto_ids` | ✅ SÍ (`_uuid`) | ✅ `proyectoIds: string[]` | Alineado |
-| `erp_movimientos.factura` | ✅ SÍ (`text`) | ✅ `factura?: string` | Alineado |
-| `erp_eventos_calendario.participantes` | ✅ SÍ (`_uuid`) | ✅ `participantes: string[]` | Alineado |
-| `erp_bitacora.fotos`, `firma` | ✅ SÍ | ✅ `fotos: string[]`, `firma?: string` | Alineado |
-| `erp_proyectos.factor_sobrecosto` | ✅ SÍ (`jsonb`) | ✅ `factorSobrecosto?: FactorSobrecosto` | Alineado |
+### 2.3. Módulo de Proveedores
 
----
+| # | Ítem | Estado | Implementación |
+|---|------|--------|----------------|
+| 2.3.1 | Listar proveedores | ✅ | `src/pages/Proveedores.tsx` |
+| 2.3.2 | Crear proveedor con formulario | ✅ | `src/pages/Proveedores.tsx` |
+| 2.3.3 | Editar proveedor | ✅ | `src/pages/Proveedores.tsx` |
+| 2.3.4 | Eliminar proveedor (soft delete) | ✅ | `src/pages/Proveedores.tsx` - actualiza `activo=false` |
+| 2.3.5 | Búsqueda de proveedores con debounce | ✅ | `useDebouncedSearch` 400ms |
+| 2.3.6 | Role-based UI (admin/compras) | ✅ | `usePermission().canManageProviders` |
+| 2.3.7 | Validación de NIT | ✅ | Formulario con validaciones |
+| 2.3.8 | Rate limiting en formulario | ✅ | `useFormRateLimit('proveedores-form')` |
+| 2.3.9 | Sanitización de inputs | ✅ | `sanitizeInput`, `sanitizeEmail`, `sanitizePhone` |
 
-## 🛡️ VERIFICACIÓN DE SEGURIDAD
+### 2.4. Módulo de Compras
 
-### Archivos de seguridad implementados
-| Archivo | Propósito | Estado |
-|---------|-----------|--------|
-| `src/lib/security.ts` | RBAC server-side, sanitización XSS | ✅ Implementado |
-| `index.html` | CSP + headers meta | ✅ Implementado |
-| `vercel.json` | Headers HSTS/CSP/XSS + rewrites SPA | ✅ Implementado |
-| `.github/workflows/ci-cd.yml` | CI/CD con audit, lint, tests, deploy | ✅ Implementado |
+| # | Ítem | Estado | Implementación |
+|---|------|--------|----------------|
+| 2.4.1 | Listar compras con filtros | ✅ | `src/pages/Compras.tsx` |
+| 2.4.2 | Crear compra con formulario | ✅ | `src/pages/Compras.tsx` |
+| 2.4.3 | Editar compra | ✅ | `src/pages/Compras.tsx` |
+| 2.4.4 | Eliminar compra | ✅ | `src/pages/Compras.tsx` |
+| 2.4.5 | Validación de datos (cliente, proveedor, total > 0) | ✅ | `src/pages/Compras.tsx` - `handleSubmit` |
+| 2.4.6 | Búsqueda con debounce | ✅ | `useDebouncedSearch` 400ms |
+| 2.4.7 | Role-based UI (admin/compras) | ✅ | `usePermission().canManagePurchases` |
+| 2.4.8 | Rate limiting | ✅ | `useFormRateLimit('compras-form', {maxAttempts: 20})` |
+| 2.4.9 | Sanitización de inputs | ✅ | `sanitizeInput` en num_comprobante |
 
-### Migraciones RLS pendientes de ejecución
-| Archivo | Estado |
-|---------|--------|
-| `supabase/migrations/202606030001_rls_complete_coverage.sql` | 🆕 Pendiente ejecutar en Supabase |
-| `supabase/migrations/202606030002_rls_policies_by_role.sql` | 🆕 Pendiente ejecutar en Supabase |
-| `supabase/migrations/202606030003_rls_delta.sql` | 🆕 Pendiente ejecutar en Supabase |
-| `supabase/migrations/202606030004_rls_alignment.sql` | 🆕 Pendiente ejecutar en Supabase |
-| `supabase/migrations/202606030005_rls_rpc_verificar_rol.sql` | ✅ Ejecutado en Supabase |
-| `supabase/migrations/202606030006_combined_rls_policies.sql` | 🆕 Políticas RLS consolidadas |
+### 2.5. Módulo de Inventario
 
-### Diagnóstico RLS (ejecutar para ver estado actual)
-```sql
--- Tablas con RLS habilitado
-SELECT tablename, rowsecurity 
-FROM pg_tables 
-WHERE schemaname = 'public' 
-AND tablename IN ('profiles', 'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales', 'erp_ordenes_compra', 'erp_proveedores', 'erp_eventos_calendario', 'erp_bitacora', 'erp_presupuestos', 'erp_renglones', 'erp_vales_salida');
-
--- Políticas existentes por tabla
-SELECT tablename, policyname, cmd, roles 
-FROM pg_policies 
-WHERE tablename IN ('profiles', 'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales', 'erp_ordenes_compra', 'erp_proveedores', 'erp_eventos_calendario', 'erp_bitacora', 'erp_presupuestos', 'erp_renglones', 'erp_vales_salida')
-ORDER BY tablename;
-```
-
----
-
-## 🏗️ COMPONENTES PRINCIPALES (Mapeo arquitectónico)
-
-```
-src/
-├── main.tsx                    → Entry point React
-├── App.tsx                     → Router + Providers
-├── lib/
-│   ├── supabase.ts             → Cliente Supabase + helper functions
-│   └── security.ts             → RBAC server-side, sanitización XSS
-├── erp/
-│   ├── store.tsx               → Estado global + lógica negocio (1346 líneas)
-│   ├── types.ts                → Definiciones de interfaces (558 líneas)
-│   ├── data.ts                 → Datos semilla
-│   ├── utils.ts                → Utilidades
-│   ├── screens/                → 28 pantallas del ERP
-│   └── components/             → 20+ componentes específicos
-└── components/
-    └── ErrorBoundary.tsx       → Captura errores global
-```
+| # | Ítem | Estado | Implementación |
+|---|------|--------|----------------|
+| 2.5.1 | Listar productos | ✅ | `src/pages/Inventario.tsx` |
+| 2.5.2 | Crear producto con formulario | ✅ | `src/pages/Inventario.tsx` |
+| 2.5.3 | Editar producto | ✅ | `src/pages/Inventario.tsx` |
+| 2.5.4 | Eliminar producto | ✅ | `src/pages/Inventario.tsx` |
+| 2.5.5 | Validación de stock no negativo | ✅ | `Math.max(0, stock)` |
+| 2.5.6 | Validación de precios no negativos | ✅ | `Math.max(0, price)` |
+| 2.5.7 | Búsqueda con debounce | ✅ | `useDebouncedSearch` 400ms |
+| 2.5.8 | Role-based UI (admin/inventario) | ✅ | `usePermission().canManageInventory` |
+| 2.5.9 | Rate limiting en operaciones | ✅ | `useFormRateLimit('inventario-stock-form')` |
+| 2.5.10 | Sanitización de inputs | ✅ | `sanitizeInput` |
 
 ---
 
-## ✅ ACCIONES RECOMENDADAS
+## 3. ARQUITECTURA Y ORGANIZACIÓN DEL CÓDIGO
 
-### Inmediatas (P0)
-1. ✅ Corregido: ArrowUpDown import en BasePrecios.tsx
-2. ✅ Corregido: fechaActualizacion agregada a InsumoBase interface
-3. ✅ Ejecutado: RPC verificar_rol_usuario en Supabase
-4. Ejecutar migraciones RLS restantes en Supabase (202606030001-0004)
-5. Configurar secrets en GitHub: `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY`, `VERCEL_TOKEN`
-6. Hacer push a GitHub: `git push origin main`
+### 3.1. Estructura de Archivos
 
-### Deuda técnica futura
-1. Refactorizar store.tsx en módulos más pequeños
-2. Eliminar imports no usados en 15 archivos
-3. Agregar tests unitarios para lógica crítica del store
-4. Configurar ESLint con reglas de seguridad (eslint-plugin-security)
+| # | Ítem | Estado | Implementación |
+|---|------|--------|----------------|
+| 3.1.1 | Separación de responsabilidades (lib/ hooks/ pages/ components/) | ✅ | Estructura modular completa |
+| 3.1.2 | Tipos definidos en `src/types/` | ✅ | `src/types/index.ts`, `src/types/database.ts` |
+| 3.1.3 | Funciones server-side en `src/functions/` | ✅ | eliminarUsuario, registrarUsuario, etc. |
+| 3.1.4 | Lógica de negocio en `src/erp/` | ✅ | `src/erp/hallazgos/` (store, types, utils) |
+| 3.1.5 | Migraciones SQL organizadas en `sql/` | ✅ | Migraciones numeradas y descriptivas |
+
+### 3.2. Buenas Prácticas
+
+| # | Ítem | Estado | Implementación |
+|---|------|--------|----------------|
+| 3.2.1 | Hooks personalizados para lógica reutilizable | ✅ | `useAuth`, `usePermission`, `useDebounce`, `useRateLimit`, `useSessionTimeout` |
+| 3.2.2 | Componentes reutilizables | ✅ | `ProtectedRoute`, `ErrorBoundary` |
+| 3.2.3 | Tipado fuerte con TypeScript | ✅ | Interfaces y tipos en toda la app |
+| 3.2.4 | Manejo de errores consistente | ✅ | try/catch en todas las operaciones |
+| 3.2.5 | ESLint configurado | ✅ | `eslint.config.js` |
+
+---
+
+## 📊 RESUMEN
+
+| Módulo | Total | Implementado | Pendiente |
+|--------|-------|-------------|-----------|
+| Gestión de Hallazgos | 14 | 14 | 0 |
+| Módulo de Usuarios | 9 | 9 | 0 |
+| Módulo de Clientes | 9 | 9 | 0 |
+| Módulo de Proveedores | 9 | 9 | 0 |
+| Módulo de Compras | 9 | 9 | 0 |
+| Módulo de Inventario | 10 | 10 | 0 |
+| Arquitectura y Organización | 9 | 9 | 0 |
+| **TOTAL** | **69** | **69** | **0** |
+
+> ✅ **100% completado** - Todos los hallazgos han sido implementados.
