@@ -187,6 +187,7 @@ const antdScreens = (setView: any, view: string): Record<string, React.ReactNode
 });
 
 // ── Shadcn Shell ──
+// ── Shadcn Shell ──
 const ShadcnShell: React.FC<{ view: string; screenContent: React.ReactNode }> = ({ view, screenContent }) => {
   const { sidebarOpen, toggleSidebar, sidebarCollapsed } = useAppContext();
   return (
