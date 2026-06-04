@@ -52,6 +52,19 @@ export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tip
     const cantMat = getMaterialesPorRenglon(r);
     gran += total;
     rows.push(`${r.codigo};${r.nombre};${r.unidad};${r.cantidad};${cantMat.toFixed(2)};${r.costoMateriales.toFixed(2)};${r.costoManoObra.toFixed(2)};${r.costoEquipo.toFixed(2)};${cd.toFixed(2)};${pv.toFixed(2)};${total.toFixed(2)}`);
+    // Desglose de materiales unitarios por renglón
+    if (r.subRenglones && r.subRenglones.length > 0) {
+      r.subRenglones.forEach(sub => {
+        const cantTotal = sub.cantidadUnitaria * r.cantidad;
+        rows.push(`;;Material: ${sub.nombreMaterial};${sub.cantidadUnitaria};${cantTotal.toFixed(2)};${sub.unidad};Precio: Q${sub.precioUnitario.toFixed(2)};Total: Q${(cantTotal * sub.precioUnitario).toFixed(2)};;;`);
+      });
+      rows.push(`;;[Total materiales del renglón];;;${cantMat.toFixed(2)};;;;;;${fmtQ(r.subRenglones.reduce((a, s) => a + s.cantidadUnitaria * r.cantidad * s.precioUnitario, 0))}`);
+    }
+    // Personal del renglón
+    if (r.costoManoObra > 0) {
+      const jornales = Math.round(r.costoManoObra / 350);
+      rows.push(`;;[Personal cuadrilla];;;${jornales} persona(s);;;;;;Jornal: ${fmtQ(r.costoManoObra)}`);
+    }
   });
   rows.push('');
   rows.push(`;;;;;;;;;;TOTAL;${gran.toFixed(2)}`);
@@ -137,15 +150,47 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
 
   const desglose = renglones.map(r => {
     const insHTML = r.insumos.map(s => `<tr><td style="text-align:left">${s.nombre}</td><td>${s.tipo}</td><td>${s.unidad}</td><td style="text-align:right">${fmtQ(s.precio)}</td></tr>`).join('');
-    const subrenglonHTML = r.subRenglones && r.subRenglones.length > 0 ? 
-      `<div style="margin-top:8px;padding:8px;background:#f0fdf4;border-left:3px solid #10b981">
-        <b style="color:#047857">Desglose de Materiales:</b>
-        <table class="t" style="margin-top:4px"><tbody>
-          ${r.subRenglones.map(s => `<tr><td style="text-align:left">${s.nombreMaterial}</td><td>${(s.cantidadUnitaria * r.cantidad).toFixed(2)}</td><td>${s.unidad}</td><td style="text-align:right">${fmtQ(s.cantidadUnitaria * r.cantidad * s.precioUnitario)}</td></tr>`).join('')}
-        </tbody></table>
+
+    // Desglose de materiales por actividad (sub-renglones)
+    const subrenglonHTML = r.subRenglones && r.subRenglones.length > 0 ? `
+      <div style="margin-top:8px;padding:8px;background:#f0fdf4;border-left:3px solid #10b981">
+        <b style="color:#047857">📦 Desglose de Materiales Unitarios por Renglón:</b>
+        <table class="t" style="margin-top:4px;border-collapse:collapse;width:100%">
+          <thead><tr style="background:#e2e8f0">
+            <th style="text-align:left;padding:4px;font-size:9px">Material</th>
+            <th style="text-align:right;padding:4px;font-size:9px">Cant/Unidad</th>
+            <th style="text-align:right;padding:4px;font-size:9px">Cant Total</th>
+            <th style="text-align:left;padding:4px;font-size:9px">Unidad</th>
+            <th style="text-align:right;padding:4px;font-size:9px">Precio Unit.</th>
+            <th style="text-align:right;padding:4px;font-size:9px">Costo Total</th>
+          </tr>
+          ${r.subRenglones.map((s, i) => {
+            const costoSub = s.cantidadUnitaria * r.cantidad * s.precioUnitario;
+            return `<tr style="${i % 2 === 0 ? 'background:#f0fdf4' : ''}">
+              <td style="padding:4px;font-size:10px;text-align:left">${sanitizarTexto(s.nombreMaterial)}</td>
+              <td style="padding:4px;font-size:10px;text-align:right">${s.cantidadUnitaria}</td>
+              <td style="padding:4px;font-size:10px;text-align:right">${(s.cantidadUnitaria * r.cantidad).toFixed(2)}</td>
+              <td style="padding:4px;font-size:10px">${s.unidad}</td>
+              <td style="padding:4px;font-size:10px;text-align:right">${fmtQ(s.precioUnitario)}</td>
+              <td style="padding:4px;font-size:10px;text-align:right;font-weight:bold;color:#047857">${fmtQ(costoSub)}</td>
+            </tr>`;
+          }).join('')}
+          <tr style="background:#10b981;color:white">
+            <td colspan="5" style="padding:4px;font-size:10px;text-align:right;font-weight:bold">TOTAL MATERIALES</td>
+            <td style="padding:4px;font-size:10px;text-align:right;font-weight:bold">${fmtQ(r.subRenglones.reduce((a, s) => a + s.cantidadUnitaria * r.cantidad * s.precioUnitario, 0))}</td>
+          </tr>
+        </table>
       </div>` : '';
+
+    // Personal del renglón
+    const personalHTML = r.costoManoObra > 0 ? `
+      <div style="margin-top:6px;padding:6px;background:#eff6ff;border-left:3px solid #3b82f6">
+        <b style="color:#1e40af">👷 Cuadrilla:</b>
+        <span style="font-size:10px;color:#374151">${Math.round(r.costoManoObra / 350)} persona(s) · Jornal: ${fmtQ(r.costoManoObra)} · Rendimiento: ${r.rendimientoCuadrilla} ${r.unidad}/día</span>
+      </div>` : '';
+
     return `<h4 style="margin:14px 0 4px;color:#1e293b">${r.codigo} — ${r.nombre}</h4>
-      <table class="t"><thead><tr><th style="text-align:left">Insumo</th><th>Tipo</th><th>Unidad</th><th>Precio</th></tr></thead><tbody>${insHTML}</tbody></table>${subrenglonHTML}`;
+      <table class="t"><thead><tr><th style="text-align:left">Insumo</th><th>Tipo</th><th>Unidad</th><th>Precio</th></tr></thead><tbody>${insHTML}</tbody></table>${subrenglonHTML}${personalHTML}`;
   }).join('');
 
   const fecha = new Date().toLocaleDateString('es-GT', { year: 'numeric', month: 'long', day: 'numeric' });
