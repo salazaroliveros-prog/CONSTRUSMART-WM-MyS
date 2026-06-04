@@ -6,10 +6,78 @@ import { Tipologia, RenglonPresupuesto, SubRenglon, Presupuesto } from '../types
 import { generarRenglones } from '../data';
 import { fmtQ, TIPOLOGIA_LABEL, costoDirectoUnitario, precioUnitarioVenta, duracionPorRendimiento, HERRAMIENTA_MENOR, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD } from '../utils';
 import { exportCSV, exportPDF } from '../export';
-import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X, Users, Package } from 'lucide-react';
 import PresupuestosList from '../components/PresupuestosList';
 import CubicacionAutomatica from '../components/CubicacionAutomatica';
 import HistorialPresupuestosModal from '../components/HistorialPresupuestosModal';
+
+// Catálogo de materiales comunes por actividad de construcción
+const MATERIALES_POR_ACTIVIDAD: Record<string, { nombre: string; unidad: string; precioRef: number }[]> = {
+  humedad: [
+    { nombre: 'Cemento Portland', unidad: 'bulto (50kg)', precioRef: 95 },
+    { nombre: 'Arena de río', unidad: 'm³', precioRef: 180 },
+    { nombre: 'Piedrín', unidad: 'm³', precioRef: 200 },
+    { nombre: 'Agua', unidad: 'lt', precioRef: 0.15 },
+    { nombre: 'Alambre recocido #16', unidad: 'kg', precioRef: 18 },
+    { nombre: 'Madera (formaletas)', unidad: 'ml', precioRef: 35 },
+    { nombre: 'Clavo de formaleta', unidad: 'kg', precioRef: 15 },
+  ],
+  acero: [
+    { nombre: 'Acero corrugado #4', unidad: 'barra 12m', precioRef: 85 },
+    { nombre: 'Alambre recocido #16', unidad: 'kg', precioRef: 18 },
+    { nombre: 'Alambre recocido #18', unidad: 'kg', precioRef: 15 },
+  ],
+  encofrado: [
+    { nombre: 'Madera (formaletas)', unidad: 'ml', precioRef: 35 },
+    { nombre: 'Clavo de formaleta', unidad: 'kg', precioRef: 15 },
+    { nombre: 'Alambre recocido #18', unidad: 'kg', precioRef: 15 },
+    { nombre: 'Aceite de desencofrar', unidad: 'lt', precioRef: 25 },
+  ],
+  mamposteria: [
+    { nombre: 'Block 14x19x39', unidad: 'pza', precioRef: 4.20 },
+    { nombre: 'Arena de río', unidad: 'm³', precioRef: 180 },
+    { nombre: 'Cemento Portland', unidad: 'bulto (50kg)', precioRef: 95 },
+    { nombre: 'Albañil', unidad: 'jornal', precioRef: 350 },
+  ],
+  acabados: [
+    { nombre: 'Pintura látex', unidad: 'galón', precioRef: 180 },
+    { nombre: 'Cemento Póleo', unidad: 'bulto (25kg)', precioRef: 55 },
+    { nombre: 'Placa de yeso', unidad: 'pza', precioRef: 45 },
+    { nombre: 'Azulejo', unidad: 'm²', precioRef: 85 },
+    { nombre: 'Pegazulejo', unidad: 'bulto', precioRef: 55 },
+  ],
+  plomeria: [
+    { nombre: 'Tub PVC 4"', unidad: 'ml', precioRef: 35 },
+    { nombre: 'Codo PVC 4"', unidad: 'pza', precioRef: 25 },
+    { nombre: 'Té PVC 4"', unidad: 'pza', precioRef: 20 },
+    { nombre: 'Válvula compuerta', unidad: 'pza', precioRef: 120 },
+    { nombre: 'Teflón', unidad: 'rollo', precioRef: 12 },
+    { nombre: 'Pegatina PVC', unidad: 'tubo', precioRef: 28 },
+  ],
+  electricidad: [
+    { nombre: 'Cable THW #12', unidad: 'rollo (100m)', precioRef: 450 },
+    { nombre: 'Cable THW #14', unidad: 'rollo (100m)', precioRef: 320 },
+    { nombre: 'Conduit conduit 1/2"', unidad: 'ml', precioRef: 22 },
+    { nombre: 'Caja de paso', unidad: 'pza', precioRef: 45 },
+    { nombre: 'Tomacorriente', unidad: 'pza', precioRef: 35 },
+    { nombre: 'Interruptor', unidad: 'pza', precioRef: 30 },
+    { nombre: 'Conector PVC', unidad: 'pza', precioRef: 15 },
+  ],
+};
+
+// Personal promedio por actividad
+const PERSONAL_POR_ACTIVIDAD: Record<string, number> = {
+  humedad: 6,
+  acero: 4,
+  encofrado: 8,
+  mamposteria: 6,
+  acabados: 4,
+  plomeria: 3,
+  electricidad: 3,
+  general: 5,
+};
+
+const ACTIVIDADES_TIPICAS = Object.keys(MATERIALES_POR_ACTIVIDAD);
 
 const Presupuestos: React.FC = () => {
   const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, updateProyecto, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores } = useErp();
@@ -18,6 +86,7 @@ const Presupuestos: React.FC = () => {
   const [proyecto, setProyecto] = useState('Nuevo Presupuesto');
   const [projectId, setProjectId] = useState('');
   const [items, setItems] = useState<RenglonPresupuesto[]>([]);
+  const [actividadSeleccionada, setActividadSeleccionada] = useState<string | null>(null);
   const [sel, setSel] = useState('');
   const [selectedProveedorId, setSelectedProveedorId] = useState('');
   const [nuevoProveedorNombre, setNuevoProveedorNombre] = useState('');
@@ -153,12 +222,43 @@ const Presupuestos: React.FC = () => {
   }, [items]);
 
   // Funciones para sub-renglones
+  // Agregar materiales de catálogo por tipo de actividad
+  const addMaterialesActividad = (renglonId: string, actividad: string) => {
+    const materiales = MATERIALES_POR_ACTIVIDAD[actividad] || [];
+    const personal = PERSONAL_POR_ACTIVIDAD[actividad] || PERSONAL_POR_ACTIVIDAD.general;
+    const existentes = items.find(r => r.id === renglonId)?.subRenglones || [];
+    const nuevosSubs: SubRenglon[] = materiales.map(m => ({
+      id: 'sub-' + crypto.randomUUID().slice(0, 9),
+      nombreMaterial: m.nombre,
+      unidad: m.unidad,
+      cantidadUnitaria: 1,
+      precioUnitario: m.precioRef,
+    }));
+
+    upd(renglonId, {
+      subRenglones: [...existentes, ...nuevosSubs],
+      costoManoObra: personal * 350, // jornal base Q350
+    });
+
+    // Cascada: recalcular costos del renglón
+    setTimeout(() => {
+      const renglon = items.find(r => r.id === renglonId);
+      if (renglon) {
+        const costoMatTotal = nuevosSubs.reduce((a, s) => a + (s.cantidadUnitaria * s.precioUnitario), 0);
+        upd(renglonId, {
+          costoMateriales: renglon.costoMateriales + costoMatTotal,
+          totalCD: (renglon.costoMateriales + costoMatTotal) + renglon.costoManoObra + renglon.costoEquipo,
+        });
+      }
+    }, 100);
+  };
+
   const addSubrenglon = (renglonId: string) => {
     upd(renglonId, {
       subRenglones: [
         ...(items.find(r => r.id === renglonId)?.subRenglones || []),
         {
-          id: 'sub-' + Math.random().toString(36).slice(2, 9),
+          id: 'sub-' + crypto.randomUUID().slice(0, 9),
           nombreMaterial: '',
           unidad: 'kg',
           cantidadUnitaria: 0,
@@ -508,10 +608,27 @@ const Presupuestos: React.FC = () => {
                     {/* Sub-renglones de materiales */}
                     <div className="mt-3 border-t pt-3">
                       <div className="flex justify-between items-center mb-2">
-                        <div className="text-[10px] font-semibold text-slate-500">📦 Desglose de Materiales por Renglon</div>
-                        <button onClick={() => addSubrenglon(r.id)} className="text-[10px] bg-orange-100 text-orange-600 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200">
-                          <Plus className="w-3 h-3" /> Material
-                        </button>
+                        <div className="text-[10px] font-semibold text-slate-500">📦 Desglose de Materiales por Renglón</div>
+                        <div className="flex gap-1 items-center">
+                          <select
+                            value={actividadSeleccionada || ''}
+                            onChange={e => {
+                              if (e.target.value) {
+                                addMaterialesActividad(r.id, e.target.value);
+                                setActividadSeleccionada(null);
+                              }
+                            }}
+                            className="text-[10px] px-2 py-1 rounded border border-orange-200 outline-none focus:border-orange-400 bg-white"
+                          >
+                            <option value="">Tipo de actividad...</option>
+                            {ACTIVIDADES_TIPICAS.map(act => (
+                              <option key={act} value={act}>{act.charAt(0).toUpperCase() + act.slice(1)} ({MATERIALES_POR_ACTIVIDAD[act].length} materiales)</option>
+                            ))}
+                          </select>
+                          <button onClick={() => addSubrenglon(r.id)} className="text-[10px] bg-orange-100 text-orange-600 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200">
+                            <Plus className="w-3 h-3" /> Manual
+                          </button>
+                        </div>
                       </div>
                       {r.subRenglones && r.subRenglones.length > 0 ? (
                         <div className="space-y-1.5">
