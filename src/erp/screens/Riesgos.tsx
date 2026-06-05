@@ -133,17 +133,67 @@ const Riesgos: React.FC = () => {
         </div>
       </div>
 
-      {/* Matriz de calor */}
+      {/* Matriz de calor interactiva (F-11) */}
       <div className="bg-white rounded-xl p-4 border border-slate-100 mb-4">
-        <h3 className="text-sm font-bold text-slate-700 mb-2">🔴 Matriz de Calor (Probabilidad × Impacto)</h3>
-        <div className="grid grid-cols-5 gap-1 text-[10px] max-w-[300px]">
-          {[5,4,3,2,1].map(prob => 
-            [1,2,3,4,5].map(imp => {
-              const nivel = calcularNivel(prob as 1|2|3|4|5, imp as 1|2|3|4|5);
-              const colorMap: Record<string, string> = { bajo: 'bg-emerald-100', medio: 'bg-amber-100', alto: 'bg-orange-100', critico: 'bg-red-100' };
-              return <div key={`${prob}-${imp}`} className={`w-8 h-8 rounded ${colorMap[nivel]} flex items-center justify-center font-bold text-[8px]`}>{prob * imp}</div>;
-            })
-          )}
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">🎯 Matriz de Calor (Probabilidad × Impacto)</h3>
+          <div className="flex gap-2 text-[9px]">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />Bajo</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" />Medio</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" />Alto</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" />Crítico</span>
+          </div>
+        </div>
+        <div className="flex gap-4 items-start">
+          <div className="flex-shrink-0">
+            <div className="text-[9px] text-slate-400 text-center mb-1">Impacto →</div>
+            <div className="grid grid-cols-5 gap-0.5" style={{ gridTemplateColumns: 'repeat(5, 44px)' }}>
+              {[5,4,3,2,1].map(prob => 
+                [1,2,3,4,5].map(imp => {
+                  const nivel = calcularNivel(prob as 1|2|3|4|5, imp as 1|2|3|4|5);
+                  const colorMap: Record<string, string> = { bajo: 'bg-emerald-100', medio: 'bg-amber-100', alto: 'bg-orange-100', critico: 'bg-red-100' };
+                  const dotColorMap: Record<string, string> = { bajo: 'bg-emerald-500', medio: 'bg-amber-500', alto: 'bg-orange-500', critico: 'bg-red-500' };
+                  const riesgosEnCelda = riesgos.filter(r => r.probabilidad === prob && r.impacto === imp && r.estado !== 'mitigado');
+                  return (
+                    <div key={`${prob}-${imp}`} className={`w-[44px] h-[44px] rounded relative ${colorMap[nivel]} flex items-center justify-center font-bold text-[9px]`}>
+                      <span className="text-slate-500">{prob * imp}</span>
+                      {riesgosEnCelda.length > 0 && (
+                        <div className="absolute -top-1 -right-1 bg-slate-800 text-white text-[8px] rounded-full w-4 h-4 flex items-center justify-center font-bold shadow">
+                          {riesgosEnCelda.length}
+                        </div>
+                      )}
+                      {riesgosEnCelda.length > 0 && riesgosEnCelda.length <= 3 && (
+                        <div className="absolute inset-0 flex items-center justify-center gap-0.5">
+                          {riesgosEnCelda.slice(0, 3).map((r, i) => (
+                            <span key={i} className={`w-2 h-2 rounded-full ${dotColorMap[nivel]} shadow-sm border border-white`} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            <div className="text-[9px] text-slate-400 text-center mt-1">← Probabilidad (1-5 arriba a abajo)</div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] text-slate-500 mb-2">Riesgos por nivel:</p>
+            <div className="space-y-1.5">
+              {(['critico', 'alto', 'medio', 'bajo'] as const).map(nivel => {
+                const count = riesgos.filter(r => r.nivel === nivel && r.estado !== 'mitigado').length;
+                const colorMap: Record<string, string> = { bajo: 'bg-emerald-100 text-emerald-700', medio: 'bg-amber-100 text-amber-700', alto: 'bg-orange-100 text-orange-700', critico: 'bg-red-100 text-red-700' };
+                return (
+                  <div key={nivel} className={`flex items-center justify-between px-2 py-1 rounded-lg text-[10px] ${colorMap[nivel]}`}>
+                    <span className="font-semibold capitalize">{nivel}</span>
+                    <span className="font-bold">{count} riesgo{count !== 1 ? 's' : ''}</span>
+                  </div>
+                );
+              })}
+            </div>
+            {riesgos.filter(r => r.estado !== 'mitigado').length === 0 && (
+              <p className="text-[10px] text-slate-400 text-center py-2">Sin riesgos activos</p>
+            )}
+          </div>
         </div>
       </div>
 

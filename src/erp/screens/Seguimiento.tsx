@@ -312,6 +312,58 @@ const Seguimiento: React.FC = () => {
         </div>
       </div>
 
+      {/* ── Hitos Vencidos (F-07) ── */}
+      {(() => {
+        let hitos: any[] = [];
+        try { hitos = JSON.parse(localStorage.getItem('wm_hitos') || '[]'); } catch { /* empty */ }
+        const hitosVencidos = hitos.filter((h: any) => h.estado === 'pendiente' && h.fecha < todayISO());
+        const hitosProximos = hitos.filter((h: any) => h.estado === 'pendiente' && h.fecha >= todayISO() && h.fecha <= addDays(todayISO(), 7));
+        if (hitosVencidos.length === 0 && hitosProximos.length === 0) return null;
+        return (
+          <div className="mb-4">
+            <div className="bg-gradient-to-r from-red-50 to-amber-50 rounded-xl border border-red-200 p-4">
+              <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                ⏰ Hitos Requeridos
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {hitosVencidos.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-semibold text-red-600 mb-1">🔴 Vencidos ({hitosVencidos.length})</p>
+                    <div className="space-y-1">
+                      {hitosVencidos.slice(0, 5).map((h: any) => (
+                        <div key={h.id} className="bg-white rounded-lg px-2 py-1.5 border border-red-100 flex items-center justify-between text-xs">
+                          <div>
+                            <span className="font-medium text-slate-700">{h.nombre}</span>
+                            <span className="text-red-400 ml-1">({h.fecha})</span>
+                          </div>
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${h.tipo === 'cierre' ? 'bg-purple-100 text-purple-600' : h.tipo === 'entrega' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-600'}`}>{h.tipo}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {hitosProximos.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-semibold text-amber-600 mb-1">🟡 Próximos 7 días ({hitosProximos.length})</p>
+                    <div className="space-y-1">
+                      {hitosProximos.slice(0, 5).map((h: any) => (
+                        <div key={h.id} className="bg-white rounded-lg px-2 py-1.5 border border-amber-100 flex items-center justify-between text-xs">
+                          <div>
+                            <span className="font-medium text-slate-700">{h.nombre}</span>
+                            <span className="text-amber-400 ml-1">({h.fecha})</span>
+                          </div>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">{h.tipo}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Diagrama de Gantt */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-3">
