@@ -432,7 +432,7 @@ const Seguimiento: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <button type="button" onClick={() => startEditBitacora(b)} className="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button type="button" onClick={() => deleteBitacora(b.id)} className="p-1 rounded bg-red-100 hover:bg-red-200 text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+<button type="button" onClick={() => deleteBitacora(b.id)} className="p-1 rounded bg-red-100 hover:bg-red-200 text-red-600" aria-label="Eliminar bitácora"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-slate-500 mt-0.5"><CloudRain className="w-3 h-3" /> {b.clima} · {b.personal} pers.</div>
