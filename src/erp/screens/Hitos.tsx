@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useErp, supabase } from '../store';
+import { useErp } from '../store';
+import { supabase } from '@/lib/supabase';
 import { Hito } from '../types';
 import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter, Calendar } from 'lucide-react';
 import { INPUT } from '../ui';

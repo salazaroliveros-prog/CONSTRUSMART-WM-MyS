@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useErp, supabase } from '../store';
+import { useErp } from '../store';
+import { supabase } from '@/lib/supabase';
 import { Riesgo } from '../types';
 import { AlertTriangle, Shield, Plus, X, TrendingUp, TrendingDown, Filter } from 'lucide-react';
 import { INPUT } from '../ui';
