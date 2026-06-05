@@ -46,7 +46,8 @@ describe('ALLOWED - Mapa de permisos por rol', () => {
   });
 
   it('todos los roles existen en el mapa', () => {
-    validRoles.forEach(rol => {
+    const roles = ['Administrador', 'Gerente', 'Residente', 'Compras', 'Bodeguero'];
+    roles.forEach(rol => {
       expect(ALLOWED[rol]).toBeDefined();
       expect(Array.isArray(ALLOWED[rol])).toBe(true);
     });

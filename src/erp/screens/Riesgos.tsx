@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
-import { useErp } from '../store';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useErp, supabase } from '../store';
 import { Riesgo } from '../types';
-import { AlertTriangle, Shield, Plus, X, Check, TrendingUp, TrendingDown, Calendar } from 'lucide-react';
-import { INPUT, BUTTON_PRIMARY, CARD } from '../ui';
+import { AlertTriangle, Shield, Plus, X, TrendingUp, TrendingDown, Filter } from 'lucide-react';
+import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { todayISO } from '../utils';
+import { useNotifications } from '../hooks/useNotifications';
+
+const STORAGE_KEY = 'wm_riesgos';
 
 const calcularNivel = (prob: number, imp: number): Riesgo['nivel'] => {
   const score = prob * imp;
@@ -15,10 +18,12 @@ const calcularNivel = (prob: number, imp: number): Riesgo['nivel'] => {
 };
 
 const Riesgos: React.FC = () => {
-  const { proyectos } = useErp();
+  const { proyectos, selectedProyectoId, setSelectedProyectoId } = useErp();
+  const { showLocalNotification } = useNotifications();
   const [riesgos, setRiesgos] = useState<Riesgo[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_riesgos') || '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
   });
+  const [synced, setSynced] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     proyectoId: '',
@@ -32,9 +37,71 @@ const Riesgos: React.FC = () => {
     costoSoporte: 0,
   });
 
-  const saveRiesgos = (r: Riesgo[]) => {
-    setRiesgos(r);
-    localStorage.setItem('wm_riesgos', JSON.stringify(r));
+  useEffect(() => {
+    if (selectedProyectoId && !form.proyectoId) {
+      setForm(prev => ({ ...prev, proyectoId: selectedProyectoId }));
+    }
+  }, [selectedProyectoId]);
+
+  useEffect(() => {
+    if (!synced) {
+      syncFromSupabase();
+      setSynced(true);
+    }
+  }, [synced]);
+
+  const syncFromSupabase = async () => {
+    if (!supabase) return;
+    try {
+      const { data, error } = await supabase.from('riesgos').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const mapped: Riesgo[] = data.map((r: any) => ({
+          id: r.id, proyectoId: r.proyecto_id, nombre: r.nombre,
+          descripcion: r.descripcion || '', tipo: r.tipo,
+          probabilidad: r.probabilidad, impacto: r.impacto,
+          nivel: calcularNivel(r.probabilidad, r.impacto),
+          planMitigacion: r.plan_mitigacion || '',
+          responsable: r.responsable || '',
+          fechaIdentificacion: r.fecha_identificacion,
+          estado: r.estado, costoSoporte: r.costo_soporte || undefined,
+          createdAt: r.created_at,
+        }));
+        const localIds = new Set(riesgos.map(r => r.id));
+        const nuevos = mapped.filter(r => !localIds.has(r.id));
+        if (nuevos.length > 0) setRiesgos(prev => [...nuevos, ...prev]);
+      }
+    } catch (e) { console.warn('[Riesgos] Error sync Supabase:', e); }
+  };
+
+  const syncToSupabase = async (r: Riesgo[]) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(r));
+    if (!supabase) return;
+    try {
+      const { error } = await supabase.from('riesgos').upsert(
+        r.map(ri => ({
+          id: ri.id, proyecto_id: ri.proyectoId, nombre: ri.nombre,
+          descripcion: ri.descripcion || null, tipo: ri.tipo,
+          probabilidad: ri.probabilidad, impacto: ri.impacto,
+          plan_mitigacion: ri.planMitigacion || null,
+          responsable: ri.responsable || null,
+          fecha_identificacion: ri.fechaIdentificacion,
+          estado: ri.estado, costo_soporte: ri.costoSoporte || null,
+          created_at: ri.createdAt,
+        })),
+        { onConflict: 'id' }
+      );
+      if (error) console.warn('[Riesgos] Error sync Supabase:', error);
+
+      const criticos = r.filter(ri => ri.nivel === 'critico' && ri.estado === 'identificado');
+      if (criticos.length > 0 && selectedProyectoId) {
+        const proy = proyectos.find(p => p.id === selectedProyectoId);
+        showLocalNotification('⚠️ Riesgos críticos sin mitigar', {
+          body: `${criticos.length} riesgo(s) crítico(s) en ${proy?.nombre || 'el proyecto'}`,
+          tag: 'riesgos-criticos', url: '/riesgos',
+        });
+      }
+    } catch (e) { console.warn('[Riesgos] Error sync Supabase:', e); }
   };
 
   const agregar = () => {
@@ -58,20 +125,32 @@ const Riesgos: React.FC = () => {
       costoSoporte: form.costoSoporte || undefined,
       createdAt: new Date().toISOString(),
     };
-    saveRiesgos([nuevo, ...riesgos]);
+    const nuevos = [nuevo, ...riesgos];
+    syncToSupabase(nuevos);
+    setRiesgos(nuevos);
     toast.success('Riesgo registrado');
     setShowForm(false);
-    setForm({ proyectoId: '', nombre: '', descripcion: '', tipo: 'tecnico', probabilidad: 2, impacto: 2, planMitigacion: '', responsable: '', costoSoporte: 0 });
+    setForm({ proyectoId: selectedProyectoId || '', nombre: '', descripcion: '', tipo: 'tecnico', probabilidad: 2, impacto: 2, planMitigacion: '', responsable: '', costoSoporte: 0 });
   };
 
   const actualizarEstado = (id: string, estado: Riesgo['estado']) => {
-    saveRiesgos(riesgos.map(r => r.id === id ? { ...r, estado } : r));
+    const nuevos = riesgos.map(r => r.id === id ? { ...r, estado } : r);
+    syncToSupabase(nuevos);
+    setRiesgos(nuevos);
+    if (estado === 'materializado') {
+      const riesgo = riesgos.find(r => r.id === id);
+      showLocalNotification('Riesgo materializado', {
+        body: `"${riesgo?.nombre}" se ha materializado.`,
+        tag: 'riesgo-materializado', url: '/riesgos',
+      });
+    }
   };
 
   const eliminar = (id: string) => {
-    if (confirm('¿Eliminar este riesgo?')) {
-      saveRiesgos(riesgos.filter(r => r.id !== id));
-    }
+    if (!confirm('¿Eliminar este riesgo?')) return;
+    const nuevos = riesgos.filter(r => r.id !== id);
+    syncToSupabase(nuevos);
+    setRiesgos(nuevos);
   };
 
   const nivelColor = (n: Riesgo['nivel']) => {
@@ -79,13 +158,14 @@ const Riesgos: React.FC = () => {
     return map[n];
   };
 
-  const nivelBg = (n: Riesgo['nivel']) => {
-    const map = { bajo: '#10b98120', medio: '#f59e0b20', alto: '#f9731620', critico: '#ef444420' };
-    return map[n];
-  };
+  const riesgosFiltrados = useMemo(() => {
+    if (!selectedProyectoId) return riesgos;
+    return riesgos.filter(r => r.proyectoId === selectedProyectoId);
+  }, [riesgos, selectedProyectoId]);
 
-  const matrizRiesgos = riesgos.filter(r => r.estado !== 'mitigado').length;
-  const costoSoportable = riesgos.filter(r => r.estado === 'materializado').reduce((a, r) => a + (r.costoSoporte || 0), 0);
+  const proyActual = selectedProyectoId ? proyectos.find(p => p.id === selectedProyectoId) : null;
+  const matrizRiesgos = riesgosFiltrados.filter(r => r.estado !== 'mitigado').length;
+  const costoSoportable = riesgosFiltrados.filter(r => r.estado === 'materializado').reduce((a, r) => a + (r.costoSoporte || 0), 0);
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
@@ -93,6 +173,7 @@ const Riesgos: React.FC = () => {
         <div>
           <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
             <Shield className="w-6 h-6 text-amber-500" /> Gestión de Riesgos
+            {proyActual && <span className="text-base font-normal text-slate-400">— {proyActual.nombre}</span>}
           </h1>
           <p className="text-sm text-slate-400">Identificación, evaluación y mitigación de riesgos del proyecto</p>
         </div>
@@ -101,39 +182,36 @@ const Riesgos: React.FC = () => {
         </button>
       </div>
 
-      {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
         <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-500" />
-            <span className="text-xs text-slate-500">Riesgos activos</span>
-          </div>
+          <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-amber-500" /><span className="text-xs text-slate-500">Riesgos activos</span></div>
           <div className="text-xl font-bold text-slate-800">{matrizRiesgos}</div>
         </div>
         <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-red-500" />
-            <span className="text-xs text-slate-500">Críticos/Altos</span>
-          </div>
-          <div className="text-xl font-bold text-red-600">{riesgos.filter(r => r.nivel === 'critico' || r.nivel === 'alto').length}</div>
+          <div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-red-500" /><span className="text-xs text-slate-500">Críticos/Altos</span></div>
+          <div className="text-xl font-bold text-red-600">{riesgosFiltrados.filter(r => r.nivel === 'critico' || r.nivel === 'alto').length}</div>
         </div>
         <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="flex items-center gap-2">
-            <TrendingDown className="w-4 h-4 text-emerald-500" />
-            <span className="text-xs text-slate-500">Mitigados</span>
-          </div>
-          <div className="text-xl font-bold text-emerald-600">{riesgos.filter(r => r.estado === 'mitigado').length}</div>
+          <div className="flex items-center gap-2"><TrendingDown className="w-4 h-4 text-emerald-500" /><span className="text-xs text-slate-500">Mitigados</span></div>
+          <div className="text-xl font-bold text-emerald-600">{riesgosFiltrados.filter(r => r.estado === 'mitigado').length}</div>
         </div>
         <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="flex items-center gap-2">
-            <TrendingDown className="w-4 h-4 text-red-500" />
-            <span className="text-xs text-slate-500">Costo soportado</span>
-          </div>
+          <div className="flex items-center gap-2"><TrendingDown className="w-4 h-4 text-red-500" /><span className="text-xs text-slate-500">Costo soportado</span></div>
           <div className="text-xl font-bold text-slate-800">Q{costoSoportable.toLocaleString()}</div>
         </div>
       </div>
 
-      {/* Matriz de calor interactiva (F-11) */}
+      {/* Filtro global por proyecto */}
+      {proyectos.length > 0 && (
+        <div className="flex items-center gap-2 mb-3">
+          <Filter className="w-4 h-4 text-slate-400" />
+          <select value={selectedProyectoId || ''} onChange={e => setSelectedProyectoId(e.target.value || null)} className={`${INPUT} max-w-xs`}>
+            <option value="">Todos los proyectos</option>
+            {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+          </select>
+        </div>
+      )}
+
       <div className="bg-white rounded-xl p-4 border border-slate-100 mb-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">🎯 Matriz de Calor (Probabilidad × Impacto)</h3>
@@ -153,7 +231,7 @@ const Riesgos: React.FC = () => {
                   const nivel = calcularNivel(prob as 1|2|3|4|5, imp as 1|2|3|4|5);
                   const colorMap: Record<string, string> = { bajo: 'bg-emerald-100', medio: 'bg-amber-100', alto: 'bg-orange-100', critico: 'bg-red-100' };
                   const dotColorMap: Record<string, string> = { bajo: 'bg-emerald-500', medio: 'bg-amber-500', alto: 'bg-orange-500', critico: 'bg-red-500' };
-                  const riesgosEnCelda = riesgos.filter(r => r.probabilidad === prob && r.impacto === imp && r.estado !== 'mitigado');
+                  const riesgosEnCelda = riesgosFiltrados.filter(r => r.probabilidad === prob && r.impacto === imp && r.estado !== 'mitigado');
                   return (
                     <div key={`${prob}-${imp}`} className={`w-[44px] h-[44px] rounded relative ${colorMap[nivel]} flex items-center justify-center font-bold text-[9px]`}>
                       <span className="text-slate-500">{prob * imp}</span>
@@ -180,7 +258,7 @@ const Riesgos: React.FC = () => {
             <p className="text-[10px] text-slate-500 mb-2">Riesgos por nivel:</p>
             <div className="space-y-1.5">
               {(['critico', 'alto', 'medio', 'bajo'] as const).map(nivel => {
-                const count = riesgos.filter(r => r.nivel === nivel && r.estado !== 'mitigado').length;
+                const count = riesgosFiltrados.filter(r => r.nivel === nivel && r.estado !== 'mitigado').length;
                 const colorMap: Record<string, string> = { bajo: 'bg-emerald-100 text-emerald-700', medio: 'bg-amber-100 text-amber-700', alto: 'bg-orange-100 text-orange-700', critico: 'bg-red-100 text-red-700' };
                 return (
                   <div key={nivel} className={`flex items-center justify-between px-2 py-1 rounded-lg text-[10px] ${colorMap[nivel]}`}>
@@ -190,25 +268,24 @@ const Riesgos: React.FC = () => {
                 );
               })}
             </div>
-            {riesgos.filter(r => r.estado !== 'mitigado').length === 0 && (
+            {riesgosFiltrados.filter(r => r.estado !== 'mitigado').length === 0 && (
               <p className="text-[10px] text-slate-400 text-center py-2">Sin riesgos activos</p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Formulario */}
       {showForm && (
         <div className="bg-amber-50 rounded-xl p-4 mb-4 border border-amber-200 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input value={form.nombre} onChange={e => setForm(prev => ({ ...prev, nombre: e.target.value }))} placeholder="Nombre del riesgo *" className={INPUT} />
-            <select value={form.proyectoId} onChange={e => setForm(prev => ({ ...prev, proyectoId: e.target.value }))} className={INPUT}>
+            <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre del riesgo *" className={INPUT} />
+            <select value={form.proyectoId} onChange={e => setForm(p => ({ ...p, proyectoId: e.target.value }))} className={INPUT}>
               <option value="">Seleccionar proyecto *</option>
               {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value as any }))} className={INPUT}>
+            <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as any }))} className={INPUT}>
               <option value="tecnico">Técnico</option>
               <option value="financiero">Financiero</option>
               <option value="cronograma">Cronograma</option>
@@ -219,20 +296,20 @@ const Riesgos: React.FC = () => {
             </select>
             <div className="flex items-center gap-2">
               <label className="text-[10px] text-slate-500">Probabilidad (1-5)</label>
-              <input type="number" min={1} max={5} value={form.probabilidad} onChange={e => setForm(prev => ({ ...prev, probabilidad: Math.min(5, Math.max(1, +e.target.value)) as any }))} className={INPUT} />
+              <input type="number" min={1} max={5} value={form.probabilidad} onChange={e => setForm(p => ({ ...p, probabilidad: Math.min(5, Math.max(1, +e.target.value)) as any }))} className={INPUT} />
             </div>
             <div className="flex items-center gap-2">
               <label className="text-[10px] text-slate-500">Impacto (1-5)</label>
-              <input type="number" min={1} max={5} value={form.impacto} onChange={e => setForm(prev => ({ ...prev, impacto: Math.min(5, Math.max(1, +e.target.value)) as any }))} className={INPUT} />
+              <input type="number" min={1} max={5} value={form.impacto} onChange={e => setForm(p => ({ ...p, impacto: Math.min(5, Math.max(1, +e.target.value)) as any }))} className={INPUT} />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <textarea value={form.descripcion} onChange={e => setForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Descripción del riesgo" className={`${INPUT} min-h-[60px]`} />
-            <textarea value={form.planMitigacion} onChange={e => setForm(prev => ({ ...prev, planMitigacion: e.target.value }))} placeholder="Plan de mitigación" className={`${INPUT} min-h-[60px]`} />
+            <textarea value={form.descripcion} onChange={e => setForm(p => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción del riesgo" className={`${INPUT} min-h-[60px]`} />
+            <textarea value={form.planMitigacion} onChange={e => setForm(p => ({ ...p, planMitigacion: e.target.value }))} placeholder="Plan de mitigación" className={`${INPUT} min-h-[60px]`} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input value={form.responsable} onChange={e => setForm(prev => ({ ...prev, responsable: e.target.value }))} placeholder="Responsable" className={INPUT} />
-            <input type="number" value={form.costoSoporte || ''} onChange={e => setForm(prev => ({ ...prev, costoSoporte: +e.target.value }))} placeholder="Costo estimado de soporte Q" className={INPUT} />
+            <input value={form.responsable} onChange={e => setForm(p => ({ ...p, responsable: e.target.value }))} placeholder="Responsable" className={INPUT} />
+            <input type="number" value={form.costoSoporte || ''} onChange={e => setForm(p => ({ ...p, costoSoporte: +e.target.value }))} placeholder="Costo estimado de soporte Q" className={INPUT} />
           </div>
           <div className="flex gap-2">
             <button onClick={agregar} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg text-xs font-semibold">Registrar Riesgo</button>
@@ -241,14 +318,13 @@ const Riesgos: React.FC = () => {
         </div>
       )}
 
-      {/* Lista de riesgos */}
       <div className="space-y-2">
-        {riesgos.length === 0 ? (
+        {riesgosFiltrados.length === 0 ? (
           <div className="text-center py-10 text-slate-400">
             <Shield className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-            <p className="text-sm">Sin riesgos registrados. Identifica el primero.</p>
+            <p className="text-sm">Sin riesgos para {proyActual?.nombre || 'el filtro actual'}. Identifica el primero.</p>
           </div>
-        ) : riesgos.map(r => (
+        ) : riesgosFiltrados.map(r => (
           <div key={r.id} className={`bg-white rounded-xl border p-4 ${nivelColor(r.nivel).split(' ')[0]} bg-opacity-20`}>
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
