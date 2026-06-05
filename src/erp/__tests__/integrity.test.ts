@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest';
+
 describe('Pruebas Críticas de Integridad de Presupuestos', () => {
   it('debe calcular correctamente el costo directo incluyendo subRenglones', () => {
     const subRenglones = [

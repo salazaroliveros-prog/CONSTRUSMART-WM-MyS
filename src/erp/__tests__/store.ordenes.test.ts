@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest';
+
 describe('Lógica de Órdenes de Compra', () => {
   it('calcula el total de una orden con múltiples ítems', () => {
     const items = [

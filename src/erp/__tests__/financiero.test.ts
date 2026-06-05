@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 // Tests de lógica financiera (sin React, sin imports explícitos de vitest)
 // Tests de lógica financiera (sin React, solo cálculos)
 // ============================================================

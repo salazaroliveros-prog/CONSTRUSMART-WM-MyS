@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest';
+
 describe('Lógica de Presupuestos', () => {
   it('un presupuesto nuevo inicia en estado borrador', () => {
     const presupuesto = {
@@ -28,8 +30,10 @@ describe('Lógica de Presupuestos', () => {
   })
 
   it('versión siguiente se incrementa correctamente', () => {
-    const existentes = [{ versionPresupuesto: 1 }, { versionPresupuesto: 2 }]
-    const nextVersion = Math.max(...existentes.map(p => p.versionPresupuesto)) + 1
-    expect(nextVersion).toBe(3)
+    const existentes = [{ versionPresupuesto: 1 }]
+    const nextVersion = existentes.length > 0
+      ? Math.max(...existentes.map(p => p.versionPresupuesto || 1)) + 1
+      : 1
+    expect(nextVersion).toBe(2)
   })
 })
