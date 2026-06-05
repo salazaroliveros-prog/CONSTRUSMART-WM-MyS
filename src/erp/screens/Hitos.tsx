@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useErp } from '../store';
 import { Hito } from '../types';
-import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter } from 'lucide-react';
+import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter, Calendar } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { todayISO } from '../utils';
@@ -12,6 +12,10 @@ const HitosScreen: React.FC = () => {
     try { return JSON.parse(localStorage.getItem('wm_hitos') || '[]'); } catch { return []; }
   });
   const [showForm, setShowForm] = useState(false);
+  const [vista, setVista] = useState<'lista' | 'calendario'>('lista');
+  const [mesCalendario, setMesCalendario] = useState(() => {
+    const d = new Date(); return { year: d.getFullYear(), month: d.getMonth() };
+  });
   const [filtroProy, setFiltroProy] = useState('');
   const [form, setForm] = useState({ proyectoId: '', nombre: '', descripcion: '', fecha: '', tipo: 'hito' as Hito['tipo'], responsable: '', dependeDe: [] as string[] });
 
@@ -185,6 +189,55 @@ const HitosScreen: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Toggle vista */}
+      <div className="flex gap-2 mb-3">
+        <button onClick={() => setVista('lista')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${vista === 'lista' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>📋 Lista</button>
+        <button onClick={() => setVista('calendario')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${vista === 'calendario' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>📅 Calendario</button>
+      </div>
+
+      {/* Vista Calendario */}
+      {vista === 'calendario' && (() => {
+        const year = mesCalendario.year;
+        const month = mesCalendario.month;
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDay = new Date(year, month, 1).getDay();
+        const today = todayISO();
+        const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        const cells: (number | null)[] = [];
+        for (let i = 0; i < firstDay; i++) cells.push(null);
+        for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+        return (
+          <div className="bg-white rounded-xl border border-slate-100 p-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <button onClick={() => setMesCalendario(m => m.month === 0 ? { year: m.year - 1, month: 11 } : { ...m, month: m.month - 1 })} className="text-slate-400 hover:text-slate-600">◀</button>
+              <h3 className="text-sm font-bold text-slate-700">{monthNames[month]} {year}</h3>
+              <button onClick={() => setMesCalendario(m => m.month === 11 ? { year: m.year + 1, month: 0 } : { ...m, month: m.month + 1 })} className="text-slate-400 hover:text-slate-600">▶</button>
+            </div>
+            <div className="grid grid-cols-7 gap-0.5 text-center">
+              {dayNames.map(d => <div key={d} className="text-[9px] text-slate-400 font-semibold py-1">{d}</div>)}
+              {cells.map((day, i) => {
+                if (day === null) return <div key={`empty-${i}`} />;
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hitosDelDia = hitosFiltrados.filter(h => h.fecha === dateStr);
+                const isToday = dateStr === today;
+                return (
+                  <div key={day} className={`min-h-[48px] p-0.5 rounded text-[10px] ${isToday ? 'bg-emerald-50 ring-1 ring-emerald-300' : 'hover:bg-slate-50'}`}>
+                    <div className={`text-[10px] font-bold ${isToday ? 'text-emerald-600' : 'text-slate-600'}`}>{day}</div>
+                    {hitosDelDia.slice(0, 2).map(h => {
+                      const tipoColor: Record<string, string> = { inicio: 'bg-blue-100 text-blue-600', hito: 'bg-amber-100 text-amber-600', entrega: 'bg-purple-100 text-purple-600', cierre: 'bg-red-100 text-red-600' };
+                      return <div key={h.id} className={`text-[8px] px-0.5 py-px rounded truncate ${tipoColor[h.tipo] || 'bg-slate-100 text-slate-600'}`}>{h.nombre}</div>;
+                    })}
+                    {hitosDelDia.length > 2 && <div className="text-[8px] text-slate-400">+{hitosDelDia.length - 2}</div>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Timeline de hitos */}
       <div className="space-y-2">
