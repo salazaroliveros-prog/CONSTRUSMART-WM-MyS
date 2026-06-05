@@ -3,6 +3,7 @@ import { useErp } from '../store';
 import { Download, FileJson, FileSpreadsheet, FileText, Mail, Plus, Trash2, Clock, Check, ChevronDown, ChevronUp, Send, Table } from 'lucide-react';
 import { toast } from 'sonner';
 import { fmtQ, todayISO } from '../utils';
+import { sanitizarTexto } from '@/lib/security';
 import { CARD, INPUT } from '../ui';
 import * as XLSX from 'xlsx';
 
@@ -217,8 +218,8 @@ const ExportacionInteligente: React.FC = () => {
             <th style="padding:6px;border:1px solid #f97316;font-size:10px">Avance</th>
           </tr>
           ${proyectos.map(p => `<tr>
-            <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">${p.nombre}</td>
-            <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">${p.estado}</td>
+            <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">${sanitizarTexto(p.nombre)}</td>
+            <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">${sanitizarTexto(p.estado)}</td>
             <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">Q${fmtQ(p.presupuestoTotal || 0)}</td>
             <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">${p.avanceFisico || 0}%</td>
           </tr>`).join('')}

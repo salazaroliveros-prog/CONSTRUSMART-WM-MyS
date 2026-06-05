@@ -38,6 +38,8 @@ ALTER TABLE public.pagos_proveedores DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ventas_paquetes DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.centros_costo DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.erp_auditoria DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.erp_avances DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.erp_licitaciones DISABLE ROW LEVEL SECURITY;
 
 
 -- PASO 2: ELIMINAR TODAS LAS POLITICAS EXISTENTES
@@ -79,6 +81,8 @@ ALTER TABLE public.pagos_proveedores ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ventas_paquetes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.centros_costo ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.erp_auditoria ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.erp_avances ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.erp_licitaciones ENABLE ROW LEVEL SECURITY;
 
 
 -- PASO 4: CREAR POLITICAS MINIMAS QUE FUNCIONAN AL 100%
@@ -169,6 +173,12 @@ CREATE POLICY p_centros_all ON public.centros_costo
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 CREATE POLICY p_auditoria_all ON public.erp_auditoria
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY p_avances_all ON public.erp_avances
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY p_licitaciones_all ON public.erp_licitaciones
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 

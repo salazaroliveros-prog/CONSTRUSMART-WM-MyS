@@ -744,6 +744,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const loadProfile = async (id: string, email?: string, metadata?: { nombre?: string; avatar_url?: string; picture?: string }) => {
       if (authLoaded) return; // Prevenir ejecución duplicada
       authLoaded = true;
+      console.log('[Profile] Cargando perfil para:', { id, email });
 
       const defaultRol: Rol = email === ADMIN_EMAIL ? 'Administrador' : 'Residente';
       const avatarFromMeta = metadata?.avatar_url || metadata?.picture;
@@ -757,9 +758,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           .eq('id', id)
           .maybeSingle();
         if (!error && data) {
+          console.log('[Profile] Perfil encontrado en BD:', { nombre: data.nombre, rol: data.rol });
           nombreFinal = data.nombre;
           rolFinal = mapRol(data.rol, email);
         } else {
+          console.log('[Profile] Creando perfil nuevo:', { id, nombre: nombreFinal, rol: defaultRol });
           await supabase.from('profiles').upsert(
             { id, nombre: nombreFinal, rol: defaultRol, avatar_url: avatarFromMeta },
             { onConflict: 'id', ignoreDuplicates: false }
@@ -769,28 +772,35 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // Obtener rol verificado server-side
         const serverRole = await getServerRole();
         if (serverRole?.rol) {
+          console.log('[Profile] Rol server-side:', serverRole.rol);
           rolFinal = mapRol(serverRole.rol, email) as Rol;
         }
-      } catch {
+      } catch (err) {
+        console.error('[Profile] Error cargando perfil:', err);
         // Usar valores por defecto
       }
 
       // Un SOLO setUser con todos los datos resueltos
+      console.log('[Profile] setUser con:', { id, nombre: nombreFinal, rol: rolFinal });
       setUser({ id, nombre: nombreFinal, rol: rolFinal, avatar: avatarFromMeta });
 
       if (mounted) {
         setView('dashboard');
         setInitializing(false);
+        console.log('[Profile] Iniciando fetchInitialData');
         fetchInitialDataRef.current();
       }
     };
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
+      console.log(`[Auth] Evento: ${event}`, session?.user?.id ? '✓' : '✗');
       if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')) {
+        console.log('[Auth] Usuario autenticado por evento:', { event, userId: session.user.id, email: session.user.email });
         const meta = session.user.user_metadata || {};
         loadProfile(session.user.id, session.user.email || undefined, { nombre: meta.full_name || meta.nombre, avatar_url: meta.picture || meta.avatar_url });
       } else if (event === 'SIGNED_OUT') {
+        console.log('[Auth] Usuario desautenticado');
         setUser(null); setView('login'); setInitializing(false);
       }
     });
@@ -798,6 +808,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get('code');
     if (authCode) {
+      console.log('[OAuth] Código recibido en callback. El SDK de Supabase manejará el intercambio automáticamente.');
       // El SDK de Supabase maneja el callback OAuth cuando no se usa skipBrowserRedirect.
       // Solo limpiamos la URL para eliminar el código después de procesarlo.
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -805,10 +816,18 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     supabase.auth.getSession().then(({ data }) => {
       if (!mounted) return;
-      if (data.session?.user) loadProfile(data.session.user.id, data.session.user.email || undefined);
-      else setInitializing(false);
+      console.log('[Auth] getSession() resultado:', data.session?.user?.id ? '✓ Sesión válida' : '✗ Sin sesión');
+      if (data.session?.user) {
+        console.log('[Auth] Usuario autenticado:', data.session.user.id);
+        loadProfile(data.session.user.id, data.session.user.email || undefined);
+      } else {
+        console.log('[Auth] Sin sesión activa');
+        setInitializing(false);
+      }
+    }).catch(err => {
+      console.error('[Auth] Error en getSession():', err);
+      setInitializing(false);
     });
-    }
 
     return () => { mounted = false; sub.subscription.unsubscribe(); };
   }, []); // ← SIN fetchInitialData en deps, se usa ref
