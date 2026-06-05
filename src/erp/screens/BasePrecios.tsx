@@ -381,7 +381,7 @@ const BasePrecios: React.FC = () => {
                         </div>
                       ) : (
                         <div className="flex justify-center gap-1">
-                          <button onClick={() => { setEditando(ins.id); setNuevoNombre(ins.nombre); setNuevoPrecio(ins.precioReferencia); setNuevoUnidad(ins.unidad); setNuevoRubro(ins.rubro); }} className="p-1 text-slate-400 hover:text-teal-500"><Edit3 className="w-3 h-3" /></button>
+<button onClick={() => { setEditando(ins.id); setNuevoNombre(ins.nombre); setNuevoPrecio(ins.precioReferencia); setNuevoUnidad(ins.unidad); setNuevoRubro(ins.rubro); }} className="p-1 text-slate-400 hover:text-teal-500" aria-label="Editar insumo"><Edit3 className="w-3 h-3" /></button>
                           <button onClick={() => handleActivarDesactivar(ins.id)} className={`p-1 ${inactivo ? 'text-emerald-400' : 'text-red-400 hover:text-red-500'}`}>
                             {inactivo ? <RefreshCw className="w-3 h-3" /> : <Trash2 className="w-3 h-3" />}
                           </button>
