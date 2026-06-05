@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useErp } from '../store';
 import { Hito } from '../types';
-import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X } from 'lucide-react';
+import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { todayISO } from '../utils';
 
 const HitosScreen: React.FC = () => {
-  const { proyectos, updateProyecto } = useErp();
+  const { proyectos, updateProyecto, enqueueMutation } = useErp();
   const [hitos, setHitos] = useState<Hito[]>(() => {
     try { return JSON.parse(localStorage.getItem('wm_hitos') || '[]'); } catch { return []; }
   });
   const [showForm, setShowForm] = useState(false);
+  const [filtroProy, setFiltroProy] = useState('');
   const [form, setForm] = useState({ proyectoId: '', nombre: '', descripcion: '', fecha: '', tipo: 'hito' as Hito['tipo'], responsable: '' });
 
   const save = (h: Hito[]) => {

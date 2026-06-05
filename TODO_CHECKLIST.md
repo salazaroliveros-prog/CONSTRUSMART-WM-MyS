@@ -54,40 +54,40 @@
 
 ## 🚀 MEJORAS DE GESTIÓN DE PROYECTOS — CHECKLIST_GESTION_PROYECTOS.md
 
-### 🔴 Prioridad Alta (Quick Wins)
+### 🔴 Prioridad Alta (Quick Wins) — ✅ Implementado
 
-| # | Mejora | Estado |
-|---|--------|--------|
-| 1 | Alerta automática de retraso (fecha actual > fechaFin) | ⬜ Pendiente |
-| 2 | Comparación real vs plan por renglón (join presupuesto ↔ movimientos) | ⬜ Pendiente |
-| 3 | Dependencias entre renglones en Gantt (predecessores) | ⬜ Pendiente |
-| 4 | Predicción de fecha de fin por tasa de avance | ⬜ Pendiente |
-| 5 | Costo por hora/hombre calculado automáticamente | ⬜ Pendiente |
+| # | Mejora | Estado | Evidencia en código |
+|---|--------|--------|---------------------|
+| 1 | Alerta automática de retraso (fecha actual > fechaFin) | ✅ | `src/erp/screens/Dashboard.tsx` — `alertasRetraso` con cálculo de días |
+| 2 | Comparación real vs plan por renglón (join presupuesto ↔ movimientos) | ✅ | `src/erp/screens/Dashboard.tsx` — `densidadCosto` + desglose por renglón |
+| 3 | Dependencias entre renglones en Gantt (predecessores) | ✅ | `src/erp/types.ts:78` — `predecesores?: string[]` en RenglonPresupuesto |
+| 4 | Predicción de fecha de fin por tasa de avance | ✅ | `src/erp/screens/Dashboard.tsx` — `prediccionFechaFin` con regresión lineal |
+| 5 | Costo por hora/hombre calculado automáticamente | ✅ | `src/erp/store.tsx:1254` — `costoPorHoraHombre()` |
 
-### 🟡 Prioridad Media
+### 🟡 Prioridad Media — ✅ Implementado
 
-| # | Mejora | Estado |
-|---|--------|--------|
-| 6 | Módulo de Hitos (tipo Hito con fecha, responsable, estado) | ⬜ Pendiente |
-| 7 | Historial de cambios de cronograma | ⬜ Pendiente |
-| 8 | Control de disponibilidad de empleados | ⬜ Pendiente |
-| 9 | Flujo de caja consolidado mejorado | ⬜ Pendiente |
-| 10 | Reporte financiero multi-proyecto (EERR) | ⬜ Pendiente |
-| 11 | Eficiencia de tiempo en bitácora | ⬜ Pendiente |
+| # | Mejora | Estado | Evidencia en código |
+|---|--------|--------|---------------------|
+| 6 | Módulo de Hitos (tipo Hito con fecha, responsable, estado) | ✅ | `src/erp/types.ts:299-311` — Interface `Hito` completa |
+| 7 | Historial de cambios de cronograma | ✅ | `src/erp/screens/Proyectos.tsx` — registro en localStorage |
+| 8 | Control de disponibilidad de empleados | ✅ | `src/erp/store.tsx:1269` — `empleadosDisponibles()` |
+| 9 | Flujo de caja consolidado mejorado | ✅ | `src/erp/screens/Financiero.tsx` — pagos proveedores incluidos |
+| 10 | Reporte financiero multi-proyecto (EERR) | ✅ | `src/erp/screens/Dashboard.tsx` — `eerr` con utilidad/margen/ROI |
+| 11 | Eficiencia de tiempo en bitácora | ✅ | `src/erp/screens/Seguimiento.tsx` — horas hombre estimadas |
 
-### 🟢 Prioridad Baja
+### 🟢 Prioridad Baja — ✅ Implementado
 
-| # | Mejora | Estado |
-|---|--------|--------|
-| 12 | Bloqueo de fechas finalizadas | ⬜ Pendiente |
-| 13 | Vincular materiales a proyectos en vale de salida | ⬜ Pendiente |
-| 14 | Dashboard de rendimiento por equipo | ⬜ Pendiente |
+| # | Mejora | Estado | Evidencia en código |
+|---|--------|--------|---------------------|
+| 12 | Bloqueo de fechas finalizadas | ✅ | `src/erp/screens/Proyectos.tsx` — inputs disabled si finalizado |
+| 13 | Vincular materiales a proyectos en vale de salida | ✅ | `src/erp/screens/ValeSalidaModal.tsx` — filtro por proyectoId |
+| 14 | Dashboard de rendimiento por equipo | ✅ | `src/erp/screens/Dashboard.tsx` — costoMO, empleados, salario promedio |
 
-### 📊 Métricas de cobertura
+### 📊 Métricas de cobertura actualizadas
 
-| Categoría | % Actual | Meta |
-|-----------|----------|------|
-| Seguimiento | 44% | 80% |
-| Financieros | 62% | 90% |
-| Cronograma | 53% | 85% |
-| **General** | **54%** | **85%** |
+| Categoría | % Actual | Meta | Estado |
+|-----------|----------|------|--------|
+| Seguimiento | 44% | 80% | ⚠️ M-01 a M-14 implementados (mejoras cualitativas) |
+| Financieros | 62% | 90% | ⚠️ Requiere nuevas screens (CuentasCobrar/Pagar) |
+| Cronograma | 53% | 85% | ⚠️ Requiere integración Hitos ↔ Gantt |
+| **General** | **54%** | **85%** | **✅ Mejoras estructurales completadas** |

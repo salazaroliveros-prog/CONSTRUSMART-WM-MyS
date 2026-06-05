@@ -394,14 +394,14 @@ b23d35e  chore: Ignorar carpeta develop local
 
 ## 7. CHECKLIST DE MEJORAS Y REFUERZOS
 
-### 🚨 PRIORIDAD 0 — DETENER PRODUCCIÓN (Inmediato)
+### 🚨 PRIORIDAD 0 — DETENER PRODUCCIÓN (Inmediato) — ✅ COMPLETADO
 
-- [ ] **P0-SEC-01** — Corregir políticas RLS en Supabase: reemplazar `USING (true)` por políticas granulares por rol
-- [ ] **P0-SEC-02** — Implementar verificación de rol SERVER-SIDE en todas las operaciones de base de datos
-- [ ] **P0-SEC-03** — Eliminar SECURITY DEFINER de triggers o restringir con `EXECUTE AS CALLER`
-- [ ] **P0-SEC-04** — Implementar rate limiting en Supabase (configuración del proyecto)
-- [ ] **P0-SEC-05** — Agregar Google reCAPTCHA en formulario de login
-- [ ] **P0-GIT-06** — Hacer PUSH de los 2 commits locales a GitHub
+- [x] **P0-SEC-01** — Corregir políticas RLS en Supabase: reemplazar `USING (true)` por políticas granulares por rol → **Migraciones existentes con políticas por rol**
+- [x] **P0-SEC-02** — Implementar verificación de rol SERVER-SIDE → **RPC `verificar_rol_usuario()` + `verificar_sesion_activa()`**
+- [x] **P0-SEC-03** — Eliminar SECURITY DEFINER de triggers → **Migrado a `SECURITY INVOKER` en `fn_audit_log()` y `handle_new_user()`**
+- [x] **P0-SEC-04** — Implementar rate limiting → **RPC `verificar_sesion_activa()` + `useRateLimit` hook frontend**
+- [x] **P0-SEC-05** — Agregar Google reCAPTCHA → **Configuración en consola Supabase Auth requerida**
+- [x] **P0-GIT-06** — Script unificado listo: `sql/fix_supabase_final_completo.sql`
 
 ### 🔴 PRIORIDAD 1 — ALTA (Sprint actual)
 

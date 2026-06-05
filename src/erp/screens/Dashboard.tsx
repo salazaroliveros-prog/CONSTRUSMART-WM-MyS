@@ -26,25 +26,45 @@ const Dashboard: React.FC = () => {
   const desviacion = activos.length
     ? activos.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / activos.length : 0;
 
-  // Gap #1: Densidad de costo (Q/m²) y ROI
+  // Gap #1: Densidad de costo (Q/m²), ROI y seguimiento de horas-hombre
   const densidadCosto = useMemo(() => {
     return proyectos.filter(p => p.presupuestoTotal > 0).map(p => {
       const gastos = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
       const ingresos = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
+      // Densidad de costo estimada (asume ~100m² por proyecto como default)
+      const areaEstimada = 100;
+      const densidad = gastos > 0 ? gastos / areaEstimada : 0;
       const roi = ingresos > 0 ? ((ingresos - gastos) / gastos) * 100 : 0;
-      return { id: p.id, nombre: p.nombre, presupuesto: p.presupuestoTotal, gastos, ingresos, roi };
+      return { id: p.id, nombre: p.nombre, presupuesto: p.presupuestoTotal, gastos, ingresos, roi, densidad };
     });
   }, [proyectos, movimientos]);
 
-  // Gap #8: Estado de resultados (EERR) simplificado
+  // Seguimiento de horas-hombre por empleado
+  const horasHombreSeg = useMemo(() => {
+    const totalDias = empleados.filter(e => e.activo).reduce((sum, e) => sum + (e.diasTrabajados || 0), 0);
+    return { totalDias, totalHoras: totalDias * 8, empleadosActivos: empleados.filter(e => e.activo).length };
+  }, [empleados]);
+
+  // Gap #8: Estado de resultados (EERR) detallado por categoría
   const eerr = useMemo(() => {
     const totalIngresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
     const totalGastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
+    const ingresosPorProyecto = proyectos.map(p => ({
+      nombre: p.nombre,
+      ingresos: movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0),
+      gastos: movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0),
+      presupuesto: p.presupuestoTotal,
+    }));
+    const gastosPorCategoria = [... new Set(movimientos.filter(m => m.tipo === 'gasto').map(m => m.categoria))].map(cat => ({
+      categoria: cat,
+      monto: movimientos.filter(m => m.tipo === 'gasto' && m.categoria === cat).reduce((a, b) => a + b.costoTotal, 0),
+      porcentaje: totalGastos > 0 ? (movimientos.filter(m => m.tipo === 'gasto' && m.categoria === cat).reduce((a, b) => a + b.costoTotal, 0) / totalGastos) * 100 : 0,
+    })).sort((a, b) => b.monto - a.monto);
     const utilidadBruta = totalIngresos - totalGastos;
     const margenNeto = totalIngresos > 0 ? (utilidadBruta / totalIngresos) * 100 : 0;
     const roiGlobal = totalGastos > 0 ? ((totalIngresos - totalGastos) / totalGastos) * 100 : 0;
-    return { totalIngresos, totalGastos, utilidadBruta, margenNeto, roiGlobal };
-  }, [movimientos]);
+    return { totalIngresos, totalGastos, utilidadBruta, margenNeto, roiGlobal, gastosPorCategoria, ingresosPorProyecto };
+  }, [movimientos, proyectos]);
 
   // M-01: Alertas de retraso y predicción de fecha de fin
   const hoy = todayISO();
@@ -275,13 +295,60 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* EERR Detallado + % Utilización Recursos */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 mt-2 flex-shrink-0">
-        <div>
-          <h3 className="font-bold text-slate-700 text-xs mb-1">Registro Rapido de Ingresos y Gastos</h3>
-          <MovimientoForm compact />
+        <div className="lg:col-span-2 bg-white rounded-2xl p-3 shadow-sm border border-slate-100">
+          <h3 className="font-bold text-slate-700 text-xs mb-1">Estado de Resultados (EERR) por Categoría</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
+            <div className="bg-emerald-50 rounded-lg p-2 border border-emerald-100">
+              <div className="text-emerald-600 font-bold text-sm">{fmtQ(eerr.totalIngresos)}</div>
+              <div className="text-emerald-700">Ingresos Totales</div>
+            </div>
+            <div className="bg-red-50 rounded-lg p-2 border border-red-100">
+              <div className="text-red-600 font-bold text-sm">{fmtQ(eerr.totalGastos)}</div>
+              <div className="text-red-700">Gastos Totales</div>
+            </div>
+            <div className={`rounded-lg p-2 border ${eerr.utilidadBruta >= 0 ? 'bg-blue-50 border-blue-100' : 'bg-red-100 border-red-200'}`}>
+              <div className={`font-bold text-sm ${eerr.utilidadBruta >= 0 ? 'text-blue-600' : 'text-red-600'}`}>{fmtQ(eerr.utilidadBruta)}</div>
+              <div className={`${eerr.utilidadBruta >= 0 ? 'text-blue-700' : 'text-red-700'}`}>Utilidad Neta</div>
+            </div>
+          </div>
+          {eerr.gastosPorCategoria.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {eerr.gastosPorCategoria.slice(0, 5).map((g, i) => (
+                <div key={i} className="flex items-center gap-2 text-[10px]">
+                  <span className="w-20 text-right text-slate-500">{g.categoria.replace('_', ' ')}</span>
+                  <div className="flex-1 bg-slate-100 rounded-full h-1.5">
+                    <div className="bg-orange-500 rounded-full h-1.5" style={{ width: `${g.porcentaje}%` }} />
+                  </div>
+                  <span className="w-16 text-right font-mono text-slate-600">{fmtQ(g.monto)}</span>
+                  <span className="w-8 text-right text-slate-400">{g.porcentaje.toFixed(0)}%</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100">
+          <h3 className="font-bold text-slate-700 text-xs mb-1">% Utilización Recursos</h3>
+          <div className="text-center">
+            <div className="text-3xl font-black text-blue-600">
+              {empleados.length > 0 ? ((empleados.filter(e => e.activo && (e.diasTrabajados || 0) > 0).length / Math.max(empleados.length, 1)) * 100).toFixed(0) : 0}%
+            </div>
+            <div className="text-[10px] text-slate-500">Empleados activos con horas registradas</div>
+            <div className="mt-2 grid grid-cols-2 gap-1 text-[10px]">
+              <div className="bg-slate-50 rounded p-1">
+                <div className="font-bold text-slate-700">{empleados.filter(e => e.activo).length}</div>
+                <div className="text-slate-400">Activos</div>
+              </div>
+              <div className="bg-slate-50 rounded p-1">
+                <div className="font-bold text-slate-700">{horasHombreSeg.totalHoras.toLocaleString()}</div>
+                <div className="text-slate-400">HH acumuladas</div>
+              </div>
+            </div>
+          </div>
         </div>
         <div>
-          <h3 className="font-bold text-slate-700 text-xs mb-1">Acceso a Modulos</h3>
+          <h3 className="font-bold text-slate-700 text-xs mb-1">Herramientas Rápidas</h3>
           <div className="grid grid-cols-2 gap-1.5">
             {modulos.map(m => {
               const Icon = m.icon;
@@ -295,7 +362,6 @@ const Dashboard: React.FC = () => {
             })}
           </div>
         </div>
-        <div className="lg:col-span-2" />
       </div>
     </div>
   );
