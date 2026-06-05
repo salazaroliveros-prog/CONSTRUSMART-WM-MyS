@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { sanitizarObjeto, sanitizarTexto, getServerRole } from '@/lib/security';
+import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
 import { z } from 'zod';
 import { toast } from '@/components/ui/sonner';
 import {
@@ -842,56 +843,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [isOnline, user?.id]); // ← SIN user?.rol: evita el loop infinito
 
-  // Subscripciones Realtime para sincronización en vivo
-  useEffect(() => {
-    if (!isOnline || !user?.id) return;
-
-    // Crear canal único para este usuario
-    const channel = supabase.channel('db-changes', {
-      config: { broadcast: { self: false }, presence: { key: user.id } },
-    });
-
-    // Escuchar cambios en tablas principales y actualizar store local
-    const tablasConfig = [
-      { tabla: 'erp_proyectos', setter: setProyectos, schema: proyectoSchema, existing: proyectos },
-      { tabla: 'erp_movimientos', setter: setMovimientos, schema: movimientoSchema, existing: movimientos },
-      { tabla: 'erp_empleados', setter: setEmpleados, schema: empleadoSchema, existing: empleados },
-      { tabla: 'erp_materiales', setter: setMateriales, schema: materialSchema, existing: materiales },
-      { tabla: 'erp_proveedores', setter: setProveedores, schema: proveedorSchema, existing: proveedores },
-    ];
-
-    tablasConfig.forEach(({ tabla, setter, schema, existing }) => {
-      channel.on(
-        'postgres_changes' as any,
-        { event: '*', schema: 'public', table: tabla },
-        (payload: { eventType: string; new: Record<string, unknown>; old: Record<string, unknown> }) => {
-          const nueva = mapFromSnakeCase(schema, payload.new);
-          if (!nueva) return;
-          setter((prev: any[]) => {
-            if (payload.eventType === 'INSERT') {
-              // Evitar duplicados
-              if (prev.some((p: any) => p.id === nueva.id)) return prev;
-              return [nueva, ...prev];
-            }
-            if (payload.eventType === 'UPDATE') {
-              return prev.map((p: any) => p.id === nueva.id ? { ...p, ...nueva } : p);
-            }
-            if (payload.eventType === 'DELETE') {
-              return prev.filter((p: any) => p.id !== (payload.old?.id || payload.new?.id));
-            }
-            return prev;
-          });
-        }
-      );
-    });
-
-    channel.subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOnline, user?.id]);
+  // Realtime subscriptions managed by useSupabaseRealtime hook (8 tables, auto-reconnect)
 
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_proyectos', proyectos); }, [proyectos]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_movimientos', movimientos); }, [movimientos]);
@@ -1611,6 +1563,16 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return next;
     });
   }, []);
+
+  // ── Supabase Realtime subscriptions (F-10) ──
+  const realtimeActions = useMemo(() => ({
+    addProyecto, updateProyecto, deleteProyecto,
+    addMovimiento, updateMovimiento, deleteMovimiento,
+    addPresupuesto, updatePresupuesto, deletePresupuesto,
+    setOnline: setIsOnline,
+  }), [addProyecto, updateProyecto, deleteProyecto, addMovimiento, updateMovimiento, deleteMovimiento, addPresupuesto, updatePresupuesto, deletePresupuesto]);
+
+  useSupabaseRealtime(realtimeActions);
 
   const [syncMessage, setSyncMessage] = useState('');
 
