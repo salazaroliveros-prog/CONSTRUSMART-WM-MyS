@@ -264,6 +264,7 @@ CREATE POLICY "erp_rendimientos_all_auth" ON erp_rendimientos_cuadrilla
 -- ============================================================
 -- RPC para verificar rol (necesario para RBAC)
 -- ============================================================
+DROP FUNCTION IF EXISTS verificar_rol_usuario();
 CREATE OR REPLACE FUNCTION verificar_rol_usuario()
 RETURNS TABLE(rol text, nombre text, avatar_url text)
 LANGUAGE plpgsql
