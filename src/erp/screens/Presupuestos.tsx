@@ -268,7 +268,7 @@ const Presupuestos: React.FC = () => {
     });
   };
 
-  const addSubrenglon = (renglonId: string) => {
+  const addSubRenglon = (renglonId: string) => {
     const existentes = items.find(r => r.id === renglonId)?.subRenglones || [];
     const nuevasSubs: SubRenglon[] = [
       ...existentes,
@@ -327,7 +327,7 @@ const Presupuestos: React.FC = () => {
     }
   };
 
-  const updSubrenglon = (renglonId: string, subId: string, patch: Partial<SubRenglon>) => {
+  const updSubRenglon = (renglonId: string, subId: string, patch: Partial<SubRenglon>) => {
     const renglon = items.find(r => r.id === renglonId);
     if (!renglon?.subRenglones) return;
     const subs = renglon.subRenglones.map(s => s.id === subId ? { ...s, ...patch } : s);
@@ -335,7 +335,7 @@ const Presupuestos: React.FC = () => {
     upd(renglonId, { subRenglones: subs, costoMateriales: costoMat });
   };
 
-  const delSubrenglon = (renglonId: string, subId: string) => {
+  const delSubRenglon = (renglonId: string, subId: string) => {
     const renglon = items.find(r => r.id === renglonId);
     if (!renglon?.subRenglones) return;
     const subs = renglon.subRenglones.filter(s => s.id !== subId);
@@ -661,7 +661,7 @@ const Presupuestos: React.FC = () => {
                               <option key={act} value={act}>{act.charAt(0).toUpperCase() + act.slice(1)} ({MATERIALES_POR_ACTIVIDAD[act].length} materiales)</option>
                             ))}
                           </select>
-                          <button onClick={() => addSubrenglon(r.id)} className="text-[10px] bg-orange-100 text-orange-600 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200">
+                          <button onClick={() => addSubRenglon(r.id)} className="text-[10px] bg-orange-100 text-orange-600 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200">
                             <Plus className="w-3 h-3" /> Manual
                           </button>
                         </div>
@@ -676,21 +676,21 @@ const Presupuestos: React.FC = () => {
                                 <input 
                                   type="text" 
                                   value={sub.nombreMaterial} 
-                                  onChange={e => updSubrenglon(r.id, sub.id, { nombreMaterial: e.target.value })}
+                                  onChange={e => updSubRenglon(r.id, sub.id, { nombreMaterial: e.target.value })}
                                   placeholder="Material"
                                   className="flex-1 px-1.5 py-0.5 rounded border border-slate-200 text-xs"
                                 />
                                 <input 
                                   type="number" 
                                   value={sub.cantidadUnitaria} 
-                                  onChange={e => updSubrenglon(r.id, sub.id, { cantidadUnitaria: +e.target.value })}
+                                  onChange={e => updSubRenglon(r.id, sub.id, { cantidadUnitaria: +e.target.value })}
                                   placeholder="Cant/u"
                                   className="w-12 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
                                 />
                                 <span className="text-slate-500 text-[10px] w-14 text-right">{(sub.cantidadUnitaria * r.cantidad).toFixed(2)}</span>
                                 <select 
                                   value={sub.unidad} 
-                                  onChange={e => updSubrenglon(r.id, sub.id, { unidad: e.target.value })}
+                                  onChange={e => updSubRenglon(r.id, sub.id, { unidad: e.target.value })}
                                   className="w-14 px-1 py-0.5 rounded border border-slate-200 text-xs"
                                 >
                                   <option>kg</option>
@@ -703,12 +703,12 @@ const Presupuestos: React.FC = () => {
                                 <input 
                                   type="number" 
                                   value={sub.precioUnitario} 
-                                  onChange={e => updSubrenglon(r.id, sub.id, { precioUnitario: +e.target.value })}
+                                  onChange={e => updSubRenglon(r.id, sub.id, { precioUnitario: +e.target.value })}
                                   placeholder="Precio"
                                   className="w-16 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
                                 />
                                 <span className="text-slate-600 font-semibold w-20 text-right">{fmtQ(subTotal)}</span>
-                                <button onClick={() => delSubrenglon(r.id, sub.id)} className="text-slate-300 hover:text-red-500">
+                                <button onClick={() => delSubRenglon(r.id, sub.id)} className="text-slate-300 hover:text-red-500">
                                   <X className="w-3 h-3" />
                                 </button>
                               </div>
