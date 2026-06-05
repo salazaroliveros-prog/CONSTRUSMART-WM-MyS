@@ -90,19 +90,50 @@
 | Seguimiento | 48% | 80% | ✅ F-07 hitos vencidos, F-06 predecesores Gantt |
 | Financieros | 62% | 90% | ✅ F-04 EERR exportable |
 | Cronograma | 55% | 85% | ✅ F-06 predecesores implementados |
-| **General** | **56%** | **85%** | **✅ +4% por nuevas implementaciones** |
+| **General** | **58%** | **85%** | **✅ +2% por F-12, F-13, F-14** |
 
 ---
 
 ## 🚀 NUEVAS IMPLEMENTACIONES (06/04/2026)
 
+### 🔴 Fixes y optimizaciones
+
 | # | Feature | Área | Implementación | Estado |
 |---|---------|------|----------------|--------|
-| F-04 | Reporte EERR exportable (hoja Excel) | Exportación | `ExportacionInteligente.tsx` — Nueva hoja con ingresos, costos, utilidad, margen, ROI | ✅ |
-| F-06 | Dependencias predecesoras en Gantt | Cronograma | `Seguimiento.tsx` — `r.predecesores` mapeado a `dependencias` en tareas Gantt | ✅ |
-| F-07 | Dashboard hitos vencidos | Seguimiento | `Seguimiento.tsx` — Tarjeta de hitos vencidos (rojo) y próximos 7 días (amarillo) | ✅ |
-| F-10 | Supabase Realtime subscriptions | General | `useSupabaseRealtime.ts` + `store.tsx` — 8 tablas, auto-reconnect 5s | ✅ |
-| F-11 | Matriz de riesgos interactiva | Riesgos | `Riesgos.tsx` — Grilla 5x5 con puntos reales, badges y desglose por nivel | ✅ |
 | - | Chunk optimization (manualChunks) | Build | `vite.config.ts` — vendor, radix, antd, three, web-ifc, jspdf, charts, xlsx, framer | ✅ |
 | - | Inconsistencia naming Subrenglon | Presupuestos | `Presupuestos.tsx` — `addSubrenglon` → `addSubRenglon` | ✅ |
 | - | Corrección tsconfig | Build | `tsconfig.json` — eliminado `ignoreDeprecations` inválido en TS 5.9 | ✅ |
+
+### 🟡 Features de roadmap
+
+| # | Feature | Área | Implementación | Estado |
+|---|---------|------|----------------|--------|
+| F-04 | Reporte EERR exportable (hoja Excel) | Exportación | `ExportacionInteligente.tsx` — Nueva hoja EERR con ingresos, costos, utilidad, margen, ROI | ✅ |
+| F-06 | Dependencias predecesoras en Gantt | Cronograma | `Seguimiento.tsx` — `r.predecesores` mapeado a `dependencias` en tareas Gantt | ✅ |
+| F-07 | Dashboard hitos vencidos | Seguimiento | `Seguimiento.tsx` — Tarjeta hitos vencidos (rojo) y próximos 7 días (amarillo) | ✅ |
+| F-10 | Supabase Realtime subscriptions | General | `useSupabaseRealtime.ts` + `store.tsx` — 8 tablas, auto-reconnect 5s | ✅ |
+| F-11 | Matriz de riesgos interactiva | Riesgos | `Riesgos.tsx` — Grilla 5x5 con puntos reales, badges, desglose por nivel | ✅ |
+| F-12 | Hitos con dependencias (predecesores) | Cronograma | `Hitos.tsx` — Selector de dependeDe, validación de cadena, bloqueo 🔒 | ✅ |
+| F-13 | Filtro global por proyecto | UX | `useFiltroProyectoGlobal.ts` — Hook con localStorage, multi-pestaña | ✅ |
+| F-14 | Vista calendario para hitos | Cronograma | `Hitos.tsx` — Toggle Lista/Calendario, navegación mensual, colores por tipo | ✅ |
+| F-16 | Tema oscuro sincronizado | UX | `theme-provider.tsx` + `AppLayout.tsx` — clase dark, toggle en sidebar | ✅ |
+
+### 🟢 Ya implementados previamente
+
+| # | Feature | Área | Estado |
+|---|---------|------|--------|
+| F-01 | Cuentas por Cobrar | Financiero | ✅ Existente |
+| F-02 | Cuentas por Pagar | Financiero | ✅ Existente |
+| F-03 | Vinculación empleado ↔ proyecto | RRHH | ✅ Existente en types.ts |
+| F-05 | Reporte EERR en Dashboard | Financiero | ✅ Existente en Dashboard.tsx |
+| F-08 | Alerta déficit financiero | Financiero | ✅ Existente en Financiero.tsx |
+
+---
+
+## 📋 PENDIENTE DEL ROADMAP (no implementado)
+
+| # | Feature | Área | Esfuerzo |
+|---|---------|------|----------|
+| F-15 | Notificaciones push (Service Worker) | General | ~2h |
+| F-17 | Internacionalización (i18n) | UX | ~4h |
+| F-18 | Tests unitarios | Calidad | ~3h |
