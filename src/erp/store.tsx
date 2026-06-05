@@ -380,6 +380,20 @@ const mapFromSnakeCase = <T extends z.ZodType<any, any, any>>(schema: T, obj: Re
 };
 
 export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes';
+
+export function parseView(v: string): { root: View; sub?: string } {
+  const idx = v.indexOf(':');
+  if (idx > 0) {
+    const root = v.slice(0, idx) as View;
+    const sub = v.slice(idx + 1);
+    return { root, sub: sub || undefined };
+  }
+  return { root: v as View, sub: undefined };
+}
+
+export function buildView(root: View, sub?: string): string {
+  return sub ? `${root}:${sub}` : root;
+}
 export type UIMode = 'shadcn' | 'antd';
 export type AppThemeMode = 'light' | 'dark' | 'high-contrast';
 
@@ -409,7 +423,7 @@ export const ALLOWED: Record<Rol, View[]> = {
 interface Mutation {
   id: string;
   type: 'addProyecto' | 'updateProyecto' | 'deleteProyecto' | 'addMovimiento' | 'deleteMovimiento' |
-         'addEmpleado' | 'updateEmpleado' | 'deleteEmpleado' | 'updateMaterial' |
+          'addEmpleado' | 'updateEmpleado' | 'deleteEmpleado' | 'addMaterial' | 'updateMaterial' | 'deleteMaterial' |
          'addOrden' | 'updateOrden' | 'addProveedor' | 'updateProveedor' | 'deleteProveedor' |
          'addEvento' | 'updateEvento' | 'deleteEvento' | 'addBitacora' | 'updateBitacora' | 'deleteBitacora' |
   'addPresupuesto' | 'updatePresupuesto' | 'deletePresupuesto' |
@@ -424,8 +438,8 @@ interface Mutation {
 export type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
 
 interface ErpState {
-  view: View;
-  setView: (v: View) => void;
+  view: string;
+  setView: (v: string) => void;
   user: { id: string; nombre: string; rol: Rol; avatar?: string } | null;
   initializing: boolean;
   allowedViews: View[];
@@ -448,7 +462,9 @@ interface ErpState {
   updateEmpleado: (id: string, patch: Partial<Empleado>) => Promise<void>;
   deleteEmpleado: (id: string) => Promise<void>;
   materiales: Material[];
+  addMaterial: (m: Omit<Material, 'id'>) => Promise<void>;
   updateMaterial: (id: string, patch: Partial<Material>) => Promise<void>;
+  deleteMaterial: (id: string) => Promise<void>;
   ordenes: OrdenCompra[];
   updateOrden: (id: string, estado: OrdenCompra['estado']) => Promise<void>;
   addOrden: (o: Omit<OrdenCompra, 'id'>) => Promise<void>;
@@ -534,7 +550,7 @@ const mapRol = (rol: string, email?: string): Rol => {
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [view, setView] = useState<View>('login');
+  const [view, setView] = useState<string>('login');
   const [user, setUser] = useState<ErpState['user']>(null);
   const [initializing, setInitializing] = useState(true);
   const [authError, setAuthError] = useState('');
@@ -1014,10 +1030,20 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (error) throw new Error(`Failed to delete empleado: ${error.message}`);
           break;
         }
+        case 'addMaterial': {
+          const { error } = await supabase.from('erp_materiales').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add material: ${error.message}`);
+          break;
+        }
         case 'updateMaterial': {
           const { id, ...rest4 } = next.payload;
           const { error } = await supabase.from('erp_materiales').update(forMaterial(rest4)).eq('id', id);
           if (error) throw new Error(`Failed to update material: ${error.message}`);
+          break;
+        }
+        case 'deleteMaterial': {
+          const { error } = await supabase.from('erp_materiales').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete material: ${error.message}`);
           break;
         }
         case 'addOrden': {
@@ -1430,6 +1456,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setMateriales(s => s.map(m => m.id === id ? { ...m, ...patch } : m));
     enqueueMutation('updateMaterial', { id, ...patch });
   };
+  const addMaterial = async (m: Omit<Material, 'id'>) => {
+    const newMat = { ...m, id: uid() };
+    setMateriales(s => [newMat, ...s]);
+    enqueueMutation('addMaterial', newMat);
+  };
+  const deleteMaterial = async (id: string) => {
+    setMateriales(s => s.filter(m => m.id !== id));
+    enqueueMutation('deleteMaterial', { id });
+  };
 
   const addOrden = async (o: Omit<OrdenCompra, 'id'>) => {
     const newOrd = { ...o, id: uid() };
@@ -1612,7 +1647,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       proyectos, addProyecto, updateProyecto, deleteProyecto,
       movimientos, addMovimiento, updateMovimiento, deleteMovimiento,
       empleados, addEmpleado, updateEmpleado, deleteEmpleado,
-      materiales, updateMaterial,
+      materiales, addMaterial, updateMaterial, deleteMaterial,
       ordenes, updateOrden, addOrden,
       proveedores, addProveedor, updateProveedor, deleteProveedor,
       eventos, addEvento, updateEvento, deleteEvento,

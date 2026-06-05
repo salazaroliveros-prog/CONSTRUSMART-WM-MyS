@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useErp, type View } from '../store';
+import { useErp, type View, parseView } from '../store';
 import {
   Layout, Menu, Avatar, Badge, Typography, Space, Breadcrumb,
   Dropdown, Button, theme as antTheme, Grid,
@@ -128,7 +128,7 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Menu
             theme="dark"
             mode="inline"
-            selectedKeys={[view]}
+            selectedKeys={[parseView(view).root]}
             items={filteredItems}
             onClick={({ key }) => setView(key as View)}
             style={{
@@ -179,7 +179,7 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             />
             <Breadcrumb items={[
               { title: 'CONSTRUSMART' },
-              { title: MENU_ITEMS.find(m => m.key === view)?.label || 'Módulo' },
+              { title: MENU_ITEMS.find(m => m.key === parseView(view).root)?.label || 'Módulo' },
             ]} />
           </Space>
 

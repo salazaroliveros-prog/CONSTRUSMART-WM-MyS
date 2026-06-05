@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect, useMemo } from 'react';
-import { ErpProvider, useErp, type AppThemeMode } from '@/erp/store';
+import { ErpProvider, useErp, type AppThemeMode, parseView } from '@/erp/store';
+import { useTranslation } from 'react-i18next';
 import AppProvider from '@/contexts/AppContext';
 import { useAppContext } from '@/contexts/AppContext';
 import Header from '@/erp/components/Header';
@@ -124,18 +125,21 @@ const buildAntdThemeConfig = (appSettings: any) => {
   };
 };
 
-const NoAccess: React.FC<{ onBack: () => void }> = ({ onBack }) => (
-  <div className="min-h-[calc(100vh-60px)] flex flex-col items-center justify-center p-8 text-center">
-    <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
-      <h2 className="text-xl font-semibold text-slate-900 mb-3">Acceso no autorizado</h2>
-      <p className="text-slate-600 mb-5">No tienes permiso para ver esta sección.</p>
-      <button onClick={onBack}
-        className="inline-flex items-center justify-center rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600 transition">
-        Volver al Tablero
-      </button>
+const NoAccess: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="min-h-[calc(100vh-60px)] flex flex-col items-center justify-center p-8 text-center">
+      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
+        <h2 className="text-xl font-semibold text-slate-900 mb-3">{t('common.sin_acceso')}</h2>
+        <p className="text-slate-600 mb-5">{t('common.sin_acceso_desc')}</p>
+        <button onClick={onBack}
+          className="inline-flex items-center justify-center rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600 transition">
+          {t('common.volver_tablero')}
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ── Screens map: Shadcn ──
 const shadcnScreens = (setView: any, view: string): Record<string, React.ReactNode> => ({
@@ -223,6 +227,8 @@ const AntDesignShell: React.FC<{ view: string; screenContent: React.ReactNode }>
 
 const Shell: React.FC = () => {
   const { view, initializing, allowedViews, setView, appSettings } = useErp();
+  const { root: activeScreen } = parseView(view);
+  const { i18n } = useTranslation();
   const shadcn = shadcnScreens(setView, view);
   const antd = antdScreens(setView, view);
   const antdThemeConfig = useMemo(() => buildAntdThemeConfig(appSettings), [appSettings]);
@@ -233,6 +239,12 @@ const Shell: React.FC = () => {
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
   }, [isDark]);
 
+  useEffect(() => {
+    if (i18n.language !== appSettings.language) {
+      i18n.changeLanguage(appSettings.language);
+    }
+  }, [appSettings.language, i18n]);
+
   if (initializing) {
     return <LoaderSpinner size={80} text="Cargando sistema..." fullScreen />;
   }
@@ -241,8 +253,8 @@ const Shell: React.FC = () => {
   const isAntdMode = appSettings.uiMode === 'antd';
   const screenMap = isAntdMode ? antd : shadcn;
 
-  const screenContent = allowedViews.includes(view)
-    ? (screenMap[view] ?? (isAntdMode ? <GenericAntdScreen view={view} /> : null) ?? shadcn[view] ?? <Dashboard />)
+  const screenContent = allowedViews.includes(activeScreen)
+    ? (screenMap[activeScreen] ?? (isAntdMode ? <GenericAntdScreen view={activeScreen} /> : null) ?? shadcn[activeScreen] ?? <Dashboard />)
     : <NoAccess onBack={() => setView('dashboard')} />;
 
   return (
