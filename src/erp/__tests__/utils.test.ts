@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { fmtQ, fmtPct, todayISO, costoDirectoUnitario, precioUnitarioVenta, duracionPorRendimiento, CATEGORIA_LABEL, TIPOLOGIA_LABEL, FSR_PRESTACIONES } from '../utils';
 import { Categoria, Tipologia } from '../types';
 
