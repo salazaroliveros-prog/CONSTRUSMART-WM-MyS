@@ -154,7 +154,7 @@ verificarOrdenesCambioPendientes() → Alerta OC pendientes
 
 ### Nivel 1: Autenticación
 - Supabase Auth con PKCE flow
-- OAuth Google
+- OAuth Google con almacenamiento PKCE en localStorage
 - RPC verificar_rol_usuario (SECURITY DEFINER)
 - Roles: Administrador, Gerente, Residente, Compras, Bodeguero
 - RBAC por vista (ALLOWED map en store.tsx)
