@@ -276,12 +276,15 @@ Ver `SUPABASE_GOOGLE_OAUTH_SETUP.md` (archivo eliminado — contenido consolidad
 
 ## Pendientes Conocidos
 
-| # | Item | Tipo |
-|---|------|------|
-| 1 | Ejecutar migración seed data en Supabase (`000000000004_seed_data.sql`) | Operación |
-| 2 | Overlay de planos vs modelo en Visor BIM | Feature |
-| 3 | Tablas sin sync Supabase (erp_seguimiento, erp_renglones, erp_insumos, erp_sub_renglones) | Feature |
-| 4 | Ejecutar migraciones pendientes (000000000006, 000000000007) | Operación |
+| # | Item | Tipo | Estado |
+|---|------|------|--------|
+| 1 | Ejecutar migración seed data en Supabase (`000000000004_seed_data.sql`) | Operación | ❌ Pendiente |
+| 2 | Ejecutar migraciones (000000000006, 000000000007, 000000000008) | Operación | ❌ Pendiente |
+| 3 | Tablas sin sync Supabase (erp_seguimiento, erp_renglones, erp_insumos, erp_sub_renglones) | Feature | ❌ Pendiente |
+| 4 | Overlay de planos vs modelo en Visor BIM | Feature | ❌ Pendiente |
+| 5 | F-17: Internacionalización (i18n) | Feature | ❌ Pendiente |
+| 6 | Google OAuth verificación de dominio | Seguridad | ❌ Pendiente |
+| 7 | Refresh token rotation en Supabase | Seguridad | ❌ Pendiente |
 
 ---
 

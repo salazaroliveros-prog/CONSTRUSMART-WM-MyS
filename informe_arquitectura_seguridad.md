@@ -407,43 +407,25 @@ b23d35e  chore: Ignorar carpeta develop local
 
 #### Seguridad
 
-- [ ] **P1-SEC-01** — Agregar Content Security Policy (CSP) headers en Vercel
-- [ ] **P1-SEC-02** — Implementar sanitización de inputs con DOMPurify
-- [ ] **P1-SEC-03** — Configurar cabeceras HTTP de seguridad en `vercel.json`:
-  ```
-  X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
-  Strict-Transport-Security: max-age=31536000
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: geolocation=(self)
-  ```
-- [ ] **P1-SEC-04** — Verificar dominio de email en Google OAuth (solo @empresa.com)
-- [ ] **P1-SEC-05** — Implementar rotación de refresh tokens en Supabase
-- [ ] **P1-SEC-06** — Agregar logging de actividad del lado del servidor
+- [x] **P1-SEC-01** — Content Security Policy (CSP) headers en Vercel ✅ Implementado en \`vercel.json\` con `default-src 'self'` + excepciones para Supabase/Google/Vercel
+- [x] **P1-SEC-02** — Sanitización de inputs con DOMPurify ✅ (\`src/lib/security.ts\`: \`sanitizarTexto()\`, \`sanitizarObjeto()\`)
+- [x] **P1-SEC-03** — Cabeceras HTTP de seguridad en \`vercel.json\` ✅ (HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy)
+- [ ] **P1-SEC-04** — Verificar dominio de email en Google OAuth (solo @empresa.com) — ❌ Pendiente
+- [ ] **P1-SEC-05** — Rotación de refresh tokens en Supabase — ❌ Pendiente (configuración en dashboard Supabase)
+- [ ] **P1-SEC-06** — Logging de actividad server-side — ❌ Pendiente (más allá del trigger \`fn_log_audit\`)
 
 #### DevOps
 
-- [ ] **P1-DEV-01** — Configurar GitHub Actions para CI/CD:
-  - `npm audit` en cada PR
-  - Tests automáticos en push
-  - Deploy automático a Vercel
-- [ ] **P1-DEV-02** — Verificar deploy exitoso en Vercel
-- [ ] **P1-DEV-03** — Sincronizar variables de entorno entre local y Vercel
-- [ ] **P1-DEV-04** — Configurar `vercel.json` con redirect SPA para React Router
+- [x] **P1-DEV-01** — GitHub Actions para CI/CD ✅ (\`.github/workflows/ci-cd.yml\`: lint, typecheck, test, build + deploy Vercel)
+- [x] **P1-DEV-02** — Deploy exitoso en Vercel ✅ Verificado
+- [ ] **P1-DEV-03** — Sincronizar variables de entorno entre local y Vercel — ⚠️ Revisar en dashboard Vercel
+- [x] **P1-DEV-04** — \`vercel.json\` con redirect SPA ✅ (rewrite \`/**\` → \`/index.html\`)
 
 #### Base de Datos
 
-- [ ] **P1-DB-01** — Auditar TODAS las políticas RLS tabla por tabla
-- [ ] **P1-DB-02** — Implementar políticas RLS mínimas:
-  ```sql
-  -- Ejemplo para erp_presupuestos
-  CREATE POLICY "usuarios_ven_sus_presupuestos"
-  ON erp_presupuestos FOR SELECT
-  USING (empresa_id IN (
-    SELECT empresa_id FROM erp_usuarios WHERE id = auth.uid()
-  ));
-  ```
-- [ ] **P1-DB-03** — Agregar validación server-side en todas las RPC functions
+- [x] **P1-DB-01** — Auditoría RLS tabla por tabla ✅ (migraciones \`20260603xxxx\`: cobertura completa)
+- [x] **P1-DB-02** — Políticas RLS por rol ✅ (18 migraciones, políticas granulares SELECT/INSERT/UPDATE/DELETE)
+- [x] **P1-DB-03** — Validación server-side en RPCs ✅ (\`verificar_rol_usuario()\`, \`verificar_sesion_activa()\`)
 
 ### 🟡 PRIORIDAD 2 — MEDIA (Próximos sprints)
 

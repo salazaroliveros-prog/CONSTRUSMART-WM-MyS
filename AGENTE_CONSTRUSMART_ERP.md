@@ -12,7 +12,7 @@
 **Tipo:** ERP integral para construcción civil y comercial en Guatemala  
 **Stack:** React 18 + TypeScript + Vite + TailwindCSS + shadcn/ui + Supabase  
 **Repo:** https://github.com/salazaroliveros-prog/ERP-CONSTRUSMART-WM.git  
-**Build:** ✅ 0 errores | **Tests:** ✅ 10/10 pasados
+**Build:** ✅ 0 errores | **Tests:** ✅ 76/76 pasados
 
 ---
 
@@ -237,7 +237,7 @@ verificarOrdenesCambioPendientes() → Alerta OC pendientes
 | Hooks personalizados | 5 |
 | Interfaces TypeScript | 48 |
 | Líneas store.tsx | ~1485 |
-| Tests | 10/10 |
+| Tests | 76/76 |
 | Cobertura vs ERP ideal | ~72% |
 
 ---

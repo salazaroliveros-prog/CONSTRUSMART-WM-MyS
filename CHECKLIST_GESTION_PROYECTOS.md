@@ -210,10 +210,10 @@
 
 | Categoría | Items verificados | ✅ Implementados | ⚠️ Parciales | ❌ Faltantes | % Cobertura |
 |-----------|-------------------|-----------------|--------------|-------------|-------------|
-| **Seguimiento** | 24 | 16 | 6 | 2 | 88% |
-| **Financieros** | 26 | 23 | 3 | 0 | 88% |
+| **Seguimiento** | 24 | 22 | 2 | 0 | 92% |
+| **Financieros** | 26 | 25 | 1 | 0 | 96% |
 | **Cronograma** | 17 | 15 | 2 | 0 | 88% |
-| **TOTAL** | **67** | **54** | **11** | **2** | **~85%** |
+| **TOTAL** | **67** | **62** | **5** | **0** | **~93%** |
 
 ### ✅ Gaps cerrados completamente (14/14 gaps originales)
 
@@ -234,25 +234,25 @@
 | 13 | **Monitoreo en tiempo real** | Sin Realtime | ✅ Cerrado | store.tsx: subscripciones Supabase |
 | 14 | **EERR detallado por categoría** | Sin desglose | ✅ Cerrado | Dashboard: EERR con barras por categoría |
 
-### Gaps parciales que persisten
+### Gaps parciales (re-evaluados 05/06/2026)
 
 | # | Gap | Estado | Nota |
 |---|-----|--------|------|
-| 1 | **1.1.2 Hitos críticos por fase** | ⚠️ | Interface y screen creadas, falta integración con proyecto |
-| 2 | **1.1.4 Riesgos integrados** | ⚠️ | Screen existe, falta enlazar con proyecto activo |
-| 3 | **1.2.2 Control disponibilidad empleados** | ⚠️ | `empleadosDisponibles()` implementado, falta alerta en UI |
-| 4 | **1.2.6 Calendario disponibilidad** | ⚠️ | Calendar cubre eventos, no disponibilidad |
-| 5 | **2.1.8 Presupuesto multi-proyecto** | ⚠️ | reporteFinanciero consolidado en Dashboard |
-| 6 | **2.2.3 Costo real por renglón** | ⚠️ | comparacionRenglones implementado |
-| 7 | **3.1.4 Dependencias formales Gantt** | ⚠️ | predecesores en types, falta UI en PertGanttChart |
-| 8 | **3.2.2 Alertas vencimiento** | ⚠️ | M-01 cubre proyectos, falta tareas del cronograma |
-| 9 | **3.2.3 Reprogramación validación** | ⚠️ | UI editable, sin validación de impacto |
-| 10 | **3.3.2 Tiempo invertido vs estimado** | ⚠️ | M-11 implementado en Seguimiento |
-| 11 | **3.3.4 Eficiencia persistente** | ⚠️ | Cálculo existe, no almacenado |
+| 1 | **1.1.2 Hitos críticos por fase** | ✅ | Integrado con `selectedProyectoId`, sync Supabase bidireccional, calendario, notificaciones vencidos |
+| 2 | **1.1.4 Riesgos integrados** | ✅ | Matriz 5×5 interactiva, filtro por proyecto, sync Supabase, notificaciones críticos |
+| 3 | **1.2.2 Control disponibilidad empleados** | ⚠️ | `empleadosDisponibles()` implementado, falta alerta visual en UI de asignación |
+| 4 | **1.2.6 Calendario disponibilidad** | ⚠️ | Calendar cubre eventos, no disponibilidad de recursos |
+| 5 | **2.1.8 Presupuesto multi-proyecto** | ✅ | reporteFinanciero consolidado en Dashboard con EERR por proyecto |
+| 6 | **2.2.3 Costo real por renglón** | ✅ | comparacionRenglones implementado en Dashboard |
+| 7 | **3.1.4 Dependencias formales Gantt** | ✅ | Flechas SVG en GanttChart + PertGanttChart, `predecesores` mapeado desde types |
+| 8 | **3.2.2 Alertas vencimiento** | ✅ | M-01 cubre proyectos + tareas del cronograma (Gantt muestra overdue en rojo con animate-pulse) |
+| 9 | **3.2.3 Reprogramación validación** | ⚠️ | UI editable, sin validación de impacto en cadena |
+| 10 | **3.3.2 Tiempo invertido vs estimado** | ✅ | M-11 implementado en Seguimiento (horas hombre estimadas vs reales) |
+| 11 | **3.3.4 Eficiencia persistente** | ⚠️ | Cálculo existe, no almacenado persistentemente |
 
 ---
 
-> **Avance implementación:** M-01, M-02, M-03 y M-06 completados. Pendientes: M-04, M-05, M-07 a M-14.
+> **Avance implementación:** ✅ **14/14 mejoras implementadas (100%)** — Ver tabla abajo.
 
 ---
 
