@@ -51,11 +51,11 @@
 
 | ID | Hallazgo | Estado |
 |----|----------|--------|
-| A-01 | Sin Zod validation en Administracion.tsx | ⚠️ Pendiente |
-| A-02 | Sin Zod validation en CRM.tsx | ⚠️ Pendiente |
-| A-03 | Sin Zod validation en LogisticaCompras.tsx | ⚠️ Pendiente |
-| A-04 | Sin Zod validation en GestionDocumental.tsx | ⚠️ Pendiente |
-| A-05 | Sin Zod validation en SSOCalidad.tsx | ⚠️ Pendiente |
+| A-01 | Sin Zod validation en Administracion.tsx | ✅ CORREGIDO (centroCostoSchema con zodResolver) |
+| A-02 | Sin Zod validation en CRM.tsx | ✅ CORREGIDO (licitacionFormSchema con zod) |
+| A-03 | Sin Zod validation en LogisticaCompras.tsx | ✅ CORREGIDO (activoSchema, cuadroSchema, pagoSchema) |
+| A-04 | Sin Zod validation en GestionDocumental.tsx | ✅ CORREGIDO (planoSchema, rfiSchema, submittalSchema) |
+| A-05 | Sin Zod validation en SSOCalidad.tsx | ✅ CORREGIDO (incidenteSchema, pruebaSchema, ncSchema, liberacionSchema) |
 | A-06 | Carga de perfil duplicada en store.tsx | ✅ CORREGIDO |
 | A-07 | Error silencioso en getServerRole catch | ✅ CORREGIDO |
 | A-08 | saveToStorage sin limits robustos | ✅ CORREGIDO |
@@ -72,7 +72,7 @@
 | ID | Hallazgo | Estado |
 |----|----------|--------|
 | M-01 | INPUT/BUTTON_PRIMARY no usado consistentemente | ⚠️ Parcial |
-| M-02 | Sin aria-label en icon buttons | ⚠️ Parcial |
+| M-02 | Sin aria-label en icon buttons | ✅ CORREGIDO (aria-labels en BasePrecios, Seguimiento, Presupuestos) |
 | M-03 | Shadcn/ui Toast vs sonner toast inconsistente | ✅ CORREGIDO (unificado sonner) |
 | M-04 | Estados vacíos no manejados consistentemente | ✅ CORREGIDO |
 | M-05 | Estados de carga no mostrados en CRUD | ✅ CORREGIDO (Skeleton en screens) |
@@ -81,9 +81,9 @@
 | M-08 | Sin error boundary por módulo | ✅ CORREGIDO (ErrorBoundary global) |
 | M-09 | Formas sin disabled state en submit | ✅ CORREGIDO |
 | M-10 | Sin confirmación en eliminaciones (componentes no-store) | ✅ CORREGIDO |
-| M-11 | No hay tipos compartidos de errores | ⚠️ Parcial |
+| M-11 | No hay tipos compartidos de errores | ✅ CORREGIDO (types/errors.ts con AppError, classifyError, showError) |
 | M-12 | Falta debounce en búsquedas de screens | ✅ CORREGIDO (useDebounce hook) |
-| M-13 | Console.log en producción (algunos casos) | ⚠️ Parcial |
+| M-13 | Console.log en producción (algunos casos) | ✅ CORREGIDO (13 console.log eliminados de store.tsx) |
 
 ---
 
@@ -108,23 +108,28 @@
 | C-01 | mapRol no definida | store.tsx | ✅ CORREGIDO |
 | C-02 | Stale closure avances | store.tsx | ✅ CORREGIDO |
 | C-03 | XSS en export.ts (HTML injection) | export.ts | ✅ CORREGIDO (05/06/2026) |
-| C-04 | innerHTML sin sanitizar | ExportacionInteligente.tsx | ⚠️ Verificar |
+| C-04 | innerHTML sin sanitizar | ExportacionInteligente.tsx | ✅ CORREGIDO (sanitizarTexto en p.nombre, p.estado) |
 | C-05 | Cálculo márgenes | utils.ts / export.ts | ✅ FALSO POSITIVO |
-| C-06 | ErrorBoundary estilos inline | ErrorBoundary.tsx | ⚠️ Parcial |
-| C-07 | dangerouslySetInnerHTML | chart.tsx | ⚠️ Bajo riesgo |
+| C-06 | ErrorBoundary estilos inline | ErrorBoundary.tsx | ✅ CORREGIDO (migrado a Tailwind CSS) |
+| C-07 | dangerouslySetInnerHTML | chart.tsx | ⚠️ Bajo riesgo (CSS themes, no input usuario) |
 | C-08 | Email hardcodeado | store.tsx | ✅ CORREGIDO |
-| M-12 | Bodega useEffect ciclo | Bodega.tsx | ✅ CORREGIDO (05/06/2026) |
-| | Límite tamaño archivos | storage.ts | ✅ CORREGIDO |
-| | Validación MIME / base64 | storage.ts | ✅ CORREGIDO |
-| | Sanitización export.ts | export.ts | ✅ CORREGIDO |
-| | TailwindCSS duplicado | tailwind.config.ts | ✅ CORREGIDO |
-| | ErrorBoundary componente | ErrorBoundary.tsx | ✅ CREADO |
-| | useSessionTimeout | hooks/ | ✅ CREADO |
-| | useRateLimit | hooks/ | ✅ CREADO |
-| | useDebounce | hooks/ | ✅ CREADO |
-| | csrf.ts | lib/ | ✅ CREADO |
-| | security-audit.ts | lib/ | ✅ CREADO |
-| | RPC soft delete | sql/ | ✅ CREADO |
+| A-01 a A-05 | Zod validation en 5 screens | Admin/CRM/Logistica/Docs/SSO | ✅ CORREGIDO (schemas Zod existentes) |
+| M-02 | aria-label en icon buttons | BasePrecios/Seguimiento | ✅ CORREGIDO |
+| M-11 | Tipos compartidos errores | types/errors.ts | ✅ CORREGIDO |
+| M-13 | Console.log en producción | store.tsx | ✅ CORREGIDO (13 eliminados) |
+| RLS | Políticas recursivas 500 | Supabase SQL | ✅ CORREGIDO (fix_emergencia_rls_500.sql) |
+| Bodega useEffect ciclo | Bodega.tsx | ✅ CORREGIDO |
+| Límite tamaño archivos | storage.ts | ✅ CORREGIDO |
+| Validación MIME / base64 | storage.ts | ✅ CORREGIDO |
+| Sanitización export.ts | export.ts | ✅ CORREGIDO |
+| TailwindCSS duplicado | tailwind.config.ts | ✅ CORREGIDO |
+| ErrorBoundary componente | ErrorBoundary.tsx | ✅ CREADO |
+| useSessionTimeout | hooks/ | ✅ CREADO |
+| useRateLimit | hooks/ | ✅ CREADO |
+| useDebounce | hooks/ | ✅ CREADO |
+| csrf.ts | lib/ | ✅ CREADO |
+| security-audit.ts | lib/ | ✅ CREADO |
+| RPC soft delete | sql/ | ✅ CREADO |
 
 ---
 
