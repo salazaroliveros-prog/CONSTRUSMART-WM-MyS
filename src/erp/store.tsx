@@ -800,9 +800,22 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const authCode = urlParams.get('code');
     if (authCode && !sessionStorage.getItem('wm_auth_code_exchanged')) {
       sessionStorage.setItem('wm_auth_code_exchanged', '1');
-      supabase.auth.exchangeCodeForSession(authCode).then(({ data, error }) => {
+      supabase.auth.exchangeCodeForSession(authCode).then(async ({ data, error }) => {
         if (error) {
           console.error('[Auth] Code exchange failed:', error.message);
+          // Si falla por falta de PKCE code verifier, intentar recuperar sesión
+          // por si el cliente ya estableció sesión en otra ruta.
+          if (typeof error.message === 'string' && /code verifier/i.test(error.message)) {
+            const sessionRes = await supabase.auth.getSession();
+            if (sessionRes?.data?.session) {
+              // Limpiar URL y cargar perfil
+              window.history.replaceState({}, document.title, window.location.pathname);
+              sessionStorage.removeItem('wm_auth_code_exchanged');
+              const meta = sessionRes.data.session.user.user_metadata || {};
+              loadProfile(sessionRes.data.session.user.id, sessionRes.data.session.user.email || undefined, { nombre: meta.full_name || meta.nombre, avatar_url: meta.picture || meta.avatar_url });
+              return;
+            }
+          }
           setInitializing(false);
           // Limpiar URL para evitar reintentos
           window.history.replaceState({}, document.title, window.location.pathname);
@@ -1268,12 +1281,16 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
+          // Let the Supabase client perform the redirect so the PKCE
+          // code verifier is stored and the library can complete the
+          // code exchange automatically on redirect.
           redirectTo: window.location.origin,
           queryParams,
-          skipBrowserRedirect: true,
         },
       });
       if (error) throw error;
+      // When skipBrowserRedirect is not set, the client may perform the redirect
+      // automatically; as a fallback handle the returned URL if present.
       if (data?.url) {
         window.location.href = data.url;
       }

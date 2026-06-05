@@ -5,11 +5,24 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_KEY as string;
 
 export const hasSupabase = Boolean(supabaseUrl && supabaseKey);
 
-export const supabase: SupabaseClient = createClient(
-  supabaseUrl,
-  supabaseKey,
-  { auth: { flowType: 'pkce' } }
-);
+// Create the Supabase client in a way that is safe for SSR builds
+// and that explicitly uses browser localStorage when available so
+// the PKCE code verifier is persisted across redirects.
+let _supabase: SupabaseClient;
+if (typeof window !== 'undefined') {
+  _supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      flowType: 'pkce',
+      // Ensure the client persists PKCE verifier to browser localStorage
+      storage: window.localStorage as unknown as any,
+    },
+  });
+} else {
+  // On server, create a minimal client (no browser storage)
+  _supabase = createClient(supabaseUrl, supabaseKey, { auth: { flowType: 'pkce' } });
+}
+
+export const supabase: SupabaseClient = _supabase;
 
 export function assertSupabase(): SupabaseClient {
   if (!hasSupabase || !supabaseUrl || !supabaseKey) {
