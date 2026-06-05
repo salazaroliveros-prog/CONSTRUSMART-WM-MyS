@@ -13,6 +13,7 @@ if (typeof window !== 'undefined') {
   _supabase = createClient(supabaseUrl, supabaseKey, {
     auth: {
       flowType: 'pkce',
+      persistSession: true,
       // Ensure the client persists PKCE verifier to browser localStorage
       storage: window.localStorage as unknown as any,
     },
