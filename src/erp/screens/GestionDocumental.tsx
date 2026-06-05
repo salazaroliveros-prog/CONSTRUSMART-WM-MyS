@@ -5,6 +5,25 @@ import { toast } from 'sonner';
 import { FileText, Plus, Upload, Send, MessageSquare, Package } from 'lucide-react';
 import { INPUT } from '../ui';
 import { todayISO } from '../utils';
+import { z } from 'zod';
+
+// Zod schemas
+const planoSchema = z.object({
+  nombre: z.string().min(1, 'Nombre del plano requerido').max(200, 'Máximo 200 caracteres'),
+  disciplina: z.enum(['arquitectura', 'estructura', 'electricas', 'sanitarias', 'mecanicas', 'otra']),
+  version: z.string().min(1, 'Versión requerida').max(20, 'Máximo 20 caracteres'),
+});
+const rfiSchema = z.object({
+  titulo: z.string().min(1, 'Título requerido').max(200, 'Máximo 200 caracteres'),
+  descripcion: z.string().min(1, 'Descripción requerida').max(2000, 'Máximo 2000 caracteres'),
+  destino: z.string().min(1, 'Destino requerido').max(200, 'Máximo 200 caracteres'),
+});
+const submittalSchema = z.object({
+  titulo: z.string().min(1, 'Título requerido').max(200, 'Máximo 200 caracteres'),
+  tipo: z.string().min(1, 'Tipo requerido').max(100, 'Máximo 100 caracteres'),
+  estado: z.enum(['pendiente', 'aprobado', 'rechazado', 'revision']),
+  fechaLimite: z.string().min(1, 'Fecha requerida'),
+});
 
 type TabDoc = 'planos' | 'rfis' | 'submittals';
 
@@ -47,13 +66,14 @@ const GestionDocumental: React.FC = () => {
 
   const handleAddPlano = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
-    if (!planoForm.nombre.trim()) { toast.error('Nombre del plano requerido'); return; }
+    const planoResult = planoSchema.safeParse(planoForm);
+    if (!planoResult.success) { toast.error(planoResult.error.errors[0].message); return; }
     const nuevo: Plano = {
       id: Date.now().toString(),
       proyectoId: selProyecto,
-      nombre: planoForm.nombre,
-      disciplina: planoForm.disciplina,
-      version: planoForm.version,
+      nombre: planoResult.data.nombre,
+      disciplina: planoResult.data.disciplina,
+      version: planoResult.data.version,
       fechaSubida: todayISO(),
       descripcion: planoForm.descripcion || undefined,
       estado: 'vigente',
@@ -107,14 +127,15 @@ const GestionDocumental: React.FC = () => {
 
   const handleAddRFI = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
-    if (!rfiForm.titulo.trim() || !rfiForm.descripcion.trim() || !rfiForm.destino.trim()) { toast.error('Completa todos los campos'); return; }
+    const rfiResult = rfiSchema.safeParse(rfiForm);
+    if (!rfiResult.success) { toast.error(rfiResult.error.errors[0].message); return; }
     const count = rfis.filter(r => r.proyectoId === selProyecto).length + 1;
     const nueva: RFI = {
       id: Date.now().toString(),
       proyectoId: selProyecto,
       numero: `RFI-${selProyecto.slice(0, 4)}-${String(count).padStart(3, '0')}`,
-      titulo: rfiForm.titulo,
-      descripcion: rfiForm.descripcion,
+      titulo: rfiResult.data.titulo,
+      descripcion: rfiResult.data.descripcion,
       solicitante: user?.nombre || 'Anónimo',
       destino: rfiForm.destino,
       estado: 'abierto',
@@ -141,11 +162,12 @@ const GestionDocumental: React.FC = () => {
 
   const handleAddSubmittal = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
-    if (!subForm.titulo.trim() || !subForm.proveedor.trim()) { toast.error('Título y proveedor requeridos'); return; }
+    const subResult = submittalSchema.safeParse({ titulo: subForm.titulo, tipo: subForm.proveedor, estado: 'pendiente' as const, fechaLimite: todayISO() });
+    if (!subResult.success) { toast.error(subResult.error.errors[0].message); return; }
     const nuevo: Submittal = {
       id: Date.now().toString(),
       proyectoId: selProyecto,
-      titulo: subForm.titulo,
+      titulo: subResult.data.titulo,
       descripcion: subForm.descripcion,
       categoria: subForm.categoria,
       proveedor: subForm.proveedor,

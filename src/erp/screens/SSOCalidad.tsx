@@ -8,6 +8,29 @@ import {
 } from 'lucide-react';
 import { CARD, CARD_TITLE, INPUT } from '../ui';
 import { fmtQ, todayISO } from '../utils';
+import { z } from 'zod';
+
+// Zod schemas
+const incidenteSchema = z.object({
+  tipo: z.enum(['accidente', 'cuasi_accidente', 'incidente', 'condicion_insegura']),
+  descripcion: z.string().min(1, 'Descripción requerida').max(1000, 'Máximo 1000 caracteres'),
+  afectados: z.string().min(1, 'Indica los afectados').max(500, 'Máximo 500 caracteres'),
+});
+const pruebaSchema = z.object({
+  tipo: z.enum(['concreto', 'suelo', 'acero', 'asfalto', 'otro']),
+  descripcion: z.string().min(1, 'Descripción requerida').max(500, 'Máximo 500 caracteres'),
+  responsable: z.string().min(1, 'Responsable requerido').max(100, 'Máximo 100 caracteres'),
+});
+const ncSchema = z.object({
+  descripcion: z.string().min(1, 'Descripción requerida').max(1000, 'Máximo 1000 caracteres'),
+  categoria: z.enum(['material', 'proceso', 'documento', 'instalacion', 'otro']),
+  detectadoPor: z.string().min(1, 'Indica quién detectó').max(100, 'Máximo 100 caracteres'),
+});
+const liberacionSchema = z.object({
+  renglonNombre: z.string().min(1, 'Actividad/partida requerida').max(200, 'Máximo 200 caracteres'),
+  solicitante: z.string().max(100, 'Máximo 100 caracteres').optional().default(''),
+  supervisor: z.string().max(100, 'Máximo 100 caracteres').optional().default(''),
+});
 
 type TabSSO = 'incidentes' | 'checklist-sso' | 'estadisticas' | 'emergencia' | 'pruebas' | 'nc' | 'liberaciones';
 
@@ -56,7 +79,8 @@ const SSOCalidad: React.FC = () => {
 
   const handleAddIncidente = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
-    if (!incForm.descripcion.trim()) { toast.error('Describe el incidente'); return; }
+    const result = incidenteSchema.safeParse({ tipo: incForm.tipo, descripcion: incForm.descripcion, afectados: incForm.afectados });
+    if (!result.success) { toast.error(result.error.errors[0].message); return; }
     const nuevo: Incidente = {
       id: Date.now().toString(),
       proyectoId: selProyecto,
@@ -98,7 +122,8 @@ const SSOCalidad: React.FC = () => {
 
   const handleAddPrueba = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
-    if (!pruebaForm.descripcion.trim() || !pruebaForm.responsable.trim()) { toast.error('Completa todos los campos'); return; }
+    const result = pruebaSchema.safeParse(pruebaForm);
+    if (!result.success) { toast.error(result.error.errors[0].message); return; }
     const nueva: PruebaLaboratorio = {
       id: Date.now().toString(),
       proyectoId: selProyecto,
@@ -129,7 +154,8 @@ const SSOCalidad: React.FC = () => {
 
   const handleAddNC = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
-    if (!ncForm.descripcion.trim() || !ncForm.detectadoPor.trim()) { toast.error('Completa descripción y quién detectó'); return; }
+    const result = ncSchema.safeParse(ncForm);
+    if (!result.success) { toast.error(result.error.errors[0].message); return; }
     const count = ncs.filter(n => n.proyectoId === selProyecto).length + 1;
     const nueva: NoConformidad = {
       id: Date.now().toString(),
@@ -162,7 +188,8 @@ const SSOCalidad: React.FC = () => {
 
   const handleAddLiberacion = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
-    if (!libForm.renglonNombre.trim()) { toast.error('Indica la actividad/partida'); return; }
+    const result = liberacionSchema.safeParse(libForm);
+    if (!result.success) { toast.error(result.error.errors[0].message); return; }
     const nueva: LiberacionPartida = {
       id: Date.now().toString(),
       proyectoId: selProyecto,
