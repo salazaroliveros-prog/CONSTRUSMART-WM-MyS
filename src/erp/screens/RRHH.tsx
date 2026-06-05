@@ -52,6 +52,20 @@ const RRHH: React.FC = () => {
   });
 
   const onSubmit = (data: EmpleadoFormData) => {
+    if (data.proyectoId) {
+      const countAsignado = empleados.filter(
+        e => e.id !== editingId && e.proyectoIds?.includes(data.proyectoId!)
+      ).length;
+      const empleadosEnProyecto = proyectos.find(p => p.id === data.proyectoId)
+        ?.nombre || '';
+      if (countAsignado >= 3) {
+        const ok = window.confirm(
+          `⚠️ El proyecto "${empleadosEnProyecto}" ya tiene ${countAsignado} empleados asignados. ` +
+          '¿Asignar este empleado de todas formas?'
+        );
+        if (!ok) return;
+      }
+    }
     if (editingId) {
       updateEmpleado(editingId, {
         nombre: data.nombre,

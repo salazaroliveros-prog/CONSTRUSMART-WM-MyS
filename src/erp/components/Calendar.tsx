@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
-import { ChevronLeft, ChevronRight, Plus, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Check, Users } from 'lucide-react';
 
 const Calendar: React.FC = () => {
-  const { eventos, addEvento, updateEvento, deleteEvento, proyectos } = useErp();
+  const { t } = useTranslation();
+  const { eventos, addEvento, updateEvento, deleteEvento, proyectos, empleados } = useErp();
   const [cursor, setCursor] = useState(new Date());
   const [sel, setSel] = useState<string | null>(null);
   const [titulo, setTitulo] = useState('');
@@ -88,11 +90,11 @@ const Calendar: React.FC = () => {
         <div className="space-y-3">
           <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-600">Próximas actividades</span>
-              <span className="text-[10px] text-slate-400">{upcoming.length} agenda</span>
+              <span className="text-xs font-semibold text-slate-600">{t('common.proximas_actividades')}</span>
+              <span className="text-[10px] text-slate-400">{upcoming.length} {t('common.agenda')}</span>
             </div>
             {upcoming.length === 0 ? (
-              <p className="text-xs text-slate-400">No hay recordatorios próximos. Crea uno seleccionando un día.</p>
+              <p className="text-xs text-slate-400">{t('common.no_recordatorios')}</p>
             ) : (
               <div className="space-y-2">
                 {upcoming.map(evento => (
@@ -106,7 +108,7 @@ const Calendar: React.FC = () => {
                     </div>
                     <div className="flex flex-wrap gap-2 text-[10px] text-slate-500">
                       {evento.proyectoId && <span className="rounded-full bg-slate-100 px-2 py-1">{proyectos.find(p => p.id === evento.proyectoId)?.nombre.split(' ')[0]}</span>}
-                      {evento.descripcion && <span className="rounded-full bg-orange-100 px-2 py-1 text-orange-600">Con notas</span>}
+                      {evento.descripcion && <span className="rounded-full bg-orange-100 px-2 py-1 text-orange-600">{t('common.con_notas')}</span>}
                     </div>
                   </div>
                 ))}
@@ -116,15 +118,15 @@ const Calendar: React.FC = () => {
 
           <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-600">Crear recordatorio</span>
-              <span className="text-[10px] text-slate-400">Fecha: {sel || 'Sin seleccionar'}</span>
+              <span className="text-xs font-semibold text-slate-600">{t('common.crear_recordatorio')}</span>
+              <span className="text-[10px] text-slate-400">{t('common.fecha')}: {sel || t('common.ninguno')}</span>
             </div>
             <div className="space-y-2">
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <input
                   value={titulo}
                   onChange={e => setTitulo(e.target.value)}
-                  placeholder="Título"
+                  placeholder={t('common.titulo')}
                   className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
                 />
                 <input
@@ -138,7 +140,7 @@ const Calendar: React.FC = () => {
               <textarea
                 value={descripcion}
                 onChange={e => setDescripcion(e.target.value)}
-                placeholder="Descripción opcional"
+                placeholder={t('common.descripcion')}
                 className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400 min-h-[80px] resize-none"
               />
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -157,7 +159,7 @@ const Calendar: React.FC = () => {
                   onChange={e => setProyectoSel(e.target.value || null)}
                   className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
                 >
-                  <option value="">Sin proyecto</option>
+                  <option value="">{t('common.sin_proyecto')}</option>
                   {proyectos.map(p => (
                     <option key={p.id} value={p.id}>{p.nombre}</option>
                   ))}
@@ -168,7 +170,7 @@ const Calendar: React.FC = () => {
                 disabled={!titulo.trim() || !sel}
                 className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-white rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-50"
               >
-                <Plus className="w-4 h-4" /> Guardar actividad
+                <Plus className="w-4 h-4" /> {t('common.guardar')}
               </button>
             </div>
           </div>
@@ -177,12 +179,12 @@ const Calendar: React.FC = () => {
         <div className="space-y-3">
           <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50 h-full">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-600">Detalles del día</span>
-              <span className="text-[10px] text-slate-400">{sel || 'Elige un día'}</span>
+              <span className="text-xs font-semibold text-slate-600">{t('common.proximas_actividades')}</span>
+              <span className="text-[10px] text-slate-400">{sel || t('common.elige_dia')}</span>
             </div>
             {sel ? (
               selEventos.length === 0 ? (
-                <p className="text-xs text-slate-400">Esta fecha está libre. Crea una actividad para que te la recuerde.</p>
+                <p className="text-xs text-slate-400">{t('common.fecha_libre')}</p>
               ) : (
                 <div className="space-y-2">
                   {selEventos.map(e => (
@@ -206,9 +208,9 @@ const Calendar: React.FC = () => {
                             onClick={() => handleToggleCompleted(e.id, e.completado)}
                             className={`text-[10px] px-2 py-1 rounded-full ${e.completado ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}
                           >
-                            <Check className="w-3 h-3 inline-block mr-1" />{e.completado ? 'Completado' : 'Marcar hecho'}
+                            <Check className="w-3 h-3 inline-block mr-1" />{e.completado ? t('common.completado') : t('common.marcar_hecho')}
                           </button>
-                          <button onClick={() => deleteEvento(e.id)} className="text-[10px] text-red-500 hover:text-red-600">Eliminar</button>
+                          <button onClick={() => deleteEvento(e.id)} className="text-[10px] text-red-500 hover:text-red-600">{t('common.eliminar')}</button>
                         </div>
                       </div>
                     </div>
@@ -216,13 +218,30 @@ const Calendar: React.FC = () => {
                 </div>
               )
             ) : (
-              <p className="text-xs text-slate-400">Selecciona un día para ver sus actividades y detalles de recordatorio.</p>
+              <p className="text-xs text-slate-400">{t('common.selecciona_dia')}</p>
             )}
           </div>
 
           <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50">
-            <span className="text-xs font-semibold text-slate-600">Consejo de recordatorios</span>
-            <p className="text-[10px] text-slate-500 mt-2">El navegador te solicitará permiso de notificaciones. Acepta para recibir alertas automáticas de tus actividades programadas.</p>
+            <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><Users className="w-3 h-3" /> {t('common.disponibilidad_proyecto')}</span>
+            <div className="mt-2 space-y-2">
+              {proyectos.length === 0 ? (
+                <p className="text-[10px] text-slate-400">{t('common.sin_proyectos')}</p>
+              ) : (
+                proyectos.slice(0, 5).map(p => {
+                  const count = empleados.filter(e => e.proyectoIds?.includes(p.id)).length;
+                  return (
+                    <div key={p.id} className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-600 truncate max-w-[120px]">{p.nombre}</span>
+                      <span className={`text-[10px] font-semibold ${count > 0 ? 'text-emerald-600' : 'text-slate-300'}`}>
+                        {count} {count === 1 ? t('common.persona') : t('common.personas')}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+              {proyectos.length > 5 && <p className="text-[10px] text-slate-400">{t('common.proyectos_mas', { n: proyectos.length - 5 })}</p>}
+            </div>
           </div>
         </div>
       </div>

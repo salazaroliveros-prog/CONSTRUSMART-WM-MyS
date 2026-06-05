@@ -1,107 +1,118 @@
-import React, { useState } from 'react';
-import { useErp, View } from '../store';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useErp, View, parseView } from '../store';
 import { useAppContext } from '@/contexts/AppContext';
 import { LayoutDashboard, Building2, Wallet, Users, Warehouse, X, ChevronLeft, ChevronRight, Shield, Settings, Zap, ChevronDown, ChevronRight as ChevronRightIcon } from 'lucide-react';
 
 interface SubItem {
   id: View;
-  label: string;
 }
 
 interface GrupoMenu {
   id: string;
-  label: string;
+  labelKey: string;
   icon: React.ElementType;
   items: SubItem[];
 }
 
 const GRUPOS: GrupoMenu[] = [
   {
-    id: 'tablero', label: '📊 TABLERO', icon: LayoutDashboard,
+    id: 'tablero', labelKey: 'nav.grupos.tablero', icon: LayoutDashboard,
     items: [
-      { id: 'dashboard', label: 'Dashboard' },
-      { id: 'predictivo', label: 'Dashboard Predictivo' },
-      { id: 'reportes', label: 'Reportes Técnicos' },
+      { id: 'dashboard' },
+      { id: 'predictivo' },
+      { id: 'reportes' },
     ],
   },
   {
-    id: 'proyectos', label: '🏗️ PROYECTOS', icon: Building2,
+    id: 'proyectos', labelKey: 'nav.grupos.proyectos', icon: Building2,
     items: [
-      { id: 'proyectos', label: 'Proyectos' },
-      { id: 'presupuestos', label: 'Presupuestos + APU' },
-      { id: 'apu', label: 'APU Avanzado' },
-      { id: 'seguimiento', label: 'Seguimiento + Gantt' },
-      { id: 'curvas', label: 'Curvas S' },
-      { id: 'rendimientos', label: 'Rendimientos' },
-      { id: 'hitos', label: 'Hitos del Proyecto' },
-      { id: 'riesgos', label: 'Gestión de Riesgos' },
+      { id: 'proyectos' },
+      { id: 'presupuestos' },
+      { id: 'apu' },
+      { id: 'seguimiento' },
+      { id: 'curvas' },
+      { id: 'rendimientos' },
+      { id: 'hitos' },
+      { id: 'riesgos' },
     ],
   },
   {
-    id: 'finanzas', label: '💰 FINANZAS', icon: Wallet,
+    id: 'finanzas', labelKey: 'nav.grupos.finanzas', icon: Wallet,
     items: [
-      { id: 'financiero', label: 'Control Financiero' },
-      { id: 'impuestos', label: 'Impuestos' },
-      { id: 'cuentas-cobrar', label: 'Cuentas por Cobrar' },
-      { id: 'cuentas-pagar', label: 'Cuentas por Pagar' },
-      { id: 'comercial-fin', label: 'Comercial / Finanzas' },
+      { id: 'financiero' },
+      { id: 'impuestos' },
+      { id: 'cuentas-cobrar' },
+      { id: 'cuentas-pagar' },
+      { id: 'comercial-fin' },
     ],
   },
   {
-    id: 'bodega', label: '📦 BODEGA', icon: Warehouse,
+    id: 'bodega', labelKey: 'nav.grupos.bodega', icon: Warehouse,
     items: [
-      { id: 'bodega', label: 'Inventario (Bodega)' },
-      { id: 'logistica', label: 'Logística y Compras' },
-      { id: 'baseprecios', label: 'Base de Precios' },
-      { id: 'entradas-almacen', label: 'Entradas Almacén' },
+      { id: 'bodega' },
+      { id: 'logistica' },
+      { id: 'baseprecios' },
+      { id: 'entradas-almacen' },
     ],
   },
   {
-    id: 'rrhh', label: '👷 RRHH', icon: Users,
+    id: 'rrhh', labelKey: 'nav.grupos.rrhh', icon: Users,
     items: [
-      { id: 'rrhh', label: 'Recursos Humanos' },
-      { id: 'planilla-destajos', label: 'Planilla Destajos' },
-      { id: 'rendimiento-campo', label: 'Rendimiento Campo' },
+      { id: 'rrhh' },
+      { id: 'planilla-destajos' },
+      { id: 'rendimiento-campo' },
     ],
   },
   {
-    id: 'calidad', label: '✅ CALIDAD', icon: Shield,
+    id: 'calidad', labelKey: 'nav.grupos.calidad', icon: Shield,
     items: [
-      { id: 'sso-calidad', label: 'SSO & Calidad' },
-      { id: 'muro', label: 'Muro de Obra' },
-      { id: 'ordenes-cambio', label: 'Órdenes de Cambio' },
-      { id: 'documentos', label: 'Documentos y Planos' },
+      { id: 'sso-calidad' },
+      { id: 'muro' },
+      { id: 'ordenes-cambio' },
+      { id: 'documentos' },
     ],
   },
   {
-    id: 'admin', label: '🔧 ADMIN', icon: Settings,
+    id: 'admin', labelKey: 'nav.grupos.admin', icon: Settings,
     items: [
-      { id: 'admin-sistema', label: 'Admin del Sistema' },
-      { id: 'crm', label: 'CRM (Clientes)' },
-      { id: 'notificaciones', label: 'Notificaciones' },
+      { id: 'admin-sistema' },
+      { id: 'crm' },
+      { id: 'notificaciones' },
     ],
   },
   {
-    id: 'herramientas', label: '🛠️ HERRAMIENTAS', icon: Zap,
+    id: 'herramientas', labelKey: 'nav.grupos.herramientas', icon: Zap,
     items: [
-      { id: 'visor-bim', label: 'Visor BIM' },
-      { id: 'exportacion', label: 'Exportación Inteligente' },
-      { id: 'ajustes', label: 'Ajustes' },
+      { id: 'visor-bim' },
+      { id: 'exportacion' },
+      { id: 'ajustes' },
     ],
   },
 ];
 
 const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
+  const { t } = useTranslation();
   const { view, setView, user, allowedViews } = useErp();
   const { sidebarCollapsed, toggleCollapse } = useAppContext();
+  const { root: activeView } = parseView(view);
   const [expandedGrupos, setExpandedGrupos] = useState<Record<string, boolean>>(() => {
-    // Auto-expandir el grupo que contiene la vista activa
     const initial: Record<string, boolean> = {};
     GRUPOS.forEach(g => {
-      if (g.items.some(i => i.id === view)) initial[g.id] = true;
+      if (g.items.some(i => i.id === activeView)) initial[g.id] = true;
     });
     return initial;
   });
+  // Keep groups expanded when navigating within the same parent
+  useEffect(() => {
+    setExpandedGrupos(prev => {
+      const next = { ...prev };
+      GRUPOS.forEach(g => {
+        if (g.items.some(i => i.id === activeView)) next[g.id] = true;
+      });
+      return next;
+    });
+  }, [activeView]);
 
   const toggleGrupo = (id: string) => {
     setExpandedGrupos(prev => ({ ...prev, [id]: !prev[id] }));
@@ -138,12 +149,12 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                   className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors
                     ${collapsed ? 'justify-center text-slate-400' : 'text-slate-500 hover:text-slate-700'}
                     ${!collapsed && 'hover:bg-slate-50'}`}
-                  title={collapsed ? grupo.label : undefined}
+                  title={collapsed ? t(grupo.labelKey) : undefined}
                 >
                   <Icon className="w-3.5 h-3.5 shrink-0" />
                   {!collapsed && (
                     <>
-                      <span className="flex-1 text-left truncate">{grupo.label}</span>
+                      <span className="flex-1 text-left truncate">{t(grupo.labelKey)}</span>
                       {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRightIcon className="w-3 h-3" />}
                     </>
                   )}
@@ -153,7 +164,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                 {(!collapsed && expanded) && (
                   <div className="ml-1 pl-3 border-l-2 border-slate-100 space-y-0.5 mb-1">
                     {itemsVisibles.map(sub => {
-                      const active = view === sub.id;
+                      const active = activeView === sub.id;
                       return (
                         <button
                           key={sub.id}
@@ -165,7 +176,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                             }`}
                         >
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${active ? 'bg-white' : 'bg-slate-300'}`} />
-                          {sub.label}
+                          {t(`nav.items.${sub.id}`)}
                         </button>
                       );
                     })}
@@ -177,8 +188,8 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                   <button
                     onClick={() => setView(itemsVisibles[0].id)}
                     className={`w-full flex items-center justify-center py-2 rounded-lg text-[10px] font-medium transition-colors
-                      ${view === itemsVisibles[0].id ? 'text-orange-500' : 'text-slate-400 hover:text-slate-600'}`}
-                    title={itemsVisibles[0].label}
+                      ${activeView === itemsVisibles[0].id ? 'text-orange-500' : 'text-slate-400 hover:text-slate-600'}`}
+                    title={t(`nav.items.${itemsVisibles[0].id}`)}
                   >
                     <Icon className="w-4 h-4" />
                   </button>
@@ -195,8 +206,8 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
         </div>
         {!collapsed && (
           <div className="flex-shrink-0 mx-3 mb-3 bg-slate-900 rounded-xl p-3 text-white">
-            <div className="text-xs font-bold">CONSTRUCTORA WM</div>
-            <div className="text-[10px] text-orange-300 italic">Edificando el Futuro</div>
+            <div className="text-xs font-bold">{t('ajustes.constructora_wm')}</div>
+            <div className="text-[10px] text-orange-300 italic">{t('ajustes.eslogan')}</div>
           </div>
         )}
       </aside>

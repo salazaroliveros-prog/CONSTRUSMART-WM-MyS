@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,6 +19,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const ROLES: Rol[] = ['Administrador', 'Gerente', 'Residente', 'Compras', 'Bodeguero'];
 
 const Login: React.FC = () => {
+  const { t } = useTranslation();
   const { signIn, signUp, signInWithGoogle, authError } = useErp();
   const [mode, setMode] = React.useState<'in' | 'up'>('in');
   const [loading, setLoading] = React.useState(false);
@@ -79,12 +81,12 @@ const Login: React.FC = () => {
           </div>
           <h1 className="text-4xl font-black leading-tight">CONSTRUCTORA<br /><span className="text-3xl">WM / M&amp;S</span></h1>
           <p className="text-orange-300 text-lg italic mt-2">{EMPRESA.eslogan}</p>
-          <p className="text-slate-300 mt-6 leading-relaxed">ERP Integral con control de acceso por roles: Administrador, Gerente, Residente, Compras y Bodeguero.</p>
+          <p className="text-slate-300 mt-6 leading-relaxed">{t('auth.ingrese_credenciales')}</p>
           <div className="flex gap-6 mt-8 justify-center">
-            {['Presupuestos', 'Control', 'Finanzas'].map(t => (
-              <div key={t} className="text-center">
+            {['Presupuestos', 'Control', 'Finanzas'].map(lbl => (
+              <div key={lbl} className="text-center">
                 <ShieldCheck className="w-5 h-5 mx-auto text-orange-400" />
-                <span className="text-xs text-slate-400 mt-1 block">{t}</span>
+                <span className="text-xs text-slate-400 mt-1 block">{lbl}</span>
               </div>
             ))}
           </div>
@@ -104,39 +106,39 @@ const Login: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 text-slate-800 mb-1">
             <Building2 className="w-5 h-5 text-orange-500" />
-            <h2 className="text-xl sm:text-2xl font-bold">{mode === 'in' ? 'Iniciar sesión' : 'Crear cuenta'}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">{mode === 'in' ? t('auth.iniciar_sesion') : t('auth.registrarse')}</h2>
           </div>
-          <p className="text-slate-400 text-xs sm:text-sm mb-4 sm:mb-6">Acceso seguro con control de roles (RBAC)</p>
+          <p className="text-slate-400 text-xs sm:text-sm mb-4 sm:mb-6">{t('auth.ingrese_credenciales')}</p>
 
           {mode === 'up' && (
             <>
               <input
                 {...register('nombre')}
-                placeholder="Nombre completo"
+                placeholder={t('common.nombre')}
                 className={`${INPUT} ${errors.nombre ? ERROR_STATE : ''}`}
               />
               {errors.nombre && <p className="text-xs text-red-500 mb-2">{errors.nombre.message}</p>}
               <select {...register('rol')} className={INPUT}>
                 {ROLES.map(r => (
                   <option key={r} value={r} disabled={r === 'Administrador'}>
-                    {r}{r === 'Administrador' ? ' (Ocupado)' : ''}
+                    {r}{r === 'Administrador' ? ` (${t('common.no' as any)})` : ''}
                   </option>
                 ))}
               </select>
-              <p className="text-[10px] text-amber-600 mt-1">El rol Administrador ya está asignado y no está disponible para registro.</p>
+              <p className="text-[10px] text-amber-600 mt-1">{t('auth.error_permisos')}</p>
             </>
           )}
           <input
             type="email"
             {...register('email')}
-            placeholder="Correo electrónico"
+            placeholder={t('auth.correo')}
             className={`${INPUT} ${errors.email ? ERROR_STATE : ''}`}
           />
           {errors.email && <p className="text-xs text-red-500 mb-2">{errors.email.message}</p>}
           <input
             type="password"
             {...register('password')}
-            placeholder="Contraseña (mín. 6)"
+            placeholder={t('auth.contrasena')}
             className={`${INPUT} ${errors.password ? ERROR_STATE : ''}`}
           />
           {errors.password && <p className="text-xs text-red-500 mb-2">{errors.password.message}</p>}
@@ -149,7 +151,7 @@ const Login: React.FC = () => {
             disabled={loading}
             className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-3 sm:py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 disabled:opacity-60 active:scale-[0.98] transition-all"
           >
-            {loading ? 'Procesando...' : mode === 'in' ? 'Ingresar' : 'Registrarme'} <ArrowRight className="w-4 h-4" />
+            {loading ? t('common.cargando') : mode === 'in' ? t('auth.iniciar_sesion') : t('auth.registrarse')} <ArrowRight className="w-4 h-4" />
           </button>
           <button
             type="button"
@@ -157,14 +159,14 @@ const Login: React.FC = () => {
             onClick={async () => { setLoading(true); try { await signInWithGoogle(); } finally { setLoading(false); } }}
             className={`${BUTTON_SECONDARY} w-full justify-center`}
           >
-            <Chrome className="w-4 h-4" /> Continuar con Google
+            <Chrome className="w-4 h-4" /> {t('auth.google')}
           </button>
           <button
             type="button"
             onClick={() => setMode(mode === 'in' ? 'up' : 'in')}
             className="w-full text-center text-xs sm:text-sm text-slate-500 mt-3 sm:mt-4 hover:text-orange-500 transition-colors"
           >
-            {mode === 'in' ? '¿No tienes cuenta? Crear una nueva' : '¿Ya tienes cuenta? Iniciar sesión'}
+            {mode === 'in' ? t('auth.no_cuenta') : t('auth.ya_cuenta')}
           </button>
         </form>
       </div>

@@ -20,6 +20,14 @@ const proyectoSchema = z.object({
   presupuestoTotal: z.coerce.number().min(0, 'Valor requerido'),
   montoContrato: z.coerce.number().min(0, 'Valor requerido'),
   estado: z.enum(ESTADOS).optional(),
+  fechaInicio: z.string().optional(),
+  fechaFin: z.string().optional(),
+}).refine(d => !d.fechaFin || !d.fechaInicio || d.fechaFin >= d.fechaInicio, {
+  message: 'Fecha fin debe ser posterior a fecha inicio',
+  path: ['fechaFin'],
+}).refine(d => d.estado !== 'finalizado' || d.fechaFin, {
+  message: 'Proyecto finalizado requiere fecha fin',
+  path: ['fechaFin'],
 });
 
 type ProyectoFormData = z.infer<typeof proyectoSchema>;
@@ -74,6 +82,8 @@ const Proyectos: React.FC = () => {
         presupuestoTotal: data.presupuestoTotal,
         montoContrato: data.montoContrato,
         estado: data.estado || 'planeacion',
+        fechaInicio: data.fechaInicio || undefined,
+        fechaFin: data.fechaFin || undefined,
       });
     } else {
       addProyecto({
@@ -86,8 +96,8 @@ const Proyectos: React.FC = () => {
         montoContrato: data.montoContrato,
         avanceFisico: 0,
         avanceFinanciero: 0,
-        fechaInicio: todayISO(),
-        fechaFin: '',
+        fechaInicio: data.fechaInicio || todayISO(),
+        fechaFin: data.fechaFin || '',
       });
     }
     reset();
@@ -105,6 +115,8 @@ const Proyectos: React.FC = () => {
       estado: 'planeacion',
       presupuestoTotal: 0,
       montoContrato: 0,
+      fechaInicio: '',
+      fechaFin: '',
     });
     setShow(true);
   };
@@ -119,6 +131,8 @@ const Proyectos: React.FC = () => {
       presupuestoTotal: p.presupuestoTotal,
       montoContrato: p.montoContrato,
       estado: p.estado,
+      fechaInicio: p.fechaInicio || '',
+      fechaFin: p.fechaFin || '',
     });
     setShow(true);
   };
@@ -214,7 +228,17 @@ const Proyectos: React.FC = () => {
                 <span className="text-[10px] px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">{TIPOLOGIA_LABEL[p.tipologia]}</span>
                 <select
                   value={p.estado}
-                  onChange={e => updateProyecto(p.id, { estado: e.target.value as Proyecto['estado'] })}
+                  onChange={e => {
+                    const nuevoEstado = e.target.value as Proyecto['estado'];
+                    if (nuevoEstado === 'finalizado' && !p.fechaFin) {
+                      const ok = window.confirm(
+                        `El proyecto "${p.nombre}" no tiene fecha fin. ¿Establecer fecha fin = hoy?`
+                      );
+                      if (ok) updateProyecto(p.id, { estado: nuevoEstado, fechaFin: todayISO() });
+                    } else {
+                      updateProyecto(p.id, { estado: nuevoEstado });
+                    }
+                  }}
                   className={`text-[10px] px-2 py-1 rounded-full font-medium border-0 cursor-pointer outline-none ${p.estado === 'ejecucion' ? 'bg-emerald-50 text-emerald-700' : p.estado === 'planeacion' ? 'bg-amber-50 text-amber-700' : p.estado === 'finalizado' ? 'bg-slate-100 text-slate-600' : 'bg-orange-50 text-orange-700'}`}
                 >
                   {ESTADOS.map(e => (
@@ -253,7 +277,7 @@ const Proyectos: React.FC = () => {
                   presupuesto={presupuestos.find(pr => pr.id === p.presupuestoActualId)}
                   onViewPresupuesto={() => {
                     setSelectedProyectoId(p.id);
-                    setView('presupuestos');
+                    setView('proyectos:presupuestos');
                   }}
                   onEditPresupuesto={() => {}}
                 />
@@ -280,15 +304,60 @@ const Proyectos: React.FC = () => {
               <select {...register('tipologia')} className={INPUT}>
                 {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]}</option>)}
               </select>
-              <select {...register('estado')} className={INPUT}>
+              <select {...register('estado')} className={INPUT}
+                onChange={e => {
+                  const v = e.target.value;
+                  if (v === 'finalizado' && editingId) {
+                    const p = proyectos.find(x => x.id === editingId);
+                    if (p && !p.fechaFin) {
+                      reset(prev => ({ ...prev, fechaFin: todayISO() }));
+                    }
+                  }
+                }}
+              >
                 {ESTADOS.map(e => <option key={e} value={e}>{estadoLabel[e]}</option>)}
               </select>
               <div className="grid grid-cols-2 gap-3">
                 <input type="number" {...register('presupuestoTotal')} placeholder="Presupuesto Q" className={INPUT} />
                 <input type="number" {...register('montoContrato')} placeholder="Contrato Q" className={INPUT} />
               </div>
-              {(errors.presupuestoTotal || errors.montoContrato) && (
-                <p className="text-xs text-red-500">{errors.presupuestoTotal?.message || errors.montoContrato?.message}</p>
+              {editingId && (() => {
+                const p = proyectos.find(x => x.id === editingId);
+                const bloqueado = p?.estado === 'finalizado';
+                return (
+                  <>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] text-slate-400 mb-1 block">Inicio</label>
+                        <input type="date" {...register('fechaInicio')} disabled={bloqueado}
+                          className={`${INPUT} ${bloqueado ? 'opacity-50 cursor-not-allowed' : ''}`} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-400 mb-1 block">Fin</label>
+                        <input type="date" {...register('fechaFin')} disabled={bloqueado}
+                          className={`${INPUT} ${bloqueado ? 'opacity-50 cursor-not-allowed' : ''}`} />
+                      </div>
+                    </div>
+                    {bloqueado && <p className="text-[10px] text-amber-600">Proyecto finalizado — fechas bloqueadas</p>}
+                  </>
+                );
+              })()}
+              {!editingId && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] text-slate-400 mb-1 block">Inicio</label>
+                    <input type="date" {...register('fechaInicio')} className={INPUT} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-400 mb-1 block">Fin estimado</label>
+                    <input type="date" {...register('fechaFin')} className={INPUT} />
+                  </div>
+                </div>
+              )}
+              {(errors.presupuestoTotal || errors.montoContrato || errors.fechaFin) && (
+                <p className="text-xs text-red-500">
+                  {errors.presupuestoTotal?.message || errors.montoContrato?.message || errors.fechaFin?.message}
+                </p>
               )}
             </div>
             <button type="submit" className={BUTTON_PRIMARY}>{editingId ? 'Guardar Cambios' : 'Crear Proyecto'}</button>

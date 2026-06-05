@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
 import { LogOut, Home, Menu, Upload, Bell } from 'lucide-react';
 import SyncIndicator from './SyncIndicator';
 
 const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, title }) => {
+  const { t } = useTranslation();
   const { user, logout, setView, view, notificacionesNoLeidas } = useErp();
   const [now, setNow] = useState(new Date());
   const [customPhoto, setCustomPhoto] = useState<string | null>(null);
@@ -65,7 +67,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         <div className="text-[10px] text-slate-400 capitalize">{now.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
       </div>
 
-      <button onClick={() => setView('notificaciones')} className="relative p-2 hover:bg-white/10 rounded-lg" title="Notificaciones">
+      <button onClick={() => setView('notificaciones')} className="relative p-2 hover:bg-white/10 rounded-lg" title={t('notificaciones.titulo')}>
         <Bell className="w-5 h-5" />
         {notificacionesNoLeidas > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
@@ -76,7 +78,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
       <div className="flex items-center gap-2">
         {view !== 'dashboard' && (
           <button onClick={() => setView('dashboard')} className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-medium">
-            <Home className="w-4 h-4" /> Inicio
+            <Home className="w-4 h-4" /> {t('common.volver_tablero')}
           </button>
         )}
         <div className="flex items-center gap-2">

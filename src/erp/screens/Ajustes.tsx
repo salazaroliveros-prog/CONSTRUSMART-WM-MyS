@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp, type UIMode, type AppThemeMode } from '../store';
 import {
   Layout, Card, Row, Col, Switch, Select, InputNumber, Button, Divider,
@@ -26,6 +27,7 @@ const PRIMARY_COLORS = [
 ];
 
 const Ajustes: React.FC = () => {
+  const { t } = useTranslation();
   const { appSettings, updateAppSettings, user, proyectos, notificacionesNoLeidas, marcarTodasLeidas } = useErp();
   const [resetModal, setResetModal] = useState(false);
   const [aboutModal, setAboutModal] = useState(false);
@@ -43,11 +45,11 @@ const Ajustes: React.FC = () => {
   const tabItems = [
     {
       key: 'apariencia',
-      label: <span><BgColorsOutlined /> Apariencia</span>,
+      label: <span><BgColorsOutlined /> {t('ajustes.apariencia')}</span>,
       children: (
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={12}>
-            <Card title="Interfaz de Usuario" style={sectionCard} size="small">
+            <Card title={t('ajustes.apariencia')} style={sectionCard} size="small">
               <div style={colStyle}>
                 <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
                   <Space>
@@ -240,7 +242,7 @@ const Ajustes: React.FC = () => {
             <Card title="Configuración Regional" style={sectionCard} size="small">
               <div style={colStyle}>
                 <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <div><Text strong>Idioma</Text><br /><Text type="secondary">Idioma de la interfaz</Text></div>
+                  <div><Text strong>{t('ajustes.idioma')}</Text><br /><Text type="secondary">Idioma de la interfaz</Text></div>
                   <Select value={appSettings.language} onChange={v => updateAppSettings({ language: v })}
                     style={{ width: 160 }}
                     options={[
@@ -457,7 +459,7 @@ const Ajustes: React.FC = () => {
       <div style={{ marginBottom: 24 }}>
         <Title level={3} style={{ margin: 0 }}>
           <SettingOutlined style={{ marginRight: 8, color: token.colorPrimary }} />
-          Ajustes del Sistema
+          {t('ajustes.titulo')}
         </Title>
         <Text type="secondary">Personaliza la apariencia, idioma, notificaciones y configuración general del ERP</Text>
       </div>

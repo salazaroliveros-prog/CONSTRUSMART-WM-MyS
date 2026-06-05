@@ -198,7 +198,7 @@ const AntProyectos: React.FC = () => {
                       <Button
                         type="link"
                         size="small"
-                        onClick={() => { setSelectedProyectoId(p.id); setView('presupuestos'); }}
+                        onClick={() => { setSelectedProyectoId(p.id); setView('proyectos:presupuestos'); }}
                       >
                         Ver presupuesto actual →
                       </Button>
