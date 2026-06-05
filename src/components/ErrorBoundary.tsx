@@ -14,7 +14,9 @@ interface State {
 
 /**
  * ErrorBoundary - Componente global para capturar errores no controlados
- * Previene que toda la app se caiga y muestra una UI amigable
+ * Previene que toda la app se caiga y muestra una UI amigable con Tailwind CSS.
+ * Rate limiting: máximo 3 errores en 10 segundos, si excede recarga automática.
+ * Log de errores en localStorage (últimos 50 registros).
  */
 class ErrorBoundary extends Component<Props, State> {
   private errorCount: number = 0;
@@ -47,7 +49,6 @@ class ErrorBoundary extends Component<Props, State> {
 
     if (this.errorCount > 3) {
       console.error('[ErrorBoundary] Demasiados errores en poco tiempo, posible ataque o bug crítico');
-      // Forzar recarga si hay demasiados errores
       setTimeout(() => window.location.reload(), 5000);
     }
 
@@ -77,7 +78,6 @@ class ErrorBoundary extends Component<Props, State> {
     try {
       const stored = JSON.parse(localStorage.getItem('app_error_log') || '[]');
       stored.push(errorLog);
-      // Mantener solo los últimos 50 errores
       if (stored.length > 50) stored.shift();
       localStorage.setItem('app_error_log', JSON.stringify(stored));
     } catch {
@@ -101,121 +101,40 @@ class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          padding: '2rem',
-          backgroundColor: '#f8f9fa',
-          color: '#333',
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-          textAlign: 'center',
-        }}>
-          <div style={{
-            maxWidth: '500px',
-            padding: '2rem',
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.1)',
-          }}>
-            <div style={{
-              fontSize: '3rem',
-              marginBottom: '1rem',
-            }}>
-              ⚠️
-            </div>
-            <h1 style={{
-              fontSize: '1.5rem',
-              fontWeight: 600,
-              marginBottom: '0.5rem',
-              color: '#e53e3e',
-            }}>
-              Algo salió mal
-            </h1>
-            <p style={{
-              color: '#666',
-              marginBottom: '0.5rem',
-              lineHeight: 1.5,
-            }}>
+        <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-slate-50 text-slate-800 font-sans text-center">
+          <div className="max-w-md p-8 bg-white rounded-3xl shadow-lg">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h1 className="text-xl font-semibold text-red-600 mb-2">Algo salió mal</h1>
+            <p className="text-sm text-slate-500 mb-2 leading-relaxed">
               Ha ocurrido un error inesperado. No te preocupes, tus datos están seguros.
             </p>
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details style={{
-                marginTop: '1rem',
-                marginBottom: '1rem',
-                textAlign: 'left',
-                backgroundColor: '#f7f7f7',
-                padding: '1rem',
-                borderRadius: '8px',
-                fontSize: '0.85rem',
-              }}>
-                <summary style={{ cursor: 'pointer', fontWeight: 600, color: '#555' }}>
+              <details className="mt-4 mb-4 text-left bg-slate-100 p-4 rounded-2xl text-xs">
+                <summary className="cursor-pointer font-semibold text-slate-600">
                   Detalles del error (desarrollo)
                 </summary>
-                <pre style={{
-                  marginTop: '0.5rem',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  color: '#c53030',
-                  fontSize: '0.8rem',
-                }}>
+                <pre className="mt-2 whitespace-pre-wrap break-words text-red-700 text-[0.75rem]">
                   {this.state.error.message}
                   {'\n\n'}
                   {this.state.error.stack}
                 </pre>
               </details>
             )}
-            <div style={{
-              display: 'flex',
-              gap: '0.75rem',
-              justifyContent: 'center',
-              marginTop: '1.5rem',
-              flexWrap: 'wrap',
-            }}>
+            <div className="flex gap-3 justify-center mt-6 flex-wrap">
               <button
                 onClick={this.handleReset}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#3182ce',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: 500,
-                  fontSize: '0.95rem',
-                  transition: 'background-color 0.2s',
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#2c5282')}
-                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#3182ce')}
+                className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-medium text-sm transition-colors"
               >
                 Intentar de nuevo
               </button>
               <button
                 onClick={this.handleReload}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#e2e8f0',
-                  color: '#333',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: 500,
-                  fontSize: '0.95rem',
-                  transition: 'background-color 0.2s',
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#cbd5e0')}
-                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#e2e8f0')}
+                className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-2xl font-medium text-sm transition-colors"
               >
                 Recargar página
               </button>
             </div>
-            <p style={{
-              marginTop: '1.5rem',
-              fontSize: '0.8rem',
-              color: '#999',
-            }}>
+            <p className="mt-6 text-xs text-slate-400">
               Si este error persiste, contacta al administrador del sistema
             </p>
           </div>
