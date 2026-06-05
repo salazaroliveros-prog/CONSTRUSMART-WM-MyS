@@ -116,9 +116,12 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
     const cantMat = getMaterialesPorRenglon(r);
     gran += total;
     granDir += cd * r.cantidad;
+    const codigo = sanitizarTexto(r.codigo);
+    const nombre = sanitizarTexto(r.nombre);
+    const unidad = sanitizarTexto(r.unidad);
     return `<tr>
-      <td>${i + 1}</td><td>${r.codigo}</td><td style="text-align:left">${r.nombre}</td>
-      <td>${r.unidad}</td><td>${r.cantidad}</td><td>${cantMat.toFixed(2)}</td><td>${fmtQ(cd)}</td><td>${fmtQ(pv)}</td><td style="text-align:right">${fmtQ(total)}</td>
+      <td>${i + 1}</td><td>${codigo}</td><td style="text-align:left">${nombre}</td>
+      <td>${unidad}</td><td>${r.cantidad}</td><td>${cantMat.toFixed(2)}</td><td>${fmtQ(cd)}</td><td>${fmtQ(pv)}</td><td style="text-align:right">${fmtQ(total)}</td>
     </tr>`;
   }).join('');
 
@@ -135,10 +138,10 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
       if (!porUnidad[m.unidad]) porUnidad[m.unidad] = { cantidad: 0, total: 0 };
       porUnidad[m.unidad].cantidad += m.cantidad;
       porUnidad[m.unidad].total += m.total;
-      return `<tr><td style="text-align:left">${m.nombre}</td><td>${m.cantidad.toFixed(2)}</td><td>${m.unidad}</td><td style="text-align:right">${fmtQ(m.total)}</td></tr>`;
+      return `<tr><td style="text-align:left">${sanitizarTexto(m.nombre)}</td><td>${m.cantidad.toFixed(2)}</td><td>${sanitizarTexto(m.unidad)}</td><td style="text-align:right">${fmtQ(m.total)}</td></tr>`;
     }).join('');
     const filasPorUnidad = Object.entries(porUnidad).map(([unidad, data]) =>
-      `<tr><td style="text-align:left;padding-left:16px;color:#64748b">Total en ${unidad}</td><td>${data.cantidad.toFixed(2)}</td><td>${unidad}</td><td style="text-align:right">${fmtQ(data.total)}</td></tr>`
+      `<tr><td style="text-align:left;padding-left:16px;color:#64748b">Total en ${sanitizarTexto(unidad)}</td><td>${data.cantidad.toFixed(2)}</td><td>${sanitizarTexto(unidad)}</td><td style="text-align:right">${fmtQ(data.total)}</td></tr>`
     ).join('');
     resumenMatHTML = `
       <div class="section">
@@ -149,7 +152,7 @@ export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tip
   }
 
   const desglose = renglones.map(r => {
-    const insHTML = r.insumos.map(s => `<tr><td style="text-align:left">${s.nombre}</td><td>${s.tipo}</td><td>${s.unidad}</td><td style="text-align:right">${fmtQ(s.precio)}</td></tr>`).join('');
+    const insHTML = r.insumos.map(s => `<tr><td style="text-align:left">${sanitizarTexto(s.nombre)}</td><td>${sanitizarTexto(s.tipo)}</td><td>${sanitizarTexto(s.unidad)}</td><td style="text-align:right">${fmtQ(s.precio)}</td></tr>`).join('');
 
     // Desglose de materiales por actividad (sub-renglones)
     const subrenglonHTML = r.subRenglones && r.subRenglones.length > 0 ? `

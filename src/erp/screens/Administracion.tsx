@@ -1,6 +1,21 @@
 import React, { useState } from 'react';
 import { useNuevosModulos } from '../hooks/useNuevosModulos';
 import { useErp } from '../store';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+
+// Zod schema for Centro de Costo
+const centroCostoSchema = z.object({
+  proyectoId: z.string().min(1, 'Proyecto requerido'),
+  codigo: z.string().min(1, 'Código requerido').regex(/^CC-\d{3,}$/, 'Formato: CC-001'),
+  nombre: z.string().min(1, 'Nombre requerido').max(100, 'Máximo 100 caracteres'),
+  presupuestoAsignado: z.coerce.number().min(0, 'Debe ser ≥ 0').max(999_999_999, 'Monto muy alto'),
+  tipo: z.enum(['directo', 'indirecto', 'administrativo']),
+});
+
+type CentroCostoForm = z.infer<typeof centroCostoSchema>;
 
 export const Administracion: React.FC = () => {
   const { proyectos } = useErp();
@@ -12,6 +27,29 @@ export const Administracion: React.FC = () => {
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion'>('centros');
   const [showForm, setShowForm] = useState(false);
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CentroCostoForm>({
+    resolver: zodResolver(centroCostoSchema),
+    defaultValues: { proyectoId: '', codigo: '', nombre: '', presupuestoAsignado: 0, tipo: 'directo' },
+  });
+
+  const onAddCentroCosto = (data: CentroCostoForm) => {
+    addCentroCosto({
+      proyectoId: data.proyectoId,
+      codigo: data.codigo,
+      nombre: data.nombre,
+      presupuestoAsignado: data.presupuestoAsignado,
+      gastoActual: 0,
+      tipo: data.tipo,
+    });
+    setShowForm(false);
+    reset();
+  };
+
   // ---- CENTROS DE COSTO ----
   const renderCentros = () => {
     const totalPresupuesto = centrosCosto.reduce((a, c) => a + c.presupuestoAsignado, 0);
@@ -22,7 +60,7 @@ export const Administracion: React.FC = () => {
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold">🏢 Centros de Costo</h2>
-          <button onClick={() => setShowForm(true)}
+          <button onClick={() => { setShowForm(true); reset(); }}
             className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs">+ Nuevo Centro</button>
         </div>
 
@@ -49,41 +87,34 @@ export const Administracion: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 text-left">Código</th>
-                <th className="p-2 text-left">Nombre</th>
-                <th className="p-2 text-left">Tipo</th>
-                <th className="p-2 text-right">Presupuesto</th>
-                <th className="p-2 text-right">Gasto Actual</th>
-                <th className="p-2 text-right">% Ejecución</th>
+              <tr className="bg-slate-100">
+                <th className="text-left p-2">Código</th>
+                <th className="text-left p-2">Nombre</th>
+                <th className="text-left p-2">Proyecto</th>
+                <th className="text-right p-2">Presupuesto</th>
+                <th className="text-right p-2">Gasto Actual</th>
+                <th className="text-right p-2">Saldo</th>
+                <th className="text-right p-2">Ejec. %</th>
               </tr>
             </thead>
             <tbody>
-              {centrosCosto.map(c => {
-                const pct = c.presupuestoAsignado > 0 ? (c.gastoActual / c.presupuestoAsignado) * 100 : 0;
-                const alerta = pct > 90;
+              {centrosCosto.map((cc, i) => {
+                const saldo = cc.presupuestoAsignado - cc.gastoActual;
+                const pct = cc.presupuestoAsignado > 0 ? (cc.gastoActual / cc.presupuestoAsignado) * 100 : 0;
                 return (
-                  <tr key={c.id} className={`border-t ${alerta ? 'bg-red-50' : 'hover:bg-gray-50'}`}>
-                    <td className="p-2 font-mono text-xs">{c.codigo}</td>
-                    <td className="p-2">{c.nombre}</td>
-                    <td className="p-2 text-xs">
-                      <span className={`px-2 py-0.5 rounded text-xs ${
-                        c.tipo === 'directo' ? 'bg-blue-100 text-blue-700' :
-                        c.tipo === 'indirecto' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'
-                      }`}>{c.tipo}</span>
+                  <tr key={i} className="border-t hover:bg-slate-50">
+                    <td className="p-2 font-mono text-xs">{cc.codigo}</td>
+                    <td className="p-2">{cc.nombre}</td>
+                    <td className="p-2 text-xs text-slate-500">{proyectos.find(p => p.id === cc.proyectoId)?.nombre || cc.proyectoId}</td>
+                    <td className="p-2 text-right">Q{cc.presupuestoAsignado.toLocaleString()}</td>
+                    <td className="p-2 text-right">Q{cc.gastoActual.toLocaleString()}</td>
+                    <td className={`p-2 text-right font-semibold ${saldo < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      Q{saldo.toLocaleString()}
                     </td>
-                    <td className="p-2 text-right font-mono">Q{c.presupuestoAsignado.toLocaleString()}</td>
-                    <td className="p-2 text-right font-mono">Q{c.gastoActual.toLocaleString()}</td>
                     <td className="p-2 text-right">
-                      <div className="flex items-center gap-2 justify-end">
-                        <div className="w-20 bg-gray-200 rounded-full h-1.5">
-                          <div className={`rounded-full h-1.5 ${alerta ? 'bg-red-500' : 'bg-blue-500'}`}
-                            style={{ width: `${Math.min(pct, 100)}%` }} />
-                        </div>
-                        <span className={`text-xs font-bold ${alerta ? 'text-red-600' : 'text-gray-600'}`}>
-                          {pct.toFixed(0)}%
-                        </span>
-                      </div>
+                      <span className={`px-2 py-0.5 rounded text-[10px] ${pct > 90 ? 'bg-red-100 text-red-700' : pct > 70 ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
+                        {pct.toFixed(1)}%
+                      </span>
                     </td>
                   </tr>
                 );
@@ -91,135 +122,67 @@ export const Administracion: React.FC = () => {
             </tbody>
           </table>
         </div>
-        {centrosCosto.length === 0 && <p className="text-gray-400 text-sm text-center py-8">No hay centros de costo configurados</p>}
       </div>
     );
   };
 
-  // ---- LOGS DE AUDITORÍA CON FILTRO POR PROYECTO ----
-  const [filtroLogProyecto, setFiltroLogProyecto] = useState<string>('');
-  const renderLogs = () => {
-    // Filtrar logs por proyecto usando entidadId o búsqueda en detalle
-    const logsFiltrados = filtroLogProyecto
-      ? logs.filter(l =>
-          l.entidadId === filtroLogProyecto ||
-          (l.valoresNuevos && JSON.stringify(l.valoresNuevos).includes(filtroLogProyecto)) ||
-          (l.valoresAnteriores && JSON.stringify(l.valoresAnteriores).includes(filtroLogProyecto))
-        )
-      : logs;
-    return (
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold">📋 Logs de Auditoría</h2>
-          <div className="flex items-center gap-2">
-            <select
-              value={filtroLogProyecto}
-              onChange={e => setFiltroLogProyecto(e.target.value)}
-              className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none bg-white"
-            >
-              <option value="">Todos los proyectos</option>
-              {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-            </select>
-            <span className="text-xs text-gray-500">{logsFiltrados.length} registros</span>
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 text-left">Fecha</th>
-                <th className="p-2 text-left">Usuario</th>
-                <th className="p-2 text-left">Acción</th>
-                <th className="p-2 text-left">Entidad</th>
-                <th className="p-2 text-left">Proyecto</th>
-                <th className="p-2 text-left">Detalle</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logsFiltrados.slice(0, 100).map(l => {
-                const proyectoRel = l.entidadId ? proyectos.find(p => p.id === l.entidadId) : null;
-                return (
-                  <tr key={l.id} className="border-t hover:bg-gray-50">
-                    <td className="p-2 text-xs">{new Date(l.createdAt).toLocaleString()}</td>
-                    <td className="p-2 text-xs">{l.usuarioNombre}</td>
-                    <td className="p-2">
-                      <span className={`px-2 py-0.5 rounded text-xs ${
-                        l.accion === 'UPDATE' ? 'bg-yellow-100 text-yellow-700' :
-                        l.accion === 'DELETE' ? 'bg-red-100 text-red-700' :
-                        l.accion === 'CREATE' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-                      }`}>{l.accion}</span>
-                    </td>
-                    <td className="p-2 text-xs font-mono">{l.entidad}</td>
-                    <td className="p-2 text-xs">
-                      {proyectoRel ? (
-                        <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px]">{proyectoRel.nombre}</span>
-                      ) : (
-                        <span className="text-gray-400">—</span>
-                      )}
-                    </td>
-                    <td className="p-2 text-xs text-gray-500 max-w-xs truncate">
-                      {l.valoresNuevos ? JSON.stringify(l.valoresNuevos).slice(0, 80) : '—'}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        {logsFiltrados.length === 0 && <p className="text-gray-400 text-sm text-center py-8">No hay registros de auditoría para este filtro</p>}
-      </div>
-    );
-  };
-
-  // ---- VALIDACIÓN DE PRECIOS ----
-  const renderValidacion = () => (
+  // ---- LOGS DE AUDITORÍA ----
+  const renderLogs = () => (
     <div>
-      <div className="mb-4">
-        <h2 className="text-lg font-bold">✅ Validación de Precios en Sub-Renglones</h2>
-        <p className="text-sm text-gray-500 mt-1">Verifica precios de materiales ingresados en sub-renglones</p>
-      </div>
-      <div className="grid gap-3 max-w-lg">
-        {[
-          { nombre: 'Cemento UGC', precio: 92, esperado: '✅ OK' },
-          { nombre: 'Arena de río', precio: 145, esperado: '✅ OK' },
-          { nombre: 'Material sin precio', precio: 0, esperado: '⚠️ Alerta' },
-          { nombre: 'Material negativo', precio: -50, esperado: '⚠️ Alerta' },
-          { nombre: 'Acero premium', precio: 15000, esperado: '⚠️ Alerta' },
-        ].map((item, i) => {
-          const alerta = validarPrecioSubrenglon(item.precio, item.nombre);
-          return (
-            <div key={i} className={`p-3 rounded-lg border ${
-              alerta ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'
-            }`}>
-              <div className="flex justify-between items-center">
-                <span className="font-medium text-sm">{item.nombre}</span>
-                <span className={`font-mono text-sm ${alerta ? 'text-red-600' : 'text-green-600'}`}>
-                  Q{item.precio.toFixed(2)}
-                </span>
-              </div>
-              {alerta && (
-                <p className="text-xs text-red-600 mt-1">{alerta}</p>
-              )}
-              {!alerta && (
-                <p className="text-xs text-green-600 mt-1">✅ Precio válido</p>
-              )}
-            </div>
-          );
-        })}
+      <h2 className="text-lg font-bold mb-4">📋 Logs de Auditoría</h2>
+      <div className="overflow-x-auto max-h-96 overflow-y-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="bg-slate-100">
+              <th className="text-left p-2">Fecha</th>
+              <th className="text-left p-2">Usuario</th>
+              <th className="text-left p-2">Acción</th>
+              <th className="text-left p-2">Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            {logs.map((l, i) => (
+              <tr key={i} className="border-t hover:bg-slate-50">
+                <td className="p-2 whitespace-nowrap">{l.fecha}</td>
+                <td className="p-2">{l.usuario}</td>
+                <td className="p-2">{l.accion}</td>
+                <td className="p-2 text-slate-500 max-w-xs truncate">{l.detalle}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 
+  // ---- VALIDACIÓN DE PRECIOS ----
+  const renderValidacion = () => (
+    <div>
+      <h2 className="text-lg font-bold mb-4">✅ Validación de Precios en Subrenglones</h2>
+      <p className="text-sm text-slate-500 mb-4">
+        Verifica que los precios unitarios de los subrenglones estén dentro de rangos razonables (Q1 – Q10,000).
+      </p>
+      <button onClick={() => {
+        const result = validarPrecioSubrenglon();
+        toast.info(`Validación completada: ${result.length} precio(s) fuera de rango`);
+      }} className="bg-orange-500 text-white px-4 py-2 rounded text-sm hover:bg-orange-600">
+        🔍 Ejecutar Validación
+      </button>
+    </div>
+  );
+
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[1400px] mx-auto">
+      <h1 className="text-2xl font-black text-slate-800 mb-4">🔧 Administración del Sistema</h1>
+
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 border-b pb-2">
-        {[
-          { key: 'centros', label: '🏢 Centros Costo' },
-          { key: 'logs', label: '📋 Auditoría' },
-          { key: 'validacion', label: '✅ Validación Precios' },
-        ].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key as any)}
+      <div className="flex gap-1 mb-4 border-b">
+        {([
+          { key: 'centros' as const, label: '🏢 Centros Costo' },
+          { key: 'logs' as const, label: '📋 Auditoría' },
+          { key: 'validacion' as const, label: '✅ Validación Precios' },
+        ]).map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
             className={`px-4 py-2 rounded-t text-sm font-medium ${
               tab === t.key ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-500' : 'text-gray-500 hover:text-gray-700'
             }`}>{t.label}</button>
@@ -230,42 +193,41 @@ export const Administracion: React.FC = () => {
       {tab === 'logs' && renderLogs()}
       {tab === 'validacion' && renderValidacion()}
 
-      {/* Modal Centro Costo */}
+      {/* Modal Centro Costo con Zod validation */}
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowForm(false)}>
-          <div className="bg-white rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+          <form onSubmit={handleSubmit(onAddCentroCosto)} onClick={e => e.stopPropagation()} className="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 className="font-bold mb-4">Nuevo Centro de Costo</h3>
             <div className="grid gap-3">
-              <select className="w-full px-3 py-2 border rounded text-sm" id="cc-proyecto">
-                <option value="">Seleccionar proyecto</option>
-                {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-              </select>
-              <input placeholder="Código (ej: CC-001)" className="w-full px-3 py-2 border rounded text-sm" id="cc-codigo" />
-              <input placeholder="Nombre" className="w-full px-3 py-2 border rounded text-sm" id="cc-nombre" />
-              <input placeholder="Presupuesto asignado Q" type="number" className="w-full px-3 py-2 border rounded text-sm" id="cc-presupuesto" />
-              <select className="w-full px-3 py-2 border rounded text-sm" id="cc-tipo">
-                <option value="directo">Directo</option>
-                <option value="indirecto">Indirecto</option>
-                <option value="administrativo">Administrativo</option>
-              </select>
-              <button onClick={() => {
-                const sel = document.getElementById('cc-proyecto') as HTMLSelectElement;
-                const cod = document.getElementById('cc-codigo') as HTMLInputElement;
-                const nom = document.getElementById('cc-nombre') as HTMLInputElement;
-                const pre = document.getElementById('cc-presupuesto') as HTMLInputElement;
-                const tipo = document.getElementById('cc-tipo') as HTMLSelectElement;
-                addCentroCosto({
-                  proyectoId: sel?.value || 'p1',
-                  codigo: cod?.value || `CC-${String(centrosCosto.length + 1).padStart(3, '0')}`,
-                  nombre: nom?.value || 'Nuevo centro',
-                  presupuestoAsignado: parseFloat(pre?.value || '0'),
-                  gastoActual: 0,
-                  tipo: (tipo?.value as any) || 'directo'
-                });
-                setShowForm(false);
-              }} className="bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700">Guardar</button>
+              <div>
+                <select {...register('proyectoId')} className={`w-full px-3 py-2 border rounded text-sm ${errors.proyectoId ? 'border-red-500' : ''}`}>
+                  <option value="">Seleccionar proyecto</option>
+                  {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                </select>
+                {errors.proyectoId && <p className="text-xs text-red-500 mt-1">{errors.proyectoId.message}</p>}
+              </div>
+              <div>
+                <input {...register('codigo')} placeholder="Código (ej: CC-001)" className={`w-full px-3 py-2 border rounded text-sm ${errors.codigo ? 'border-red-500' : ''}`} />
+                {errors.codigo && <p className="text-xs text-red-500 mt-1">{errors.codigo.message}</p>}
+              </div>
+              <div>
+                <input {...register('nombre')} placeholder="Nombre del centro de costo" className={`w-full px-3 py-2 border rounded text-sm ${errors.nombre ? 'border-red-500' : ''}`} />
+                {errors.nombre && <p className="text-xs text-red-500 mt-1">{errors.nombre.message}</p>}
+              </div>
+              <div>
+                <input {...register('presupuestoAsignado')} type="number" placeholder="Presupuesto asignado Q" className={`w-full px-3 py-2 border rounded text-sm ${errors.presupuestoAsignado ? 'border-red-500' : ''}`} />
+                {errors.presupuestoAsignado && <p className="text-xs text-red-500 mt-1">{errors.presupuestoAsignado.message}</p>}
+              </div>
+              <div>
+                <select {...register('tipo')} className="w-full px-3 py-2 border rounded text-sm">
+                  <option value="directo">Directo</option>
+                  <option value="indirecto">Indirecto</option>
+                  <option value="administrativo">Administrativo</option>
+                </select>
+              </div>
+              <button type="submit" className="bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700">Guardar</button>
             </div>
-          </div>
+          </form>
         </div>
       )}
     </div>
