@@ -1,27 +1,86 @@
-import React, { useState, useMemo } from 'react';
-import { useErp } from '../store';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useErp, supabase } from '../store';
 import { Hito } from '../types';
 import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter, Calendar } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { todayISO } from '../utils';
+import { useNotifications } from '../hooks/useNotifications';
+
+const STORAGE_KEY = 'wm_hitos';
 
 const HitosScreen: React.FC = () => {
-  const { proyectos, updateProyecto } = useErp();
+  const { proyectos, updateProyecto, selectedProyectoId, setSelectedProyectoId } = useErp();
+  const { showLocalNotification } = useNotifications();
   const [hitos, setHitos] = useState<Hito[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_hitos') || '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
   });
+  const [synced, setSynced] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [vista, setVista] = useState<'lista' | 'calendario'>('lista');
   const [mesCalendario, setMesCalendario] = useState(() => {
     const d = new Date(); return { year: d.getFullYear(), month: d.getMonth() };
   });
-  const [filtroProy, setFiltroProy] = useState('');
   const [form, setForm] = useState({ proyectoId: '', nombre: '', descripcion: '', fecha: '', tipo: 'hito' as Hito['tipo'], responsable: '', dependeDe: [] as string[] });
 
-  const save = (h: Hito[]) => {
-    setHitos(h);
-    localStorage.setItem('wm_hitos', JSON.stringify(h));
+  useEffect(() => {
+    if (selectedProyectoId && !form.proyectoId) {
+      setForm(prev => ({ ...prev, proyectoId: selectedProyectoId }));
+    }
+  }, [selectedProyectoId]);
+
+  useEffect(() => {
+    if (!synced) {
+      syncFromSupabase();
+      setSynced(true);
+    }
+  }, [synced]);
+
+  const syncFromSupabase = async () => {
+    if (!supabase) return;
+    try {
+      const { data, error } = await supabase.from('hitos').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const mapped: Hito[] = data.map((r: any) => ({
+          id: r.id, proyectoId: r.proyecto_id, nombre: r.nombre,
+          descripcion: r.descripcion || '', fecha: r.fecha,
+          tipo: r.tipo, estado: r.estado,
+          responsable: r.responsable || '', dependeDe: r.depende_de || undefined,
+          completadoEn: r.completado_en || undefined, createdAt: r.created_at,
+        }));
+        const localIds = new Set(hitos.map(h => h.id));
+        const nuevos = mapped.filter(h => !localIds.has(h.id));
+        if (nuevos.length > 0) setHitos(prev => [...nuevos, ...prev]);
+      }
+    } catch (e) { console.warn('[Hitos] Error sync Supabase:', e); }
+  };
+
+  const syncToSupabase = async (h: Hito[]) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(h));
+    if (!supabase) return;
+    try {
+      const { error } = await supabase.from('hitos').upsert(
+        h.map(hi => ({
+          id: hi.id, proyecto_id: hi.proyectoId, nombre: hi.nombre,
+          descripcion: hi.descripcion || null, fecha: hi.fecha,
+          tipo: hi.tipo, estado: hi.estado,
+          responsable: hi.responsable || null, depende_de: hi.dependeDe || null,
+          completado_en: hi.completadoEn || null, created_at: hi.createdAt,
+        })),
+        { onConflict: 'id' }
+      );
+      if (error) console.warn('[Hitos] Error sync Supabase:', error);
+      const hoy = todayISO();
+      const vencidos = h.filter(hi => hi.estado === 'pendiente' && hi.fecha < hoy);
+      if (vencidos.length > 0 && selectedProyectoId) {
+        const proy = proyectos.find(p => p.id === selectedProyectoId);
+        showLocalNotification('Hitos vencidos', {
+          body: `${vencidos.length} hito(s) vencido(s) en ${proy?.nombre || 'el proyecto'}`,
+          tag: 'hitos-vencidos', url: '/hitos',
+        });
+      }
+    } catch (e) { console.warn('[Hitos] Error sync Supabase:', e); }
   };
 
   const agregar = () => {
@@ -41,17 +100,16 @@ const HitosScreen: React.FC = () => {
       dependeDe: form.dependeDe.length > 0 ? form.dependeDe : undefined,
       createdAt: new Date().toISOString(),
     };
-    save([nuevo, ...hitos]);
+    syncToSupabase([nuevo, ...hitos]);
+    setHitos(prev => [nuevo, ...prev]);
     toast.success('Hito creado');
     setShowForm(false);
-    setForm({ proyectoId: '', nombre: '', descripcion: '', fecha: '', tipo: 'hito', responsable: '', dependeDe: [] });
+    setForm({ proyectoId: selectedProyectoId || '', nombre: '', descripcion: '', fecha: '', tipo: 'hito', responsable: '', dependeDe: [] });
   };
 
   const completar = (id: string) => {
     const hito = hitos.find(h => h.id === id);
     if (!hito) return;
-
-    // Validar dependencias: todos los predecesores deben estar completados
     if (hito.dependeDe && hito.dependeDe.length > 0) {
       const predecesoresPendientes = hito.dependeDe.filter(depId => {
         const dep = hitos.find(h => h.id === depId);
@@ -63,31 +121,46 @@ const HitosScreen: React.FC = () => {
         return;
       }
     }
-
     const fechaHoy = todayISO();
     const retrasado = hito.fecha < fechaHoy;
-    save(hitos.map(h => h.id === id ? { ...h, estado: retrasado ? 'retrasado' as const : 'completado' as const, completadoEn: fechaHoy } : h));
+    const nuevos = hitos.map(h => h.id === id ? { ...h, estado: retrasado ? 'retrasado' as const : 'completado' as const, completadoEn: fechaHoy } : h);
+    syncToSupabase(nuevos);
+    setHitos(nuevos);
     if (hito.tipo === 'cierre') {
       updateProyecto(hito.proyectoId, { estado: 'finalizado' });
+      showLocalNotification('Proyecto finalizado', {
+        body: `"${hito.nombre}" completó el proyecto.`,
+        tag: 'proyecto-finalizado', url: '/proyectos',
+      });
     }
     toast.success(retrasado ? '⚠️ Hito completado con retraso' : '✅ Hito completado');
   };
 
   const eliminar = (id: string) => {
-    if (confirm('¿Eliminar este hito?')) save(hitos.filter(h => h.id !== id));
+    if (!confirm('¿Eliminar este hito?')) return;
+    const nuevos = hitos.filter(h => h.id !== id);
+    syncToSupabase(nuevos);
+    setHitos(nuevos);
   };
 
   const hoy = todayISO();
-  const pendientesVencidos = hitos.filter(h => h.estado === 'pendiente' && h.fecha < hoy);
-  const completados = hitos.filter(h => h.estado === 'completado' || h.estado === 'retrasado');
-  const hitosFiltrados = filtroProy ? hitos.filter(h => h.proyectoId === filtroProy) : hitos;
+  const hitosFiltrados = useMemo(() => {
+    let filtrados = hitos;
+    if (selectedProyectoId) filtrados = filtrados.filter(h => h.proyectoId === selectedProyectoId);
+    return filtrados;
+  }, [hitos, selectedProyectoId]);
+
+  const pendientesVencidos = hitosFiltrados.filter(h => h.estado === 'pendiente' && h.fecha < hoy);
+  const completados = hitosFiltrados.filter(h => h.estado === 'completado' || h.estado === 'retrasado');
+  const proyActual = selectedProyectoId ? proyectos.find(p => p.id === selectedProyectoId) : null;
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-            <Flag className="w-6 h-6 text-emerald-500" /> Hitos del Proyecto
+            <Flag className="w-6 h-6 text-emerald-500" /> Hitos
+            {proyActual && <span className="text-base font-normal text-slate-400">— {proyActual.nombre}</span>}
           </h1>
           <p className="text-sm text-slate-400">Milestones y fases críticas del cronograma</p>
         </div>
@@ -96,11 +169,10 @@ const HitosScreen: React.FC = () => {
         </button>
       </div>
 
-      {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
         <div className="bg-white rounded-xl p-3 border border-slate-100">
           <div className="flex items-center gap-2"><Flag className="w-4 h-4 text-blue-500" /><span className="text-xs text-slate-500">Total hitos</span></div>
-          <div className="text-xl font-bold text-slate-800">{hitos.length}</div>
+          <div className="text-xl font-bold text-slate-800">{hitosFiltrados.length}</div>
         </div>
         <div className="bg-white rounded-xl p-3 border border-slate-100">
           <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-500" /><span className="text-xs text-slate-500">Completados</span></div>
@@ -108,7 +180,7 @@ const HitosScreen: React.FC = () => {
         </div>
         <div className="bg-white rounded-xl p-3 border border-slate-100">
           <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-amber-500" /><span className="text-xs text-slate-500">Pendientes</span></div>
-          <div className="text-xl font-bold text-amber-600">{hitos.length - completados.length}</div>
+          <div className="text-xl font-bold text-amber-600">{hitosFiltrados.length - completados.length}</div>
         </div>
         <div className={`rounded-xl p-3 border ${pendientesVencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-100'}`}>
           <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /><span className="text-xs text-slate-500">Vencidos</span></div>
@@ -116,40 +188,38 @@ const HitosScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Filtro por proyecto */}
-      {hitos.length > 0 && (
+      {/* Filtro global por proyecto */}
+      {proyectos.length > 0 && (
         <div className="flex items-center gap-2 mb-3">
           <Filter className="w-4 h-4 text-slate-400" />
-          <select value={filtroProy} onChange={e => setFiltroProy(e.target.value)} className={`${INPUT} max-w-xs`}>
+          <select value={selectedProyectoId || ''} onChange={e => setSelectedProyectoId(e.target.value || null)} className={`${INPUT} max-w-xs`}>
             <option value="">Todos los proyectos</option>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
           </select>
         </div>
       )}
 
-      {/* Formulario */}
       {showForm && (
         <div className="bg-emerald-50 rounded-xl p-4 mb-4 border border-emerald-200 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input value={form.nombre} onChange={e => setForm(prev => ({ ...prev, nombre: e.target.value }))} placeholder="Nombre del hito *" className={INPUT} />
-            <select value={form.proyectoId} onChange={e => setForm(prev => ({ ...prev, proyectoId: e.target.value }))} className={INPUT}>
+            <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre del hito *" className={INPUT} />
+            <select value={form.proyectoId} onChange={e => setForm(p => ({ ...p, proyectoId: e.target.value }))} className={INPUT}>
               <option value="">Seleccionar proyecto *</option>
               {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <input type="date" value={form.fecha} onChange={e => setForm(prev => ({ ...prev, fecha: e.target.value }))} className={INPUT} />
-            <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value as any }))} className={INPUT}>
+            <input type="date" value={form.fecha} onChange={e => setForm(p => ({ ...p, fecha: e.target.value }))} className={INPUT} />
+            <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as any }))} className={INPUT}>
               <option value="inicio">Inicio</option>
               <option value="hito">Hito</option>
               <option value="entrega">Entrega</option>
               <option value="cierre">Cierre</option>
             </select>
-            <input value={form.responsable} onChange={e => setForm(prev => ({ ...prev, responsable: e.target.value }))} placeholder="Responsable" className={INPUT} />
+            <input value={form.responsable} onChange={e => setForm(p => ({ ...p, responsable: e.target.value }))} placeholder="Responsable" className={INPUT} />
           </div>
-          <textarea value={form.descripcion} onChange={e => setForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Descripción del hito" className={`${INPUT} min-h-[50px]`} />
+          <textarea value={form.descripcion} onChange={e => setForm(p => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción del hito" className={`${INPUT} min-h-[50px]`} />
 
-          {/* Selector de dependencias */}
           {form.proyectoId && (() => {
             const hitosMismoProy = hitos.filter(h => h.proyectoId === form.proyectoId);
             return hitosMismoProy.length > 0 ? (
@@ -158,13 +228,12 @@ const HitosScreen: React.FC = () => {
                 <div className="flex flex-wrap gap-1.5">
                   {hitosMismoProy.map(h => (
                     <button
-                      key={h.id}
-                      type="button"
+                      key={h.id} type="button"
                       onClick={() => {
                         const newDep = form.dependeDe.includes(h.id)
                           ? form.dependeDe.filter(id => id !== h.id)
                           : [...form.dependeDe, h.id];
-                        setForm(prev => ({ ...prev, dependeDe: newDep }));
+                        setForm(p => ({ ...p, dependeDe: newDep }));
                       }}
                       className={`px-2 py-1 rounded-lg text-[10px] border transition-colors ${
                         form.dependeDe.includes(h.id)
@@ -179,7 +248,7 @@ const HitosScreen: React.FC = () => {
                 <p className="text-[9px] text-slate-400 mt-1">Selecciona los hitos que deben completarse ANTES de este</p>
               </div>
             ) : (
-              <p className="text-[10px] text-slate-400 italic">Crea otros hitos primero para poder asignar dependencias</p>
+              <p className="text-[10px] text-slate-400 italic">Crea otros hitos primero para asignar dependencias</p>
             );
           })()}
 
@@ -190,19 +259,16 @@ const HitosScreen: React.FC = () => {
         </div>
       )}
 
-      {/* Toggle vista */}
       <div className="flex gap-2 mb-3">
         <button onClick={() => setVista('lista')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${vista === 'lista' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>📋 Lista</button>
         <button onClick={() => setVista('calendario')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${vista === 'calendario' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>📅 Calendario</button>
       </div>
 
-      {/* Vista Calendario */}
       {vista === 'calendario' && (() => {
         const year = mesCalendario.year;
         const month = mesCalendario.month;
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const firstDay = new Date(year, month, 1).getDay();
-        const today = todayISO();
         const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
         const cells: (number | null)[] = [];
@@ -222,7 +288,7 @@ const HitosScreen: React.FC = () => {
                 if (day === null) return <div key={`empty-${i}`} />;
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const hitosDelDia = hitosFiltrados.filter(h => h.fecha === dateStr);
-                const isToday = dateStr === today;
+                const isToday = dateStr === hoy;
                 return (
                   <div key={day} className={`min-h-[48px] p-0.5 rounded text-[10px] ${isToday ? 'bg-emerald-50 ring-1 ring-emerald-300' : 'hover:bg-slate-50'}`}>
                     <div className={`text-[10px] font-bold ${isToday ? 'text-emerald-600' : 'text-slate-600'}`}>{day}</div>
@@ -239,12 +305,11 @@ const HitosScreen: React.FC = () => {
         );
       })()}
 
-      {/* Timeline de hitos */}
       <div className="space-y-2">
         {hitosFiltrados.length === 0 ? (
           <div className="text-center py-10 text-slate-400">
             <Flag className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-            <p className="text-sm">Sin hitos{filtroProy ? ' para este proyecto' : ' definidos'}. Crea el primero para tu proyecto.</p>
+            <p className="text-sm">Sin hitos para {proyActual?.nombre || 'el filtro actual'}. Crea el primero.</p>
           </div>
         ) : hitosFiltrados.sort((a, b) => a.fecha.localeCompare(b.fecha)).map(h => {
           const esVencido = h.estado === 'pendiente' && h.fecha < hoy;
