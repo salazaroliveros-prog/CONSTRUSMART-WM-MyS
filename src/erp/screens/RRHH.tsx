@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useErp } from '../store';
 import { fmtQ, factorSalarioReal, FSR_PRESTACIONES } from '../utils';
 import { CARD, CARD_TITLE, BUTTON_DARK, BUTTON_ACCENT, INPUT, ERROR_STATE } from '../ui';
+import { toast } from 'sonner';
 import { Users, Plus, Trash2 } from 'lucide-react';
 import { BarChart } from '../components/Charts';
 
@@ -59,6 +60,10 @@ const RRHH: React.FC = () => {
       const empleadosEnProyecto = proyectos.find(p => p.id === data.proyectoId)
         ?.nombre || '';
       if (countAsignado >= 3) {
+        toast.warning(
+          `El proyecto "${empleadosEnProyecto}" ya tiene ${countAsignado} empleados asignados.`,
+          { duration: 5000 }
+        );
         const ok = window.confirm(
           `⚠️ El proyecto "${empleadosEnProyecto}" ya tiene ${countAsignado} empleados asignados. ` +
           '¿Asignar este empleado de todas formas?'
