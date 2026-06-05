@@ -1,28 +1,54 @@
 import React, { useState } from 'react';
 import { useNuevosModulos } from '../hooks/useNuevosModulos';
 import { ActivoHerramienta, PagoProveedor } from '../types';
-import { supabase } from '../../lib/supabase';
+import { z } from 'zod';
+import { toast } from 'sonner';
 
 const uid = () => Math.random().toString(36).substr(2, 9);
+
+// Zod schemas
+const activoSchema = z.object({
+  nombre: z.string().min(1, 'Nombre requerido').max(100, 'Máximo 100 caracteres'),
+  codigoInventario: z.string().min(1, 'Código requerido').max(50, 'Máximo 50 caracteres'),
+  tipo: z.enum(['herramienta', 'equipo', 'vehiculo', 'accesorio']),
+  valorAdquisicion: z.coerce.number().min(0, 'Debe ser ≥ 0').max(9_999_999, 'Monto muy alto'),
+});
+
+const cuadroSchema = z.object({
+  solicitud: z.string().min(3, 'Mínimo 3 caracteres').max(200, 'Máximo 200 caracteres'),
+});
+
+const pagoSchema = z.object({
+  proveedorNombre: z.string().min(1, 'Proveedor requerido').max(100, 'Máximo 100 caracteres'),
+  concepto: z.string().min(1, 'Concepto requerido').max(200, 'Máximo 200 caracteres'),
+  monto: z.coerce.number().min(1, 'Debe ser ≥ Q1').max(99_999_999, 'Monto muy alto'),
+  fechaVencimiento: z.string().min(1, 'Fecha requerida'),
+});
 
 export const LogisticaCompras: React.FC = () => {
   const {
     activos, addActivo, updateActivo, deleteActivo,
     cuadros, addCuadro, addCotizacion, selectCotizacion,
-    pagos, addPago, updatePago, pagosVencidos, pagosProximos,
-    verificarExplosionMateriales
+    pagos, addPago, updatePago, pagosVencidos,
   } = useNuevosModulos();
 
   const [tab, setTab] = useState<'activos' | 'cuadros' | 'pagos'>('activos');
   const [showForm, setShowForm] = useState<string | null>(null);
   const [form, setForm] = useState<any>({});
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => setFormErrors(prev => ({ ...prev, [field]: '' }));
+  const updateForm = (field: string, value: any) => {
+    setForm((prev: any) => ({ ...prev, [field]: value }));
+    clearError(field);
+  };
 
   // ---- ACTIVE RENDERS ----
   const renderActivos = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">🔧 Control de Activos y Herramientas</h2>
-        <button onClick={() => { setShowForm('activo'); setForm({}); }}
+        <button onClick={() => { setShowForm('activo'); setForm({}); setFormErrors({}); }}
           className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs">+ Nuevo Activo</button>
       </div>
       <div className="overflow-x-auto">
@@ -82,7 +108,7 @@ export const LogisticaCompras: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">📊 Cuadro Comparativo de Proveedores</h2>
-        <button onClick={() => { setShowForm('cuadro'); setForm({}); }}
+        <button onClick={() => { setShowForm('cuadro'); setForm({}); setFormErrors({}); }}
           className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs">+ Nueva Solicitud</button>
       </div>
       <div className="grid gap-3">
@@ -148,11 +174,10 @@ export const LogisticaCompras: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">💰 Programación de Pagos a Proveedores</h2>
-        <button onClick={() => { setShowForm('pago'); setForm({}); }}
+        <button onClick={() => { setShowForm('pago'); setForm({}); setFormErrors({}); }}
           className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs">+ Nuevo Pago</button>
       </div>
 
-      {/* Alertas de vencidos */}
       {pagosVencidos.length > 0 && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm font-bold text-red-700">⚠️ {pagosVencidos.length} pago(s) vencido(s)</p>
@@ -212,6 +237,8 @@ export const LogisticaCompras: React.FC = () => {
     </div>
   );
 
+  const fc = (field: string) => `w-full px-3 py-2 border rounded text-sm outline-none ${formErrors[field] ? 'border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-400'}`;
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       {/* Tabs */}
@@ -232,9 +259,9 @@ export const LogisticaCompras: React.FC = () => {
       {tab === 'cuadros' && renderCuadros()}
       {tab === 'pagos' && renderPagos()}
 
-      {/* Modal forms */}
+      {/* Modal with Zod validation */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowForm(null)}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => { setShowForm(null); setFormErrors({}); }}>
           <div className="bg-white rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4">
               {showForm === 'activo' && 'Nuevo Activo / Herramienta'}
@@ -243,65 +270,119 @@ export const LogisticaCompras: React.FC = () => {
             </h3>
             {showForm === 'activo' && (
               <div className="grid gap-3">
-                <input placeholder="Nombre del activo" className="w-full px-3 py-2 border rounded text-sm"
-                  value={form.nombre || ''} onChange={e => setForm({ ...form, nombre: e.target.value })} />
-                <input placeholder="Código de inventario" className="w-full px-3 py-2 border rounded text-sm"
-                  value={form.codigoInventario || ''} onChange={e => setForm({ ...form, codigoInventario: e.target.value })} />
+                <div>
+                  <input placeholder="Nombre del activo *" className={fc('nombre')}
+                    value={form.nombre || ''} onChange={e => updateForm('nombre', e.target.value)} />
+                  {formErrors.nombre && <p className="text-xs text-red-500 mt-1">{formErrors.nombre}</p>}
+                </div>
+                <div>
+                  <input placeholder="Código de inventario *" className={fc('codigoInventario')}
+                    value={form.codigoInventario || ''} onChange={e => updateForm('codigoInventario', e.target.value)} />
+                  {formErrors.codigoInventario && <p className="text-xs text-red-500 mt-1">{formErrors.codigoInventario}</p>}
+                </div>
                 <select className="w-full px-3 py-2 border rounded text-sm"
-                  value={form.tipo || 'herramienta'} onChange={e => setForm({ ...form, tipo: e.target.value })}>
+                  value={form.tipo || 'herramienta'} onChange={e => updateForm('tipo', e.target.value)}>
                   <option value="herramienta">Herramienta</option><option value="equipo">Equipo</option>
                   <option value="vehiculo">Vehículo</option><option value="accesorio">Accesorio</option>
                 </select>
-                <input placeholder="Valor de adquisición Q" type="number" className="w-full px-3 py-2 border rounded text-sm"
-                  value={form.valorAdquisicion || ''} onChange={e => setForm({ ...form, valorAdquisicion: +e.target.value })} />
+                <div>
+                  <input placeholder="Valor de adquisición Q *" type="number" className={fc('valorAdquisicion')}
+                    value={form.valorAdquisicion || ''} onChange={e => updateForm('valorAdquisicion', e.target.value)} />
+                  {formErrors.valorAdquisicion && <p className="text-xs text-red-500 mt-1">{formErrors.valorAdquisicion}</p>}
+                </div>
                 <button onClick={() => {
+                  const result = activoSchema.safeParse(form);
+                  if (!result.success) {
+                    const errs: Record<string, string> = {};
+                    result.error.errors.forEach(e => { errs[e.path[0] as string] = e.message; });
+                    setFormErrors(errs);
+                    toast.error('Corrige los errores del formulario');
+                    return;
+                  }
                   addActivo({
-                    nombre: form.nombre || 'Nuevo activo',
-                    codigoInventario: form.codigoInventario || `ACT-${uid().slice(0,5).toUpperCase()}`,
-                    tipo: form.tipo || 'herramienta',
-                    valorAdquisicion: form.valorAdquisicion || 0,
+                    nombre: result.data.nombre,
+                    codigoInventario: result.data.codigoInventario,
+                    tipo: result.data.tipo,
+                    valorAdquisicion: result.data.valorAdquisicion,
                     estado: 'disponible',
                     fechaAdquisicion: new Date().toISOString().split('T')[0]
                   });
                   setShowForm(null);
+                  setFormErrors({});
+                  toast.success('Activo creado');
                 }} className="bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700">Guardar</button>
               </div>
             )}
             {showForm === 'cuadro' && (
               <div className="grid gap-3">
-                <input placeholder="Descripción de lo que se cotiza" className="w-full px-3 py-2 border rounded text-sm"
-                  value={form.solicitud || ''} onChange={e => setForm({ ...form, solicitud: e.target.value })} />
+                <div>
+                  <input placeholder="Descripción de lo que se cotiza *" className={fc('solicitud')}
+                    value={form.solicitud || ''} onChange={e => updateForm('solicitud', e.target.value)} />
+                  {formErrors.solicitud && <p className="text-xs text-red-500 mt-1">{formErrors.solicitud}</p>}
+                </div>
                 <button onClick={() => {
+                  const result = cuadroSchema.safeParse(form);
+                  if (!result.success) {
+                    const errs: Record<string, string> = {};
+                    result.error.errors.forEach(e => { errs[e.path[0] as string] = e.message; });
+                    setFormErrors(errs);
+                    toast.error('Corrige los errores del formulario');
+                    return;
+                  }
                   addCuadro({
-                    solicitud: form.solicitud || 'Nueva cotización',
+                    solicitud: result.data.solicitud,
                     fechaSolicitud: new Date().toISOString().split('T')[0],
                     estado: 'abierto'
                   });
                   setShowForm(null);
+                  setFormErrors({});
+                  toast.success('Solicitud creada');
                 }} className="bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700">Crear Solicitud</button>
               </div>
             )}
             {showForm === 'pago' && (
               <div className="grid gap-3">
-                <input placeholder="Nombre del proveedor" className="w-full px-3 py-2 border rounded text-sm"
-                  value={form.proveedorNombre || ''} onChange={e => setForm({ ...form, proveedorNombre: e.target.value })} />
-                <input placeholder="Concepto" className="w-full px-3 py-2 border rounded text-sm"
-                  value={form.concepto || ''} onChange={e => setForm({ ...form, concepto: e.target.value })} />
-                <input placeholder="Monto Q" type="number" className="w-full px-3 py-2 border rounded text-sm"
-                  value={form.monto || ''} onChange={e => setForm({ ...form, monto: +e.target.value })} />
-                <input placeholder="Fecha de vencimiento" type="date" className="w-full px-3 py-2 border rounded text-sm"
-                  value={form.fechaVencimiento || ''} onChange={e => setForm({ ...form, fechaVencimiento: e.target.value })} />
+                <div>
+                  <input placeholder="Nombre del proveedor *" className={fc('proveedorNombre')}
+                    value={form.proveedorNombre || ''} onChange={e => updateForm('proveedorNombre', e.target.value)} />
+                  {formErrors.proveedorNombre && <p className="text-xs text-red-500 mt-1">{formErrors.proveedorNombre}</p>}
+                </div>
+                <div>
+                  <input placeholder="Concepto *" className={fc('concepto')}
+                    value={form.concepto || ''} onChange={e => updateForm('concepto', e.target.value)} />
+                  {formErrors.concepto && <p className="text-xs text-red-500 mt-1">{formErrors.concepto}</p>}
+                </div>
+                <div>
+                  <input placeholder="Monto Q *" type="number" className={fc('monto')}
+                    value={form.monto || ''} onChange={e => updateForm('monto', e.target.value)} />
+                  {formErrors.monto && <p className="text-xs text-red-500 mt-1">{formErrors.monto}</p>}
+                </div>
+                <div>
+                  <input placeholder="Fecha de vencimiento *" type="date" className={fc('fechaVencimiento')}
+                    value={form.fechaVencimiento || ''} onChange={e => updateForm('fechaVencimiento', e.target.value)} />
+                  {formErrors.fechaVencimiento && <p className="text-xs text-red-500 mt-1">{formErrors.fechaVencimiento}</p>}
+                </div>
                 <button onClick={() => {
+                  const result = pagoSchema.safeParse(form);
+                  if (!result.success) {
+                    const errs: Record<string, string> = {};
+                    result.error.errors.forEach(e => { errs[e.path[0] as string] = e.message; });
+                    setFormErrors(errs);
+                    toast.error('Corrige los errores del formulario');
+                    return;
+                  }
                   addPago({
                     proveedorId: uid(),
-                    proveedorNombre: form.proveedorNombre || 'Proveedor',
-                    concepto: form.concepto || 'Pago',
-                    monto: form.monto || 0,
+                    proveedorNombre: result.data.proveedorNombre,
+                    concepto: result.data.concepto,
+                    monto: result.data.monto,
                     fechaEmision: new Date().toISOString().split('T')[0],
-                    fechaVencimiento: form.fechaVencimiento || new Date().toISOString().split('T')[0],
+                    fechaVencimiento: result.data.fechaVencimiento,
                     estado: 'pendiente'
                   });
                   setShowForm(null);
+                  setFormErrors({});
+                  toast.success('Pago creado');
                 }} className="bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700">Guardar</button>
               </div>
             )}
