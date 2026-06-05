@@ -322,8 +322,34 @@ const ExportacionInteligente: React.FC = () => {
         const wsPres = XLSX.utils.json_to_sheet(presData);
         XLSX.utils.book_append_sheet(wb, wsPres, 'Presupuestos');
 
+        // Hoja: EERR (Estado de Resultados por Proyecto)
+        const eerrData = proyectos.map(p => {
+          const movsProy = movimientos.filter(m => m.proyectoId === p.id);
+          const ingresos = movsProy.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.costoTotal ?? m.monto), 0);
+          const costosDirectos = movsProy.filter(m => m.tipo === 'gasto' || m.tipo === 'egreso').reduce((a, m) => a + (m.costoTotal ?? m.monto), 0);
+          const utilidadBruta = ingresos - costosDirectos;
+          const gastosAdmin = costosDirectos * 0.10; // 10% administración estimada
+          const utilidadNeta = utilidadBruta - gastosAdmin;
+          const margenBruto = ingresos > 0 ? (utilidadBruta / ingresos) * 100 : 0;
+          const margenNeto = ingresos > 0 ? (utilidadNeta / ingresos) * 100 : 0;
+          const roi = costosDirectos > 0 ? ((utilidadNeta / costosDirectos) * 100) : 0;
+          return {
+            'Proyecto': p.nombre,
+            'Ingresos (Q)': Math.round(ingresos * 100) / 100,
+            'Costos Directos (Q)': Math.round(costosDirectos * 100) / 100,
+            'Utilidad Bruta (Q)': Math.round(utilidadBruta * 100) / 100,
+            'Gastos Administración (Q)': Math.round(gastosAdmin * 100) / 100,
+            'Utilidad Neta (Q)': Math.round(utilidadNeta * 100) / 100,
+            'Margen Bruto %': Math.round(margenBruto * 10) / 10,
+            'Margen Neto %': Math.round(margenNeto * 10) / 10,
+            'ROI %': Math.round(roi * 10) / 10,
+          };
+        });
+        const wsEERR = XLSX.utils.json_to_sheet(eerrData);
+        XLSX.utils.book_append_sheet(wb, wsEERR, 'EERR');
+
         // Auto-size column widths
-        [wsProy, wsMov, wsEmp, wsMat, wsPres].forEach(ws => {
+        [wsProy, wsMov, wsEmp, wsMat, wsPres, wsEERR].forEach(ws => {
           if (!ws['!cols']) {
             const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
             ws['!cols'] = [];
@@ -339,7 +365,7 @@ const ExportacionInteligente: React.FC = () => {
         });
 
         XLSX.writeFile(wb, `construsmart-export-${todayISO()}.xlsx`);
-        toast.success('✅ Excel exportado exitosamente (5 hojas)');
+        toast.success('✅ Excel exportado exitosamente (6 hojas: EERR incluido)');
       } catch (err) {
         console.error('XLSX error:', err);
         toast.error('Error al exportar Excel');
@@ -376,7 +402,7 @@ const ExportacionInteligente: React.FC = () => {
           <Table className={`w-8 h-8 ${exportando === 'xlsx' ? 'text-emerald-500' : 'text-emerald-400'}`} />
           <div className="text-left">
             <p className="text-sm font-bold text-slate-700">Exportar Excel</p>
-            <p className="text-[10px] text-slate-400">5 hojas con formato profesional .xlsx</p>
+            <p className="text-[10px] text-slate-400">6 hojas con formato profesional .xlsx</p>
           </div>
         </button>
 

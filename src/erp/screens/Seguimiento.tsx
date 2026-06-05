@@ -96,6 +96,7 @@ const Seguimiento: React.FC = () => {
         fechaInicio: inicio,
         fechaFin: fin,
         avance: Math.min(100, Math.round((offset / totalDays) * 100)),
+        dependencias: r.predecesores || [],
         subRenglones: r.subRenglones?.map(s => ({
           nombre: s.nombreMaterial,
           cantidad: s.cantidadUnitaria * r.cantidad,
