@@ -96,48 +96,80 @@ export const Administracion: React.FC = () => {
     );
   };
 
-  // ---- LOGS DE AUDITORÍA ----
-  const renderLogs = () => (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold">📋 Logs de Auditoría</h2>
-        <span className="text-xs text-gray-500">Últimos 500 registros (imborrables)</span>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 text-left">Fecha</th>
-              <th className="p-2 text-left">Usuario</th>
-              <th className="p-2 text-left">Acción</th>
-              <th className="p-2 text-left">Entidad</th>
-              <th className="p-2 text-left">Detalle</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logs.slice(0, 100).map(l => (
-              <tr key={l.id} className="border-t hover:bg-gray-50">
-                <td className="p-2 text-xs">{new Date(l.createdAt).toLocaleString()}</td>
-                <td className="p-2 text-xs">{l.usuarioNombre}</td>
-                <td className="p-2">
-                  <span className={`px-2 py-0.5 rounded text-xs ${
-                    l.accion === 'UPDATE' ? 'bg-yellow-100 text-yellow-700' :
-                    l.accion === 'DELETE' ? 'bg-red-100 text-red-700' :
-                    l.accion === 'CREATE' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-                  }`}>{l.accion}</span>
-                </td>
-                <td className="p-2 text-xs font-mono">{l.entidad}</td>
-                <td className="p-2 text-xs text-gray-500 max-w-xs truncate">
-                  {l.valoresNuevos ? JSON.stringify(l.valoresNuevos).slice(0, 80) : '—'}
-                </td>
+  // ---- LOGS DE AUDITORÍA CON FILTRO POR PROYECTO ----
+  const [filtroLogProyecto, setFiltroLogProyecto] = useState<string>('');
+  const renderLogs = () => {
+    // Filtrar logs por proyecto usando entidadId o búsqueda en detalle
+    const logsFiltrados = filtroLogProyecto
+      ? logs.filter(l =>
+          l.entidadId === filtroLogProyecto ||
+          (l.valoresNuevos && JSON.stringify(l.valoresNuevos).includes(filtroLogProyecto)) ||
+          (l.valoresAnteriores && JSON.stringify(l.valoresAnteriores).includes(filtroLogProyecto))
+        )
+      : logs;
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-bold">📋 Logs de Auditoría</h2>
+          <div className="flex items-center gap-2">
+            <select
+              value={filtroLogProyecto}
+              onChange={e => setFiltroLogProyecto(e.target.value)}
+              className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none bg-white"
+            >
+              <option value="">Todos los proyectos</option>
+              {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+            </select>
+            <span className="text-xs text-gray-500">{logsFiltrados.length} registros</span>
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-2 text-left">Fecha</th>
+                <th className="p-2 text-left">Usuario</th>
+                <th className="p-2 text-left">Acción</th>
+                <th className="p-2 text-left">Entidad</th>
+                <th className="p-2 text-left">Proyecto</th>
+                <th className="p-2 text-left">Detalle</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {logsFiltrados.slice(0, 100).map(l => {
+                const proyectoRel = l.entidadId ? proyectos.find(p => p.id === l.entidadId) : null;
+                return (
+                  <tr key={l.id} className="border-t hover:bg-gray-50">
+                    <td className="p-2 text-xs">{new Date(l.createdAt).toLocaleString()}</td>
+                    <td className="p-2 text-xs">{l.usuarioNombre}</td>
+                    <td className="p-2">
+                      <span className={`px-2 py-0.5 rounded text-xs ${
+                        l.accion === 'UPDATE' ? 'bg-yellow-100 text-yellow-700' :
+                        l.accion === 'DELETE' ? 'bg-red-100 text-red-700' :
+                        l.accion === 'CREATE' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                      }`}>{l.accion}</span>
+                    </td>
+                    <td className="p-2 text-xs font-mono">{l.entidad}</td>
+                    <td className="p-2 text-xs">
+                      {proyectoRel ? (
+                        <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px]">{proyectoRel.nombre}</span>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td className="p-2 text-xs text-gray-500 max-w-xs truncate">
+                      {l.valoresNuevos ? JSON.stringify(l.valoresNuevos).slice(0, 80) : '—'}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        {logsFiltrados.length === 0 && <p className="text-gray-400 text-sm text-center py-8">No hay registros de auditoría para este filtro</p>}
       </div>
-      {logs.length === 0 && <p className="text-gray-400 text-sm text-center py-8">No hay registros de auditoría</p>}
-    </div>
-  );
+    );
+  };
 
   // ---- VALIDACIÓN DE PRECIOS ----
   const renderValidacion = () => (

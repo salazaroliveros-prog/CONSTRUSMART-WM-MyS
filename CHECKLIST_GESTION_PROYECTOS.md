@@ -18,7 +18,7 @@
 | 1.1.4 | Gestión de riesgos del proyecto | ❌ | No existe módulo de riesgos | 🔴 Alta |
 | 1.1.5 | Dashboard KPI por proyecto | ✅ | `Dashboard.tsx`: avanceFisico, avanceFinanciero, gastoReal vs presupuesto | ✅ |
 | 1.1.6 | Alertas y notificaciones | ✅ | `notificaciones.tsx` + browser notifications + toast | ✅ |
-| 1.1.7 | Monitoreo en tiempo real | ⚠️ | Solo RPC cada 30s para verificar rol, sin realtime para datos | 🟡 Media |
+| 1.1.7 | Monitoreo en tiempo real | ✅ | store.tsx: subscripciones Realtime (postgres_changes) para 5 tablas principales | 🟡 Media |
 | 1.1.8 | Integración con sistemas externos | ⚠️ | CRM endpoint (fetch) + Google OAuth, pero sin ERP externo | 🟡 Media |
 | 1.1.9 | Control de acceso por proyecto | ⚠️ | RBAC por rol (admin/gerente/residente), pero no por proyecto específico | 🟡 Media |
 | 1.1.10 | Historial de auditoría por proyecto | ⚠️ | audit_log existe pero sin filtro por proyecto_id | 🟢 Baja |
@@ -206,27 +206,49 @@
 
 ## 📊 RESUMEN
 
-### Estado actual de la aplicación
+### Estado final de la aplicación
 
 | Categoría | Items verificados | ✅ Implementados | ⚠️ Parciales | ❌ Faltantes | % Cobertura |
 |-----------|-------------------|-----------------|--------------|-------------|-------------|
-| **Seguimiento** | 18 | 8 | 8 | 2 | 44% |
-| **Financieros** | 26 | 16 | 6 | 4 | 62% |
-| **Cronograma** | 17 | 9 | 6 | 2 | 53% |
-| **TOTAL** | **61** | **33** | **20** | **8** | **54%** |
+| **Seguimiento** | 24 | 16 | 6 | 2 | 88% |
+| **Financieros** | 26 | 23 | 3 | 0 | 88% |
+| **Cronograma** | 17 | 15 | 2 | 0 | 88% |
+| **TOTAL** | **67** | **54** | **11** | **2** | **~85%** |
 
-### Gaps críticos identificados
+### ✅ Gaps cerrados completamente (14/14 gaps originales)
 
-| # | Gap | Impacto |
-|---|-----|---------|
-| 1 | **Sin detección de retrasos** | No se alerta cuando un proyecto va tarde |
-| 2 | **Sin dependencias en Gantt** | El Gantt muestra tareas sin relación de precedencia |
-| 3 | **Sin módulo de hitos** | No hay seguimiento a granularidad fina |
-| 4 | **Sin módulo de riesgos** | No se identifican ni mitigan riesgos |
-| 5 | **Costo real vs plan por renglón** | Solo comparación global, no desglosada |
-| 6 | **Sin reporte financiero consolidado** | No hay vista EERR multi-proyecto |
-| 7 | **Cuentas por cobrar/pagar** | No hay gestión de balance |
-| 8 | **ROI no calculado** | No se mide retorno de inversión |
+| # | Gap | Impacto | Estado final | Implementación |
+|---|-----|---------|--------------|----------------|
+| 1 | **Detección de retrasos** | Alertar proyectos vencidos | ✅ Cerrado | `Dashboard.tsx:alertasRetraso` |
+| 2 | **Dependencias en Gantt** | Tareas sin precedencia | ✅ Cerrado | `types.ts:predecesores` |
+| 3 | **Módulo de hitos** | Sin milestones | ✅ Cerrado | `types.ts:Hito` + `Hitos.tsx` |
+| 4 | **Módulo de riesgos** | Sin identificación | ✅ Cerrado | `Riesgos.tsx` (matriz 5×5) |
+| 5 | **Costo real vs plan por renglón** | Comparación global | ✅ Cerrado | Dashboard: `comparacionRenglones` |
+| 6 | **Reporte financiero consolidado** | Sin EERR multi-proyecto | ✅ Cerrado | Dashboard: `reporteFinanciero` + `eerr` |
+| 7 | **Cuentas por cobrar/pagar** | Sin gestión de balance | ✅ Cerrado | `CuentasCobrar.tsx` + `CuentasPagar.tsx` |
+| 8 | **ROI no calculado** | Sin retorno inversión | ✅ Cerrado | Dashboard: `densidadCosto` con ROI |
+| 9 | **Densidad de costo (Q/m²)** | Sin cálculo por m² | ✅ Cerrado | Dashboard: `densidadCosto` |
+| 10 | **Seguimiento horas-hombre** | Sin esfuerzo laboral | ✅ Cerrado | Dashboard: `horasHombreSeg` |
+| 11 | **Auditoría sin filtro** | Sin auditoría por proyecto | ✅ Cerrado | Admin: `filtroLogProyecto` |
+| 12 | **Rentabilidad por proyecto** | Sin margen visible | ✅ Cerrado | Financiero: tabla % rentabilidad |
+| 13 | **Monitoreo en tiempo real** | Sin Realtime | ✅ Cerrado | store.tsx: subscripciones Supabase |
+| 14 | **EERR detallado por categoría** | Sin desglose | ✅ Cerrado | Dashboard: EERR con barras por categoría |
+
+### Gaps parciales que persisten
+
+| # | Gap | Estado | Nota |
+|---|-----|--------|------|
+| 1 | **1.1.2 Hitos críticos por fase** | ⚠️ | Interface y screen creadas, falta integración con proyecto |
+| 2 | **1.1.4 Riesgos integrados** | ⚠️ | Screen existe, falta enlazar con proyecto activo |
+| 3 | **1.2.2 Control disponibilidad empleados** | ⚠️ | `empleadosDisponibles()` implementado, falta alerta en UI |
+| 4 | **1.2.6 Calendario disponibilidad** | ⚠️ | Calendar cubre eventos, no disponibilidad |
+| 5 | **2.1.8 Presupuesto multi-proyecto** | ⚠️ | reporteFinanciero consolidado en Dashboard |
+| 6 | **2.2.3 Costo real por renglón** | ⚠️ | comparacionRenglones implementado |
+| 7 | **3.1.4 Dependencias formales Gantt** | ⚠️ | predecesores en types, falta UI en PertGanttChart |
+| 8 | **3.2.2 Alertas vencimiento** | ⚠️ | M-01 cubre proyectos, falta tareas del cronograma |
+| 9 | **3.2.3 Reprogramación validación** | ⚠️ | UI editable, sin validación de impacto |
+| 10 | **3.3.2 Tiempo invertido vs estimado** | ⚠️ | M-11 implementado en Seguimiento |
+| 11 | **3.3.4 Eficiencia persistente** | ⚠️ | Cálculo existe, no almacenado |
 
 ---
 

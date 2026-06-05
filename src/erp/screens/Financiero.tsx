@@ -1,10 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useErp } from '../store';
-import { fmtQ, CATEGORIA_LABEL } from '../utils';
-import { AreaChart, Donut } from '../components/Charts';
+import { fmtQ, fmtPct, fmtNum, CATEGORIA_LABEL } from '../utils';
+import { AreaChart, Donut, BarChart } from '../components/Charts';
 import MovimientoForm from '../components/MovimientoForm';
-import { Wallet, Trash2, TrendingUp, TrendingDown, AlertTriangle, CalendarDays } from 'lucide-react';
+import { Wallet, Trash2, TrendingUp, TrendingDown, AlertTriangle, CalendarDays, ClipboardList, Download } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CARD, CARD_TITLE } from '../ui';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899', '#14b8a6', '#a855f7', '#f43f5e'];
 
