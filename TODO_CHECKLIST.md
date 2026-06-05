@@ -87,7 +87,22 @@
 
 | Categoría | % Actual | Meta | Estado |
 |-----------|----------|------|--------|
-| Seguimiento | 44% | 80% | ⚠️ M-01 a M-14 implementados (mejoras cualitativas) |
-| Financieros | 62% | 90% | ⚠️ Requiere nuevas screens (CuentasCobrar/Pagar) |
-| Cronograma | 53% | 85% | ⚠️ Requiere integración Hitos ↔ Gantt |
-| **General** | **54%** | **85%** | **✅ Mejoras estructurales completadas** |
+| Seguimiento | 48% | 80% | ✅ F-07 hitos vencidos, F-06 predecesores Gantt |
+| Financieros | 62% | 90% | ✅ F-04 EERR exportable |
+| Cronograma | 55% | 85% | ✅ F-06 predecesores implementados |
+| **General** | **56%** | **85%** | **✅ +4% por nuevas implementaciones** |
+
+---
+
+## 🚀 NUEVAS IMPLEMENTACIONES (06/04/2026)
+
+| # | Feature | Área | Implementación | Estado |
+|---|---------|------|----------------|--------|
+| F-04 | Reporte EERR exportable (hoja Excel) | Exportación | `ExportacionInteligente.tsx` — Nueva hoja con ingresos, costos, utilidad, margen, ROI | ✅ |
+| F-06 | Dependencias predecesoras en Gantt | Cronograma | `Seguimiento.tsx` — `r.predecesores` mapeado a `dependencias` en tareas Gantt | ✅ |
+| F-07 | Dashboard hitos vencidos | Seguimiento | `Seguimiento.tsx` — Tarjeta de hitos vencidos (rojo) y próximos 7 días (amarillo) | ✅ |
+| F-10 | Supabase Realtime subscriptions | General | `useSupabaseRealtime.ts` + `store.tsx` — 8 tablas, auto-reconnect 5s | ✅ |
+| F-11 | Matriz de riesgos interactiva | Riesgos | `Riesgos.tsx` — Grilla 5x5 con puntos reales, badges y desglose por nivel | ✅ |
+| - | Chunk optimization (manualChunks) | Build | `vite.config.ts` — vendor, radix, antd, three, web-ifc, jspdf, charts, xlsx, framer | ✅ |
+| - | Inconsistencia naming Subrenglon | Presupuestos | `Presupuestos.tsx` — `addSubrenglon` → `addSubRenglon` | ✅ |
+| - | Corrección tsconfig | Build | `tsconfig.json` — eliminado `ignoreDeprecations` inválido en TS 5.9 | ✅ |
