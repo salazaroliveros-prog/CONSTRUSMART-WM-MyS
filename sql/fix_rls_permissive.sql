@@ -1,25 +1,19 @@
 -- ============================================================
 -- FIX RLS: Políticas permisivas para todas las tablas
 -- NO modifica estructura de tablas existentes
--- Solo agrega políticas RLS que permitan acceso a usuarios autenticados
+-- Agrega políticas RLS para anon (lectura) y authenticated (CRUD completo)
 -- Ejecutar en Supabase SQL Editor
 -- ============================================================
 
--- profiles: el usuario puede leer su propio perfil y todos los autenticados
+-- profiles: anon puede leer, authenticated puede todo
 DROP POLICY IF EXISTS "profiles_select_auth" ON public.profiles;
-CREATE POLICY "profiles_select_auth"
-  ON public.profiles FOR SELECT TO authenticated
-  USING (true);
-
+DROP POLICY IF EXISTS "profiles_select_anon" ON public.profiles;
 DROP POLICY IF EXISTS "profiles_insert_auth" ON public.profiles;
-CREATE POLICY "profiles_insert_auth"
-  ON public.profiles FOR INSERT TO authenticated
-  WITH CHECK (auth.uid() = id);
-
 DROP POLICY IF EXISTS "profiles_update_auth" ON public.profiles;
-CREATE POLICY "profiles_update_auth"
-  ON public.profiles FOR UPDATE TO authenticated
-  USING (auth.uid() = id);
+CREATE POLICY "profiles_select_anon" ON public.profiles FOR SELECT TO anon USING (true);
+CREATE POLICY "profiles_select_auth" ON public.profiles FOR SELECT TO authenticated USING (true);
+CREATE POLICY "profiles_insert_auth" ON public.profiles FOR INSERT TO authenticated WITH CHECK (auth.uid() = id);
+CREATE POLICY "profiles_update_auth" ON public.profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
 
 -- ============================================================
 -- erp_proyectos

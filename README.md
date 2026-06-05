@@ -47,13 +47,18 @@ Google Cloud Console → OAuth 2.0 Client ID:
 ### Migraciones SQL
 
 Ejecutar en orden desde `supabase/migrations/`:
-1. `000000000001_database.sql` — Schema base
-2. `000000000002_proyecto_presupuesto.sql` — Vinculación proyecto-presupuesto
-3. `000000000003_add_remaining_tables.sql` — 14 tablas (auditoría, destajos, cajas chicas, activos, cotizaciones, anticipos, pagos, ventas, centros costo)
-4. `000000000004_seed_data.sql` — Datos semilla (24 insumos, 15 rendimientos, proyectos demo)
-5. `000000000005_presupuestos_subrenglones.sql` — Sub-renglones en presupuestos
-6. `000000000006_add_erp_vales_salida.sql` — Vales de salida
-7. `000000000007_fix_avatar_url_roles.sql` — Fix avatar + roles
+1. `000000000001_full_schema_and_policies.sql` — Schema base y políticas RLS iniciales
+2. `000000000002_add_erp_presupuestos_table.sql` — Presupuestos persistentes y timestamp trigger
+3. `000000000003_add_remaining_tables.sql` — Tablas adicionales: auditoría, destajos, cajas chicas, activos, cotizaciones, anticipos, pagos, ventas, centros costo
+4. `000000000004_seed_data.sql` — Datos semilla (insumos, rendimientos, proyectos demo)
+5. `000000000005_storage_buckets.sql` — Buckets de storage opcionales
+6. `000000000006_add_vales_salida_and_fixes.sql` — Vales de salida y correcciones de integridad
+7. `000000000007_add_avatar_and_fix_roles.sql` — Avatar y roles de usuario
+8. `000000000008_add_pausado_status.sql` — Estatus adicional para proyectos/ordenes
+
+### Corrección de seguridad final
+Ejecutar `sql/fix_rls_security_policies.sql` después de aplicar las migraciones para asegurar que todas las políticas RLS sean granulares y coherentes con la aplicación.
+Usa la cadena de conexión de Supabase que está en tu `.env` local para ejecutar el script desde el SQL Editor o via CLI.
 
 ---
 
