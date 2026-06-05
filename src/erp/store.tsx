@@ -795,44 +795,19 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     });
 
-    // OAuth PKCE code exchange — solo una vez, limpiar URL después
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get('code');
-    if (authCode && !sessionStorage.getItem('wm_auth_code_exchanged')) {
-      sessionStorage.setItem('wm_auth_code_exchanged', '1');
-      supabase.auth.exchangeCodeForSession(authCode).then(async ({ data, error }) => {
-        if (error) {
-          console.error('[Auth] Code exchange failed:', error.message);
-          // Si falla por falta de PKCE code verifier, intentar recuperar sesión
-          // por si el cliente ya estableció sesión en otra ruta.
-          if (typeof error.message === 'string' && /code verifier/i.test(error.message)) {
-            const sessionRes = await supabase.auth.getSession();
-            if (sessionRes?.data?.session) {
-              // Limpiar URL y cargar perfil
-              window.history.replaceState({}, document.title, window.location.pathname);
-              sessionStorage.removeItem('wm_auth_code_exchanged');
-              const meta = sessionRes.data.session.user.user_metadata || {};
-              loadProfile(sessionRes.data.session.user.id, sessionRes.data.session.user.email || undefined, { nombre: meta.full_name || meta.nombre, avatar_url: meta.picture || meta.avatar_url });
-              return;
-            }
-          }
-          setInitializing(false);
-          // Limpiar URL para evitar reintentos
-          window.history.replaceState({}, document.title, window.location.pathname);
-        } else if (data.session) {
-          // Limpiar URL después de intercambio exitoso
-          window.history.replaceState({}, document.title, window.location.pathname);
-          sessionStorage.removeItem('wm_auth_code_exchanged');
-          const meta = data.session.user.user_metadata || {};
-          loadProfile(data.session.user.id, data.session.user.email || undefined, { nombre: meta.full_name || meta.nombre, avatar_url: meta.picture || meta.avatar_url });
-        }
-      });
-    } else {
-      supabase.auth.getSession().then(({ data }) => {
-        if (!mounted) return;
-        if (data.session?.user) loadProfile(data.session.user.id, data.session.user.email || undefined);
-        else setInitializing(false);
-      });
+    if (authCode) {
+      // El SDK de Supabase maneja el callback OAuth cuando no se usa skipBrowserRedirect.
+      // Solo limpiamos la URL para eliminar el código después de procesarlo.
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      if (data.session?.user) loadProfile(data.session.user.id, data.session.user.email || undefined);
+      else setInitializing(false);
+    });
     }
 
     return () => { mounted = false; sub.subscription.unsubscribe(); };
