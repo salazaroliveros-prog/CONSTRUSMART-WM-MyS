@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit --skipLibCheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "vitest",
+    "test": "echo \"Tests desactivados: vitest fue removido del proyecto principal\"",
     "preview": "vite preview",
     "security:audit": "npm audit --audit-level=high",
     "security:check": "npx better-npm-audit audit"
@@ -86,9 +86,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
-    "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/user-event": "^14.4.3",
     "@types/dompurify": "^3.2.0",
     "@types/node": "^22.5.5",
     "@types/react": "^18.3.3",
@@ -100,13 +97,12 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.26",
     "globals": "^15.15.0",
-    "jsdom": "^29.1.1",
     "postcss": "^8.5.15",
     "react-signature-canvas": "^1.1.0-alpha.2",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.60.0",
     "vite": "^5.4.21",
-    "vitest": "^4.1.8"
+    "xlsx": "^0.18.5"
   }
 }

@@ -1,11 +1,65 @@
 import React, { useState, useCallback } from 'react';
 import { useErp } from '../store';
-import { Download, FileJson, FileSpreadsheet, FileText, Mail, Plus, Trash2, Clock, Check, ChevronDown, ChevronUp, Send } from 'lucide-react';
+import { Download, FileJson, FileSpreadsheet, FileText, Mail, Plus, Trash2, Clock, Check, ChevronDown, ChevronUp, Send, Table } from 'lucide-react';
 import { toast } from 'sonner';
 import { fmtQ, todayISO } from '../utils';
 import { CARD, INPUT } from '../ui';
+import * as XLSX from 'xlsx';
 
-type ExportFormat = 'json' | 'csv' | 'pdf';
+type ExportFormat = 'json' | 'csv' | 'xlsx' | 'pdf';
+
+interface ColumnaExportacion {
+  key: string;
+  label: string;
+  fn: (row: any) => string | number;
+}
+
+// ── Configuración de columnas por entidad ──
+const COL_PROYECTOS: ColumnaExportacion[] = [
+  { key: 'nombre', label: 'Proyecto', fn: r => r.nombre || '' },
+  { key: 'ubicacion', label: 'Ubicación', fn: r => r.ubicacion || '' },
+  { key: 'cliente', label: 'Cliente', fn: r => r.cliente || '' },
+  { key: 'tipologia', label: 'Tipología', fn: r => r.tipologia || '' },
+  { key: 'estado', label: 'Estado', fn: r => r.estado || '' },
+  { key: 'presupuestoTotal', label: 'Presupuesto Total', fn: r => r.presupuestoTotal || 0 },
+  { key: 'montoContrato', label: 'Monto Contrato', fn: r => r.montoContrato || 0 },
+  { key: 'avanceFisico', label: 'Avance Físico %', fn: r => r.avanceFisico || 0 },
+  { key: 'avanceFinanciero', label: 'Avance Financiero %', fn: r => r.avanceFinanciero || 0 },
+  { key: 'fechaInicio', label: 'Fecha Inicio', fn: r => r.fechaInicio || '' },
+  { key: 'fechaFin', label: 'Fecha Fin', fn: r => r.fechaFin || '' },
+];
+const COL_MOVIMIENTOS: ColumnaExportacion[] = [
+  { key: 'fecha', label: 'Fecha', fn: r => r.fecha || '' },
+  { key: 'tipo', label: 'Tipo', fn: r => r.tipo || '' },
+  { key: 'categoria', label: 'Categoría', fn: r => r.categoria || '' },
+  { key: 'descripcion', label: 'Descripción', fn: r => r.descripcion || '' },
+  { key: 'monto', label: 'Monto', fn: r => r.monto || 0 },
+  { key: 'proveedor', label: 'Proveedor', fn: r => r.proveedor || '' },
+];
+const COL_EMPLEADOS: ColumnaExportacion[] = [
+  { key: 'nombre', label: 'Nombre', fn: r => r.nombre || '' },
+  { key: 'puesto', label: 'Puesto', fn: r => r.puesto || '' },
+  { key: 'tipo', label: 'Tipo', fn: r => r.tipo || '' },
+  { key: 'salarioDiario', label: 'Salario Diario', fn: r => r.salarioDiario || 0 },
+  { key: 'activo', label: 'Activo', fn: r => r.activo ? 'Sí' : 'No' },
+];
+const COL_MATERIALES: ColumnaExportacion[] = [
+  { key: 'nombre', label: 'Material', fn: r => r.nombre || '' },
+  { key: 'unidad', label: 'Unidad', fn: r => r.unidad || '' },
+  { key: 'stock', label: 'Stock', fn: r => r.stock || 0 },
+  { key: 'stockMinimo', label: 'Stock Mínimo', fn: r => r.stockMinimo || 0 },
+  { key: 'precio', label: 'Precio', fn: r => r.precio || 0 },
+  { key: 'critico', label: 'Crítico', fn: r => r.critico ? 'Sí' : 'No' },
+];
+const COL_PRESUPUESTOS: ColumnaExportacion[] = [
+  { key: 'id', label: 'ID', fn: r => r.id || '' },
+  { key: 'proyectoId', label: 'Proyecto', fn: (r, ctx) => ctx?.proyectos?.find((p: any) => p.id === r.proyectoId)?.nombre || r.proyectoId || '' },
+  { key: 'totalCalculado', label: 'Total Calculado', fn: r => r.totalCalculado || 0 },
+  { key: 'costoDirectoTotal', label: 'Costo Directo', fn: r => r.costoDirectoTotal || 0 },
+  { key: 'estado', label: 'Estado', fn: r => r.estado || '' },
+  { key: 'versionPresupuesto', label: 'Versión', fn: r => r.versionPresupuesto || 1 },
+  { key: 'fechaActualizacion', label: 'Actualización', fn: r => r.fechaActualizacion?.slice(0,10) || '' },
+];
 
 interface ReporteProgramado {
   id: string;
@@ -215,9 +269,89 @@ const ExportacionInteligente: React.FC = () => {
     toast.success('Reporte eliminado');
   };
 
+  // === EXPORTAR XLSX (Excel) ===
+  const exportarXLSX = useCallback(() => {
+    setExportando('xlsx');
+    setTimeout(() => {
+      try {
+        const wb = XLSX.utils.book_new();
+
+        // Hoja: Proyectos
+        const proyData = proyectos.map(p => {
+          const row: Record<string, any> = {};
+          COL_PROYECTOS.forEach(col => { row[col.label] = col.fn(p); });
+          return row;
+        });
+        const wsProy = XLSX.utils.json_to_sheet(proyData);
+        XLSX.utils.book_append_sheet(wb, wsProy, 'Proyectos');
+
+        // Hoja: Movimientos Financieros
+        const movData = movimientos.map(m => {
+          const row: Record<string, any> = {};
+          COL_MOVIMIENTOS.forEach(col => { row[col.label] = col.fn(m); });
+          return row;
+        });
+        const wsMov = XLSX.utils.json_to_sheet(movData);
+        XLSX.utils.book_append_sheet(wb, wsMov, 'Movimientos');
+
+        // Hoja: Empleados
+        const empData = empleados.map(e => {
+          const row: Record<string, any> = {};
+          COL_EMPLEADOS.forEach(col => { row[col.label] = col.fn(e); });
+          return row;
+        });
+        const wsEmp = XLSX.utils.json_to_sheet(empData);
+        XLSX.utils.book_append_sheet(wb, wsEmp, 'Empleados');
+
+        // Hoja: Materiales
+        const matData = materiales.map(m => {
+          const row: Record<string, any> = {};
+          COL_MATERIALES.forEach(col => { row[col.label] = col.fn(m); });
+          return row;
+        });
+        const wsMat = XLSX.utils.json_to_sheet(matData);
+        XLSX.utils.book_append_sheet(wb, wsMat, 'Materiales');
+
+        // Hoja: Presupuestos
+        const ctx = { proyectos };
+        const presData = presupuestos.map(p => {
+          const row: Record<string, any> = {};
+          COL_PRESUPUESTOS.forEach(col => { row[col.label] = col.fn(p, ctx); });
+          return row;
+        });
+        const wsPres = XLSX.utils.json_to_sheet(presData);
+        XLSX.utils.book_append_sheet(wb, wsPres, 'Presupuestos');
+
+        // Auto-size column widths
+        [wsProy, wsMov, wsEmp, wsMat, wsPres].forEach(ws => {
+          if (!ws['!cols']) {
+            const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+            ws['!cols'] = [];
+            for (let c = range.s.c; c <= range.e.c; c++) {
+              let maxLen = 0;
+              for (let r = range.s.r; r <= range.e.r; r++) {
+                const cell = ws[XLSX.utils.encode_cell({ r, c })];
+                if (cell && typeof cell.v === 'string') maxLen = Math.max(maxLen, cell.v.length);
+              }
+              ws['!cols'].push({ wch: Math.min(Math.max(maxLen + 2, 12), 40) });
+            }
+          }
+        });
+
+        XLSX.writeFile(wb, `construsmart-export-${todayISO()}.xlsx`);
+        toast.success('✅ Excel exportado exitosamente (5 hojas)');
+      } catch (err) {
+        console.error('XLSX error:', err);
+        toast.error('Error al exportar Excel');
+      }
+      setExportando(null);
+    }, 500);
+  }, [proyectos, movimientos, empleados, materiales, presupuestos]);
+
   const ejecutarReporteAhora = (reporte: ReporteProgramado) => {
     if (reporte.formato === 'json') exportarJSON();
     else if (reporte.formato === 'csv') exportarCSV();
+    else if (reporte.formato === 'xlsx') exportarXLSX();
     else generarPDF();
     saveReportes(reportes.map(r => r.id === reporte.id ? { ...r, ultimoEnvio: todayISO() } : r));
   };
@@ -228,12 +362,24 @@ const ExportacionInteligente: React.FC = () => {
         <Download className="w-6 h-6 text-blue-500" />
         <div>
           <h1 className="text-2xl font-black text-slate-800">Exportación Inteligente</h1>
-          <p className="text-xs text-slate-500">Exporta datos a JSON, CSV o PDF y programa reportes automáticos</p>
+          <p className="text-xs text-slate-500">Exporta datos a Excel, JSON, CSV o PDF y programa reportes automáticos</p>
         </div>
       </div>
 
       {/* Exportación rápida */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <button
+          onClick={exportarXLSX}
+          disabled={exportando === 'xlsx'}
+          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'xlsx' ? 'bg-emerald-50 border-emerald-300 animate-pulse' : 'bg-white border-slate-100 hover:border-emerald-300 hover:shadow-md'}`}
+        >
+          <Table className={`w-8 h-8 ${exportando === 'xlsx' ? 'text-emerald-500' : 'text-emerald-400'}`} />
+          <div className="text-left">
+            <p className="text-sm font-bold text-slate-700">Exportar Excel</p>
+            <p className="text-[10px] text-slate-400">5 hojas con formato profesional .xlsx</p>
+          </div>
+        </button>
+
         <button
           onClick={exportarJSON}
           disabled={exportando === 'json'}
