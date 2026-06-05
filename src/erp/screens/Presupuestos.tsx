@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CARD, INPUT, BUTTON_DARK } from '../ui';
 
 import { useErp } from '../store';
@@ -92,6 +93,7 @@ const ACTIVIDAD_POR_RENGLON: Record<string, string> = {
 };
 
 const Presupuestos: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, updateProyecto, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores } = useErp();
   const [tab, setTab] = useState<'crear' | 'guardados'>('crear');
   const [tipologia, setTipologia] = useState<Tipologia>('residencial');
@@ -483,36 +485,42 @@ const Presupuestos: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2"><Calculator className="w-6 h-6 text-orange-500" /> Calculadora de Presupuestos APU</h1>
-          <p className="text-sm text-slate-400">Motor de cálculo con FSR, herramienta menor {(HERRAMIENTA_MENOR*100)}%, indirectos {(COSTOS_INDIRECTOS*100)}%, admin {(ADMINISTRACION*100)}%, imprevistos {(IMPREVISTOS*100)}%, utilidad {(UTILIDAD*100)}%</p>
+          <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2"><Calculator className="w-6 h-6 text-orange-500" /> {t('presupuestos.titulo_calculadora')}</h1>
+          <p className="text-sm text-slate-400">{t('presupuestos.motor_calculo', { 
+            h_menor: HERRAMIENTA_MENOR*100, 
+            indirectos: COSTOS_INDIRECTOS*100, 
+            admin: ADMINISTRACION*100, 
+            imprevistos: IMPREVISTOS*100, 
+            utilidad: UTILIDAD*100 
+          })}</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={openHistorial} className="bg-slate-100 px-3 py-1 rounded-xl text-sm text-slate-700 hover:bg-slate-200">📜 Historial</button>
+          <button onClick={openHistorial} className="bg-slate-100 px-3 py-1 rounded-xl text-sm text-slate-700 hover:bg-slate-200">{t('presupuestos.historial')}</button>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-2 mb-4 border-b border-slate-200">
-        <button 
-          onClick={() => { setTab('crear'); setEditingPresupuesto(null); }}
-          className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
-            tab === 'crear' 
-              ? 'text-orange-600 border-orange-600' 
-              : 'text-slate-500 border-transparent hover:text-slate-700'
-          }`}
-        >
-          ➕ {editingPresupuesto ? 'Editar Presupuesto' : 'Crear Nuevo'}
-        </button>
-        <button 
-          onClick={() => setTab('guardados')}
-          className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
-            tab === 'guardados' 
-              ? 'text-orange-600 border-orange-600' 
-              : 'text-slate-500 border-transparent hover:text-slate-700'
-          }`}
-        >
-          📋 Guardados ({presupuestosDelProyecto.length})
-        </button>
+          <button 
+            onClick={() => { setTab('crear'); setEditingPresupuesto(null); }}
+            className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
+              tab === 'crear' 
+                ? 'text-orange-600 border-orange-600' 
+                : 'text-slate-500 border-transparent hover:text-slate-700'
+            }`}
+          >
+            ➕ {editingPresupuesto ? t('presupuestos.editar') : t('presupuestos.nuevo')}
+          </button>
+          <button 
+            onClick={() => setTab('guardados')}
+            className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
+              tab === 'guardados' 
+                ? 'text-orange-600 border-orange-600' 
+                : 'text-slate-500 border-transparent hover:text-slate-700'
+            }`}
+          >
+            📋 {t('presupuestos.guardados_con_count', { count: presupuestosDelProyecto.length })}
+          </button>
       </div>
 
       {tab === 'guardados' ? (
@@ -531,64 +539,64 @@ const Presupuestos: React.FC = () => {
         <>
           <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
             <div>
-              {editingPresupuesto && <p className="text-xs text-orange-600 font-semibold">✏️ Editando versión {editingPresupuesto.versionPresupuesto}</p>}
+              {editingPresupuesto && <p className="text-xs text-orange-600 font-semibold">{editingPresupuesto && t('presupuestos.editando_version', { version: editingPresupuesto.versionPresupuesto })}</p>}
             </div>
             <div className="flex gap-2">
-              <button onClick={save} className={BUTTON_DARK} disabled={!items.length || !projectId}><Save className="w-4 h-4" /> {saved ? 'Guardado' : editingPresupuesto ? 'Guardar Cambios' : 'Guardar'}</button>
-              <button onClick={handleRegistrarGastoTotal} disabled={!projectId || !granTotal} className="bg-indigo-600 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5">Registrar Gasto</button>
+              <button onClick={save} className={BUTTON_DARK} disabled={!items.length || !projectId}><Save className="w-4 h-4" /> {saved ? t('presupuestos.guardado') : editingPresupuesto ? t('presupuestos.guardar_cambios') : t('presupuestos.guardar')}</button>
+              <button onClick={handleRegistrarGastoTotal} disabled={!projectId || !granTotal} className="bg-indigo-600 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5">{t('presupuestos.registrar_gasto')}</button>
               <button disabled={!items.length} onClick={() => exportPDF(items, proyecto, tipologia)} className="bg-red-500 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><FileText className="w-4 h-4" /> PDF</button>
               <button disabled={!items.length} onClick={() => exportCSV(items, proyecto, tipologia)} className="bg-emerald-600 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><FileSpreadsheet className="w-4 h-4" /> CSV</button>
-              {editingPresupuesto && <button onClick={() => { setEditingPresupuesto(null); setItems([]); }} className="bg-slate-400 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><X className="w-4 h-4" /> Cancelar</button>}
+              {editingPresupuesto && <button onClick={() => { setEditingPresupuesto(null); setItems([]); }} className="bg-slate-400 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-1.5"><X className="w-4 h-4" /> {t('common.cancelar')}</button>}
             </div>
           </div>
 
           <div className={`${CARD}`}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
-            <label className="text-xs font-semibold text-slate-500">Nombre del presupuesto</label>
-            <input value={proyecto} onChange={e => setProyecto(e.target.value)} placeholder="Ej. Presupuesto obra casa" className={INPUT} />
+            <label className="text-xs font-semibold text-slate-500">{t('presupuestos.nombre')}</label>
+            <input value={proyecto} onChange={e => setProyecto(e.target.value)} placeholder={t('presupuestos.nombre_placeholder')} className={INPUT} />
           </div>
           <div>
-            <label className="text-xs font-semibold text-slate-500">Proyecto asociado</label>
+            <label className="text-xs font-semibold text-slate-500">{t('presupuestos.proyecto_asociado')}</label>
             <select value={projectId} onChange={e => setProjectId(e.target.value)} className={INPUT}>
-              <option value="">Selecciona un proyecto</option>
+              <option value="">{t('presupuestos.seleccionar_proyecto')}</option>
               {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-xs font-semibold text-slate-500">Tipología (40+ renglones c/u)</label>
+            <label className="text-xs font-semibold text-slate-500">{t('presupuestos.tipologia_filtros')}</label>
             <select value={tipologia} onChange={e => { setTipologia(e.target.value as Tipologia); setItems([]); }} className={INPUT}>
               {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]} ({generarRenglones(t).length} renglones)</option>)}
             </select>
           </div>
           <div className="md:col-span-2">
-            <label className="text-xs font-semibold text-slate-500">Agregar renglón (filtro)</label>
+            <label className="text-xs font-semibold text-slate-500">{t('presupuestos.agregar_renglon_filtro')}</label>
             <div className="flex gap-2 mt-1">
               <select value={sel} onChange={e => addRenglon(e.target.value)} className={`${INPUT} flex-1`}>
-                <option value="">— Seleccionar renglón ({disponibles.length} disponibles) —</option>
+                <option value="">— {t('presupuestos.seleccionar_renglon_disponibles', { count: disponibles.length })} —</option>
                 {disponibles.map(c => <option key={c.codigo} value={c.codigo}>{c.codigo} · {c.nombre}</option>)}
               </select>
-              <button onClick={addTodos} className="bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap flex items-center gap-1"><Plus className="w-4 h-4" /> Todos</button>
+              <button onClick={addTodos} className="bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap flex items-center gap-1"><Plus className="w-4 h-4" /> {t('presupuestos.todos')}</button>
             </div>
           </div>
           <div>
-            <label className="text-xs font-semibold text-slate-500">Proveedor OC</label>
+            <label className="text-xs font-semibold text-slate-500">{t('presupuestos.proveedor_oc')}</label>
             <select value={selectedProveedorId} onChange={e => setSelectedProveedorId(e.target.value)} className={INPUT}>
-              <option value="">Selecciona proveedor para OC</option>
+              <option value="">{t('presupuestos.selecciona_proveedor_oc')}</option>
               {proveedores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
             <div className="mt-2 grid gap-2">
-              <input value={nuevoProveedorNombre} onChange={e => setNuevoProveedorNombre(e.target.value)} placeholder="Nombre proveedor" className={`${INPUT} text-xs`} />
-              <input value={nuevoProveedorContacto} onChange={e => setNuevoProveedorContacto(e.target.value)} placeholder="Contacto proveedor" className={`${INPUT} text-xs`} />
+              <input value={nuevoProveedorNombre} onChange={e => setNuevoProveedorNombre(e.target.value)} placeholder={t('presupuestos.nombre_provider')} className={`${INPUT} text-xs`} />
+              <input value={nuevoProveedorContacto} onChange={e => setNuevoProveedorContacto(e.target.value)} placeholder={t('presupuestos.contacto_provider')} className={`${INPUT} text-xs`} />
               <button onClick={async () => {
                 if (!nuevoProveedorNombre) return;
                 await addProveedor({ nombre: nuevoProveedorNombre, contacto: nuevoProveedorContacto, telefono: '', email: '', categoria: 'materiales' });
                 setNuevoProveedorNombre('');
                 setNuevoProveedorContacto('');
-              }} className="bg-slate-900 text-white px-3 py-2 rounded-xl text-xs">+ Agregar proveedor</button>
+              }} className="bg-slate-900 text-white px-3 py-2 rounded-xl text-xs">+ {t('presupuestos.agregar_proveedor_btn')}</button>
             </div>
             {proveedores.length === 0 && (
-              <p className="text-[10px] text-amber-600 mt-1">Agrega proveedores en el módulo de compras para crear OCs desde presupuestos.</p>
+              <p className="text-[10px] text-amber-600 mt-1">{t('presupuestos.agregar_proveedores_aviso')}</p>
             )}
           </div>
         </div>
@@ -610,13 +618,13 @@ const Presupuestos: React.FC = () => {
                   </button>
                   <span className="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">{r.codigo}</span>
                   <span className="flex-1 text-sm font-semibold text-slate-700 truncate">{idx + 1}. {r.nombre}</span>
-                  <div className="hidden sm:flex items-center gap-1 text-xs">
-                    <span className="text-slate-400">Cant.</span>
-                    <input type="number" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} placeholder="Cantidad" className="w-16 px-2 py-1 rounded border border-slate-200 text-right text-xs" />
+<div className="hidden sm:flex items-center gap-1 text-xs">
+                    <span className="text-slate-400">{t('presupuestos.cantidad_abrev')}</span>
+                    <input type="number" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} placeholder={t('presupuestos.cantidad')} className="w-16 px-2 py-1 rounded border border-slate-200 text-right text-xs" />
                     <span className="text-slate-400">{r.unidad}</span>
                   </div>
                   <span className="text-sm font-bold text-orange-600 w-24 text-right">{fmtQ(c.total)}</span>
-          <button onClick={() => del(r.id)} aria-label="Eliminar renglón"><Trash2 className="w-4 h-4 text-slate-300 hover:text-red-500" /></button>
+           <button onClick={() => del(r.id)} aria-label={t('presupuestos.eliminar_renglon')}><Trash2 className="w-4 h-4 text-slate-300 hover:text-red-500" /></button>
                 </div>
                 {r.expanded && (
                   <div className="bg-slate-50 px-3 pb-3 pt-1 border-t border-slate-100">
@@ -630,11 +638,11 @@ const Presupuestos: React.FC = () => {
                       <div><label className="text-slate-400 block mb-0.5">Equipo Q</label><input type="number" value={r.costoEquipo} onChange={e => upd(r.id, { costoEquipo: +e.target.value })} placeholder="Equipo Q" className={ninp} /></div>
                       <div><label className="text-slate-400 block mb-0.5">Duración (días)</label><div className={ninp + ' bg-white text-slate-600'}>{c.dur}</div></div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 text-xs">
-                      <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">Costo Directo Unit.</div><b className="text-slate-700">{fmtQ(c.cd)}</b></div>
-                      <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">Precio Unit. Venta</div><b className="text-orange-600">{fmtQ(c.pv)}</b></div>
-                      <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">Total Renglón</div><b className="text-emerald-600">{fmtQ(c.total)}</b></div>
-                    </div>
+<div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 text-xs">
+                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">{t('presupuestos.costo_directo_unit')}</div><b className="text-slate-700">{fmtQ(c.cd)}</b></div>
+                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">{t('presupuestos.precio_unit_venta')}</div><b className="text-orange-600">{fmtQ(c.pv)}</b></div>
+                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">{t('presupuestos.total_renglon')}</div><b className="text-emerald-600">{fmtQ(c.total)}</b></div>
+                     </div>
 
                     {/* Sub-renglones de materiales */}
                     <div className="mt-3 border-t pt-3">
@@ -656,86 +664,86 @@ const Presupuestos: React.FC = () => {
                           }}
                           className="text-[10px] px-2 py-1 rounded border border-orange-200 outline-none focus:border-orange-400 bg-white"
                         >
-                          <option value="">Tipo de actividad...</option>
-                            {ACTIVIDADES_TIPICAS.map(act => (
-                              <option key={act} value={act}>{act.charAt(0).toUpperCase() + act.slice(1)} ({MATERIALES_POR_ACTIVIDAD[act].length} materiales)</option>
-                            ))}
-                          </select>
-                          <button onClick={() => addSubRenglon(r.id)} className="text-[10px] bg-orange-100 text-orange-600 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200">
-                            <Plus className="w-3 h-3" /> Manual
-                          </button>
-                        </div>
-                      </div>
-                      {r.subRenglones && r.subRenglones.length > 0 ? (
-                        <div className="space-y-1.5">
-                          {r.subRenglones.map((sub, subIdx) => {
-                            const subTotal = (sub.cantidadUnitaria * r.cantidad * sub.precioUnitario);
-                            return (
-                              <div key={sub.id} className="bg-white rounded p-2 border border-slate-150 flex items-center gap-1.5 text-xs">
-                                <span className="text-slate-400 w-6">{subIdx + 1}.</span>
-                                <input 
-                                  type="text" 
-                                  value={sub.nombreMaterial} 
-                                  onChange={e => updSubRenglon(r.id, sub.id, { nombreMaterial: e.target.value })}
-                                  placeholder="Material"
-                                  className="flex-1 px-1.5 py-0.5 rounded border border-slate-200 text-xs"
-                                />
-                                <input 
-                                  type="number" 
-                                  value={sub.cantidadUnitaria} 
-                                  onChange={e => updSubRenglon(r.id, sub.id, { cantidadUnitaria: +e.target.value })}
-                                  placeholder="Cant/u"
-                                  className="w-12 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
-                                />
-                                <span className="text-slate-500 text-[10px] w-14 text-right">{(sub.cantidadUnitaria * r.cantidad).toFixed(2)}</span>
-                                <select 
-                                  value={sub.unidad} 
-                                  onChange={e => updSubRenglon(r.id, sub.id, { unidad: e.target.value })}
-                                  className="w-14 px-1 py-0.5 rounded border border-slate-200 text-xs"
-                                >
-                                  <option>kg</option>
-                                  <option>l</option>
-                                  <option>m²</option>
-                                  <option>m³</option>
-                                  <option>u</option>
-                                  <option>ml</option>
-                                </select>
-                                <input 
-                                  type="number" 
-                                  value={sub.precioUnitario} 
-                                  onChange={e => updSubRenglon(r.id, sub.id, { precioUnitario: +e.target.value })}
-                                  placeholder="Precio"
-                                  className="w-16 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
-                                />
-                                <span className="text-slate-600 font-semibold w-20 text-right">{fmtQ(subTotal)}</span>
-                                <button onClick={() => delSubRenglon(r.id, sub.id)} className="text-slate-300 hover:text-red-500">
-                                  <X className="w-3 h-3" />
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="text-[10px] text-slate-400 italic py-2">Sin desglose de materiales. Agrega uno con el botón + Material</div>
-                      )}
-                      <div className="mt-3 flex gap-2">
-                        <button onClick={() => handleRegistrarGastoRenglon(r)} className="text-[11px] bg-indigo-600 text-white px-3 py-1.5 rounded-lg">Registrar gasto renglón</button>
-                        <button onClick={() => handleCrearOCDesdeRenglon(r)} className="text-[11px] bg-amber-500 text-white px-3 py-1.5 rounded-lg">Crear OC</button>
-                        <button onClick={() => { navigator.clipboard?.writeText(`${r.codigo} · ${r.nombre}`); }} className="text-[11px] bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg">Copiar</button>
-                      </div>
+                           <option value="">{t('presupuestos.tipo_actividad')}</option>
+                             {ACTIVIDADES_TIPICAS.map(act => (
+                               <option key={act} value={act}>{act.charAt(0).toUpperCase() + act.slice(1)} ({MATERIALES_POR_ACTIVIDAD[act].length} materiales)</option>
+                             ))}
+                           </select>
+                           <button onClick={() => addSubRenglon(r.id)} className="text-[10px] bg-orange-100 text-orange-600 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200">
+                             <Plus className="w-3 h-3" /> {t('presupuestos.manual')}
+                           </button>
+                         </div>
+                       </div>
+                       {r.subRenglones && r.subRenglones.length > 0 ? (
+                         <div className="space-y-1.5">
+                           {r.subRenglones.map((sub, subIdx) => {
+                             const subTotal = (sub.cantidadUnitaria * r.cantidad * sub.precioUnitario);
+                             return (
+                               <div key={sub.id} className="bg-white rounded p-2 border border-slate-150 flex items-center gap-1.5 text-xs">
+                                 <span className="text-slate-400 w-6">{subIdx + 1}.</span>
+                                 <input 
+                                   type="text" 
+                                   value={sub.nombreMaterial} 
+                                   onChange={e => updSubRenglon(r.id, sub.id, { nombreMaterial: e.target.value })}
+                                   placeholder={t('presupuestos.material')}
+                                   className="flex-1 px-1.5 py-0.5 rounded border border-slate-200 text-xs"
+                                 />
+                                 <input 
+                                   type="number" 
+                                   value={sub.cantidadUnitaria} 
+                                   onChange={e => updSubRenglon(r.id, sub.id, { cantidadUnitaria: +e.target.value })}
+                                   placeholder={t('presupuestos.cant_u')}
+                                   className="w-12 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
+                                 />
+                                 <span className="text-slate-500 text-[10px] w-14 text-right">{(sub.cantidadUnitaria * r.cantidad).toFixed(2)}</span>
+                                 <select 
+                                   value={sub.unidad} 
+                                   onChange={e => updSubRenglon(r.id, sub.id, { unidad: e.target.value })}
+                                   className="w-14 px-1 py-0.5 rounded border border-slate-200 text-xs"
+                                 >
+                                   <option>kg</option>
+                                   <option>l</option>
+                                   <option>m²</option>
+                                   <option>m³</option>
+                                   <option>u</option>
+                                   <option>ml</option>
+                                 </select>
+                                 <input 
+                                   type="number" 
+                                   value={sub.precioUnitario} 
+                                   onChange={e => updSubRenglon(r.id, sub.id, { precioUnitario: +e.target.value })}
+                                   placeholder={t('presupuestos.precio')}
+                                   className="w-16 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
+                                 />
+                                 <span className="text-slate-600 font-semibold w-20 text-right">{fmtQ(subTotal)}</span>
+                                 <button onClick={() => delSubRenglon(r.id, sub.id)} className="text-slate-300 hover:text-red-500">
+                                   <X className="w-3 h-3" />
+                                 </button>
+                               </div>
+                             );
+                           })}
+                         </div>
+                       ) : (
+                         <div className="text-[10px] text-slate-400 italic py-2">{t('presupuestos.sin_desglose')}</div>
+                       )}
+                       <div className="mt-3 flex gap-2">
+                         <button onClick={() => handleRegistrarGastoRenglon(r)} className="text-[11px] bg-indigo-600 text-white px-3 py-1.5 rounded-lg">{t('presupuestos.gasto_renglon_btn')}</button>
+                         <button onClick={() => handleCrearOCDesdeRenglon(r)} className="text-[11px] bg-amber-500 text-white px-3 py-1.5 rounded-lg">{t('presupuestos.crear_oc_btn')}</button>
+                         <button onClick={() => { navigator.clipboard?.writeText(`${r.codigo} · ${r.nombre}`); }} className="text-[11px] bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg">{t('common.copiar')}</button>
+                       </div>
                     </div>
 
-                    <div className="mt-2">
-                      <div className="text-[10px] font-semibold text-slate-500 mb-1">Desglose APU (insumos)</div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                        {r.insumos.map(ins => (
-                          <div key={ins.id} className="flex justify-between bg-white rounded px-2 py-1 text-[11px]">
-                            <span className="text-slate-600 truncate">{ins.nombre}</span>
-                            <span className="text-slate-400">{ins.tipo} · {fmtQ(ins.precio)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+<div className="mt-2">
+                       <div className="text-[10px] font-semibold text-slate-500 mb-1">{t('presupuestos.desglose_apu')}</div>
+                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                         {r.insumos.map(ins => (
+                           <div key={ins.id} className="flex justify-between bg-white rounded px-2 py-1 text-[11px]">
+                             <span className="text-slate-600 truncate">{ins.nombre}</span>
+                             <span className="text-slate-400">{ins.tipo} · {fmtQ(ins.precio)}</span>
+                           </div>
+                         ))}
+                       </div>
+                     </div>
 
                     {/* Cuadrilla de Mano de Obra */}
                     <div className="mt-3 border-t pt-3">

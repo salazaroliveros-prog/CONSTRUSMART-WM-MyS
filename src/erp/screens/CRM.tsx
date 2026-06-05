@@ -9,6 +9,20 @@ import {
   Pencil, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { z } from 'zod';
+
+// Zod schema for CRM licitación form
+const licitacionFormSchema = z.object({
+  titulo: z.string().min(1, 'Título requerido').max(200, 'Máximo 200 caracteres'),
+  cliente: z.string().min(1, 'Cliente requerido').max(150, 'Máximo 150 caracteres'),
+  descripcion: z.string().max(2000, 'Máximo 2000 caracteres').optional().default(''),
+  monto: z.coerce.number().min(0, 'Monto debe ser ≥ 0').max(999_999_999, 'Monto muy alto'),
+  probabilidad: z.coerce.number().min(0, 'Mínimo 0%').max(100, 'Máximo 100%').default(50),
+  notas: z.string().max(2000, 'Máximo 2000 caracteres').optional().default(''),
+  fechaLimite: z.string().optional().default(''),
+});
+
+type LicitacionFormData = z.infer<typeof licitacionFormSchema>;
 
 const ESTADOS = [
   { key: 'identificado', label: 'Identificado', color: 'bg-slate-100 border-slate-300', icon: AlertCircle, textColor: 'text-slate-600' },
@@ -31,7 +45,7 @@ const CRM: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LicitacionFormData>({
     titulo: '',
     cliente: '',
     descripcion: '',
@@ -40,6 +54,7 @@ const CRM: React.FC = () => {
     notas: '',
     fechaLimite: '',
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   React.useEffect(() => {
     const t = setTimeout(() => setLoading(false), 300);
@@ -77,6 +92,7 @@ const CRM: React.FC = () => {
   const resetForm = () => {
     setFormData({ titulo: '', cliente: '', descripcion: '', monto: 0, probabilidad: 50, notas: '', fechaLimite: '' });
     setEditingId(null);
+    setFormErrors({});
   };
 
   const openEdit = (l: Licitacion) => {
@@ -90,36 +106,52 @@ const CRM: React.FC = () => {
       notas: l.notas || '',
       fechaLimite: l.fechaLimite || '',
     });
+    setFormErrors({});
     setShowForm(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.titulo || !formData.cliente) {
-      toast.error('Título y cliente son requeridos');
+    
+    // Zod validation
+    const result = licitacionFormSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach(err => {
+        const field = err.path[0] as string;
+        fieldErrors[field] = err.message;
+      });
+      setFormErrors(fieldErrors);
+      toast.error('Corrige los errores del formulario');
       return;
     }
+    setFormErrors({});
 
+    const data = result.data;
     if (editingId) {
       const lic = licitaciones.find(l => l.id === editingId);
       if (lic) {
         updateLicitacion(editingId, {
-          ...formData,
-          monto: formData.monto,
-          notas: formData.notas || undefined,
-          fechaLimite: formData.fechaLimite || undefined,
+          titulo: data.titulo,
+          cliente: data.cliente,
+          descripcion: data.descripcion,
+          monto: data.monto,
+          notas: data.notas || undefined,
+          fechaLimite: data.fechaLimite || undefined,
         });
         toast.success('Licitación actualizada');
       }
     } else {
       addLicitacion({
-        ...formData,
-        monto: formData.monto,
+        titulo: data.titulo,
+        cliente: data.cliente,
+        descripcion: data.descripcion,
+        monto: data.monto,
         estado: 'identificado',
         fechaCreacion: todayISO(),
         probabilidad: 30,
-        notas: formData.notas || undefined,
-        fechaLimite: formData.fechaLimite || undefined,
+        notas: data.notas || undefined,
+        fechaLimite: data.fechaLimite || undefined,
       });
       toast.success('Licitación creada');
     }
@@ -318,30 +350,33 @@ const CRM: React.FC = () => {
                 <label className="text-xs text-slate-500 mb-1 block">Título *</label>
                 <input
                   value={formData.titulo}
-                  onChange={e => setFormData(p => ({ ...p, titulo: e.target.value }))}
+                  onChange={e => { setFormData(p => ({ ...p, titulo: e.target.value })); setFormErrors(prev => ({ ...prev, titulo: '' })); }}
                   placeholder="Ej. Edificio Comercial"
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400"
+                  className={`w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-purple-400 ${formErrors.titulo ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
                 />
+                {formErrors.titulo && <p className="text-xs text-red-500 mt-1">{formErrors.titulo}</p>}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">Cliente *</label>
                   <input
                     value={formData.cliente}
-                    onChange={e => setFormData(p => ({ ...p, cliente: e.target.value }))}
+                    onChange={e => { setFormData(p => ({ ...p, cliente: e.target.value })); setFormErrors(prev => ({ ...prev, cliente: '' })); }}
                     placeholder="Nombre del cliente"
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400"
+                    className={`w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-purple-400 ${formErrors.cliente ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
                   />
+                  {formErrors.cliente && <p className="text-xs text-red-500 mt-1">{formErrors.cliente}</p>}
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">Monto Q</label>
                   <input
                     type="number"
                     value={formData.monto}
-                    onChange={e => setFormData(p => ({ ...p, monto: +e.target.value }))}
+                    onChange={e => { setFormData(p => ({ ...p, monto: +e.target.value })); setFormErrors(prev => ({ ...prev, monto: '' })); }}
                     placeholder="0.00"
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400"
+                    className={`w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-purple-400 ${formErrors.monto ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
                   />
+                  {formErrors.monto && <p className="text-xs text-red-500 mt-1">{formErrors.monto}</p>}
                 </div>
               </div>
               <div>
@@ -362,9 +397,10 @@ const CRM: React.FC = () => {
                     min={0}
                     max={100}
                     value={formData.probabilidad}
-                    onChange={e => setFormData(p => ({ ...p, probabilidad: Math.min(100, Math.max(0, +e.target.value)) }))}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400"
+                    onChange={e => { setFormData(p => ({ ...p, probabilidad: Math.min(100, Math.max(0, +e.target.value)) })); setFormErrors(prev => ({ ...prev, probabilidad: '' })); }}
+                    className={`w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-purple-400 ${formErrors.probabilidad ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
                   />
+                  {formErrors.probabilidad && <p className="text-xs text-red-500 mt-1">{formErrors.probabilidad}</p>}
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">Fecha Límite</label>

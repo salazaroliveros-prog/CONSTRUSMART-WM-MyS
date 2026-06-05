@@ -60,8 +60,10 @@ const Bodega: React.FC = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // Alertas de stock crítico
+  // Alertas de stock crítico - con ref para evitar ciclos (updateMaterial no debe ir en deps)
   const processedCriticos = useRef(new Set<string>());
+  const updateMaterialRef = useRef(updateMaterial);
+  useEffect(() => { updateMaterialRef.current = updateMaterial; }, [updateMaterial]);
   useEffect(() => {
     const criticosActuales = materiales.filter(m => m.stock < m.stockMinimo);
     criticosActuales.forEach(m => {
@@ -71,17 +73,17 @@ const Bodega: React.FC = () => {
           description: `Mínimo requerido: ${m.stockMinimo} ${m.unidad}. ¡Reabastecer urgente!`,
           duration: 5000,
         });
-        updateMaterial(m.id, { critico: true });
+        updateMaterialRef.current(m.id, { critico: true });
       }
     });
     materiales.filter(m => m.critico && m.stock >= m.stockMinimo).forEach(m => {
       if (processedCriticos.current.has(m.id)) {
         processedCriticos.current.delete(m.id);
       }
-      updateMaterial(m.id, { critico: false });
+      updateMaterialRef.current(m.id, { critico: false });
       toast.success(`✅ ${m.nombre} reabastecido (${m.stock} ${m.unidad})`);
     });
-  }, [materiales, updateMaterial]);
+  }, [materiales]);
 
   const criticos = materiales.filter(m => m.stock < m.stockMinimo);
   const pendientes = ordenes.filter(o => o.estado === 'pendiente');

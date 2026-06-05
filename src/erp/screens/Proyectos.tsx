@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Tipologia, Proyecto } from '../types';
 import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
@@ -13,20 +14,20 @@ import PresupuestoCard from '../components/PresupuestoCard';
 const ESTADOS = ['planeacion', 'ejecucion', 'pausado', 'finalizado'] as const;
 
 const proyectoSchema = z.object({
-  nombre: z.string().min(1, 'Nombre requerido'),
-  cliente: z.string().min(1, 'Cliente requerido'),
-  ubicacion: z.string().min(1, 'Ubicación requerida'),
+  nombre: z.string().min(1, 'nombre_requerido'),
+  cliente: z.string().min(1, 'cliente_requerido'),
+  ubicacion: z.string().min(1, 'ubicacion_requerida'),
   tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica'] as const),
-  presupuestoTotal: z.coerce.number().min(0, 'Valor requerido'),
-  montoContrato: z.coerce.number().min(0, 'Valor requerido'),
+  presupuestoTotal: z.coerce.number().min(0, 'valor_requerido'),
+  montoContrato: z.coerce.number().min(0, 'valor_requerido'),
   estado: z.enum(ESTADOS).optional(),
   fechaInicio: z.string().optional(),
   fechaFin: z.string().optional(),
 }).refine(d => !d.fechaFin || !d.fechaInicio || d.fechaFin >= d.fechaInicio, {
-  message: 'Fecha fin debe ser posterior a fecha inicio',
+  message: 'error_fecha_fin',
   path: ['fechaFin'],
 }).refine(d => d.estado !== 'finalizado' || d.fechaFin, {
-  message: 'Proyecto finalizado requiere fecha fin',
+  message: 'finalizado_requiere_fecha',
   path: ['fechaFin'],
 });
 
@@ -49,10 +50,18 @@ const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado
 };
 
 const Proyectos: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, addProyecto, updateProyecto, deleteProyecto, presupuestos, setView, setSelectedProyectoId } = useErp();
   const [show, setShow] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [imgError, setImgError] = React.useState(false);
+
+  const estadoLabel: Record<string, string> = {
+    planeacion: t('proyectos.planeacion'),
+    ejecucion: t('proyectos.ejecucion'),
+    pausado: t('proyectos.pausado'),
+    finalizado: t('proyectos.finalizado'),
+  };
 
   const {
     register,
@@ -164,11 +173,11 @@ const Proyectos: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800">Portafolio de Proyectos</h1>
-          <p className="text-sm text-slate-400">{proyectos.length} proyectos registrados</p>
+          <h1 className="text-2xl font-black text-slate-800">{t('proyectos.portafolio')}</h1>
+          <p className="text-sm text-slate-400">{t('proyectos.proyectos_registrados', { count: proyectos.length })}</p>
         </div>
         <button onClick={openCreate} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Nuevo Proyecto
+          <Plus className="w-4 h-4" /> {t('proyectos.nuevo')}
         </button>
       </div>
 
@@ -184,12 +193,12 @@ const Proyectos: React.FC = () => {
           />
         )}
         <div className="relative z-10 flex items-center gap-2 text-white mb-1">
-          <MapPin className="w-4 h-4 text-orange-400" /><span className="text-sm font-bold">Mapa de Calor - Geolocalización de Obras</span>
+          <MapPin className="w-4 h-4 text-orange-400" /><span className="text-sm font-bold">{t('proyectos.mapa_calor')}</span>
         </div>
         <div className="relative z-10 flex gap-3 text-[10px] text-slate-300 mb-2">
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />En tiempo</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" />Riesgo</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" />Desviado</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />{t('proyectos.en_tiempo')}</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" />{t('proyectos.riesgo')}</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" />{t('proyectos.desviado')}</span>
         </div>
         <div className="relative z-10 h-[130px]">
           {proyectos.map((p) =>
@@ -216,10 +225,10 @@ const Proyectos: React.FC = () => {
                   <p className="text-[11px] text-slate-400 truncate">{p.cliente} · {p.ubicacion}</p>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => openEdit(p)} className="p-2 rounded-lg text-slate-400 hover:text-orange-600 hover:bg-orange-50 transition-colors" title="Editar">
+                  <button onClick={() => openEdit(p)} className="p-2 rounded-lg text-slate-400 hover:text-orange-600 hover:bg-orange-50 transition-colors" title={t('proyectos.editar_tooltip')}>
                     <Pencil className="w-4 h-4" />
                   </button>
-                  <button onClick={() => deleteProyecto(p.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Eliminar">
+                  <button onClick={() => deleteProyecto(p.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors" title={t('proyectos.eliminar_tooltip')}>
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -231,9 +240,7 @@ const Proyectos: React.FC = () => {
                   onChange={e => {
                     const nuevoEstado = e.target.value as Proyecto['estado'];
                     if (nuevoEstado === 'finalizado' && !p.fechaFin) {
-                      const ok = window.confirm(
-                        `El proyecto "${p.nombre}" no tiene fecha fin. ¿Establecer fecha fin = hoy?`
-                      );
+                      const ok = window.confirm(t('proyectos.confirmar_fecha_fin_hoy', { nombre: p.nombre }));
                       if (ok) updateProyecto(p.id, { estado: nuevoEstado, fechaFin: todayISO() });
                     } else {
                       updateProyecto(p.id, { estado: nuevoEstado });
@@ -249,14 +256,14 @@ const Proyectos: React.FC = () => {
               <div className="space-y-2.5 mb-4">
                 <div>
                   <div className="flex justify-between text-[11px] mb-1.5">
-                    <span className="text-slate-500">Avance Físico</span>
+                    <span className="text-slate-500">{t('proyectos.avance_fisico')}</span>
                     <span className="font-semibold text-slate-700">{fmtPct(p.avanceFisico)}</span>
                   </div>
                   <Progress value={p.avanceFisico} color="#3b82f6" />
                 </div>
-                <div>
+                 <div>
                   <div className="flex justify-between text-[11px] mb-1.5">
-                    <span className="text-slate-500">Avance Financiero</span>
+                    <span className="text-slate-500">{t('proyectos.avance_financiero')}</span>
                     <span className="font-semibold text-slate-700">{fmtPct(p.avanceFinanciero)}</span>
                   </div>
                   <Progress value={p.avanceFinanciero} color="#f97316" />
@@ -264,11 +271,11 @@ const Proyectos: React.FC = () => {
               </div>
               <div className="pt-3.5 flex justify-between text-xs mb-3">
                 <div>
-                  <span className="text-slate-400 block text-[10px] mb-0.5">Presupuesto</span>
+                  <span className="text-slate-400 block text-[10px] mb-0.5">{t('proyectos.presupuesto')}</span>
                   <b className="text-slate-700 font-semibold">{fmtQ(p.presupuestoTotal)}</b>
                 </div>
                 <div className="text-right">
-                  <span className="text-slate-400 block text-[10px] mb-0.5">Contrato</span>
+                  <span className="text-slate-400 block text-[10px] mb-0.5">{t('proyectos.contrato')}</span>
                   <b className="text-emerald-600 font-semibold">{fmtQ(p.montoContrato)}</b>
                 </div>
               </div>
@@ -291,16 +298,16 @@ const Proyectos: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShow(false)}>
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-lg text-slate-800">{editingId ? 'Editar Proyecto' : 'Nuevo Proyecto'}</h2>
+              <h2 className="font-bold text-lg text-slate-800">{editingId ? t('proyectos.editar') : t('proyectos.nuevo')}</h2>
               <button type="button" onClick={() => { setShow(false); setEditingId(null); }}><X className="w-5 h-5" /></button>
             </div>
             <div className="space-y-3">
-              <input {...register('nombre')} placeholder="Nombre del proyecto" className={INPUT} />
-              {errors.nombre && <p className="text-xs text-red-500">{errors.nombre.message}</p>}
-              <input {...register('cliente')} placeholder="Cliente" className={INPUT} />
-              {errors.cliente && <p className="text-xs text-red-500">{errors.cliente.message}</p>}
-              <input {...register('ubicacion')} placeholder="Ubicación" className={INPUT} />
-              {errors.ubicacion && <p className="text-xs text-red-500">{errors.ubicacion.message}</p>}
+              <input {...register('nombre')} placeholder={t('proyectos.nombre')} className={INPUT} />
+              {errors.nombre && <p className="text-xs text-red-500">{t('proyectos.' + errors.nombre.message)}</p>}
+              <input {...register('cliente')} placeholder={t('proyectos.cliente')} className={INPUT} />
+              {errors.cliente && <p className="text-xs text-red-500">{t('proyectos.' + errors.cliente.message)}</p>}
+              <input {...register('ubicacion')} placeholder={t('proyectos.ubicacion')} className={INPUT} />
+              {errors.ubicacion && <p className="text-xs text-red-500">{t('proyectos.' + errors.ubicacion.message)}</p>}
               <select {...register('tipologia')} className={INPUT}>
                 {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]}</option>)}
               </select>
@@ -318,8 +325,8 @@ const Proyectos: React.FC = () => {
                 {ESTADOS.map(e => <option key={e} value={e}>{estadoLabel[e]}</option>)}
               </select>
               <div className="grid grid-cols-2 gap-3">
-                <input type="number" {...register('presupuestoTotal')} placeholder="Presupuesto Q" className={INPUT} />
-                <input type="number" {...register('montoContrato')} placeholder="Contrato Q" className={INPUT} />
+                <input type="number" {...register('presupuestoTotal')} placeholder={t('proyectos.presupuesto_q')} className={INPUT} />
+                <input type="number" {...register('montoContrato')} placeholder={t('proyectos.contrato_q')} className={INPUT} />
               </div>
               {editingId && (() => {
                 const p = proyectos.find(x => x.id === editingId);
@@ -328,39 +335,41 @@ const Proyectos: React.FC = () => {
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-[10px] text-slate-400 mb-1 block">Inicio</label>
+                        <label className="text-[10px] text-slate-400 mb-1 block">{t('proyectos.inicio')}</label>
                         <input type="date" {...register('fechaInicio')} disabled={bloqueado}
                           className={`${INPUT} ${bloqueado ? 'opacity-50 cursor-not-allowed' : ''}`} />
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-400 mb-1 block">Fin</label>
+                        <label className="text-[10px] text-slate-400 mb-1 block">{t('proyectos.fin')}</label>
                         <input type="date" {...register('fechaFin')} disabled={bloqueado}
                           className={`${INPUT} ${bloqueado ? 'opacity-50 cursor-not-allowed' : ''}`} />
                       </div>
                     </div>
-                    {bloqueado && <p className="text-[10px] text-amber-600">Proyecto finalizado — fechas bloqueadas</p>}
+                    {bloqueado && <p className="text-[10px] text-amber-600">{t('proyectos.fechas_bloqueadas')}</p>}
                   </>
                 );
               })()}
               {!editingId && (
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] text-slate-400 mb-1 block">Inicio</label>
+                    <label className="text-[10px] text-slate-400 mb-1 block">{t('proyectos.inicio')}</label>
                     <input type="date" {...register('fechaInicio')} className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-[10px] text-slate-400 mb-1 block">Fin estimado</label>
+                    <label className="text-[10px] text-slate-400 mb-1 block">{t('proyectos.fin_estimado')}</label>
                     <input type="date" {...register('fechaFin')} className={INPUT} />
                   </div>
                 </div>
               )}
               {(errors.presupuestoTotal || errors.montoContrato || errors.fechaFin) && (
                 <p className="text-xs text-red-500">
-                  {errors.presupuestoTotal?.message || errors.montoContrato?.message || errors.fechaFin?.message}
+                  {errors.presupuestoTotal?.message ? t('proyectos.' + errors.presupuestoTotal.message) : ''}
+                  {errors.montoContrato?.message ? t('proyectos.' + errors.montoContrato.message) : ''}
+                  {errors.fechaFin?.message ? t('proyectos.' + errors.fechaFin.message) : ''}
                 </p>
               )}
             </div>
-            <button type="submit" className={BUTTON_PRIMARY}>{editingId ? 'Guardar Cambios' : 'Crear Proyecto'}</button>
+            <button type="submit" className={BUTTON_PRIMARY}>{editingId ? t('proyectos.guardar_cambios') : t('proyectos.crear')}</button>
           </form>
         </div>
       )}
