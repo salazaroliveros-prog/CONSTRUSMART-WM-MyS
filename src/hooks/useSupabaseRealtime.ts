@@ -13,6 +13,12 @@ interface StoreActions {
   addPresupuesto: (p: any) => Promise<void>;
   updatePresupuesto: (id: string, patch: any) => Promise<void>;
   deletePresupuesto: (id: string) => Promise<void>;
+  addSeguimiento?: (s: any) => Promise<void>;
+  updateSeguimiento?: (id: string, patch: any) => Promise<void>;
+  deleteSeguimiento?: (id: string) => Promise<void>;
+  addInsumo?: (i: any) => Promise<void>;
+  updateInsumo?: (id: string, patch: any) => Promise<void>;
+  deleteInsumo?: (id: string) => Promise<void>;
   setOnline: (v: boolean) => void;
 }
 
@@ -25,6 +31,10 @@ const TABLES = [
   { table: 'erp_ordenes_compra', action: 'orden' as const },
   { table: 'erp_avances', action: 'avance' as const },
   { table: 'erp_proveedores', action: 'proveedor' as const },
+  { table: 'erp_seguimiento', action: 'seguimiento' as const },
+  { table: 'erp_insumos', action: 'insumo' as const },
+  { table: 'erp_renglones', action: 'renglon' as const },
+  { table: 'erp_sub_renglones', action: 'subrenglon' as const },
 ];
 
 /**
@@ -37,7 +47,7 @@ export function useSupabaseRealtime(actions: StoreActions) {
   const isConnectedRef = useRef(false);
 
   const handleRealtimeEvent = useCallback(async (
-    actionType: 'proyecto' | 'movimiento' | 'presupuesto' | 'material' | 'empleado' | 'orden' | 'avance' | 'proveedor',
+    actionType: 'proyecto' | 'movimiento' | 'presupuesto' | 'material' | 'empleado' | 'orden' | 'avance' | 'proveedor' | 'seguimiento' | 'insumo' | 'renglon' | 'subrenglon',
     event: string,
     payload: any
   ) => {
@@ -51,6 +61,8 @@ export function useSupabaseRealtime(actions: StoreActions) {
             case 'proyecto': await actions.addProyecto(newRecord); break;
             case 'movimiento': await actions.addMovimiento(newRecord); break;
             case 'presupuesto': await actions.addPresupuesto(newRecord); break;
+            case 'seguimiento': await actions.addSeguimiento?.(newRecord); break;
+            case 'insumo': await actions.addInsumo?.(newRecord); break;
             default: break;
           }
           break;
@@ -59,6 +71,8 @@ export function useSupabaseRealtime(actions: StoreActions) {
             case 'proyecto': await actions.updateProyecto(newRecord.id, newRecord); break;
             case 'movimiento': await actions.updateMovimiento(newRecord.id, newRecord); break;
             case 'presupuesto': await actions.updatePresupuesto(newRecord.id, newRecord); break;
+            case 'seguimiento': await actions.updateSeguimiento?.(newRecord.id, newRecord); break;
+            case 'insumo': await actions.updateInsumo?.(newRecord.id, newRecord); break;
             default: break;
           }
           break;
@@ -67,6 +81,8 @@ export function useSupabaseRealtime(actions: StoreActions) {
             case 'proyecto': await actions.deleteProyecto(oldRecord.id); break;
             case 'movimiento': await actions.deleteMovimiento(oldRecord.id); break;
             case 'presupuesto': await actions.deletePresupuesto(oldRecord.id); break;
+            case 'seguimiento': await actions.deleteSeguimiento?.(oldRecord.id); break;
+            case 'insumo': await actions.deleteInsumo?.(oldRecord.id); break;
             default: break;
           }
           break;

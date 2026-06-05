@@ -1234,13 +1234,16 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const signInWithGoogle = async () => {
     setAuthError('');
     try {
+      const googleHd = import.meta.env.VITE_GOOGLE_OAUTH_HD;
+      const queryParams: Record<string, string> = {
+        prompt: 'select_account',
+      };
+      if (googleHd) queryParams.hd = googleHd;
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin,
-          queryParams: {
-            prompt: 'select_account',
-          },
+          queryParams,
           skipBrowserRedirect: true,
         },
       });
