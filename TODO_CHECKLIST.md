@@ -1,6 +1,6 @@
 # 📋 TODO CHECKLIST - ESTADO GENERAL DEL PROYECTO
 
-> **Última actualización:** 06/04/2026
+> **Última actualización:** 05/06/2026
 > 
 > **Estado del proyecto:** ✅ COMPLETADO - Todas las implementaciones están alineadas con los checklists
 
@@ -130,10 +130,10 @@
 
 ---
 
-## 📋 PENDIENTE DEL ROADMAP (no implementado)
+## 📋 PENDIENTE DEL ROADMAP
 
-| # | Feature | Área | Esfuerzo |
-|---|---------|------|----------|
-| F-15 | Notificaciones push (Service Worker) | General | ~2h |
-| F-17 | Internacionalización (i18n) | UX | ~4h |
-| F-18 | Tests unitarios | Calidad | ~3h |
+| # | Feature | Área | Esfuerzo | Estado |
+|---|---------|------|----------|--------|
+| F-15 | Notificaciones push (Service Worker) | General | ~2h | ✅ Implementado (`public/sw.js`, `src/erp/hooks/useNotifications.ts`) |
+| F-17 | Internacionalización (i18n) | UX | ~4h | ❌ Pendiente |
+| F-18 | Tests unitarios | Calidad | ~3h | ✅ Implementado (76 tests, 6 archivos, vitest.config.ts) |

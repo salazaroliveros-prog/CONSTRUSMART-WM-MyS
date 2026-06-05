@@ -129,26 +129,27 @@
 
 > ✅ Actualizado 06/04/2026 (5 features implementados: F-04, F-06, F-07, F-10, F-11)
 
-### Fase 1 — Reorganización del menú (1 hora)
-1. Refactorizar \`Sidebar.tsx\` con estructura de grupos
-2. Actualizar \`AppLayout.tsx\` para soportar subvistas
-3. Crear componente \`MenuItem\` con submenú colapsable
-4. Migrar tipos \`View\` para soportar sub-vistas (ej: \`proyectos:presupuestos\`)
+### ✅ Fase 1 — Reorganización del menú (COMPLETADA)
+1. ✅ Refactorizado \`Sidebar.tsx\` con estructura de 8 grupos colapsables
+2. ✅ \`AppLayout.tsx\` actualizado con lazy loading + Suspense
+3. ✅ \`MenuItem\` con submenú colapsable por grupo
+4. ⬜ Migrar tipos \`View\` para soportar sub-vistas (ej: \`proyectos:presupuestos\`) — pendiente menor
 
-### Fase 2 — Implementaciones rápidas F-01 a F-06 (2 horas)
-1. Crear screens de Cuentas por Cobrar y Pagar
-2. Mejorar tipos Empleado con fechaAsignacion
-3. Cálculo automático avance financiero
-4. Template EERR en exportación
-5. Integrar predecesores en PertGantt
+### ✅ Fase 2 — Implementaciones rápidas F-01 a F-06 (COMPLETADA)
+1. ✅ Screens Cuentas por Cobrar y Pagar
+2. ✅ Tipo Empleado con fechaAsignacion
+3. ✅ \`avanceFinancieroCalculado()\` en store
+4. ✅ Template EERR en exportación
+5. ✅ Predecesores en GanttChart + PertGanttChart
 
-### Fase 3 — Mejoras medias F-07 a F-12 (3 horas)
-1. Dashboard de hitos
-2. Exportación Excel
-3. Supabase Realtime subscriptions
-4. Integrar Hitos con Gantt
+### ✅ Fase 3 — Mejoras medias F-07 a F-12 (COMPLETADA)
+1. ✅ Dashboard hitos vencidos
+2. ✅ Exportación Excel nativa (.xlsx con SheetJS)
+3. ✅ Supabase Realtime subscriptions (8 tablas)
+4. ✅ Hitos integrados con Gantt (predecesores)
 
-### Fase 4 — UX y refinamiento F-13 a F-18 (4 horas)
-1. Filtro global por proyecto
-2. Notificaciones push
-3. Tests unitarios
+### ✅ Fase 4 — UX y refinamiento F-13 a F-18 (COMPLETADA PARCIAL)
+1. ✅ Filtro global por proyecto (\`useFiltroProyectoGlobal.ts\`)
+2. ✅ Notificaciones push (\`sw.js\` + \`useNotifications.ts\`)
+3. ✅ Tests unitarios (76 tests, 6 archivos)
+4. ⬜ F-17 Internacionalización (i18n) — pendiente (~4h)

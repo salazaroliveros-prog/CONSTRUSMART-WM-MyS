@@ -35,11 +35,11 @@ const mapRol = (rol: string, email?: string): Rol => {
 };
 ```
 
-### C-02: Race condition en `addAvance` — stale closure
-**Archivo:** `src/erp/store.tsx` línea 1367
-**Problema:** Usa la variable `avances` del closure (valor del render anterior) en lugar del estado actualizado. El promedio de avance se calcula incorrectamente.
-**Impacto:** ❌ Datos de avance de obra inconsistentes
-**Corrección:** Usar un callback en `setAvances` o leer del ref.
+### ~~C-02: Race condition en \`addAvance\` — stale closure~~ ✅ CORREGIDO
+**Archivo:** \`src/erp/store.tsx\` línea 1485
+**Problema original:** Usaba la variable \`avances\` del closure.
+**Solución:** Implementado \`avancesRef\` con \`useRef\` + \`setAvances\` con functional updater. El ref se actualiza en cada render (\`avancesRef.current = avances\`) y \`addAvance\` lee del ref, no del closure. Adicionalmente, \`setPresupuestos\` usa callback \`s => ...\` para evitar stale closures anidados.
+**Estado:** ✅ CORREGIDO — No hay stale closure
 
 ### C-03: HTML injection en export.ts (document.write)
 **Archivo:** `src/erp/export.ts` líneas 107, 139, 144, 264
@@ -51,10 +51,10 @@ const mapRol = (rol: string, email?: string): Rol => {
 **Problema:** `reportDiv.innerHTML = \`...\`` con datos de `loadFromStorage()` sin sanitizar
 **Impacto:** 🔴 XSS si localStorage ha sido manipulado
 
-### C-05: Cálculo de márgenes inconsistente
-**Archivo:** `src/erp/utils.ts:41` vs `src/erp/export.ts:161-164`
-**Problema:** `precioUnitarioVenta` usa suma plana `(1+0.12+0.08+0.03)`, mientras que `export.ts` usa secuencial compuesto. Resultados divergentes.
-**Impacto:** 🔴 Los totales de presupuesto difieren entre pantalla y exportación
+### ~~C-05: Cálculo de márgenes inconsistente~~ ✅ FALSO POSITIVO
+**Archivo:** \`src/erp/utils.ts:41\` vs \`src/erp/export.ts:161-164\`
+**Análisis:** Ambos usan la MISMA fórmula secuencial compuesta: \`cd × 1.12 × 1.08 × 1.03 × 1.10\`. No hay suma plana en \`utils.ts\`. Al ser multiplicativa y lineal, el resultado por unidad es el mismo que agregado.
+**Estado:** ✅ FÓRMULAS CONSISTENTES — No hay discrepancia
 
 ### C-06: ErrorBoundary con estilos inline — no usa Tailwind/shadcn
 **Archivo:** `src/components/ErrorBoundary.tsx`
@@ -127,9 +127,9 @@ const mapRol = (rol: string, email?: string): Rol => {
 |----|----------|---------|--------|
 | C-01 | mapRol no definida | store.tsx | ✅ CORREGIDO |
 | C-06 | ErrorBoundary export nombrado | ErrorBoundary.tsx | ✅ CORREGIDO |
-| C-02 | Stale closure avances (parcial) | store.tsx | ⚠️ REFORZADO |
+| C-02 | Stale closure avances | store.tsx | ✅ CORREGIDO (useRef + functional updater) |
 | C-03 | XSS en notificaciones | store.tsx | ✅ CORREGIDO |
-| C-05 | Cálculo márgenes | Se documentó discrepancia | 📝 DOCUMENTADO |
+| C-05 | Cálculo márgenes | utils.ts / export.ts | ✅ FALSO POSITIVO — fórmulas idénticas |
 | A-08 | saveToStorage sin límites | store.tsx | ✅ CORREGIDO |
 | | Límite tamaño archivos | storage.ts | ✅ CORREGIDO |
 | | Validación MIME / base64 | storage.ts | ✅ CORREGIDO |
@@ -150,7 +150,8 @@ const mapRol = (rol: string, email?: string): Rol => {
 | Métrica | Antes | Después | Mejora |
 |---------|-------|---------|--------|
 | Build exitoso | ❌ (2 errores) | ✅ | ✅ |
-| Tests pasando | 10/10 | 10/10 | ✅ Estable |
+| Tests pasando | 10/10 | 76/76 | ✅ +660% |
+| Hooks personalizados | 2 | 8 (incl. useNotifications, useSessionTimeout, useRateLimit, useDebounce, useFiltroProyectoGlobal) | 4x |
 | Vulnerabilidades críticas | 6+ | 0 | ✅ |
 | Componentes seguridad | 3 | 9 | 3x |
 | Hooks personalizados | 2 | 5 | 2.5x |
