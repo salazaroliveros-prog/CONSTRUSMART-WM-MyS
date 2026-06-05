@@ -1310,6 +1310,10 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setMovimientos(s => s.filter(m => m.id !== id));
     enqueueMutation('deleteMovimiento', { id });
   };
+  const updateMovimiento = async (id: string, patch: Partial<Movimiento>) => {
+    setMovimientos(s => s.map(m => m.id === id ? { ...m, ...patch } : m));
+    enqueueMutation('updateMovimiento', { id, ...patch });
+  };
 
   const addEmpleado = async (e: Omit<Empleado, 'id'>) => {
     const newEmp = { ...e, id: uid() };
@@ -1570,7 +1574,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addMovimiento, updateMovimiento, deleteMovimiento,
     addPresupuesto, updatePresupuesto, deletePresupuesto,
     setOnline: setIsOnline,
-  }), [addProyecto, updateProyecto, deleteProyecto, addMovimiento, updateMovimiento, deleteMovimiento, addPresupuesto, updatePresupuesto, deletePresupuesto]);
+  }), [addProyecto, updateProyecto, deleteProyecto, addMovimiento, updateMovimiento, deleteMovimiento, addPresupuesto, updatePresupuesto, deletePresupuesto, setIsOnline]);
 
   useSupabaseRealtime(realtimeActions);
 
@@ -1603,7 +1607,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       view, setView, user, initializing, allowedViews, authError, signIn, signUp, signInWithGoogle, logout,
       isOnline,
       proyectos, addProyecto, updateProyecto, deleteProyecto,
-      movimientos, addMovimiento, deleteMovimiento,
+      movimientos, addMovimiento, updateMovimiento, deleteMovimiento,
       empleados, addEmpleado, updateEmpleado, deleteEmpleado,
       materiales, updateMaterial,
       ordenes, updateOrden, addOrden,
