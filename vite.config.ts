@@ -22,8 +22,6 @@ export default defineConfig(({ mode: _mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          'ui-heavy': ['antd', 'recharts', 'framer-motion', '@tanstack/react-query'],
           three: ['three'],
           'web-ifc': ['web-ifc'],
           ofimatica: ['jspdf', 'html2canvas', 'xlsx'],
