@@ -1,6 +1,6 @@
 # 📋 TODO CHECKLIST - ESTADO GENERAL DEL PROYECTO
 
-> **Última actualización:** 05/06/2026
+> **Última actualización:** 06/06/2026
 >
 > **Estado del proyecto:** ✅ COMPLETADO - Todas las implementaciones verificadas contra código fuente
 
@@ -194,9 +194,9 @@
 | # | Feature | Área | Esfuerzo | Estado |
 |---|---------|------|----------|--------|
 | P2-REND-01 | Lazy loading activo en rutas de App.tsx | Rendimiento | ~1h | ✅ Completado |
-| P2-REND-02 | Optimizar imágenes con WebP o AVIF | Rendimiento | ~2h | ❌ Pendiente |
+| P2-REND-02 | Optimizar imágenes con WebP | Rendimiento | ~2h | ✅ Completado (6 imágenes convertidas, ahorro ~70% promedio) |
 | P2-REND-03 | Virtual scrolling en tablas grandes | Rendimiento | ~3h | ❌ Pendiente |
 | P2-QA-01 | npm audit — sin vulnerabilidades | Calidad | ~1h | ✅ Completado |
 | P3-MEJ-03 | Monitoreo con Sentry | Mejora continua | ~2h | ❌ Pendiente |
-| P3-MEJ-06 | PWA completa con offline support | Mejora continua | ~4h | ❌ Pendiente |
+| P3-MEJ-06 | PWA completa con offline support | Mejora continua | ~4h | ✅ Completado (sw.js v5 con WebP+offline images, precache assets actualizado) |
 | P3-DT-01 | Refactorizar store.tsx en módulos | Deuda técnica | ~4h | ❌ Pendiente |
