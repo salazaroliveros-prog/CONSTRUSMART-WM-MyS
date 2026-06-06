@@ -99,7 +99,7 @@ interface GlowButtonProps {
 export const GlowButton: React.FC<GlowButtonProps> = ({
   children, onClick, className = '', variant = 'primary', size = 'md', icon
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-300 ease-out relative overflow-hidden group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
+  const baseClasses = 'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-300 ease-out relative overflow-hidden group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
 
   const variants = {
     primary: 'bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary hover:to-primary/80 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-105',

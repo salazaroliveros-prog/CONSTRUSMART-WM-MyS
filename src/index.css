@@ -1,5 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* Plus Jakarta Sans REMOVED — unused (~15KB savings) */
 
 @tailwind base;
 @tailwind components;
@@ -242,3 +243,40 @@
 .bg-orange-400 {
   background-color: hsl(var(--primary));
 }
+/* ── EMERALD → SUCCESS ── */
+.bg-emerald-50, .bg-emerald-100 { background-color: hsl(var(--success) / 0.1); }
+.bg-emerald-400, .bg-emerald-500, .bg-emerald-600 { background-color: hsl(var(--success)); color: hsl(var(--success-foreground)); }
+.text-emerald-500, .text-emerald-600, .text-emerald-700 { color: hsl(var(--success)); }
+/* ── BLUE → INFO ── */
+.bg-blue-50, .bg-blue-100 { background-color: hsl(var(--info) / 0.1); }
+.bg-blue-400, .bg-blue-500, .bg-blue-600 { background-color: hsl(var(--info)); color: hsl(var(--info-foreground)); }
+.text-blue-500, .text-blue-600, .text-blue-700 { color: hsl(var(--info)); }
+/* ── AMBER → WARNING ── */
+.bg-amber-50, .bg-amber-100 { background-color: hsl(var(--warning) / 0.1); }
+.text-amber-500, .text-amber-700 { color: hsl(var(--warning)); }
+.bg-amber-400, .bg-amber-500 { background-color: hsl(var(--warning)); color: hsl(var(--warning-foreground)); }
+/* ── PURPLE → ACCENT ── */
+.bg-purple-50, .bg-purple-100 { background-color: hsl(var(--accent) / 0.1); }
+.bg-purple-400, .bg-purple-500, .bg-purple-600 { background-color: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+.text-purple-500, .text-purple-600, .text-purple-700 { color: hsl(var(--accent)); }
+/* ── TEAL → ACCENT secondary ── */
+.bg-teal-50, .bg-teal-100 { background-color: hsl(var(--accent) / 0.08); }
+.bg-teal-500, .bg-teal-600 { background-color: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+.text-teal-500, .text-teal-600 { color: hsl(var(--accent)); }
+/* ── INDIGO → ACCENT muted ── */
+.bg-indigo-50, .bg-indigo-100 { background-color: hsl(var(--accent) / 0.08); }
+.bg-indigo-400, .bg-indigo-500, .bg-indigo-600 { background-color: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+.text-indigo-500, .text-indigo-600 { color: hsl(var(--accent)); }
+/* ── CYAN → ACCENT light ── */
+.bg-cyan-50, .bg-cyan-100 { background-color: hsl(var(--accent) / 0.1); }
+.bg-cyan-500, .bg-cyan-600 { background-color: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+.text-cyan-500 { color: hsl(var(--accent)); }
+/* ── ROSE → DESTRUCTIVE light ── */
+.bg-rose-50 { background-color: hsl(var(--destructive) / 0.1); }
+.text-rose-500, .text-rose-700 { color: hsl(var(--destructive)); }
+/* ── PINK → ACCENT light ── */
+.text-pink-500 { color: hsl(var(--accent)); }
+/* ── VIOLET → ACCENT ── */
+.text-violet-500 { color: hsl(var(--accent)); }
+/* ── GREEN → SUCCESS ── */
+.bg-green-50, .bg-green-100 { background-color: hsl(var(--success) / 0.1); }
