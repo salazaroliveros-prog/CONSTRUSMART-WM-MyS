@@ -26,30 +26,30 @@ Esta auditoría identifica **inconsistencias críticas** en:
 
 #### 🔴 CRÍTICA - Tipografía base inconsistente
 
-| # | Hallazgo | Ubicación | Severidad | Impacto |
-|---|----------|-----------|-----------|---------|
-| T-001 | `button.tsx` usa `text-sm` pero `GlowButton` usa `font-semibold` sin size normalizado | src/components/ui/button.tsx, src/components/ui/animations.tsx | 🔴 CRÍTICA | Botones con diferentes tamaños en misma página |
-| T-002 | `CardTitle` es `text-2xl` pero headers secundarios en pantallas son `text-xl` o `text-lg` | src/components/ui/card.tsx, erp/screens/* | 🔴 CRÍTICA | Jerarquía tipográfica rota |
-| T-003 | Ant Design usa tamaño base `14px` (medium) pero Shadcn no declara base | Ajustes.tsx (appSettings.fontSize) | 🟠 MEDIA | Inconsistencia entre sistemas de diseño |
-| T-004 | No hay escala tipográfica consistente definida en tailwind.config.ts | tailwind.config.ts | 🟠 MEDIA | Difícil mantener coherencia |
-| T-005 | Font-weight irregular: algunos botones `font-semibold`, otros `font-bold`, otros `font-medium` | Múltiples componentes | 🟠 MEDIA | Inconsistencia visual en énfasis |
-| T-006 | Line-height no estandarizado: algunos cards `leading-none`, otros `leading-relaxed` | card.tsx, button.tsx, input.tsx | 🟠 MEDIA | Legibilidad inconsistente |
-| T-007 | Letter-spacing ausente en títulos (debería ser tracking-tight/-wider según tamaño) | Títulos de cards, headers | 🟡 MENOR | Comprensión visual afectada |
+| # | Hallazgo | Ubicación | Severidad | Impacto | Estado |
+|---|----------|-----------|-----------|---------|--------|
+| T-001 | `button.tsx` usa `text-sm` pero `GlowButton` usa `font-semibold` sin size normalizado | src/components/ui/button.tsx, src/components/ui/animations.tsx | 🔴 CRÍTICA | Botones con diferentes tamaños en misma página | ✅ Resuelto |
+| T-002 | `CardTitle` es `text-2xl` pero headers secundarios en pantallas son `text-xl` o `text-lg` | src/components/ui/card.tsx, erp/screens/* | 🔴 CRÍTICA | Jerarquía tipográfica rota | ✅ Resuelto |
+| T-003 | Ant Design usa tamaño base `14px` (medium) pero Shadcn no declara base | Ajustes.tsx (appSettings.fontSize) | 🟠 MEDIA | Inconsistencia entre sistemas de diseño | ✅ Resuelto |
+| T-004 | No hay escala tipográfica consistente definida en tailwind.config.ts | tailwind.config.ts | 🟠 MEDIA | Difícil mantener coherencia | ✅ Resuelto |
+| T-005 | Font-weight irregular: algunos botones `font-semibold`, otros `font-bold`, otros `font-medium` | Múltiples componentes | 🟠 MEDIA | Inconsistencia visual en énfasis | ✅ Resuelto |
+| T-006 | Line-height no estandarizado: algunos cards `leading-none`, otros `leading-relaxed` | card.tsx, button.tsx, input.tsx | 🟠 MEDIA | Legibilidad inconsistente | ✅ Resuelto |
+| T-007 | Letter-spacing ausente en títulos (debería ser tracking-tight/-wider según tamaño) | Títulos de cards, headers | 🟡 MENOR | Comprensión visual afectada | ✅ Resuelto |
 
 #### 🟠 MEDIA - Font families inconsistentes
 
-| # | Hallazgo | Ubicación | Severidad | Impacto |
-|---|----------|-----------|-----------|---------|
-| T-008 | Tres familias tipográficas importadas pero no usadas consistentemente: Inter, JetBrains Mono, Plus Jakarta Sans | index.css: línea 1 | 🟠 MEDIA | Overhead de performance sin uso |
-| T-009 | Code blocks usan JetBrains Mono pero component labels también deberían | animations.tsx (etiquetas button) | 🟡 MENOR | Confusión entre "code" y "label" |
-| T-010 | Plus Jakarta Sans importada pero nunca referenciada en código | index.css | 🔴 CRÍTICA (desperdicio) | Carga innecesaria: ~15KB extra |
+| # | Hallazgo | Ubicación | Severidad | Impacto | Estado |
+|---|----------|-----------|-----------|---------|--------|
+| T-008 | Tres familias tipográficas importadas pero no usadas consistentemente: Inter, JetBrains Mono, Plus Jakarta Sans | index.css: línea 1 | 🟠 MEDIA | Overhead de performance sin uso | ✅ Resuelto |
+| T-009 | Code blocks usan JetBrains Mono pero component labels también deberían | animations.tsx (etiquetas button) | 🟡 MENOR | Confusión entre "code" y "label" | ✅ Resuelto |
+| T-010 | Plus Jakarta Sans importada pero nunca referenciada en código | index.css | 🔴 CRÍTICA (desperdicio) | Carga innecesaria: ~15KB extra | ✅ Resuelto |
 
 #### 🟡 MENOR - Tamaños de fuente no escalables
 
-| # | Hallazgo | Ubicación | Severidad | Impacto |
-|---|----------|-----------|-----------|---------|
-| T-011 | `fontSize` setting (small=12px, medium=14px, large=16px) solo impacta antd, no Shadcn | Ajustes.tsx, AppLayout.tsx | 🟠 MEDIA | Modo compacto parcialmente funcional |
-| T-012 | Algunos componentes hardcodean `text-sm` sin respetar appSettings.fontSize | button.tsx, input.tsx, label.tsx | 🟠 MEDIA | Breakage en modo compacto/grande |
+| # | Hallazgo | Ubicación | Severidad | Impacto | Estado |
+|---|----------|-----------|-----------|---------|--------|
+| T-011 | `fontSize` setting (small=12px, medium=14px, large=16px) solo impacta antd, no Shadcn | Ajustes.tsx, AppLayout.tsx | 🟠 MEDIA | Modo compacto parcialmente funcional | ✅ Resuelto |
+| T-012 | Algunos componentes hardcodean `text-sm` sin respetar appSettings.fontSize | button.tsx, input.tsx, label.tsx | 🟠 MEDIA | Breakage en modo compacto/grande | ✅ Resuelto |
 
 ---
 
@@ -57,35 +57,35 @@ Esta auditoría identifica **inconsistencias críticas** en:
 
 #### 🔴 CRÍTICA - Paleta de colores incompleta
 
-| # | Hallazgo | Ubicación | Severidad | Impacto |
-|---|----------|-----------|-----------|---------|
-| C-001 | Tema oscuro (#222.2 84% 4.9%) muy diferente del tema claro (cálido naranja #18 80% 52%) | index.css líneas 33-87 | 🔴 CRÍTICA | Identidad visual rota en dark mode |
-| C-002 | Primary color en light: `#E8752F` (naranja cálido), en dark: `#4a9eff` (azul frío) | index.css | 🔴 CRÍTICA | Marca inconsistente |
-| C-003 | CSS variables `--success` y `--warning` definidas pero nunca usadas | index.css línea 27-28 | 🟡 MENOR | Deuda técnica |
-| C-004 | No hay variables para estados: info, pending, processing (solo destructive) | tailwind.config.ts | 🟠 MEDIA | Falta feedback visual completo |
-| C-005 | Sidebar dark mode (#1e293b en AntLayout) no matches --sidebar-background (#220 25% 15%) | AntLayout.tsx vs index.css | 🔴 CRÍTICA | Inconsistencia visual |
+| # | Hallazgo | Ubicación | Severidad | Impacto | Estado |
+|---|----------|-----------|-----------|---------|--------|
+| C-001 | Tema oscuro (#222.2 84% 4.9%) muy diferente del tema claro (cálido naranja #18 80% 52%) | index.css líneas 33-87 | 🔴 CRÍTICA | Identidad visual rota en dark mode | ✅ Resuelto |
+| C-002 | Primary color en light: `#E8752F` (naranja cálido), en dark: `#4a9eff` (azul frío) | index.css | 🔴 CRÍTICA | Marca inconsistente | ✅ Resuelto |
+| C-003 | CSS variables `--success` y `--warning` definidas pero nunca usadas | index.css línea 27-28 | 🟡 MENOR | Deuda técnica | ✅ Resuelto |
+| C-004 | No hay variables para estados: info, pending, processing (solo destructive) | tailwind.config.ts | 🟠 MEDIA | Falta feedback visual completo | ✅ Resuelto |
+| C-005 | Sidebar dark mode (#1e293b en AntLayout) no matches --sidebar-background (#220 25% 15%) | AntLayout.tsx vs index.css | 🔴 CRÍTICA | Inconsistencia visual | ✅ Resuelto |
 
 #### 🟠 MEDIA - Sombras inconsistentes
 
-| # | Hallazgo | Ubicación | Severidad | Impacto |
-|---|----------|-----------|-----------|---------|
-| C-006 | `--mode-card-shadow` definida pero no usada globalmente, hardcoded en componentes | index.css, animations.tsx | 🟠 MEDIA | No se aplica consistentemente |
-| C-007 | Ant Design: `boxShadow` configurada dinámicamente por mode, Shadcn hardcoded | AppLayout.tsx vs card.tsx | 🟠 MEDIA | Inconsistencia visual modo<->modo |
-| C-008 | Hover effects con `shadow-orange-500/20` hardcodeado, no respeta tema | animations.tsx línea 71 | 🔴 CRÍTICA | Shadow color ignorado en dark theme |
+| # | Hallazgo | Ubicación | Severidad | Impacto | Estado |
+|---|----------|-----------|-----------|---------|--------|
+| C-006 | `--mode-card-shadow` definida pero no usada globalmente, hardcoded en componentes | index.css, animations.tsx | 🟠 MEDIA | No se aplica consistentemente | ✅ Resuelto |
+| C-007 | Ant Design: `boxShadow` configurada dinámicamente por mode, Shadcn hardcoded | AppLayout.tsx vs card.tsx | 🟠 MEDIA | Inconsistencia visual modo<->modo | ✅ Resuelto |
+| C-008 | Hover effects con `shadow-orange-500/20` hardcodeado, no respeta tema | animations.tsx línea 71 | 🔴 CRÍTICA | Shadow color ignorado en dark theme | ✅ Resuelto |
 
 #### 🟠 MEDIA - Transparencias y opacidades
 
-| # | Hallazgo | Ubicación | Severidad | Impacto |
-|---|----------|-----------|-----------|---------|
-| C-009 | Algunos borders usan `border-border/40` (40% opacity), otros sin divisor | card.tsx vs botones | 🟡 MENOR | Inconsistencia sutil |
-| C-010 | Background gradients con opacidades hardcodeadas: `rgba(232, 117, 47, 0.015)` | index.css línea 98 | 🟡 MENOR | No respeta tema |
+| # | Hallazgo | Ubicación | Severidad | Impacto | Estado |
+|---|----------|-----------|-----------|---------|--------|
+| C-009 | Algunos borders usan `border-border/40` (40% opacity), otros sin divisor | card.tsx vs botones | 🟡 MENOR | Inconsistencia sutil | ✅ Resuelto |
+| C-010 | Background gradients con opacidades hardcodeadas: `rgba(232, 117, 47, 0.015)` | index.css línea 98 | 🟡 MENOR | No respeta tema | ✅ Resuelto |
 
 #### 🟡 MENOR - Estados hover/focus inconsistentes
 
-| # | Hallazgo | Ubicación | Severidad | Impacto |
-|---|----------|-----------|-----------|---------|
-| C-011 | Button hover: `hover:bg-primary/90` pero GlowButton: `hover:from-orange-600 hover:to-orange-700` | button.tsx vs animations.tsx | 🟠 MEDIA | Feedback inconsistente |
-| C-012 | Focus ring default pero GlowButton no tiene focus-visible | animations.tsx | 🟠 MEDIA | Accesibilidad deficiente |
+| # | Hallazgo | Ubicación | Severidad | Impacto | Estado |
+|---|----------|-----------|-----------|---------|--------|
+| C-011 | Button hover: `hover:bg-primary/90` pero GlowButton: `hover:from-orange-600 hover:to-orange-700` | button.tsx vs animations.tsx | 🟠 MEDIA | Feedback inconsistente | ✅ Resuelto |
+| C-012 | Focus ring default pero GlowButton no tiene focus-visible | animations.tsx | 🟠 MEDIA | Accesibilidad deficiente | ✅ Resuelto |
 
 ---
 
