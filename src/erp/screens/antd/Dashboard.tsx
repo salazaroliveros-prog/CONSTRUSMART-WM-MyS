@@ -57,7 +57,7 @@ const AntDashboard: React.FC = () => {
       suffix: '%',
       precision: 1,
       prefix: margenProm > 0 ? <RiseOutlined /> : <FallOutlined />,
-      valueStyle: { color: margenProm > 0 ? '#10b981' : '#ef4444' },
+      valueStyle: { color: margenProm > 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))' },
       progress: Math.abs(margenProm),
       progressColor: margenProm > 0 ? '#10b981' : '#ef4444',
     },
@@ -66,7 +66,7 @@ const AntDashboard: React.FC = () => {
       value: activos.length,
       suffix: `/ ${proyectos.length} total`,
       prefix: <ProjectOutlined />,
-      valueStyle: { color: '#3b82f6' },
+      valueStyle: { color: 'hsl(var(--info))' },
       progress: proyectos.length > 0 ? (activos.length / proyectos.length) * 100 : 0,
       progressColor: '#3b82f6',
     },
@@ -83,7 +83,7 @@ const AntDashboard: React.FC = () => {
       suffix: '%',
       precision: 1,
       prefix: desviacion > 0 ? <ArrowDownOutlined /> : <ArrowUpOutlined />,
-      valueStyle: { color: desviacion > 0 ? '#ef4444' : '#10b981' },
+      valueStyle: { color: desviacion > 0 ? 'hsl(var(--destructive))' : 'hsl(var(--success))' },
     },
   ];
 
@@ -131,7 +131,7 @@ const AntDashboard: React.FC = () => {
           type="error"
           showIcon
           icon={<WarningOutlined />}
-          message={<Text strong style={{ color: '#dc2626' }}>Alertas de Retraso</Text>}
+              message={<Text strong style={{ color: 'hsl(var(--destructive))' }}>Alertas de Retraso</Text>}
           description={
             <Timeline
               items={alertasRetraso.map(a => ({
@@ -223,21 +223,21 @@ const AntDashboard: React.FC = () => {
             <Row gutter={[8, 8]}>
               <Col span={12}>
                 <Statistic title="Ingresos" value={ingresos} prefix="Q"
-                  valueStyle={{ color: '#10b981', fontSize: 20 }} />
+                  valueStyle={{ color: 'hsl(var(--success))', fontSize: 20 }} />
               </Col>
               <Col span={12}>
                 <Statistic title="Gastos" value={gastos} prefix="Q"
-                  valueStyle={{ color: '#ef4444', fontSize: 20 }} />
+                  valueStyle={{ color: 'hsl(var(--destructive))', fontSize: 20 }} />
               </Col>
             </Row>
             <Divider style={{ margin: '12px 0' }} />
             <Statistic title="Utilidad Neta" value={ingresos - gastos} prefix="Q"
-              valueStyle={{ color: ingresos - gastos > 0 ? '#10b981' : '#ef4444' }} />
+              valueStyle={{ color: ingresos - gastos > 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))' }} />
           </Card>
         </Col>
         <Col xs={24} lg={12}>
           <Card
-            title={<Space><ClockCircleOutlined style={{ color: '#f59e0b' }} /> Pronóstico de Finalización</Space>}
+            title={<Space><ClockCircleOutlined style={{ color: 'hsl(var(--warning))' }} /> Pronóstico de Finalización</Space>}
             size="small"
           >
             <Timeline
@@ -287,7 +287,7 @@ const AntDashboard: React.FC = () => {
                     <Space>
                       <Text style={{ fontSize: 16 }}>{m.icon}</Text>
                       <Text strong style={{ fontSize: 12 }}>{m.label}</Text>
-                      <RightOutlined style={{ fontSize: 10, color: '#94a3b8' }} />
+                      <RightOutlined style={{ fontSize: 10, color: 'hsl(var(--muted-foreground))' }} />
                     </Space>
                   </Button>
                 </Col>
@@ -310,7 +310,7 @@ const AntDashboard: React.FC = () => {
               {notificaciones.slice(0, 5).map(n => (
                 <div key={n.id} style={{
                   padding: '6px 0',
-                  borderBottom: '1px solid #f0f0f0',
+                    borderBottom: '1px solid hsl(var(--border))',
                   opacity: n.leido ? 0.5 : 1,
                 }}>
                   <Text strong style={{ fontSize: 12 }}>{n.titulo}</Text>

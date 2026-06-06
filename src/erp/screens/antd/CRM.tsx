@@ -97,14 +97,14 @@ const AntCRM: React.FC = () => {
       <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
         <Col>
           <Title level={4} style={{ margin: 0 }}>
-            <RocketOutlined style={{ marginRight: 8, color: '#7c3aed' }} />
+            <RocketOutlined style={{ marginRight: 8, color: 'hsl(var(--primary))' }} />
             CRM / Licitaciones
           </Title>
           <Text type="secondary">Pipeline comercial y seguimiento de oportunidades</Text>
         </Col>
         <Col>
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}
-            style={{ background: '#7c3aed', borderColor: '#7c3aed' }}>
+            style={{ background: 'hsl(var(--primary))', borderColor: 'hsl(var(--primary))' }}>
             Nueva Licitación
           </Button>
         </Col>
@@ -113,21 +113,21 @@ const AntCRM: React.FC = () => {
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={12} lg={6}><Card size="small">
           <Statistic title="Total Oportunidades" value={licitaciones.length}
-            prefix={<RocketOutlined style={{ color: '#7c3aed' }} />}
+            prefix={<RocketOutlined style={{ color: 'hsl(var(--primary))' }} />}
             suffix={<Text type="secondary" style={{ fontSize: 12 }}>{ganadas.length} ganadas · {licitaciones.filter(l => l.estado === 'perdido').length} perdidas</Text>} />
         </Card></Col>
         <Col xs={12} lg={6}><Card size="small">
           <Statistic title="Monto Total Pipeline" value={totalMonto} prefix="Q" precision={0}
-            valueStyle={{ color: '#10b981' }} />
+            valueStyle={{ color: 'hsl(var(--success))' }} />
         </Card></Col>
         <Col xs={12} lg={6}><Card size="small">
           <Statistic title="Pipeline Ponderado" value={pipelineActivo} prefix="Q" precision={0}
-            valueStyle={{ color: '#3b82f6' }}
+            valueStyle={{ color: 'hsl(var(--info))' }}
             suffix={<Text type="secondary" style={{ fontSize: 11 }}>basado en %</Text>} />
         </Card></Col>
         <Col xs={12} lg={6}><Card size="small">
           <Statistic title="Tasa de Conversión" value={tasaConversion} suffix="%"
-            valueStyle={{ color: '#f59e0b' }} prefix={<PieChartOutlined />} />
+            valueStyle={{ color: 'hsl(var(--warning))' }} prefix={<PieChartOutlined />} />
         </Card></Col>
       </Row>
 
@@ -164,7 +164,7 @@ const AntCRM: React.FC = () => {
                 }}
               >
                 {col.items.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>
+                  <div style={{ textAlign: 'center', padding: 32, color: 'hsl(var(--muted-foreground))' }}>
                     <Text type="secondary">Sin oportunidades</Text>
                   </div>
                 ) : col.items.map(l => (
@@ -182,8 +182,8 @@ const AntCRM: React.FC = () => {
                       }} trigger={['click']}>
                         <Button type="link" size="small" icon={<MoreOutlined />}>Mover</Button>
                       </Dropdown>,
-                      <EditOutlined key="edit" onClick={() => openEdit(l)} style={{ color: '#64748b' }} />,
-                      <DeleteOutlined key="delete" onClick={() => deleteLicitacion(l.id)} style={{ color: '#ef4444' }} />,
+                      <EditOutlined key="edit" onClick={() => openEdit(l)} style={{ color: 'hsl(var(--muted-foreground))' }} />,
+                      <DeleteOutlined key="delete" onClick={() => deleteLicitacion(l.id)} style={{ color: 'hsl(var(--destructive))' }} />,
                     ]}
                   >
                     <Text strong style={{ fontSize: 13 }}>{l.titulo}</Text>

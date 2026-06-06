@@ -79,7 +79,7 @@ const AntFinanciero: React.FC = () => {
     {
       title: 'Monto', dataIndex: 'costoTotal', key: 'costoTotal', width: 130,
       render: (v: number, r: any) => (
-        <Text strong style={{ color: r.tipo === 'ingreso' ? '#10b981' : '#ef4444' }}>
+        <Text strong style={{ color: r.tipo === 'ingreso' ? 'hsl(var(--success))' : 'hsl(var(--destructive))' }}>
           {r.tipo === 'ingreso' ? '+' : '-'} {fmtQ(v || 0)}
         </Text>
       ),
@@ -120,28 +120,28 @@ const AntFinanciero: React.FC = () => {
         <Col xs={12} lg={6}>
           <Card size="small" hoverable>
             <Statistic title="Ingresos Totales" value={ingresos} precision={0}
-              valueStyle={{ color: '#10b981' }}
+              valueStyle={{ color: 'hsl(var(--success))' }}
               prefix={<><ArrowUpOutlined /> Q</>} />
           </Card>
         </Col>
         <Col xs={12} lg={6}>
           <Card size="small" hoverable>
             <Statistic title="Gastos Totales" value={gastos} precision={0}
-              valueStyle={{ color: '#ef4444' }}
+              valueStyle={{ color: 'hsl(var(--destructive))' }}
               prefix={<><ArrowDownOutlined /> Q</>} />
           </Card>
         </Col>
         <Col xs={12} lg={6}>
           <Card size="small" hoverable>
             <Statistic title="Utilidad Neta" value={utilidad} prefix="Q" precision={0}
-              valueStyle={{ color: utilidad > 0 ? '#10b981' : '#ef4444' }} />
+              valueStyle={{ color: utilidad > 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))' }} />
           </Card>
         </Col>
         <Col xs={12} lg={6}>
           <Card size="small" hoverable>
             <Statistic title="Saldo de Caja" value={cashFlowMensual[cashFlowMensual.length - 1]?.saldo || 0}
               prefix="Q" precision={0}
-              valueStyle={{ color: '#3b82f6' }} />
+              valueStyle={{ color: 'hsl(var(--info))' }} />
           </Card>
         </Col>
       </Row>
@@ -159,7 +159,7 @@ const AntFinanciero: React.FC = () => {
                     <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                       <div style={{ width: '100%', background: '#10b981', borderRadius: '4px 4px 0 0', height: Math.max(ingH, 2), opacity: 0.8 }} />
                       <div style={{ width: '100%', background: '#ef4444', borderRadius: '4px 4px 0 0', height: Math.max(egrH, 2), opacity: 0.8 }} />
-                      <Text style={{ fontSize: 8, color: '#94a3b8', marginTop: 4 }}>{m.mes}</Text>
+                      <Text style={{ fontSize: 8, color: 'hsl(var(--muted-foreground))', marginTop: 4 }}>{m.mes}</Text>
                     </div>
                   );
                 })}

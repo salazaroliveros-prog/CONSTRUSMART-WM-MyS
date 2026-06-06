@@ -28,12 +28,12 @@ const AntProyectos: React.FC = () => {
 
   const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado: string }) => {
     const dev = p.avanceFinanciero - p.avanceFisico;
-    if (p.estado === 'planeacion') return '#94a3b8';
-    if (p.estado === 'finalizado') return '#10b981';
-    if (p.estado === 'pausado') return '#f59e0b';
-    if (dev > 8) return '#ef4444';
+    if (p.estado === 'planeacion') return 'hsl(var(--muted-foreground))';
+    if (p.estado === 'finalizado') return 'hsl(var(--success))';
+    if (p.estado === 'pausado') return 'hsl(var(--warning))';
+    if (dev > 8) return 'hsl(var(--destructive))';
     if (dev > 3) return '#fbbf24';
-    return '#10b981';
+    return 'hsl(var(--success))';
   };
 
   const openCreate = () => {
@@ -86,18 +86,18 @@ const AntProyectos: React.FC = () => {
         </Col>
       </Row>
 
-      <Card size="small" style={{ marginBottom: 16, background: '#0f172a', border: 'none', borderRadius: 16, overflow: 'hidden' }}>
+      <Card size="small" style={{ marginBottom: 16, background: 'hsl(var(--card))', border: 'none', borderRadius: 16, overflow: 'hidden' }}>
         <div style={{ position: 'relative', height: 180 }}>
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.15, background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' }} />
+          <div style={{ position: 'absolute', inset: 0, opacity: 0.15, background: 'linear-gradient(135deg, #1e293b 0%, hsl(var(--card)) 100%)' }} />
           <div style={{ position: 'relative', zIndex: 1, padding: 8 }}>
             <Space style={{ marginBottom: 8 }}>
               <EnvironmentOutlined style={{ color: token.colorPrimary }} />
-              <Text style={{ color: '#fff', fontWeight: 600 }}>Mapa de Calor — Geolocalización de Obras</Text>
+              <Text style={{ color: 'hsl(var(--card-foreground))', fontWeight: 600 }}>Mapa de Calor — Geolocalización de Obras</Text>
             </Space>
             <Space size="middle" style={{ marginBottom: 12, display: 'flex' }}>
-              <Badge status="success" text={<Text style={{ color: '#94a3b8', fontSize: 11 }}>En tiempo</Text>} />
-              <Badge status="warning" text={<Text style={{ color: '#94a3b8', fontSize: 11 }}>Riesgo</Text>} />
-              <Badge status="error" text={<Text style={{ color: '#94a3b8', fontSize: 11 }}>Desviado</Text>} />
+              <Badge status="success" text={<Text style={{ color: 'hsl(var(--muted-foreground))', fontSize: 11 }}>En tiempo</Text>} />
+              <Badge status="warning" text={<Text style={{ color: 'hsl(var(--muted-foreground))', fontSize: 11 }}>Riesgo</Text>} />
+              <Badge status="error" text={<Text style={{ color: 'hsl(var(--muted-foreground))', fontSize: 11 }}>Desviado</Text>} />
             </Space>
             <div style={{ height: 100, position: 'relative' }}>
               {proyectos.slice(0, 12).map((p, i) => (
@@ -164,7 +164,7 @@ const AntProyectos: React.FC = () => {
 
                   <div style={{ marginBottom: 8 }}>
                     <Row justify="space-between" style={{ marginBottom: 2 }}>
-                      <Text style={{ fontSize: 11, color: '#64748b' }}>Avance Físico</Text>
+                      <Text style={{ fontSize: 11, color: 'hsl(var(--muted-foreground))' }}>Avance Físico</Text>
                       <Text strong style={{ fontSize: 12 }}>{fmtPct(p.avanceFisico)}</Text>
                     </Row>
                     <Progress percent={p.avanceFisico} size="small" strokeColor="#3b82f6" showInfo={false} />
@@ -172,7 +172,7 @@ const AntProyectos: React.FC = () => {
 
                   <div style={{ marginBottom: 12 }}>
                     <Row justify="space-between" style={{ marginBottom: 2 }}>
-                      <Text style={{ fontSize: 11, color: '#64748b' }}>Avance Financiero</Text>
+                      <Text style={{ fontSize: 11, color: 'hsl(var(--muted-foreground))' }}>Avance Financiero</Text>
                       <Text strong style={{ fontSize: 12 }}>{fmtPct(p.avanceFinanciero)}</Text>
                     </Row>
                     <Progress percent={p.avanceFinanciero} size="small" strokeColor={token.colorPrimary} showInfo={false} />
@@ -182,19 +182,19 @@ const AntProyectos: React.FC = () => {
 
                   <Row gutter={8}>
                     <Col span={12}>
-                      <Text style={{ fontSize: 10, color: '#94a3b8' }}>Presupuesto</Text>
+                      <Text style={{ fontSize: 10, color: 'hsl(var(--muted-foreground))' }}>Presupuesto</Text>
                       <br />
                       <Text strong>{fmtQ(p.presupuestoTotal)}</Text>
                     </Col>
                     <Col span={12} style={{ textAlign: 'right' }}>
-                      <Text style={{ fontSize: 10, color: '#94a3b8' }}>Contrato</Text>
+                      <Text style={{ fontSize: 10, color: 'hsl(var(--muted-foreground))' }}>Contrato</Text>
                       <br />
-                      <Text strong style={{ color: '#10b981' }}>{fmtQ(p.montoContrato)}</Text>
+                      <Text strong style={{ color: 'hsl(var(--success))' }}>{fmtQ(p.montoContrato)}</Text>
                     </Col>
                   </Row>
 
                   {presupuestos.find(pr => pr.id === p.presupuestoActualId) && (
-                    <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #f0f0f0' }}>
+                    <div style={{ marginTop: 12, paddingTop: 12,                     borderTop: '1px solid hsl(var(--border))' }}>
                       <Button
                         type="link"
                         size="small"
