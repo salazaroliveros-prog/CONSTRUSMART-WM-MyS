@@ -55,3 +55,6 @@ temp_untracked_files/
 # Embedded git repos
 CONSTRUSMART-DEVELOP/
 .vercel
+
+# GitHub Pages (nunca crear rama gh-pages)
+gh-pages/
