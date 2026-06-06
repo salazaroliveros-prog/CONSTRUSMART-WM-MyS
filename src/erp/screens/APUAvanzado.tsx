@@ -388,7 +388,7 @@ const APUAvanzado: React.FC = () => {
             </div>
 
             {/* Precio de Venta */}
-            <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl p-4 shadow-lg">
+            <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs text-white/80">Precio de Venta (PV)</span>
