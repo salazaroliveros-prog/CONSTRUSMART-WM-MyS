@@ -32,7 +32,7 @@ const UICard: React.FC<UICardProps> = ({
         style={style}
         onClick={onClick}
       >
-        {subtitle && <div style={{ color: 'rgba(0,0,0,0.45)', fontSize: 12, marginBottom: 12 }}>{subtitle}</div>}
+        {subtitle && <div className="text-muted-foreground" style={{ fontSize: 12, marginBottom: 12 }}>{subtitle}</div>}
         {children}
       </AntCard>
     );
