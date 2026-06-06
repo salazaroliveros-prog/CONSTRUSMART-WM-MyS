@@ -6,8 +6,6 @@ import './antd-global.css'
 import './styles/responsive.css'
 import './styles/themes.css'
 import './lib/i18n'
-import { applyThemeToDocument } from './utils/theme-generator'
-import { initializeTheme } from './lib/themes'
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN as string | undefined
 if (SENTRY_DSN) {
@@ -22,7 +20,11 @@ if (SENTRY_DSN) {
 }
 
 // Inicializar sistema de temas ANTES de renderizar React
-initializeTheme()
+import('./lib/themes').then(({ initializeTheme }) => {
+  initializeTheme()
+}).catch(err => {
+  console.warn('No se pudo inicializar temas:', err)
+})
 
 // Registrar Service Worker para offline
 if ('serviceWorker' in navigator) {
