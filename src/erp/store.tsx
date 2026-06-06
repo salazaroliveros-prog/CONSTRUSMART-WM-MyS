@@ -1478,6 +1478,20 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateOrden = async (id: string, estado: OrdenCompra['estado']) => {
     setOrdenes(s => s.map(o => o.id === id ? { ...o, estado } : o));
     enqueueMutation('updateOrden', { id, estado });
+    
+    // P2: Descuento automático de stock cuando OC es recibida/aprobada
+    if ((estado === 'aprobado' || estado === 'recibida') && Array.isArray(ordenes)) {
+      const orden = ordenes.find(o => o.id === id);
+      if (orden?.items && Array.isArray(orden.items)) {
+        orden.items.forEach(item => {
+          setMateriales(prev => prev.map(m =>
+            m.id === item.materialId
+              ? { ...m, stock: m.stock + item.cantidad }
+              : m
+          ));
+        });
+      }
+    }
   };
 
   const addProveedor = async (p: Omit<Proveedor, 'id'>) => {
@@ -1566,13 +1580,23 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addValeSalida = async (v: Omit<ValeSalida, 'id'>) => {
+    // P1: Validar stock >= cantidad para cada item
+    for (const item of v.items) {
+      const mat = materiales.find(m => m.id === item.materialId);
+      if (!mat || mat.stock < item.cantidad) {
+        const materialName = mat?.nombre || 'Material desconocido';
+        throw new Error(
+          `Stock insuficiente: ${materialName} (disponible: ${mat?.stock ?? 0}, requerido: ${item.cantidad})`
+        );
+      }
+    }
     const newVale = { ...v, id: uid() };
     setValesSalida(s => [newVale, ...s]);
     // Descontar stock de cada material
     newVale.items.forEach(item => {
       const mat = materiales.find(m => m.id === item.materialId);
       if (mat) {
-        const nuevoStock = mat.stock - item.cantidad;
+        const nuevoStock = Math.max(0, mat.stock - item.cantidad);
         setMateriales(prev => prev.map(m => m.id === item.materialId ? { ...m, stock: nuevoStock } : m));
       }
     });
@@ -1609,6 +1633,59 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (patch.uiMode) localStorage.setItem('wm_ui_mode', patch.uiMode);
       return next;
     });
+  }, []);
+
+  // ── Nuevas tablas: erp_renglones, erp_insumos, erp_sub_renglones ──
+  const [_renglones, setRenglones] = useState(() => loadFromStorage(BASE_STORAGE_KEY + '_renglones', []));
+  const [_insumos, setInsumos] = useState(() => loadFromStorage(BASE_STORAGE_KEY + '_insumos', []));
+  const [_subRenglones, setSubRenglones] = useState(() => loadFromStorage(BASE_STORAGE_KEY + '_sub_renglones', []));
+
+  // ── Supabase Realtime subscriptions para nuevas tablas ──
+  useEffect(() => {
+    const sub1 = supabase
+      .from('erp_renglones')
+      .on('*', (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setRenglones(prev => [payload.new, ...prev]);
+        } else if (payload.eventType === 'UPDATE') {
+          setRenglones(prev => prev.map(r => r.id === payload.new.id ? payload.new : r));
+        } else if (payload.eventType === 'DELETE') {
+          setRenglones(prev => prev.filter(r => r.id !== payload.old.id));
+        }
+      })
+      .subscribe();
+
+    const sub2 = supabase
+      .from('erp_insumos')
+      .on('*', (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setInsumos(prev => [payload.new, ...prev]);
+        } else if (payload.eventType === 'UPDATE') {
+          setInsumos(prev => prev.map(i => i.id === payload.new.id ? payload.new : i));
+        } else if (payload.eventType === 'DELETE') {
+          setInsumos(prev => prev.filter(i => i.id !== payload.old.id));
+        }
+      })
+      .subscribe();
+
+    const sub3 = supabase
+      .from('erp_sub_renglones')
+      .on('*', (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setSubRenglones(prev => [payload.new, ...prev]);
+        } else if (payload.eventType === 'UPDATE') {
+          setSubRenglones(prev => prev.map(s => s.id === payload.new.id ? payload.new : s));
+        } else if (payload.eventType === 'DELETE') {
+          setSubRenglones(prev => prev.filter(s => s.id !== payload.old.id));
+        }
+      })
+      .subscribe();
+
+    return () => {
+      sub1.unsubscribe();
+      sub2.unsubscribe();
+      sub3.unsubscribe();
+    };
   }, []);
 
   // ── Supabase Realtime subscriptions (F-10) ──

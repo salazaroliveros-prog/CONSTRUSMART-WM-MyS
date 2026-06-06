@@ -57,7 +57,7 @@ const AppLoader: React.FC = () => (
 );
 
 const Shell: React.FC = () => {
-  const { view, initializing, appSettings } = useErp();
+  const { view, initializing, appSettings, user, allowedViews } = useErp();
   const { sidebarOpen, toggleSidebar, closeSidebar, sidebarCollapsed } = useAppContext();
 
   useEffect(() => {
@@ -71,6 +71,12 @@ const Shell: React.FC = () => {
 
   if (initializing) return <AppLoader />;
   if (view === 'login') return <Login />;
+  
+  // P4: AuthGuard - bloquear acceso a vistas no permitidas
+  const viewName = view.split(':')[0];
+  if (!user || !allowedViews.includes(viewName as any)) {
+    return <Login />;
+  }
 
   const screens: Record<string, React.ReactNode> = {
     dashboard:         <Dashboard />,
@@ -108,7 +114,9 @@ const Shell: React.FC = () => {
     'cuentas-pagar':   <CuentasPagar />,
   };
 
-  const currentScreen = screens[view] ?? <Dashboard />;
+  // P3: Solo renderizar screens permitidas para el rol
+  const allAllowedScreens = Object.keys(screens).filter(key => allowedViews.includes(key as any));
+  const safeScreen = allAllowedScreens.includes(viewName) ? screens[viewName] : screens['dashboard'];
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
@@ -123,7 +131,7 @@ const Shell: React.FC = () => {
         >
           <Suspense fallback={<ScreenLoader />}>
             <div key={view} className="animate-slide-up">
-              {currentScreen}
+              {safeScreen}
             </div>
           </Suspense>
         </main>
