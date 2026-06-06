@@ -2,7 +2,7 @@
 
 ERP web para gestión constructora con módulos de proyectos, presupuestos APU, finanzas, RRHH, bodega, seguimiento EVM, CRM, logística y más. Frontend React + TypeScript + Vite con capa de datos local y sincronización opcional a Supabase.
 
-**Deploy:** https://erp-construsmart-wm-app-01.vercel.app/
+**Deploy:** https://erp-construsmart-wm.vercel.app/
 
 ---
 
@@ -39,7 +39,7 @@ npm run build
 
 Supabase Dashboard → Authentication → URL Configuration:
 - **Site URL:** `http://localhost:8080`
-- **Redirect URLs:** `http://localhost:8080/**`, `https://erp-construsmart-wm-app-01.vercel.app/**`
+- **Redirect URLs:** `http://localhost:8080/**`, `https://erp-construsmart-wm.vercel.app/**`
 
 Google Cloud Console → OAuth 2.0 Client ID:
 - **Authorized redirect URI:** `https://neygzluxugodiwcuctbj.supabase.co/auth/v1/callback?provider=google`
@@ -266,10 +266,10 @@ Ver `SUPABASE_GOOGLE_OAUTH_SETUP.md` (archivo eliminado — contenido consolidad
 
 ### Supabase Dashboard
 - **Site URL:** `http://localhost:8080`
-- **Redirect URLs:** `http://localhost:8080`, `http://localhost:8080/**`, `https://erp-construsmart-wm-app-01.vercel.app`, `https://erp-construsmart-wm-app-01.vercel.app/**`
+- **Redirect URLs:** `http://localhost:8080`, `http://localhost:8080/**`, `https://erp-construsmart-wm.vercel.app`, `https://erp-construsmart-wm.vercel.app/**`
 
 ### Google Cloud Console
-- **Authorized JavaScript origins:** `http://localhost:8080`, `http://localhost`, `https://erp-construsmart-wm-app-01.vercel.app`
+- **Authorized JavaScript origins:** `http://localhost:8080`, `http://localhost`, `https://erp-construsmart-wm.vercel.app`
 - **Authorized redirect URIs:** `https://neygzluxugodiwcuctbj.supabase.co/auth/v1/callback?provider=google`
 
 ### Troubleshooting
