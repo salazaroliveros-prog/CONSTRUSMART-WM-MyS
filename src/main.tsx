@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/react'
 import App from './App.tsx'
 import './index.css'
 import './lib/i18n'
+import { applyThemeToDocument } from './utils/theme-generator'
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN as string | undefined;
 if (SENTRY_DSN) {
@@ -15,6 +16,9 @@ if (SENTRY_DSN) {
     integrations: [Sentry.replayIntegration()],
   });
 }
+
+// Aplicar tema por defecto ANTES de renderizar React
+applyThemeToDocument({ appTheme: 'light', primaryColor: 'hsl(222.2 47.4% 11.2%)', compactMode: false });
 
 // Registrar Service Worker para offline
 if ('serviceWorker' in navigator) {

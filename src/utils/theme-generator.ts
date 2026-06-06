@@ -66,12 +66,19 @@ export function generateAntdThemeToken(settings: ThemeSettings) {
  */
 export function applyThemeToDocument(settings: ThemeSettings): void {
   const root = document.documentElement;
-  const vars = generateThemeCSSVariables(settings);
-
-  Object.entries(vars).forEach(([key, value]) => {
-    root.style.setProperty(key, value);
-  });
+  
+  // Normalizar primaryColor: si es hex, no modificar; si es HSL, usar como está
+  const primaryColor = settings.primaryColor || 'hsl(222.2 47.4% 11.2%)';
+  root.style.setProperty('--primary', primaryColor);
+  
+  // Aplicar otras propiedades
+  if (settings.compactMode !== undefined) {
+    root.style.setProperty('--radius', settings.compactMode ? '0.5rem' : '0.75rem');
+  }
 
   root.classList.toggle('dark', settings.appTheme === 'dark');
   root.classList.toggle('compact-mode', settings.compactMode === true);
+  
+  // Forzar re-render de todos los elementos dependientes del tema
+  document.body.style.transition = 'background-color 0.2s ease';
 }
