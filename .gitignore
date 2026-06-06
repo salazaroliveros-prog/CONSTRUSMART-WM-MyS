@@ -27,6 +27,12 @@ Desktop.ini
 # Logs
 *.log
 npm-debug.log*
+lint_out.txt
+lint_output.txt
+
+# Temporary scripts and files
+fix_warnings.js
+q-dev-chat-*.md
 
 # Test coverage
 coverage/
