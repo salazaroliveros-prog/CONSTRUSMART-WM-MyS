@@ -59,7 +59,7 @@ const Financiero: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="bg-emerald-500 text-white rounded-2xl p-4"><TrendingUp className="w-5 h-5 mb-2" aria-hidden="true" /><div className="text-2xl font-bold">{fmtQ(ingresos)}</div><div className="text-xs opacity-80">Ingresos Totales</div></div>
         <div className="bg-red-500 text-white rounded-2xl p-4"><TrendingDown className="w-5 h-5 mb-2" aria-hidden="true" /><div className="text-2xl font-bold">{fmtQ(gastos)}</div><div className="text-xs opacity-80">Gastos Totales</div></div>
-        <div className={`${utilidad >= 0 ? 'bg-slate-900 dark:bg-slate-700' : 'bg-red-700'} text-white rounded-2xl p-4`}><Wallet className="w-5 h-5 mb-2" aria-hidden="true" /><div className="text-2xl font-bold">{fmtQ(utilidad)}</div><div className="text-xs opacity-80">Utilidad Neta</div></div>
+        <div className={`${utilidad >= 0 ? 'bg-primary text-primary-foreground' : 'bg-destructive text-destructive-foreground'} rounded-2xl p-4`}><Wallet className="w-5 h-5 mb-2 opacity-80" aria-hidden="true" /><div className="text-2xl font-bold">{fmtQ(utilidad)}</div><div className="text-xs opacity-80">Utilidad Neta</div></div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
@@ -75,7 +75,7 @@ const Financiero: React.FC = () => {
           <div className="flex items-center gap-3">
             <Donut size={110} data={porCategoria.length ? porCategoria : [{ label: '-', value: 1, color: '#e2e8f0' }]} />
             <div className="text-[11px] space-y-1 flex-1 max-h-32 overflow-y-auto">
-              {porCategoria.map(c => <div key={c.label} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full" style={{ background: c.color }} />{c.label}</span><b className="text-slate-600">{fmtQ(c.value)}</b></div>)}
+              {porCategoria.map(c => <div key={c.label} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full" style={{ background: c.color }} />{c.label}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>)}
             </div>
           </div>
         </div>
