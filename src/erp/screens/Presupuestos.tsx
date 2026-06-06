@@ -611,23 +611,23 @@ const Presupuestos: React.FC = () => {
           {items.map((r, idx) => {
             const c = calc(r);
             return (
-              <div key={r.id} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+               <div key={r.id} className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
                 <div className="flex items-center gap-2 p-3">
-                  <button onClick={() => toggleExpand(r.id)} className="text-slate-400">
+                  <button onClick={() => toggleExpand(r.id)} className="text-muted-foreground" aria-label="Expandir">
                     {r.expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </button>
-                  <span className="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">{r.codigo}</span>
-                  <span className="flex-1 text-sm font-semibold text-slate-700 truncate">{idx + 1}. {r.nombre}</span>
-<div className="hidden sm:flex items-center gap-1 text-xs">
-                    <span className="text-slate-400">{t('presupuestos.cantidad_abrev')}</span>
-                    <input type="number" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} placeholder={t('presupuestos.cantidad')} className="w-16 px-2 py-1 rounded border border-slate-200 text-right text-xs" />
-                    <span className="text-slate-400">{r.unidad}</span>
+                  <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded text-foreground/70">{r.codigo}</span>
+                  <span className="flex-1 text-sm font-semibold text-foreground truncate">{idx + 1}. {r.nombre}</span>
+                  <div className="hidden sm:flex items-center gap-1 text-xs">
+                    <span className="text-muted-foreground">{t('presupuestos.cantidad_abrev')}</span>
+                    <input type="number" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} placeholder={t('presupuestos.cantidad')} className="w-16 px-2 py-1 rounded border border-input text-right text-xs bg-background" />
+                    <span className="text-muted-foreground">{r.unidad}</span>
                   </div>
-                  <span className="text-sm font-bold text-orange-600 w-24 text-right">{fmtQ(c.total)}</span>
-           <button onClick={() => del(r.id)} aria-label={t('presupuestos.eliminar_renglon')}><Trash2 className="w-4 h-4 text-slate-300 hover:text-red-500" /></button>
+                  <span className="text-sm font-bold text-primary w-24 text-right">{fmtQ(c.total)}</span>
+                  <button onClick={() => del(r.id)} aria-label={t('presupuestos.eliminar_renglon')} className="text-muted-foreground/50 hover:text-destructive transition-colors"><Trash2 className="w-4 h-4" /></button>
                 </div>
                 {r.expanded && (
-                  <div className="bg-slate-50 px-3 pb-3 pt-1 border-t border-slate-100">
+                  <div className="bg-muted/60 px-3 pb-3 pt-1 border-t border-border">
                     <div className="grid grid-cols-2 sm:hidden gap-2 mb-2 text-xs">
                       <div><label className="text-slate-400">Cantidad ({r.unidad})</label><input type="number" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} placeholder="Cantidad" className={ninp} /></div>
                     </div>
@@ -820,29 +820,29 @@ const Presupuestos: React.FC = () => {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
-            <div className="bg-white rounded-xl border border-slate-200 p-4">
-              <div className="text-[10px] uppercase text-slate-400 mb-2">Gasto real del proyecto</div>
-              <div className="text-2xl font-bold text-slate-900">{fmtQ(gastoReal)}</div>
-              <div className="text-xs text-slate-500 mt-1">Solo egresos registrados</div>
+            <div className="bg-card text-card-foreground rounded-xl border border-border p-4">
+              <div className="text-[10px] uppercase text-muted-foreground mb-2">Gasto real del proyecto</div>
+              <div className="text-2xl font-bold text-foreground">{fmtQ(gastoReal)}</div>
+              <div className="text-xs text-muted-foreground mt-1">Solo egresos registrados</div>
             </div>
-            <div className="bg-white rounded-xl border border-slate-200 p-4">
-              <div className="text-[10px] uppercase text-slate-400 mb-2">Presupuesto vigente</div>
-              <div className="text-2xl font-bold text-slate-900">{presupuestoActual ? fmtQ(presupuestoActual.totalCalculado) : 'N/A'}</div>
-              <div className="text-xs text-slate-500 mt-1">Última versión disponible</div>
+            <div className="bg-card text-card-foreground rounded-xl border border-border p-4">
+              <div className="text-[10px] uppercase text-muted-foreground mb-2">Presupuesto vigente</div>
+              <div className="text-2xl font-bold text-foreground">{presupuestoActual ? fmtQ(presupuestoActual.totalCalculado) : 'N/A'}</div>
+              <div className="text-xs text-muted-foreground mt-1">Última versión disponible</div>
             </div>
-            <div className={`rounded-xl border p-4 ${variacionReal > 0 ? 'border-red-200 bg-red-50' : 'border-emerald-200 bg-emerald-50'}`}>
-              <div className="text-[10px] uppercase text-slate-500 mb-2">Variación real vs presupuesto</div>
-              <div className="text-2xl font-bold text-slate-900">{fmtQ(variacionReal)}</div>
-              <div className="text-xs text-slate-600 mt-1">{variacionReal > 0 ? 'Sobre presupuesto' : 'Bajo presupuesto'}</div>
+            <div className={`rounded-xl border p-4 ${variacionReal > 0 ? 'border-destructive/30 bg-destructive/10' : 'border-success/30 bg-success/10'}`}>
+              <div className="text-[10px] uppercase text-muted-foreground mb-2">Variación real vs presupuesto</div>
+              <div className="text-2xl font-bold text-foreground">{fmtQ(variacionReal)}</div>
+              <div className="text-xs text-muted-foreground mt-1">{variacionReal > 0 ? 'Sobre presupuesto' : 'Bajo presupuesto'}</div>
             </div>
           </div>
-          <div className="bg-slate-900 text-white rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 sticky bottom-2">
+          <div className="bg-primary text-primary-foreground rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 sticky bottom-2">
             <div className="flex gap-4 sm:gap-6 text-sm">
-              <div><span className="text-slate-400 text-xs block">Costo Directo</span><b>{fmtQ(granDir)}</b></div>
-              <div><span className="text-slate-400 text-xs block">Renglones</span><b>{items.length}</b></div>
+              <div><span className="text-primary-foreground/70 text-xs block">Costo Directo</span><b>{fmtQ(granDir)}</b></div>
+              <div><span className="text-primary-foreground/70 text-xs block">Renglones</span><b>{items.length}</b></div>
             </div>
             <div className="text-right">
-              <span className="text-orange-300 text-xs block">TOTAL PRESUPUESTO (c/ indirectos y utilidad)</span>
+              <span className="text-primary-foreground/80 text-xs block">TOTAL PRESUPUESTO (c/ indirectos y utilidad)</span>
               <b className="text-2xl">{fmtQ(granTotal)}</b>
             </div>
           </div>
