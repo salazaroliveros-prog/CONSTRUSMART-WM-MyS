@@ -1,0 +1,283 @@
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useErp, Rol } from '../store'
+import { EMPRESA } from '../utils'
+import { Building2, ArrowRight, ShieldCheck, Chrome, Palette, X } from 'lucide-react'
+import { INPUT, ERROR_STATE, BUTTON_SECONDARY } from '../ui'
+import { THEMES, applyTheme, getStoredTheme, initializeTheme, type ThemeName } from '@/lib/themes'
+
+const loginSchema = z.object({
+  email: z.string().email('Email inválido'),
+  password: z.string().min(6, 'Mínimo 6 caracteres'),
+  nombre: z.string().optional(),
+  rol: z.enum(['Administrador', 'Gerente', 'Residente', 'Compras', 'Bodeguero'] as const),
+})
+
+type LoginFormData = z.infer<typeof loginSchema>
+const ROLES: Rol[] = ['Administrador', 'Gerente', 'Residente', 'Compras', 'Bodeguero']
+
+const Login: React.FC = () => {
+  const { t } = useTranslation()
+  const { signIn, signUp, signInWithGoogle, authError } = useErp()
+  const [mode, setMode] = React.useState<'in' | 'up'>('in')
+  const [loading, setLoading] = React.useState(false)
+  const [showThemeSelector, setShowThemeSelector] = useState(false)
+  const [currentTheme, setCurrentTheme] = useState<ThemeName>(getStoredTheme())
+
+  useEffect(() => {
+    initializeTheme()
+  }, [])
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '', nombre: '', rol: 'Administrador' },
+  })
+
+  const [registroError, setRegistroError] = React.useState<string | null>(null)
+  const CRM_ENDPOINT = import.meta.env.VITE_CRM_ENDPOINT as string | undefined
+
+  const onSubmit = async (data: LoginFormData) => {
+    setLoading(true)
+    setRegistroError(null)
+    if (mode === 'up') {
+      if (data.rol === 'Administrador') {
+        setRegistroError('El rol Administrador no está disponible para registro.')
+        setLoading(false)
+        return
+      }
+      await signUp(data.email, data.password, data.nombre || '', data.rol)
+
+      if (CRM_ENDPOINT) {
+        try {
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 5000)
+          await fetch(CRM_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              email: data.email, 
+              name: data.nombre || undefined, 
+              source: 'erp-signup', 
+              tags: ['erp-user', data.rol] 
+            }),
+            signal: controller.signal,
+          })
+          clearTimeout(timeoutId)
+        } catch { /* ignore */ }
+      }
+    } else {
+      await signIn(data.email, data.password)
+    }
+    setLoading(false)
+  }
+
+  const handleThemeChange = (themeName: ThemeName) => {
+    const theme = THEMES[themeName]
+    applyTheme(theme)
+    setCurrentTheme(themeName)
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col lg:flex-row bg-background relative overflow-hidden">
+      {/* Botón selector de temas */}
+      <button
+        onClick={() => setShowThemeSelector(!showThemeSelector)}
+        className="fixed top-4 right-4 z-50 p-2.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg transition-all hover:scale-110"
+        title="Cambiar tema"
+      >
+        <Palette className="w-5 h-5" />
+      </button>
+
+      {/* Selector de temas flotante */}
+      {showThemeSelector && (
+        <div className="fixed top-16 right-4 z-50 bg-card border border-border rounded-lg shadow-xl p-4 max-w-xs animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-sm text-foreground">Elige un tema</h3>
+            <button
+              onClick={() => setShowThemeSelector(false)}
+              className="p-1 hover:bg-muted rounded-md transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {Object.entries(THEMES).map(([key, theme]) => (
+              <button
+                key={key}
+                onClick={() => {
+                  handleThemeChange(key as ThemeName)
+                }}
+                className={`p-2 rounded-lg text-xs font-semibold transition-all border-2
+                  ${currentTheme === key
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border bg-muted text-foreground hover:border-primary/50'
+                  }`}
+              >
+                {theme.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Panel izquierdo - Decorativo */}
+      <div className="hidden lg:flex flex-1 bg-primary relative overflow-hidden items-center justify-center p-12">
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage: 'image-set(url(/empresa_b.webp) type("image/webp"), url(/empresa_b.jpg) type("image/jpeg"))',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/50 via-primary/30 to-accent/20" />
+        <div className="relative z-10 text-primary-foreground max-w-md text-center">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-background/20 flex items-center justify-center ring-1 ring-primary-foreground/30 shadow-lg">
+              <picture>
+                <source srcSet="/logo.webp" type="image/webp" />
+                <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
+              </picture>
+            </div>
+            <picture>
+              <source srcSet="/construmys.webp" type="image/webp" />
+              <img src="/construmys.png" alt="Construmys" className="h-16 w-16 object-contain drop-shadow-lg" />
+            </picture>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black leading-tight">
+            CONSTRUCTORA<br />
+            <span className="text-2xl sm:text-3xl">WM / M&amp;S</span>
+          </h1>
+          <p className="text-primary-foreground text-base sm:text-lg italic mt-2">{EMPRESA.eslogan}</p>
+          <p className="text-primary-foreground/90 mt-6 leading-relaxed text-sm sm:text-base">
+            {t('auth.ingrese_credenciales')}
+          </p>
+          <div className="flex flex-wrap gap-4 sm:gap-6 mt-8 justify-center">
+            {['Presupuestos', 'Control', 'Finanzas'].map((lbl) => (
+              <div key={lbl} className="text-center">
+                <ShieldCheck className="w-5 h-5 mx-auto text-primary-foreground/80" />
+                <span className="text-xs text-primary-foreground/60 mt-1 block">{lbl}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Panel derecho - Formulario */}
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-background min-h-screen lg:min-h-0">
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
+          {/* Header del formulario */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center ring-1 ring-primary/30 shadow-lg">
+              <picture>
+                <source srcSet="/logo.webp" type="image/webp" />
+                <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
+              </picture>
+            </div>
+            <div>
+              <div className="font-bold text-foreground text-sm sm:text-base">{EMPRESA.nombre}</div>
+              <div className="text-[10px] sm:text-xs text-primary italic">{EMPRESA.eslogan}</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-foreground mb-1">
+            <Building2 className="w-5 h-5 text-primary" />
+            <h2 className="text-xl sm:text-2xl font-bold">
+              {mode === 'in' ? t('auth.iniciar_sesion') : t('auth.registrarse')}
+            </h2>
+          </div>
+          <p className="text-muted-foreground text-xs sm:text-sm mb-4 sm:mb-6">{t('auth.ingrese_credenciales')}</p>
+
+          {/* Campos de registro */}
+          {mode === 'up' && (
+            <>
+              <input
+                {...register('nombre')}
+                placeholder={t('common.nombre')}
+                className={`${INPUT} ${errors.nombre ? ERROR_STATE : ''}`}
+              />
+              {errors.nombre && <p className="text-xs text-destructive mb-2">{errors.nombre.message}</p>}
+              <select {...register('rol')} className={INPUT}>
+                {ROLES.map((r) => (
+                  <option key={r} value={r} disabled={r === 'Administrador'}>
+                    {r}{r === 'Administrador' ? ` (${t('common.no')})` : ''}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] text-warning mt-1">{t('auth.error_permisos')}</p>
+            </>
+          )}
+
+          {/* Email */}
+          <input
+            type="email"
+            autoComplete="email"
+            {...register('email')}
+            placeholder={t('auth.correo')}
+            className={`${INPUT} ${errors.email ? ERROR_STATE : ''}`}
+          />
+          {errors.email && <p className="text-xs text-destructive mb-2">{errors.email.message}</p>}
+
+          {/* Contraseña */}
+          <input
+            type="password"
+            autoComplete="current-password"
+            {...register('password')}
+            placeholder={t('auth.contrasena')}
+            className={`${INPUT} ${errors.password ? ERROR_STATE : ''}`}
+          />
+          {errors.password && <p className="text-xs text-destructive mb-2">{errors.password.message}</p>}
+
+          {/* Mensajes de error */}
+          {authError && <p className="text-xs text-destructive mb-3">{authError}</p>}
+          {registroError && <p className="text-xs text-destructive mb-3">{registroError}</p>}
+
+          {/* Botón principal */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold py-3 sm:py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-60 active:scale-[0.98] transition-all"
+          >
+            {loading ? t('common.cargando') : mode === 'in' ? t('auth.iniciar_sesion') : t('auth.registrarse')}{' '}
+            <ArrowRight className="w-4 h-4" />
+          </button>
+
+          {/* Google OAuth */}
+          <button
+            type="button"
+            disabled={loading}
+            onClick={async () => {
+              setLoading(true)
+              try {
+                await signInWithGoogle()
+              } finally {
+                setLoading(false)
+              }
+            }}
+            className={`${BUTTON_SECONDARY} w-full justify-center`}
+          >
+            <Chrome className="w-4 h-4" /> {t('auth.google')}
+          </button>
+
+          {/* Toggle modo */}
+          <button
+            type="button"
+            onClick={() => setMode(mode === 'in' ? 'up' : 'in')}
+            className="w-full text-center text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4 hover:text-primary transition-colors"
+          >
+            {mode === 'in' ? t('auth.no_cuenta') : t('auth.ya_cuenta')}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+export default Login
