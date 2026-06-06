@@ -21,13 +21,14 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught:', error, errorInfo);
+    const safeError = { message: '[Error Details]', stack: '[Stack Trace]' };
+    console.error('ErrorBoundary caught error');
     Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
     try {
       const logs = JSON.parse(localStorage.getItem('errorLogs') || '[]');
       logs.push({
-        message: error.message,
-        stack: error.stack,
+        message: safeError.message,
+        stack: safeError.stack,
         timestamp: new Date().toISOString(),
       });
       localStorage.setItem('errorLogs', JSON.stringify(logs.slice(-10)));
