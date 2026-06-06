@@ -82,7 +82,7 @@ const Login: React.FC = () => {
             </div>
             <picture>
               <source srcSet="/construmys.webp" type="image/webp" />
-              <img src="/construmys.png" alt="Construmys" className="h-16 w-auto object-contain drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
+              <img src="/construmys.png" alt="Construmys" className="h-16 w-16 object-contain drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
             </picture>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black leading-tight">CONSTRUCTORA<br /><span className="text-2xl sm:text-3xl">WM / M&amp;S</span></h1>
@@ -139,6 +139,7 @@ const Login: React.FC = () => {
           )}
           <input
             type="email"
+            autoComplete="email"
             {...register('email')}
             placeholder={t('auth.correo')}
             className={`${INPUT} ${errors.email ? ERROR_STATE : ''}`}
@@ -146,6 +147,7 @@ const Login: React.FC = () => {
           {errors.email && <p className="text-xs text-destructive mb-2">{errors.email.message}</p>}
           <input
             type="password"
+            autoComplete="current-password"
             {...register('password')}
             placeholder={t('auth.contrasena')}
             className={`${INPUT} ${errors.password ? ERROR_STATE : ''}`}
