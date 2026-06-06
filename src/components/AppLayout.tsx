@@ -1,10 +1,11 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { ErpProvider, useErp } from '@/erp/store';
 import AppProvider from '@/contexts/AppContext';
 import { useAppContext } from '@/contexts/AppContext';
 import Header from '@/erp/components/Header';
 import Sidebar from '@/erp/components/Sidebar';
 import Login from '@/erp/screens/Login';
+import { applyThemeToDocument } from '@/utils/theme-generator';
 
 const Dashboard    = lazy(() => import('@/erp/screens/Dashboard'));
 const Proyectos    = lazy(() => import('@/erp/screens/Proyectos'));
@@ -30,8 +31,17 @@ const AppLoader: React.FC = () => (
 );
 
 const Shell: React.FC = () => {
-  const { view, initializing } = useErp();
+  const { view, initializing, appSettings } = useErp();
   const { sidebarOpen, toggleSidebar, closeSidebar, sidebarCollapsed } = useAppContext();
+
+  useEffect(() => {
+    applyThemeToDocument({
+      appTheme: appSettings.appTheme,
+      compactMode: appSettings.compactMode,
+      primaryColor: appSettings.primaryColor,
+      uiMode: appSettings.uiMode,
+    });
+  }, [appSettings.appTheme, appSettings.compactMode, appSettings.primaryColor, appSettings.uiMode]);
 
   if (initializing) return <AppLoader />;
   if (view === 'login') return <Login />;
