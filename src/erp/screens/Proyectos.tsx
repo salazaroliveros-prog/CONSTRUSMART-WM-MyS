@@ -185,21 +185,21 @@ const Proyectos: React.FC = () => {
                 </div>
               </div>
               <div className="flex gap-2 mb-4">
-                <span className="text-[10px] px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">{TIPOLOGIA_LABEL[p.tipologia]}</span>
-                <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium ${p.estado === 'ejecucion' ? 'bg-emerald-50 text-emerald-700' : p.estado === 'planeacion' ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>{p.estado}</span>
+                <span className="text-[10px] px-2.5 py-1 rounded-full bg-muted text-foreground font-medium">{TIPOLOGIA_LABEL[p.tipologia]}</span>
+                <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium ${p.estado === 'ejecucion' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : p.estado === 'planeacion' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-muted text-foreground/70'}`}>{p.estado}</span>
               </div>
               <div className="space-y-2.5 mb-4">
                 <div>
                   <div className="flex justify-between text-[11px] mb-1.5">
-                    <span className="text-slate-500">Avance Físico</span>
-                    <span className="font-semibold text-slate-700">{fmtPct(p.avanceFisico)}</span>
+                    <span className="text-muted-foreground">Avance Físico</span>
+                    <span className="font-semibold text-foreground">{fmtPct(p.avanceFisico)}</span>
                   </div>
                   <Progress value={p.avanceFisico} color="#3b82f6" />
                 </div>
                 <div>
                   <div className="flex justify-between text-[11px] mb-1.5">
-                    <span className="text-slate-500">Avance Financiero</span>
-                    <span className="font-semibold text-slate-700">{fmtPct(p.avanceFinanciero)}</span>
+                    <span className="text-muted-foreground">Avance Financiero</span>
+                    <span className="font-semibold text-foreground">{fmtPct(p.avanceFinanciero)}</span>
                   </div>
                   <Progress value={p.avanceFinanciero} color="#f97316" />
                 </div>

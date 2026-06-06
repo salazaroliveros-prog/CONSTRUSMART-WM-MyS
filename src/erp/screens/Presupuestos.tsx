@@ -485,8 +485,8 @@ const Presupuestos: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2"><Calculator className="w-6 h-6 text-orange-500" /> {t('presupuestos.titulo_calculadora')}</h1>
-          <p className="text-sm text-slate-400">{t('presupuestos.motor_calculo', { 
+          <h1 className="text-2xl font-black text-foreground flex items-center gap-2"><Calculator className="w-6 h-6 text-primary" /> {t('presupuestos.titulo_calculadora')}</h1>
+          <p className="text-sm text-muted-foreground">{t('presupuestos.motor_calculo', { 
             h_menor: HERRAMIENTA_MENOR*100, 
             indirectos: COSTOS_INDIRECTOS*100, 
             admin: ADMINISTRACION*100, 
@@ -495,18 +495,18 @@ const Presupuestos: React.FC = () => {
           })}</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={openHistorial} className="bg-slate-100 px-3 py-1 rounded-xl text-sm text-slate-700 hover:bg-slate-200">{t('presupuestos.historial')}</button>
+          <button onClick={openHistorial} className="bg-muted px-3 py-1 rounded-xl text-sm text-foreground hover:bg-muted/80">{t('presupuestos.historial')}</button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-4 border-b border-slate-200">
+      <div className="flex gap-2 mb-4 border-b border-border">
           <button 
             onClick={() => { setTab('crear'); setEditingPresupuesto(null); }}
             className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
               tab === 'crear' 
-                ? 'text-orange-600 border-orange-600' 
-                : 'text-slate-500 border-transparent hover:text-slate-700'
+                ? 'text-primary border-primary' 
+                : 'text-muted-foreground border-transparent hover:text-foreground'
             }`}
           >
             ➕ {editingPresupuesto ? t('presupuestos.editar') : t('presupuestos.nuevo')}
@@ -515,8 +515,8 @@ const Presupuestos: React.FC = () => {
             onClick={() => setTab('guardados')}
             className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
               tab === 'guardados' 
-                ? 'text-orange-600 border-orange-600' 
-                : 'text-slate-500 border-transparent hover:text-slate-700'
+                ? 'text-primary border-primary' 
+                : 'text-muted-foreground border-transparent hover:text-foreground'
             }`}
           >
             📋 {t('presupuestos.guardados_con_count', { count: presupuestosDelProyecto.length })}

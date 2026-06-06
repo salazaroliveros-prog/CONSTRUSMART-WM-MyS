@@ -50,49 +50,49 @@ const CajasChicasWidget: React.FC = () => {
   const totalAprobadas = cajasChicas.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.monto, 0);
 
   return (
-    <div className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 h-full flex flex-col">
+    <div className="bg-card rounded-2xl p-3 shadow-sm border border-border h-full flex flex-col">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
+        <h3 className="font-bold text-foreground text-sm flex items-center gap-1.5">
           <Receipt className="w-3.5 h-3.5 text-amber-500" /> Cajas Chicas
         </h3>
-        <span className="text-[10px] text-slate-400">Últimos 14 días</span>
+        <span className="text-[10px] text-muted-foreground">Últimos 14 días</span>
       </div>
 
       {/* Resumen */}
       <div className="flex gap-2 mb-2 text-[10px]">
-        <div className="bg-amber-50 rounded-lg px-2 py-1 flex-1">
-          <div className="font-bold text-amber-700">{pendientes.length}</div>
-          <div className="text-amber-500">Por validar</div>
+        <div className="bg-amber-50 dark:bg-amber-950/40 rounded-lg px-2 py-1 flex-1">
+          <div className="font-bold text-amber-700 dark:text-amber-400">{pendientes.length}</div>
+          <div className="text-amber-600 dark:text-amber-500">Por validar</div>
         </div>
-        <div className="bg-emerald-50 rounded-lg px-2 py-1 flex-1">
-          <div className="font-bold text-emerald-700">{fmtQ(totalAprobadas)}</div>
-          <div className="text-emerald-500">Aprobadas</div>
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-lg px-2 py-1 flex-1">
+          <div className="font-bold text-emerald-700 dark:text-emerald-400">{fmtQ(totalAprobadas)}</div>
+          <div className="text-emerald-600 dark:text-emerald-500">Aprobadas</div>
         </div>
-        <div className="bg-rose-50 rounded-lg px-2 py-1 flex-1">
-          <div className="font-bold text-rose-700">{fmtQ(totalPendiente)}</div>
-          <div className="text-rose-500">Pendientes</div>
+        <div className="bg-rose-50 dark:bg-rose-950/40 rounded-lg px-2 py-1 flex-1">
+          <div className="font-bold text-rose-700 dark:text-rose-400">{fmtQ(totalPendiente)}</div>
+          <div className="text-rose-600 dark:text-rose-500">Pendientes</div>
         </div>
       </div>
 
       {/* Lista de cajas chicas */}
       <div className="space-y-1 flex-1 overflow-y-auto min-h-0">
         {cajasChicas.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-4 text-slate-300">
+          <div className="flex flex-col items-center justify-center py-4 text-muted-foreground">
             <Receipt className="w-6 h-6 mb-1" />
             <span className="text-[10px]">Sin facturas recientes</span>
           </div>
         ) : cajasChicas.map(c => (
-          <div key={c.id} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+          <div key={c.id} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted transition-colors">
             <div className="shrink-0">
               {c.estado === 'pendiente' ? (
-                <Clock className="w-3 h-3 text-amber-400" />
+                <Clock className="w-3 h-3 text-amber-500" />
               ) : (
-                <CheckCircle className="w-3 h-3 text-emerald-400" />
+                <CheckCircle className="w-3 h-3 text-emerald-500" />
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] font-semibold text-slate-700 truncate">{c.descripcion}</div>
-              <div className="flex items-center gap-1.5 text-[9px] text-slate-400">
+              <div className="text-[10px] font-semibold text-foreground truncate">{c.descripcion}</div>
+              <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
                 <span className="truncate">{c.proyectoNombre}</span>
                 <span>·</span>
                 <span>{c.fecha.slice(5, 10)}</span>

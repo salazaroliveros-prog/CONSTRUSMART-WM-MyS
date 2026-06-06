@@ -529,12 +529,12 @@ const SSOCalidad: React.FC = () => {
                   addNotificacion('general', '🚨 Emergencia en obra', 'Se ha activado el botón de emergencia', selProyecto);
                 }
               }}
-              className="w-32 sm:w-48 h-32 sm:h-48 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-black text-lg shadow-2xl shadow-red-500/50 hover:shadow-red-500/70 hover:scale-105 active:scale-95 transition-transform duration-300 animate-pulse flex items-center justify-center flex-col"
+              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-bold text-xs shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center flex-col"
             >
-              <AlertTriangle className="w-10 h-10 mb-1" />
-              <span className="text-sm">EMERGENCIA</span>
+              <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 mb-1" />
+              <span className="text-[9px] sm:text-[10px] font-semibold">EMERGENCIA</span>
             </button>
-            <p className="text-[10px] text-slate-400">Se compartirá tu ubicación con los equipos de respuesta</p>
+              <p className="text-[10px] text-muted-foreground">Se compartirá tu ubicación con los equipos de respuesta</p>
           </div>
         </div>
       )}

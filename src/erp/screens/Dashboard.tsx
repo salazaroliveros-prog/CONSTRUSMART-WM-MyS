@@ -107,7 +107,7 @@ const Dashboard: React.FC = () => {
           <div className={`${CARD} flex flex-col p-3 min-h-0`}>
             <h3 className={`${CARD_TITLE} text-sm mb-1`}>Gastos por Categoría</h3>
             <div className="flex-1 min-h-0">
-              {movPorCategoria.length ? <BarChart data={movPorCategoria} height={100} /> : <p className="text-xs text-slate-400">Sin datos</p>}
+              {movPorCategoria.length ? <BarChart data={movPorCategoria} height={100} /> : <p className="text-xs text-muted-foreground">Sin datos</p>}
             </div>
           </div>
           <div className={`${CARD} flex flex-col p-3 min-h-0`}>
@@ -118,8 +118,8 @@ const Dashboard: React.FC = () => {
                 { label: 'Gastos', value: gastos, color: '#ef4444' },
               ]} />
               <div className="text-[10px] space-y-1">
-                <div><span className="w-2 h-2 inline-block rounded-full bg-emerald-500 mr-1" />Ingresos<br /><b className="text-slate-700">{fmtQ(ingresos)}</b></div>
-                <div><span className="w-2 h-2 inline-block rounded-full bg-red-500 mr-1" />Gastos<br /><b className="text-slate-700">{fmtQ(gastos)}</b></div>
+                <div><span className="w-2 h-2 inline-block rounded-full bg-emerald-500 mr-1" />Ingresos<br /><b className="text-foreground">{fmtQ(ingresos)}</b></div>
+                <div><span className="w-2 h-2 inline-block rounded-full bg-red-500 mr-1" />Gastos<br /><b className="text-foreground">{fmtQ(gastos)}</b></div>
               </div>
             </div>
           </div>
