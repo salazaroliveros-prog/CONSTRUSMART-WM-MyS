@@ -148,8 +148,8 @@
 3. ✅ Supabase Realtime subscriptions (8 tablas)
 4. ✅ Hitos integrados con Gantt (predecesores)
 
-### ✅ Fase 4 — UX y refinamiento F-13 a F-18 (COMPLETADA PARCIAL)
+### ✅ Fase 4 — UX y refinamiento F-13 a F-18 (COMPLETADA)
 1. ✅ Filtro global por proyecto (\`useFiltroProyectoGlobal.ts\`)
 2. ✅ Notificaciones push (\`sw.js\` + \`useNotifications.ts\`)
 3. ✅ Tests unitarios (76 tests, 6 archivos)
-4. ⬜ F-17 Internacionalización (i18n) — pendiente (~4h)
+4. ✅ F-17 Internacionalización (i18n) — es.json (633 keys) + en.json (596 keys)

@@ -107,7 +107,7 @@
 | F-14 | Vista calendario para hitos | Cronograma | `Hitos.tsx` | ✅ |
 | F-15 | Notificaciones push (Service Worker) | General | `public/sw.js`, `useNotifications.ts` | ✅ |
 | F-16 | Tema oscuro sincronizado | UX | `theme-provider.tsx` | ✅ |
-| F-17 | Internacionalización (i18n) | UX | `src/lib/i18n/es.json` (672 keys) + `en.json` | ✅ **IMPLEMENTADO** |
+| F-17 | Internacionalización (i18n) | UX | `src/lib/i18n/es.json` (633 keys) + `en.json` (596 keys) | ✅ **IMPLEMENTADO** |
 | F-18 | Tests unitarios | Calidad | 76 tests, 6 archivos | ✅ |
 
 ---

@@ -215,7 +215,7 @@ verificarOrdenesCambioPendientes() → Alerta OC pendientes
 - F-14: Vista calendario para hitos ✅
 - F-15: Notificaciones push (Service Worker) ✅
 - F-16: Tema oscuro sincronizado ✅
-- F-17: Internacionalización (i18n) ❌ Pendiente
+- F-17: Internacionalización (i18n) ✅
 - F-18: Tests unitarios (76 tests) ✅
 
 ---
@@ -292,8 +292,7 @@ verificarOrdenesCambioPendientes() → Alerta OC pendientes
 6. Registrar en `AppLayout.tsx` y `Sidebar.tsx`
 
 ### Pendientes conocidos:
-1. F-17: Internacionalización (i18n) — ~4h
-2. Validación Zod en LogisticaCompras.tsx, SSOCalidad.tsx, GestionDocumental.tsx
+1. Validación Zod en LogisticaCompras.tsx, SSOCalidad.tsx, GestionDocumental.tsx
 3. P2-REND: Performance optimizations (WebP, virtual scrolling, Brotli)
 4. Google OAuth domain verification
 5. Migraciones SQL pendientes del README

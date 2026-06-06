@@ -287,7 +287,7 @@ Ver `SUPABASE_GOOGLE_OAUTH_SETUP.md` (archivo eliminado — contenido consolidad
 | 2 | Ejecutar migraciones (000000000006, 000000000007, 000000000008) | Operación | ❌ Pendiente |
 | 3 | Tablas sin sync Supabase (erp_seguimiento, erp_renglones, erp_insumos, erp_sub_renglones) | Feature | ❌ Pendiente |
 | 4 | Overlay de planos vs modelo en Visor BIM | Feature | ❌ Pendiente |
-| 5 | F-17: Internacionalización (i18n) | Feature | ❌ Pendiente |
+| 5 | F-17: Internacionalización (i18n) | Feature | ✅ Implementado (es.json + en.json, 633 keys) |
 | 6 | Google OAuth verificación de dominio | Seguridad | ❌ Pendiente |
 | 7 | Refresh token rotation en Supabase | Seguridad | ❌ Pendiente |
 
@@ -303,4 +303,4 @@ Ver `SUPABASE_GOOGLE_OAUTH_SETUP.md` (archivo eliminado — contenido consolidad
 
 ---
 
-*Última actualización: 2026-06-02*
+*Última actualización: 2026-06-06*
