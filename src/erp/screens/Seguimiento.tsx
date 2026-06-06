@@ -222,10 +222,10 @@ const Seguimiento: React.FC = () => {
         <div className="flex items-center justify-between gap-3 mb-4">
           <div>
             <h3 className={`${CARD_TITLE}`}>{editingBit ? 'Editar entrada de Bitácora' : 'Reporte Diario de Campo (Bitácora Digital)'}</h3>
-            {editingBit && <p className="text-xs text-slate-500">Editando registro de {proyectos.find(p => p.id === editingBit.proyectoId)?.nombre}</p>}
+            {editingBit && <p className="text-xs text-muted-foreground">Editando registro de {proyectos.find(p => p.id === editingBit.proyectoId)?.nombre}</p>}
           </div>
           {editingBit && (
-            <button type="button" onClick={cancelEditBitacora} className="text-sm text-slate-500 hover:text-slate-800 flex items-center gap-1"><X className="w-3.5 h-3.5" /> Cancelar</button>
+            <button type="button" onClick={cancelEditBitacora} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"><X className="w-3.5 h-3.5" /> Cancelar</button>
           )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
