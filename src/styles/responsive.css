@@ -1,0 +1,421 @@
+/* Global Mobile Optimization Styles */
+
+/* Prevenir zoom no deseado en inputs */
+@media (max-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Body Mobile Optimization */
+@media (max-width: 576px) {
+  body {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+
+  /* Prevenir scroll horizontal */
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Safe area inset para devices con notch */
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Optimización de imágenes responsivas */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Video responsivo */
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Prevenir bounce scroll en iOS */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #bfbfbf;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8c8c8c;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: #434343;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #595959;
+  }
+}
+
+/* Optimización de tap en móvil */
+@media (hover: none) {
+  button,
+  a,
+  [role='button'],
+  input[type='button'],
+  input[type='submit'] {
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+  }
+}
+
+/* Container queries para componentes adaptativos */
+@supports (container-type: inline-size) {
+  .responsive-container {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 400px) {
+    .responsive-container {
+      --component-padding: 8px;
+      --component-gap: 4px;
+      --font-size: 12px;
+    }
+  }
+
+  @container (min-width: 400px) and (max-width: 768px) {
+    .responsive-container {
+      --component-padding: 12px;
+      --component-gap: 8px;
+      --font-size: 13px;
+    }
+  }
+
+  @container (min-width: 768px) {
+    .responsive-container {
+      --component-padding: 16px;
+      --component-gap: 12px;
+      --font-size: 14px;
+    }
+  }
+}
+
+/* Flex utilities responsivos */
+.flex-mobile-col {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .flex-mobile-col {
+    flex-direction: row;
+  }
+}
+
+.flex-mobile-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-mobile-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 576px) {
+  .flex-mobile-between {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+/* Stack responsivo */
+.stack-mobile {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 12px;
+}
+
+@media (max-width: 576px) {
+  .stack-mobile {
+    grid-auto-flow: row;
+    gap: 8px;
+  }
+}
+
+/* Hide/Show por breakpoint */
+@media (max-width: 576px) {
+  .hide-mobile {
+    display: none !important;
+  }
+
+  .show-mobile-only {
+    display: block !important;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 768px) {
+  .hide-tablet {
+    display: none !important;
+  }
+
+  .show-tablet-only {
+    display: block !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .hide-desktop {
+    display: none !important;
+  }
+
+  .show-desktop-only {
+    display: block !important;
+  }
+}
+
+/* Responsive text utilities */
+@media (max-width: 576px) {
+  .text-responsive-lg {
+    font-size: 18px;
+  }
+
+  .text-responsive-md {
+    font-size: 14px;
+  }
+
+  .text-responsive-sm {
+    font-size: 12px;
+  }
+
+  .text-responsive-xs {
+    font-size: 10px;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 768px) {
+  .text-responsive-lg {
+    font-size: 20px;
+  }
+
+  .text-responsive-md {
+    font-size: 15px;
+  }
+
+  .text-responsive-sm {
+    font-size: 13px;
+  }
+
+  .text-responsive-xs {
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 768px) {
+  .text-responsive-lg {
+    font-size: 24px;
+  }
+
+  .text-responsive-md {
+    font-size: 16px;
+  }
+
+  .text-responsive-sm {
+    font-size: 14px;
+  }
+
+  .text-responsive-xs {
+    font-size: 12px;
+  }
+}
+
+/* Padding responsivo */
+.p-responsive {
+  padding: 8px;
+}
+
+@media (min-width: 576px) {
+  .p-responsive {
+    padding: 12px;
+  }
+}
+
+@media (min-width: 768px) {
+  .p-responsive {
+    padding: 16px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .p-responsive {
+    padding: 24px;
+  }
+}
+
+/* Margin responsivo */
+.m-responsive {
+  margin: 8px;
+}
+
+@media (min-width: 576px) {
+  .m-responsive {
+    margin: 12px;
+  }
+}
+
+@media (min-width: 768px) {
+  .m-responsive {
+    margin: 16px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .m-responsive {
+    margin: 24px;
+  }
+}
+
+/* Gap responsivo */
+.gap-responsive {
+  gap: 8px;
+}
+
+@media (min-width: 576px) {
+  .gap-responsive {
+    gap: 12px;
+  }
+}
+
+@media (min-width: 768px) {
+  .gap-responsive {
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .gap-responsive {
+    gap: 24px;
+  }
+}
+
+/* Border radius responsivo */
+.rounded-responsive {
+  border-radius: 4px;
+}
+
+@media (min-width: 576px) {
+  .rounded-responsive {
+    border-radius: 6px;
+  }
+}
+
+@media (min-width: 768px) {
+  .rounded-responsive {
+    border-radius: 8px;
+  }
+}
+
+/* Shadow responsivo */
+.shadow-responsive {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 576px) {
+  .shadow-responsive {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  }
+}
+
+@media (min-width: 768px) {
+  .shadow-responsive {
+    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* Transitions responsivas */
+@media (prefers-reduced-motion: no-preference) {
+  .transition-smooth {
+    transition: all 300ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+
+  .transition-smooth-fast {
+    transition: all 150ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+
+  .transition-smooth-slow {
+    transition: all 500ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transition-smooth,
+  .transition-smooth-fast,
+  .transition-smooth-slow {
+    transition: none;
+  }
+}
+
+/* Aspect ratio responsivo */
+.aspect-square {
+  aspect-ratio: 1;
+}
+
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-3-2 {
+  aspect-ratio: 3 / 2;
+}
+
+.aspect-4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+/* Fullscreen responsive */
+.fullscreen-mobile {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+@media (min-width: 768px) {
+  .fullscreen-mobile {
+    width: auto;
+    height: auto;
+    position: relative;
+  }
+}

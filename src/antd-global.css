@@ -1,0 +1,185 @@
+/* ============================================
+   ESTILOS GLOBALES ANT DESIGN + CONSTRUSMART
+   ============================================ */
+
+@import 'antd/dist/reset.css';
+
+/* Variables de tema */
+:root {
+  /* Light mode */
+  --primary-color: #ff8c42;
+  --primary-light: #ff9f54;
+  --primary-dark: #e67e22;
+  
+  --success-color: #52c41a;
+  --warning-color: #faad14;
+  --error-color: #f5222d;
+  --info-color: #1890ff;
+  
+  --text-color: #000000;
+  --text-secondary: #666666;
+  --border-color: #d9d9d9;
+  --bg-base: #ffffff;
+  --bg-secondary: #fafafa;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 1px 3px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark mode */
+[data-theme='dark'] {
+  --primary-color: #ff8c42;
+  --primary-light: #ffab5c;
+  --primary-dark: #ff7a45;
+  
+  --success-color: #95de64;
+  --warning-color: #ffc53d;
+  --error-color: #ff7875;
+  --info-color: #69b1ff;
+  
+  --text-color: #ffffff;
+  --text-secondary: #a6a6a6;
+  --border-color: #434343;
+  --bg-base: #141414;
+  --bg-secondary: #1f1f1f;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px -1px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   BOTONES ANT DESIGN
+   ============================================ */
+
+.ant-btn {
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  border-radius: 6px;
+  height: 36px;
+}
+
+.ant-btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 4px rgba(255, 140, 66, 0.2);
+}
+
+.ant-btn-primary:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+  box-shadow: 0 4px 8px rgba(255, 140, 66, 0.3);
+  transform: translateY(-2px);
+}
+
+.ant-btn-primary:active {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  transform: translateY(0);
+}
+
+.ant-btn-default {
+  border-color: var(--border-color);
+  color: var(--text-color);
+  background-color: var(--bg-base);
+}
+
+.ant-btn-default:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* ============================================
+   INPUTS Y FORMULARIOS
+   ============================================ */
+
+.ant-input,
+.ant-select-selector,
+.ant-picker {
+  height: 36px;
+  border-radius: 6px;
+  border-color: var(--border-color);
+  background-color: var(--bg-base);
+  color: var(--text-color);
+  transition: all var(--transition-fast);
+}
+
+.ant-input:hover,
+.ant-select-selector:hover,
+.ant-picker:hover {
+  border-color: var(--primary-color);
+}
+
+.ant-input:focus,
+.ant-select-selector:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.2);
+}
+
+/* ============================================
+   TARJETAS
+   ============================================ */
+
+.ant-card {
+  border-radius: 8px;
+  border-color: var(--border-color);
+  background-color: var(--bg-base);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.ant-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
+/* ============================================
+   TABLAS
+   ============================================ */
+
+.ant-table {
+  background-color: var(--bg-base);
+  color: var(--text-color);
+}
+
+.ant-table-thead > tr > th {
+  background-color: var(--bg-secondary);
+  color: var(--text-color);
+  font-weight: 600;
+  border-bottom-color: var(--border-color);
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: rgba(255, 140, 66, 0.08);
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
