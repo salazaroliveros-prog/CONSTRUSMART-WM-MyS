@@ -41,84 +41,91 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
   const initials = (user?.nombre || 'WM').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 
   return (
-    <header className="bg-primary/80 backdrop-blur-md text-primary-foreground px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sticky top-0 z-30 shadow-lg">
-      <div className="flex items-center gap-3 min-w-0">
+    <header className="bg-primary/80 backdrop-blur-md text-primary-foreground h-[50px] sm:h-[60px] px-2 sm:px-4 lg:px-6 py-1.5 sm:py-2 flex items-center justify-between gap-1 sm:gap-2 lg:gap-3 sticky top-0 z-30 shadow-lg">
+      {/* Left: Logo + Title */}
+      <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 min-w-0 flex-1">
         {onMenu && (
-          <button onClick={onMenu} aria-label="Abrir menú" className="lg:hidden p-1.5 hover:bg-accent rounded-lg">
-            <Menu className="w-5 h-5" />
+          <button onClick={onMenu} aria-label="Abrir menú" className="lg:hidden p-1 rounded-lg hover:bg-primary-foreground/20 transition-colors flex-shrink-0">
+            <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         )}
-        <div className="w-10 h-10 rounded-xl shrink-0 bg-primary flex items-center justify-center ring-1 ring-primary/30 shadow-[0_0_6px_hsl(var(--primary)/0.35)]">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg shrink-0 bg-primary flex items-center justify-center ring-1 ring-primary/30">
           <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
         </div>
-        <div className="min-w-0">
-          <div className="font-bold text-sm leading-tight truncate">{title || EMPRESA.nombre}</div>
-          <div className="text-[10px] text-primary-foreground/80 italic">{EMPRESA.eslogan}</div>
+        <div className="min-w-0 hidden sm:block">
+          <div className="font-bold text-xs sm:text-sm leading-tight truncate">{title || EMPRESA.nombre}</div>
+          <div className="text-[8px] sm:text-[9px] text-primary-foreground/75 italic truncate">{EMPRESA.eslogan}</div>
         </div>
       </div>
 
-      <div className="hidden sm:block">
+      {/* Center: Sync + Clock (hidden on mobile) */}
+      <div className="hidden md:flex items-center gap-3 lg:gap-4">
         <SyncIndicator />
+        <div className="text-center">
+          <div className="font-mono text-xs lg:text-sm font-bold tabular-nums text-primary-foreground/90">
+            {now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}
+          </div>
+          <div className="text-[8px] lg:text-[9px] text-primary-foreground/60">
+            {now.toLocaleDateString('es-GT', { day: 'numeric', month: 'short' })}
+          </div>
+        </div>
       </div>
 
-      <div className="hidden md:block text-center">
-        <div className="font-mono text-lg font-bold tabular-nums text-primary-foreground/90">
-          {now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-        </div>
-        <div className="text-[10px] text-primary-foreground/60 capitalize">
-          {now.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-        </div>
-      </div>
+      {/* Right: Actions */}
+      <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 flex-shrink-0">
+        {/* Notifications */}
+        <button
+          onClick={() => setView('notificaciones')}
+          aria-label="Notificaciones"
+          className="relative p-1 sm:p-1.5 lg:p-2 hover:bg-primary-foreground/20 rounded-lg transition-colors"
+        >
+          <Bell className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+          {notificacionesNoLeidas > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[7px] sm:text-[8px] font-bold rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-0.5">
+              {notificacionesNoLeidas > 99 ? '99+' : notificacionesNoLeidas}
+            </span>
+          )}
+        </button>
 
-      <button
-        onClick={() => setView('notificaciones')}
-        aria-label="Notificaciones"
-        title="Notificaciones"
-        className="relative p-2 hover:bg-primary-foreground/10 rounded-lg transition-colors"
-      >
-        <Bell className="w-5 h-5" />
-        {notificacionesNoLeidas > 0 && (
-          <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
-            {notificacionesNoLeidas > 99 ? '99+' : notificacionesNoLeidas}
-          </span>
-        )}
-      </button>
-
-      <div className="flex items-center gap-2">
+        {/* Dashboard button */}
         {view !== 'dashboard' && (
           <button
             onClick={() => setView('dashboard')}
             aria-label="Volver al tablero"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-primary-foreground/10 hover:bg-primary-foreground/20 rounded-lg text-xs font-medium transition-colors"
+            className="hidden sm:flex items-center gap-1 px-2 sm:px-2.5 lg:px-3 py-1 sm:py-1.5 bg-primary-foreground/10 hover:bg-primary-foreground/20 rounded-lg text-xs font-medium transition-colors"
           >
-            <Home className="w-4 h-4" /> Tablero
+            <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden md:inline">Tablero</span>
           </button>
         )}
-        <div className="flex items-center gap-2">
-          <button onClick={onPick} className="relative" aria-label="Cambiar foto de perfil">
-            {avatarSrc ? (
-              <img src={avatarSrc} alt={user?.nombre || 'Avatar'} className="w-9 h-9 rounded-full object-cover border-2 border-primary-foreground/30" />
-            ) : (
-              <div className="w-9 h-9 rounded-full bg-primary-foreground/20 flex items-center justify-center text-xs font-bold">
-                {initials}
-              </div>
-            )}
-            <span className="absolute -bottom-1 -right-1 bg-background rounded-full p-0.5 border border-border">
-              <Upload className="w-3 h-3 text-foreground" />
-            </span>
-          </button>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
-          <div className="hidden lg:block">
-            <div className="text-xs font-semibold leading-tight">{user?.nombre}</div>
-            <div className="text-[10px] text-primary-foreground/60">{user?.rol}</div>
-          </div>
+
+        {/* Avatar */}
+        <button onClick={onPick} className="relative flex-shrink-0" aria-label="Cambiar foto de perfil">
+          {avatarSrc ? (
+            <img src={avatarSrc} alt={user?.nombre || 'Avatar'} className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full object-cover border border-primary-foreground/30" />
+          ) : (
+            <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full bg-primary-foreground/20 flex items-center justify-center text-[8px] sm:text-xs font-bold">
+              {initials}
+            </div>
+          )}
+          <span className="absolute -bottom-0.5 -right-0.5 bg-background rounded-full p-0.5 border border-border">
+            <Upload className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-foreground" />
+          </span>
+        </button>
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
+
+        {/* User info */}
+        <div className="hidden lg:flex flex-col gap-0 ml-1">
+          <div className="text-xs font-semibold leading-tight">{user?.nombre}</div>
+          <div className="text-[8px] text-primary-foreground/60">{user?.rol}</div>
         </div>
+
+        {/* Logout */}
         <button
           onClick={logout}
           aria-label="Cerrar sesión"
-          className="p-2 hover:bg-destructive/20 text-primary-foreground hover:text-destructive rounded-lg transition-colors"
+          className="p-1 sm:p-1.5 lg:p-2 hover:bg-destructive/20 text-primary-foreground hover:text-destructive rounded-lg transition-colors flex-shrink-0"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
         </button>
       </div>
     </header>
