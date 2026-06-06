@@ -5,7 +5,7 @@ import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
 import { z } from 'zod';
 import { toast } from '@/components/ui/sonner';
 import {
-  Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio,
+  Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
 } from './types';
 import {
   SEED_PROYECTOS, SEED_MOVIMIENTOS, SEED_EMPLEADOS, SEED_MATERIALES, SEED_OC, SEED_PROVEEDORES,
@@ -429,7 +429,11 @@ interface Mutation {
   'addPresupuesto' | 'updatePresupuesto' | 'deletePresupuesto' |
   'addLicitacion' | 'updateLicitacion' | 'deleteLicitacion' |
   'addValeSalida' | 'deleteValeSalida' |
-  'addAvance' | 'deleteAvance';
+  'addAvance' | 'deleteAvance' |
+  'addSeguimiento' | 'updateSeguimiento' | 'deleteSeguimiento' |
+  'addRenglon' | 'updateRenglon' | 'deleteRenglon' |
+  'addInsumo' | 'updateInsumo' | 'deleteInsumo' |
+  'addSubRenglon' | 'updateSubRenglon' | 'deleteSubRenglon';
   payload: Record<string, unknown>;
   timestamp: number;
   retryCount: number;
@@ -494,6 +498,10 @@ interface ErpState {
   avances: AvanceObra[];
   addAvance: (a: Omit<AvanceObra, 'id'>) => Promise<void>;
   deleteAvance: (id: string) => Promise<void>;
+  seguimientoEVM: SeguimientoEVM[];
+  addSeguimiento: (s: Omit<SeguimientoEVM, 'id'>) => Promise<void>;
+  updateSeguimiento: (id: string, patch: Partial<SeguimientoEVM>) => Promise<void>;
+  deleteSeguimiento: (id: string) => Promise<void>;
   valesSalida: ValeSalida[];
   addValeSalida: (v: Omit<ValeSalida, 'id'>) => Promise<void>;
   deleteValeSalida: (id: string) => Promise<void>;
@@ -569,6 +577,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [licitaciones, setLicitaciones] = useState<Licitacion[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_licitaciones', []));
   const [avances, setAvances] = useState<AvanceObra[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_avances', []));
   const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_vales_salida', []));
+  const [seguimientoEVM, setSeguimientoEVM] = useState<SeguimientoEVM[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_seguimiento_evm', []));
   const [notifiedEventos, setNotifiedEventos] = useState<string[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_notified_eventos', []));
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
@@ -686,7 +695,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     };
 
-    const [p, m, e, mat, o, prov, evt, bit, presup] = await Promise.all([
+    const [p, m, e, mat, o, prov, evt, bit, presup, seg] = await Promise.all([
       safeFrom('erp_proyectos'),
       safeFrom('erp_movimientos', q => q.select('*').order('fecha', { ascending: false })),
       safeFrom('erp_empleados'),
@@ -696,6 +705,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       safeFrom('erp_eventos_calendario'),
       safeFrom('erp_bitacora', q => q.select('*').order('fecha', { ascending: false })),
       safeFrom('erp_presupuestos'),
+      safeFrom('erp_seguimiento', q => q.select('*').order('fecha', { ascending: false })),
     ]);
 
     // Nota: as Proyecto[] — asume que ZodSchema y la interfaz están alineados
@@ -869,6 +879,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_licitaciones', licitaciones); }, [licitaciones]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_avances', avances); }, [avances]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_vales_salida', valesSalida); }, [valesSalida]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_seguimiento_evm', seguimientoEVM); }, [seguimientoEVM]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_notified_eventos', notifiedEventos); }, [notifiedEventos]);
   useEffect(() => { saveToStorage(QUEUE_KEY, mutationQueue); }, [mutationQueue]);
 

@@ -68,47 +68,47 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50">
-      <div className="hidden lg:flex flex-1 bg-slate-900 relative overflow-hidden items-center justify-center p-12">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-background">
+      <div className="hidden lg:flex flex-1 bg-primary relative overflow-hidden items-center justify-center p-12">
         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'url(/empresa_b.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-slate-900/30 to-orange-900/20" />
-        <div className="relative z-10 text-white max-w-md text-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/50 via-primary/30 to-accent/20" />
+        <div className="relative z-10 text-primary-foreground max-w-md text-center">
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-20 h-20 rounded-2xl bg-slate-900 flex items-center justify-center ring-1 ring-orange-400/30 shadow-[0_0_8px_rgba(249,115,22,0.35)]">
+            <div className="w-20 h-20 rounded-2xl bg-background/20 flex items-center justify-center ring-1 ring-primary-foreground/30 shadow-[0_0_8px_hsl(var(--primary)/0.35)]">
               <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
             </div>
-            <img src="/construmys.png" alt="Construmys" className="h-[5.5rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
+            <img src="/construmys.png" alt="Construmys" className="h-[5.5rem] w-auto object-contain drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
           </div>
           <h1 className="text-4xl font-black leading-tight">CONSTRUCTORA<br /><span className="text-3xl">WM / M&amp;S</span></h1>
-          <p className="text-orange-300 text-lg italic mt-2">{EMPRESA.eslogan}</p>
-          <p className="text-slate-300 mt-6 leading-relaxed">{t('auth.ingrese_credenciales')}</p>
+          <p className="text-primary-foreground/80 text-lg italic mt-2">{EMPRESA.eslogan}</p>
+          <p className="text-primary-foreground/70 mt-6 leading-relaxed">{t('auth.ingrese_credenciales')}</p>
           <div className="flex gap-6 mt-8 justify-center">
             {['Presupuestos', 'Control', 'Finanzas'].map(lbl => (
               <div key={lbl} className="text-center">
-                <ShieldCheck className="w-5 h-5 mx-auto text-orange-400" />
-                <span className="text-xs text-slate-400 mt-1 block">{lbl}</span>
+                <ShieldCheck className="w-5 h-5 mx-auto text-primary-foreground/80" />
+                <span className="text-xs text-primary-foreground/60 mt-1 block">{lbl}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-slate-50 min-h-screen lg:min-h-0">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-background min-h-screen lg:min-h-0">
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center ring-1 ring-orange-400/30 shadow-[0_0_6px_rgba(249,115,22,0.35)]">
+            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center ring-1 ring-primary/30 shadow-[0_0_6px_hsl(var(--primary)/0.35)]">
               <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
             </div>
             <div>
-              <div className="font-bold text-slate-800 text-sm sm:text-base">{EMPRESA.nombre}</div>
-              <div className="text-[10px] sm:text-xs text-orange-500 italic">{EMPRESA.eslogan}</div>
+              <div className="font-bold text-foreground text-sm sm:text-base">{EMPRESA.nombre}</div>
+              <div className="text-[10px] sm:text-xs text-primary italic">{EMPRESA.eslogan}</div>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-slate-800 mb-1">
-            <Building2 className="w-5 h-5 text-orange-500" />
+          <div className="flex items-center gap-2 text-foreground mb-1">
+            <Building2 className="w-5 h-5 text-primary" />
             <h2 className="text-xl sm:text-2xl font-bold">{mode === 'in' ? t('auth.iniciar_sesion') : t('auth.registrarse')}</h2>
           </div>
-          <p className="text-slate-400 text-xs sm:text-sm mb-4 sm:mb-6">{t('auth.ingrese_credenciales')}</p>
+          <p className="text-muted-foreground text-xs sm:text-sm mb-4 sm:mb-6">{t('auth.ingrese_credenciales')}</p>
 
           {mode === 'up' && (
             <>
@@ -117,7 +117,7 @@ const Login: React.FC = () => {
                 placeholder={t('common.nombre')}
                 className={`${INPUT} ${errors.nombre ? ERROR_STATE : ''}`}
               />
-              {errors.nombre && <p className="text-xs text-red-500 mb-2">{errors.nombre.message}</p>}
+              {errors.nombre && <p className="text-xs text-destructive mb-2">{errors.nombre.message}</p>}
               <select {...register('rol')} className={INPUT}>
                 {ROLES.map(r => (
                   <option key={r} value={r} disabled={r === 'Administrador'}>
@@ -125,7 +125,7 @@ const Login: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <p className="text-[10px] text-amber-600 mt-1">{t('auth.error_permisos')}</p>
+              <p className="text-[10px] text-warning mt-1">{t('auth.error_permisos')}</p>
             </>
           )}
           <input
@@ -134,22 +134,22 @@ const Login: React.FC = () => {
             placeholder={t('auth.correo')}
             className={`${INPUT} ${errors.email ? ERROR_STATE : ''}`}
           />
-          {errors.email && <p className="text-xs text-red-500 mb-2">{errors.email.message}</p>}
+          {errors.email && <p className="text-xs text-destructive mb-2">{errors.email.message}</p>}
           <input
             type="password"
             {...register('password')}
             placeholder={t('auth.contrasena')}
             className={`${INPUT} ${errors.password ? ERROR_STATE : ''}`}
           />
-          {errors.password && <p className="text-xs text-red-500 mb-2">{errors.password.message}</p>}
+          {errors.password && <p className="text-xs text-destructive mb-2">{errors.password.message}</p>}
 
-          {authError && <p className="text-xs text-red-500 mb-3">{authError}</p>}
-          {registroError && <p className="text-xs text-red-500 mb-3">{registroError}</p>}
+          {authError && <p className="text-xs text-destructive mb-3">{authError}</p>}
+          {registroError && <p className="text-xs text-destructive mb-3">{registroError}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-3 sm:py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 disabled:opacity-60 active:scale-[0.98] transition-all"
+            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold py-3 sm:py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-60 active:scale-[0.98] transition-all"
           >
             {loading ? t('common.cargando') : mode === 'in' ? t('auth.iniciar_sesion') : t('auth.registrarse')} <ArrowRight className="w-4 h-4" />
           </button>
@@ -164,7 +164,7 @@ const Login: React.FC = () => {
           <button
             type="button"
             onClick={() => setMode(mode === 'in' ? 'up' : 'in')}
-            className="w-full text-center text-xs sm:text-sm text-slate-500 mt-3 sm:mt-4 hover:text-orange-500 transition-colors"
+            className="w-full text-center text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4 hover:text-primary transition-colors"
           >
             {mode === 'in' ? t('auth.no_cuenta') : t('auth.ya_cuenta')}
           </button>

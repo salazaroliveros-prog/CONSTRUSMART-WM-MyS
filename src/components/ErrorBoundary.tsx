@@ -46,14 +46,14 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-background text-foreground font-sans text-center">
-          <div className="max-w-md p-8 bg-card rounded-3xl shadow-lg border border-border">
+          <div className="max-w-md p-8 bg-card rounded-lg shadow-lg border border-border">
             <div className="text-5xl mb-4">⚠️</div>
             <h1 className="text-xl font-semibold text-destructive mb-2">Algo salió mal</h1>
             <p className="text-sm text-muted-foreground mb-2 leading-relaxed">
               Ha ocurrido un error inesperado. No te preocupes, tus datos están seguros.
             </p>
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="mt-4 mb-4 text-left bg-muted p-4 rounded-2xl text-xs">
+              <details className="mt-4 mb-4 text-left bg-muted p-4 rounded-md text-xs">
                 <summary className="cursor-pointer font-semibold text-foreground/70">
                   Detalles del error (desarrollo)
                 </summary>
@@ -65,13 +65,13 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             <div className="flex gap-3 justify-center mt-4">
               <button
                 onClick={this.handleReset}
-                className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-medium text-sm transition-colors"
+                className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-medium text-sm transition-colors"
               >
                 Intentar de nuevo
               </button>
               <button
                 onClick={this.handleReload}
-                className="px-6 py-3 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-2xl font-medium text-sm transition-colors"
+                className="px-6 py-3 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md font-medium text-sm transition-colors"
               >
                 Recargar página
               </button>

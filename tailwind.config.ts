@@ -49,6 +49,7 @@ export default {
           DEFAULT: 'hsl(var(--accent))',
           foreground: 'hsl(var(--accent-foreground))'
         },
+
         popover: {
           DEFAULT: 'hsl(var(--popover))',
           foreground: 'hsl(var(--popover-foreground))'
@@ -116,7 +117,7 @@ export default {
         },
         'accordion-up': {
           from: { height: 'var(--radix-accordion-content-height)' },
-          to:   { height: '0' },
+          to: { height: '0' },
         },
         'fade-in': {
           from: { opacity: '0' },

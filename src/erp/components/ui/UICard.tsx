@@ -40,14 +40,14 @@ const UICard: React.FC<UICardProps> = ({
 
   return (
     <div
-      className={`rounded-2xl border border-border bg-card text-card-foreground shadow-sm ${hoverable ? 'hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer' : ''} ${size === 'small' ? 'p-4' : size === 'large' ? 'p-8' : 'p-6'} ${className}`}
+      className={`rounded-xl border border-border bg-card text-card-foreground shadow-sm ${hoverable ? 'hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer' : ''} ${size === 'small' ? 'p-4' : size === 'large' ? 'p-6 md:p-8' : 'p-4 md:p-6'} ${className}`}
       style={style}
       onClick={onClick}
     >
       {(title || extra) && (
         <div className="flex items-center justify-between mb-3">
           <div>
-            {title && <h3 className="text-sm font-semibold text-foreground m-0">{title}</h3>}
+            {title && <h3 className="text-sm font-semibold text-foreground m-0 leading-snug">{title}</h3>}
             {subtitle && <p className="text-xs text-muted-foreground mt-0.5 mb-0">{subtitle}</p>}
           </div>
           {extra && <div>{extra}</div>}

@@ -62,10 +62,14 @@ const SSOCalidad: React.FC = () => {
   const [diasSinAccidentes, setDiasSinAccidentes] = useState(() => {
     try { return +(localStorage.getItem(SSO_DAYS_KEY) || '0'); } catch { return 0; }
   });
+  const [ssFormErrors, setSsFormErrors] = useState<Record<string, string>>({});
 
   const save = (key: string, data: unknown) => {
     localStorage.setItem(key, JSON.stringify(data));
   };
+
+  const clearSsError = (field: string) => setSsFormErrors(prev => ({ ...prev, [field]: '' }));
+  const resetSsErrors = () => setSsFormErrors({});
 
   const proyFiltrados = selProyecto
     ? proyectos.filter(p => p.id === selProyecto)
@@ -80,7 +84,14 @@ const SSOCalidad: React.FC = () => {
   const handleAddIncidente = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
     const result = incidenteSchema.safeParse({ tipo: incForm.tipo, descripcion: incForm.descripcion, afectados: incForm.afectados });
-    if (!result.success) { toast.error(result.error.errors[0].message); return; }
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.errors.forEach(err => { errs[err.path[0] as string] = err.message; });
+      setSsFormErrors(errs);
+      toast.error(result.error.errors[0].message);
+      return;
+    }
+    setSsFormErrors({});
     const nuevo: Incidente = {
       id: Date.now().toString(),
       proyectoId: selProyecto,
@@ -123,7 +134,14 @@ const SSOCalidad: React.FC = () => {
   const handleAddPrueba = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
     const result = pruebaSchema.safeParse(pruebaForm);
-    if (!result.success) { toast.error(result.error.errors[0].message); return; }
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.errors.forEach(err => { errs[err.path[0] as string] = err.message; });
+      setSsFormErrors(errs);
+      toast.error(result.error.errors[0].message);
+      return;
+    }
+    setSsFormErrors({});
     const nueva: PruebaLaboratorio = {
       id: Date.now().toString(),
       proyectoId: selProyecto,
@@ -155,7 +173,14 @@ const SSOCalidad: React.FC = () => {
   const handleAddNC = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
     const result = ncSchema.safeParse(ncForm);
-    if (!result.success) { toast.error(result.error.errors[0].message); return; }
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.errors.forEach(err => { errs[err.path[0] as string] = err.message; });
+      setSsFormErrors(errs);
+      toast.error(result.error.errors[0].message);
+      return;
+    }
+    setSsFormErrors({});
     const count = ncs.filter(n => n.proyectoId === selProyecto).length + 1;
     const nueva: NoConformidad = {
       id: Date.now().toString(),
@@ -189,7 +214,14 @@ const SSOCalidad: React.FC = () => {
   const handleAddLiberacion = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
     const result = liberacionSchema.safeParse(libForm);
-    if (!result.success) { toast.error(result.error.errors[0].message); return; }
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.errors.forEach(err => { errs[err.path[0] as string] = err.message; });
+      setSsFormErrors(errs);
+      toast.error(result.error.errors[0].message);
+      return;
+    }
+    setSsFormErrors({});
     const nueva: LiberacionPartida = {
       id: Date.now().toString(),
       proyectoId: selProyecto,
@@ -274,7 +306,7 @@ const SSOCalidad: React.FC = () => {
             <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
               <AlertTriangle className="w-4 h-4 text-red-500" /> Reporte de Incidentes
             </h2>
-            <button onClick={() => setShowIncForm(true)} className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600">
+            <button onClick={() => { setShowIncForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600">
               <Plus className="w-3.5 h-3.5" /> Nuevo Incidente
             </button>
           </div>
@@ -282,22 +314,50 @@ const SSOCalidad: React.FC = () => {
           {showIncForm && (
             <div className="bg-red-50 rounded-xl p-4 mb-4 border border-red-200 space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <select value={incForm.tipo} onChange={e => setIncForm(prev => ({ ...prev, tipo: e.target.value as Incidente['tipo'] }))} className={INPUT}>
-                  <option value="accidente">Accidente</option>
-                  <option value="cuasi-accidente">Cuasi-accidente</option>
-                  <option value="condicion_insegura">Condición Insegura</option>
-                  <option value="acto_inseguro">Acto Inseguro</option>
-                </select>
+                <div>
+                  <select
+                    value={incForm.tipo}
+                    onChange={e => { setIncForm(prev => ({ ...prev, tipo: e.target.value as Incidente['tipo'] })); clearSsError('tipo'); }}
+                    className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-red-400 ${ssFormErrors.tipo ? 'border-red-500 bg-red-50' : 'border-red-200'}`}
+                  >
+                    <option value="accidente">Accidente</option>
+                    <option value="cuasi-accidente">Cuasi-accidente</option>
+                    <option value="condicion_insegura">Condición Insegura</option>
+                    <option value="acto_inseguro">Acto Inseguro</option>
+                  </select>
+                  {ssFormErrors.tipo && <p className="text-xs text-red-500 mt-1">{ssFormErrors.tipo}</p>}
+                </div>
                 <button onClick={capturarGeoIncidente} className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-dashed border-red-300 text-xs text-red-600 hover:border-red-500">
                   <MapPin className="w-3.5 h-3.5" /> {incForm.lat ? `📍 ${incForm.lat.toFixed(4)}` : 'Geolocalizar'}
                 </button>
               </div>
-              <textarea value={incForm.descripcion} onChange={e => setIncForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Describe el incidente..." className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400 min-h-[60px]" />
+              <textarea
+                value={incForm.descripcion}
+                onChange={e => { setIncForm(prev => ({ ...prev, descripcion: e.target.value })); clearSsError('descripcion'); }}
+                placeholder="Describe el incidente..."
+                className={`w-full px-3 py-2 text-xs rounded-lg border outline-none focus:border-red-400 min-h-[60px] ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-red-200'}`}
+              />
+              {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input value={incForm.afectados} onChange={e => setIncForm(prev => ({ ...prev, afectados: e.target.value }))} placeholder="Afectados" className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400" />
-                <input value={incForm.testigos} onChange={e => setIncForm(prev => ({ ...prev, testigos: e.target.value }))} placeholder="Testigos (opcional)" className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400" />
+                <input
+                  value={incForm.afectados}
+                  onChange={e => { setIncForm(prev => ({ ...prev, afectados: e.target.value })); clearSsError('afectados'); }}
+                  placeholder="Afectados"
+                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-red-400 ${ssFormErrors.afectados ? 'border-red-500 bg-red-50' : 'border-red-200 border'}`}
+                />
+                <input
+                  value={incForm.testigos}
+                  onChange={e => setIncForm(prev => ({ ...prev, testigos: e.target.value }))}
+                  placeholder="Testigos (opcional)"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400"
+                />
               </div>
-              <input value={incForm.acciones} onChange={e => setIncForm(prev => ({ ...prev, acciones: e.target.value }))} placeholder="Acciones inmediatas tomadas" className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400" />
+              <input
+                value={incForm.acciones}
+                onChange={e => setIncForm(prev => ({ ...prev, acciones: e.target.value }))}
+                placeholder="Acciones inmediatas tomadas"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400"
+              />
               <div className="flex gap-2">
                 <button onClick={handleAddIncidente} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-semibold">Reportar Incidente</button>
                 <button onClick={() => setShowIncForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600 hover:bg-slate-50">Cancelar</button>
@@ -486,7 +546,7 @@ const SSOCalidad: React.FC = () => {
             <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
               <FlaskConical className="w-4 h-4 text-purple-500" /> Pruebas de Laboratorio
             </h2>
-            <button onClick={() => setShowPruebaForm(true)} className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-medium hover:bg-purple-600">
+            <button onClick={() => { setShowPruebaForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-medium hover:bg-purple-600">
               <Plus className="w-3.5 h-3.5" /> Nueva Prueba
             </button>
           </div>
@@ -494,16 +554,39 @@ const SSOCalidad: React.FC = () => {
           {showPruebaForm && (
             <div className="bg-purple-50 rounded-xl p-4 mb-4 border border-purple-200 space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <select value={pruebaForm.tipo} onChange={e => setPruebaForm(prev => ({ ...prev, tipo: e.target.value as PruebaLaboratorio['tipo'] }))} className={INPUT}>
-                  <option value="concreto">Concreto</option>
-                  <option value="suelos">Suelos</option>
-                  <option value="acero">Acero</option>
-                  <option value="asfalto">Asfalto</option>
-                  <option value="otro">Otro</option>
-                </select>
-                <input value={pruebaForm.responsable} onChange={e => setPruebaForm(prev => ({ ...prev, responsable: e.target.value }))} placeholder="Responsable" className={INPUT} />
+                <div>
+                  <select
+                    value={pruebaForm.tipo}
+                    onChange={e => { setPruebaForm(prev => ({ ...prev, tipo: e.target.value as PruebaLaboratorio['tipo'] })); clearSsError('tipo'); }}
+                    className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-purple-400 ${ssFormErrors.tipo ? 'border-red-500 bg-red-50' : 'border-purple-200'}`}
+                  >
+                    <option value="concreto">Concreto</option>
+                    <option value="suelos">Suelos</option>
+                    <option value="acero">Acero</option>
+                    <option value="asfalto">Asfalto</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                  {ssFormErrors.tipo && <p className="text-xs text-red-500 mt-1">{ssFormErrors.tipo}</p>}
+                </div>
+                <div>
+                  <input
+                    value={pruebaForm.responsable}
+                    onChange={e => { setPruebaForm(prev => ({ ...prev, responsable: e.target.value })); clearSsError('responsable'); }}
+                    placeholder="Responsable"
+                    className={`w-full px-3 py-2 rounded-lg text-xs outline-none focus:border-purple-400 ${ssFormErrors.responsable ? 'border-red-500 bg-red-50' : 'border-purple-200 border'}`}
+                  />
+                  {ssFormErrors.responsable && <p className="text-xs text-red-500 mt-1">{ssFormErrors.responsable}</p>}
+                </div>
               </div>
-              <input value={pruebaForm.descripcion} onChange={e => setPruebaForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Descripción de la prueba (ej: Resistencia concreto 28 días)" className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
+              <div>
+                <input
+                  value={pruebaForm.descripcion}
+                  onChange={e => { setPruebaForm(prev => ({ ...prev, descripcion: e.target.value })); clearSsError('descripcion'); }}
+                  placeholder="Descripción de la prueba (ej: Resistencia concreto 28 días)"
+                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-purple-400 ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-purple-200 border'}`}
+                />
+                {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
+              </div>
               <div className="flex gap-2">
                 <button onClick={handleAddPrueba} className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-semibold">Registrar Prueba</button>
                 <button onClick={() => setShowPruebaForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">Cancelar</button>
@@ -557,7 +640,7 @@ const SSOCalidad: React.FC = () => {
             <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
               <XCircle className="w-4 h-4 text-red-500" /> No Conformidades (NC)
             </h2>
-            <button onClick={() => setShowNCForm(true)} className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600">
+            <button onClick={() => { setShowNCForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600">
               <Plus className="w-3.5 h-3.5" /> Nueva NC
             </button>
           </div>
@@ -565,16 +648,39 @@ const SSOCalidad: React.FC = () => {
           {showNCForm && (
             <div className="bg-red-50 rounded-xl p-4 mb-4 border border-red-200 space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <select value={ncForm.categoria} onChange={e => setNcForm(prev => ({ ...prev, categoria: e.target.value as NoConformidad['categoria'] }))} className={INPUT}>
-                  <option value="material">Material</option>
-                  <option value="proceso">Proceso</option>
-                  <option value="documentacion">Documentación</option>
-                  <option value="seguridad">Seguridad</option>
-                  <option value="otro">Otro</option>
-                </select>
-                <input value={ncForm.detectadoPor} onChange={e => setNcForm(prev => ({ ...prev, detectadoPor: e.target.value }))} placeholder="Detectado por" className={INPUT} />
+                <div>
+                  <select
+                    value={ncForm.categoria}
+                    onChange={e => { setNcForm(prev => ({ ...prev, categoria: e.target.value as NoConformidad['categoria'] })); clearSsError('categoria'); }}
+                    className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-red-400 ${ssFormErrors.categoria ? 'border-red-500 bg-red-50' : 'border-red-200'}`}
+                  >
+                    <option value="material">Material</option>
+                    <option value="proceso">Proceso</option>
+                    <option value="documento">Documentación</option>
+                    <option value="instalacion">Instalación</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                  {ssFormErrors.categoria && <p className="text-xs text-red-500 mt-1">{ssFormErrors.categoria}</p>}
+                </div>
+                <div>
+                  <input
+                    value={ncForm.detectadoPor}
+                    onChange={e => { setNcForm(prev => ({ ...prev, detectadoPor: e.target.value })); clearSsError('detectadoPor'); }}
+                    placeholder="Detectado por"
+                    className={`w-full px-3 py-2 rounded-lg text-xs outline-none focus:border-red-400 ${ssFormErrors.detectadoPor ? 'border-red-500 bg-red-50' : 'border-red-200 border'}`}
+                  />
+                  {ssFormErrors.detectadoPor && <p className="text-xs text-red-500 mt-1">{ssFormErrors.detectadoPor}</p>}
+                </div>
               </div>
-              <textarea value={ncForm.descripcion} onChange={e => setNcForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Describe la no conformidad..." className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400 min-h-[60px]" />
+              <div>
+                <textarea
+                  value={ncForm.descripcion}
+                  onChange={e => { setNcForm(prev => ({ ...prev, descripcion: e.target.value })); clearSsError('descripcion'); }}
+                  placeholder="Describe la no conformidad..."
+                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-red-400 min-h-[60px] ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-red-200 border'}`}
+                />
+                {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
+              </div>
               <div className="flex gap-2">
                 <button onClick={handleAddNC} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-semibold">Registrar NC</button>
                 <button onClick={() => setShowNCForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">Cancelar</button>
@@ -633,17 +739,41 @@ const SSOCalidad: React.FC = () => {
             <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
               <CheckCircle className="w-4 h-4 text-emerald-500" /> Liberación de Partidas
             </h2>
-            <button onClick={() => setShowLibForm(true)} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-medium hover:bg-emerald-600">
+            <button onClick={() => { setShowLibForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-medium hover:bg-emerald-600">
               <Plus className="w-3.5 h-3.5" /> Solicitar Liberación
             </button>
           </div>
 
           {showLibForm && (
             <div className="bg-emerald-50 rounded-xl p-4 mb-4 border border-emerald-200 space-y-2">
-              <input value={libForm.renglonNombre} onChange={e => setLibForm(prev => ({ ...prev, renglonNombre: e.target.value }))} placeholder="Actividad / Partida a liberar" className="w-full px-3 py-2 text-xs rounded-lg border border-emerald-200 outline-none focus:border-emerald-400" />
+              <div>
+                <input
+                  value={libForm.renglonNombre}
+                  onChange={e => { setLibForm(prev => ({ ...prev, renglonNombre: e.target.value })); clearSsError('renglonNombre'); }}
+                  placeholder="Actividad / Partida a liberar"
+                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 ${ssFormErrors.renglonNombre ? 'border-red-500 bg-red-50' : 'border-emerald-200 border'}`}
+                />
+                {ssFormErrors.renglonNombre && <p className="text-xs text-red-500 mt-1">{ssFormErrors.renglonNombre}</p>}
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input value={libForm.solicitante} onChange={e => setLibForm(prev => ({ ...prev, solicitante: e.target.value }))} placeholder="Solicitante" className={INPUT} />
-                <input value={libForm.supervisor} onChange={e => setLibForm(prev => ({ ...prev, supervisor: e.target.value }))} placeholder="Supervisor" className={INPUT} />
+                <div>
+                  <input
+                    value={libForm.solicitante}
+                    onChange={e => { setLibForm(prev => ({ ...prev, solicitante: e.target.value })); clearSsError('solicitante'); }}
+                    placeholder="Solicitante"
+                    className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 ${ssFormErrors.solicitante ? 'border-red-500 bg-red-50' : 'border-emerald-200 border'}`}
+                  />
+                  {ssFormErrors.solicitante && <p className="text-xs text-red-500 mt-1">{ssFormErrors.solicitante}</p>}
+                </div>
+                <div>
+                  <input
+                    value={libForm.supervisor}
+                    onChange={e => { setLibForm(prev => ({ ...prev, supervisor: e.target.value })); clearSsError('supervisor'); }}
+                    placeholder="Supervisor"
+                    className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 ${ssFormErrors.supervisor ? 'border-red-500 bg-red-50' : 'border-emerald-200 border'}`}
+                  />
+                  {ssFormErrors.supervisor && <p className="text-xs text-red-500 mt-1">{ssFormErrors.supervisor}</p>}
+                </div>
               </div>
               <div className="flex gap-2">
                 <button onClick={handleAddLiberacion} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-semibold">Solicitar Liberación</button>

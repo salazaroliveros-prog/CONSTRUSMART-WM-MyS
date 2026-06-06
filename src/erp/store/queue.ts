@@ -235,6 +235,74 @@ export async function executeMutation(next: Mutation, userId?: string): Promise<
       if (error) throw new Error(`Failed to delete licitacion: ${error.message}`);
       break;
     }
+    // erp_seguimiento
+    case 'addSeguimiento': {
+      const { error } = await supabase.from('erp_seguimiento').insert(toSnake(next.payload));
+      if (error) throw new Error(`Failed to add seguimiento: ${error.message}`);
+      break;
+    }
+    case 'updateSeguimiento': {
+      const { id, ...rest } = next.payload;
+      const { error } = await supabase.from('erp_seguimiento').update(toSnake(rest)).eq('id', id);
+      if (error) throw new Error(`Failed to update seguimiento: ${error.message}`);
+      break;
+    }
+    case 'deleteSeguimiento': {
+      const { error } = await supabase.from('erp_seguimiento').delete().eq('id', next.payload.id);
+      if (error) throw new Error(`Failed to delete seguimiento: ${error.message}`);
+      break;
+    }
+    // erp_renglones
+    case 'addRenglon': {
+      const { error } = await supabase.from('erp_renglones').insert(toSnake(next.payload));
+      if (error) throw new Error(`Failed to add renglon: ${error.message}`);
+      break;
+    }
+    case 'updateRenglon': {
+      const { id, ...rest } = next.payload;
+      const { error } = await supabase.from('erp_renglones').update(toSnake(rest)).eq('id', id);
+      if (error) throw new Error(`Failed to update renglon: ${error.message}`);
+      break;
+    }
+    case 'deleteRenglon': {
+      const { error } = await supabase.from('erp_renglones').delete().eq('id', next.payload.id);
+      if (error) throw new Error(`Failed to delete renglon: ${error.message}`);
+      break;
+    }
+    // erp_insumos
+    case 'addInsumo': {
+      const { error } = await supabase.from('erp_insumos').insert(toSnake(next.payload));
+      if (error) throw new Error(`Failed to add insumo: ${error.message}`);
+      break;
+    }
+    case 'updateInsumo': {
+      const { id, ...rest } = next.payload;
+      const { error } = await supabase.from('erp_insumos').update(toSnake(rest)).eq('id', id);
+      if (error) throw new Error(`Failed to update insumo: ${error.message}`);
+      break;
+    }
+    case 'deleteInsumo': {
+      const { error } = await supabase.from('erp_insumos').delete().eq('id', next.payload.id);
+      if (error) throw new Error(`Failed to delete insumo: ${error.message}`);
+      break;
+    }
+    // erp_sub_renglones
+    case 'addSubRenglon': {
+      const { error } = await supabase.from('erp_sub_renglones').insert(toSnake(next.payload));
+      if (error) throw new Error(`Failed to add sub_renglon: ${error.message}`);
+      break;
+    }
+    case 'updateSubRenglon': {
+      const { id, ...rest } = next.payload;
+      const { error } = await supabase.from('erp_sub_renglones').update(toSnake(rest)).eq('id', id);
+      if (error) throw new Error(`Failed to update sub_renglon: ${error.message}`);
+      break;
+    }
+    case 'deleteSubRenglon': {
+      const { error } = await supabase.from('erp_sub_renglones').delete().eq('id', next.payload.id);
+      if (error) throw new Error(`Failed to delete sub_renglon: ${error.message}`);
+      break;
+    }
   }
 }
 

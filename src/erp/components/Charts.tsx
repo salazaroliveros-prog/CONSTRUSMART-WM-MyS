@@ -14,7 +14,7 @@ export const LineChart: React.FC<{ series: Series[]; labels?: string[]; height?:
   return (
     <svg viewBox={`0 0 ${W} ${height}`} className="w-full">
       {[0, 0.25, 0.5, 0.75, 1].map((t, i) => (
-        <line key={i} x1={PAD} x2={W - PAD} y1={PAD + t * (height - PAD * 2)} y2={PAD + t * (height - PAD * 2)} stroke="#e2e8f0" strokeWidth={1} />
+        <line key={i} x1={PAD} x2={W - PAD} y1={PAD + t * (height - PAD * 2)} y2={PAD + t * (height - PAD * 2)} stroke="hsl(var(--border))" strokeWidth={1} />
       ))}
       {series.map((s, si) => {
         const d = s.data.map((v, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(v)}`).join(' ');
@@ -26,11 +26,12 @@ export const LineChart: React.FC<{ series: Series[]; labels?: string[]; height?:
         );
       })}
       {labels && labels.map((l, i) => (
-        <text key={i} x={x(i)} y={height - 8} fontSize={8} textAnchor="middle" fill="#94a3b8">{l}</text>
+        <text key={i} x={x(i)} y={height - 8} fontSize={8} textAnchor="middle" fill="hsl(var(--muted-foreground))">{l}</text>
       ))}
     </svg>
   );
 });
+LineChart.displayName = 'LineChart';
 
 export const AreaChart: React.FC<{ series: Series[]; labels?: string[] }> = React.memo(({ series, labels }) => {
   const all = series.flatMap(s => s.data);
@@ -51,11 +52,12 @@ export const AreaChart: React.FC<{ series: Series[]; labels?: string[] }> = Reac
         );
       })}
       {labels && labels.map((l, i) => (
-        <text key={i} x={x(i)} y={H - 8} fontSize={8} textAnchor="middle" fill="#94a3b8">{l}</text>
+        <text key={i} x={x(i)} y={H - 8} fontSize={8} textAnchor="middle" fill="hsl(var(--muted-foreground))">{l}</text>
       ))}
     </svg>
   );
 });
+AreaChart.displayName = 'AreaChart';
 
 export const BarChart: React.FC<{ data: { label: string; value: number; color?: string }[]; height?: number }> = React.memo(({ data, height = H }) => {
   const max = Math.max(...data.map(d => d.value), 1);
@@ -66,14 +68,15 @@ export const BarChart: React.FC<{ data: { label: string; value: number; color?: 
         const h = (d.value / max) * (height - PAD * 2);
         return (
           <g key={i}>
-            <rect x={PAD + i * bw + bw * 0.15} y={height - PAD - h} width={bw * 0.7} height={h} rx={3} fill={d.color || '#f97316'} />
-            <text x={PAD + i * bw + bw * 0.5} y={height - 8} fontSize={7} textAnchor="middle" fill="#94a3b8">{d.label}</text>
+            <rect x={PAD + i * bw + bw * 0.15} y={height - PAD - h} width={bw * 0.7} height={h} rx={3} fill={d.color || 'hsl(var(--primary))'} />
+            <text x={PAD + i * bw + bw * 0.5} y={height - 8} fontSize={7} textAnchor="middle" fill="hsl(var(--muted-foreground))">{d.label}</text>
           </g>
         );
       })}
     </svg>
   );
 });
+BarChart.displayName = 'BarChart';
 
 export const Donut: React.FC<{ data: { label: string; value: number; color: string }[]; size?: number }> = React.memo(({ data, size = 150 }) => {
   const total = data.reduce((a, b) => a + b.value, 0) || 1;
@@ -88,33 +91,36 @@ export const Donut: React.FC<{ data: { label: string; value: number; color: stri
         const large = end - start > Math.PI ? 1 : 0;
         const x1 = cx + r * Math.sin(start), y1 = cy - r * Math.cos(start);
         const x2 = cx + r * Math.sin(end), y2 = cy - r * Math.cos(end);
-        return <path key={i} d={`M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`} fill={d.color} stroke="#fff" strokeWidth={1.5} />;
+        return <path key={i} d={`M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`} fill={d.color} stroke="hsl(var(--card))" strokeWidth={1.5} />;
       })}
-      <circle cx={cx} cy={cy} r={r * 0.55} fill="#fff" />
+      <circle cx={cx} cy={cy} r={r * 0.55} fill="hsl(var(--card))" />
     </svg>
   );
 });
+Donut.displayName = 'Donut';
 
-export const Gauge: React.FC<{ value: number; max: number; label: string; color?: string }> = React.memo(({ value, max, label, color = '#10b981' }) => {
+export const Gauge: React.FC<{ value: number; max: number; label: string; color?: string }> = React.memo(({ value, max, label, color = 'hsl(var(--success))' }) => {
   const pct = Math.max(-1, Math.min(1, value / (max || 1)));
-  const angle = pct * 90; // -90..90
+  const angle = pct * 90;
   const r = 60, cx = 80, cy = 80;
   const rad = (angle - 90) * Math.PI / 180;
   const nx = cx + r * Math.cos(rad), ny = cy + r * Math.sin(rad);
   return (
     <svg viewBox="0 0 160 100" className="w-full">
-      <path d={`M 20 80 A 60 60 0 0 1 140 80`} fill="none" stroke="#e2e8f0" strokeWidth={12} strokeLinecap="round" />
-      <path d={`M 20 80 A 60 60 0 0 1 80 20`} fill="none" stroke="#ef4444" strokeWidth={12} opacity={0.4} />
+      <path d={`M 20 80 A 60 60 0 0 1 140 80`} fill="none" stroke="hsl(var(--border))" strokeWidth={12} strokeLinecap="round" />
+      <path d={`M 20 80 A 60 60 0 0 1 80 20`} fill="none" stroke="hsl(var(--destructive))" strokeWidth={12} opacity={0.4} />
       <path d={`M 80 20 A 60 60 0 0 1 140 80`} fill="none" stroke={color} strokeWidth={12} opacity={0.4} />
-      <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#1e293b" strokeWidth={3} strokeLinecap="round" />
-      <circle cx={cx} cy={cy} r={5} fill="#1e293b" />
-      <text x={80} y={97} fontSize={9} textAnchor="middle" fill="#64748b">{label}</text>
+      <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="hsl(var(--foreground))" strokeWidth={3} strokeLinecap="round" />
+      <circle cx={cx} cy={cy} r={5} fill="hsl(var(--foreground))" />
+      <text x={80} y={97} fontSize={9} textAnchor="middle" fill="hsl(var(--muted-foreground))">{label}</text>
     </svg>
   );
 });
+Gauge.displayName = 'Gauge';
 
-export const Progress: React.FC<{ value: number; color?: string; bg?: string }> = React.memo(({ value, color = '#f97316', bg = '#e2e8f0' }) => (
+export const Progress: React.FC<{ value: number; color?: string; bg?: string }> = React.memo(({ value, color = 'hsl(var(--primary))', bg = 'hsl(var(--border))' }) => (
   <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: bg }}>
     <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(100, Math.max(0, value))}%`, background: color }} />
   </div>
 ));
+Progress.displayName = 'Progress';
