@@ -2,6 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "nodeVersion": "20.x",
   "headers": [
     {
       "source": "/(.*)",
@@ -25,11 +26,7 @@
         {
           "key": "Permissions-Policy",
           "value": "geolocation=(self), camera=(self), microphone=()"
-        },
-         {
-           "key": "Content-Security-Policy",
-           "value": "default-src 'self'; script-src 'self' https://*.supabase.co https://apis.google.com https://vercel.live https://*.vercel.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://vercel.live; frame-src https://accounts.google.com https://vercel.live; worker-src 'self' blob:"
-         }
+        }
       ]
     },
     {
@@ -42,16 +39,9 @@
       ]
     }
   ],
-  "redirects": [
-    {
-      "source": "/erp/:path*",
-      "destination": "/",
-      "permanent": false
-    }
-  ],
   "rewrites": [
     {
-      "source": "/((?!api|assets|icons|docs|favicon\\.ico|logo\\.png|robots\\.txt|manifest\\.json|placeholder\\.svg).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
