@@ -20,24 +20,15 @@ export default defineConfig(({ mode: _mode }) => ({
     },
   },
   build: {
-    chunkSizeWarningLimit: 1500,
+    chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
-          'ui-radix': [
-            '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-accordion', '@radix-ui/react-tabs',
-            '@radix-ui/react-tooltip', '@radix-ui/react-select',
-          ],
-          'antd-chunk': ['antd'],
+          'ui-heavy': ['antd', 'recharts', 'framer-motion', '@tanstack/react-query'],
           three: ['three'],
           'web-ifc': ['web-ifc'],
-          'jspdf': ['jspdf', 'html2canvas'],
-          charts: ['recharts'],
-          'react-query': ['@tanstack/react-query'],
-          xlsx: ['xlsx'],
-          framer: ['framer-motion'],
+          ofimatica: ['jspdf', 'html2canvas', 'xlsx'],
         },
       },
     },
