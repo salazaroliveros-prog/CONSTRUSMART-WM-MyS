@@ -162,7 +162,7 @@ const ChecklistCalidad: React.FC = () => {
       const { data: sessionData } = await userSession;
       const userId = sessionData?.user?.id || 'anonymous';
       
-      let fotosUrls: string[] = [];
+      const fotosUrls: string[] = [];
       if (fotos.length > 0) {
         for (const foto of fotos) {
           const url = await uploadBase64Image('erp_documentos', foto, userId);

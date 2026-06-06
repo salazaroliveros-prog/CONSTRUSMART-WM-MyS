@@ -124,7 +124,7 @@ const TAMANO_MAXIMO_BASE64 = 5 * 1024 * 1024; // 5MB
 /**
  * Caracteres peligrosos no permitidos en nombres de archivo
  */
-const CARACTERES_PELIGROSOS = /[<>:"/\\|?*\x00-\x1f]/;
+const CARACTERES_PELIGROSOS = /[<>:"/\\|?*\x00-\x1f]/; // eslint-disable-line no-control-regex
 
 /**
  * Validación mejorada de archivo previa a subida
