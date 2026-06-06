@@ -39,6 +39,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/((?!assets/).*)", "destination": "/index.html", "continue": true }
+    { "source": "/((?!assets/).*)", "destination": "/index.html" }
   ]
 }
