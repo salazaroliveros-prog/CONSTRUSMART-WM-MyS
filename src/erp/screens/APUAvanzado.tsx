@@ -168,7 +168,7 @@ const APUAvanzado: React.FC = () => {
                     value={searchInsumo}
                     onChange={e => setSearchInsumo(e.target.value)}
                     placeholder="Buscar insumo..."
-                    className="pl-7 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 outline-none focus:border-orange-400 w-44"
+                    className="pl-7 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 outline-none focus:border-orange-400 w-full sm:w-44"
                   />
                 </div>
               </div>
@@ -224,7 +224,7 @@ const APUAvanzado: React.FC = () => {
                   value={searchRend}
                   onChange={e => setSearchRend(e.target.value)}
                   placeholder="Buscar actividad..."
-                  className="pl-7 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 outline-none focus:border-orange-400 w-44"
+                  className="pl-7 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 outline-none focus:border-orange-400 w-full sm:w-44"
                 />
               </div>
             </div>

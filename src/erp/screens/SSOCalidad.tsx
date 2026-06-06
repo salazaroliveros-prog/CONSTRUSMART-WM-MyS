@@ -463,17 +463,17 @@ const SSOCalidad: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
             <div className="bg-white rounded-xl p-4 border border-slate-100">
               <div className="text-[10px] text-slate-400">Días Sin Accidentes</div>
-              <div className="text-3xl font-black text-emerald-600">{diasSinAccidentes}</div>
+              <div className="text-xl sm:text-3xl font-black text-emerald-600">{diasSinAccidentes}</div>
               <div className="text-[10px] text-slate-400 mt-1">días</div>
             </div>
             <div className={`bg-white rounded-xl p-4 border ${totalIncidentes > 0 ? 'border-red-200' : 'border-slate-100'}`}>
               <div className="text-[10px] text-slate-400">Total Incidentes</div>
-              <div className={`text-3xl font-black ${totalIncidentes > 0 ? 'text-red-600' : 'text-slate-800'}`}>{totalIncidentes}</div>
+              <div className={`text-xl sm:text-3xl font-black ${totalIncidentes > 0 ? 'text-red-600' : 'text-slate-800'}`}>{totalIncidentes}</div>
               <div className="text-[10px] text-slate-400 mt-1">{incidentesAbiertos} abiertos · {totalIncidentes - incidentesAbiertos} cerrados</div>
             </div>
             <div className="bg-white rounded-xl p-4 border border-slate-100">
               <div className="text-[10px] text-slate-400">Tasa de Incidencia</div>
-              <div className="text-3xl font-black text-orange-600">{tasaIncidencia}%</div>
+              <div className="text-xl sm:text-3xl font-black text-orange-600">{tasaIncidencia}%</div>
               <div className="text-[10px] text-slate-400 mt-1">incidentes por proyecto</div>
             </div>
           </div>
@@ -529,7 +529,7 @@ const SSOCalidad: React.FC = () => {
                   addNotificacion('general', '🚨 Emergencia en obra', 'Se ha activado el botón de emergencia', selProyecto);
                 }
               }}
-              className="w-48 h-48 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-black text-lg shadow-2xl shadow-red-500/50 hover:shadow-red-500/70 hover:scale-105 active:scale-95 transition-all duration-200 animate-pulse flex items-center justify-center flex-col"
+              className="w-32 sm:w-48 h-32 sm:h-48 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-black text-lg shadow-2xl shadow-red-500/50 hover:shadow-red-500/70 hover:scale-105 active:scale-95 transition-transform duration-300 animate-pulse flex items-center justify-center flex-col"
             >
               <AlertTriangle className="w-10 h-10 mb-1" />
               <span className="text-sm">EMERGENCIA</span>

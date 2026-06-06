@@ -284,7 +284,7 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, projectStart, projectEnd
                           <button onClick={() => setEditingTask(null)} className="mt-4 bg-slate-200 text-slate-600 px-3 py-1 rounded text-[10px] hover:bg-slate-300">Cancelar</button>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                           <div><span className="text-slate-400 text-[10px] block">Cantidad</span><span className="font-semibold text-slate-700">{t.cantidad} {t.unidad}</span></div>
                           <div><span className="text-slate-400 text-[10px] block">Rendimiento</span><span className="font-semibold text-slate-700">{t.rendimiento} {t.unidad}/día</span></div>
                           <div><span className="text-slate-400 text-[10px] block">Duración</span><span className="font-semibold text-slate-700">{t.duration} días</span></div>

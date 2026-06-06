@@ -55,7 +55,7 @@ const Shell: React.FC = () => {
         <Sidebar open={sidebarOpen} onClose={closeSidebar} />
         <main
           id="main-content"
-          className={`flex-1 min-w-0 overflow-auto transition-all duration-200 ${sidebarCollapsed ? 'lg:ml-0' : ''}`}
+          className={`flex-1 min-w-0 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-0' : ''}`}
           role="main"
           aria-label="Contenido principal"
         >

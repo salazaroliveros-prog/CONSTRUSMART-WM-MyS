@@ -147,7 +147,7 @@ const PertGanttChart: React.FC<PertGanttProps> = ({ tasks, projectStart, project
                       fill={isCrit ? '#f97316' : t.avance >= 100 ? '#10b981' : '#3b82f6'}
                       stroke={isCrit ? '#ea580c' : '#fff'}
                       strokeWidth={isCrit ? 0.6 : 0.3}
-                      className="transition-all duration-200" />
+                      className="transition-all duration-300" />
                     {isHov && (
                       <text x={pos.x} y={pos.y - 4} fontSize="2.2" textAnchor="middle" fill="#334155" fontWeight="600">
                         {t.codigo}

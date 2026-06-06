@@ -165,7 +165,7 @@ const Proyectos: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {proyectos.length === 0 ? Array.from({ length: 3 }).map((_, i) => <div key={i}>{Skeleton}</div>) : proyectos.map(p => (
-          <div key={p.id} className="bg-card text-card-foreground rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 border border-border">
+          <div key={p.id} className="bg-card text-card-foreground rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-border">
             <div className="p-5">
               <div className="flex items-start gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: estadoColor(p) }} aria-hidden="true">
@@ -238,7 +238,7 @@ const Proyectos: React.FC = () => {
               <select {...register('tipologia')} className={INPUT}>
                 {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]}</option>)}
               </select>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <input type="number" {...register('presupuestoTotal')} placeholder="Presupuesto Q" className={INPUT} />
                 <input type="number" {...register('montoContrato')} placeholder="Contrato Q" className={INPUT} />
               </div>

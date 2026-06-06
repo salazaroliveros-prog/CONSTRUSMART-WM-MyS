@@ -326,7 +326,7 @@ const VisorBIM: React.FC = () => {
                       <span className="font-medium text-slate-700">{elem.nombre}</span>
                       <span className="text-[10px] text-indigo-500">{renglon?.codigo}</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
                       <div>
                         <p className="text-[10px] text-slate-400">Campo</p>
                         <div className="flex items-center gap-1">

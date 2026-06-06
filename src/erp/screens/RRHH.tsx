@@ -110,7 +110,7 @@ const RRHH: React.FC = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <div className={CARD}>
           <div className="text-2xl font-bold text-foreground">{empleados.length}</div>
           <div className="text-xs text-muted-foreground">Personal Activo</div>
@@ -210,7 +210,7 @@ const RRHH: React.FC = () => {
               className={`${inp} ${errors.puesto ? ERROR_STATE : ''}`}
             />
             {errors.puesto && <p className="text-xs text-red-500">{errors.puesto.message}</p>}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input
                 type="number"
                 {...register('salarioDiario')}

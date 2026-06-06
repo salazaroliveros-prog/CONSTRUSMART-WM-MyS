@@ -100,7 +100,7 @@ const Bodega: React.FC = () => {
     return (
       <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
         <Skeleton className="h-8 w-56" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Skeleton className="h-24 rounded-2xl" />
           <Skeleton className="h-24 rounded-2xl" />
           <Skeleton className="h-24 rounded-2xl" />
@@ -129,7 +129,7 @@ const Bodega: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <div className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border">
           <div className="text-2xl font-bold text-foreground">{materiales.length}</div>
           <div className="text-xs text-muted-foreground">Materiales</div>

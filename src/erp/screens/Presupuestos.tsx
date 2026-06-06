@@ -837,7 +837,7 @@ const Presupuestos: React.FC = () => {
             </div>
           </div>
           <div className="bg-slate-900 text-white rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 sticky bottom-2">
-            <div className="flex gap-6 text-sm">
+            <div className="flex gap-4 sm:gap-6 text-sm">
               <div><span className="text-slate-400 text-xs block">Costo Directo</span><b>{fmtQ(granDir)}</b></div>
               <div><span className="text-slate-400 text-xs block">Renglones</span><b>{items.length}</b></div>
             </div>
