@@ -69,19 +69,29 @@ const MovimientoForm: React.FC<{ compact?: boolean }> = ({ compact }) => {
   const errorClass = ERROR_STATE;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-      <div className="flex items-center gap-2 mb-3">
+    <form onSubmit={handleSubmit(onSubmit)} className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border">
+      <div className="flex items-center gap-2 mb-3" role="group" aria-label="Tipo de movimiento">
         <button
           type="button"
           onClick={() => setValue('tipo', 'ingreso')}
-          className={`flex-1 py-2 rounded-lg text-sm font-semibold ${tipo === 'ingreso' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500'}`}
+          aria-pressed={tipo === 'ingreso'}
+          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+            tipo === 'ingreso'
+              ? 'bg-emerald-500 text-white'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
+          }`}
         >
           Ingreso
         </button>
         <button
           type="button"
           onClick={() => setValue('tipo', 'gasto')}
-          className={`flex-1 py-2 rounded-lg text-sm font-semibold ${tipo === 'gasto' ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-500'}`}
+          aria-pressed={tipo === 'gasto'}
+          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+            tipo === 'gasto'
+              ? 'bg-red-500 text-white'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
+          }`}
         >
           Gasto
         </button>
@@ -124,15 +134,15 @@ const MovimientoForm: React.FC<{ compact?: boolean }> = ({ compact }) => {
           {...register('fecha')}
           className={inp}
         />
-        <div className={`${inp} bg-slate-50 flex items-center font-semibold text-slate-700`}>Q {total.toFixed(2)}</div>
+        <div className={`${inp} bg-muted flex items-center font-semibold text-foreground`}>Q {total.toFixed(2)}</div>
       </div>
       {errors.descripcion && <p className="text-xs text-red-500 mt-1">{errors.descripcion.message}</p>}
       {errors.costoUnitario && <p className="text-xs text-red-500 mt-1">{errors.costoUnitario.message}</p>}
       <button
         type="submit"
-        className="mt-3 w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5"
+        className="mt-3 w-full bg-foreground hover:bg-foreground/90 text-background py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <Plus className="w-4 h-4" /> Registrar {tipo}
+        <Plus className="w-4 h-4" aria-hidden="true" /> Registrar {tipo}
       </button>
     </form>
   );

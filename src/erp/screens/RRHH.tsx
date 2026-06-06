@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { useErp } from '../store';
 import { fmtQ, factorSalarioReal, FSR_PRESTACIONES } from '../utils';
 import { CARD, CARD_TITLE, BUTTON_DARK, BUTTON_ACCENT, INPUT, ERROR_STATE } from '../ui';
-import { toast } from 'sonner';
 import { Users, Plus, Trash2 } from 'lucide-react';
 import { BarChart } from '../components/Charts';
 
@@ -53,24 +52,6 @@ const RRHH: React.FC = () => {
   });
 
   const onSubmit = (data: EmpleadoFormData) => {
-    if (data.proyectoId) {
-      const countAsignado = empleados.filter(
-        e => e.id !== editingId && e.proyectoIds?.includes(data.proyectoId!)
-      ).length;
-      const empleadosEnProyecto = proyectos.find(p => p.id === data.proyectoId)
-        ?.nombre || '';
-      if (countAsignado >= 3) {
-        toast.warning(
-          `El proyecto "${empleadosEnProyecto}" ya tiene ${countAsignado} empleados asignados.`,
-          { duration: 5000 }
-        );
-        const ok = window.confirm(
-          `⚠️ El proyecto "${empleadosEnProyecto}" ya tiene ${countAsignado} empleados asignados. ` +
-          '¿Asignar este empleado de todas formas?'
-        );
-        if (!ok) return;
-      }
-    }
     if (editingId) {
       updateEmpleado(editingId, {
         nombre: data.nombre,
@@ -108,8 +89,8 @@ const RRHH: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2 mb-4">
-          <Users className="w-6 h-6 text-pink-500" /> RRHH y Planillas
+        <h1 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
+          <Users className="w-6 h-6 text-pink-500" aria-hidden="true" /> RRHH y Planillas
         </h1>
         <button
           onClick={() => {
@@ -130,34 +111,34 @@ const RRHH: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <div className={`${CARD}`}>
-          <div className="text-2xl font-bold text-slate-800">{empleados.length}</div>
-          <div className="text-xs text-slate-400">Personal Activo</div>
+        <div className={CARD}>
+          <div className="text-2xl font-bold text-foreground">{empleados.length}</div>
+          <div className="text-xs text-muted-foreground">Personal Activo</div>
         </div>
-        <div className={`${CARD}`}>
-          <div className="text-2xl font-bold text-slate-800">{fmtQ(totalPlanilla)}</div>
-          <div className="text-xs text-slate-400">Planilla Base</div>
+        <div className={CARD}>
+          <div className="text-2xl font-bold text-foreground">{fmtQ(totalPlanilla)}</div>
+          <div className="text-xs text-muted-foreground">Planilla Base</div>
         </div>
-        <div className={`${CARD}`}>
-          <div className="text-2xl font-bold text-orange-600">{fmtQ(totalFSR)}</div>
-          <div className="text-xs text-slate-400">Con FSR (+{(FSR_PRESTACIONES * 100).toFixed(0)}%)</div>
+        <div className={CARD}>
+          <div className="text-2xl font-bold text-primary">{fmtQ(totalFSR)}</div>
+          <div className="text-xs text-muted-foreground">Con FSR (+{(FSR_PRESTACIONES * 100).toFixed(0)}%)</div>
         </div>
-        <div className={`${CARD}`}>
-          <div className="text-2xl font-bold text-slate-800">
+        <div className={CARD}>
+          <div className="text-2xl font-bold text-foreground">
             {empleados.filter(e => e.tipo === 'destajo').length}
           </div>
-          <div className="text-xs text-slate-400">Destajistas</div>
+          <div className="text-xs text-muted-foreground">Destajistas</div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className={`${CARD} lg:col-span-2 overflow-hidden`}>
-          <div className="p-3 border-b border-slate-100">
-            <h3 className={`${CARD_TITLE}`}>Planilla Semanal</h3>
+        <div className={`${CARD} lg:col-span-2 p-0 overflow-hidden`}>
+          <div className="p-3 border-b border-border">
+            <h3 className={CARD_TITLE}>Planilla Semanal</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[640px]">
-              <thead className="bg-slate-50 text-slate-400">
+              <thead className="bg-muted text-muted-foreground">
                 <tr>
                   <th className="text-left p-2">Empleado</th>
                   <th className="p-2">Proyecto</th>
@@ -169,32 +150,34 @@ const RRHH: React.FC = () => {
               </thead>
               <tbody>
                 {empleados.length === 0 ? (
-                  <tr><td colSpan={6} className="p-6 text-center text-xs text-slate-400">No hay empleados registrados.</td></tr>
+                  <tr><td colSpan={6} className="p-6 text-center text-xs text-muted-foreground">No hay empleados registrados.</td></tr>
                 ) : empleados.map(e => (
-                  <tr key={e.id} className="border-t border-slate-50">
+                  <tr key={e.id} className="border-t border-border/50 hover:bg-muted/40 transition-colors">
                     <td className="p-2">
-                      <div className="font-semibold text-slate-700">{e.nombre}</div>
-                      <div className="text-slate-400">{e.puesto} · {e.tipo}</div>
+                      <div className="font-semibold text-foreground">{e.nombre}</div>
+                      <div className="text-muted-foreground">{e.puesto} · {e.tipo}</div>
                     </td>
-                    <td className="p-2 text-center text-slate-500">
+                    <td className="p-2 text-center text-muted-foreground">
                       {proyectos.find(p => p.id === e.proyectoId)?.nombre.split(' ')[0] || '-'}
                     </td>
-                    <td className="p-2 text-center">{fmtQ(e.salarioDiario)}</td>
+                    <td className="p-2 text-center text-foreground">{fmtQ(e.salarioDiario)}</td>
                     <td className="p-2 text-center">
                       <input
                         type="number"
                         value={e.diasTrabajados}
                         onChange={ev => updateEmpleado(e.id, { diasTrabajados: +ev.target.value })}
-                        placeholder="Días"
-                        className="w-14 px-1 py-0.5 rounded bg-white text-center"
+                        aria-label={`Días trabajados de ${e.nombre}`}
+                        className="w-14 px-1 py-0.5 rounded border border-input bg-background text-foreground text-center focus:outline-none focus:ring-2 focus:ring-ring"
                       />
                     </td>
-                    <td className="p-2 text-center font-bold text-orange-600">
+                    <td className="p-2 text-center font-bold text-primary">
                       {fmtQ(pagoFSR(e))}
                     </td>
                     <td className="p-2">
-                      <button onClick={() => deleteEmpleado(e.id)}>
-                        <Trash2 className="w-3.5 h-3.5 text-slate-300 hover:text-red-500" />
+                      <button onClick={() => deleteEmpleado(e.id)}
+                        aria-label={`Eliminar empleado ${e.nombre}`}
+                        className="p-1 rounded text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+                        <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                       </button>
                     </td>
                   </tr>
@@ -205,15 +188,15 @@ const RRHH: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="bg-white rounded-2xl p-4 shadow-sm">
-            <h3 className="font-bold text-slate-700 text-sm mb-2">Costo MO por Proyecto</h3>
+          <div className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border">
+            <h3 className="font-bold text-foreground text-sm mb-2">Costo MO por Proyecto</h3>
             {porProyecto.length ? (
               <BarChart height={140} data={porProyecto} />
             ) : (
               <p className="text-xs text-slate-400">Sin datos</p>
             )}
           </div>
-          <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl p-4 shadow-sm space-y-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border space-y-2">
             <h3 className="font-bold text-slate-700 text-sm">Nuevo Empleado</h3>
             <input
               {...register('nombre')}
@@ -252,12 +235,12 @@ const RRHH: React.FC = () => {
                 <option key={p.id} value={p.id}>{p.nombre}</option>
               ))}
             </select>
-              <input
-                type="number"
-                {...register('diasTrabajados')}
-                placeholder="Días trabajados"
-                className={`${inp} ${errors.diasTrabajados ? ERROR_STATE : ''}`}
-              />
+            <input
+              type="number"
+              {...register('diasTrabajados')}
+              placeholder="Días trabajados"
+              className={`${inp} ${errors.diasTrabajados ? ERROR_STATE : ''}`}
+            />
             {errors.diasTrabajados && <p className="text-xs text-red-500">{errors.diasTrabajados.message}</p>}
             <button type="submit" className={BUTTON_DARK}>
               <Plus className="w-4 h-4" /> {editingId ? 'Actualizar' : 'Agregar'}
