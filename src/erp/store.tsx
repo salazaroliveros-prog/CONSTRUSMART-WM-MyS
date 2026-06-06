@@ -248,6 +248,8 @@ const presupuestoSchema = z.object({
   notas: z.string().nullable().optional(),
 });
 
+import { safeLogger } from '@/lib/safeLogger';
+
 function loadFromStorage<T>(key: string, initial: T): T {
   try {
     const raw = localStorage.getItem(key);
@@ -255,7 +257,7 @@ function loadFromStorage<T>(key: string, initial: T): T {
     const parsed = JSON.parse(raw);
     return parsed as T;
   } catch {
-    console.warn(`[Storage] Datos corruptos en localStorage para key: ${key}. Usando valores por defecto.`);
+    safeLogger.warn(`[Storage] Datos corruptos en localStorage para key: ${key}. Usando valores por defecto.`);
     return initial;
   }
 }
