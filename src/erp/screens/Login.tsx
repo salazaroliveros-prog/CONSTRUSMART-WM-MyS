@@ -73,15 +73,15 @@ const Login: React.FC = () => {
         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'url(/empresa_b.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/50 via-primary/30 to-accent/20" />
         <div className="relative z-10 text-primary-foreground max-w-md text-center">
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-20 h-20 rounded-2xl bg-background/20 flex items-center justify-center ring-1 ring-primary-foreground/30 shadow-[0_0_8px_hsl(var(--primary)/0.35)]">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-background/20 flex items-center justify-center ring-1 ring-primary-foreground/30 shadow-[0_0_8px_hsl(var(--primary)/0.35)]">
               <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
             </div>
-            <img src="/construmys.png" alt="Construmys" className="h-[5.5rem] w-auto object-contain drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
+            <img src="/construmys.png" alt="Construmys" className="h-16 w-auto object-contain drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black leading-tight">CONSTRUCTORA<br /><span className="text-3xl">WM / M&amp;S</span></h1>
-          <p className="text-primary-foreground/80 text-lg italic mt-2">{EMPRESA.eslogan}</p>
-          <p className="text-primary-foreground/70 mt-6 leading-relaxed">{t('auth.ingrese_credenciales')}</p>
+          <h1 className="text-2xl sm:text-3xl font-black leading-tight">CONSTRUCTORA<br /><span className="text-2xl sm:text-3xl">WM / M&amp;S</span></h1>
+          <p className="text-primary-foreground text-base sm:text-lg italic mt-2">{EMPRESA.eslogan}</p>
+          <p className="text-primary-foreground/90 mt-6 leading-relaxed text-sm sm:text-base">{t('auth.ingrese_credenciales')}</p>
           <div className="flex flex-wrap gap-4 sm:gap-6 mt-8 justify-center">
             {['Presupuestos', 'Control', 'Finanzas'].map(lbl => (
               <div key={lbl} className="text-center">
