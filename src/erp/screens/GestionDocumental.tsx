@@ -256,22 +256,22 @@ const GestionDocumental: React.FC = () => {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-[10px] text-slate-400">Planos</div>
-          <div className="text-lg font-bold text-slate-800">{planos.filter(p => !selProyecto || p.proyectoId === selProyecto).length}</div>
+        <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
+          <div className="text-[10px] text-muted-foreground">Planos</div>
+          <div className="text-lg font-bold text-foreground">{planos.filter(p => !selProyecto || p.proyectoId === selProyecto).length}</div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-[10px] text-slate-400">RFIs Activos</div>
-          <div className="text-lg font-bold text-amber-600">{rfis.filter(r => r.estado !== 'cerrado' && (!selProyecto || r.proyectoId === selProyecto)).length}</div>
+        <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
+          <div className="text-[10px] text-muted-foreground">RFIs Activos</div>
+          <div className="text-lg font-bold text-warning">{rfis.filter(r => r.estado !== 'cerrado' && (!selProyecto || r.proyectoId === selProyecto)).length}</div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-[10px] text-slate-400">Submittals Pendientes</div>
-          <div className="text-lg font-bold text-blue-600">{submittals.filter(s => s.estado === 'pendiente' && (!selProyecto || s.proyectoId === selProyecto)).length}</div>
+        <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
+          <div className="text-[10px] text-muted-foreground">Submittals Pendientes</div>
+          <div className="text-lg font-bold text-info">{submittals.filter(s => s.estado === 'pendiente' && (!selProyecto || s.proyectoId === selProyecto)).length}</div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 bg-slate-100 p-1 rounded-xl">
+      <div className="flex gap-1 mb-4 bg-muted p-1 rounded-xl">
         {tabs.map(t => {
           const Icon = t.icon;
           const active = tab === t.id;
@@ -280,7 +280,7 @@ const GestionDocumental: React.FC = () => {
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all ${
-                active ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+                active ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -341,28 +341,28 @@ const GestionDocumental: React.FC = () => {
 
           <div className="space-y-2">
             {planos.filter(p => !selProyecto || p.proyectoId === selProyecto).length === 0 ? (
-              <div className="text-center py-8 text-slate-400">
-                <FileText className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="w-10 h-10 mx-auto mb-2 text-muted-foreground/60" />
                 <p className="text-sm">Sin planos registrados</p>
               </div>
             ) : (
               planos.filter(p => !selProyecto || p.proyectoId === selProyecto).map(p => (
-                <div key={p.id} className={`p-3 rounded-lg border ${p.estado === 'vigente' ? 'bg-white border-slate-100' : p.estado === 'obsoleto' ? 'bg-slate-50 border-slate-200 opacity-60' : 'bg-amber-50 border-amber-200'}`}>
+                <div key={p.id} className={`p-3 rounded-lg border ${p.estado === 'vigente' ? 'bg-card border-border' : p.estado === 'obsoleto' ? 'bg-muted border-border opacity-60' : 'bg-warning/10 border-warning/30'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600 font-medium">{p.disciplina}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-info/10 text-info font-medium">{p.disciplina}</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                          p.estado === 'vigente' ? 'bg-emerald-50 text-emerald-600' : p.estado === 'obsoleto' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600'
+                          p.estado === 'vigente' ? 'bg-success/10 text-success' : p.estado === 'obsoleto' ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning'
                         }`}>{p.estado}</span>
                       </div>
-                      <p className="text-sm font-medium text-slate-700">{p.nombre}</p>
-                      <div className="flex gap-2 mt-1 text-[10px] text-slate-400">
+                      <p className="text-sm font-medium text-foreground">{p.nombre}</p>
+                      <div className="flex gap-2 mt-1 text-[10px] text-muted-foreground">
                         <span>📄 v{p.version}</span>
                         <span>📅 {p.fechaSubida}</span>
                         <span>👤 {p.subidoPor}</span>
                       </div>
-                      {p.descripcion && <p className="text-[10px] text-slate-500 mt-1">{p.descripcion}</p>}
+                      {p.descripcion && <p className="text-[10px] text-muted-foreground mt-1">{p.descripcion}</p>}
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2">
                       <button onClick={() => addVersionPlano(p.id)} className="px-2 py-1 bg-blue-500 text-white rounded text-[10px] hover:bg-blue-600" title="Nueva versión">+v</button>
@@ -404,32 +404,32 @@ const GestionDocumental: React.FC = () => {
 
           <div className="space-y-2">
             {rfis.filter(r => !selProyecto || r.proyectoId === selProyecto).length === 0 ? (
-              <div className="text-center py-8 text-slate-400">
-                <MessageSquare className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+              <div className="text-center py-8 text-muted-foreground">
+                <MessageSquare className="w-10 h-10 mx-auto mb-2 text-muted-foreground/60" />
                 <p className="text-sm">Sin RFIs registrados</p>
               </div>
             ) : (
               rfis.filter(r => !selProyecto || r.proyectoId === selProyecto).map(r => (
-                <div key={r.id} className={`p-3 rounded-lg border ${r.estado === 'cerrado' ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100'}`}>
+                <div key={r.id} className={`p-3 rounded-lg border ${r.estado === 'cerrado' ? 'bg-success/10 border-success/30' : 'bg-card border-border'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">{r.numero}</span>
+                        <span className="text-[10px] font-bold text-warning bg-warning/10 px-1.5 py-0.5 rounded">{r.numero}</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                          r.estado === 'abierto' ? 'bg-red-50 text-red-500' : r.estado === 'en_respuesta' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
+                          r.estado === 'abierto' ? 'bg-destructive/10 text-destructive' : r.estado === 'en_respuesta' ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
                         }`}>{r.estado.replace(/_/g, ' ')}</span>
                       </div>
-                      <p className="text-sm font-medium text-slate-700">{r.titulo}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{r.descripcion}</p>
-                      <div className="flex gap-2 mt-1 text-[10px] text-slate-400">
+                      <p className="text-sm font-medium text-foreground">{r.titulo}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{r.descripcion}</p>
+                      <div className="flex gap-2 mt-1 text-[10px] text-muted-foreground">
                         <span>📅 {r.fechaSolicitud}</span>
                         <span>👤 {r.solicitante}</span>
                         <span>📬 → {r.destino}</span>
                       </div>
                       {r.respuesta && (
-                        <div className="mt-2 p-2 bg-emerald-50 rounded-lg border border-emerald-200">
-                          <p className="text-[10px] font-bold text-emerald-700 mb-0.5">Respuesta ({r.fechaRespuesta}):</p>
-                          <p className="text-xs text-emerald-800">{r.respuesta}</p>
+                        <div className="mt-2 p-2 bg-success/10 rounded-lg border border-success/30">
+                          <p className="text-[10px] font-bold text-success mb-0.5">Respuesta ({r.fechaRespuesta}):</p>
+                          <p className="text-xs text-foreground">{r.respuesta}</p>
                         </div>
                       )}
                     </div>
