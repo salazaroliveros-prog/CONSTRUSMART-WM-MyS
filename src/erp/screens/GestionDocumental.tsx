@@ -241,13 +241,13 @@ const GestionDocumental: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-          <FileText className="w-6 h-6 text-blue-500" /> Gestión Documental
+        <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
+          <FileText className="w-6 h-6 text-info" /> Gestión Documental
         </h1>
         <select
           value={selProyecto}
           onChange={e => setSelProyecto(e.target.value)}
-          className="text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-blue-400 bg-white"
+          className="text-xs px-3 py-2 rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground"
         >
           <option value="">— Todos los proyectos —</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
@@ -294,18 +294,18 @@ const GestionDocumental: React.FC = () => {
       {tab === 'planos' && (
         <div>
           <div className="flex justify-between items-center mb-3">
-            <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
-              <FileText className="w-4 h-4 text-blue-500" /> Planos por Disciplina
+            <h2 className="font-bold text-foreground text-sm flex items-center gap-1.5">
+              <FileText className="w-4 h-4 text-info" /> Planos por Disciplina
             </h2>
-            <button onClick={() => { setShowPlanoForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-medium hover:bg-blue-600">
+            <button onClick={() => { setShowPlanoForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-info text-info-foreground rounded-lg text-xs font-medium hover:bg-info/90">
               <Upload className="w-3.5 h-3.5" /> Subir Plano
             </button>
           </div>
 
           {showPlanoForm && (
-            <div className="bg-blue-50 rounded-xl p-4 mb-4 border border-blue-200 space-y-2">
+            <div className="bg-muted rounded-xl p-4 mb-4 border border-border space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input value={planoForm.nombre} onChange={e => setPlanoForm(prev => ({ ...prev, nombre: e.target.value }))} placeholder="Nombre del plano" className="w-full px-3 py-2 text-xs rounded-lg border border-blue-200 outline-none focus:border-blue-400" />
+                <input value={planoForm.nombre} onChange={e => setPlanoForm(prev => ({ ...prev, nombre: e.target.value }))} placeholder="Nombre del plano" className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
                 <select value={planoForm.disciplina} onChange={e => setPlanoForm(prev => ({ ...prev, disciplina: e.target.value as Plano['disciplina'] }))} className={INPUT}>
                   {disciplinas.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
                 </select>
@@ -315,8 +315,8 @@ const GestionDocumental: React.FC = () => {
                 <input value={planoForm.descripcion} onChange={e => setPlanoForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Descripción (opcional)" className={INPUT} />
               </div>
               <div className="flex gap-2">
-                <button onClick={handleAddPlano} className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-xs font-semibold">Subir Plano</button>
-                <button onClick={() => setShowPlanoForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">Cancelar</button>
+                <button onClick={handleAddPlano} className="flex-1 bg-info hover:bg-info/90 text-info-foreground py-2 rounded-lg text-xs font-semibold">Subir Plano</button>
+                <button onClick={() => setShowPlanoForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">Cancelar</button>
               </div>
             </div>
           )}
@@ -382,22 +382,22 @@ const GestionDocumental: React.FC = () => {
       {tab === 'rfis' && (
         <div>
           <div className="flex justify-between items-center mb-3">
-            <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
-              <MessageSquare className="w-4 h-4 text-amber-500" /> Request for Information (RFI)
+            <h2 className="font-bold text-foreground text-sm flex items-center gap-1.5">
+              <MessageSquare className="w-4 h-4 text-warning" /> Request for Information (RFI)
             </h2>
-            <button onClick={() => { setShowRFIForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-600">
+            <button onClick={() => { setShowRFIForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-warning text-warning-foreground rounded-lg text-xs font-medium hover:bg-warning/90">
               <Send className="w-3.5 h-3.5" /> Nuevo RFI
             </button>
           </div>
 
           {showRFIForm && (
-            <div className="bg-amber-50 rounded-xl p-4 mb-4 border border-amber-200 space-y-2">
-              <input value={rfiForm.titulo} onChange={e => setRfiForm(prev => ({ ...prev, titulo: e.target.value }))} placeholder="Título del RFI" className="w-full px-3 py-2 text-xs rounded-lg border border-amber-200 outline-none focus:border-amber-400" />
-              <textarea value={rfiForm.descripcion} onChange={e => setRfiForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Descripción detallada..." className="w-full px-3 py-2 text-xs rounded-lg border border-amber-200 outline-none focus:border-amber-400 min-h-[60px]" />
-              <input value={rfiForm.destino} onChange={e => setRfiForm(prev => ({ ...prev, destino: e.target.value }))} placeholder="Destinatario (ej: Arquitecto de proyecto)" className="w-full px-3 py-2 text-xs rounded-lg border border-amber-200 outline-none focus:border-amber-400" />
+            <div className="bg-warning/10 rounded-xl p-4 mb-4 border border-warning/30 space-y-2">
+              <input value={rfiForm.titulo} onChange={e => setRfiForm(prev => ({ ...prev, titulo: e.target.value }))} placeholder="Título del RFI" className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
+              <textarea value={rfiForm.descripcion} onChange={e => setRfiForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Descripción detallada..." className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground min-h-[60px]" />
+              <input value={rfiForm.destino} onChange={e => setRfiForm(prev => ({ ...prev, destino: e.target.value }))} placeholder="Destinatario (ej: Arquitecto de proyecto)" className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
               <div className="flex gap-2">
-                <button onClick={handleAddRFI} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg text-xs font-semibold">Enviar RFI</button>
-                <button onClick={() => setShowRFIForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">Cancelar</button>
+                <button onClick={handleAddRFI} className="flex-1 bg-warning hover:bg-warning/90 text-warning-foreground py-2 rounded-lg text-xs font-semibold">Enviar RFI</button>
+                <button onClick={() => setShowRFIForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">Cancelar</button>
               </div>
             </div>
           )}
@@ -456,7 +456,7 @@ const GestionDocumental: React.FC = () => {
       {tab === 'submittals' && (
         <div>
           <div className="flex justify-between items-center mb-3">
-            <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
+            <h2 className="font-bold text-foreground text-sm flex items-center gap-1.5">
               <Package className="w-4 h-4 text-purple-500" /> Submittals
             </h2>
             <button onClick={() => { setShowSubForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-medium hover:bg-purple-600">
@@ -479,7 +479,7 @@ const GestionDocumental: React.FC = () => {
               <textarea value={subForm.descripcion} onChange={e => setSubForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Descripción..." className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400 min-h-[50px]" />
               <div className="flex gap-2">
                 <button onClick={handleAddSubmittal} className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-semibold">Registrar</button>
-                <button onClick={() => setShowSubForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">Cancelar</button>
+                <button onClick={() => setShowSubForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">Cancelar</button>
               </div>
             </div>
           )}
