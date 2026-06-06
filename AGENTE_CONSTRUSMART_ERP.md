@@ -292,7 +292,6 @@ verificarOrdenesCambioPendientes() → Alerta OC pendientes
 6. Registrar en `AppLayout.tsx` y `Sidebar.tsx`
 
 ### Pendientes conocidos:
-1. Validación Zod en LogisticaCompras.tsx, SSOCalidad.tsx, GestionDocumental.tsx
-3. P2-REND: Performance optimizations (WebP, virtual scrolling, Brotli)
+1. P2-REND: Performance optimizations (WebP, virtual scrolling, Brotli)
 4. Google OAuth domain verification
 5. Migraciones SQL pendientes del README

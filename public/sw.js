@@ -1,10 +1,12 @@
-const CACHE_NAME = 'construsmart-v4';
+const CACHE_NAME = 'construsmart-v5';
 const OFFLINE_URL = '/offline.html';
 const PUSH_PUBLIC_KEY = 'BC2v9F0k9sA3dF5gH7jK9lQ2wE4rT6yU8iOp1xZ3cV5bN7mQ9sD1fG3hJ5kL7zX9cV1bN3m';
 
 const PRECACHE_ASSETS = [
   '/', '/index.html', '/offline.html', '/manifest.json',
-  '/logo.png', '/favicon.ico', '/wm-logo.svg',
+  '/logo.png', '/logo.webp', '/favicon.ico', '/wm-logo.svg',
+  '/icons/icon-192.png', '/icons/icon-192.webp',
+  '/icons/icon-512.png', '/icons/icon-512.webp',
 ];
 
 self.addEventListener('install', (event) => {
@@ -32,17 +34,26 @@ self.addEventListener('fetch', (event) => {
   if (url.hostname.includes('supabase.co') || url.hostname !== self.location.hostname) return;
 
   const isAsset = url.pathname.startsWith('/assets/') ||
-    /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot)$/.test(url.pathname);
+    /\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|avif|woff2?|ttf|eot)$/.test(url.pathname);
 
   if (isAsset) {
     event.respondWith(
-      caches.match(request).then((cached) => cached || fetch(request).then((res) => {
-        if (res && res.status === 200) {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-        }
-        return res;
-      }).catch(() => caches.match('/offline.html') || new Response('Sin conexión', { status: 503 })))
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((res) => {
+          if (res && res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return res;
+        }).catch(() => {
+          // Si es una imagen no cacheada, devolver placeholder
+          if (request.destination === 'image') {
+            return caches.match('/placeholder.svg') || new Response('', { status: 204 });
+          }
+          return caches.match('/offline.html') || new Response('Sin conexión', { status: 503 });
+        });
+      })
     );
     return;
   }
