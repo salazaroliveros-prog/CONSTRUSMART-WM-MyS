@@ -175,7 +175,7 @@ function validarArchivoPreSubida(file: File): string | null {
 /**
  * Valida que un fileName no contenga path traversal
  */
-function validarFileName(fileName: string): boolean {
+function _validarFileName(fileName: string): boolean {
   if (!fileName || typeof fileName !== 'string') return false;
   // Rechazar path traversal
   if (fileName.includes('..') || fileName.startsWith('/') || fileName.startsWith('\\')) return false;

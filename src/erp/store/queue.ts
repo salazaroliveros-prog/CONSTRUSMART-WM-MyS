@@ -323,7 +323,7 @@ export async function processQueue(
     console.error('Error processing mutation queue:', err);
     if (next.retryCount < MAX_RETRIES) {
       const retryMutation: Mutation = { ...next, retryCount: next.retryCount + 1 };
-      setMutationQueue(q => [retryMutation, ...rest]);
+      setMutationQueue((_q: Mutation[]) => [retryMutation, ...rest]);
     } else {
       console.error(`Mutation ${next.type} (${next.id}) falló tras ${MAX_RETRIES} intentos. Descartada.`);
       setMutationQueue(rest);

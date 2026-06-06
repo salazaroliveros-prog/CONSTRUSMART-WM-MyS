@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Plus, Trash2, Search } from 'lucide-react';
 import { useErp } from '../store';
-import { ValeSalida, ValeSalidaItem } from '../types';
+import { ValeSalida } from '../types';
 import { todayISO } from '../utils';
 import { toast } from 'sonner';
 

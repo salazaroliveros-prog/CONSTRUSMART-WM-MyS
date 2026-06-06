@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
-import { fmtQ } from '../utils';
 import {
-  Receipt, Search, TrendingUp, DollarSign, Users, Wrench, Save, Edit3,
-  BarChart3, Table as TableIcon, Settings, X, Plus, Trash2, RefreshCw,
+  Receipt, Search, DollarSign, Users, Wrench, Save, Edit3,
+  BarChart3, Table as TableIcon, Settings, RefreshCw,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';

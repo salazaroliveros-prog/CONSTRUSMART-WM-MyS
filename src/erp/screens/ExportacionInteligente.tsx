@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { useErp } from '../store';
-import { Download, FileJson, FileSpreadsheet, FileText, Mail, Plus, Trash2, Clock, Check, ChevronDown, ChevronUp, Send, Table } from 'lucide-react';
+import { Download, FileJson, FileSpreadsheet, FileText, Plus, Trash2, Clock, Send, Table } from 'lucide-react';
 import { toast } from 'sonner';
 import { fmtQ, todayISO } from '../utils';
 import { sanitizarTexto } from '@/lib/security';
-import { CARD, INPUT } from '../ui';
+import { INPUT } from '../ui';
 import * as XLSX from 'xlsx';
 
 type ExportFormat = 'json' | 'csv' | 'xlsx' | 'pdf';

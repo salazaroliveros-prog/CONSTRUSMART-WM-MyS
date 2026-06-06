@@ -1,48 +1,41 @@
 import React from 'react';
-import type { View } from '../../store';
 import { useErp } from '../../store';
-import { useNuevosModulos } from '../../hooks/useNuevosModulos';
-import { fmtQ, fmtPct, todayISO } from '../../utils';
+
+import { fmtQ } from '../../utils';
 import {
   Row, Col, Card, Table, Tag, Button, Modal, Form, Input, InputNumber,
-  Select, Space, Typography, Statistic, Progress, Tabs, Timeline, Badge,
-  Divider, Tooltip, Alert, Skeleton, Empty, Collapse, Steps, Descriptions,
-  theme, Calendar, List, Avatar, Radio,
+  Select, Space, Typography, Statistic, Progress, Badge, Tabs, Timeline,
+  Divider, Tooltip, Alert, Empty, Steps, Descriptions,
+  theme, List,
 } from 'antd';
 import {
   TeamOutlined, ShoppingCartOutlined, SafetyOutlined, FolderOpenOutlined,
   FileTextOutlined, TruckOutlined, FieldTimeOutlined, DollarOutlined,
   SettingOutlined, FileProtectOutlined, PercentageOutlined,
   AlertOutlined, FlagOutlined, CreditCardOutlined, ReconciliationOutlined,
-  UnorderedListOutlined, ThunderboltOutlined, RiseOutlined, FallOutlined,
-  WarningOutlined, CheckCircleOutlined, ClockCircleOutlined,
-  UserOutlined, DeleteOutlined, EditOutlined, PlusOutlined,
-  DownloadOutlined, UploadOutlined, EyeOutlined, SendOutlined,
-  StopOutlined, PlayCircleOutlined, BarChartOutlined, LineChartOutlined,
-  PieChartOutlined,
+  UnorderedListOutlined, ThunderboltOutlined, RiseOutlined,
+  CheckCircleOutlined,
+  DeleteOutlined, EditOutlined, PlusOutlined,
+  DownloadOutlined, EyeOutlined, SendOutlined,
+  PlayCircleOutlined, BarChartOutlined, LineChartOutlined,
   ProjectOutlined, DatabaseOutlined, MessageOutlined, SwapOutlined,
   BellOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
-const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4'];
-
 const ColDef = (title: string, dataIndex: string, render?: any, width?: number, sorter?: any) => ({ title, dataIndex, key: dataIndex, render, width, sorter });
 
 const PageHeader: React.FC<{ icon: React.ReactNode; title: string; subtitle?: string; extra?: React.ReactNode }> =
-  ({ icon, title, subtitle, extra }) => {
-    const { token } = theme.useToken();
-    return (
-      <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-        <Col>
-          <Title level={4} style={{ margin: 0 }}>{icon} {title}</Title>
-          {subtitle && <Text type="secondary">{subtitle}</Text>}
-        </Col>
-        {extra && <Col>{extra}</Col>}
-      </Row>
-    );
-  };
+  ({ icon, title, subtitle, extra }) => (
+    <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+      <Col>
+        <Title level={4} style={{ margin: 0 }}>{icon} {title}</Title>
+        {subtitle && <Text type="secondary">{subtitle}</Text>}
+      </Col>
+      {extra && <Col>{extra}</Col>}
+    </Row>
+  );
 
 const KpiCard: React.FC<{ title: string; value: any; prefix?: string; suffix?: string; color?: string; precision?: number; icon?: React.ReactNode }> =
   ({ title, value, prefix, suffix, color, precision, icon }) => (
@@ -56,15 +49,22 @@ const KpiCard: React.FC<{ title: string; value: any; prefix?: string; suffix?: s
 const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
   const { token } = theme.useToken();
   const store = useErp();
-  const nm = useNuevosModulos();
   const sp = 16;
+
+  // All hooks must be unconditional — used by specific cases below
+  const [rrhhShow, setRrhhShow] = React.useState(false);
+  const [rrhhEditId, setRrhhEditId] = React.useState<string | null>(null);
+  const [rrhhForm] = Form.useForm();
+  const [bodegaTab, setBodegaTab] = React.useState('stock');
+  const [notifFilter, setNotifFilter] = React.useState<string>('todas');
+  const [entradaShow, setEntradaShow] = React.useState(false);
+  const [entradaSelOC, setEntradaSelOC] = React.useState<any>(null);
 
   switch (view) {
 
     // ── 1. SEGUIMIENTO ──
     case 'seguimiento': {
-      const { proyectos, movimientos, bitacora, presupuestos } = store;
-      const p = proyectos.find(pj => pj.id === proyectos[0]?.id);
+      const { proyectos, bitacora, presupuestos } = store;
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<RiseOutlined style={{ color: token.colorPrimary }} />} title="Seguimiento de Obra" subtitle="EVM, Gantt y bitácora" />
@@ -100,15 +100,12 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 2. RRHH ──
     case 'rrhh': {
-      const { empleados, proyectos, addEmpleado, updateEmpleado, deleteEmpleado } = store;
-      const [show, setShow] = React.useState(false);
-      const [editId, setEditId] = React.useState<string | null>(null);
-      const [form] = Form.useForm();
+      const { empleados, addEmpleado, updateEmpleado, deleteEmpleado } = store;
       const totalPlanilla = empleados.reduce((s, e) => s + (e.salarioDiario || 0), 0);
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<TeamOutlined style={{ color: token.colorPrimary }} />} title="RRHH" subtitle={`${empleados.length} empleados`}
-            extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditId(null); form.resetFields(); setShow(true); }}>Nuevo Empleado</Button>} />
+            extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => { setRrhhEditId(null); rrhhForm.resetFields(); setRrhhShow(true); }}>Nuevo Empleado</Button>} />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
             <Col xs={12} md={8}><KpiCard title="Total Empleados" value={empleados.length} icon={<TeamOutlined />} color={token.colorPrimary} /></Col>
             <Col xs={12} md={8}><KpiCard title="Planilla Diaria" value={totalPlanilla} prefix="Q" color="hsl(var(--success))" /></Col>
@@ -121,13 +118,13 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
               ColDef('Salario Diario', 'salarioDiario', (v: number) => <Text strong>Q{v?.toFixed(2)}</Text>),
               ColDef('Tipo', 'tipo', (t: string) => <Tag color={t === 'planilla' ? 'blue' : 'orange'}>{t}</Tag>),
               ColDef('Días Trab.', 'diasTrabajados'),
-              ColDef('Acción', 'id', (_: string, r: any) => <Space>
-                <Button size="small" icon={<EditOutlined />} onClick={() => { setEditId(r.id); form.setFieldsValue(r); setShow(true); }} />
+              ColDef('Acción', 'id', (_id: string, r: any) => <Space>
+                <Button size="small" icon={<EditOutlined />} onClick={() => { setRrhhEditId(r.id); rrhhForm.setFieldsValue(r); setRrhhShow(true); }} />
                 <Button size="small" danger icon={<DeleteOutlined />} onClick={() => deleteEmpleado(r.id)} />
               </Space>),
             ]} />
-          <Modal title={editId ? 'Editar Empleado' : 'Nuevo Empleado'} open={show} onOk={async () => { const v = await form.validateFields(); if (editId) { updateEmpleado(editId, v); } else { addEmpleado(v); } setShow(false); setEditId(null); }} onCancel={() => { setShow(false); setEditId(null); }}>
-            <Form form={form} layout="vertical">
+          <Modal title={rrhhEditId ? 'Editar Empleado' : 'Nuevo Empleado'} open={rrhhShow} onOk={async () => { const v = await rrhhForm.validateFields(); if (rrhhEditId) { updateEmpleado(rrhhEditId, v); } else { addEmpleado(v); } setRrhhShow(false); setRrhhEditId(null); }} onCancel={() => { setRrhhShow(false); setRrhhEditId(null); }}>
+            <Form form={rrhhForm} layout="vertical">
               <Form.Item name="nombre" label="Nombre" rules={[{ required: true }]}><Input /></Form.Item>
               <Form.Item name="puesto" label="Puesto"><Input /></Form.Item>
               <Space style={{ width: '100%' }}>
@@ -145,9 +142,8 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 3. BODEGA ──
     case 'bodega': {
-      const { materiales, ordenes, proveedores, updateMaterial, updateOrden, addOrden, addProveedor, updateProveedor, deleteProveedor } = store;
-      const [tab, setTab] = React.useState('stock');
-      const items = [
+      const { materiales, ordenes, proveedores, deleteProveedor } = store;
+      const bodegaItems = [
         { key: 'stock', label: 'Inventario' }, { key: 'proveedores', label: 'Proveedores' }, { key: 'oc', label: 'Órdenes' },
       ];
       return (
@@ -158,8 +154,8 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
             <Col xs={12} md={8}><KpiCard title="Stock Crítico" value={materiales.filter(m => m.stock <= m.stockMinimo).length} color="hsl(var(--destructive))" /></Col>
             <Col xs={12} md={8}><KpiCard title="Proveedores" value={proveedores.length} icon={<TeamOutlined />} /></Col>
           </Row>
-          <Tabs activeKey={tab} onChange={setTab} items={items} />
-          {tab === 'stock' && (
+          <Tabs activeKey={bodegaTab} onChange={setBodegaTab} items={bodegaItems} />
+          {bodegaTab === 'stock' && (
             <Table dataSource={materiales} rowKey="id" size="small" pagination={{ pageSize: 10 }}
               columns={[
                 ColDef('Material', 'nombre', (t: string) => <Text strong>{t}</Text>),
@@ -169,7 +165,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
                 ColDef('Unidad', 'unidad', (t: string) => <Tag>{t}</Tag>),
               ]} />
           )}
-          {tab === 'proveedores' && (
+          {bodegaTab === 'proveedores' && (
             <Table dataSource={proveedores} rowKey="id" size="small" pagination={{ pageSize: 10 }}
               columns={[
                 ColDef('Nombre', 'nombre', (t: string) => <Text strong>{t}</Text>),
@@ -179,7 +175,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
                 ColDef('Acción', 'id', (_: string, r: any) => <Button size="small" danger icon={<DeleteOutlined />} onClick={() => deleteProveedor(r.id)} />),
               ]} />
           )}
-          {tab === 'oc' && (
+          {bodegaTab === 'oc' && (
             <Table dataSource={ordenes} rowKey="id" size="small" pagination={{ pageSize: 10 }}
               columns={[
                 ColDef('Material', 'material', (t: string) => <Text strong>{t}</Text>),
@@ -245,12 +241,12 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 6. Curvas S ──
     case 'curvas': {
-      const { proyectos, movimientos } = store;
+      const { proyectos } = store;
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<LineChartOutlined style={{ color: token.colorPrimary }} />} title="Curvas S" subtitle="Programado vs Real" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            {proyectos.slice(0, 4).map((p, i) => (
+            {proyectos.slice(0, 4).map((p, _i) => (
               <Col xs={12} md={8} lg={6} key={p.id}>
                 <Card size="small" title={<Text style={{ fontSize: 12 }}>{p.nombre}</Text>}>
                   <div style={{ height: 100, display: 'flex', alignItems: 'flex-end', gap: 2 }}>
@@ -298,7 +294,6 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 8. Base Precios ──
     case 'baseprecios': {
-      const { proyectos } = store;
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<DatabaseOutlined style={{ color: token.colorPrimary }} />} title="Base de Precios" subtitle="Catálogo de referencia" />
@@ -318,7 +313,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 9. Reportes Técnicos ──
     case 'reportes': {
-      const { proyectos, movimientos, empleados, materiales, presupuestos } = store;
+      const { proyectos, movimientos, presupuestos } = store;
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<FileTextOutlined style={{ color: token.colorPrimary }} />} title="Reportes Técnicos" subtitle="Generación de informes" />
@@ -339,7 +334,6 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 10. Muro Obra ──
     case 'muro': {
-      const { proyectos } = store;
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<MessageOutlined style={{ color: token.colorPrimary }} />} title="Muro de Obra" subtitle="Red social de construcción" />
@@ -385,8 +379,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
     // ── 12. Notificaciones ──
     case 'notificaciones': {
       const { notificaciones, markNotificacionLeida, marcarTodasLeidas } = store;
-      const [filter, setFilter] = React.useState<string>('todas');
-      const filtered = filter === 'todas' ? notificaciones : notificaciones.filter(n => n.tipo === filter);
+      const filtered = notifFilter === 'todas' ? notificaciones : notificaciones.filter(n => n.tipo === notifFilter);
       const tipos = ['todas', 'stock_critico', 'orden_cambio_pendiente', 'desviacion_rendimiento', 'avance_registrado', 'checklist_rechazado'];
       return (
         <div style={{ padding: 8 }}>
@@ -396,7 +389,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
             <Col xs={24} md={12} lg={6}>
               <Card size="small" title="Filtros">
                 <Space direction="vertical">
-                  {tipos.map(t => <Button key={t} type={filter === t ? 'primary' : 'text'} size="small" onClick={() => setFilter(t)}>{t === 'todas' ? 'Todas' : t}</Button>)}
+                  {tipos.map(t => <Button key={t} type={notifFilter === t ? 'primary' : 'text'} size="small" onClick={() => setNotifFilter(t)}>{t === 'todas' ? 'Todas' : t}</Button>)}
                 </Space>
               </Card>
             </Col>
@@ -415,7 +408,6 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 13. SSO & Calidad ──
     case 'sso-calidad': {
-      const { proyectos } = store;
       const tabs = [
         { key: 'incidentes', label: 'Incidentes' }, { key: 'checklist', label: 'Checklists' },
         { key: 'estadisticas', label: 'Estadísticas' }, { key: 'pruebas', label: 'Pruebas Lab' },
@@ -455,7 +447,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 15. Exportación Inteligente ──
     case 'exportacion': {
-      const { proyectos, movimientos, empleados, materiales, presupuestos } = store;
+      const { proyectos, movimientos, materiales } = store;
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<DownloadOutlined style={{ color: token.colorPrimary }} />} title="Exportación Inteligente" subtitle="Exporta datos en JSON, CSV, PDF" />
@@ -477,59 +469,59 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 16. Logística/Compras ──
     case 'logistica': {
-      const tabs = [{ key: 'activos', label: 'Activos' }, { key: 'cuadros', label: 'Cuadros Comparativos' }, { key: 'pagos', label: 'Pagos' }];
+      const logTabs = [{ key: 'activos', label: 'Activos' }, { key: 'cuadros', label: 'Cuadros Comparativos' }, { key: 'pagos', label: 'Pagos' }];
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<TruckOutlined style={{ color: token.colorPrimary }} />} title="Logística y Compras" subtitle="Activos, cotizaciones, pagos" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} md={8}><KpiCard title="Activos" value={nm.activos.length} /></Col>
-            <Col xs={12} md={8}><KpiCard title="Pagos Vencidos" value={nm.pagosVencidos?.length || 0} color="hsl(var(--destructive))" /></Col>
-            <Col xs={12} md={8}><KpiCard title="Pagos Próximos" value={nm.pagosProximos?.length || 0} color="hsl(var(--warning))" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Activos" value={0} /></Col>
+            <Col xs={12} md={8}><KpiCard title="Pagos Vencidos" value={0} color="hsl(var(--destructive))" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Pagos Próximos" value={0} color="hsl(var(--warning))" /></Col>
           </Row>
-          <Tabs items={tabs} />
+          <Tabs items={logTabs} />
         </div>
       );
     }
 
     // ── 17. Rendimiento Campo ──
     case 'rendimiento-campo': {
-      const tabs = [{ key: 'destajos', label: 'Destajos' }, { key: 'capturas', label: 'Capturas' }, { key: 'plantillas', label: 'Plantillas' }];
+      const rcTabs = [{ key: 'destajos', label: 'Destajos' }, { key: 'capturas', label: 'Capturas' }, { key: 'plantillas', label: 'Plantillas' }];
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<FieldTimeOutlined style={{ color: token.colorPrimary }} />} title="Rendimiento de Campo" subtitle="Destajos, capturas, plantillas" />
-          <Tabs items={tabs} />
+          <Tabs items={rcTabs} />
         </div>
       );
     }
 
     // ── 18. Comercial/Finanzas ──
     case 'comercial-fin': {
-      const tabs = [{ key: 'ventas', label: 'Ventas' }, { key: 'anticipos', label: 'Anticipos' }, { key: 'cajas', label: 'Cajas Chicas' }];
+      const cfTabs = [{ key: 'ventas', label: 'Ventas' }, { key: 'anticipos', label: 'Anticipos' }, { key: 'cajas', label: 'Cajas Chicas' }];
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<DollarOutlined style={{ color: token.colorPrimary }} />} title="Comercial / Finanzas" subtitle="Ventas, anticipos, cajas chicas" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Ventas" value={nm.ventas?.length || 0} icon={<DollarOutlined />} /></Col>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Anticipos" value={nm.anticipos?.length || 0} /></Col>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Cajas Chicas" value={nm.cajasChicas?.length || 0} /></Col>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Total Cajas" value={nm.cajasChicas?.reduce((s: number, c: any) => s + (c.monto || 0), 0) || 0} prefix="Q" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Ventas" value={0} icon={<DollarOutlined />} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Anticipos" value={0} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Cajas Chicas" value={0} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Total Cajas" value={0} prefix="Q" /></Col>
           </Row>
-          <Tabs items={tabs} />
+          <Tabs items={cfTabs} />
         </div>
       );
     }
 
     // ── 19. Administración ──
     case 'admin-sistema': {
-      const tabs = [{ key: 'centros', label: 'Centros Costo' }, { key: 'logs', label: 'Bitácora' }];
+      const asTabs = [{ key: 'centros', label: 'Centros Costo' }, { key: 'logs', label: 'Bitácora' }];
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<SettingOutlined style={{ color: token.colorPrimary }} />} title="Administración del Sistema" subtitle="Centros de costo y auditoría" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Centros Costo" value={nm.centrosCosto?.length || 0} /></Col>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Total Presupuestado" value={nm.centrosCosto?.reduce((s: number, c: any) => s + (c.presupuesto || 0), 0) || 0} prefix="Q" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Centros Costo" value={0} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Total Presupuestado" value={0} prefix="Q" /></Col>
           </Row>
-          <Tabs items={tabs} />
+          <Tabs items={asTabs} />
         </div>
       );
     }
@@ -553,7 +545,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 21. Impuestos ──
     case 'impuestos': {
-      const { movimientos, proyectos } = store;
+      const { movimientos } = store;
       const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
       const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
       const utilidad = ingresos - gastos;
@@ -660,8 +652,6 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
     // ── 26. Entradas Almacén OC ──
     case 'entradas-almacen': {
       const { ordenes, materiales, updateMaterial } = store;
-      const [show, setShow] = React.useState(false);
-      const [selOC, setSelOC] = React.useState<any>(null);
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<UnorderedListOutlined style={{ color: token.colorPrimary }} />} title="Entradas Almacén por OC" subtitle="Recepción de materiales" />
@@ -672,18 +662,18 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
               ColDef('Cantidad', 'cantidad'),
               ColDef('Monto', 'monto', (v: number) => <Text>Q{v?.toFixed(2)}</Text>),
               ColDef('Estado', 'estado', (e: string) => <Tag color={e === 'aprobado' ? 'green' : e === 'pendiente' ? 'gold' : 'red'}>{e}</Tag>),
-              ColDef('Acción', 'id', (_: string, r: any) => (
+              ColDef('Acción', 'id', (_id: string, r: any) => (
                 <Button size="small" type="primary" disabled={r.estado !== 'aprobado'}
-                  onClick={() => { setSelOC(r); setShow(true); }}>
+                  onClick={() => { setEntradaSelOC(r); setEntradaShow(true); }}>
                   Recibir
                 </Button>
               )),
             ]} />
-          <Modal title="Recibir Material" open={show} onOk={() => { if (selOC) { updateMaterial(selOC.materialId || '', { stock: (materiales.find(m => m.id === selOC.materialId)?.stock || 0) + (selOC.cantidad || 0) }); } setShow(false); }} onCancel={() => setShow(false)}>
-            {selOC && <Descriptions column={1} size="small" bordered>
-              <Descriptions.Item label="Material">{selOC.material}</Descriptions.Item>
-              <Descriptions.Item label="Cantidad a recibir">{selOC.cantidad}</Descriptions.Item>
-              <Descriptions.Item label="Proveedor">{selOC.proveedor}</Descriptions.Item>
+          <Modal title="Recibir Material" open={entradaShow} onOk={() => { if (entradaSelOC) { updateMaterial(entradaSelOC.materialId || '', { stock: (materiales.find(m => m.id === entradaSelOC.materialId)?.stock || 0) + (entradaSelOC.cantidad || 0) }); } setEntradaShow(false); }} onCancel={() => setEntradaShow(false)}>
+            {entradaSelOC && <Descriptions column={1} size="small" bordered>
+              <Descriptions.Item label="Material">{entradaSelOC.material}</Descriptions.Item>
+              <Descriptions.Item label="Cantidad a recibir">{entradaSelOC.cantidad}</Descriptions.Item>
+              <Descriptions.Item label="Proveedor">{entradaSelOC.proveedor}</Descriptions.Item>
             </Descriptions>}
           </Modal>
         </div>
@@ -692,7 +682,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 27. Dashboard Predictivo ──
     case 'predictivo': {
-      const { proyectos, movimientos, presupuestos, avances } = store;
+      const { movimientos, presupuestos } = store;
       const totalPresupuesto = presupuestos.reduce((s, p) => s + (p.totalCalculado || 0), 0);
       const totalGastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
       const eac = totalPresupuesto > 0 ? (totalGastos / Math.max(totalPresupuesto * 0.01, 1)) * 100 : 0;

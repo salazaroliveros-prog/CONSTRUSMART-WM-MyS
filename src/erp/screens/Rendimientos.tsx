@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
-import { fmtQ, todayISO } from '../utils';
+import { fmtQ as _fmtQ, todayISO } from '../utils';
 import {
-  TrendingUp, Users, AlertTriangle, Plus, Trash2, Search, X,
   BarChart3, CalendarDays, Target, CheckCircle2, XCircle,
+  Plus, Trash2, Search, X,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';

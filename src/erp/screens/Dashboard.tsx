@@ -15,8 +15,8 @@ const Dashboard: React.FC = () => {
   const [filtroProy, setFiltroProy] = useState('');
 
   const activos = proyectos.filter(p => p.estado === 'ejecucion');
-  const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
-  const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
+  const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+  const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
   const presupuestoTotal = activos.reduce((a, b) => a + b.presupuestoTotal, 0);
   const margenProm = activos.length
     ? activos.reduce((a, b) => a + ((b.montoContrato - b.presupuestoTotal) / b.montoContrato) * 100, 0) / activos.length : 0;
@@ -30,7 +30,7 @@ const Dashboard: React.FC = () => {
 
   const movPorCategoria = useMemo(() => {
     const map: Record<string, number> = {};
-    movimientos.filter(m => m.tipo === 'gasto').forEach(m => { map[m.categoria] = (map[m.categoria] || 0) + m.costoTotal; });
+    movimientos.filter(m => m.tipo === 'gasto').forEach(m => { map[m.categoria] = (map[m.categoria] || 0) + (m.monto ?? m.costoTotal ?? 0); });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 6)
       .map(([k, v], i) => ({ label: k.slice(0, 4), value: v, color: COLORS[i % COLORS.length] }));
   }, [movimientos]);

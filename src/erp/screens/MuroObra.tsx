@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
 import { todayISO } from '../utils';
 import {
-  MessageSquare, Plus, Search, Heart, MessageCircle, Image, Filter,
+  MessageSquare, Plus, Heart, MessageCircle,
   CheckCircle2, AlertTriangle, Shield, Calendar, User, Send,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';

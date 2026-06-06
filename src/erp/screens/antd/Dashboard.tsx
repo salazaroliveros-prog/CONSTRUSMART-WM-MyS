@@ -1,24 +1,24 @@
 import React, { useMemo, useState } from 'react';
 import { useErp, type View } from '../../store';
-import { fmtQ, fmtPct, todayISO } from '../../utils';
+import { fmtQ, todayISO } from '../../utils';
 import {
   Row, Col, Card, Statistic, Progress, Table, Tag, Timeline,
-  Select, Typography, Space, Tabs, Alert, Badge, Divider,
+  Select, Typography, Space, Alert, Badge, Divider,
   Button, Tooltip, Grid, theme, Calendar,
 } from 'antd';
 import {
   ArrowUpOutlined, ArrowDownOutlined, WarningOutlined,
-  ClockCircleOutlined, ProjectOutlined, DollarOutlined,
+  ClockCircleOutlined, ProjectOutlined,
   RiseOutlined, FallOutlined, RightOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
 
-const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
+const _COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
 
 const AntDashboard: React.FC = () => {
-  const { proyectos, movimientos, presupuestos, empleados, costoPorHoraHombre, setView, notificacionesNoLeidas, notificaciones, marcarTodasLeidas } = useErp();
+  const { proyectos, movimientos, setView, notificacionesNoLeidas, notificaciones, marcarTodasLeidas } = useErp();
   const [filtroProy, setFiltroProy] = useState('');
   const { token } = theme.useToken();
   const screens = useBreakpoint();

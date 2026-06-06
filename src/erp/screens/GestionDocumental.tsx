@@ -53,13 +53,13 @@ const GestionDocumental: React.FC = () => {
   const [versiones, setVersiones] = useState<Record<string, string[]>>(() => {
     try { return JSON.parse(localStorage.getItem(VERSION_KEY) || '{}'); } catch { return {}; }
   });
-  const [gdFormErrors, setGdFormErrors] = useState<Record<string, string>>({});
+  const [_gdFormErrors, setGdFormErrors] = useState<Record<string, string>>({});
 
   const save = (key: string, data: unknown) => {
     localStorage.setItem(key, JSON.stringify(data));
   };
 
-  const clearGdError = (field: string) => setGdFormErrors(prev => ({ ...prev, [field]: '' }));
+  const _clearGdError = (field: string) => setGdFormErrors(prev => ({ ...prev, [field]: '' }));
   const resetGdErrors = () => setGdFormErrors({});
 
   const _proyectoActual = proyectos.find(p => p.id === selProyecto);

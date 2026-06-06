@@ -4,11 +4,11 @@ import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../../utils';
 import {
   Row, Col, Card, Progress, Tag, Select, Button, Modal, Form,
   Input, InputNumber, Space, Typography, Avatar, Tooltip, Badge,
-  Empty, Statistic, Divider, theme,
+  Empty, Divider, theme,
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined, BuildOutlined,
-  EnvironmentOutlined, UserOutlined,
+  EnvironmentOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;

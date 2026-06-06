@@ -9,15 +9,15 @@ import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X } from
 const Seguimiento: React.FC = () => {
   const { proyectos, movimientos, bitacora, addBitacora, updateProyecto, updateBitacora, deleteBitacora } = useErp();
   const [selProy, setSelProy] = useState(proyectos[0]?.id || '');
-  const [bit, setBit] = useState({ clima: 'Despejado', personal: '12', maquinaria: 'Retroexcavadora', tareas: '', observaciones: '' });
+  const [bit, setBit] = useState({ clima: 'soleado', personal: '12', maquinaria: 'Retroexcavadora', tareas: '', observaciones: '' });
   const [editingProject, setEditingProject] = useState<string | null>(null);
   const [pendingProgress, setPendingProgress] = useState<Record<string, string>>({});
   const [editingBit, setEditingBit] = useState<BitacoraEntry | null>(null);
 
   const proyData = useMemo(() => proyectos.map(p => {
-    const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
-    const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
-    const pendiente = Math.max(0, p.montoContrato - ing);
+    const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+    const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+    const pendiente = Math.max(0, (p.montoContrato ?? 0) - ing);
     return { ...p, ing, gas, pendiente };
   }), [proyectos, movimientos]);
 
@@ -30,9 +30,7 @@ const Seguimiento: React.FC = () => {
   const saveProjectProgress = (id: string) => {
     const raw = pendingProgress[id] ?? '';
     const value = Math.min(100, Math.max(0, Number(raw)));
-    if (!Number.isNaN(value)) {
-      updateProyecto(id, { avanceFisico: value });
-    }
+    if (!Number.isNaN(value)) updateProyecto(id, { avanceFisico: value });
     setEditingProject(null);
   };
 
@@ -41,19 +39,21 @@ const Seguimiento: React.FC = () => {
     setPendingProgress(prev => ({ ...prev, [id]: String(current) }));
   };
 
-  const cancelProjectProgress = () => {
-    setEditingProject(null);
-  };
-
   const startEditBitacora = (entry: BitacoraEntry) => {
     setEditingBit(entry);
     setSelProy(entry.proyectoId);
-    setBit({ clima: entry.clima, personal: String(entry.personal), maquinaria: entry.maquinaria, tareas: entry.tareas, observaciones: entry.observaciones });
+    setBit({
+      clima: entry.clima,
+      personal: String(entry.personalPresente),
+      maquinaria: entry.maquinaria,
+      tareas: entry.tareasRealizadas,
+      observaciones: entry.observaciones,
+    });
   };
 
   const cancelEditBitacora = () => {
     setEditingBit(null);
-    setBit({ clima: 'Despejado', personal: '12', maquinaria: 'Retroexcavadora', tareas: '', observaciones: '' });
+    setBit({ clima: 'soleado', personal: '12', maquinaria: 'Retroexcavadora', tareas: '', observaciones: '' });
   };
 
   const guardarBit = (e: React.FormEvent) => {
@@ -62,11 +62,12 @@ const Seguimiento: React.FC = () => {
     const payload = {
       proyectoId: selProy,
       fecha: editingBit?.fecha || todayISO(),
-      clima: bit.clima,
-      personal: +bit.personal || 0,
+      clima: bit.clima as 'soleado' | 'nublado' | 'lluvia',
+      personalPresente: +bit.personal || 0,
       maquinaria: bit.maquinaria,
-      tareas: bit.tareas,
+      tareasRealizadas: bit.tareas,
       observaciones: bit.observaciones,
+      fotos: editingBit?.fotos ?? [],
     };
 
     if (editingBit) {
@@ -75,8 +76,7 @@ const Seguimiento: React.FC = () => {
     } else {
       addBitacora(payload);
     }
-
-    setBit({ clima: 'Despejado', personal: '12', maquinaria: 'Retroexcavadora', tareas: '', observaciones: '' });
+    setBit({ clima: 'soleado', personal: '12', maquinaria: 'Retroexcavadora', tareas: '', observaciones: '' });
   };
 
   return (
@@ -129,7 +129,7 @@ const Seguimiento: React.FC = () => {
                           className="p-1 rounded bg-emerald-500 text-white text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
                           <Save className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
-                        <button type="button" onClick={cancelProjectProgress}
+                        <button type="button" onClick={() => setEditingProject(null)}
                           aria-label="Cancelar edición"
                           className="p-1 rounded bg-muted text-foreground text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                           <X className="w-3.5 h-3.5" aria-hidden="true" />
@@ -208,9 +208,9 @@ const Seguimiento: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground mt-0.5">
-                  <CloudRain className="w-3 h-3" aria-hidden="true" /> {b.clima} · {b.personal} pers.
+                  <CloudRain className="w-3 h-3" aria-hidden="true" /> {b.clima} · {b.personalPresente} pers.
                 </div>
-                {b.tareas && <p className="text-foreground/80 mt-0.5">{b.tareas}</p>}
+                {b.tareasRealizadas && <p className="text-foreground/80 mt-0.5">{b.tareasRealizadas}</p>}
                 {b.observaciones && <p className="text-muted-foreground mt-0.5 italic">{b.observaciones}</p>}
               </div>
             ))}
@@ -225,7 +225,9 @@ const Seguimiento: React.FC = () => {
             {editingBit && <p className="text-xs text-muted-foreground">Editando registro de {proyectos.find(p => p.id === editingBit.proyectoId)?.nombre}</p>}
           </div>
           {editingBit && (
-            <button type="button" onClick={cancelEditBitacora} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"><X className="w-3.5 h-3.5" /> Cancelar</button>
+            <button type="button" onClick={cancelEditBitacora} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
+              <X className="w-3.5 h-3.5" /> Cancelar
+            </button>
           )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
@@ -233,7 +235,11 @@ const Seguimiento: React.FC = () => {
             <option value="">Selecciona proyecto</option>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
           </select>
-          <input value={bit.clima} onChange={e => setBit({ ...bit, clima: e.target.value })} placeholder="Clima" className={INPUT} />
+          <select value={bit.clima} onChange={e => setBit({ ...bit, clima: e.target.value })} className={INPUT}>
+            <option value="soleado">☀️ Soleado</option>
+            <option value="nublado">☁️ Nublado</option>
+            <option value="lluvia">🌧️ Lluvia</option>
+          </select>
           <input type="number" value={bit.personal} onChange={e => setBit({ ...bit, personal: e.target.value })} placeholder="Personal activo" className={INPUT} />
           <input value={bit.maquinaria} onChange={e => setBit({ ...bit, maquinaria: e.target.value })} placeholder="Maquinaria" className={`${INPUT} md:col-span-2`} />
           <input value={bit.tareas} onChange={e => setBit({ ...bit, tareas: e.target.value })} placeholder="Tareas ejecutadas" className={`${INPUT} md:col-span-2`} />

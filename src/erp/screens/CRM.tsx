@@ -191,14 +191,14 @@ const CRM: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-            <Target className="w-6 h-6 text-purple-500" /> CRM / Licitaciones
+          <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
+            <Target className="w-6 h-6 text-primary" /> CRM / Licitaciones
           </h1>
-          <p className="text-sm text-slate-400">Pipeline comercial y seguimiento de oportunidades</p>
+          <p className="text-sm text-muted-foreground">Pipeline comercial y seguimiento de oportunidades</p>
         </div>
         <button 
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5"
         >
           <Plus className="w-4 h-4" /> Nueva Licitación
         </button>
@@ -206,38 +206,38 @@ const CRM: React.FC = () => {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-1">
-            <Briefcase className="w-4 h-4 text-purple-500" />
-            <span className="text-xs text-slate-400">Total Oportunidades</span>
+            <Briefcase className="w-4 h-4 text-primary" />
+            <span className="text-xs text-muted-foreground">Total Oportunidades</span>
           </div>
-          <div className="text-2xl font-bold text-slate-800">{licitaciones.length}</div>
-          <div className="text-[10px] text-slate-400">
+          <div className="text-2xl font-bold text-foreground">{licitaciones.length}</div>
+          <div className="text-[10px] text-muted-foreground">
             {licitaciones.filter(l => l.estado === 'ganado').length} ganadas · {licitaciones.filter(l => l.estado === 'perdido').length} perdidas
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-1">
-            <DollarSign className="w-4 h-4 text-emerald-500" />
-            <span className="text-xs text-slate-400">Monto Total Pipeline</span>
+            <DollarSign className="w-4 h-4 text-success" />
+            <span className="text-xs text-muted-foreground">Monto Total Pipeline</span>
           </div>
-          <div className="text-2xl font-bold text-slate-800">{fmtQ(totalMonto)}</div>
+          <div className="text-2xl font-bold text-foreground">{fmtQ(totalMonto)}</div>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-4 h-4 text-blue-500" />
-            <span className="text-xs text-slate-400">Pipeline Ponderado</span>
+            <TrendingUp className="w-4 h-4 text-info" />
+            <span className="text-xs text-muted-foreground">Pipeline Ponderado</span>
           </div>
-          <div className="text-2xl font-bold text-blue-600">{fmtQ(pipelineActivo)}</div>
-          <div className="text-[10px] text-slate-400">Basado en % probabilidad</div>
+          <div className="text-2xl font-bold text-info">{fmtQ(pipelineActivo)}</div>
+          <div className="text-[10px] text-muted-foreground">Basado en % probabilidad</div>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-1">
-            <PieChart className="w-4 h-4 text-amber-500" />
-            <span className="text-xs text-slate-400">Tasa de Conversión</span>
+            <PieChart className="w-4 h-4 text-warning" />
+            <span className="text-xs text-muted-foreground">Tasa de Conversión</span>
           </div>
-          <div className="text-2xl font-bold text-amber-600">{tasaConversion}%</div>
-          <div className="text-[10px] text-slate-400">Ganadas vs decididas</div>
+          <div className="text-2xl font-bold text-warning">{tasaConversion}%</div>
+          <div className="text-[10px] text-muted-foreground">Ganadas vs decididas</div>
         </div>
       </div>
 
@@ -273,9 +273,9 @@ const CRM: React.FC = () => {
                   <span className="text-xs">Sin oportunidades</span>
                 </div>
               ) : col.items.map(l => (
-                <div key={l.id} className="bg-white rounded-xl p-3 shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+                <div key={l.id} className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-all group">
                   <div className="flex justify-between items-start mb-1">
-                    <h4 className="font-semibold text-sm text-slate-700 truncate flex-1">{l.titulo}</h4>
+                    <h4 className="font-semibold text-sm text-foreground truncate flex-1">{l.titulo}</h4>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1">
                       <button onClick={() => openEdit(l)} className="p-1 text-slate-400 hover:text-purple-500 hover:bg-purple-50 rounded" aria-label="Editar licitación">
                         <Pencil className="w-3 h-3" />
@@ -285,9 +285,9 @@ const CRM: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  <p className="text-[10px] text-slate-500 mb-1">{l.cliente}</p>
+                  <p className="text-[10px] text-muted-foreground mb-1">{l.cliente}</p>
                   <div className="flex items-center justify-between text-xs mb-2">
-                    <span className="font-bold text-slate-700">{fmtQ(l.monto)}</span>
+                    <span className="font-bold text-foreground">{fmtQ(l.monto)}</span>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                       l.probabilidad >= 70 ? 'bg-emerald-50 text-emerald-600' :
                       l.probabilidad >= 40 ? 'bg-amber-50 text-amber-600' :
@@ -303,7 +303,7 @@ const CRM: React.FC = () => {
                       style={{ width: `${l.probabilidad}%`, background: COLUMN_COLORS[l.estado] || '#94a3b8' }}
                     />
                   </div>
-                  {l.notas && <p className="text-[9px] text-slate-400 italic line-clamp-2">{l.notas}</p>}
+                  {l.notas && <p className="text-[9px] text-muted-foreground italic line-clamp-2">{l.notas}</p>}
                   
                   {/* Acciones rápidas de movimiento */}
                   {l.estado !== 'ganado' && l.estado !== 'perdido' && (
@@ -336,23 +336,23 @@ const CRM: React.FC = () => {
       {/* Modal de creación/edición */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => { setShowForm(false); resetForm(); }}>
-          <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
+          <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit} className="bg-card text-card-foreground rounded-2xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto border border-border">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-lg text-slate-800">
+              <h2 className="font-bold text-lg text-foreground">
                 {editingId ? 'Editar Oportunidad' : 'Nueva Licitación'}
               </h2>
-              <button type="button" onClick={() => { setShowForm(false); resetForm(); }}>
-                <X className="w-5 h-5 text-slate-400 hover:text-slate-600" />
+              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} aria-label="Cerrar">
+                <X className="w-5 h-5 text-muted-foreground hover:text-foreground" />
               </button>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Título *</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Título *</label>
                 <input
                   value={formData.titulo}
                   onChange={e => { setFormData(p => ({ ...p, titulo: e.target.value })); setFormErrors(prev => ({ ...prev, titulo: '' })); }}
                   placeholder="Ej. Edificio Comercial"
-                  className={`w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-purple-400 ${formErrors.titulo ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
+                  className={`w-full px-3 py-2 text-sm rounded-lg border outline-none bg-background text-foreground focus:border-primary ${formErrors.titulo ? 'border-destructive bg-destructive/5' : 'border-border'}`}
                 />
                 {formErrors.titulo && <p className="text-xs text-red-500 mt-1">{formErrors.titulo}</p>}
               </div>
@@ -423,7 +423,7 @@ const CRM: React.FC = () => {
                 />
               </div>
             </div>
-            <button type="submit" className="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-semibold transition-colors">
+            <button type="submit" className="mt-4 w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2.5 rounded-lg font-semibold transition-colors">
               {editingId ? 'Guardar Cambios' : 'Crear Oportunidad'}
             </button>
           </form>

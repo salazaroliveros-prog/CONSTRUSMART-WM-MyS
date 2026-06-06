@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { useErp } from '../store';
-import { useNuevosModulos } from '../hooks/useNuevosModulos';
+import type { Destajo } from '../types';
+
+const uid = () => Date.now().toString(36).substr(2, 9);
 
 export const PlanillaDestajos: React.FC = () => {
-  const { proyectos, empleados } = useErp();
-  const { destajos, getDestajosByProyecto } = useNuevosModulos();
+  const { proyectos } = useErp();
 
   const [proyectoFilter, setProyectoFilter] = useState('');
   const [semanaFilter, setSemanaFilter] = useState(() => {
@@ -15,7 +16,18 @@ export const PlanillaDestajos: React.FC = () => {
   });
   const [tasaPago, setTasaPago] = useState<Record<string, number>>({});
 
-  // Calcular lunes de la semana seleccionada
+  const [destajos, setDestajos] = useState<Destajo[]>(() => {
+    try { return JSON.parse(localStorage.getItem('wm_destajos') || '[]'); } catch { return []; }
+  });
+
+  const addDestajo = (data: Omit<Destajo, 'id' | 'rendimientoReal'>) => {
+    const rendimientoReal = data.horasTrabajadas > 0 ? data.cantidadEjecutada / data.horasTrabajadas : 0;
+    const nuevo: Destajo = { ...data, id: uid(), rendimientoReal };
+    const updated = [nuevo, ...destajos];
+    setDestajos(updated);
+    localStorage.setItem('wm_destajos', JSON.stringify(updated));
+  };
+
   const semanaInicio = useMemo(() => new Date(semanaFilter), [semanaFilter]);
   const semanaFin = useMemo(() => {
     const end = new Date(semanaInicio);
@@ -23,123 +35,103 @@ export const PlanillaDestajos: React.FC = () => {
     return end;
   }, [semanaInicio]);
 
-  // Filtro de destajos por proyecto y semana
   const destajosSemana = useMemo(() => {
-    const filtered = proyectoFilter
-      ? getDestajosByProyecto(proyectoFilter)
-      : destajos;
-
+    const filtered = proyectoFilter ? destajos.filter(d => d.proyectoId === proyectoFilter) : destajos;
     return filtered.filter(d => {
       const fecha = new Date(d.fecha);
       return fecha >= semanaInicio && fecha <= semanaFin;
     });
-  }, [destajos, proyectoFilter, semanaInicio, semanaFin, getDestajosByProyecto]);
+  }, [destajos, proyectoFilter, semanaInicio, semanaFin]);
 
-  // Agrupar por cuadrilla
   const grupos = useMemo(() => {
     const map = new Map<string, { cuadrilla: string; totalEjecutado: number; unidad: string; renglones: string[]; dias: number }>();
-
     destajosSemana.forEach(d => {
       const key = `${d.cuadrilla}-${d.proyectoId}`;
       const existing = map.get(key);
       if (existing) {
         existing.totalEjecutado += d.cantidadEjecutada;
-        if (!existing.renglones.includes(d.renglonCodigo)) {
-          existing.renglones.push(d.renglonCodigo);
-        }
+        if (!existing.renglones.includes(d.renglonCodigo)) existing.renglones.push(d.renglonCodigo);
         existing.dias += 1;
       } else {
-        map.set(key, {
-          cuadrilla: d.cuadrilla,
-          totalEjecutado: d.cantidadEjecutada,
-          unidad: d.unidad,
-          renglones: [d.renglonCodigo],
-          dias: 1,
-        });
+        map.set(key, { cuadrilla: d.cuadrilla, totalEjecutado: d.cantidadEjecutada, unidad: d.unidad, renglones: [d.renglonCodigo], dias: 1 });
       }
     });
-
     return Array.from(map.entries()).map(([key, val]) => ({ key, ...val }));
   }, [destajosSemana]);
 
-  // Calcular pago semanal
-  const planilla = useMemo(() => {
-    return grupos.map(g => {
-      const tasa = tasaPago[g.key] || 150; // Default Q150/destajo
-      const pago = g.totalEjecutado * tasa;
-      return {
-        ...g,
-        tasa,
-        pagoSemanal: pago,
-      };
-    });
-  }, [grupos, tasaPago]);
+  const planilla = useMemo(() => grupos.map(g => {
+    const tasa = tasaPago[g.key] || 150;
+    return { ...g, tasa, pagoSemanal: g.totalEjecutado * tasa };
+  }), [grupos, tasaPago]);
 
   const totalPagar = planilla.reduce((a, p) => a + p.pagoSemanal, 0);
 
+  const INPUT = 'text-sm px-3 py-2 border border-input rounded-lg outline-none focus:border-ring bg-background text-foreground';
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-bold">📋 Planilla de Destajos — Pago Semanal</h1>
-        <div className="flex gap-2 text-sm">
-          <span className="text-gray-500">
+      <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">📋 Planilla de Destajos — Pago Semanal</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
             {semanaInicio.toLocaleDateString()} — {semanaFin.toLocaleDateString()}
-          </span>
+          </p>
         </div>
+        <button onClick={() => {
+          const proy = proyectos[0];
+          if (!proy) return;
+          addDestajo({ proyectoId: proy.id, renglonCodigo: 'EXC-001', cuadrilla: '1 Albañil + 1 Ayudante', fecha: new Date().toISOString().split('T')[0], cantidadEjecutada: Math.round(Math.random() * 20 + 5), unidad: 'm³', horasTrabajadas: 8, rendimientoTeorico: 10 });
+        }} className="bg-success text-success-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-success/90 font-medium">+ Demo Destajo</button>
       </div>
 
       {/* Filtros */}
       <div className="flex flex-wrap gap-3 mb-4">
-        <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)}
-          className="text-sm px-3 py-2 border rounded">
+        <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)} className={INPUT}>
           <option value="">Todos los proyectos</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
-        <input type="date" value={semanaFilter} onChange={e => setSemanaFilter(e.target.value)}
-          className="text-sm px-3 py-2 border rounded" />
+        <input type="date" value={semanaFilter} onChange={e => setSemanaFilter(e.target.value)} className={INPUT} />
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <div className="p-3 bg-blue-50 rounded-lg text-center">
-          <p className="text-xs text-blue-600">Cuadrillas</p>
-          <p className="text-xl font-bold text-blue-700">{planilla.length}</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div className="p-3 bg-info/10 rounded-lg text-center">
+          <p className="text-xs text-info font-medium">Cuadrillas</p>
+          <p className="text-xl font-bold text-info">{planilla.length}</p>
         </div>
-        <div className="p-3 bg-green-50 rounded-lg text-center">
-          <p className="text-xs text-green-600">Destajos registrados</p>
-          <p className="text-xl font-bold text-green-700">{destajosSemana.length}</p>
+        <div className="p-3 bg-success/10 rounded-lg text-center">
+          <p className="text-xs text-success font-medium">Destajos</p>
+          <p className="text-xl font-bold text-success">{destajosSemana.length}</p>
         </div>
-        <div className="p-3 bg-orange-50 rounded-lg text-center">
-          <p className="text-xs text-orange-600">Total a Pagar</p>
-          <p className="text-xl font-bold text-orange-700">Q{totalPagar.toFixed(2)}</p>
+        <div className="p-3 bg-primary/10 rounded-lg text-center">
+          <p className="text-xs text-primary font-medium">Total a Pagar</p>
+          <p className="text-xl font-bold text-primary">Q{totalPagar.toFixed(2)}</p>
         </div>
-        <div className="p-3 bg-purple-50 rounded-lg text-center">
-          <p className="text-xs text-purple-600">Promedio/Cuadrilla</p>
-          <p className="text-xl font-bold text-purple-700">
-            Q{planilla.length > 0 ? (totalPagar / planilla.length).toFixed(2) : '0.00'}
-          </p>
+        <div className="p-3 bg-muted rounded-lg text-center">
+          <p className="text-xs text-muted-foreground font-medium">Promedio/Cuadrilla</p>
+          <p className="text-xl font-bold text-foreground">Q{planilla.length > 0 ? (totalPagar / planilla.length).toFixed(2) : '0.00'}</p>
         </div>
       </div>
 
-      {/* Tabla de planilla */}
+      {/* Tabla */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-100">
+            <tr className="bg-muted">
               <th className="p-2 text-left">Cuadrilla</th>
               <th className="p-2 text-right">Total Ejecutado</th>
               <th className="p-2 text-left">Unidad</th>
               <th className="p-2 text-right">Días</th>
-              <th className="p-2 text-right">Tasa (Q/x unidad)</th>
+              <th className="p-2 text-right">Tasa (Q/unidad)</th>
               <th className="p-2 text-right">Pago Semanal</th>
             </tr>
           </thead>
           <tbody>
             {planilla.map(p => (
-              <tr key={p.key} className="border-t hover:bg-gray-50">
-                <td className="p-2 font-medium">
+              <tr key={p.key} className="border-t hover:bg-muted/50">
+                <td className="p-2 font-medium text-foreground">
                   {p.cuadrilla}
-                  <div className="text-xs text-gray-400">{p.renglones.join(', ')}</div>
+                  <div className="text-xs text-muted-foreground">{p.renglones.join(', ')}</div>
                 </td>
                 <td className="p-2 text-right font-mono">{p.totalEjecutado.toFixed(2)}</td>
                 <td className="p-2 text-xs">{p.unidad}</td>
@@ -147,48 +139,44 @@ export const PlanillaDestajos: React.FC = () => {
                 <td className="p-2 text-right">
                   <input type="number" value={tasaPago[p.key] || 150}
                     onChange={e => setTasaPago(prev => ({ ...prev, [p.key]: +e.target.value }))}
-                    className="w-20 text-right px-2 py-1 border rounded text-sm font-mono" />
+                    className="w-20 text-right px-2 py-1 border border-input rounded-lg text-sm font-mono bg-background text-foreground outline-none focus:border-ring" />
                 </td>
-                <td className="p-2 text-right font-bold font-mono text-green-700">
+                <td className="p-2 text-right font-bold font-mono text-success">
                   Q{p.pagoSemanal.toFixed(2)}
                 </td>
               </tr>
             ))}
           </tbody>
-          <tfoot>
-            <tr className="border-t-2 border-gray-300 bg-gray-50 font-bold">
-              <td className="p-2" colSpan={4}>TOTALES</td>
-              <td className="p-2 text-right">—</td>
-              <td className="p-2 text-right text-green-700">Q{totalPagar.toFixed(2)}</td>
-            </tr>
-          </tfoot>
+          {planilla.length > 0 && (
+            <tfoot>
+              <tr className="border-t-2 border-border bg-muted font-bold">
+                <td className="p-2 text-foreground" colSpan={4}>TOTALES</td>
+                <td className="p-2 text-right text-muted-foreground">—</td>
+                <td className="p-2 text-right text-success">Q{totalPagar.toFixed(2)}</td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
 
       {planilla.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-400 text-sm">No hay destajos registrados para esta semana.</p>
-          <p className="text-gray-400 text-xs mt-1">Registra destajos en el módulo Rendimiento → Destajos.</p>
+          <p className="text-muted-foreground text-sm">No hay destajos registrados para esta semana.</p>
+          <p className="text-muted-foreground text-xs mt-1">Registra destajos en Rendimiento → Destajos.</p>
         </div>
       )}
 
-      {/* Botón exportar */}
       {planilla.length > 0 && (
         <div className="mt-4 flex justify-end">
           <button onClick={() => {
             let csv = 'Cuadrilla,Total Ejecutado,Unidad,Días,Tasa (Q),Pago Semanal\n';
-            planilla.forEach(p => {
-              csv += `"${p.cuadrilla}",${p.totalEjecutado.toFixed(2)},"${p.unidad}",${p.dias},${p.tasa},${p.pagoSemanal.toFixed(2)}\n`;
-            });
+            planilla.forEach(p => { csv += `"${p.cuadrilla}",${p.totalEjecutado.toFixed(2)},"${p.unidad}",${p.dias},${p.tasa},${p.pagoSemanal.toFixed(2)}\n`; });
             csv += `,,,,TOTAL,${totalPagar.toFixed(2)}\n`;
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `planilla_destajos_${semanaFilter}.csv`;
-            a.click();
+            const a = document.createElement('a'); a.href = url; a.download = `planilla_destajos_${semanaFilter}.csv`; a.click();
             URL.revokeObjectURL(url);
-          }} className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">
+          }} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">
             📥 Exportar CSV
           </button>
         </div>

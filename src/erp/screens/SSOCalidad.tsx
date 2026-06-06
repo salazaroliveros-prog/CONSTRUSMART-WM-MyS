@@ -1,13 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useErp } from '../store';
 import type { Incidente, PruebaLaboratorio, NoConformidad, LiberacionPartida } from '../types';
 import { toast } from 'sonner';
 import {
-  Shield, AlertTriangle, FlaskConical, ClipboardList, CheckCircle, XCircle, Plus, Trash2, MapPin,
-  FileText, Calendar, User, Search, Send, Camera, Activity, Clock, ArrowUpCircle, Check, Layers,
+  Shield, AlertTriangle, FlaskConical, ClipboardList, CheckCircle, XCircle, Plus, MapPin,
+  User, Activity, Check, Layers,
 } from 'lucide-react';
-import { CARD, CARD_TITLE, INPUT } from '../ui';
-import { fmtQ, todayISO } from '../utils';
+import { todayISO } from '../utils';
 import { z } from 'zod';
 
 // Zod schemas
@@ -70,10 +69,6 @@ const SSOCalidad: React.FC = () => {
 
   const clearSsError = (field: string) => setSsFormErrors(prev => ({ ...prev, [field]: '' }));
   const resetSsErrors = () => setSsFormErrors({});
-
-  const proyFiltrados = selProyecto
-    ? proyectos.filter(p => p.id === selProyecto)
-    : proyectos;
 
   const proyectoActual = proyectos.find(p => p.id === selProyecto);
 

@@ -157,7 +157,7 @@ const Proyectos: React.FC = () => {
           {proyectos.map((p) => (
             <div key={p.id} className="absolute group" style={{ left: `${Math.round(((p.lng + 90.7) / 0.4) * 100)}%`, top: `${Math.round(((14.7 - p.lat) / 0.3) * 100)}%` }}>
               <div className="w-4 h-4 rounded-full ring-2 ring-white animate-pulse cursor-pointer" style={{ background: estadoColor(p) }} />
-              <div className="hidden group-hover:block absolute left-5 -top-1 bg-white text-slate-800 text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-20">{p.nombre}</div>
+              <div className="hidden group-hover:block absolute left-5 -top-1 bg-card text-foreground text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-20 border border-border">{p.nombre}</div>
             </div>
           ))}
         </div>

@@ -4,7 +4,7 @@ import { fmtQ } from '../utils';
 import { Receipt, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface CajaChica {
+interface _CajaChica {
   id: string;
   proyectoId: string | null;
   proyectoNombre: string;

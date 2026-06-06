@@ -70,14 +70,20 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-background">
       <div className="hidden lg:flex flex-1 bg-primary relative overflow-hidden items-center justify-center p-12">
-        <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'url(/empresa_b.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+        <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'image-set(url(/empresa_b.webp) type("image/webp"), url(/empresa_b.jpg) type("image/jpeg"))', backgroundSize: 'cover', backgroundPosition: 'center' }} />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/50 via-primary/30 to-accent/20" />
         <div className="relative z-10 text-primary-foreground max-w-md text-center">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="w-16 h-16 rounded-2xl bg-background/20 flex items-center justify-center ring-1 ring-primary-foreground/30 shadow-[0_0_8px_hsl(var(--primary)/0.35)]">
-              <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
+              <picture>
+                <source srcSet="/logo.webp" type="image/webp" />
+                <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
+              </picture>
             </div>
-            <img src="/construmys.png" alt="Construmys" className="h-16 w-auto object-contain drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
+            <picture>
+              <source srcSet="/construmys.webp" type="image/webp" />
+              <img src="/construmys.png" alt="Construmys" className="h-16 w-auto object-contain drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
+            </picture>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black leading-tight">CONSTRUCTORA<br /><span className="text-2xl sm:text-3xl">WM / M&amp;S</span></h1>
           <p className="text-primary-foreground text-base sm:text-lg italic mt-2">{EMPRESA.eslogan}</p>
@@ -97,7 +103,10 @@ const Login: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center ring-1 ring-primary/30 shadow-[0_0_6px_hsl(var(--primary)/0.35)]">
-              <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
+              <picture>
+                <source srcSet="/logo.webp" type="image/webp" />
+                <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
+              </picture>
             </div>
             <div>
               <div className="font-bold text-foreground text-sm sm:text-base">{EMPRESA.nombre}</div>

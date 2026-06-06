@@ -42,13 +42,14 @@ const Riesgos: React.FC = () => {
     if (selectedProyectoId && !form.proyectoId) {
       setForm(prev => ({ ...prev, proyectoId: selectedProyectoId }));
     }
-  }, [selectedProyectoId]);
+  }, [selectedProyectoId, form.proyectoId]);
 
   useEffect(() => {
     if (!synced) {
       syncFromSupabase();
       setSynced(true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [synced]);
 
   const syncFromSupabase = async () => {
