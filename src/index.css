@@ -280,9 +280,14 @@
 .text-violet-500 { color: hsl(var(--accent)); }
 /* ── GREEN → SUCCESS ── */
 .bg-green-50, .bg-green-100 { background-color: hsl(var(--success) / 0.1); }
+/* ── WHITE → CARD (dark mode fix) ── */
+.bg-white { background-color: hsl(var(--card)); }
 /* ── BORDER-RADIUS NORMALIZATION ── */
-.rounded-2xl { border-radius: calc(var(--radius) + 4px); }  /* = our rounded-lg (16px) */
-.rounded-xl  { border-radius: var(--radius); }               /* = our rounded-md (12px) */
+.rounded-2xl { border-radius: calc(var(--radius) + 4px); }
+.rounded-xl  { border-radius: var(--radius); }
+/* ── BORDER COLORS ── */
+.border-slate-100, .border-slate-200 { border-color: hsl(var(--border)); }
+.border-slate-300 { border-color: hsl(var(--border) / 0.8); }
 /* ── TOUCH-FRIENDLY INTERACTIONS ── */
 @media (hover: hover) {
   button:not([disabled]), a:not([disabled]) { cursor: pointer; }
