@@ -152,34 +152,34 @@ const APUAvanzado: React.FC = () => {
         {tab === 'insumos' && (
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-              <h2 className="font-bold text-slate-700 text-sm">Catálogo de Insumos Base</h2>
+              <h2 className="font-bold text-foreground text-sm">Catálogo de Insumos Base</h2>
               <div className="flex flex-wrap gap-2">
                 <select
                   value={rubroFilter}
                   onChange={e => setRubroFilter(e.target.value)}
-                  className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none"
+                  className="text-xs px-2 py-1.5 rounded-lg border border-input outline-none bg-background text-foreground"
                 >
                   <option value="">Todos los rubros</option>
                   {rubros.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
                 <div className="relative">
-                  <Search className="absolute left-2 top-1.5 w-3.5 h-3.5 text-slate-400" />
+                  <Search className="absolute left-2 top-1.5 w-3.5 h-3.5 text-muted-foreground" />
                   <input
                     value={searchInsumo}
                     onChange={e => setSearchInsumo(e.target.value)}
                     placeholder="Buscar insumo..."
-                    className="pl-7 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 outline-none focus:border-orange-400 w-full sm:w-44"
+                    className="pl-7 pr-3 py-1.5 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground w-full sm:w-44"
                   />
                 </div>
               </div>
             </div>
-            <div className="text-[10px] text-slate-400 mb-2">
+            <div className="text-[10px] text-muted-foreground mb-2">
               {filteredInsumos.length} insumos · Precios de referencia INSIVUMEH / MOP
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 text-slate-400">
+                  <tr className="border-b border-border text-muted-foreground">
                     <th className="text-left py-2 px-2 font-medium">Insumo</th>
                     <th className="text-left py-2 px-2 font-medium">Categoría</th>
                     <th className="text-left py-2 px-2 font-medium">Unidad</th>
@@ -190,22 +190,22 @@ const APUAvanzado: React.FC = () => {
                 </thead>
                 <tbody>
                   {filteredInsumos.map(ins => (
-                    <tr key={ins.id} className="border-b border-slate-50 hover:bg-slate-50">
-                      <td className="py-2 px-2 font-medium text-slate-700">{ins.nombre}</td>
+                    <tr key={ins.id} className="border-b border-border hover:bg-muted">
+                      <td className="py-2 px-2 font-medium text-foreground">{ins.nombre}</td>
                       <td className="py-2 px-2">
                         <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-medium ${
-                          ins.categoria === 'material' ? 'bg-blue-50 text-blue-600' :
-                          ins.categoria === 'mano_obra' ? 'bg-emerald-50 text-emerald-600' :
-                          ins.categoria === 'equipo' ? 'bg-purple-50 text-purple-600' :
-                          'bg-amber-50 text-amber-600'
+                          ins.categoria === 'material' ? 'bg-info/10 text-info' :
+                          ins.categoria === 'mano_obra' ? 'bg-success/10 text-success' :
+                          ins.categoria === 'equipo' ? 'bg-accent/10 text-accent' :
+                          'bg-warning/10 text-warning'
                         }`}>
                           {ins.categoria}
                         </span>
                       </td>
-                      <td className="py-2 px-2 text-slate-500">{ins.unidad}</td>
-                      <td className="py-2 px-2 text-right font-semibold text-slate-700">Q{ins.precioReferencia.toFixed(2)}</td>
-                      <td className="py-2 px-2 text-slate-500">{ins.rubro}</td>
-                      <td className="py-2 px-2 text-slate-400">{ins.fechaActualizacion}</td>
+                      <td className="py-2 px-2 text-muted-foreground">{ins.unidad}</td>
+                      <td className="py-2 px-2 text-right font-semibold text-foreground">Q{ins.precioReferencia.toFixed(2)}</td>
+                      <td className="py-2 px-2 text-muted-foreground">{ins.rubro}</td>
+                      <td className="py-2 px-2 text-muted-foreground">{ins.fechaActualizacion}</td>
                     </tr>
                   ))}
                 </tbody>
