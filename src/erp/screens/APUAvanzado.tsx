@@ -120,17 +120,17 @@ const APUAvanzado: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-          <Receipt className="w-6 h-6 text-orange-500" /> APU Avanzado
+        <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
+          <Receipt className="w-6 h-6 text-primary" /> APU Avanzado
         </h1>
-        <div className="flex items-center gap-2 text-xs text-slate-400">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <RefreshCw className="w-3 h-3" />
           Precios referencia Guatemala 2026
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-wrap gap-1 mb-4 bg-white rounded-xl p-1 shadow-sm border border-slate-100">
+      <div className="flex flex-wrap gap-1 mb-4 bg-muted rounded-xl p-1 shadow-sm border border-border">
         {TABS.map(t => {
           const Icon = t.icon;
           return (
@@ -138,7 +138,7 @@ const APUAvanzado: React.FC = () => {
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                tab === t.id ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
+                tab === t.id ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-background'
               }`}
             >
               <Icon className="w-3.5 h-3.5" /> {t.label}
@@ -148,7 +148,7 @@ const APUAvanzado: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 sm:p-5">
+      <div className="bg-card text-card-foreground rounded-2xl shadow-sm border border-border p-4 sm:p-5">
         {tab === 'insumos' && (
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
