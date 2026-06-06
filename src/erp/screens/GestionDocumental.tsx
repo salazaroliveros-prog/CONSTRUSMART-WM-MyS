@@ -20,7 +20,9 @@ const rfiSchema = z.object({
 });
 const submittalSchema = z.object({
   titulo: z.string().min(1, 'Título requerido').max(200, 'Máximo 200 caracteres'),
-  tipo: z.string().min(1, 'Tipo requerido').max(100, 'Máximo 100 caracteres'),
+  categoria: z.enum(['material', 'equipo', 'especificacion', 'otro']),
+  proveedor: z.string().min(1, 'Proveedor requerido').max(100, 'Máximo 100 caracteres'),
+  descripcion: z.string().max(2000, 'Máximo 2000 caracteres').optional().default(''),
   estado: z.enum(['pendiente', 'aprobado', 'rechazado', 'revision']),
   fechaLimite: z.string().min(1, 'Fecha requerida'),
 });
@@ -51,10 +53,14 @@ const GestionDocumental: React.FC = () => {
   const [versiones, setVersiones] = useState<Record<string, string[]>>(() => {
     try { return JSON.parse(localStorage.getItem(VERSION_KEY) || '{}'); } catch { return {}; }
   });
+  const [gdFormErrors, setGdFormErrors] = useState<Record<string, string>>({});
 
   const save = (key: string, data: unknown) => {
     localStorage.setItem(key, JSON.stringify(data));
   };
+
+  const clearGdError = (field: string) => setGdFormErrors(prev => ({ ...prev, [field]: '' }));
+  const resetGdErrors = () => setGdFormErrors({});
 
   const _proyectoActual = proyectos.find(p => p.id === selProyecto);
   const _rfiCount = rfis.filter(r => !selProyecto || r.proyectoId === selProyecto).length;
@@ -67,7 +73,14 @@ const GestionDocumental: React.FC = () => {
   const handleAddPlano = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
     const planoResult = planoSchema.safeParse(planoForm);
-    if (!planoResult.success) { toast.error(planoResult.error.errors[0].message); return; }
+    if (!planoResult.success) {
+      const errs: Record<string, string> = {};
+      planoResult.error.errors.forEach(err => { errs[err.path[0] as string] = err.message; });
+      setGdFormErrors(errs);
+      toast.error(planoResult.error.errors[0].message);
+      return;
+    }
+    setGdFormErrors({});
     const nuevo: Plano = {
       id: Date.now().toString(),
       proyectoId: selProyecto,
@@ -128,7 +141,14 @@ const GestionDocumental: React.FC = () => {
   const handleAddRFI = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
     const rfiResult = rfiSchema.safeParse(rfiForm);
-    if (!rfiResult.success) { toast.error(rfiResult.error.errors[0].message); return; }
+    if (!rfiResult.success) {
+      const errs: Record<string, string> = {};
+      rfiResult.error.errors.forEach(err => { errs[err.path[0] as string] = err.message; });
+      setGdFormErrors(errs);
+      toast.error(rfiResult.error.errors[0].message);
+      return;
+    }
+    setGdFormErrors({});
     const count = rfis.filter(r => r.proyectoId === selProyecto).length + 1;
     const nueva: RFI = {
       id: Date.now().toString(),
@@ -162,8 +182,22 @@ const GestionDocumental: React.FC = () => {
 
   const handleAddSubmittal = () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
-    const subResult = submittalSchema.safeParse({ titulo: subForm.titulo, tipo: subForm.proveedor, estado: 'pendiente' as const, fechaLimite: todayISO() });
-    if (!subResult.success) { toast.error(subResult.error.errors[0].message); return; }
+    const subResult = submittalSchema.safeParse({
+      titulo: subForm.titulo,
+      categoria: subForm.categoria,
+      proveedor: subForm.proveedor,
+      descripcion: subForm.descripcion,
+      estado: 'pendiente' as const,
+      fechaLimite: todayISO(),
+    });
+    if (!subResult.success) {
+      const errs: Record<string, string> = {};
+      subResult.error.errors.forEach(err => { errs[err.path[0] as string] = err.message; });
+      setGdFormErrors(errs);
+      toast.error(subResult.error.errors[0].message);
+      return;
+    }
+    setGdFormErrors({});
     const nuevo: Submittal = {
       id: Date.now().toString(),
       proyectoId: selProyecto,
@@ -263,7 +297,7 @@ const GestionDocumental: React.FC = () => {
             <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
               <FileText className="w-4 h-4 text-blue-500" /> Planos por Disciplina
             </h2>
-            <button onClick={() => setShowPlanoForm(true)} className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-medium hover:bg-blue-600">
+            <button onClick={() => { setShowPlanoForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-medium hover:bg-blue-600">
               <Upload className="w-3.5 h-3.5" /> Subir Plano
             </button>
           </div>
@@ -351,7 +385,7 @@ const GestionDocumental: React.FC = () => {
             <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
               <MessageSquare className="w-4 h-4 text-amber-500" /> Request for Information (RFI)
             </h2>
-            <button onClick={() => setShowRFIForm(true)} className="flex items-center gap-1 px-3 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-600">
+            <button onClick={() => { setShowRFIForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-600">
               <Send className="w-3.5 h-3.5" /> Nuevo RFI
             </button>
           </div>
@@ -425,7 +459,7 @@ const GestionDocumental: React.FC = () => {
             <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
               <Package className="w-4 h-4 text-purple-500" /> Submittals
             </h2>
-            <button onClick={() => setShowSubForm(true)} className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-medium hover:bg-purple-600">
+            <button onClick={() => { setShowSubForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-medium hover:bg-purple-600">
               <Plus className="w-3.5 h-3.5" /> Nuevo Submittal
             </button>
           </div>

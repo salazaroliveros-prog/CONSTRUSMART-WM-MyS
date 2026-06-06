@@ -166,8 +166,65 @@ export const mapFromSnakeCase = <T extends z.ZodType<any, any, any>>(schema: T, 
   }
 };
 
+// erp_seguimiento: EVM tracking por proyecto
+export const seguimientoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  fecha: z.string(),
+  avanceFisico: z.number().default(0),
+  avanceFinanciero: z.number().default(0),
+  costoPlaneado: z.number().default(0),
+  costoReal: z.number().default(0),
+  valorPlaneado: z.number().default(0),
+  valorGanado: z.number().default(0),
+  cv: z.number().nullable().optional(),
+  sv: z.number().nullable().optional(),
+  createdAt: z.string().optional(),
+});
+
+// erp_renglones: renglones de presupuesto persistidos en DB
+export const renglonDBSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string().nullable().optional(),
+  codigo: z.string(),
+  nombre: z.string(),
+  unidad: z.string(),
+  tipologia: z.string(),
+  rendimientoCuadrilla: z.number().default(0),
+  costoMateriales: z.number().default(0),
+  costoManoObra: z.number().default(0),
+  costoEquipo: z.number().default(0),
+  cantidad: z.number().default(0),
+  createdAt: z.string().optional(),
+});
+
+// erp_insumos: insumos por renglón
+export const insumoDBSchema = z.object({
+  id: z.string(),
+  renglonId: z.string(),
+  nombre: z.string(),
+  tipo: z.enum(['material', 'mano_obra', 'equipo', 'subcontrato']),
+  unidad: z.string(),
+  precio: z.number().default(0),
+  rendimiento: z.number().default(0),
+  createdAt: z.string().optional(),
+});
+
+// erp_sub_renglones: sub-renglones por renglón
+export const subRenglonDBSchema = z.object({
+  id: z.string(),
+  renglonId: z.string(),
+  nombreMaterial: z.string(),
+  unidad: z.string(),
+  cantidadUnitaria: z.number().default(0),
+  precioUnitario: z.number().default(0),
+  total: z.number().nullable().optional(),
+  createdAt: z.string().optional(),
+});
+
 export const schemas = {
   proyectoSchema, movimientoSchema, empleadoSchema, materialSchema,
   ordenCompraSchema, proveedorSchema, eventoCalendarioSchema,
   bitacoraEntrySchema, presupuestoSchema,
+  seguimientoSchema, renglonDBSchema, insumoDBSchema, subRenglonDBSchema,
 };

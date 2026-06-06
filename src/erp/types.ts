@@ -18,6 +18,21 @@ export interface SubRenglon {
   precioUnitario: number;
 }
 
+export interface SeguimientoEVM {
+  id: string;
+  proyectoId: string;
+  fecha: string;
+  avanceFisico: number;
+  avanceFinanciero: number;
+  costoPlaneado: number;
+  costoReal: number;
+  valorPlaneado: number;
+  valorGanado: number;
+  cv?: number | null;
+  sv?: number | null;
+  createdAt?: string;
+}
+
 export interface InsumoBase {
   id: string;
   codigo: string;

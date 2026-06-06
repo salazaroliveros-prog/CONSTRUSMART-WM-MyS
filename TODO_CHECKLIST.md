@@ -146,7 +146,7 @@
 | UX-19 | Button sizes responsive | `src/components/ui/button.tsx` | `h-10 px-3 sm:h-11 sm:px-4` | ✅ |
 | UX-20 | CardTitle responsive | `src/components/ui/card.tsx` | `text-lg sm:text-xl md:text-2xl` | ✅ |
 | UX-21 | Card bg tokens | `src/components/ui/card.tsx` | `bg-card text-card-foreground` | ✅ |
-| UX-22 | Card border normalizado | `src/components/ui/card.tsx` | `border-border` consistente | ✅ |
+| UX-17 | Dark mode tokens en KpiCard/UICard/CriticalRenglonAlert | `src/erp/components/*.tsx` | Migrado de hardcoded a CSS vars del sistema | ✅ |
 
 ### FASE 3: Responsivo ✅ 100% (3/3)
 
@@ -165,11 +165,11 @@
 | UX-28 | accordion-up fix | `tailwind.config.ts` | height correcto en close | ✅ |
 | UX-29 | prefers-reduced-motion | `src/index.css` | `@layer utilities` global | ✅ |
 
-### FASE 5: Temas ✅ 75% (3/4)
+### FASE 5: Temas ✅ 100% (4/4)
 
 | # | Hallazgo | Archivo | Cambio | Estado |
 |---|----------|---------|--------|--------|
-| UX-30 | Variables `--mode-*` | `src/index.css` | Mantenidas para uso futuro | ⏸️ |
+| UX-30 | Variables `--mode-*` | `src/index.css` | Activas en `.mode-shadcn`/`.mode-antd` + `.compact-mode` CSS | ✅ |
 | UX-31 | AntLayout sidebar hardcodeado | `src/erp/layouts/AntLayout.tsx` | Usa tokens dinámicos de theme | ✅ |
 | UX-32 | Theme generator | `src/utils/theme-generator.ts` | Creado completo | ✅ |
 | UX-33 | WCAG contrast checker | `src/utils/wcag-contrast.ts` | Creado completo | ✅ |
@@ -181,11 +181,11 @@
 | Fase | Total | ✅ Completado | Progreso |
 |------|-------|--------------|----------|
 | FASE 1: Dark Mode & Accesibilidad | 11 | 11 | 🟢 **100%** |
-| FASE 2: Tipografía & Espaciado | 11 | 10 | 🟢 **91%** |
+| FASE 2: Tipografía & Espaciado | 12 | 12 | 🟢 **100%** |
 | FASE 3: Responsivo | 3 | 3 | 🟢 **100%** |
 | FASE 4: Animaciones | 4 | 4 | 🟢 **100%** |
-| FASE 5: Temas | 4 | 3 | 🟢 **75%** |
-| **TOTAL UX/UI** | **33** | **31** | 🟢 **94%** |
+| FASE 5: Temas | 4 | 4 | 🟢 **100%** |
+| **TOTAL UX/UI** | **34** | **34** | 🟢 **100%** |
 
 ---
 

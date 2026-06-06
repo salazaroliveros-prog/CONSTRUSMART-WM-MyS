@@ -111,7 +111,7 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: `1px solid ${token.colorBorder}`,
           padding: '0 16px',
         }}>
           {collapsed ? (
@@ -145,7 +145,7 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             left: 0,
             right: 0,
             padding: '12px 16px',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
+            borderTop: `1px solid ${token.colorBorder}`,
           }}>
             <Text style={{ color: token.colorPrimary, fontSize: 11, fontWeight: 600 }}>
               {user?.rol}

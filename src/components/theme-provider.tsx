@@ -37,18 +37,29 @@ export function ThemeProvider({
 
   useEffect(() => {
     const root = window.document.documentElement
-    root.classList.remove("light", "dark")
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light"
-      root.classList.add(systemTheme)
-      return
+    const applyTheme = (t: Theme) => {
+      root.classList.remove("light", "dark")
+      if (t === "system") {
+        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        root.classList.add(systemTheme)
+        root.style.colorScheme = systemTheme
+      } else {
+        root.classList.add(t)
+        root.style.colorScheme = t
+      }
     }
 
-    root.classList.add(theme)
+    applyTheme(theme)
+
+    if (theme === "system") {
+      const mq = window.matchMedia("(prefers-color-scheme: dark)")
+      const handler = () => applyTheme("system")
+      mq.addEventListener("change", handler)
+      return () => mq.removeEventListener("change", handler)
+    }
   }, [theme])
 
   const value: ThemeContextType = {

@@ -98,13 +98,13 @@
     --pending: 24 100% 60%;
     --pending-foreground: 220 20% 10%;
 
-    --sidebar-background: 220 20% 14%;
-    --sidebar-foreground: 210 40% 95%;
+    --sidebar-background: 215 28% 17%;
+    --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 24 80% 58%;
-    --sidebar-primary-foreground: 220 20% 10%;
-    --sidebar-accent: 220 25% 22%;
-    --sidebar-accent-foreground: 210 40% 95%;
-    --sidebar-border: 220 20% 20%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 25% 27%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 25% 27%;
     --sidebar-ring: 24 80% 58%;
   }
 }
@@ -144,6 +144,7 @@
   .bg-pending   { background-color: hsl(var(--pending)); color: hsl(var(--pending-foreground)); }
 }
 
+
 .markdown-editor {
   @apply font-mono text-base leading-relaxed;
 }
@@ -172,4 +173,72 @@
 .markdown-preview ul,
 .markdown-preview ol {
   @apply my-4 ml-6;
+}
+
+/* ═══════════════════════════════════════════════
+   BULK THEME REMAP — Override hardcoded Tailwind colors
+   to use CSS variables for automatic dark mode support.
+   Afecta colores en screens (src/erp/screens/*.tsx)
+   ═══════════════════════════════════════════════ */
+/* ── TEXT COLORS ── */
+.text-slate-400, .text-slate-500, .text-slate-600,
+.text-gray-400, .text-gray-500 {
+  color: hsl(var(--muted-foreground));
+}
+.text-slate-700 {
+  color: hsl(var(--foreground) / 0.8);
+}
+.text-slate-300 {
+  color: hsl(var(--foreground) / 0.7);
+}
+.text-slate-200 {
+  color: hsl(var(--foreground) / 0.6);
+}
+.text-slate-800, .text-slate-900,
+.text-gray-900 {
+  color: hsl(var(--foreground));
+}
+.text-orange-400, .text-orange-500 {
+  color: hsl(var(--primary));
+}
+.text-orange-300 {
+  color: hsl(var(--primary) / 0.8);
+}
+.text-red-400 {
+  color: hsl(var(--destructive) / 0.8);
+}
+.text-red-500, .text-red-600, .text-red-700 {
+  color: hsl(var(--destructive));
+}
+.text-amber-600 {
+  color: hsl(var(--warning));
+}
+/* ── BACKGROUND COLORS ── */
+.bg-slate-50, .bg-gray-50 {
+  background-color: hsl(var(--muted) / 0.5);
+}
+.bg-slate-100, .bg-slate-200,
+.bg-gray-100, .bg-gray-200 {
+  background-color: hsl(var(--muted));
+}
+.bg-slate-800, .bg-gray-800 {
+  background-color: hsl(var(--secondary));
+}
+.bg-slate-900 {
+  background-color: hsl(var(--primary));
+}
+.bg-slate-400, .bg-slate-500 {
+  background-color: hsl(var(--muted-foreground));
+}
+.bg-slate-600, .bg-slate-700 {
+  background-color: hsl(var(--secondary));
+}
+.bg-orange-50 {
+  background-color: hsl(var(--primary) / 0.08);
+}
+.bg-orange-100 {
+  background-color: hsl(var(--primary) / 0.12);
+}
+.bg-orange-400 {
+  background-color: hsl(var(--primary));
 }
