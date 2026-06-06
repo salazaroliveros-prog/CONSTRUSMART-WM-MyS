@@ -1,15 +1,9 @@
 import { defineConfig } from "vite";
 import path from "path";
-import react from "@vitejs/plugin-react-swc";
 
 // https://vitejs.dev/config/
+// Vite 5.x processa JSX nativamente con esbuild - no necesita plugin
 export default defineConfig(({ mode: _mode }) => ({
-  plugins: [react()],
-  base: "/",
-  server: {
-    host: "::",
-    port: 8080,
-  },
   esbuild: {
     jsx: "automatic",
     jsxImportSource: "react",
@@ -18,6 +12,10 @@ export default defineConfig(({ mode: _mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  server: {
+    host: "::",
+    port: 8080,
   },
   build: {
     chunkSizeWarningLimit: 2000,

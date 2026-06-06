@@ -154,8 +154,9 @@ describe('Densidad de costo Q/m²', () => {
   });
 
   it('área cero no produce NaN', () => {
-    const densidad = 100000 > 0 ? 100000 / 100 : 0; // usa default 100m²
-    expect(densidad).toBe(1000);
+    const area = 0;
+    const densidad = area > 0 ? 100000 / area : 0;
+    expect(densidad).toBe(0);
   });
 });
 

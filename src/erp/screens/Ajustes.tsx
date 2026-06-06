@@ -446,7 +446,7 @@ const Ajustes: React.FC = () => {
             </Descriptions>
             <Divider />
             <Text type="secondary" style={{ fontSize: 12 }}>
-              "Edificando el Futuro" — Todos los derechos reservados
+              {`"Edificando el Futuro" — Todos los derechos reservados`}
             </Text>
           </Space>
         </Card>
