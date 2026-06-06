@@ -40,7 +40,7 @@ const UICard: React.FC<UICardProps> = ({
 
   return (
     <div
-      className={`rounded-xl border border-border bg-card text-card-foreground shadow-sm ${hoverable ? 'hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer' : ''} ${size === 'small' ? 'p-4' : size === 'large' ? 'p-6 md:p-8' : 'p-4 md:p-6'} ${className}`}
+      className={`rounded-xl border border-border bg-card text-card-foreground shadow-sm ${hoverable ? 'hover:shadow-md hover:border-primary/20 transition-all duration-300 cursor-pointer' : ''} ${size === 'small' ? 'p-4' : size === 'large' ? 'p-6 md:p-8' : 'p-4 md:p-6'} ${className}`}
       style={style}
       onClick={onClick}
     >

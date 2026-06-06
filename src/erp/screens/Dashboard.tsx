@@ -70,10 +70,10 @@ const Dashboard: React.FC = () => {
       </div>
 
       {loading
-        ? <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2 flex-shrink-0">
+        ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-2 flex-shrink-0">
             {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
-        : <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2 flex-shrink-0">
+        : <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-2 flex-shrink-0">
             <KpiCard label="Margen de Utilidad Prom." value={fmtPct(margenProm)} icon={<TrendingUp className="w-4 h-4" />} trend="+2.4%" trendUp accent="from-emerald-500 to-teal-500" />
             <KpiCard label="Proyectos Activos" value={String(activos.length)} icon={<Building2 className="w-4 h-4" />} trend={`${proyectos.length} total`} trendUp accent="from-blue-500 to-indigo-500" />
             <KpiCard label="Presupuesto en Ejecución" value={fmtQ(presupuestoTotal)} icon={<DollarSign className="w-4 h-4" />} accent="from-orange-500 to-amber-500" />

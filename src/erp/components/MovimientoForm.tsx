@@ -96,7 +96,7 @@ const MovimientoForm: React.FC<{ compact?: boolean }> = ({ compact }) => {
           Gasto
         </button>
       </div>
-      <div className={`grid ${compact ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3'} gap-2`}>
+      <div className={`grid ${compact ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'} gap-2`}>
         <select
           {...register('proyectoId')}
           className={inp + ' col-span-2'}

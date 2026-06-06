@@ -79,10 +79,10 @@ const Login: React.FC = () => {
             </div>
             <img src="/construmys.png" alt="Construmys" className="h-[5.5rem] w-auto object-contain drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
           </div>
-          <h1 className="text-4xl font-black leading-tight">CONSTRUCTORA<br /><span className="text-3xl">WM / M&amp;S</span></h1>
+          <h1 className="text-2xl sm:text-4xl font-black leading-tight">CONSTRUCTORA<br /><span className="text-3xl">WM / M&amp;S</span></h1>
           <p className="text-primary-foreground/80 text-lg italic mt-2">{EMPRESA.eslogan}</p>
           <p className="text-primary-foreground/70 mt-6 leading-relaxed">{t('auth.ingrese_credenciales')}</p>
-          <div className="flex gap-6 mt-8 justify-center">
+          <div className="flex flex-wrap gap-4 sm:gap-6 mt-8 justify-center">
             {['Presupuestos', 'Control', 'Finanzas'].map(lbl => (
               <div key={lbl} className="text-center">
                 <ShieldCheck className="w-5 h-5 mx-auto text-primary-foreground/80" />

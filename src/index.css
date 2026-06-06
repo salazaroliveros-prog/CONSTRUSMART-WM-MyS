@@ -296,3 +296,7 @@ button:active:not([disabled]) { transform: scale(0.97); transition: transform 0.
 @media (hover: none) {
   button:active:not([disabled]), a:active:not([disabled]) { transform: scale(0.97); }
 }
+/* ── ANIMATION NORMALIZATION (override Tailwind default 150ms → 300ms) ── */
+.transition-all, .transition-colors, .transition-opacity, .transition-shadow, .transition-transform {
+  transition-duration: 300ms;
+}

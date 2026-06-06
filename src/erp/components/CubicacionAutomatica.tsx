@@ -165,7 +165,7 @@ const CubicacionAutomatica: React.FC = () => {
         <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
           <div className="mb-3">
             <label className="text-xs font-semibold text-slate-500 block mb-1">Tipo de elemento</label>
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {TIPOS.map(t => (
                 <button
                   key={t.id}
@@ -191,7 +191,7 @@ const CubicacionAutomatica: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
             <div>
               <label className="text-[10px] text-slate-500 block">Largo (m)</label>
               <input type="number" value={params.largo || ''} onChange={e => updateParam('largo', +e.target.value)} placeholder="0" className="w-full px-2 py-1 rounded border border-slate-200 text-xs text-right" />
@@ -208,7 +208,7 @@ const CubicacionAutomatica: React.FC = () => {
 
           {/* Parámetros específicos por tipo */}
           {tipo === 'acero' && (
-            <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
               <div>
                 <label className="text-[10px] text-slate-500 block">∅ (mm)</label>
                 <select value={params.diametro || 12} onChange={e => updateParam('diametro', +e.target.value)} className="w-full px-2 py-1 rounded border border-slate-200 text-xs">
@@ -227,7 +227,7 @@ const CubicacionAutomatica: React.FC = () => {
           )}
 
           {(tipo === 'concreto' || tipo === 'mamposteria') && (
-            <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
               <div>
                 <label className="text-[10px] text-slate-500 block">Cantidad</label>
                 <input type="number" value={params.cantidad || 1} onChange={e => updateParam('cantidad', +e.target.value)} min={1} className="w-full px-2 py-1 rounded border border-slate-200 text-xs text-right" />
@@ -248,7 +248,7 @@ const CubicacionAutomatica: React.FC = () => {
           )}
 
           {tipo === 'excavacion' && (
-            <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
               <div>
                 <label className="text-[10px] text-slate-500 block">Factor expansión</label>
                 <input type="number" value={params.factorExpansion || 1.15} onChange={e => updateParam('factorExpansion', +e.target.value)} step={0.05} min={1} className="w-full px-2 py-1 rounded border border-slate-200 text-xs text-right" />

@@ -134,7 +134,7 @@ export const Impuestos: React.FC = () => {
                   Q{calculos.ivaPagar.toLocaleString()}
                 </p>
               </div>
-              <div className="mt-1 grid grid-cols-2 gap-2 text-xs text-gray-400">
+              <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
                 <span>IVA Débito (12% s/ingresos): Q{calculos.ivaSobreIngresos.toLocaleString()}</span>
                 <span>IVA Crédito (12% s/gastos): Q{calculos.ivaAcreditable.toLocaleString()}</span>
               </div>
@@ -146,7 +146,7 @@ export const Impuestos: React.FC = () => {
       {/* Base de cálculo detallada */}
       <div className="bg-white border rounded-lg p-4 mb-6">
         <h3 className="text-sm font-semibold text-gray-500 mb-3">📋 DETALLE DE CÁLCULO</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-sm">
           <div>
             <h4 className="font-medium mb-2">Cálculo del ISR</h4>
             <div className="space-y-1 text-gray-600">

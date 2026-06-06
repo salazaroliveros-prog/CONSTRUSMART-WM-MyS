@@ -94,8 +94,8 @@ const Seguimiento: React.FC = () => {
             <thead className="bg-muted text-muted-foreground text-xs">
               <tr>
                 <th className="text-left p-3">Proyecto</th>
-                <th className="p-3 w-40">Avance Físico</th>
-                <th className="p-3 w-40">Avance Financiero</th>
+                <th className="p-3 w-24 sm:w-40">Avance Físico</th>
+                <th className="p-3 w-24 sm:w-40">Avance Financiero</th>
                 <th className="p-3 text-right">Ingresos</th>
                 <th className="p-3 text-right">Gastos</th>
                 <th className="p-3 text-right">Pendiente de Aportar</th>
@@ -169,7 +169,7 @@ const Seguimiento: React.FC = () => {
               {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div><Gauge value={CV} max={Math.abs(CV) + EV * 0.3 + 1} label="CV (Costo)" color={CV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${CV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(CV)}</div></div>
             <div><Gauge value={SV} max={Math.abs(SV) + EV * 0.3 + 1} label="SV (Tiempo)" color={SV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${SV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(SV)}</div></div>
           </div>
@@ -228,7 +228,7 @@ const Seguimiento: React.FC = () => {
             <button type="button" onClick={cancelEditBitacora} className="text-sm text-slate-500 hover:text-slate-800 flex items-center gap-1"><X className="w-3.5 h-3.5" /> Cancelar</button>
           )}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
           <select value={selProy} onChange={e => setSelProy(e.target.value)} className={`${INPUT} col-span-2`}>
             <option value="">Selecciona proyecto</option>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
