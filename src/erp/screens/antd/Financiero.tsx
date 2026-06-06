@@ -157,8 +157,8 @@ const AntFinanciero: React.FC = () => {
                   const egrH = (m.egresos / maxVal) * 180;
                   return (
                     <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                      <div style={{ width: '100%', background: '#10b981', borderRadius: '4px 4px 0 0', height: Math.max(ingH, 2), opacity: 0.8 }} />
-                      <div style={{ width: '100%', background: '#ef4444', borderRadius: '4px 4px 0 0', height: Math.max(egrH, 2), opacity: 0.8 }} />
+                      <div style={{ width: '100%', background: 'hsl(var(--success))', borderRadius: '4px 4px 0 0', height: Math.max(ingH, 2), opacity: 0.8 }} />
+                      <div style={{ width: '100%', background: 'hsl(var(--destructive))', borderRadius: '4px 4px 0 0', height: Math.max(egrH, 2), opacity: 0.8 }} />
                       <Text style={{ fontSize: 8, color: 'hsl(var(--muted-foreground))', marginTop: 4 }}>{m.mes}</Text>
                     </div>
                   );
