@@ -146,8 +146,8 @@ const Dashboard: React.FC = () => {
   ];
 
   const SkeletonCard: React.FC<{ h?: string }> = ({ h = 'h-8' }) => (
-    <div className="rounded-2xl bg-white animate-pulse">
-      <div className={`${h} bg-slate-100 rounded-2xl`} />
+    <div className="rounded-2xl bg-card animate-pulse">
+      <div className={`${h} bg-muted rounded-2xl`} />
     </div>
   );
 
@@ -180,11 +180,11 @@ const Dashboard: React.FC = () => {
     <div className="h-full flex flex-col p-3 sm:p-4 max-w-[1600px] mx-auto overflow-hidden">
       <div className="flex flex-wrap items-end justify-between gap-2 mb-2 flex-shrink-0">
         <div>
-          <h1 className="text-lg sm:text-xl font-black text-slate-800 leading-tight">Tablero Principal</h1>
-          <p className="text-xs text-slate-500">Centro de comando — métricas en tiempo real</p>
+          <h1 className="text-lg sm:text-xl font-black text-foreground leading-tight">Tablero Principal</h1>
+          <p className="text-xs text-muted-foreground">Centro de comando — métricas en tiempo real</p>
         </div>
         <select value={filtroProy} onChange={e => setFiltroProy(e.target.value)}
-          className="px-3 py-1.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-orange-100 bg-white border border-slate-200">
+          className="px-3 py-1.5 rounded-xl text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring bg-card border border-input">
           <option value="">Todos los proyectos</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
@@ -192,14 +192,14 @@ const Dashboard: React.FC = () => {
 
       {/* M-01: Alertas de retraso */}
       {alertasRetraso.length > 0 && (
-        <div className="mb-2 p-3 bg-red-50 border border-red-200 rounded-xl flex-shrink-0">
+        <div className="mb-2 p-3 bg-destructive/10 border border-destructive/20 rounded-xl flex-shrink-0">
           <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="w-4 h-4 text-red-500" />
-            <span className="text-xs font-bold text-red-700 uppercase">Alertas de retraso</span>
+            <AlertTriangle className="w-4 h-4 text-destructive" />
+            <span className="text-xs font-bold text-destructive uppercase">Alertas de retraso</span>
           </div>
           <div className="space-y-1">
             {alertasRetraso.map(a => (
-              <div key={a.id} className="flex items-center justify-between text-xs text-red-600 bg-red-100/50 px-2 py-1 rounded">
+              <div key={a.id} className="flex items-center justify-between text-xs text-destructive bg-destructive/15 px-2 py-1 rounded">
                 <span className="font-semibold">{a.nombre}</span>
                 <span>{a.diasRetraso} días de retraso · {a.avance}% avance</span>
               </div>
@@ -210,14 +210,14 @@ const Dashboard: React.FC = () => {
 
       {/* M-02: Predicción de fecha de fin */}
       {prediccionFechaFin.length > 0 && (
-        <div className="mb-2 p-3 bg-amber-50 border border-amber-200 rounded-xl flex-shrink-0">
+        <div className="mb-2 p-3 bg-warning/10 border border-warning/20 rounded-xl flex-shrink-0">
           <div className="flex items-center gap-2 mb-2">
-            <Clock className="w-4 h-4 text-amber-500" />
-            <span className="text-xs font-bold text-amber-700 uppercase">Pronóstico de finalización</span>
+            <Clock className="w-4 h-4 text-warning" />
+            <span className="text-xs font-bold text-warning uppercase">Pronóstico de finalización</span>
           </div>
           <div className="space-y-1">
             {prediccionFechaFin.filter(p => p.desviacionDias > 0).slice(0, 5).map(p => (
-              <div key={p.id} className="flex items-center justify-between text-xs text-amber-700 bg-amber-100/50 px-2 py-1 rounded">
+              <div key={p.id} className="flex items-center justify-between text-xs text-warning bg-warning/15 px-2 py-1 rounded">
                 <span className="font-semibold">{p.nombre}</span>
                 <span>Fin estimado: {p.fechaEstimada} ({p.desviacionDias} días después de lo planeado)</span>
               </div>
@@ -241,10 +241,10 @@ const Dashboard: React.FC = () => {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-2 min-h-0">
         <div className={`${CARD} lg:col-span-2 flex flex-col min-h-0 p-3`}>
           <div className="flex items-center justify-between mb-1 flex-shrink-0">
-            <h3 className={`${CARD_TITLE} flex items-center gap-1 text-sm mb-0`}><Activity className="w-3.5 h-3.5 text-orange-500" /> Curva S Consolidada</h3>
+            <h3 className={`${CARD_TITLE} flex items-center gap-1 text-sm mb-0`}><Activity className="w-3.5 h-3.5 text-primary" /> Curva S Consolidada</h3>
             <div className="flex gap-2 text-[9px]">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500" /> Programado</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> Real</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-info" /> Programado</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary" /> Real</span>
             </div>
           </div>
           <div className="flex-1 min-h-0">
@@ -264,7 +264,7 @@ const Dashboard: React.FC = () => {
           <div className={`${CARD} flex flex-col p-3 min-h-0`}>
             <h3 className={`${CARD_TITLE} text-sm mb-1`}>Gastos por Categoria</h3>
             <div className="flex-1 min-h-0">
-              {movPorCategoria.length ? <BarChart data={movPorCategoria} height={100} /> : <p className="text-xs text-slate-400">Sin datos</p>}
+              {movPorCategoria.length ? <BarChart data={movPorCategoria} height={100} /> : <p className="text-xs text-muted-foreground">Sin datos</p>}
             </div>
           </div>
           <div className={`${CARD} flex flex-col p-3 min-h-0`}>
@@ -275,8 +275,8 @@ const Dashboard: React.FC = () => {
                 { label: 'Gastos', value: gastos, color: '#ef4444' },
               ]} />
               <div className="text-[10px] space-y-1">
-                <div><span className="w-2 h-2 inline-block rounded-full bg-emerald-500 mr-1" />Ingresos<br /><b className="text-slate-700">{fmtQ(ingresos)}</b></div>
-                <div><span className="w-2 h-2 inline-block rounded-full bg-red-500 mr-1" />Gastos<br /><b className="text-slate-700">{fmtQ(gastos)}</b></div>
+                <div><span className="w-2 h-2 inline-block rounded-full bg-success mr-1" />Ingresos<br /><b className="text-foreground/80">{fmtQ(ingresos)}</b></div>
+                <div><span className="w-2 h-2 inline-block rounded-full bg-destructive mr-1" />Gastos<br /><b className="text-foreground/80">{fmtQ(gastos)}</b></div>
               </div>
             </div>
           </div>
@@ -297,64 +297,64 @@ const Dashboard: React.FC = () => {
 
       {/* EERR Detallado + % Utilización Recursos */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 mt-2 flex-shrink-0">
-        <div className="lg:col-span-2 bg-white rounded-2xl p-3 shadow-sm border border-slate-100">
-          <h3 className="font-bold text-slate-700 text-xs mb-1">Estado de Resultados (EERR) por Categoría</h3>
+        <div className="lg:col-span-2 bg-card rounded-2xl p-3 shadow-sm border border-border">
+          <h3 className="font-bold text-foreground/80 text-xs mb-1">Estado de Resultados (EERR) por Categoría</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
-            <div className="bg-emerald-50 rounded-lg p-2 border border-emerald-100">
-              <div className="text-emerald-600 font-bold text-sm">{fmtQ(eerr.totalIngresos)}</div>
-              <div className="text-emerald-700">Ingresos Totales</div>
+            <div className="bg-success/10 rounded-lg p-2 border border-success/20">
+              <div className="text-success font-bold text-sm">{fmtQ(eerr.totalIngresos)}</div>
+              <div className="text-success/80">Ingresos Totales</div>
             </div>
-            <div className="bg-red-50 rounded-lg p-2 border border-red-100">
-              <div className="text-red-600 font-bold text-sm">{fmtQ(eerr.totalGastos)}</div>
-              <div className="text-red-700">Gastos Totales</div>
+            <div className="bg-destructive/10 rounded-lg p-2 border border-destructive/20">
+              <div className="text-destructive font-bold text-sm">{fmtQ(eerr.totalGastos)}</div>
+              <div className="text-destructive/80">Gastos Totales</div>
             </div>
-            <div className={`rounded-lg p-2 border ${eerr.utilidadBruta >= 0 ? 'bg-blue-50 border-blue-100' : 'bg-red-100 border-red-200'}`}>
-              <div className={`font-bold text-sm ${eerr.utilidadBruta >= 0 ? 'text-blue-600' : 'text-red-600'}`}>{fmtQ(eerr.utilidadBruta)}</div>
-              <div className={`${eerr.utilidadBruta >= 0 ? 'text-blue-700' : 'text-red-700'}`}>Utilidad Neta</div>
+            <div className={`rounded-lg p-2 border ${eerr.utilidadBruta >= 0 ? 'bg-info/10 border-info/20' : 'bg-destructive/20 border-destructive/30'}`}>
+              <div className={`font-bold text-sm ${eerr.utilidadBruta >= 0 ? 'text-info' : 'text-destructive'}`}>{fmtQ(eerr.utilidadBruta)}</div>
+              <div className={`${eerr.utilidadBruta >= 0 ? 'text-info/80' : 'text-destructive/80'}`}>Utilidad Neta</div>
             </div>
           </div>
           {eerr.gastosPorCategoria.length > 0 && (
             <div className="mt-2 space-y-1">
               {eerr.gastosPorCategoria.slice(0, 5).map((g, i) => (
                 <div key={i} className="flex items-center gap-2 text-[10px]">
-                  <span className="w-20 text-right text-slate-500">{g.categoria.replace('_', ' ')}</span>
-                  <div className="flex-1 bg-slate-100 rounded-full h-1.5">
-                    <div className="bg-orange-500 rounded-full h-1.5" style={{ width: `${g.porcentaje}%` }} />
+                  <span className="w-20 text-right text-muted-foreground">{g.categoria.replace('_', ' ')}</span>
+                  <div className="flex-1 bg-muted rounded-full h-1.5">
+                    <div className="bg-primary rounded-full h-1.5" style={{ width: `${g.porcentaje}%` }} />
                   </div>
-                  <span className="w-16 text-right font-mono text-slate-600">{fmtQ(g.monto)}</span>
-                  <span className="w-8 text-right text-slate-400">{g.porcentaje.toFixed(0)}%</span>
+                  <span className="w-16 text-right font-mono text-muted-foreground">{fmtQ(g.monto)}</span>
+                  <span className="w-8 text-right text-muted-foreground/60">{g.porcentaje.toFixed(0)}%</span>
                 </div>
               ))}
             </div>
           )}
         </div>
-        <div className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100">
-          <h3 className="font-bold text-slate-700 text-xs mb-1">% Utilización Recursos</h3>
+        <div className="bg-card rounded-2xl p-3 shadow-sm border border-border">
+          <h3 className="font-bold text-foreground/80 text-xs mb-1">% Utilización Recursos</h3>
           <div className="text-center">
-            <div className="text-3xl font-black text-blue-600">
+            <div className="text-3xl font-black text-info">
               {empleados.length > 0 ? ((empleados.filter(e => e.activo && (e.diasTrabajados || 0) > 0).length / Math.max(empleados.length, 1)) * 100).toFixed(0) : 0}%
             </div>
-            <div className="text-[10px] text-slate-500">Empleados activos con horas registradas</div>
+            <div className="text-[10px] text-muted-foreground">Empleados activos con horas registradas</div>
             <div className="mt-2 grid grid-cols-2 gap-1 text-[10px]">
-              <div className="bg-slate-50 rounded p-1">
-                <div className="font-bold text-slate-700">{empleados.filter(e => e.activo).length}</div>
-                <div className="text-slate-400">Activos</div>
+              <div className="bg-muted/50 rounded p-1">
+                <div className="font-bold text-foreground/80">{empleados.filter(e => e.activo).length}</div>
+                <div className="text-muted-foreground">Activos</div>
               </div>
-              <div className="bg-slate-50 rounded p-1">
-                <div className="font-bold text-slate-700">{horasHombreSeg.totalHoras.toLocaleString()}</div>
-                <div className="text-slate-400">HH acumuladas</div>
+              <div className="bg-muted/50 rounded p-1">
+                <div className="font-bold text-foreground/80">{horasHombreSeg.totalHoras.toLocaleString()}</div>
+                <div className="text-muted-foreground">HH acumuladas</div>
               </div>
             </div>
           </div>
         </div>
         <div>
-          <h3 className="font-bold text-slate-700 text-xs mb-1">Herramientas Rápidas</h3>
+          <h3 className="font-bold text-foreground/80 text-xs mb-1">Herramientas Rápidas</h3>
           <div className="grid grid-cols-2 gap-1.5">
             {modulos.map(m => {
               const Icon = m.icon;
               return (
                 <button key={m.id} onClick={() => setView(m.id as View)}
-                  className={`bg-gradient-to-br ${m.c} text-white rounded-xl p-2 flex flex-col items-start gap-1 hover:scale-[1.03] transition-transform shadow-sm`}>
+                  className={`bg-gradient-to-br ${m.c} text-white rounded-xl p-2 flex flex-col items-start gap-1 hover:scale-[1.03] transition-transform shadow-sm focus-visible:ring-2 focus-visible:ring-ring`}>
                   <Icon className="w-4 h-4" />
                   <span className="text-[10px] font-semibold flex items-center gap-1">{m.label} <ArrowRight className="w-2.5 h-2.5" /></span>
                 </button>

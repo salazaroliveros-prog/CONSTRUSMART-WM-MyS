@@ -96,8 +96,8 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         width={240}
         collapsedWidth={isMobile ? 0 : 64}
         style={{
-          background: '#1e293b',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
+          background: token.colorBgContainer,
+          borderRight: `1px solid ${token.colorBorder}`,
           overflow: 'auto',
           height: '100vh',
           position: isMobile ? 'fixed' : 'sticky',
@@ -118,7 +118,7 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Text strong style={{ color: token.colorPrimary, fontSize: 20 }}>W</Text>
           ) : (
             <Space>
-              <Text strong style={{ color: '#fff', fontSize: 16 }}>CONSTRUSMART</Text>
+              <Text strong style={{ color: token.colorText, fontSize: 16 }}>CONSTRUSMART</Text>
               <Text style={{ color: token.colorPrimary, fontSize: 10, opacity: 0.7 }}>ERP</Text>
             </Space>
           )}
@@ -150,7 +150,7 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Text style={{ color: token.colorPrimary, fontSize: 11, fontWeight: 600 }}>
               {user?.rol}
             </Text>
-            <Text style={{ color: '#64748b', fontSize: 10, display: 'block' }}>
+            <Text style={{ color: token.colorTextSecondary, fontSize: 10, display: 'block' }}>
               CONSTRUCTORA WM
             </Text>
           </div>
@@ -160,11 +160,11 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <Layout>
         <Header style={{
           padding: '0 24px',
-          background: '#fff',
+          background: token.colorBgContainer,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #f0f0f0',
+          borderBottom: `1px solid ${token.colorBorder}`,
           height: 64,
           position: 'sticky',
           top: 0,
@@ -176,6 +176,7 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed(!collapsed)}
               size="large"
+              aria-label={collapsed ? 'Abrir menú' : 'Cerrar menú'}
             />
             <Breadcrumb items={[
               { title: 'CONSTRUSMART' },
@@ -185,7 +186,7 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
           <Space size="middle">
             <Badge count={notificacionesNoLeidas} size="small">
-              <BellOutlined style={{ fontSize: 18, color: '#64748b', cursor: 'pointer' }}
+              <BellOutlined style={{ fontSize: 18, color: token.colorTextSecondary, cursor: 'pointer' }}
                 onClick={() => setView('notificaciones')} />
             </Badge>
 

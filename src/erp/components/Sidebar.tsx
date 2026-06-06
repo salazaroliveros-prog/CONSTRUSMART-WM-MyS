@@ -123,13 +123,13 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
   return (
     <>
       {open && <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={onClose} />}
-      <aside className={`fixed lg:sticky top-0 lg:top-[60px] left-0 h-screen lg:h-[calc(100vh-60px)] ${collapsed ? 'w-16' : 'w-60'} bg-white border-r border-slate-100 z-50 transition-all lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>
+      <aside className={`fixed lg:sticky top-0 lg:top-[60px] left-0 h-screen lg:h-[calc(100vh-60px)] ${collapsed ? 'w-16' : 'w-60'} bg-sidebar border-r border-sidebar-border z-50 transition-all lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>
         <div className="flex items-center justify-between p-4 lg:hidden">
-          <span className="font-bold text-slate-700">Módulos</span>
+          <span className="font-bold text-sidebar-foreground">Módulos</span>
           <button onClick={onClose} aria-label="Cerrar menú"><X className="w-5 h-5" /></button>
         </div>
         <div className="px-4 pt-4 pb-2 hidden lg:block flex-shrink-0">
-          <span className="text-[10px] uppercase tracking-wide text-slate-400 font-semibold">
+          <span className="text-[10px] uppercase tracking-wide text-sidebar-foreground/60 font-semibold">
             {collapsed ? user?.rol?.charAt(0).toUpperCase() : `Rol: ${user?.rol}`}
           </span>
         </div>
@@ -147,8 +147,8 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                 <button
                   onClick={() => collapsed ? null : toggleGrupo(grupo.id)}
                   className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors
-                    ${collapsed ? 'justify-center text-slate-400' : 'text-slate-500 hover:text-slate-700'}
-                    ${!collapsed && 'hover:bg-slate-50'}`}
+                    ${collapsed ? 'justify-center text-sidebar-foreground/60' : 'text-sidebar-foreground/70 hover:text-sidebar-foreground'}
+                    ${!collapsed && 'hover:bg-sidebar-accent'}`}
                   title={collapsed ? t(grupo.labelKey) : undefined}
                 >
                   <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -162,7 +162,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
 
                 {/* Sub-items del grupo */}
                 {(!collapsed && expanded) && (
-                  <div className="ml-1 pl-3 border-l-2 border-slate-100 space-y-0.5 mb-1">
+                  <div className="ml-1 pl-3 border-l-2 border-sidebar-border space-y-0.5 mb-1">
                     {itemsVisibles.map(sub => {
                       const active = activeView === sub.id;
                       return (
@@ -171,11 +171,11 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                           onClick={() => { setView(sub.id); onClose(); }}
                           className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap
                             ${active
-                              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-sm'
-                              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                              ? 'bg-primary text-primary-foreground shadow-sm'
+                              : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                             }`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${active ? 'bg-white' : 'bg-slate-300'}`} />
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${active ? 'bg-primary-foreground' : 'bg-sidebar-foreground/40'}`} />
                           {t(`nav.items.${sub.id}`)}
                         </button>
                       );
@@ -188,7 +188,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                   <button
                     onClick={() => setView(itemsVisibles[0].id)}
                     className={`w-full flex items-center justify-center py-2 rounded-lg text-[10px] font-medium transition-colors
-                      ${activeView === itemsVisibles[0].id ? 'text-orange-500' : 'text-slate-400 hover:text-slate-600'}`}
+                      ${activeView === itemsVisibles[0].id ? 'text-primary' : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'}`}
                     title={t(`nav.items.${itemsVisibles[0].id}`)}
                   >
                     <Icon className="w-4 h-4" />
@@ -200,14 +200,14 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
         </nav>
 
         <div className="hidden lg:block flex-shrink-0 px-3 pb-3">
-          <button onClick={toggleCollapse} className="w-full flex items-center justify-center py-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-colors">
+          <button onClick={toggleCollapse} aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'} className="w-full flex items-center justify-center py-2 rounded-xl text-sidebar-foreground/60 hover:bg-sidebar-accent transition-colors">
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
         </div>
         {!collapsed && (
-          <div className="flex-shrink-0 mx-3 mb-3 bg-slate-900 rounded-xl p-3 text-white">
+          <div className="flex-shrink-0 mx-3 mb-3 bg-sidebar rounded-xl p-3 text-sidebar-foreground">
             <div className="text-xs font-bold">{t('ajustes.constructora_wm')}</div>
-            <div className="text-[10px] text-orange-300 italic">{t('ajustes.eslogan')}</div>
+            <div className="text-[10px] text-sidebar-primary italic">{t('ajustes.eslogan')}</div>
           </div>
         )}
       </aside>

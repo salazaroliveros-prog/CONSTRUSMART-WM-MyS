@@ -55,21 +55,21 @@ const Calendar: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 h-full flex flex-col overflow-hidden">
+    <div className="bg-card rounded-2xl p-3 shadow-sm border border-border h-full flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-2 flex-shrink-0">
-        <span className="font-bold text-slate-700 text-sm capitalize">{monthName}</span>
+        <span className="font-bold text-foreground text-sm capitalize">{monthName}</span>
         <div className="flex gap-1">
-          <button onClick={() => setCursor(new Date(year, month - 1, 1))} className="p-1 hover:bg-slate-100 rounded">
+          <button onClick={() => setCursor(new Date(year, month - 1, 1))} className="p-1 hover:bg-muted rounded">
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <button onClick={() => setCursor(new Date(year, month + 1, 1))} className="p-1 hover:bg-slate-100 rounded">
+          <button onClick={() => setCursor(new Date(year, month + 1, 1))} className="p-1 hover:bg-muted rounded">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
       <div className="grid grid-cols-7 gap-1 text-center">
         {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((d, i) => (
-          <div key={i} className="text-[10px] font-semibold text-slate-400">{d}</div>
+          <div key={i} className="text-[10px] font-semibold text-muted-foreground">{d}</div>
         ))}
         {Array.from({ length: first }).map((_, i) => <div key={'e' + i} />)}
         {Array.from({ length: days }).map((_, i) => {
@@ -78,9 +78,9 @@ const Calendar: React.FC = () => {
           const hasEv = eventos.some(e => e.fecha === di);
           const isToday = di === todayIsoVal;
           return (
-            <button key={d} onClick={() => setSel(di)} className={`aspect-square text-xs rounded-lg flex flex-col items-center justify-center relative transition-colors ${sel === di ? 'bg-orange-500 text-white' : isToday ? 'bg-orange-100 text-orange-700 font-bold' : 'hover:bg-slate-100 text-slate-600'}`}>
+            <button key={d} onClick={() => setSel(di)} className={`aspect-square text-xs rounded-lg flex flex-col items-center justify-center relative transition-colors ${sel === di ? 'bg-primary text-primary-foreground' : isToday ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted text-foreground/70'}`}>
               {d}
-              {hasEv && <span className={`w-1 h-1 rounded-full absolute bottom-1 ${sel === di ? 'bg-white' : 'bg-orange-500'}`} />}
+              {hasEv && <span className={`w-1 h-1 rounded-full absolute bottom-1 ${sel === di ? 'bg-primary-foreground' : 'bg-primary'}`} />}
             </button>
           );
         })}
@@ -88,27 +88,27 @@ const Calendar: React.FC = () => {
 
       <div className="mt-2 overflow-y-auto flex-1 min-h-0 space-y-2">
         <div className="space-y-3">
-          <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50">
+          <div className="rounded-2xl border border-border p-4 bg-muted">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-600">{t('common.proximas_actividades')}</span>
-              <span className="text-[10px] text-slate-400">{upcoming.length} {t('common.agenda')}</span>
+              <span className="text-xs font-semibold text-foreground/80">{t('common.proximas_actividades')}</span>
+              <span className="text-[10px] text-muted-foreground">{upcoming.length} {t('common.agenda')}</span>
             </div>
             {upcoming.length === 0 ? (
-              <p className="text-xs text-slate-400">{t('common.no_recordatorios')}</p>
+              <p className="text-xs text-muted-foreground">{t('common.no_recordatorios')}</p>
             ) : (
               <div className="space-y-2">
                 {upcoming.map(evento => (
-                  <div key={evento.id} className="rounded-2xl bg-white border border-slate-200 p-3">
+                  <div key={evento.id} className="rounded-2xl bg-card border border-border p-3">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div>
-                        <p className="text-[11px] font-semibold text-slate-800">{evento.titulo}</p>
-                        <p className="text-[10px] text-slate-500">{evento.fecha} • {evento.hora || '09:00'}</p>
+                        <p className="text-[11px] font-semibold text-foreground">{evento.titulo}</p>
+                        <p className="text-[10px] text-muted-foreground">{evento.fecha} • {evento.hora || '09:00'}</p>
                       </div>
-                      <span className="text-[10px] text-slate-500">{evento.tipo || 'Actividad'}</span>
+                      <span className="text-[10px] text-muted-foreground">{evento.tipo || 'Actividad'}</span>
                     </div>
-                    <div className="flex flex-wrap gap-2 text-[10px] text-slate-500">
-                      {evento.proyectoId && <span className="rounded-full bg-slate-100 px-2 py-1">{proyectos.find(p => p.id === evento.proyectoId)?.nombre.split(' ')[0]}</span>}
-                      {evento.descripcion && <span className="rounded-full bg-orange-100 px-2 py-1 text-orange-600">{t('common.con_notas')}</span>}
+                    <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
+                      {evento.proyectoId && <span className="rounded-full bg-muted px-2 py-1">{proyectos.find(p => p.id === evento.proyectoId)?.nombre.split(' ')[0]}</span>}
+                      {evento.descripcion && <span className="rounded-full bg-primary/10 px-2 py-1 text-primary">{t('common.con_notas')}</span>}
                     </div>
                   </div>
                 ))}
@@ -116,10 +116,10 @@ const Calendar: React.FC = () => {
             )}
           </div>
 
-          <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50">
+          <div className="rounded-2xl border border-border p-4 bg-muted">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-600">{t('common.crear_recordatorio')}</span>
-              <span className="text-[10px] text-slate-400">{t('common.fecha')}: {sel || t('common.ninguno')}</span>
+              <span className="text-xs font-semibold text-foreground/80">{t('common.crear_recordatorio')}</span>
+              <span className="text-[10px] text-muted-foreground">{t('common.fecha')}: {sel || t('common.ninguno')}</span>
             </div>
             <div className="space-y-2">
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -127,27 +127,27 @@ const Calendar: React.FC = () => {
                   value={titulo}
                   onChange={e => setTitulo(e.target.value)}
                   placeholder={t('common.titulo')}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-border outline-none focus:border-ring"
                 />
                 <input
                   type="time"
                   value={hora}
                   onChange={e => setHora(e.target.value)}
                   placeholder="00:00"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-border outline-none focus:border-ring"
                 />
               </div>
               <textarea
                 value={descripcion}
                 onChange={e => setDescripcion(e.target.value)}
                 placeholder={t('common.descripcion')}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400 min-h-[80px] resize-none"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-border outline-none focus:border-ring min-h-[80px] resize-none"
               />
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <select
                   value={tipo}
                   onChange={e => setTipo(e.target.value as 'Recordatorio' | 'Actividad' | 'Reunión' | 'Visita')}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-border outline-none focus:border-ring bg-card"
                 >
                   <option value="Recordatorio">Recordatorio</option>
                   <option value="Actividad">Actividad</option>
@@ -157,7 +157,7 @@ const Calendar: React.FC = () => {
                 <select
                   value={proyectoSel || ''}
                   onChange={e => setProyectoSel(e.target.value || null)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-orange-400"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-border outline-none focus:border-ring bg-card"
                 >
                   <option value="">{t('common.sin_proyecto')}</option>
                   {proyectos.map(p => (
@@ -168,7 +168,7 @@ const Calendar: React.FC = () => {
               <button
                 onClick={handleAddEvento}
                 disabled={!titulo.trim() || !sel}
-                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-white rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-primary-foreground rounded-xl bg-primary hover:bg-primary/90 disabled:opacity-50"
               >
                 <Plus className="w-4 h-4" /> {t('common.guardar')}
               </button>
@@ -177,28 +177,28 @@ const Calendar: React.FC = () => {
         </div>
 
         <div className="space-y-3">
-          <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50 h-full">
+          <div className="rounded-2xl border border-border p-4 bg-muted h-full">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-600">{t('common.proximas_actividades')}</span>
-              <span className="text-[10px] text-slate-400">{sel || t('common.elige_dia')}</span>
+              <span className="text-xs font-semibold text-foreground/80">{t('common.proximas_actividades')}</span>
+              <span className="text-[10px] text-muted-foreground">{sel || t('common.elige_dia')}</span>
             </div>
             {sel ? (
               selEventos.length === 0 ? (
-                <p className="text-xs text-slate-400">{t('common.fecha_libre')}</p>
+                <p className="text-xs text-muted-foreground">{t('common.fecha_libre')}</p>
               ) : (
                 <div className="space-y-2">
                   {selEventos.map(e => (
-                    <div key={e.id} className="rounded-2xl border border-slate-200 bg-white p-3">
+                    <div key={e.id} className="rounded-2xl border border-border bg-card p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[11px] font-semibold text-slate-800">{e.titulo}</span>
-                            <span className="text-[10px] text-slate-500">{e.hora || '09:00'}</span>
+                            <span className="text-[11px] font-semibold text-foreground">{e.titulo}</span>
+                            <span className="text-[10px] text-muted-foreground">{e.hora || '09:00'}</span>
                           </div>
-                          <p className="text-[10px] text-slate-500 mb-1">{e.tipo || 'Actividad'}</p>
-                          {e.descripcion && <p className="text-[10px] text-slate-400">{e.descripcion}</p>}
+                          <p className="text-[10px] text-muted-foreground mb-1">{e.tipo || 'Actividad'}</p>
+                          {e.descripcion && <p className="text-[10px] text-muted-foreground/70">{e.descripcion}</p>}
                           {e.proyectoId && (
-                            <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-[10px] text-slate-600 mt-2">
+                            <span className="inline-flex rounded-full bg-muted px-2 py-1 text-[10px] text-foreground/80 mt-2">
                               {proyectos.find(p => p.id === e.proyectoId)?.nombre || 'Proyecto'}
                             </span>
                           )}
@@ -206,11 +206,11 @@ const Calendar: React.FC = () => {
                         <div className="flex flex-col items-end gap-2">
                           <button
                             onClick={() => handleToggleCompleted(e.id, e.completado)}
-                            className={`text-[10px] px-2 py-1 rounded-full ${e.completado ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}
+                            className={`text-[10px] px-2 py-1 rounded-full ${e.completado ? 'bg-success/10 text-success' : 'bg-muted text-foreground/70'}`}
                           >
                             <Check className="w-3 h-3 inline-block mr-1" />{e.completado ? t('common.completado') : t('common.marcar_hecho')}
                           </button>
-                          <button onClick={() => deleteEvento(e.id)} className="text-[10px] text-red-500 hover:text-red-600">{t('common.eliminar')}</button>
+                          <button onClick={() => deleteEvento(e.id)} className="text-[10px] text-destructive hover:text-destructive/80">{t('common.eliminar')}</button>
                         </div>
                       </div>
                     </div>
@@ -218,29 +218,29 @@ const Calendar: React.FC = () => {
                 </div>
               )
             ) : (
-              <p className="text-xs text-slate-400">{t('common.selecciona_dia')}</p>
+              <p className="text-xs text-muted-foreground">{t('common.selecciona_dia')}</p>
             )}
           </div>
 
-          <div className="rounded-2xl border border-slate-100 p-4 bg-slate-50">
-            <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><Users className="w-3 h-3" /> {t('common.disponibilidad_proyecto')}</span>
+          <div className="rounded-2xl border border-border p-4 bg-muted">
+            <span className="text-xs font-semibold text-foreground/80 flex items-center gap-1"><Users className="w-3 h-3" /> {t('common.disponibilidad_proyecto')}</span>
             <div className="mt-2 space-y-2">
               {proyectos.length === 0 ? (
-                <p className="text-[10px] text-slate-400">{t('common.sin_proyectos')}</p>
+                <p className="text-[10px] text-muted-foreground">{t('common.sin_proyectos')}</p>
               ) : (
                 proyectos.slice(0, 5).map(p => {
                   const count = empleados.filter(e => e.proyectoIds?.includes(p.id)).length;
                   return (
                     <div key={p.id} className="flex items-center justify-between">
-                      <span className="text-[10px] text-slate-600 truncate max-w-[120px]">{p.nombre}</span>
-                      <span className={`text-[10px] font-semibold ${count > 0 ? 'text-emerald-600' : 'text-slate-300'}`}>
+                      <span className="text-[10px] text-foreground/80 truncate max-w-[120px]">{p.nombre}</span>
+                      <span className={`text-[10px] font-semibold ${count > 0 ? 'text-success' : 'text-muted-foreground/40'}`}>
                         {count} {count === 1 ? t('common.persona') : t('common.personas')}
                       </span>
                     </div>
                   );
                 })
               )}
-              {proyectos.length > 5 && <p className="text-[10px] text-slate-400">{t('common.proyectos_mas', { n: proyectos.length - 5 })}</p>}
+              {proyectos.length > 5 && <p className="text-[10px] text-muted-foreground">{t('common.proyectos_mas', { n: proyectos.length - 5 })}</p>}
             </div>
           </div>
         </div>

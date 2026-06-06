@@ -41,10 +41,10 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
   const initials = (user?.nombre || 'WM').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 
   return (
-    <header className="bg-slate-900/80 backdrop-blur-md text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sticky top-0 z-30 shadow-lg">
+    <header className="bg-sidebar/80 backdrop-blur-md text-sidebar-foreground px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sticky top-0 z-30 shadow-lg">
       <div className="flex items-center gap-3 min-w-0">
         {onMenu && (
-          <button onClick={onMenu} className="lg:hidden p-1.5 hover:bg-white/10 rounded-lg">
+          <button onClick={onMenu} aria-label="Abrir menú" className="lg:hidden p-1.5 hover:bg-sidebar-accent rounded-lg">
             <Menu className="w-5 h-5" />
           </button>
         )}
@@ -67,7 +67,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         <div className="text-[10px] text-slate-400 capitalize">{now.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
       </div>
 
-      <button onClick={() => setView('notificaciones')} className="relative p-2 hover:bg-white/10 rounded-lg" title={t('notificaciones.titulo')}>
+      <button onClick={() => setView('notificaciones')} aria-label={t('notificaciones.titulo')} className="relative p-2 hover:bg-sidebar-accent rounded-lg" title={t('notificaciones.titulo')}>
         <Bell className="w-5 h-5" />
         {notificacionesNoLeidas > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
@@ -77,18 +77,18 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
       </button>
       <div className="flex items-center gap-2">
         {view !== 'dashboard' && (
-          <button onClick={() => setView('dashboard')} className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-medium">
+          <button onClick={() => setView('dashboard')} aria-label={t('common.volver_tablero')} className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-sidebar-accent hover:bg-sidebar-accent/80 rounded-lg text-xs font-medium">
             <Home className="w-4 h-4" /> {t('common.volver_tablero')}
           </button>
         )}
         <div className="flex items-center gap-2">
-          <button onClick={onPick} className="relative" title="Cambiar foto">
+          <button onClick={onPick} className="relative" aria-label="Cambiar foto">
             {avatarSrc ? (
-              <img src={avatarSrc} alt="avatar" className="w-9 h-9 rounded-full object-cover border border-white/20" />
+              <img src={avatarSrc} alt={user?.nombre || 'Avatar'} className="w-9 h-9 rounded-full object-cover border border-sidebar-border" />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-xs font-bold">{initials}</div>
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold">{initials}</div>
             )}
-            <span className="absolute -bottom-1 -right-1 bg-slate-800 rounded-full p-0.5 border border-white/20">
+            <span className="absolute -bottom-1 -right-1 bg-sidebar rounded-full p-0.5 border border-sidebar-border">
               <Upload className="w-3 h-3" />
             </span>
           </button>
@@ -98,7 +98,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
             <div className="text-[10px] text-slate-400">{user?.rol}</div>
           </div>
         </div>
-        <button onClick={logout} title="Salir" className="p-2 hover:bg-red-500/20 text-red-300 rounded-lg">
+        <button onClick={logout} aria-label="Cerrar sesión" className="p-2 hover:bg-destructive/20 text-destructive rounded-lg">
           <LogOut className="w-4 h-4" />
         </button>
       </div>

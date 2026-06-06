@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -33,7 +33,13 @@
     --destructive-foreground: 0 0% 100%;
 
     --success: 152 55% 42%;
+    --success-foreground: 0 0% 100%;
     --warning: 38 90% 55%;
+    --warning-foreground: 0 0% 9%;
+    --info: 217 100% 50%;
+    --info-foreground: 0 0% 100%;
+    --pending: 30 100% 50%;
+    --pending-foreground: 0 0% 100%;
 
     --border: 30 12% 90%;
     --input: 30 12% 90%;
@@ -67,8 +73,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 24 80% 58%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -76,15 +82,24 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 170 45% 58%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
+    --success: 152 100% 50%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 100% 60%;
+    --warning-foreground: 0 0% 9%;
+    --info: 200 100% 55%;
+    --info-foreground: 0 0% 100%;
+    --pending: 24 100% 60%;
+    --pending-foreground: 0 0% 100%;
+
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --ring: 24 80% 58%;
 
     --sidebar-background: 215 28% 17%;
     --sidebar-foreground: 210 40% 98%;
@@ -114,6 +129,17 @@
 
   pre, code {
     @apply font-mono;
+  }
+}
+
+@layer utilities {
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
