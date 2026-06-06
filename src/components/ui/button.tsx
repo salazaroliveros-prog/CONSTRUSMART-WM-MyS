@@ -19,15 +19,15 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         success:
-          "bg-emerald-500 text-white hover:bg-emerald-600",
+          "bg-success text-success-foreground hover:bg-success/90",
         warning:
-          "bg-amber-500 text-white hover:bg-amber-600",
+          "bg-warning text-warning-foreground hover:bg-warning/90",
       },
       size: {
-        default: "h-11 px-4 py-2",
-        sm: "h-10 rounded-md px-3",
-        lg: "h-12 rounded-md px-8",
-        icon: "h-12 w-12",
+        default: "h-10 px-3 py-1.5 sm:h-11 sm:px-4 sm:py-2",
+        sm: "h-9 rounded-md px-2.5 text-xs sm:h-10 sm:px-3",
+        lg: "h-12 rounded-md px-6 sm:px-8 text-base",
+        icon: "h-10 w-10 sm:h-12 sm:w-12",
       },
     },
     defaultVariants: {

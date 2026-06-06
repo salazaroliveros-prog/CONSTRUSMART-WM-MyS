@@ -69,13 +69,13 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<RiseOutlined style={{ color: token.colorPrimary }} />} title="Seguimiento de Obra" subtitle="EVM, Gantt y bitácora" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} lg={6}><KpiCard title="Proyectos" value={proyectos.length} icon={<ProjectOutlined />} color={token.colorPrimary} /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Avance Físico Prom." value={proyectos.length ? +(proyectos.reduce((a, p) => a + p.avanceFisico, 0) / proyectos.length).toFixed(1) : 0} suffix="%" color="#3b82f6" /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Bitácoras" value={bitacora.length} icon={<FileTextOutlined />} /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Presupuestos" value={presupuestos.length} icon={<FileProtectOutlined />} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Proyectos" value={proyectos.length} icon={<ProjectOutlined />} color={token.colorPrimary} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Avance Físico Prom." value={proyectos.length ? +(proyectos.reduce((a, p) => a + p.avanceFisico, 0) / proyectos.length).toFixed(1) : 0} suffix="%" color="#3b82f6" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Bitácoras" value={bitacora.length} icon={<FileTextOutlined />} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Presupuestos" value={presupuestos.length} icon={<FileProtectOutlined />} /></Col>
           </Row>
           <Row gutter={[sp, sp]}>
-            <Col xs={24} lg={12}>
+            <Col xs={24} md={12} lg={12}>
               <Card title="Avance por Proyecto" size="small">
                 {proyectos.slice(0, 8).map(p => (
                   <div key={p.id} style={{ marginBottom: 12 }}>
@@ -85,7 +85,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
                 ))}
               </Card>
             </Col>
-            <Col xs={24} lg={12}>
+            <Col xs={24} md={12} lg={12}>
               <Card title="Bitácora Reciente" size="small">
                 <Timeline items={bitacora.slice(0, 6).map(b => ({
                   color: b.clima === 'lluvia' ? 'blue' : 'green',
@@ -110,9 +110,9 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
           <PageHeader icon={<TeamOutlined style={{ color: token.colorPrimary }} />} title="RRHH" subtitle={`${empleados.length} empleados`}
             extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditId(null); form.resetFields(); setShow(true); }}>Nuevo Empleado</Button>} />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={8}><KpiCard title="Total Empleados" value={empleados.length} icon={<TeamOutlined />} color={token.colorPrimary} /></Col>
-            <Col xs={8}><KpiCard title="Planilla Diaria" value={totalPlanilla} prefix="Q" color="#10b981" /></Col>
-            <Col xs={8}><KpiCard title="Promedio Salario" value={empleados.length ? totalPlanilla / empleados.length : 0} prefix="Q" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Total Empleados" value={empleados.length} icon={<TeamOutlined />} color={token.colorPrimary} /></Col>
+            <Col xs={12} md={8}><KpiCard title="Planilla Diaria" value={totalPlanilla} prefix="Q" color="#10b981" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Promedio Salario" value={empleados.length ? totalPlanilla / empleados.length : 0} prefix="Q" /></Col>
           </Row>
           <Table dataSource={empleados} rowKey="id" size="small" pagination={{ pageSize: 10 }}
             columns={[
@@ -154,9 +154,9 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<ShoppingCartOutlined style={{ color: token.colorPrimary }} />} title="Bodega" subtitle="Inventario, proveedores y OC" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={8}><KpiCard title="Materiales" value={materiales.length} icon={<ShoppingCartOutlined />} /></Col>
-            <Col xs={8}><KpiCard title="Stock Crítico" value={materiales.filter(m => m.stock <= m.stockMinimo).length} color="#ef4444" /></Col>
-            <Col xs={8}><KpiCard title="Proveedores" value={proveedores.length} icon={<TeamOutlined />} /></Col>
+            <Col xs={12} md={8}><KpiCard title="Materiales" value={materiales.length} icon={<ShoppingCartOutlined />} /></Col>
+            <Col xs={12} md={8}><KpiCard title="Stock Crítico" value={materiales.filter(m => m.stock <= m.stockMinimo).length} color="#ef4444" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Proveedores" value={proveedores.length} icon={<TeamOutlined />} /></Col>
           </Row>
           <Tabs activeKey={tab} onChange={setTab} items={items} />
           {tab === 'stock' && (
@@ -207,9 +207,9 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<FileProtectOutlined style={{ color: token.colorPrimary }} />} title="Presupuestos" subtitle="APU Engine" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={8}><KpiCard title="Presupuestos" value={presupuestos.length} /></Col>
-            <Col xs={8}><KpiCard title="Aprobados" value={presupuestos.filter(p => p.estado === 'aprobado').length} color="#10b981" /></Col>
-            <Col xs={8}><KpiCard title="Total Calculado" value={presupuestos.reduce((s, p) => s + (p.totalCalculado || 0), 0)} prefix="Q" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Presupuestos" value={presupuestos.length} /></Col>
+            <Col xs={12} md={8}><KpiCard title="Aprobados" value={presupuestos.filter(p => p.estado === 'aprobado').length} color="#10b981" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Total Calculado" value={presupuestos.reduce((s, p) => s + (p.totalCalculado || 0), 0)} prefix="Q" /></Col>
           </Row>
           <Table dataSource={presupuestos} rowKey="id" size="small" columns={pColumns} pagination={{ pageSize: 10 }} />
         </div>
@@ -222,7 +222,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<BarChartOutlined style={{ color: token.colorPrimary }} />} title="APU Avanzado" subtitle="Análisis de precios unitarios" />
           <Row gutter={[sp, sp]}>
-            <Col xs={24} lg={12}>
+            <Col xs={24} md={12} lg={12}>
               <Card title="Factores de Sobrecosto" size="small">
                 <Descriptions column={2} size="small" bordered>
                   <Descriptions.Item label="Costos Indirectos">12%</Descriptions.Item>
@@ -232,7 +232,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
                 </Descriptions>
               </Card>
             </Col>
-            <Col xs={24} lg={12}>
+            <Col xs={24} md={12} lg={12}>
               <Card title="Resumen" size="small">
                 <Progress type="dashboard" percent={75} strokeColor={token.colorPrimary} />
                 <Text type="secondary" style={{ display: 'block', textAlign: 'center', marginTop: 8 }}>Eficiencia general</Text>
@@ -251,7 +251,7 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
           <PageHeader icon={<LineChartOutlined style={{ color: token.colorPrimary }} />} title="Curvas S" subtitle="Programado vs Real" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
             {proyectos.slice(0, 4).map((p, i) => (
-              <Col xs={12} lg={6} key={p.id}>
+              <Col xs={12} md={8} lg={6} key={p.id}>
                 <Card size="small" title={<Text style={{ fontSize: 12 }}>{p.nombre}</Text>}>
                   <div style={{ height: 100, display: 'flex', alignItems: 'flex-end', gap: 2 }}>
                     {[20, 35, 50, 65, 78, 88].map((v, j) => (
@@ -323,13 +323,13 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<FileTextOutlined style={{ color: token.colorPrimary }} />} title="Reportes Técnicos" subtitle="Generación de informes" />
           <Row gutter={[sp, sp]}>
-            <Col xs={24} lg={8}>
+            <Col xs={24} md={12} lg={8}>
               <Card hoverable size="small"><Statistic title="Proyectos" value={proyectos.length} prefix={<ProjectOutlined />} /></Card>
             </Col>
-            <Col xs={24} lg={8}>
+            <Col xs={24} md={12} lg={8}>
               <Card hoverable size="small"><Statistic title="Movimientos" value={movimientos.length} prefix={<DollarOutlined />} /></Card>
             </Col>
-            <Col xs={24} lg={8}>
+            <Col xs={24} md={12} lg={8}>
               <Card hoverable size="small"><Statistic title="Presupuestos" value={presupuestos.length} prefix={<FileProtectOutlined />} /></Card>
             </Col>
           </Row>
@@ -344,10 +344,10 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<MessageOutlined style={{ color: token.colorPrimary }} />} title="Muro de Obra" subtitle="Red social de construcción" />
           <Row gutter={[sp, sp]}>
-            <Col xs={24} lg={16}>
+            <Col xs={24} md={12} lg={16}>
               <Card size="small"><List dataSource={[]} locale={{ emptyText: <Empty description="Sin publicaciones aún" /> }} renderItem={() => null} /></Card>
             </Col>
-            <Col xs={24} lg={8}>
+            <Col xs={24} md={12} lg={8}>
               <Card title="Filtros" size="small">
                 <Space direction="vertical" style={{ width: '100%' }}>
                   <Tag color="blue">Avance</Tag>
@@ -393,14 +393,14 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
           <PageHeader icon={<BellOutlined style={{ color: token.colorPrimary }} />} title="Notificaciones"
             extra={<Button size="small" onClick={marcarTodasLeidas}>Marcar todas leídas</Button>} />
           <Row gutter={[sp, sp]}>
-            <Col xs={24} lg={6}>
+            <Col xs={24} md={12} lg={6}>
               <Card size="small" title="Filtros">
                 <Space direction="vertical">
                   {tipos.map(t => <Button key={t} type={filter === t ? 'primary' : 'text'} size="small" onClick={() => setFilter(t)}>{t === 'todas' ? 'Todas' : t}</Button>)}
                 </Space>
               </Card>
             </Col>
-            <Col xs={24} lg={18}>
+            <Col xs={24} md={18} lg={18}>
               <List dataSource={filtered} renderItem={n => (
                 <Card size="small" style={{ marginBottom: 8, opacity: n.leido ? 0.5 : 1 }}
                   onClick={() => markNotificacionLeida(n.id)} hoverable>
@@ -425,10 +425,10 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<SafetyOutlined style={{ color: token.colorPrimary }} />} title="SSO & Calidad" subtitle="Seguridad y control de calidad" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} lg={6}><KpiCard title="Días sin Accidentes" value={45} suffix="días" color="#10b981" /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Checklists OK" value="12" color="#3b82f6" /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Pruebas Realizadas" value="8" /></Col>
-            <Col xs={12} lg={6}><KpiCard title="NC Abiertas" value="3" color="#ef4444" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Días sin Accidentes" value={45} suffix="días" color="#10b981" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Checklists OK" value="12" color="#3b82f6" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Pruebas Realizadas" value="8" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="NC Abiertas" value="3" color="#ef4444" /></Col>
           </Row>
           <Tabs items={tabs} />
         </div>
@@ -460,9 +460,9 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<DownloadOutlined style={{ color: token.colorPrimary }} />} title="Exportación Inteligente" subtitle="Exporta datos en JSON, CSV, PDF" />
           <Row gutter={[sp, sp]}>
-            <Col xs={24} lg={8}><Card size="small" hoverable><Statistic title="Proyectos" value={proyectos.length} prefix={<ProjectOutlined />} /></Card></Col>
-            <Col xs={24} lg={8}><Card size="small" hoverable><Statistic title="Movimientos" value={movimientos.length} prefix={<DollarOutlined />} /></Card></Col>
-            <Col xs={24} lg={8}><Card size="small" hoverable><Statistic title="Materiales" value={materiales.length} prefix={<ShoppingCartOutlined />} /></Card></Col>
+            <Col xs={24} md={12} lg={8}><Card size="small" hoverable><Statistic title="Proyectos" value={proyectos.length} prefix={<ProjectOutlined />} /></Card></Col>
+            <Col xs={24} md={12} lg={8}><Card size="small" hoverable><Statistic title="Movimientos" value={movimientos.length} prefix={<DollarOutlined />} /></Card></Col>
+            <Col xs={24} md={12} lg={8}><Card size="small" hoverable><Statistic title="Materiales" value={materiales.length} prefix={<ShoppingCartOutlined />} /></Card></Col>
           </Row>
           <Card size="small" style={{ marginTop: 16 }}>
             <Space>
@@ -482,9 +482,9 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<TruckOutlined style={{ color: token.colorPrimary }} />} title="Logística y Compras" subtitle="Activos, cotizaciones, pagos" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={8}><KpiCard title="Activos" value={nm.activos.length} /></Col>
-            <Col xs={8}><KpiCard title="Pagos Vencidos" value={nm.pagosVencidos?.length || 0} color="#ef4444" /></Col>
-            <Col xs={8}><KpiCard title="Pagos Próximos" value={nm.pagosProximos?.length || 0} color="#f59e0b" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Activos" value={nm.activos.length} /></Col>
+            <Col xs={12} md={8}><KpiCard title="Pagos Vencidos" value={nm.pagosVencidos?.length || 0} color="#ef4444" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Pagos Próximos" value={nm.pagosProximos?.length || 0} color="#f59e0b" /></Col>
           </Row>
           <Tabs items={tabs} />
         </div>
@@ -509,10 +509,10 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<DollarOutlined style={{ color: token.colorPrimary }} />} title="Comercial / Finanzas" subtitle="Ventas, anticipos, cajas chicas" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} lg={6}><KpiCard title="Ventas" value={nm.ventas?.length || 0} icon={<DollarOutlined />} /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Anticipos" value={nm.anticipos?.length || 0} /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Cajas Chicas" value={nm.cajasChicas?.length || 0} /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Total Cajas" value={nm.cajasChicas?.reduce((s: number, c: any) => s + (c.monto || 0), 0) || 0} prefix="Q" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Ventas" value={nm.ventas?.length || 0} icon={<DollarOutlined />} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Anticipos" value={nm.anticipos?.length || 0} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Cajas Chicas" value={nm.cajasChicas?.length || 0} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Total Cajas" value={nm.cajasChicas?.reduce((s: number, c: any) => s + (c.monto || 0), 0) || 0} prefix="Q" /></Col>
           </Row>
           <Tabs items={tabs} />
         </div>
@@ -526,8 +526,8 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<SettingOutlined style={{ color: token.colorPrimary }} />} title="Administración del Sistema" subtitle="Centros de costo y auditoría" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} lg={6}><KpiCard title="Centros Costo" value={nm.centrosCosto?.length || 0} /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Total Presupuestado" value={nm.centrosCosto?.reduce((s: number, c: any) => s + (c.presupuesto || 0), 0) || 0} prefix="Q" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Centros Costo" value={nm.centrosCosto?.length || 0} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Total Presupuestado" value={nm.centrosCosto?.reduce((s: number, c: any) => s + (c.presupuesto || 0), 0) || 0} prefix="Q" /></Col>
           </Row>
           <Tabs items={tabs} />
         </div>
@@ -563,10 +563,10 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<PercentageOutlined style={{ color: token.colorPrimary }} />} title="Impuestos" subtitle="ISR 25% · IVA 12%" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} lg={6}><KpiCard title="Ingresos" value={ingresos} prefix="Q" color="#10b981" /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Gastos" value={gastos} prefix="Q" color="#ef4444" /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Utilidad" value={utilidad} prefix="Q" color={utilidad > 0 ? '#10b981' : '#ef4444'} /></Col>
-            <Col xs={12} lg={6}><KpiCard title="ISR Estimado" value={isr} prefix="Q" color="#f59e0b" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Ingresos" value={ingresos} prefix="Q" color="#10b981" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Gastos" value={gastos} prefix="Q" color="#ef4444" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Utilidad" value={utilidad} prefix="Q" color={utilidad > 0 ? '#10b981' : '#ef4444'} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="ISR Estimado" value={isr} prefix="Q" color="#f59e0b" /></Col>
           </Row>
           <Card size="small">
             <Descriptions column={3} bordered size="small">
@@ -588,10 +588,10 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<AlertOutlined style={{ color: token.colorPrimary }} />} title="Gestión de Riesgos" subtitle="Matriz de probabilidad e impacto" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} lg={6}><KpiCard title="Riesgos Altos" value="0" color="#ef4444" /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Riesgos Medios" value="0" color="#f59e0b" /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Riesgos Bajos" value="0" color="#10b981" /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Total" value="0" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Riesgos Altos" value="0" color="#ef4444" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Riesgos Medios" value="0" color="#f59e0b" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Riesgos Bajos" value="0" color="#10b981" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Total" value="0" /></Col>
           </Row>
           <Table dataSource={[]} rowKey="id" size="small" locale={{ emptyText: <Empty description="Registra riesgos desde el módulo" /> }}
             columns={[ColDef('Riesgo', 'nombre', (t: string) => <Text strong>{t}</Text>),
@@ -623,9 +623,9 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<CreditCardOutlined style={{ color: token.colorPrimary }} />} title="Cuentas por Cobrar" subtitle="Gestión de cuentas pendientes" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={8}><KpiCard title="Pendientes" value="0" color="#ef4444" /></Col>
-            <Col xs={8}><KpiCard title="Cobradas" value="0" color="#10b981" /></Col>
-            <Col xs={8}><KpiCard title="Total" value="Q0" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Pendientes" value="0" color="#ef4444" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Cobradas" value="0" color="#10b981" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Total" value="Q0" /></Col>
           </Row>
           <Table dataSource={[]} rowKey="id" size="small" locale={{ emptyText: <Empty description="Sin cuentas por cobrar" /> }}
             columns={[ColDef('Cliente', 'cliente', (t: string) => <Text strong>{t}</Text>),
@@ -643,9 +643,9 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<ReconciliationOutlined style={{ color: token.colorPrimary }} />} title="Cuentas por Pagar" subtitle="Gestión de obligaciones" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={8}><KpiCard title="Pendientes" value="0" color="#ef4444" /></Col>
-            <Col xs={8}><KpiCard title="Pagadas" value="0" color="#10b981" /></Col>
-            <Col xs={8}><KpiCard title="Total" value="Q0" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Pendientes" value="0" color="#ef4444" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Pagadas" value="0" color="#10b981" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Total" value="Q0" /></Col>
           </Row>
           <Table dataSource={[]} rowKey="id" size="small" locale={{ emptyText: <Empty description="Sin cuentas por pagar" /> }}
             columns={[ColDef('Proveedor', 'proveedor', (t: string) => <Text strong>{t}</Text>),
@@ -700,10 +700,10 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<ThunderboltOutlined style={{ color: token.colorPrimary }} />} title="Dashboard Predictivo" subtitle="EVM, EAC, pronósticos" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} lg={6}><KpiCard title="BAC" value={totalPresupuesto} prefix="Q" color="#3b82f6" /></Col>
-            <Col xs={12} lg={6}><KpiCard title="EAC" value={eac} prefix="Q" color={eac > totalPresupuesto ? '#ef4444' : '#10b981'} /></Col>
-            <Col xs={12} lg={6}><KpiCard title="CPI" value={totalGastos > 0 ? +(totalPresupuesto / totalGastos).toFixed(2) : 1} color="#f59e0b" /></Col>
-            <Col xs={12} lg={6}><KpiCard title="Sobrecosto" value={Math.max(0, totalGastos - totalPresupuesto)} prefix="Q" color="#ef4444" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="BAC" value={totalPresupuesto} prefix="Q" color="#3b82f6" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="EAC" value={eac} prefix="Q" color={eac > totalPresupuesto ? '#ef4444' : '#10b981'} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="CPI" value={totalGastos > 0 ? +(totalPresupuesto / totalGastos).toFixed(2) : 1} color="#f59e0b" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Sobrecosto" value={Math.max(0, totalGastos - totalPresupuesto)} prefix="Q" color="#ef4444" /></Col>
           </Row>
           <div style={{ textAlign: 'center', padding: 40 }}>
             <Progress type="dashboard" percent={Math.min(100, (totalGastos / Math.max(totalPresupuesto, 1)) * 100)} strokeColor={token.colorPrimary} size={200} />

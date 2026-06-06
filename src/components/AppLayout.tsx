@@ -61,13 +61,15 @@ const LazyScreen: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 // Transición suave entre módulos (Shadcn mode)
 const FadeView: React.FC<{ view: string; children: React.ReactNode }> = ({ view, children }) => {
   const [visible, setVisible] = React.useState(false);
+  const { appSettings } = useErp();
   useEffect(() => {
     setVisible(false);
     const t = setTimeout(() => setVisible(true), 50);
     return () => clearTimeout(t);
   }, [view]);
+  const animEnabled = appSettings?.animationsEnabled !== false;
   return (
-    <div className={`transition-all duration-200 ease-in-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'}`}>
+    <div className={`${animEnabled ? 'transition-all duration-300 ease-in-out' : ''} ${visible ? 'opacity-100 translate-y-0' : animEnabled ? 'opacity-0 translate-y-1' : ''}`}>
       {children}
     </div>
   );
@@ -97,8 +99,8 @@ const buildAntdThemeConfig = (appSettings: any) => {
     },
     components: {
       Menu: {
-        colorItemBg: '#1e293b',
-        colorItemText: '#94a3b8',
+        colorItemBg: 'transparent',
+        colorItemText: 'hsl(210 20% 70%)',
         colorItemTextSelected: appSettings.primaryColor,
         colorItemBgSelected: `${appSettings.primaryColor}26`,
         borderRadius: isModerno ? 6 : 8,
@@ -129,11 +131,11 @@ const NoAccess: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { t } = useTranslation();
   return (
     <div className="min-h-[calc(100vh-60px)] flex flex-col items-center justify-center p-8 text-center">
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
-        <h2 className="text-xl font-semibold text-slate-900 mb-3">{t('common.sin_acceso')}</h2>
-        <p className="text-slate-600 mb-5">{t('common.sin_acceso_desc')}</p>
+      <div className="rounded-3xl border border-border bg-card p-8 shadow-lg">
+        <h2 className="text-xl font-semibold text-foreground mb-3">{t('common.sin_acceso')}</h2>
+        <p className="text-muted-foreground mb-5">{t('common.sin_acceso_desc')}</p>
         <button onClick={onBack}
-          className="inline-flex items-center justify-center rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600 transition">
+          className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition">
           {t('common.volver_tablero')}
         </button>
       </div>
@@ -198,18 +200,19 @@ const ShadcnShell: React.FC<{ view: string; screenContent: React.ReactNode }> = 
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       <Header onMenu={toggleSidebar} />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar open={sidebarOpen} onClose={toggleSidebar} />
+        <Sidebar 
+          open={sidebarOpen} 
+          onClose={toggleSidebar} 
+          aria-label="Menú de navegación principal"
+          id="sidebar-navigation"
+        />
         <main className={`flex-1 min-w-0 overflow-auto transition-all ${sidebarCollapsed ? 'lg:ml-0' : ''}`}>
           <Suspense fallback={<LoaderSpinner size={60} text="Cargando módulo..." />}>
             <FadeView key={view} view={view}><ErrorBoundary>{screenContent}</ErrorBoundary></FadeView>
           </Suspense>
         </main>
       </div>
-      <style>{`
-        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-        .transition-opacity{transition-property:opacity}
-        .transition-transform{transition-property:transform}
-      `}</style>
+      
     </div>
   );
 };
