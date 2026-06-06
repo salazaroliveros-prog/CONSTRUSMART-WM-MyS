@@ -164,14 +164,14 @@ const Rendimientos: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-          <BarChart3 className="w-6 h-6 text-emerald-500" /> Control de Rendimientos
+        <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
+          <BarChart3 className="w-6 h-6 text-success" /> Control de Rendimientos
         </h1>
         <div className="flex gap-2">
           <select
             value={proyectoId}
             onChange={e => setProyectoId(e.target.value)}
-            className="text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-emerald-400 bg-white"
+            className="text-xs px-3 py-2 rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground"
           >
             <option value="">— Todos los proyectos —</option>
             {proyectos.filter(p => p.estado !== 'finalizado').map(p => (
@@ -180,7 +180,7 @@ const Rendimientos: React.FC = () => {
           </select>
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
+            className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-success text-success-foreground hover:bg-success/90 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> Capturar
           </button>
@@ -189,71 +189,71 @@ const Rendimientos: React.FC = () => {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-[10px] text-slate-400">Capturas Registradas</div>
-          <div className="text-lg font-bold text-slate-800">{totalCapturas}</div>
+        <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
+          <div className="text-[10px] text-muted-foreground">Capturas Registradas</div>
+          <div className="text-lg font-bold text-foreground">{totalCapturas}</div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-[10px] text-slate-400">Actividades Monitorizadas</div>
-          <div className="text-lg font-bold text-slate-800">{comparativa.length}</div>
+        <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
+          <div className="text-[10px] text-muted-foreground">Actividades Monitorizadas</div>
+          <div className="text-lg font-bold text-foreground">{comparativa.length}</div>
         </div>
-        <div className={`rounded-xl p-3 border ${totalAlertas > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-100'}`}>
-          <div className="text-[10px] text-slate-400">Alertas de Rendimiento</div>
-          <div className={`text-lg font-bold ${totalAlertas > 0 ? 'text-red-600' : 'text-slate-800'}`}>
+        <div className={`rounded-xl p-3 border ${totalAlertas > 0 ? 'bg-destructive/10 border-destructive/30' : 'bg-card border-border'}`}>
+          <div className="text-[10px] text-muted-foreground">Alertas de Rendimiento</div>
+          <div className={`text-lg font-bold ${totalAlertas > 0 ? 'text-destructive' : 'text-foreground'}`}>
             {totalAlertas} {totalAlertas > 0 && <span className="text-xs font-normal">{'(< 80%)'}</span>}
           </div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-[10px] text-slate-400">Proyecto Actual</div>
-          <div className="text-lg font-bold text-slate-800 truncate">{proyecto?.nombre || 'Todos'}</div>
+        <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
+          <div className="text-[10px] text-muted-foreground">Proyecto Actual</div>
+          <div className="text-lg font-bold text-foreground truncate">{proyecto?.nombre || 'Todos'}</div>
         </div>
       </div>
 
       {/* Grid: Comparativa + Capturas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Comparativa Teórico vs Real */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
-          <div className="p-3 border-b bg-slate-50">
-            <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
-              <Target className="w-4 h-4 text-emerald-500" /> Rendimiento Teórico vs Real
+        <div className="bg-card text-card-foreground rounded-2xl shadow-sm border border-border">
+          <div className="p-3 border-b border-border bg-muted">
+            <h2 className="font-bold text-foreground text-sm flex items-center gap-1.5">
+              <Target className="w-4 h-4 text-success" /> Rendimiento Teórico vs Real
             </h2>
           </div>
           {comparativa.length === 0 ? (
-            <div className="p-8 text-center text-sm text-slate-400">
-              <BarChart3 className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              <BarChart3 className="w-8 h-8 mx-auto mb-2 text-muted-foreground/60" />
               Aún no hay capturas para comparar
             </div>
           ) : (
-            <div className="divide-y divide-slate-50 max-h-[500px] overflow-y-auto">
+            <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
               {comparativa.map((item, i) => (
-                <div key={i} className="p-3 hover:bg-slate-50 transition-colors">
+                <div key={i} className="p-3 hover:bg-muted transition-colors">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-sm font-semibold text-slate-700 truncate">{item.actividad}</span>
+                      <span className="text-sm font-semibold text-foreground truncate">{item.actividad}</span>
                       {item.alerta && (
-                        <span className="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-medium animate-pulse">
+                        <span className="text-[9px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded-full font-medium animate-pulse">
                           bajo
                         </span>
                       )}
                     </div>
                     <span className={`text-xs font-bold shrink-0 ml-2 ${
-                      item.alerta ? 'text-red-500' : 'text-emerald-500'
+                      item.alerta ? 'text-destructive' : 'text-success'
                     }`}>
                       {item.pctEficiencia}%
                     </span>
                   </div>
                   {/* Barra de eficiencia */}
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${
-                          item.alerta ? 'bg-red-400' : 'bg-emerald-400'
+                          item.alerta ? 'bg-destructive' : 'bg-success'
                         }`}
                         style={{ width: `${Math.min(item.pctEficiencia, 100)}%` }}
                       />
                     </div>
                   </div>
-                  <div className="flex justify-between text-[10px] text-slate-400">
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
                     <span>
                       Real: {item.promedioReal} {item.unidad}/día · Teórico: {item.teorico} {item.unidad}/día
                     </span>
@@ -266,20 +266,20 @@ const Rendimientos: React.FC = () => {
         </div>
 
         {/* Capturas Recientes */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
-          <div className="p-3 border-b bg-slate-50">
+        <div className="bg-card text-card-foreground rounded-2xl shadow-sm border border-border">
+          <div className="p-3 border-b border-border bg-muted">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
-                <CalendarDays className="w-4 h-4 text-emerald-500" /> Capturas Diarias
+              <h2 className="font-bold text-foreground text-sm flex items-center gap-1.5">
+                <CalendarDays className="w-4 h-4 text-success" /> Capturas Diarias
               </h2>
               <div className="relative">
-                <Search className="absolute left-2 top-1.5 w-3.5 h-3.5 text-slate-400" />
+                <Search className="absolute left-2 top-1.5 w-3.5 h-3.5 text-muted-foreground" />
                 <input
                   value={searchActividad}
                   onChange={e => setSearchActividad(e.target.value)}
-                  placeholder="Buscar actividad..."
-                  className="pl-7 pr-3 py-1 text-xs rounded-lg border border-slate-200 outline-none focus:border-emerald-400 w-36"
-                />
+                   placeholder="Buscar actividad..."
+                   className="pl-7 pr-3 py-1 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground w-36"
+                 />
               </div>
             </div>
           </div>
