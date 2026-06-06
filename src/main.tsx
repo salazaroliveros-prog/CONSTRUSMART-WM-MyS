@@ -2,6 +2,8 @@ import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
 import App from './App.tsx'
 import './index.css'
+import './antd-global.css'
+import './styles/responsive.css'
 import './lib/i18n'
 import { applyThemeToDocument } from './utils/theme-generator'
 
