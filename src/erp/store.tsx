@@ -301,18 +301,7 @@ function saveToStorage<T>(key: string, data: T) {
     const tamano = new Blob([jsonData]).size;
     
     // No guardar datos vacíos o nulos (protege contra corrupción)
-    if (tamano === 0) {
-      console.warn(`[Storage] Intento de guardar datos vacíos para key: ${key}`);
-      return;
-    }
-    if (Array.isArray(data) && data.length === 0) {
-      console.warn(`[Storage] Intento de guardar array vacío para key: ${key}`);
-      return;
-    }
-    if (typeof data === 'object' && data !== null && !Array.isArray(data) && Object.keys(data).length === 0) {
-      console.warn(`[Storage] Intento de guardar objeto vacío para key: ${key}`);
-      return;
-    }
+    if (tamano === 0) return;
     
     // Limitar tamaño máximo por clave (500KB por entidad)
     const MAX_KEY_SIZE = 500 * 1024; // 500KB
@@ -1596,7 +1585,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const DEFAULT_SETTINGS: AppSettings = {
-    uiMode: (typeof window !== 'undefined' ? localStorage.getItem('wm_ui_mode') as UIMode : null) || 'shadcn',
+    uiMode: 'shadcn',
     appTheme: 'light',
     primaryColor: '#E8752F',
     language: 'es',
@@ -1608,9 +1597,10 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     fontSize: 'medium',
   };
 
-  const [appSettings, setAppSettings] = useState<AppSettings>(
-    () => loadFromStorage(BASE_STORAGE_KEY + '_settings', DEFAULT_SETTINGS)
-  );
+  const [appSettings, setAppSettings] = useState<AppSettings>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_settings', null);
+    return stored ? { ...DEFAULT_SETTINGS, ...stored } : DEFAULT_SETTINGS;
+  });
 
   const updateAppSettings = useCallback((patch: Partial<AppSettings>) => {
     setAppSettings(prev => {
