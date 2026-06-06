@@ -277,10 +277,10 @@ const CRM: React.FC = () => {
                   <div className="flex justify-between items-start mb-1">
                     <h4 className="font-semibold text-sm text-slate-700 truncate flex-1">{l.titulo}</h4>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1">
-                      <button onClick={() => openEdit(l)} className="p-1 text-slate-400 hover:text-purple-500 hover:bg-purple-50 rounded" title="Editar">
+                      <button onClick={() => openEdit(l)} className="p-1 text-slate-400 hover:text-purple-500 hover:bg-purple-50 rounded" aria-label="Editar licitación">
                         <Pencil className="w-3 h-3" />
                       </button>
-                      <button onClick={() => { deleteLicitacion(l.id); toast.success('Licitación eliminada'); }} className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded" title="Eliminar">
+                      <button onClick={() => { deleteLicitacion(l.id); toast.success('Licitación eliminada'); }} className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded" aria-label="Eliminar licitación">
                         <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
