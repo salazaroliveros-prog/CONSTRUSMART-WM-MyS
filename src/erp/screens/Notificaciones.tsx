@@ -1,7 +1,6 @@
 import React from 'react';
 import { useErp } from '../store';
-import { CARD, CARD_TITLE } from '../ui';
-import { Bell, Check, CheckCheck, AlertTriangle, ClipboardList, Package, TrendingDown, Activity, CalendarClock } from 'lucide-react';
+import { Bell, Check, CheckCheck, AlertTriangle, ClipboardList, Package, TrendingDown, Activity } from 'lucide-react';
 
 const MAPA_ICONOS: Record<string, React.ReactNode> = {
   checklist_rechazado: <AlertTriangle className="w-5 h-5 text-red-500" />,

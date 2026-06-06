@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { ChevronDown, ChevronRight, Calendar, AlertTriangle, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import { ChevronDown, ChevronRight, Calendar, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 
 export interface GanttTask {
   codigo: string;
@@ -143,7 +143,7 @@ const EnhancedGantt: React.FC<EnhancedGanttProps> = ({ tasks, projectStart, proj
     setEditingTask(null);
   };
 
-  const COLUMN_COLORS: Record<string, string> = {
+  const _COLUMN_COLORS: Record<string, string> = {
     'planeacion': '#94a3b8',
     'ejecucion': '#3b82f6',
     'pausado': '#f59e0b',

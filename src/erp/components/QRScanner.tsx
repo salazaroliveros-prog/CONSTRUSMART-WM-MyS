@@ -6,7 +6,7 @@ interface QRScannerProps {
 }
 
 const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const _videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState('');
   const [scanning, setScanning] = useState(true);
 
@@ -30,7 +30,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
           },
           () => {} // ignore non-qr frames
         );
-      } catch (err) {
+      } catch {
         if (mounted) {
           setError('No se pudo acceder a la cámara. Verifica los permisos.');
         }

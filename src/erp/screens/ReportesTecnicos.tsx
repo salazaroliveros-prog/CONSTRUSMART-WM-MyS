@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useErp } from '../store';
 import { fmtQ, todayISO } from '../utils';
 import {
-  FileText, Download, Printer, BarChart3, Calendar,
-  Package, Users, TrendingUp, Building2, AlertTriangle,
+  FileText, Download, BarChart3,
+  Package,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
 
 const ReportesTecnicos: React.FC = () => {
-  const { proyectos, movimientos, empleados, materiales, presupuestos, avances, valesSalida } = useErp();
+  const { proyectos, movimientos, empleados, presupuestos, valesSalida } = useErp();
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState<Reporte>('cubicacion');
   const [proyectoId, setProyectoId] = useState('');

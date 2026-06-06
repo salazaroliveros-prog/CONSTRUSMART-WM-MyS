@@ -14,13 +14,15 @@ if (typeof window !== 'undefined') {
     auth: {
       flowType: 'pkce',
       persistSession: true,
-      // Ensure the client persists PKCE verifier to browser localStorage
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
       storage: window.localStorage as unknown as any,
     },
   });
 } else {
-  // On server, create a minimal client (no browser storage)
-  _supabase = createClient(supabaseUrl, supabaseKey, { auth: { flowType: 'pkce' } });
+  _supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: { flowType: 'pkce', autoRefreshToken: true },
+  });
 }
 
 export const supabase: SupabaseClient = _supabase;

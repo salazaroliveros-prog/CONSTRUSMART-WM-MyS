@@ -266,7 +266,7 @@ const STORAGE_WARN_THRESHOLD = 3 * 1024 * 1024; // 3MB advertencia
 /**
  * Estima el tamaño en bytes de una cadena JSON
  */
-function estimarTamanoJSON<T>(data: T): number {
+function _estimarTamanoJSON<T>(data: T): number {
   const json = JSON.stringify(data);
   return new Blob([json]).size;
 }
@@ -379,8 +379,9 @@ const mapFromSnakeCase = <T extends z.ZodType<any, any, any>>(schema: T, obj: Re
   }
 };
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function parseView(v: string): { root: View; sub?: string } {
   const idx = v.indexOf(':');
   if (idx > 0) {
@@ -391,6 +392,7 @@ export function parseView(v: string): { root: View; sub?: string } {
   return { root: v as View, sub: undefined };
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function buildView(root: View, sub?: string): string {
   return sub ? `${root}:${sub}` : root;
 }
@@ -413,10 +415,10 @@ export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeg
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const ALLOWED: Record<Rol, View[]> = {
-  Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes'],
-  Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes'],
-  Residente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'ajustes'],
-  Compras: ['dashboard', 'bodega', 'proyectos', 'ajustes'],
+  Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar'],
+  Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar'],
+  Residente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'hitos', 'riesgos', 'ajustes'],
+  Compras: ['dashboard', 'bodega', 'proyectos', 'cuentas-pagar', 'ajustes'],
   Bodeguero: ['dashboard', 'bodega', 'ajustes'],
 };
 
@@ -460,6 +462,7 @@ interface ErpState {
   deleteProyecto: (id: string) => Promise<void>;
   movimientos: Movimiento[];
   addMovimiento: (m: Omit<Movimiento, 'id'>) => Promise<void>;
+  updateMovimiento: (id: string, patch: Partial<Movimiento>) => Promise<void>;
   deleteMovimiento: (id: string) => Promise<void>;
   empleados: Empleado[];
   addEmpleado: (e: Omit<Empleado, 'id'>) => Promise<void>;
@@ -542,6 +545,7 @@ export const uid = (): string => {
 
 const BASE_STORAGE_KEY = 'wm_erp_data';
 const QUEUE_KEY = 'wm_erp_queue';
+const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
 
 /**
  * Mapea un rol de base de datos a un rol válido del sistema
@@ -582,9 +586,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
 
-  const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>(() => loadFromStorage(NOTIF_KEY, []));
-  useEffect(() => { saveToStorage(NOTIF_KEY, notificaciones); }, [notificaciones, NOTIF_KEY]);
+  useEffect(() => { saveToStorage(NOTIF_KEY, notificaciones); }, [notificaciones]);
   const notificacionesNoLeidas = React.useMemo(() => notificaciones.filter(n => !n.leido).length, [notificaciones]);
 
   // Flag para evitar toasts al cargar notificaciones existentes en el render inicial
@@ -695,7 +698,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     };
 
-    const [p, m, e, mat, o, prov, evt, bit, presup, seg] = await Promise.all([
+    const [p, m, e, mat, o, prov, evt, bit, presup, _seg] = await Promise.all([
       safeFrom('erp_proyectos'),
       safeFrom('erp_movimientos', q => q.select('*').order('fecha', { ascending: false })),
       safeFrom('erp_empleados'),
@@ -994,13 +997,13 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       switch (next.type) {
         case 'addProyecto': {
           const p = forProyecto({ ...next.payload, created_by: user?.id });
-          const { data, error } = await supabase.from('erp_proyectos').insert(p);
+          const { error } = await supabase.from('erp_proyectos').insert(p);
           if (error) throw new Error(`Failed to add proyecto: ${error.message}`);
           break;
         }
         case 'updateProyecto': {
           const { id, ...rest2 } = next.payload;
-          const { data, error } = await supabase.from('erp_proyectos').update(forProyecto(rest2)).eq('id', id);
+          const { error } = await supabase.from('erp_proyectos').update(forProyecto(rest2)).eq('id', id);
           if (error) throw new Error(`Failed to update proyecto: ${error.message}`);
           break;
         }
@@ -1011,7 +1014,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
         case 'addMovimiento': {
           const m = forMovimiento({ ...next.payload, created_by: user?.id });
-          const { data, error } = await supabase.from('erp_movimientos').insert(m);
+          const { error } = await supabase.from('erp_movimientos').insert(m);
           if (error) throw new Error(`Failed to add movimiento: ${error.message}`);
           break;
         }
@@ -1166,7 +1169,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Reintentar hasta 3 veces con backoff
       if (next.retryCount < 3) {
         const retryMutation: Mutation = { ...next, retryCount: next.retryCount + 1 };
-        setMutationQueue(q => [retryMutation, ...rest]);
+        setMutationQueue(_q => [retryMutation, ...rest]);
       } else {
         console.error(`Mutation ${next.type} (${next.id}) falló tras ${next.retryCount} intentos. Descartada.`);
         setMutationQueue(rest);
@@ -1186,6 +1189,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!user) return;
     verificarStockCritico();
     verificarOrdenesCambioPendientes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]); // ← SIN los callbacks en deps
 
   const requestNotificationPermission = useCallback(async () => {
@@ -1319,40 +1323,41 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!proy || !proy.montoContrato || proy.montoContrato <= 0) return 0;
     const ingresos = movimientos
       .filter(m => m.proyectoId === proyectoId && m.tipo === 'ingreso')
-      .reduce((a, b) => a + b.costoTotal, 0);
+      .reduce((a, b) => a + (b.costoTotal ?? b.monto ?? 0), 0);
     const ejecutado = Math.min(100, Math.round((ingresos / proy.montoContrato) * 100));
     return ejecutado;
   }, [proyectos, movimientos]);
 
   const allowedViews = user ? ALLOWED[user.rol] : [];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const addProyecto = async (p: Omit<Proyecto, 'id'>) => {
     const newProj = { ...p, id: uid() };
     setProyectos(s => [...s, newProj]);
     enqueueMutation('addProyecto', newProj);
   };
-  const updateProyecto = async (id: string, patch: Partial<Proyecto>) => {
+  const updateProyecto = useCallback(async (id: string, patch: Partial<Proyecto>) => {
     setProyectos(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
     enqueueMutation('updateProyecto', { id, ...patch });
-  };
-  const deleteProyecto = async (id: string) => {
+  }, [enqueueMutation]);
+  const deleteProyecto = useCallback(async (id: string) => {
     setProyectos(s => s.filter(p => p.id !== id));
     enqueueMutation('deleteProyecto', { id });
-  };
+  }, [enqueueMutation]);
 
-  const addMovimiento = async (m: Omit<Movimiento, 'id'>) => {
+  const addMovimiento = useCallback(async (m: Omit<Movimiento, 'id'>) => {
     const newMov = { ...m, id: uid() };
     setMovimientos(s => [newMov, ...s]);
     enqueueMutation('addMovimiento', newMov);
-  };
-  const deleteMovimiento = async (id: string) => {
+  }, [enqueueMutation]);
+  const deleteMovimiento = useCallback(async (id: string) => {
     setMovimientos(s => s.filter(m => m.id !== id));
     enqueueMutation('deleteMovimiento', { id });
-  };
-  const updateMovimiento = async (id: string, patch: Partial<Movimiento>) => {
+  }, [enqueueMutation]);
+  const updateMovimiento = useCallback(async (id: string, patch: Partial<Movimiento>) => {
     setMovimientos(s => s.map(m => m.id === id ? { ...m, ...patch } : m));
     enqueueMutation('updateMovimiento', { id, ...patch });
-  };
+  }, [enqueueMutation]);
 
   const addEmpleado = async (e: Omit<Empleado, 'id'>) => {
     const newEmp = { ...e, id: uid() };
@@ -1368,7 +1373,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     enqueueMutation('deleteEmpleado', { id });
   };
 
-  const addPresupuesto = async (p: Omit<Presupuesto, 'id'>) => {
+  const addPresupuesto = useCallback(async (p: Omit<Presupuesto, 'id'>) => {
     const versionesExistentes = presupuestos.filter(pr => pr.proyectoId === p.proyectoId);
     const nextVersion = versionesExistentes.length > 0
       ? Math.max(...versionesExistentes.map(pr => pr.versionPresupuesto || 1)) + 1
@@ -1393,9 +1398,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         console.error('Error actualizando proyecto con presupuesto:', err);
       }
     }
-  };
+  }, [enqueueMutation, presupuestos, updateProyecto]);
 
-  const updatePresupuesto = async (id: string, patch: Partial<Presupuesto>) => {
+  const updatePresupuesto = useCallback(async (id: string, patch: Partial<Presupuesto>) => {
     const updated = presupuestos.map(p => p.id === id ? { ...p, ...patch, fechaActualizacion: new Date().toISOString() } : p);
 
     enqueueMutation('updatePresupuesto', { id, ...patch });
@@ -1414,9 +1419,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       }
     }
-  };
+  }, [enqueueMutation, presupuestos, proyectos, updateProyecto]);
 
-  const deletePresupuesto = async (id: string) => {
+  const deletePresupuesto = useCallback(async (id: string) => {
     const presupuestoEliminado = presupuestos.find(p => p.id === id);
     enqueueMutation('deletePresupuesto', { id });
 
@@ -1440,7 +1445,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       }
     }
-  };
+  }, [enqueueMutation, presupuestos, proyectos, updateProyecto]);
 
   const getPresupuestoByProyecto = useCallback((proyectoId: string) => {
     return presupuestos.find(p => p.proyectoId === proyectoId);
@@ -1667,6 +1672,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       licitaciones, addLicitacion, updateLicitacion, deleteLicitacion,
       avances, addAvance, deleteAvance,
       valesSalida, addValeSalida, deleteValeSalida,
+      seguimientoEVM, addSeguimiento: async (s: Omit<SeguimientoEVM, 'id'>) => { setSeguimientoEVM(p => [{ ...s, id: uid() }, ...p]); },
+      updateSeguimiento: async (id: string, patch: Partial<SeguimientoEVM>) => { setSeguimientoEVM(p => p.map(s => s.id === id ? { ...s, ...patch } : s)); },
+      deleteSeguimiento: async (id: string) => { setSeguimientoEVM(p => p.filter(s => s.id !== id)); },
       costoPorHoraHombre, empleadosDisponibles, avanceFinancieroCalculado,
       notificaciones, notificacionesNoLeidas, addNotificacion, markNotificacionLeida, marcarTodasLeidas,
       verificarStockCritico, verificarOrdenesCambioPendientes, verificarChecklistRechazado,

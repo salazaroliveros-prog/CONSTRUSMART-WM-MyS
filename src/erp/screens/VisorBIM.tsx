@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import IFCViewer from '../components/IFCViewer';
 import { useErp } from '../store';
-import type { RenglonPresupuesto } from '../types';
-import { Box, Link, BarChart3, Ruler, Check, X, Search, Layers, Activity } from 'lucide-react';
+import { Box, Link, BarChart3, Ruler, Layers, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import { fmtQ } from '../utils';
 
@@ -12,12 +11,6 @@ const VisorBIM: React.FC = () => {
   const { proyectos, presupuestos, avances } = useErp();
   const [tab, setTab] = useState<BIMTab>('visor');
   const [selProyecto, setSelProyecto] = useState('');
-  const [vinculos, setVinculos] = useState<Record<string, string>>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_bim_vinculos') || '{}'); } catch { return {}; }
-  });
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<string | null>(null);
-
-  const proyectoActual = proyectos.find(p => p.id === selProyecto);
   const presupuestoActual = presupuestos.find(p => p.proyectoId === selProyecto);
 
   const renglones = presupuestoActual?.renglones || [];

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
-import { TrendingUp, Calendar, AlertTriangle, DollarSign, Activity, Target, Zap } from 'lucide-react';
+import { Calendar, AlertTriangle, DollarSign, Activity, Zap } from 'lucide-react';
 
 const DashboardPredictivo: React.FC = () => {
   const { proyectos, movimientos, presupuestos, avances, empleados } = useErp();

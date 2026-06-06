@@ -2,8 +2,8 @@ import React, { useMemo, useState, useRef } from 'react';
 import { useErp } from '../store';
 import { fmtQ, todayISO } from '../utils';
 import {
-  TrendingUp, AlertTriangle, DollarSign, Clock, Download,
-  CalendarDays, BarChart3, Target, FileText, Printer,
+  TrendingUp, AlertTriangle, DollarSign, Download,
+  BarChart3, Target,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -21,6 +21,7 @@ const generarCurvaS = (total: number, meses: number, avanceActual: number, mesAc
     const real = i < mesActual
       ? total * (avanceActual / 100) * ((i + 1) / mesActual) / (mesActual > 0 ? 1 : 1)
       : null;
+    void real;
     // Para real lo simplificamos: distribución lineal del avance actual
     const realVal = i < mesActual ? total * (avanceActual / 100) * ((i + 1) / mesActual) : null;
     puntos.push({
@@ -34,7 +35,7 @@ const generarCurvaS = (total: number, meses: number, avanceActual: number, mesAc
 };
 
 const CurvasS: React.FC = () => {
-  const { proyectos, movimientos, avances } = useErp();
+  const { proyectos, movimientos } = useErp();
   const chartRef = useRef<HTMLDivElement>(null);
 
   const [selectedProyectoId, setSelectedProyectoId] = useState('');
@@ -42,7 +43,6 @@ const CurvasS: React.FC = () => {
 
   const proyecto = proyectos.find(p => p.id === selectedProyectoId);
 
-  // ===== CURVA S =====
   const curvaS = useMemo(() => {
     if (!proyecto) return null;
     const presupuesto = proyecto.presupuestoTotal || 1;

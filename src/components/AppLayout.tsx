@@ -7,13 +7,39 @@ import Sidebar from '@/erp/components/Sidebar';
 import Login from '@/erp/screens/Login';
 import { applyThemeToDocument } from '@/utils/theme-generator';
 
-const Dashboard    = lazy(() => import('@/erp/screens/Dashboard'));
-const Proyectos    = lazy(() => import('@/erp/screens/Proyectos'));
-const Presupuestos = lazy(() => import('@/erp/screens/Presupuestos'));
-const Seguimiento  = lazy(() => import('@/erp/screens/Seguimiento'));
-const Financiero   = lazy(() => import('@/erp/screens/Financiero'));
-const RRHH         = lazy(() => import('@/erp/screens/RRHH'));
-const Bodega       = lazy(() => import('@/erp/screens/Bodega'));
+const Dashboard          = lazy(() => import('@/erp/screens/Dashboard'));
+const Proyectos          = lazy(() => import('@/erp/screens/Proyectos'));
+const Presupuestos       = lazy(() => import('@/erp/screens/Presupuestos'));
+const Seguimiento        = lazy(() => import('@/erp/screens/Seguimiento'));
+const Financiero         = lazy(() => import('@/erp/screens/Financiero'));
+const RRHH               = lazy(() => import('@/erp/screens/RRHH'));
+const Bodega             = lazy(() => import('@/erp/screens/Bodega'));
+const CRM                = lazy(() => import('@/erp/screens/CRM'));
+const APUAvanzado        = lazy(() => import('@/erp/screens/APUAvanzado'));
+const CurvasS            = lazy(() => import('@/erp/screens/CurvasS'));
+const Rendimientos       = lazy(() => import('@/erp/screens/Rendimientos'));
+const BasePrecios        = lazy(() => import('@/erp/screens/BasePrecios'));
+const ReportesTecnicos   = lazy(() => import('@/erp/screens/ReportesTecnicos'));
+const MuroObra           = lazy(() => import('@/erp/screens/MuroObra'));
+const OrdenesCambio      = lazy(() => import('@/erp/screens/OrdenesCambio'));
+const Notificaciones     = lazy(() => import('@/erp/screens/Notificaciones'));
+const SSOCalidad         = lazy(() => import('@/erp/screens/SSOCalidad'));
+const GestionDocumental  = lazy(() => import('@/erp/screens/GestionDocumental'));
+const VisorBIM           = lazy(() => import('@/erp/screens/VisorBIM'));
+const DashboardPredictivo = lazy(() => import('@/erp/screens/DashboardPredictivo'));
+const ExportacionInteligente = lazy(() => import('@/erp/screens/ExportacionInteligente'));
+const LogisticaCompras   = lazy(() => import('@/erp/screens/LogisticaCompras'));
+const RendimientoCampo   = lazy(() => import('@/erp/screens/RendimientoCampo'));
+const ComercialFinanzas  = lazy(() => import('@/erp/screens/ComercialFinanzas'));
+const Administracion     = lazy(() => import('@/erp/screens/Administracion'));
+const PlanillaDestajos   = lazy(() => import('@/erp/screens/PlanillaDestajos'));
+const Impuestos          = lazy(() => import('@/erp/screens/Impuestos'));
+const EntradasAlmacen    = lazy(() => import('@/erp/screens/EntradasAlmacenOC'));
+const Ajustes            = lazy(() => import('@/erp/screens/Ajustes'));
+const Hitos              = lazy(() => import('@/erp/screens/Hitos'));
+const Riesgos            = lazy(() => import('@/erp/screens/Riesgos'));
+const CuentasCobrar      = lazy(() => import('@/erp/screens/CuentasCobrar'));
+const CuentasPagar       = lazy(() => import('@/erp/screens/CuentasPagar'));
 
 const ScreenLoader: React.FC = () => (
   <div className="flex items-center justify-center h-64" role="status" aria-label="Cargando módulo">
@@ -47,13 +73,39 @@ const Shell: React.FC = () => {
   if (view === 'login') return <Login />;
 
   const screens: Record<string, React.ReactNode> = {
-    dashboard:    <Dashboard />,
-    proyectos:    <Proyectos />,
-    presupuestos: <Presupuestos />,
-    seguimiento:  <Seguimiento />,
-    financiero:   <Financiero />,
-    rrhh:         <RRHH />,
-    bodega:       <Bodega />,
+    dashboard:         <Dashboard />,
+    proyectos:         <Proyectos />,
+    presupuestos:      <Presupuestos />,
+    seguimiento:       <Seguimiento />,
+    financiero:        <Financiero />,
+    rrhh:              <RRHH />,
+    bodega:            <Bodega />,
+    crm:               <CRM />,
+    apu:               <APUAvanzado />,
+    curvas:            <CurvasS />,
+    rendimientos:      <Rendimientos />,
+    baseprecios:       <BasePrecios />,
+    reportes:          <ReportesTecnicos />,
+    muro:              <MuroObra />,
+    'ordenes-cambio':  <OrdenesCambio />,
+    notificaciones:    <Notificaciones />,
+    'sso-calidad':     <SSOCalidad />,
+    documentos:        <GestionDocumental />,
+    'visor-bim':       <VisorBIM />,
+    predictivo:        <DashboardPredictivo />,
+    exportacion:       <ExportacionInteligente />,
+    logistica:         <LogisticaCompras />,
+    'rendimiento-campo': <RendimientoCampo />,
+    'comercial-fin':   <ComercialFinanzas />,
+    'admin-sistema':   <Administracion />,
+    'planilla-destajos': <PlanillaDestajos />,
+    impuestos:         <Impuestos />,
+    'entradas-almacen': <EntradasAlmacen />,
+    ajustes:           <Ajustes />,
+    hitos:             <Hitos />,
+    riesgos:           <Riesgos />,
+    'cuentas-cobrar':  <CuentasCobrar />,
+    'cuentas-pagar':   <CuentasPagar />,
   };
 
   const currentScreen = screens[view] ?? <Dashboard />;

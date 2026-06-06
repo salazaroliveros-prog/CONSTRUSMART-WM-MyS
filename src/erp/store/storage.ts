@@ -19,11 +19,11 @@ export function loadFromStorage<T>(key: string, initial: T): T {
   }
 }
 
-function estimarTamanoJSON<T>(data: T): number {
+function _estimarTamanoJSON<T>(data: T): number {
   return new Blob([JSON.stringify(data)]).size;
 }
 
-function verificarEspacioStorage(tamanoNuevo: number, baseKey: string): boolean {
+function verificarEspacioStorage(tamanoNuevo: number, _baseKey: string): boolean {
   let espacioUsado = 0;
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);

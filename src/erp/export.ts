@@ -102,7 +102,7 @@ function validarUrlImagen(url: string): boolean {
 export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tipologia: string, firma?: string) => {
   // Sanitizar todos los textos de usuario
   const proyectoSanitizado = sanitizarTexto(proyecto);
-  const tipologiaSanitizada = sanitizarTexto(tipologia);
+  const _tipologiaSanitizada = sanitizarTexto(tipologia);
   const firmaSanitizada = firma && validarUrlImagen(firma) ? firma : undefined;
   const empresaNombre = sanitizarTexto(EMPRESA.nombre);
   const empresaEslogan = sanitizarTexto(EMPRESA.eslogan);

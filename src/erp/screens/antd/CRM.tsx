@@ -4,11 +4,11 @@ import { fmtQ, todayISO } from '../../utils';
 import {
   Row, Col, Card, Statistic, Tag, Badge, Dropdown, Button,
   Modal, Form, Input, InputNumber, Space, Typography, Progress,
-  Skeleton, theme, Divider,
+  Skeleton, theme,
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined,
-  RocketOutlined, DollarOutlined, RiseOutlined,
+  RocketOutlined,
   PieChartOutlined, MoreOutlined,
 } from '@ant-design/icons';
 
@@ -33,7 +33,7 @@ const AntCRM: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form] = Form.useForm();
-  const { token } = theme.useToken();
+  const { token: _token } = theme.useToken();
 
   React.useEffect(() => {
     const t = setTimeout(() => setLoading(false), 300);

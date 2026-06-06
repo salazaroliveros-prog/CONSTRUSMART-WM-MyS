@@ -4,7 +4,6 @@ import { useErp } from '../store';
 export const EntradasAlmacenOC: React.FC = () => {
   const { ordenes, materiales, updateMaterial, updateOrden } = useErp();
   const [ocFilter, setOcFilter] = useState<'todas' | 'pendientes' | 'aprobadas'>('todas');
-  const [recepciones, setRecepciones] = useState<Record<string, number>>({});
   const [showForm, setShowForm] = useState<string | null>(null);
   const [formCantidad, setFormCantidad] = useState(0);
 

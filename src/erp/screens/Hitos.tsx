@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useErp } from '../store';
 import { supabase } from '@/lib/supabase';
 import { Hito } from '../types';
-import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter, Calendar } from 'lucide-react';
+import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { todayISO } from '../utils';
@@ -28,13 +28,14 @@ const HitosScreen: React.FC = () => {
     if (selectedProyectoId && !form.proyectoId) {
       setForm(prev => ({ ...prev, proyectoId: selectedProyectoId }));
     }
-  }, [selectedProyectoId]);
+  }, [selectedProyectoId, form.proyectoId]);
 
   useEffect(() => {
     if (!synced) {
       syncFromSupabase();
       setSynced(true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [synced]);
 
   const syncFromSupabase = async () => {

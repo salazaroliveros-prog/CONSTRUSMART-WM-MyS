@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Network, Calendar, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { Network } from 'lucide-react';
 
 interface PertTask {
   codigo: string;

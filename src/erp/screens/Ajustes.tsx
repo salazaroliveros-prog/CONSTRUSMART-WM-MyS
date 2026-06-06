@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, type UIMode, type AppThemeMode } from '../store';
 import {
-  Layout, Card, Row, Col, Switch, Select, InputNumber, Button, Divider,
+  Layout, Card, Row, Col, Switch, Select, Button, Divider,
   Typography, Space, Tabs, Tag, Avatar, Descriptions, Modal, message,
   Radio, Tooltip, Badge, Alert, Statistic, theme as antTheme,
 } from 'antd';
@@ -30,9 +30,7 @@ const Ajustes: React.FC = () => {
   const { t } = useTranslation();
   const { appSettings, updateAppSettings, user, proyectos, notificacionesNoLeidas, marcarTodasLeidas } = useErp();
   const [resetModal, setResetModal] = useState(false);
-  const [aboutModal, setAboutModal] = useState(false);
   const { token } = antTheme.useToken();
-
   const colStyle: React.CSSProperties = {
     marginBottom: 16,
   };

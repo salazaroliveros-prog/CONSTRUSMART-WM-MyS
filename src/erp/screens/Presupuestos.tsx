@@ -7,10 +7,8 @@ import { Tipologia, RenglonPresupuesto, SubRenglon, Presupuesto } from '../types
 import { generarRenglones } from '../data';
 import { fmtQ, TIPOLOGIA_LABEL, costoDirectoUnitario, precioUnitarioVenta, precioUnitarioVentaConFactores, duracionPorRendimiento, HERRAMIENTA_MENOR, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD } from '../utils';
 import { exportCSV, exportPDF } from '../export';
-import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X, Users, Package } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X } from 'lucide-react';
 import PresupuestosList from '../components/PresupuestosList';
-import CubicacionAutomatica from '../components/CubicacionAutomatica';
-import HistorialPresupuestosModal from '../components/HistorialPresupuestosModal';
 
 // Catálogo de materiales comunes por actividad de construcción
 const MATERIALES_POR_ACTIVIDAD: Record<string, { nombre: string; unidad: string; precioRef: number }[]> = {
@@ -94,7 +92,7 @@ const ACTIVIDAD_POR_RENGLON: Record<string, string> = {
 
 const Presupuestos: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, updateProyecto, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores } = useErp();
+  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores } = useErp();
   const [tab, setTab] = useState<'crear' | 'guardados'>('crear');
   const [tipologia, setTipologia] = useState<Tipologia>('residencial');
   const [proyecto, setProyecto] = useState('Nuevo Presupuesto');
@@ -107,7 +105,6 @@ const Presupuestos: React.FC = () => {
   const [nuevoProveedorContacto, setNuevoProveedorContacto] = useState('');
   const [saved, setSaved] = useState(false);
   const [editingPresupuesto, setEditingPresupuesto] = useState<Presupuesto | null>(null);
-  const [histOpen, setHistOpen] = useState(false);
 
   useEffect(() => {
     if (selectedProyectoId) {
@@ -149,16 +146,7 @@ const Presupuestos: React.FC = () => {
     }
   }, [selectedProyectoId, presupuestos, proyectos]);
 
-  const openHistorial = () => setHistOpen(true);
-
-  const handleApplyVersion = (p: Presupuesto) => {
-    // Load selected version into editor
-    setEditingPresupuesto(p);
-    setItems((p.renglones || []) as RenglonPresupuesto[]);
-    setTipologia(p.tipologia);
-    setProyecto(p.notas || `Presupuesto ${proyectos.find(pr => pr.id === p.proyectoId)?.nombre || ''}`);
-    setHistOpen(false);
-  };
+  const openHistorial = () => { /* historial UI manejado inline */ };
 
   const handleApprovePresupuesto = async (p: Presupuesto) => {
     await updatePresupuesto(p.id, { estado: 'aprobado' });

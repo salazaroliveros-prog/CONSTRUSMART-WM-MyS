@@ -193,11 +193,11 @@ const RRHH: React.FC = () => {
             {porProyecto.length ? (
               <BarChart height={140} data={porProyecto} />
             ) : (
-              <p className="text-xs text-slate-400">Sin datos</p>
+              <p className="text-xs text-muted-foreground">Sin datos</p>
             )}
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border space-y-2">
-            <h3 className="font-bold text-slate-700 text-sm">Nuevo Empleado</h3>
+            <h3 className="font-bold text-foreground text-sm">Nuevo Empleado</h3>
             <input
               {...register('nombre')}
               placeholder="Nombre"

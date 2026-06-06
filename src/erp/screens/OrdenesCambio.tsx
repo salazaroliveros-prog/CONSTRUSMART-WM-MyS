@@ -2,8 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
 import { fmtQ, todayISO } from '../utils';
 import {
-  GitBranch, Plus, Search, Check, X, Clock, AlertTriangle,
-  FileText, Users, ChevronRight, ChevronDown,
+  GitBranch, Plus, Check, X, Clock,
+  ChevronRight, ChevronDown,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';

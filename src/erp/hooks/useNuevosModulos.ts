@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useCallback, useEffect } from 'react';
 import {
   ActivoHerramienta, CuadroComparativo, CotizacionItem, Destajo,
