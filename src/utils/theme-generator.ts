@@ -35,7 +35,7 @@ export function adjustForDarkMode(hslColor: string): string {
  */
 export function generateThemeCSSVariables(settings: ThemeSettings): Record<string, string> {
   const isDark = settings.appTheme === 'dark';
-  const baseHsl = settings.primaryColor || '18 80% 52%';
+  const baseHsl = settings.primaryColor || '222.2 47.4% 11.2%';
 
   return {
     '--primary': isDark ? adjustForDarkMode(baseHsl) : baseHsl,
@@ -54,7 +54,7 @@ export function generateAntdThemeToken(settings: ThemeSettings) {
   return {
     algorithm: isDark ? 'dark' : isCompact ? 'compact' : 'default',
     token: {
-      colorPrimary: settings.primaryColor || '#E8752F',
+      colorPrimary: settings.primaryColor || getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#E8752F',
       borderRadius: isModerno ? 8 : 12,
       controlHeight: isCompact ? 32 : isModerno ? 36 : 40,
     },
