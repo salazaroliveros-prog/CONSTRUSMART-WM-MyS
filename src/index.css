@@ -280,3 +280,14 @@
 .text-violet-500 { color: hsl(var(--accent)); }
 /* ── GREEN → SUCCESS ── */
 .bg-green-50, .bg-green-100 { background-color: hsl(var(--success) / 0.1); }
+/* ── BORDER-RADIUS NORMALIZATION ── */
+.rounded-2xl { border-radius: calc(var(--radius) + 4px); }  /* = our rounded-lg (16px) */
+.rounded-xl  { border-radius: var(--radius); }               /* = our rounded-md (12px) */
+/* ── TOUCH-FRIENDLY INTERACTIONS ── */
+@media (hover: hover) {
+  button:not([disabled]), a:not([disabled]) { cursor: pointer; }
+}
+button:active:not([disabled]) { transform: scale(0.97); transition: transform 0.1s; }
+@media (hover: none) {
+  button:active:not([disabled]), a:active:not([disabled]) { transform: scale(0.97); }
+}
