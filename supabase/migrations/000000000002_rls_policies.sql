@@ -1,7 +1,7 @@
 -- Supabase RLS policies for ERP tables
 -- Run this in Supabase SQL Editor
 
--- Enable RLS on all tables
+-- Enable RLS on all tables (including new tables)
 ALTER TABLE erp_proyectos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_movimientos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_presupuestos ENABLE ROW LEVEL SECURITY;
@@ -18,6 +18,28 @@ ALTER TABLE erp_vales_salida ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_incidentes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_hitos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_riesgos ENABLE ROW LEVEL SECURITY;
+
+-- New tables
+ALTER TABLE destajos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cajas_chicas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE activos_herramientas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cuadro_comparativo_proveedores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cotizaciones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE anticipos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE amortizaciones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE pagos_proveedores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ventas_paquetes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE centros_costo ENABLE ROW LEVEL SECURITY;
+ALTER TABLE erp_insumos_base ENABLE ROW LEVEL SECURITY;
+ALTER TABLE erp_rendimientos_cuadrilla ENABLE ROW LEVEL SECURITY;
+ALTER TABLE erp_cuentas_cobrar ENABLE ROW LEVEL SECURITY;
+ALTER TABLE erp_cuentas_pagar ENABLE ROW LEVEL SECURITY;
+ALTER TABLE erp_ordenes_cambio ENABLE ROW LEVEL SECURITY;
+ALTER TABLE erp_muro ENABLE ROW LEVEL SECURITY;
+ALTER TABLE erp_pruebas_laboratorio ENABLE ROW LEVEL SECURITY;
+ALTER TABLE erp_no_conformidades ENABLE ROW LEVEL SECURITY;
+ALTER TABLE erp_liberaciones_partida ENABLE ROW LEVEL SECURITY;
+ALTER TABLE logs_sistema ENABLE ROW LEVEL SECURITY;
 
 -- Helper function to get user role
 CREATE OR REPLACE FUNCTION public.get_user_role()
@@ -47,36 +69,44 @@ RETURNS SETOF uuid AS $$
 $$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
 
 -- Policies for proyectos
+DROP POLICY IF EXISTS "Admin/Gerente can manage all projects" ON erp_proyectos;
 CREATE POLICY "Admin/Gerente can manage all projects" ON erp_proyectos
   FOR ALL USING (public.get_user_role() IN ('Administrador', 'Gerente'));
 
+DROP POLICY IF EXISTS "Users can view accessible projects" ON erp_proyectos;
 CREATE POLICY "Users can view accessible projects" ON erp_proyectos
   FOR SELECT USING (
     id IN (SELECT * FROM public.get_accessible_proyectos())
   );
 
 -- Policies for movimientos
+DROP POLICY IF EXISTS "Admin/Gerente can manage all movements" ON erp_movimientos;
 CREATE POLICY "Admin/Gerente can manage all movements" ON erp_movimientos
   FOR ALL USING (public.get_user_role() IN ('Administrador', 'Gerente'));
 
+DROP POLICY IF EXISTS "Users can view movements of accessible projects" ON erp_movimientos;
 CREATE POLICY "Users can view movements of accessible projects" ON erp_movimientos
   FOR SELECT USING (
     proyecto_id IN (SELECT * FROM public.get_accessible_proyectos())
   );
 
 -- Policies for presupuestos
+DROP POLICY IF EXISTS "Admin/Gerente can manage all budgets" ON erp_presupuestos;
 CREATE POLICY "Admin/Gerente can manage all budgets" ON erp_presupuestos
   FOR ALL USING (public.get_user_role() IN ('Administrador', 'Gerente'));
 
+DROP POLICY IF EXISTS "Users can view budgets of accessible projects" ON erp_presupuestos;
 CREATE POLICY "Users can view budgets of accessible projects" ON erp_presupuestos
   FOR SELECT USING (
     proyecto_id IN (SELECT * FROM public.get_accessible_proyectos())
   );
 
 -- Policies for empleados
+DROP POLICY IF EXISTS "Admin/Gerente can manage all employees" ON erp_empleados;
 CREATE POLICY "Admin/Gerente can manage all employees" ON erp_empleados
   FOR ALL USING (public.get_user_role() IN ('Administrador', 'Gerente'));
 
+DROP POLICY IF EXISTS "Users can view employees of accessible projects" ON erp_empleados;
 CREATE POLICY "Users can view employees of accessible projects" ON erp_empleados
   FOR SELECT USING (
     id IN (
