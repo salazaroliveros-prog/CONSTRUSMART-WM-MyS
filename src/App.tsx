@@ -16,14 +16,33 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [themeMode, setThemeMode] = useState<ThemeMode>('light');
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    // Leer appSettings del store para sincronizar con el tema guardado
+    try {
+      const stored = localStorage.getItem('wm_erp_data_settings');
+      if (stored) {
+        const s = JSON.parse(stored);
+        if (s?.appTheme === 'dark' || s?.appTheme === 'dark-pro') return 'dark';
+      }
+    } catch { /* silent */ }
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return (localStorage.getItem('theme-mode') as ThemeMode) || (prefersDark ? 'dark' : 'light');
+  });
 
   useEffect(() => {
-    // Detectar preferencia del sistema
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const storedTheme = localStorage.getItem('theme-mode') as ThemeMode | null;
-    const mode = storedTheme || (prefersDark ? 'dark' : 'light');
-    setThemeMode(mode);
+    // Escuchar cambios de tema desde el store (via storage event o custom event)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'wm_erp_data_settings' && e.newValue) {
+        try {
+          const s = JSON.parse(e.newValue);
+          if (s?.appTheme) {
+            setThemeMode(s.appTheme === 'dark' || s.appTheme === 'dark-pro' ? 'dark' : 'light');
+          }
+        } catch { /* silent */ }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   return (

@@ -94,6 +94,12 @@ const Shell: React.FC = () => {
   const { sidebarOpen, toggleSidebar, closeSidebar, sidebarCollapsed } = useAppContext();
 
   useEffect(() => {
+    // Aplicar tema guardado al inicializar (antes del primer render)
+    const savedTheme = localStorage.getItem('wm_erp_theme') || 'ant-design';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    const isDark = savedTheme === 'dark-pro';
+    document.documentElement.classList.toggle('dark', isDark);
+
     applyThemeToDocument({
       appTheme: appSettings.appTheme,
       compactMode: appSettings.compactMode,

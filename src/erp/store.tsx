@@ -388,7 +388,7 @@ export function buildView(root: View, sub?: string): string {
   return sub ? `${root}:${sub}` : root;
 }
 export type UIMode = 'shadcn' | 'antd';
-export type AppThemeMode = 'light' | 'dark' | 'high-contrast';
+export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
 
 export interface AppSettings {
   uiMode: UIMode;
@@ -1633,6 +1633,25 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const next = { ...prev, ...patch };
       saveToStorage(BASE_STORAGE_KEY + '_settings', next);
       if (patch.uiMode) localStorage.setItem('wm_ui_mode', patch.uiMode);
+      // Sincronizar theme-mode para App.tsx/AntdProvider
+      if (patch.appTheme) {
+        const isDark = patch.appTheme === 'dark' || (patch.appTheme as string) === 'dark-pro';
+        localStorage.setItem('theme-mode', isDark ? 'dark' : 'light');
+      }
+      // Aplicar tema al DOM inmediatamente (síncrono)
+      if (typeof document !== 'undefined') {
+        const root = document.documentElement;
+        const THEME_MAP: Record<string, string> = {
+          'ant-design': 'ant-design', 'dark-pro': 'dark-pro', 'material3': 'material3',
+          'glassmorphism': 'glassmorphism', 'neomorphism': 'neomorphism',
+          'light': 'ant-design', 'dark': 'dark-pro', 'high-contrast': 'material3',
+        };
+        root.setAttribute('data-theme', THEME_MAP[next.appTheme] || 'ant-design');
+        if (next.primaryColor) root.style.setProperty('--primary', next.primaryColor);
+        root.classList.toggle('dark', next.appTheme === 'dark' || next.appTheme === 'dark-pro');
+        root.classList.toggle('compact-mode', next.compactMode === true);
+        localStorage.setItem('wm_erp_theme', THEME_MAP[next.appTheme] || 'ant-design');
+      }
       return next;
     });
   }, []);

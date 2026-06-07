@@ -19,12 +19,14 @@ if (SENTRY_DSN) {
   })
 }
 
-// Inicializar sistema de temas ANTES de renderizar React
-import('./lib/themes').then(({ initializeTheme }) => {
-  initializeTheme()
-}).catch(err => {
-  console.warn('No se pudo inicializar temas:', err)
-})
+// Inicializar sistema de temas ANTES de renderizar React (síncrono)
+try {
+  const savedTheme = localStorage.getItem('wm_erp_theme') || 'ant-design';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  document.documentElement.classList.toggle('dark', savedTheme === 'dark-pro');
+  // Cargar colores completos del tema en background
+  import('./lib/themes').then(({ initializeTheme }) => initializeTheme()).catch(() => {});
+} catch { /* silent */ }
 
 // Registrar Service Worker para offline
 if ('serviceWorker' in navigator) {
