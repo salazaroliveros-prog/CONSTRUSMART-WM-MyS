@@ -1,6 +1,34 @@
 /* ============================================================================
    ESTILOS GLOBALES POR TEMA - Se aplican a TODA la aplicación
+   IMPORTANTE: Este archivo se carga DESPUÉS de index.css/Tailwind para que
+   los selectores [data-theme] sobreescriban las variables de :root de Tailwind
    ============================================================================ */
+
+/* Transición suave al cambiar tema */
+html {
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+body {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Mobile: contenedores no se desbordan */
+*, *::before, *::after { box-sizing: border-box; }
+img, svg, video { max-width: 100%; }
+
+/* Touch targets mínimos 44px en mobile */
+@media (pointer: coarse) {
+  button, [role='button'], a, input, select, textarea {
+    min-height: 44px;
+  }
+}
+
+/* Scrollbar fino en mobile */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+}
 
 :root {
   --border-radius: 4px;
@@ -18,8 +46,8 @@
    TEMA: ANT DESIGN
    ============================================================================ */
 [data-theme='ant-design'] {
-  --primary: 221 83% 53%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 24 96% 63%;
+  --primary-foreground: 222.2 84% 4.9%;
   --secondary: 280 85% 44%;
   --secondary-foreground: 210 40% 98%;
   --accent: 39 89% 63%;
@@ -27,14 +55,22 @@
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
   --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  --muted-foreground: 215.4 16.3% 43%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
-  --destructive: 0 84.2% 60.2%;
+  --destructive: 0 84.2% 45%;
   --destructive-foreground: 210 40% 98%;
-  --ring: 221 83% 53%;
+  --ring: 24 96% 63%;
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 144 80% 16%;
+  --warning: 37.5 92.1% 50.2%;
+  --warning-foreground: 35 92% 18%;
+  --info: 198.6 88.7% 48.4%;
+  --info-foreground: 200 90% 14%;
+  --pending: 37.5 92.1% 50.2%;
+  --pending-foreground: 35 92% 18%;
   --border-radius: 4px;
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
@@ -63,9 +99,17 @@
   --input: 225 25% 8%;
   --card: 225 15% 12%;
   --card-foreground: 0 0% 88%;
-  --destructive: 0 100% 67%;
+  --destructive: 0 90% 45%;
   --destructive-foreground: 0 0% 100%;
   --ring: 180 100% 50%;
+  --success: 142.1 70.6% 35.3%;
+  --success-foreground: 144 80% 90%;
+  --warning: 37.5 92.1% 40.2%;
+  --warning-foreground: 35 92% 90%;
+  --info: 198.6 88.7% 38.4%;
+  --info-foreground: 200 90% 90%;
+  --pending: 37.5 92.1% 40.2%;
+  --pending-foreground: 35 92% 90%;
   --border-radius: 12px;
   --shadow-sm: 0 4px 12px rgba(0, 217, 255, 0.1);
   --shadow-md: 0 8px 24px rgba(0, 217, 255, 0.15);
@@ -97,6 +141,14 @@
   --destructive: 11 89% 35%;
   --destructive-foreground: 0 0% 100%;
   --ring: 268 99% 46%;
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 144 80% 16%;
+  --warning: 37.5 92.1% 50.2%;
+  --warning-foreground: 35 92% 18%;
+  --info: 198.6 88.7% 48.4%;
+  --info-foreground: 200 90% 14%;
+  --pending: 37.5 92.1% 50.2%;
+  --pending-foreground: 35 92% 18%;
   --border-radius: 12px;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
@@ -120,14 +172,22 @@
   --background: 210 93% 96%;
   --foreground: 210 35% 10%;
   --muted: 193 72% 81%;
-  --muted-foreground: 210 35% 35%;
+  --muted-foreground: 210 35% 30%;
   --border: 158 72% 74%;
   --input: 0 0% 100%;
   --card: 0 0% 100%;
   --card-foreground: 210 35% 10%;
-  --destructive: 348 100% 59%;
+  --destructive: 348 90% 42%;
   --destructive-foreground: 0 0% 100%;
   --ring: 191 100% 42%;
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 144 80% 16%;
+  --warning: 37.5 92.1% 50.2%;
+  --warning-foreground: 35 92% 18%;
+  --info: 198.6 88.7% 48.4%;
+  --info-foreground: 200 90% 14%;
+  --pending: 37.5 92.1% 50.2%;
+  --pending-foreground: 35 92% 18%;
   --border-radius: 20px;
   --shadow-sm: 0 8px 32px rgba(31, 38, 135, 0.15);
   --shadow-md: 0 8px 32px rgba(31, 38, 135, 0.25);
@@ -152,14 +212,22 @@
   --background: 211 17% 94%;
   --foreground: 219 8% 33%;
   --muted: 212 6% 87%;
-  --muted-foreground: 212 4% 55%;
+  --muted-foreground: 212 4% 45%;
   --border: 212 9% 82%;
   --input: 211 17% 94%;
   --card: 210 9% 98%;
   --card-foreground: 219 8% 33%;
-  --destructive: 8 68% 52%;
+  --destructive: 8 68% 40%;
   --destructive-foreground: 0 0% 100%;
   --ring: 219 8% 42%;
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 144 80% 16%;
+  --warning: 37.5 92.1% 50.2%;
+  --warning-foreground: 35 92% 18%;
+  --info: 198.6 88.7% 48.4%;
+  --info-foreground: 200 90% 14%;
+  --pending: 37.5 92.1% 50.2%;
+  --pending-foreground: 35 92% 18%;
   --border-radius: 16px;
   --shadow-sm: 4px 4px 8px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.8);
   --shadow-md: 6px 6px 12px rgba(0, 0, 0, 0.1), -3px -3px 6px rgba(255, 255, 255, 0.9);
@@ -171,41 +239,9 @@
 }
 
 /* ============================================================================
-   ESTILOS GLOBALES - Se aplican en TODOS los temas con variaciones
+   UTILIDADES POR TEMA — solo para glassmorphism y neomorphism
+   (ant-design y dark-pro no necesitan overrides globales extra)
    ============================================================================ */
-
-body {
-  border-radius: var(--border-radius);
-}
-
-/* BOTONES */
-button, [role='button'] {
-  border-radius: var(--border-radius);
-  transition: all var(--transition-base);
-  box-shadow: var(--shadow-sm);
-}
-
-button:hover:not(:disabled) {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-button:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: var(--shadow-sm);
-}
-
-/* INPUTS */
-input, textarea, select {
-  border-radius: var(--border-radius);
-  transition: all var(--transition-base);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-input:focus, textarea:focus, select:focus {
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 0 0 3px hsl(var(--ring) / 0.1);
-  outline: none;
-}
 
 [data-theme='glassmorphism'] input,
 [data-theme='glassmorphism'] textarea,
@@ -220,63 +256,6 @@ input:focus, textarea:focus, select:focus {
   box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.8);
 }
 
-/* CARDS */
-.card, [class*='Card'] {
-  border-radius: var(--border-radius);
-  transition: all var(--transition-base);
-  box-shadow: var(--shadow-md);
-}
-
-.card:hover, [class*='Card']:hover {
-  box-shadow: var(--shadow-lg);
-}
-
-[data-theme='glassmorphism'] .card,
-[data-theme='glassmorphism'] [class*='Card'] {
-  backdrop-filter: var(--backdrop-blur);
-  border: 1px solid hsl(var(--border) / 0.3);
-  background: hsl(var(--card) / 0.6);
-}
-
-[data-theme='neomorphism'] .card,
-[data-theme='neomorphism'] [class*='Card'] {
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.9);
-  background: hsl(var(--card));
-}
-
-/* TABLAS */
-table {
-  border-collapse: collapse;
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-}
-
-table tr {
-  transition: all var(--transition-fast);
-}
-
-table tbody tr:hover {
-  background-color: hsl(var(--muted));
-  box-shadow: inset 0 0 8px hsl(var(--primary) / 0.1);
-}
-
-table th {
-  background-color: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  font-weight: 600;
-  border-radius: var(--border-radius);
-}
-
-table td, table th {
-  border: 1px solid hsl(var(--border));
-  padding: 12px;
-}
-
-[data-theme='dark-pro'] table {
-  box-shadow: var(--shadow-md);
-}
-
 [data-theme='dark-pro'] table th {
   background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
 }
@@ -289,48 +268,20 @@ table td, table th {
   box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.08), -8px -8px 16px rgba(255, 255, 255, 0.9);
 }
 
-/* HEADERS / NAVEGACIÓN */
-header, nav, [role='navigation'] {
-  background-color: hsl(var(--card));
-  box-shadow: var(--shadow-md);
-  border-bottom: 1px solid hsl(var(--border));
-  border-radius: 0;
-}
-
 [data-theme='dark-pro'] header,
 [data-theme='dark-pro'] nav {
   background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--muted)));
-  border-bottom: 1px solid hsl(var(--border));
 }
 
 [data-theme='glassmorphism'] header,
 [data-theme='glassmorphism'] nav {
   backdrop-filter: var(--backdrop-blur);
   background: hsl(var(--card) / 0.7);
-  border-bottom: 1px solid hsl(var(--border) / 0.3);
 }
 
 [data-theme='neomorphism'] header,
 [data-theme='neomorphism'] nav {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 -2px 8px rgba(255, 255, 255, 0.9);
-}
-
-/* MODALES / DIALOGS */
-[role='dialog'], dialog {
-  border-radius: calc(var(--border-radius) * 3);
-  box-shadow: var(--shadow-xl);
-  animation: slideIn var(--transition-base);
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 [data-theme='glassmorphism'] [role='dialog'],
@@ -345,31 +296,6 @@ header, nav, [role='navigation'] {
   box-shadow: 16px 16px 32px rgba(0, 0, 0, 0.15), -16px -16px 32px rgba(255, 255, 255, 0.95);
 }
 
-/* FORMULARIOS */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-form label {
-  font-weight: 500;
-  color: hsl(var(--foreground));
-  transition: color var(--transition-fast);
-}
-
-form input:focus ~ label,
-form input:valid ~ label {
-  color: hsl(var(--primary));
-}
-
-/* SIDEBAR */
-[class*='Sidebar'], aside, [role='complementary'] {
-  background-color: hsl(var(--card));
-  box-shadow: var(--shadow-md);
-  border-right: 1px solid hsl(var(--border));
-}
-
 [data-theme='dark-pro'] [class*='Sidebar'],
 [data-theme='dark-pro'] aside {
   background: linear-gradient(180deg, hsl(var(--card)), hsl(var(--muted)));
@@ -379,7 +305,6 @@ form input:valid ~ label {
 [data-theme='glassmorphism'] aside {
   backdrop-filter: var(--backdrop-blur);
   background: hsl(var(--card) / 0.6);
-  border-right: 1px solid hsl(var(--border) / 0.3);
 }
 
 [data-theme='neomorphism'] [class*='Sidebar'],
@@ -387,42 +312,21 @@ form input:valid ~ label {
   box-shadow: 8px 0 16px rgba(0, 0, 0, 0.08), -2px 0 8px rgba(255, 255, 255, 0.9);
 }
 
-/* ALERTAS */
-[role='alert'], .alert {
-  border-radius: var(--border-radius);
-  padding: 12px 16px;
-  border-left: 4px solid hsl(var(--ring));
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-base);
+[data-theme='dark-pro'] .card,
+[data-theme='dark-pro'] [class*='Card'] {
+  box-shadow: var(--shadow-md);
 }
 
-[data-theme='dark-pro'] [role='alert'],
-[data-theme='dark-pro'] .alert {
-  background: linear-gradient(90deg, hsl(var(--primary) / 0.2), transparent);
-  border-left-color: hsl(var(--primary));
-}
-
-[data-theme='glassmorphism'] [role='alert'],
-[data-theme='glassmorphism'] .alert {
+[data-theme='glassmorphism'] .card,
+[data-theme='glassmorphism'] [class*='Card'] {
   backdrop-filter: var(--backdrop-blur);
-  background: hsl(var(--primary) / 0.1);
-  border: 1px solid hsl(var(--primary) / 0.3);
-  border-left: 4px solid hsl(var(--primary));
+  border: 1px solid hsl(var(--border) / 0.3);
+  background: hsl(var(--card) / 0.6);
 }
 
-[data-theme='neomorphism'] [role='alert'],
-[data-theme='neomorphism'] .alert {
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9);
-  border-left-color: hsl(var(--primary));
-}
-
-/* BADGES / ETIQUETAS */
-[class*='Badge'], .badge {
-  border-radius: calc(var(--border-radius) * 2);
-  padding: 4px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: all var(--transition-fast);
+[data-theme='neomorphism'] .card,
+[data-theme='neomorphism'] [class*='Card'] {
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.9);
 }
 
 [data-theme='dark-pro'] [class*='Badge'],
@@ -435,26 +339,6 @@ form input:valid ~ label {
   backdrop-filter: var(--backdrop-blur);
 }
 
-/* TOOLTIPS */
-[role='tooltip'] {
-  border-radius: calc(var(--border-radius) * 2);
-  box-shadow: var(--shadow-lg);
-  background-color: hsl(var(--foreground));
-  color: hsl(var(--background));
-  padding: 8px 12px;
-  font-size: 12px;
-  animation: fadeIn var(--transition-fast);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 [data-theme='glassmorphism'] [role='tooltip'] {
   backdrop-filter: var(--backdrop-blur);
 }
@@ -463,85 +347,10 @@ form input:valid ~ label {
   box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.12), -2px -2px 4px rgba(255, 255, 255, 0.9);
 }
 
-/* SCROLLBARS */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: hsl(var(--muted));
-}
-
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--primary));
-  border-radius: calc(var(--border-radius) * 2);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--primary) / 0.8);
-}
-
 [data-theme='dark-pro'] ::-webkit-scrollbar-track {
   background: hsl(var(--muted));
 }
 
 [data-theme='dark-pro'] ::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
-}
-
-/* DROPDOWNS / SELECTS */
-select, [role='listbox'] {
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-base);
-  cursor: pointer;
-}
-
-select:hover, [role='listbox']:hover {
-  box-shadow: var(--shadow-md);
-}
-
-select:focus, [role='listbox']:focus {
-  box-shadow: var(--shadow-md), 0 0 0 3px hsl(var(--ring) / 0.1);
-  outline: none;
-}
-
-/* PROGRESS BARS */
-progress {
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  height: 8px;
-}
-
-progress::-webkit-progress-bar {
-  background: hsl(var(--muted));
-}
-
-progress::-webkit-progress-value {
-  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
-  border-radius: var(--border-radius);
-}
-
-[data-theme='dark-pro'] progress::-webkit-progress-value {
-  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)));
-  box-shadow: 0 0 8px hsl(var(--primary) / 0.4);
-}
-
-/* LINKS */
-a {
-  color: hsl(var(--primary));
-  text-decoration: none;
-  transition: all var(--transition-fast);
-}
-
-a:hover {
-  color: hsl(var(--primary) / 0.8);
-  text-decoration: underline;
-}
-
-a:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-  border-radius: 2px;
 }

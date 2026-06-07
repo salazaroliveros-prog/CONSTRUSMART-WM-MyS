@@ -2,7 +2,7 @@ import React from 'react';
 import { Drawer, Button, Space } from 'antd';
 import type { DrawerProps } from 'antd';
 
-interface AntDrawerProps extends Omit<DrawerProps, 'title'> {
+interface AntDrawerOwnProps {
   title?: React.ReactNode;
   onClose: () => void;
   onSubmit?: () => void | Promise<void>;
@@ -10,33 +10,25 @@ interface AntDrawerProps extends Omit<DrawerProps, 'title'> {
   cancelText?: string;
   loading?: boolean;
   children: React.ReactNode;
-  size?: 'small' | 'default' | 'large';
 }
 
-const sizeMap: { [key: string]: number } = {
-  small: 300,
-  default: 500,
-  large: 750,
-};
+type AntDrawerProps = Omit<DrawerProps, 'title'> & AntDrawerOwnProps;
 
-export const AntDrawer = React.forwardRef<any, AntDrawerProps>(
-  ({
-    title,
-    onClose,
-    onSubmit,
-    submitText = 'Guardar',
-    cancelText = 'Cancelar',
-    loading = false,
-    children,
-    size = 'default',
-    ...props
-  }, ref) => {
+const AntDrawer: React.FC<AntDrawerProps> = ({
+  title,
+  onClose,
+  onSubmit,
+  submitText = 'Guardar',
+  cancelText = 'Cancelar',
+  loading = false,
+  children,
+  ...props
+}) => {
     return (
       <Drawer
-        ref={ref}
         title={title}
         onClose={onClose}
-        width={sizeMap[size] || sizeMap.default}
+        width={500}
         footer={
           <Space style={{ float: 'right' }}>
             <Button onClick={onClose}>{cancelText}</Button>
@@ -56,9 +48,6 @@ export const AntDrawer = React.forwardRef<any, AntDrawerProps>(
         {children}
       </Drawer>
     );
-  }
-);
-
-AntDrawer.displayName = 'AntDrawer';
+};
 
 export default AntDrawer;

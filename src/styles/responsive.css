@@ -1,6 +1,31 @@
-/* Global Mobile Optimization Styles */
+/* =========================================================
+   OPTIMIZACIÓN RESPONSIVA — CONSTRUSMART ERP
+   Mobile-first, orientación, scrolling, rendimiento táctil
+   ========================================================= */
 
-/* Prevenir zoom no deseado en inputs */
+/* --- RESET BASE TÁCTIL --- */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  overscroll-behavior: none;
+}
+
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch; /* scroll suave iOS */
+  overflow-x: hidden;
+  width: 100%;
+  /* Dynamic viewport height para evitar saltos con UI mobile */
+  min-height: 100dvh;
+}
+
+/* --- PREVENIR ZOOM EN INPUTS (necesario para iOS) --- */
 @media (max-width: 768px) {
   input,
   textarea,
@@ -9,58 +34,122 @@
   }
 }
 
-/* Body Mobile Optimization */
+/* --- SAFE AREA (notch, home indicator) --- */
+body {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* --- ELIMINAR DELAY DE 300ms EN TAPS --- */
+a, button, [role='button'], input, select, textarea, label {
+  touch-action: manipulation;
+}
+
+/* --- PREVENIR SELECCIÓN EN ELEMENTOS INTERACTIVOS --- */
+button, a, [role='button'], .no-select {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* --- PREVENIR STRETCH EN TABLAS MÓVIL (scroll horizontal en vez de ocultar) --- */
+@media (max-width: 768px) {
+  .ant-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ant-table {
+    min-width: 600px;
+  }
+  /* Revertimos el display:none que oculta columnas — mejor scroll horizontal */
+  .ant-table thead th:nth-child(n+3),
+  .ant-table tbody td:nth-child(n+3) {
+    display: table-cell;
+  }
+}
+
+/* --- ORIENTACIÓN LANDSCAPE: evitar que la app se vea comprimida --- */
+@media (max-height: 480px) and (orientation: landscape) {
+  body {
+    font-size: 13px;
+  }
+  h1 { font-size: 20px; }
+  h2 { font-size: 16px; }
+  h3 { font-size: 14px; }
+  .ant-btn { height: 36px; padding: 0 10px; }
+  .ant-input, .ant-select-selector { height: 32px !important; }
+  .ant-card-body { padding: 10px; }
+  .ant-table-cell { padding: 6px 4px !important; }
+  /* Layout horizontal en landscape */
+  .landscape-row {
+    flex-direction: row !important;
+  }
+  .landscape-sidebar {
+    width: 200px !important;
+    min-width: 200px !important;
+  }
+  /* Ocultar elementos decorativos en landscape reducido */
+  .hide-landscape {
+    display: none !important;
+  }
+}
+
+/* --- ORIENTACIÓN PORTRAIT: apilar verticalmente --- */
+@media (orientation: portrait) and (max-width: 576px) {
+  .portrait-stack {
+    flex-direction: column !important;
+  }
+  .portrait-full {
+    width: 100% !important;
+  }
+}
+
+/* --- RESPONSIVE BODY TYPOGRAPHY --- */
 @media (max-width: 576px) {
   body {
     font-size: 14px;
     line-height: 1.6;
   }
-
-  html {
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-  }
-
-  /* Prevenir scroll horizontal */
-  html,
-  body {
-    overflow-x: hidden;
-  }
-
-  /* Safe area inset para devices con notch */
-  body {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-    padding-top: env(safe-area-inset-top);
-  }
 }
 
-/* Optimización de imágenes responsivas */
+/* --- IMÁGENES Y MULTIMEDIA --- */
 img {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-/* Video responsivo */
-video,
-iframe {
+video, iframe {
   max-width: 100%;
   height: auto;
 }
 
-/* Prevenir bounce scroll en iOS */
-@supports (padding: max(0px)) {
-  body {
-    padding-left: max(0px, env(safe-area-inset-left));
-    padding-right: max(0px, env(safe-area-inset-right));
+/* --- CONTENEDOR PRINCIPAL: 100% ancho en móvil, max-width en desktop --- */
+.app-container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .app-container {
+    max-width: 1200px;
+    padding: 0 16px;
   }
 }
 
-/* Scrollbar personalizada */
+@media (min-width: 1200px) {
+  .app-container {
+    max-width: 1400px;
+  }
+}
+
+/* --- SCROLLBAR PERSONALIZADA --- */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -68,37 +157,23 @@ iframe {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #bfbfbf;
-  border-radius: 4px;
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #8c8c8c;
+  background: hsl(var(--muted-foreground) / 0.5);
 }
 
-@media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar-thumb {
-    background: #434343;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #595959;
+/* Scrollbar casi invisible en móvil */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
   }
 }
 
-/* Optimización de tap en móvil */
-@media (hover: none) {
-  button,
-  a,
-  [role='button'],
-  input[type='button'],
-  input[type='submit'] {
-    -webkit-tap-highlight-color: transparent;
-    tap-highlight-color: transparent;
-  }
-}
-
-/* Container queries para componentes adaptativos */
+/* --- CONTAINER QUERIES (componentes adaptativos) --- */
 @supports (container-type: inline-size) {
   .responsive-container {
     container-type: inline-size;
@@ -129,7 +204,7 @@ iframe {
   }
 }
 
-/* Flex utilities responsivos */
+/* --- FLEX UTILITIES --- */
 .flex-mobile-col {
   display: flex;
   flex-direction: column;
@@ -160,7 +235,6 @@ iframe {
   }
 }
 
-/* Stack responsivo */
 .stack-mobile {
   display: grid;
   grid-auto-flow: column;
@@ -174,12 +248,11 @@ iframe {
   }
 }
 
-/* Hide/Show por breakpoint */
+/* --- HIDE/SHOW POR BREAKPOINT --- */
 @media (max-width: 576px) {
   .hide-mobile {
     display: none !important;
   }
-
   .show-mobile-only {
     display: block !important;
   }
@@ -189,7 +262,6 @@ iframe {
   .hide-tablet {
     display: none !important;
   }
-
   .show-tablet-only {
     display: block !important;
   }
@@ -199,154 +271,24 @@ iframe {
   .hide-desktop {
     display: none !important;
   }
-
   .show-desktop-only {
     display: block !important;
   }
 }
 
-/* Responsive text utilities */
-@media (max-width: 576px) {
-  .text-responsive-lg {
-    font-size: 18px;
-  }
+/* --- RESPONSIVE TEXT --- */
+.text-responsive-lg { font-size: clamp(18px, 4vw, 24px); }
+.text-responsive-md { font-size: clamp(14px, 3vw, 16px); }
+.text-responsive-sm { font-size: clamp(12px, 2.5vw, 14px); }
+.text-responsive-xs { font-size: clamp(10px, 2vw, 12px); }
 
-  .text-responsive-md {
-    font-size: 14px;
-  }
+/* --- RESPONSIVE SPACING --- */
+.p-responsive { padding: clamp(8px, 2vw, 24px); }
+.m-responsive { margin: clamp(8px, 2vw, 24px); }
+.gap-responsive { gap: clamp(8px, 2vw, 24px); }
 
-  .text-responsive-sm {
-    font-size: 12px;
-  }
+.rounded-responsive { border-radius: clamp(4px, 1vw, 8px); }
 
-  .text-responsive-xs {
-    font-size: 10px;
-  }
-}
-
-@media (min-width: 576px) and (max-width: 768px) {
-  .text-responsive-lg {
-    font-size: 20px;
-  }
-
-  .text-responsive-md {
-    font-size: 15px;
-  }
-
-  .text-responsive-sm {
-    font-size: 13px;
-  }
-
-  .text-responsive-xs {
-    font-size: 11px;
-  }
-}
-
-@media (min-width: 768px) {
-  .text-responsive-lg {
-    font-size: 24px;
-  }
-
-  .text-responsive-md {
-    font-size: 16px;
-  }
-
-  .text-responsive-sm {
-    font-size: 14px;
-  }
-
-  .text-responsive-xs {
-    font-size: 12px;
-  }
-}
-
-/* Padding responsivo */
-.p-responsive {
-  padding: 8px;
-}
-
-@media (min-width: 576px) {
-  .p-responsive {
-    padding: 12px;
-  }
-}
-
-@media (min-width: 768px) {
-  .p-responsive {
-    padding: 16px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .p-responsive {
-    padding: 24px;
-  }
-}
-
-/* Margin responsivo */
-.m-responsive {
-  margin: 8px;
-}
-
-@media (min-width: 576px) {
-  .m-responsive {
-    margin: 12px;
-  }
-}
-
-@media (min-width: 768px) {
-  .m-responsive {
-    margin: 16px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .m-responsive {
-    margin: 24px;
-  }
-}
-
-/* Gap responsivo */
-.gap-responsive {
-  gap: 8px;
-}
-
-@media (min-width: 576px) {
-  .gap-responsive {
-    gap: 12px;
-  }
-}
-
-@media (min-width: 768px) {
-  .gap-responsive {
-    gap: 16px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .gap-responsive {
-    gap: 24px;
-  }
-}
-
-/* Border radius responsivo */
-.rounded-responsive {
-  border-radius: 4px;
-}
-
-@media (min-width: 576px) {
-  .rounded-responsive {
-    border-radius: 6px;
-  }
-}
-
-@media (min-width: 768px) {
-  .rounded-responsive {
-    border-radius: 8px;
-  }
-}
-
-/* Shadow responsivo */
 .shadow-responsive {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
@@ -363,16 +305,14 @@ iframe {
   }
 }
 
-/* Transitions responsivas */
+/* --- TRANSITIONS (con respeto a prefers-reduced-motion) --- */
 @media (prefers-reduced-motion: no-preference) {
   .transition-smooth {
     transition: all 300ms cubic-bezier(0.645, 0.045, 0.355, 1);
   }
-
   .transition-smooth-fast {
     transition: all 150ms cubic-bezier(0.645, 0.045, 0.355, 1);
   }
-
   .transition-smooth-slow {
     transition: all 500ms cubic-bezier(0.645, 0.045, 0.355, 1);
   }
@@ -384,29 +324,25 @@ iframe {
   .transition-smooth-slow {
     transition: none;
   }
+
+  /* También desactivar animaciones CSS de terceros */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-/* Aspect ratio responsivo */
-.aspect-square {
-  aspect-ratio: 1;
-}
+/* --- ASPECT RATIO --- */
+.aspect-square { aspect-ratio: 1; }
+.aspect-video { aspect-ratio: 16 / 9; }
+.aspect-3-2 { aspect-ratio: 3 / 2; }
+.aspect-4-3 { aspect-ratio: 4 / 3; }
 
-.aspect-video {
-  aspect-ratio: 16 / 9;
-}
-
-.aspect-3-2 {
-  aspect-ratio: 3 / 2;
-}
-
-.aspect-4-3 {
-  aspect-ratio: 4 / 3;
-}
-
-/* Fullscreen responsive */
+/* --- FULLSCREEN MÓVIL --- */
 .fullscreen-mobile {
   width: 100vw;
-  height: 100vh;
+  height: 100dvh; /* dvh evita problemas con URL bar en móvil */
   position: fixed;
   top: 0;
   left: 0;
@@ -417,5 +353,34 @@ iframe {
     width: auto;
     height: auto;
     position: relative;
+  }
+}
+
+/* --- WILL-CHANGE HINTS (solo para elementos animados) --- */
+.will-animate {
+  will-change: transform, opacity;
+}
+
+/* --- PRINT STYLES --- */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 12pt;
+  }
+
+  header, nav, footer, .no-print {
+    display: none !important;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  .ant-table, .ant-card {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
   }
 }

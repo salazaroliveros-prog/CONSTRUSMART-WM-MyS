@@ -43,27 +43,27 @@ const AntCRM: React.FC = () => {
   React.useEffect(() => {
     if (licitaciones.length > 0) return;
     const demoData = [
-      { titulo: 'Edificio Comercial Plaza Norte', cliente: 'Inmobiliaria del Valle', descripcion: 'Construcción de edificio de 5 niveles', monto: 2500000, estado: 'identificado' as const, fechaCreacion: '2026-01-02', probabilidad: 30, notas: 'Cliente potencial' },
-      { titulo: 'Residencial Los Pinos - Fase 2', cliente: 'Constructora Maya', descripcion: '20 casas unifamiliares', monto: 1800000, estado: 'en_estudio' as const, fechaCreacion: '2025-12-15', probabilidad: 60, notas: 'Presupuesto en elaboración' },
-      { titulo: 'Centro Comercial San Cristóbal', cliente: 'Grupo Inmobiliario GT', descripcion: 'Remodelación y ampliación', monto: 950000, estado: 'presentado' as const, fechaCreacion: '2025-11-20', probabilidad: 75, notas: 'Propuesta entregada' },
-      { titulo: 'Puente Vehicular Ruta 5', cliente: 'Municipalidad de Guatemala', descripcion: 'Construcción de puente de 40m', monto: 3200000, estado: 'ganado' as const, fechaCreacion: '2025-10-01', probabilidad: 100, notas: 'Contrato firmado' },
-      { titulo: 'Oficinas Corporativas Torre Sur', cliente: 'Empresas ABC', descripcion: 'Remodelación de 3 pisos', monto: 750000, estado: 'perdido' as const, fechaCreacion: '2025-09-15', probabilidad: 0, notas: 'Cliente eligió otra' },
+      { nombre: 'Edificio Comercial Plaza Norte', cliente: 'Inmobiliaria del Valle', monto: 2500000, estado: 'activa' as const, fechaLimite: '2026-03-15', documentos: [], notas: 'Cliente potencial' },
+      { nombre: 'Residencial Los Pinos - Fase 2', cliente: 'Constructora Maya', monto: 1800000, estado: 'activa' as const, fechaLimite: '2026-02-20', documentos: [], notas: 'Presupuesto en elaboración' },
+      { nombre: 'Centro Comercial San Cristóbal', cliente: 'Grupo Inmobiliario GT', monto: 950000, estado: 'activa' as const, fechaLimite: '2026-01-30', documentos: [], notas: 'Propuesta entregada' },
+      { nombre: 'Puente Vehicular Ruta 5', cliente: 'Municipalidad de Guatemala', monto: 3200000, estado: 'ganada' as const, fechaLimite: '2025-12-01', documentos: [], notas: 'Contrato firmado' },
+      { nombre: 'Oficinas Corporativas Torre Sur', cliente: 'Empresas ABC', monto: 750000, estado: 'perdida' as const, fechaLimite: '2025-11-15', documentos: [], notas: 'Cliente eligió otra' },
     ];
     demoData.forEach(d => addLicitacion(d));
   }, [addLicitacion, licitaciones.length]);
 
   const columns = useMemo(() => ESTADOS.map(est => ({
     ...est,
-    items: licitaciones.filter(l => l.estado === est.key)
-      .sort((a, b) => new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime()),
+    items: licitaciones.filter(l => l.estado === est.key as any)
+      .sort((a, b) => new Date(b.fechaLimite).getTime() - new Date(a.fechaLimite).getTime()),
   })), [licitaciones]);
 
   const totalMonto = licitaciones.reduce((a, l) => a + l.monto, 0);
-  const ganadas = licitaciones.filter(l => l.estado === 'ganado');
-  const tasaConversion = licitaciones.filter(l => l.estado === 'ganado' || l.estado === 'perdido').length > 0
-    ? Math.round((ganadas.length / licitaciones.filter(l => l.estado === 'ganado' || l.estado === 'perdido').length) * 100) : 0;
-  const pipelineActivo = licitaciones.filter(l => l.estado !== 'ganado' && l.estado !== 'perdido')
-    .reduce((a, l) => a + l.monto * (l.probabilidad / 100), 0);
+  const ganadas = licitaciones.filter(l => l.estado === 'ganada');
+  const tasaConversion = licitaciones.filter(l => l.estado === 'ganada' || l.estado === 'perdida').length > 0
+    ? Math.round((ganadas.length / licitaciones.filter(l => l.estado === 'ganada' || l.estado === 'perdida').length) * 100) : 0;
+  const pipelineActivo = licitaciones.filter(l => l.estado !== 'ganada' && l.estado !== 'perdida')
+    .reduce((a, l) => a + l.monto * 0.5, 0);
 
   const openCreate = () => { setEditingId(null); form.resetFields(); setShowForm(true); };
   const openEdit = (l: any) => { setEditingId(l.id); form.setFieldsValue(l); setShowForm(true); };
@@ -71,9 +71,9 @@ const AntCRM: React.FC = () => {
   const handleOk = async () => {
     const values = await form.validateFields();
     if (editingId) {
-      updateLicitacion(editingId, { ...values, fechaLimite: values.fechaLimite || undefined, notas: values.notas || undefined });
+      updateLicitacion(editingId, { ...values, documentos: values.documentos || [] });
     } else {
-      addLicitacion({ ...values, estado: 'identificado', fechaCreacion: todayISO(), notas: values.notas || undefined, fechaLimite: values.fechaLimite || undefined });
+      addLicitacion({ ...values, estado: 'activa', documentos: values.documentos || [] });
     }
     setShowForm(false);
     setEditingId(null);
@@ -186,15 +186,15 @@ const AntCRM: React.FC = () => {
                       <DeleteOutlined key="delete" onClick={() => deleteLicitacion(l.id)} style={{ color: 'hsl(var(--destructive))' }} />,
                     ]}
                   >
-                    <Text strong style={{ fontSize: 13 }}>{l.titulo}</Text>
+                    <Text strong style={{ fontSize: 13 }}>{l.nombre}</Text>
                     <Text type="secondary" style={{ display: 'block', fontSize: 11 }}>{l.cliente}</Text>
                     <Row justify="space-between" align="middle" style={{ marginTop: 4 }}>
                       <Text strong style={{ fontSize: 13 }}>{fmtQ(l.monto)}</Text>
-                      <Tag color={l.probabilidad >= 70 ? 'success' : l.probabilidad >= 40 ? 'gold' : 'default'}>
-                        {l.probabilidad}%
+                      <Tag color="default">
+                        {l.estado}
                       </Tag>
                     </Row>
-                    <Progress percent={l.probabilidad} size="small"
+                    <Progress percent={50} size="small"
                       strokeColor={COLUMN_COLORS[col.key]} showInfo={false} />
                     {l.notas && <Text type="secondary" style={{ fontSize: 10, display: 'block', marginTop: 4, fontStyle: 'italic' }}>{l.notas}</Text>}
                   </Card>
@@ -214,7 +214,7 @@ const AntCRM: React.FC = () => {
         width={560}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="titulo" label="Título" rules={[{ required: true }]}>
+          <Form.Item name="nombre" label="Nombre" rules={[{ required: true }]}>
             <Input placeholder="Ej. Edificio Comercial" />
           </Form.Item>
           <Space style={{ width: '100%' }}>
@@ -229,10 +229,7 @@ const AntCRM: React.FC = () => {
             <Input.TextArea rows={2} placeholder="Detalles de la oportunidad..." />
           </Form.Item>
           <Space style={{ width: '100%' }}>
-            <Form.Item name="probabilidad" label="Probabilidad (%)" initialValue={50} style={{ width: '100%' }}>
-              <InputNumber min={0} max={100} style={{ width: '100%' }} />
-            </Form.Item>
-            <Form.Item name="fechaLimite" label="Fecha Límite" style={{ width: '100%' }}>
+            <Form.Item name="fechaLimite" label="Fecha Límite" rules={[{ required: true }]} style={{ width: '100%' }}>
               <Input type="date" />
             </Form.Item>
           </Space>

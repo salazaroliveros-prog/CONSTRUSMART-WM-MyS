@@ -14,7 +14,7 @@ const movimientoSchema = z.object({
   descripcion: z.string().min(1, 'La descripción es requerida'),
   cantidad: z.coerce.number().min(0, 'La cantidad debe ser positiva'),
   unidad: z.string().min(1, 'La unidad es requerida'),
-  categoria: z.enum(['materiales', 'mano_obra', 'herramienta', 'sub_contrato', 'administrativo', 'personal', 'transporte', 'fijos', 'hogar', 'aporte', 'trabajos_extra']),
+  categoria: z.enum(['materiales', 'mano_obra', 'equipo', 'subcontrato', 'administracion', 'transporte', 'imprevistos', 'marketing', 'licencias', 'seguros', 'otros']),
   costoUnitario: z.coerce.number().min(0, 'El costo debe ser positivo'),
   fecha: z.string().min(1, 'La fecha es requerida'),
 });
@@ -53,12 +53,13 @@ const MovimientoForm: React.FC<{ compact?: boolean }> = ({ compact }) => {
   const onSubmit = (data: MovimientoFormData) => {
     addMovimiento({
       tipo: data.tipo,
-      proyectoId: data.proyectoId || null,
+      proyectoId: data.proyectoId || '',
       descripcion: data.descripcion,
       cantidad: data.cantidad,
       unidad: data.unidad,
       categoria: data.categoria,
       costoUnitario: data.costoUnitario,
+      monto: total,
       costoTotal: total,
       fecha: data.fecha,
     });

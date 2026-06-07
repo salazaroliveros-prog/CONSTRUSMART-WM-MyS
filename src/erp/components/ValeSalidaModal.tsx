@@ -78,15 +78,14 @@ const ValeSalidaModal: React.FC<Props> = ({ open, onClose }) => {
 
     const vale: Omit<ValeSalida, 'id'> = {
       proyectoId,
-      renglonCodigo: renglonCodigo.trim() || undefined,
-      renglonNombre: renglonNombre.trim() || undefined,
+      renglonId: renglonCodigo.trim() || undefined,
       fecha: todayISO(),
       items: items.map(i => ({
-        ...i,
-        total: i.cantidad * i.precio,
+        materialId: i.materialId,
+        cantidad: i.cantidad,
       })),
-      responsable: responsable.trim(),
-      notas: notas.trim() || undefined,
+      solicitante: responsable.trim(),
+      observaciones: notas.trim() || undefined,
     };
 
     await addValeSalida(vale);

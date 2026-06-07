@@ -1,11 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useErp } from '../store';
+import RecepcionMateriales from '../components/RecepcionMateriales';
 
 export const EntradasAlmacenOC: React.FC = () => {
   const { ordenes, materiales, updateMaterial, updateOrden } = useErp();
   const [ocFilter, setOcFilter] = useState<'todas' | 'pendientes' | 'aprobadas'>('todas');
   const [showForm, setShowForm] = useState<string | null>(null);
   const [formCantidad, setFormCantidad] = useState(0);
+  const [recepciones, setRecepciones] = useState<any[]>([]);
 
   const ocFiltradas = useMemo(() => {
     let filtered = ordenes;
@@ -44,8 +46,7 @@ export const EntradasAlmacenOC: React.FC = () => {
     const diferencia = orden.cantidad - recibidoTotal;
 
     // Registrar recepción en store
-    const recepcionesActuales = JSON.parse(localStorage.getItem('wm_erp_recepciones_oc') || '[]');
-    recepcionesActuales.push({
+    const nuevaRecepcion = {
       id: Date.now().toString(),
       ocId,
       fecha: new Date().toISOString(),
@@ -54,16 +55,14 @@ export const EntradasAlmacenOC: React.FC = () => {
       diferencia,
       material: orden.material,
       proveedor: orden.proveedor
-    });
-    localStorage.setItem('wm_erp_recepciones_oc', JSON.stringify(recepcionesActuales));
+    };
+    setRecepciones(prev => [...prev, nuevaRecepcion]);
 
     setShowForm(null);
     setFormCantidad(0);
   };
 
-  const historialRecepciones = useMemo(() => {
-    try { return JSON.parse(localStorage.getItem('wm_erp_recepciones_oc') || '[]'); } catch { return []; }
-  }, []);
+  const historialRecepciones = recepciones;
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">

@@ -5,7 +5,7 @@
 
 interface ThemeSettings {
   primaryColor?: string;
-  appTheme?: 'light' | 'dark' | 'high-contrast';
+  appTheme?: string;
   compactMode?: boolean;
   uiMode?: 'shadcn' | 'antd';
 }

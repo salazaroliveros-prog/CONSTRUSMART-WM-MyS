@@ -1,8 +1,8 @@
 import React from 'react';
 import { Card as AntCardComponent } from 'antd';
-import type { CardProps as AntCardProps } from 'antd';
+import type { CardProps } from 'antd';
 
-interface AntCardProps extends Omit<AntCardProps, 'title'> {
+interface AntCardOwnProps {
   title?: string | React.ReactNode;
   children: React.ReactNode;
   loading?: boolean;
@@ -10,6 +10,8 @@ interface AntCardProps extends Omit<AntCardProps, 'title'> {
   extra?: React.ReactNode;
   bodyStyle?: React.CSSProperties;
 }
+
+export type AntCardProps = Omit<CardProps, 'title'> & AntCardOwnProps;
 
 export const AntCard = React.forwardRef<HTMLDivElement, AntCardProps>(
   ({

@@ -8,13 +8,11 @@ import { todayISO, fmtQ } from '../utils';
 
 const CuentasCobrarScreen: React.FC = () => {
   const { proyectos } = useErp();
-  const [cuentas, setCuentas] = useState<CuentaCobrar[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_cuentas_cobrar') || '[]'); } catch { return []; }
-  });
+  const [cuentas, setCuentas] = useState<CuentaCobrar[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ proyectoId: '', cliente: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', notas: '' });
 
-  const save = (c: CuentaCobrar[]) => { setCuentas(c); localStorage.setItem('wm_cuentas_cobrar', JSON.stringify(c)); };
+  const save = (c: CuentaCobrar[]) => { setCuentas(c); };
 
   const agregar = () => {
     if (!form.cliente || !form.concepto || form.monto <= 0) { toast.error('Cliente, concepto y monto requeridos'); return; }

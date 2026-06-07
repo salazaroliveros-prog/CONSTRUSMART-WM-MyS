@@ -3,7 +3,7 @@ import { ErpProvider, useErp } from '@/erp/store';
 import Header from '@/erp/components/Header';
 import Sidebar from '@/erp/components/Sidebar';
 import Login from '@/erp/screens/Login';
-import { applyThemeToDocument } from '@/utils/theme-generator';
+import { applyThemeToDocument } from '@/lib/themes';
 
 // Simple AppContext inline (reemplaza el archivo eliminado)
 interface AppContextType {

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { todayISO } from '../utils';
 import { z } from 'zod';
+import ChecklistCalidad from '../components/ChecklistCalidad';
 
 // Zod schemas
 const incidenteSchema = z.object({
@@ -34,38 +35,22 @@ const liberacionSchema = z.object({
 type TabSSO = 'incidentes' | 'checklist-sso' | 'estadisticas' | 'emergencia' | 'pruebas' | 'nc' | 'liberaciones';
 
 const SSOCalidad: React.FC = () => {
-  const { proyectos, user, addNotificacion } = useErp();
+  const { proyectos, user, addNotificacion, incidentes, addIncidente, updateIncidente } = useErp();
   const [tab, setTab] = useState<TabSSO>('incidentes');
   const [selProyecto, setSelProyecto] = useState('');
 
-  // === STORAGE KEYS ===
-  const INC_KEY = 'wm_incidentes';
-  const PRUEBA_KEY = 'wm_pruebas_lab';
-  const NC_KEY = 'wm_no_conformidades';
-  const LIB_KEY = 'wm_liberaciones';
-  const SSO_DAYS_KEY = 'wm_sso_dias_sin_accidentes';
+
 
   // === STATE ===
-  const [incidentes, setIncidentes] = useState<Incidente[]>(() => {
-    try { return JSON.parse(localStorage.getItem(INC_KEY) || '[]'); } catch { return []; }
-  });
-  const [pruebas, setPruebas] = useState<PruebaLaboratorio[]>(() => {
-    try { return JSON.parse(localStorage.getItem(PRUEBA_KEY) || '[]'); } catch { return []; }
-  });
-  const [ncs, setNcs] = useState<NoConformidad[]>(() => {
-    try { return JSON.parse(localStorage.getItem(NC_KEY) || '[]'); } catch { return []; }
-  });
-  const [liberaciones, setLiberaciones] = useState<LiberacionPartida[]>(() => {
-    try { return JSON.parse(localStorage.getItem(LIB_KEY) || '[]'); } catch { return []; }
-  });
+  const [pruebas, setPruebas] = useState<PruebaLaboratorio[]>([]);
+  const [ncs, setNcs] = useState<NoConformidad[]>([]);
+  const [liberaciones, setLiberaciones] = useState<LiberacionPartida[]>([]);
   const [diasSinAccidentes, setDiasSinAccidentes] = useState(() => {
-    try { return +(localStorage.getItem(SSO_DAYS_KEY) || '0'); } catch { return 0; }
+    const ultimoIncidente = incidentes.filter(i => i.tipo === 'accidente').sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())[0];
+    if (!ultimoIncidente) return 0;
+    return Math.floor((Date.now() - new Date(ultimoIncidente.fecha).getTime()) / 86400000);
   });
   const [ssFormErrors, setSsFormErrors] = useState<Record<string, string>>({});
-
-  const save = (key: string, data: unknown) => {
-    localStorage.setItem(key, JSON.stringify(data));
-  };
 
   const clearSsError = (field: string) => setSsFormErrors(prev => ({ ...prev, [field]: '' }));
   const resetSsErrors = () => setSsFormErrors({});
@@ -103,11 +88,8 @@ const SSOCalidad: React.FC = () => {
       fotos: [],
       estado: 'abierto',
     };
-    const updated = [nuevo, ...incidentes];
-    setIncidentes(updated);
-    save(INC_KEY, updated);
+    addIncidente(nuevo);
     setDiasSinAccidentes(0);
-    save(SSO_DAYS_KEY, 0);
     toast.success('Incidente reportado');
     setShowIncForm(false);
     setIncForm({ tipo: 'accidente', descripcion: '', afectados: '', testigos: '', acciones: '', lat: undefined, lng: undefined });
@@ -148,7 +130,6 @@ const SSOCalidad: React.FC = () => {
     };
     const updated = [nueva, ...pruebas];
     setPruebas(updated);
-    save(PRUEBA_KEY, updated);
     toast.success('Prueba de laboratorio registrada');
     setShowPruebaForm(false);
     setPruebaForm({ tipo: 'concreto', descripcion: '', responsable: '' });
@@ -157,7 +138,6 @@ const SSOCalidad: React.FC = () => {
   const actualizarResultadoPrueba = (id: string, resultado: PruebaLaboratorio['resultado']) => {
     const updated = pruebas.map(p => p.id === id ? { ...p, resultado, fechaResultado: todayISO() } : p);
     setPruebas(updated);
-    save(PRUEBA_KEY, updated);
     toast.success(`Resultado actualizado: ${resultado}`);
   };
 
@@ -189,7 +169,6 @@ const SSOCalidad: React.FC = () => {
     };
     const updated = [nueva, ...ncs];
     setNcs(updated);
-    save(NC_KEY, updated);
     toast.success(`NC ${nueva.codigo} registrada`);
     setShowNCForm(false);
     setNcForm({ descripcion: '', categoria: 'material', detectadoPor: '' });
@@ -198,7 +177,6 @@ const SSOCalidad: React.FC = () => {
   const actualizarEstadoNC = (id: string, estado: NoConformidad['estado'], planAccion?: string) => {
     const updated = ncs.map(n => n.id === id ? { ...n, estado, planAccion: planAccion || n.planAccion, fechaCierre: estado === 'cerrado' ? todayISO() : n.fechaCierre } : n);
     setNcs(updated);
-    save(NC_KEY, updated);
     toast.success(`NC actualizada: ${estado}`);
   };
 
@@ -230,7 +208,6 @@ const SSOCalidad: React.FC = () => {
     };
     const updated = [nueva, ...liberaciones];
     setLiberaciones(updated);
-    save(LIB_KEY, updated);
     toast.success('Solicitud de liberación creada');
     setShowLibForm(false);
     setLibForm({ renglonId: '', renglonNombre: '', solicitante: '', supervisor: '' });
@@ -239,7 +216,6 @@ const SSOCalidad: React.FC = () => {
   const actualizarLiberacion = (id: string, estado: LiberacionPartida['estado']) => {
     const updated = liberaciones.map(l => l.id === id ? { ...l, estado, fechaLiberacion: estado !== 'pendiente' ? todayISO() : l.fechaLiberacion, checklistAprobado: estado === 'liberado' } : l);
     setLiberaciones(updated);
-    save(LIB_KEY, updated);
     toast.success(`Liberación ${estado}`);
   };
 
@@ -393,10 +369,10 @@ const SSOCalidad: React.FC = () => {
                       </div>
                       <div className="flex gap-1 shrink-0 ml-2">
                         {inc.estado === 'abierto' && (
-                          <button onClick={() => { const u = incidentes.map(i => i.id === inc.id ? { ...i, estado: 'investigacion' as const } : i); setIncidentes(u); save(INC_KEY, u); }} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">Investigar</button>
+                          <button onClick={() => updateIncidente(inc.id, { estado: 'investigacion' as const })} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">Investigar</button>
                         )}
                         {inc.estado !== 'cerrado' && (
-                          <button onClick={() => { const u = incidentes.map(i => i.id === inc.id ? { ...i, estado: 'cerrado' as const } : i); setIncidentes(u); save(INC_KEY, u); }} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">Cerrar</button>
+                          <button onClick={() => updateIncidente(inc.id, { estado: 'cerrado' as const })} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">Cerrar</button>
                         )}
                       </div>
                     </div>
@@ -511,7 +487,7 @@ const SSOCalidad: React.FC = () => {
                     (pos) => {
                       const msg = `🚨 EMERGENCIA en ${proyectoActual?.nombre || 'obra'} - Ubicación: https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
                       toast.error(msg, { duration: 10000 });
-                      addNotificacion('general', `🚨 Emergencia: ${proyectoActual?.nombre || 'Obra'}`, `¡Emergencia reportada! Ubicación capturada.`, selProyecto);
+                      addNotificacion('general', `🚨 Emergencia: ${proyectoActual?.nombre || 'Obra'}`, `¡Emergencia reportada! Ubicación: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`, selProyecto);
                     },
                     () => {
                       toast.error('🚨 EMERGENCIA reportada (sin ubicación)', { duration: 10000 });

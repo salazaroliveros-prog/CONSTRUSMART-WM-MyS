@@ -50,7 +50,7 @@ const ReportesTecnicos: React.FC = () => {
   const ingresos = movimientosProy.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
   const egresos = movimientosProy.filter(m => m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
   const valesSalidaProy = valesSalida.filter(v => v.proyectoId === proyectoId);
-  const empleadosProy = empleados.filter(e => e.proyectoId === proyectoId);
+  const empleadosProy = empleados.filter(e => e.proyectoIds?.includes(proyectoId));
 
   const handleExportar = () => {
     if (!reportRef.current) return;
@@ -241,8 +241,8 @@ const ReportesTecnicos: React.FC = () => {
                       <td className="py-1.5 px-2 border border-slate-200 font-medium">{e.nombre}</td>
                       <td className="py-1.5 px-2 border border-slate-200 text-slate-500">{e.puesto}</td>
                       <td className="py-1.5 px-2 border border-slate-200 text-right">{fmtQ(e.salarioDiario)}</td>
-                      <td className="py-1.5 px-2 border border-slate-200 text-right">{e.diasTrabajados}</td>
-                      <td className="py-1.5 px-2 border border-slate-200 text-right font-bold">{fmtQ(e.salarioDiario * e.diasTrabajados)}</td>
+                      <td className="py-1.5 px-2 border border-slate-200 text-right">{e.diasTrabajados || 0}</td>
+                      <td className="py-1.5 px-2 border border-slate-200 text-right font-bold">{fmtQ(e.salarioDiario * (e.diasTrabajados || 0))}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -298,11 +298,11 @@ const ReportesTecnicos: React.FC = () => {
                         <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-medium ${
                           m.categoria === 'materiales' ? 'bg-blue-50 text-blue-600' :
                           m.categoria === 'mano_obra' ? 'bg-emerald-50 text-emerald-600' :
-                          m.categoria === 'sub_contrato' ? 'bg-purple-50 text-purple-600' :
+                          m.categoria === 'subcontrato' ? 'bg-purple-50 text-purple-600' :
                           'bg-slate-50 text-slate-600'
                         }`}>{m.categoria}</span>
                       </td>
-                      <td className="py-1.5 px-2 border border-slate-200 text-right font-semibold">{fmtQ(m.costoTotal)}</td>
+                      <td className="py-1.5 px-2 border border-slate-200 text-right font-semibold">{fmtQ(m.costoTotal || m.monto || 0)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -327,9 +327,9 @@ const ReportesTecnicos: React.FC = () => {
                       {valesSalidaProy.map(v => (
                         <tr key={v.id} className="hover:bg-slate-50">
                           <td className="py-1.5 px-2 border border-slate-200">{v.fecha}</td>
-                          <td className="py-1.5 px-2 border border-slate-200 font-medium">{v.responsable}</td>
+                          <td className="py-1.5 px-2 border border-slate-200 font-medium">{v.solicitante}</td>
                           <td className="py-1.5 px-2 border border-slate-200 text-right">{v.items.length}</td>
-                          <td className="py-1.5 px-2 border border-slate-200 text-right font-bold">{fmtQ(v.items.reduce((a, i) => a + i.total, 0))}</td>
+                          <td className="py-1.5 px-2 border border-slate-200 text-right font-bold">{fmtQ(0)}</td>
                         </tr>
                       ))}
                     </tbody>

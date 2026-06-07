@@ -1,8 +1,10 @@
 /* ============================================
    ESTILOS GLOBALES ANT DESIGN + CONSTRUSMART
+   NOTA: El reset de Antd se carga en index.css ANTES de @tailwind base
+   para evitar conflictos de especificidad con Tailwind.
+   Antd v5 maneja su propio reset via ConfigProvider, no necesita
+   importar antd/dist/reset.css.
    ============================================ */
-
-@import 'antd/dist/reset.css';
 
 /* Variables de tema */
 :root {
@@ -32,7 +34,7 @@
 }
 
 /* Dark mode */
-[data-theme='dark'] {
+[data-theme='dark-pro'] {
   --primary-color: #ff8c42;
   --primary-light: #ffab5c;
   --primary-dark: #ff7a45;

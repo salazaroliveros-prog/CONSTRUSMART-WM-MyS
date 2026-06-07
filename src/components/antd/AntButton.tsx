@@ -1,17 +1,18 @@
 import React from 'react';
 import { Button as AntButtonComponent, Tooltip } from 'antd';
-import type { ButtonProps as AntButtonProps } from 'antd';
+import type { ButtonProps } from 'antd';
 
 export type ButtonSize = 'small' | 'middle' | 'large';
-export type ButtonType = 'primary' | 'default' | 'dashed' | 'text' | 'link' | 'ghost';
 
-interface AntButtonProps extends Omit<AntButtonProps, 'type' | 'size'> {
-  type?: ButtonType;
+interface AntButtonOwnProps {
+  type?: 'primary' | 'default' | 'dashed' | 'text' | 'link';
   size?: ButtonSize;
   tooltip?: string;
   icon?: React.ReactNode;
   children?: React.ReactNode;
 }
+
+export type AntButtonProps = Omit<ButtonProps, 'type' | 'size'> & AntButtonOwnProps;
 
 export const AntButton = React.forwardRef<HTMLButtonElement, AntButtonProps>(
   ({ type = 'default', size = 'middle', tooltip, ...props }, ref) => {

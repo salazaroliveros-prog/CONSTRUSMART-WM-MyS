@@ -8,13 +8,11 @@ import { todayISO, fmtQ } from '../utils';
 
 const CuentasPagarScreen: React.FC = () => {
   const { proyectos } = useErp();
-  const [cuentas, setCuentas] = useState<CuentaPagar[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_cuentas_pagar') || '[]'); } catch { return []; }
-  });
+  const [cuentas, setCuentas] = useState<CuentaPagar[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ proyectoId: '', proveedor: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', facturaUrl: '' });
 
-  const save = (c: CuentaPagar[]) => { setCuentas(c); localStorage.setItem('wm_cuentas_pagar', JSON.stringify(c)); };
+  const save = (c: CuentaPagar[]) => { setCuentas(c); };
 
   const agregar = () => {
     if (!form.proveedor || !form.concepto || form.monto <= 0) { toast.error('Proveedor, concepto y monto requeridos'); return; }

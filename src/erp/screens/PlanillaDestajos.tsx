@@ -1,8 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { useErp } from '../store';
+import { useErp, uid } from '../store';
 import type { Destajo } from '../types';
-
-const uid = () => Date.now().toString(36).substr(2, 9);
 
 export const PlanillaDestajos: React.FC = () => {
   const { proyectos } = useErp();
@@ -16,16 +14,12 @@ export const PlanillaDestajos: React.FC = () => {
   });
   const [tasaPago, setTasaPago] = useState<Record<string, number>>({});
 
-  const [destajos, setDestajos] = useState<Destajo[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_destajos') || '[]'); } catch { return []; }
-  });
+  const [destajos, setDestajos] = useState<Destajo[]>([]);
 
   const addDestajo = (data: Omit<Destajo, 'id' | 'rendimientoReal'>) => {
     const rendimientoReal = data.horasTrabajadas > 0 ? data.cantidadEjecutada / data.horasTrabajadas : 0;
     const nuevo: Destajo = { ...data, id: uid(), rendimientoReal };
-    const updated = [nuevo, ...destajos];
-    setDestajos(updated);
-    localStorage.setItem('wm_destajos', JSON.stringify(updated));
+    setDestajos(prev => [nuevo, ...prev]);
   };
 
   const semanaInicio = useMemo(() => new Date(semanaFilter), [semanaFilter]);

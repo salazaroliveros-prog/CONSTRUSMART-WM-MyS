@@ -499,6 +499,16 @@ interface ErpState {
   valesSalida: ValeSalida[];
   addValeSalida: (v: Omit<ValeSalida, 'id'>) => Promise<void>;
   deleteValeSalida: (id: string) => Promise<void>;
+  hitos: any[];
+  addHito: (h: any) => Promise<void>;
+  updateHito: (id: string, patch: any) => Promise<void>;
+  deleteHito: (id: string) => Promise<void>;
+  riesgos: any[];
+  addRiesgo: (r: any) => Promise<void>;
+  updateRiesgo: (id: string, patch: any) => Promise<void>;
+  incidentes: any[];
+  addIncidente: (i: any) => Promise<void>;
+  updateIncidente: (id: string, patch: any) => Promise<void>;
   mutationQueue: Mutation[];
   syncMessage: string;
   forceSync: () => Promise<void>;
@@ -516,6 +526,14 @@ interface ErpState {
   updateAppSettings: (patch: Partial<AppSettings>) => void;
   avanceFinancieroCalculado: (proyectoId: string) => number;
   enqueueMutation: (type: Mutation['type'], payload: Record<string, unknown>) => string;
+  hitos: any[];
+  addHito: (h: any) => Promise<void>;
+  updateHito: (id: string, patch: any) => Promise<void>;
+  deleteHito: (id: string) => Promise<void>;
+  riesgos: any[];
+  addRiesgo: (r: any) => Promise<void>;
+  updateRiesgo: (id: string, patch: any) => Promise<void>;
+  deleteRiesgo: (id: string) => Promise<void>;
 }
 
 // ⚠️ Los consumidores DEBEN estar dentro de <ErpProvider>
@@ -559,12 +577,12 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [authError, setAuthError] = useState('');
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
-  const [proyectos, setProyectos] = useState<Proyecto[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_proyectos', SEED_PROYECTOS));
-  const [movimientos, setMovimientos] = useState<Movimiento[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_movimientos', SEED_MOVIMIENTOS));
-  const [empleados, setEmpleados] = useState<Empleado[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_empleados', SEED_EMPLEADOS));
-  const [materiales, setMateriales] = useState<Material[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_materiales', SEED_MATERIALES));
-  const [ordenes, setOrdenes] = useState<OrdenCompra[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_ordenes', SEED_OC));
-  const [proveedores, setProveedores] = useState<Proveedor[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_proveedores', SEED_PROVEEDORES));
+  const [proyectos, setProyectos] = useState<Proyecto[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_proyectos', []));
+  const [movimientos, setMovimientos] = useState<Movimiento[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_movimientos', []));
+  const [empleados, setEmpleados] = useState<Empleado[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_empleados', []));
+  const [materiales, setMateriales] = useState<Material[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_materiales', []));
+  const [ordenes, setOrdenes] = useState<OrdenCompra[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_ordenes', []));
+  const [proveedores, setProveedores] = useState<Proveedor[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_proveedores', []));
   const [eventos, setEventos] = useState<EventoCalendario[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_eventos', []));
   const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_bitacora', []));
   const [presupuestos, setPresupuestos] = useState<Presupuesto[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_presupuestos', []));
@@ -574,6 +592,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_vales_salida', []));
   const [seguimientoEVM, setSeguimientoEVM] = useState<SeguimientoEVM[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_seguimiento_evm', []));
   const [notifiedEventos, setNotifiedEventos] = useState<string[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_notified_eventos', []));
+  const [hitos, setHitos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_hitos', []));
+  const [riesgos, setRiesgos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_riesgos', []));
+  const [incidentes, setIncidentes] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_incidentes', []));
+  const [pruebas, setPruebas] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_pruebas', []));
+  const [noConformidades, setNoConformidades] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_no_conformidades', []));
+  const [liberaciones, setLiberaciones] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_liberaciones', []));
+  const [planos, setPlanos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_planos', []));
+  const [rfis, setRfis] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_rfis', []));
+  const [subcontratos, setSubcontratos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_subcontratos', []));
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
 
@@ -875,6 +902,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_vales_salida', valesSalida); }, [valesSalida]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_seguimiento_evm', seguimientoEVM); }, [seguimientoEVM]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_notified_eventos', notifiedEventos); }, [notifiedEventos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_hitos', hitos); }, [hitos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_riesgos', riesgos); }, [riesgos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_incidentes', incidentes); }, [incidentes]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_pruebas', pruebas); }, [pruebas]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_no_conformidades', noConformidades); }, [noConformidades]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_liberaciones', liberaciones); }, [liberaciones]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_planos', planos); }, [planos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_rfis', rfis); }, [rfis]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_subcontratos', subcontratos); }, [subcontratos]);
   useEffect(() => { saveToStorage(QUEUE_KEY, mutationQueue); }, [mutationQueue]);
 
   /**
@@ -1610,6 +1646,36 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     enqueueMutation('deleteValeSalida', { id });
   };
 
+  const addHito = async (h: any) => {
+    const nuevo = { ...h, id: uid() };
+    setHitos(s => [nuevo, ...s]);
+  };
+  const updateHito = async (id: string, patch: any) => {
+    setHitos(s => s.map((h: any) => h.id === id ? { ...h, ...patch } : h));
+  };
+  const deleteHito = async (id: string) => {
+    setHitos(s => s.filter((h: any) => h.id !== id));
+  };
+
+  const addRiesgo = async (r: any) => {
+    const nuevo = { ...r, id: uid() };
+    setRiesgos(s => [nuevo, ...s]);
+  };
+  const updateRiesgo = async (id: string, patch: any) => {
+    setRiesgos(s => s.map((r: any) => r.id === id ? { ...r, ...patch } : r));
+  };
+  const deleteRiesgo = async (id: string) => {
+    setRiesgos(s => s.filter((r: any) => r.id !== id));
+  };
+
+  const addIncidente = async (i: any) => {
+    const nuevo = { ...i, id: uid() };
+    setIncidentes(s => [nuevo, ...s]);
+  };
+  const updateIncidente = async (id: string, patch: any) => {
+    setIncidentes(s => s.map((i: any) => i.id === id ? { ...i, ...patch } : i));
+  };
+
   const DEFAULT_SETTINGS: AppSettings = {
     uiMode: 'shadcn',
     appTheme: 'light',
@@ -1661,51 +1727,45 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [_insumos, setInsumos] = useState(() => loadFromStorage(BASE_STORAGE_KEY + '_insumos', []));
   const [_subRenglones, setSubRenglones] = useState(() => loadFromStorage(BASE_STORAGE_KEY + '_sub_renglones', []));
 
-  // ── Supabase Realtime subscriptions para nuevas tablas ──
+  // ── Supabase Realtime subscriptions (v2 API) ──
   useEffect(() => {
-    const sub1 = supabase
-      .from('erp_renglones')
-      .on('*', (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setRenglones(prev => [payload.new, ...prev]);
-        } else if (payload.eventType === 'UPDATE') {
-          setRenglones(prev => prev.map(r => r.id === payload.new.id ? payload.new : r));
-        } else if (payload.eventType === 'DELETE') {
-          setRenglones(prev => prev.filter(r => r.id !== payload.old.id));
-        }
-      })
-      .subscribe();
+    const handleRenglones = (payload: any) => {
+      if (payload.eventType === 'INSERT') {
+        setRenglones((prev: any[]) => [payload.new, ...prev]);
+      } else if (payload.eventType === 'UPDATE') {
+        setRenglones((prev: any[]) => prev.map((r: any) => r.id === payload.new.id ? payload.new : r));
+      } else if (payload.eventType === 'DELETE') {
+        setRenglones((prev: any[]) => prev.filter((r: any) => r.id !== payload.old.id));
+      }
+    };
+    const handleInsumos = (payload: any) => {
+      if (payload.eventType === 'INSERT') {
+        setInsumos((prev: any[]) => [payload.new, ...prev]);
+      } else if (payload.eventType === 'UPDATE') {
+        setInsumos((prev: any[]) => prev.map((i: any) => i.id === payload.new.id ? payload.new : i));
+      } else if (payload.eventType === 'DELETE') {
+        setInsumos((prev: any[]) => prev.filter((i: any) => i.id !== payload.old.id));
+      }
+    };
+    const handleSubRenglones = (payload: any) => {
+      if (payload.eventType === 'INSERT') {
+        setSubRenglones((prev: any[]) => [payload.new, ...prev]);
+      } else if (payload.eventType === 'UPDATE') {
+        setSubRenglones((prev: any[]) => prev.map((s: any) => s.id === payload.new.id ? payload.new : s));
+      } else if (payload.eventType === 'DELETE') {
+        setSubRenglones((prev: any[]) => prev.filter((s: any) => s.id !== payload.old.id));
+      }
+    };
 
-    const sub2 = supabase
-      .from('erp_insumos')
-      .on('*', (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setInsumos(prev => [payload.new, ...prev]);
-        } else if (payload.eventType === 'UPDATE') {
-          setInsumos(prev => prev.map(i => i.id === payload.new.id ? payload.new : i));
-        } else if (payload.eventType === 'DELETE') {
-          setInsumos(prev => prev.filter(i => i.id !== payload.old.id));
-        }
-      })
-      .subscribe();
-
-    const sub3 = supabase
-      .from('erp_sub_renglones')
-      .on('*', (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setSubRenglones(prev => [payload.new, ...prev]);
-        } else if (payload.eventType === 'UPDATE') {
-          setSubRenglones(prev => prev.map(s => s.id === payload.new.id ? payload.new : s));
-        } else if (payload.eventType === 'DELETE') {
-          setSubRenglones(prev => prev.filter(s => s.id !== payload.old.id));
-        }
-      })
+    const channel = supabase.channel('erp-realtime-changes');
+    channel
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'erp_renglones' }, handleRenglones)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'erp_insumos' }, handleInsumos)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'erp_sub_renglones' }, handleSubRenglones)
       .subscribe();
 
     return () => {
-      sub1.unsubscribe();
-      sub2.unsubscribe();
-      sub3.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, []);
 
@@ -1760,6 +1820,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       licitaciones, addLicitacion, updateLicitacion, deleteLicitacion,
       avances, addAvance, deleteAvance,
       valesSalida, addValeSalida, deleteValeSalida,
+      hitos, addHito, updateHito, deleteHito,
+      riesgos, addRiesgo, updateRiesgo, deleteRiesgo,
+      incidentes, addIncidente, updateIncidente,
       seguimientoEVM, addSeguimiento: async (s: Omit<SeguimientoEVM, 'id'>) => { setSeguimientoEVM(p => [{ ...s, id: uid() }, ...p]); },
       updateSeguimiento: async (id: string, patch: Partial<SeguimientoEVM>) => { setSeguimientoEVM(p => p.map(s => s.id === id ? { ...s, ...patch } : s)); },
       deleteSeguimiento: async (id: string) => { setSeguimientoEVM(p => p.filter(s => s.id !== id)); },
@@ -1770,6 +1833,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       mutationQueue, syncMessage, forceSync,
       appSettings, updateAppSettings,
       enqueueMutation,
+      hitos, addHito, updateHito, deleteHito,
+      riesgos, addRiesgo, updateRiesgo, deleteRiesgo,
     }}>
       {children}
     </Ctx.Provider>
