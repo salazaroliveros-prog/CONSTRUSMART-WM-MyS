@@ -25,12 +25,31 @@ img, svg, video { max-width: 100%; }
   }
 }
 
-/* Scrollbar fino en mobile */
-@media (max-width: 768px) {
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-}
-
 :root {
+  --primary-hue: 24 96% 63%; /* fallback naranja */
+  /* Tipografía */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.025em;
+  /* Scrollbar tokens */
+  --scrollbar-thumb: hsl(var(--muted-foreground) / 0.3);
+  --scrollbar-track: transparent;
+  /* Glassmorphism tokens */
+  --glass-bg: hsl(var(--card) / 0.7);
+  --glass-border: hsl(var(--border) / 0.3);
+  --glass-blur: blur(12px);
+  --glass-tint: hsl(var(--primary) / 0.05);
+  /* Neumorphism tokens */
+  --neu-shadow-light: -2px -2px 6px hsl(var(--background));
+  --neu-shadow-dark: 4px 4px 8px hsl(var(--muted-foreground) / 0.1);
+  --neu-inset-light: inset -2px -2px 4px hsl(var(--background));
+  --neu-inset-dark: inset 2px 2px 4px hsl(var(--muted-foreground) / 0.1);
+  /* Bordes y radios */
   --border-radius: 4px;
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
@@ -43,10 +62,18 @@ img, svg, video { max-width: 100%; }
 }
 
 /* ============================================================================
+   Aplica el color primario personalizado desde Ajustes (--primary-hue)
+   si fue asignado dinámicamente por applyThemeToDocument / initializeTheme
+   ============================================================================ */
+:root:not([data-theme]) {
+  --primary: var(--primary-hue, 24 96% 63%);
+}
+
+/* ============================================================================
    TEMA: ANT DESIGN
    ============================================================================ */
 [data-theme='ant-design'] {
-  --primary: 24 96% 63%;
+  --primary: var(--primary-hue, 24 96% 63%);
   --primary-foreground: 222.2 84% 4.9%;
   --secondary: 280 85% 44%;
   --secondary-foreground: 210 40% 98%;
@@ -347,10 +374,30 @@ img, svg, video { max-width: 100%; }
   box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.12), -2px -2px 4px rgba(255, 255, 255, 0.9);
 }
 
-[data-theme='dark-pro'] ::-webkit-scrollbar-track {
-  background: hsl(var(--muted));
+/* ============================================================================
+   SCROLLBAR UNIFICADA — cubre todos los temas, evita duplicados con responsive.css
+   ============================================================================ */
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+}
+
+/* Dark-pro: scrollbar con gradiente */
 [data-theme='dark-pro'] ::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
 }

@@ -51,8 +51,8 @@ const App = () => {
   }, []);
 
   return (
-    <AntdProvider mode={themeMode}>
-      <ThemeProvider defaultTheme="light">
+    <ThemeProvider defaultTheme="light">
+      <AntdProvider mode={themeMode}>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
             <ErrorBoundary>
@@ -69,8 +69,8 @@ const App = () => {
             </ErrorBoundary>
           </TooltipProvider>
         </QueryClientProvider>
-      </ThemeProvider>
-    </AntdProvider>
+      </AntdProvider>
+    </ThemeProvider>
   );
 };
 

@@ -5,44 +5,7 @@ import { FileText, Plus, Upload, Send, MessageSquare, Package } from 'lucide-rea
 import { INPUT } from '../ui';
 import { todayISO } from '../utils';
 import { z } from 'zod';
-
-// Tipos locales para gestión documental
-interface Plano {
-  id: string;
-  proyectoId: string;
-  nombre: string;
-  disciplina: 'arquitectura' | 'estructura' | 'instalaciones' | 'electricas' | 'sanitarias' | 'mecanicas' | 'otra';
-  version: string;
-  fechaSubida: string;
-  descripcion?: string;
-  estado: 'vigente' | 'obsoleto' | 'en_revision';
-  subidoPor: string;
-}
-
-interface RFI {
-  id: string;
-  proyectoId: string;
-  numero: string;
-  titulo: string;
-  descripcion: string;
-  solicitante: string;
-  destino: string;
-  estado: 'abierto' | 'en_respuesta' | 'cerrado';
-  fechaSolicitud: string;
-  respuesta?: string;
-  fechaRespuesta?: string;
-}
-
-interface Submittal {
-  id: string;
-  proyectoId: string;
-  titulo: string;
-  descripcion?: string;
-  categoria: 'material' | 'equipo' | 'especificacion' | 'otro';
-  proveedor: string;
-  fechaEnvio: string;
-  estado: 'pendiente' | 'aprobado' | 'rechazado' | 'con_comentarios';
-}
+import type { Plano, RFI, Submittal } from '../types';
 
 // Zod schemas
 const planoSchema = z.object({
@@ -60,23 +23,17 @@ const submittalSchema = z.object({
   categoria: z.enum(['material', 'equipo', 'especificacion', 'otro']),
   proveedor: z.string().min(1, 'Proveedor requerido').max(100, 'Máximo 100 caracteres'),
   descripcion: z.string().max(2000, 'Máximo 2000 caracteres').optional().default(''),
-  estado: z.enum(['pendiente', 'aprobado', 'rechazado', 'revision']),
+  estado: z.enum(['pendiente', 'aprobado', 'rechazado', 'con_comentarios']),
   fechaLimite: z.string().min(1, 'Fecha requerida'),
 });
 
 type TabDoc = 'planos' | 'rfis' | 'submittals';
 
 const GestionDocumental: React.FC = () => {
-  const { proyectos, user } = useErp();
+  const { proyectos, user, planos, addPlano, updatePlano, rfis, addRfi, updateRfi, submittals, addSubmittal, updateSubmittal } = useErp();
   const [tab, setTab] = useState<TabDoc>('planos');
   const [selProyecto, setSelProyecto] = useState('');
 
-
-
-  // === STATE ===
-  const [planos, setPlanos] = useState<Plano[]>([]);
-  const [rfis, setRfis] = useState<RFI[]>([]);
-  const [submittals, setSubmittals] = useState<Submittal[]>([]);
   const [versiones, setVersiones] = useState<Record<string, string[]>>({});
   const [_gdFormErrors, setGdFormErrors] = useState<Record<string, string>>({});
   const resetGdErrors = () => setGdFormErrors({});
@@ -85,7 +42,7 @@ const GestionDocumental: React.FC = () => {
   const [showPlanoForm, setShowPlanoForm] = useState(false);
   const [planoForm, setPlanoForm] = useState({ nombre: '', disciplina: 'arquitectura' as Plano['disciplina'], version: '1.0', descripcion: '' });
 
-  const handleAddPlano = () => {
+  const handleAddPlano = async () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
     const planoResult = planoSchema.safeParse(planoForm);
     if (!planoResult.success) {
@@ -107,25 +64,20 @@ const GestionDocumental: React.FC = () => {
       estado: 'vigente',
       subidoPor: user?.nombre || 'Anónimo',
     };
-    const updated = [nuevo, ...planos];
-    setPlanos(updated);
-    // Track version
     const vid = nuevo.id;
     const vers = versiones[vid] || [];
-    const newVers = [...vers, nuevo.version];
-    const newVersiones = { ...versiones, [vid]: newVers };
-    setVersiones(newVersiones);
+    setVersiones({ ...versiones, [vid]: [...vers, nuevo.version] });
+    await addPlano(nuevo);
     toast.success(`Plano "${planoForm.nombre}" v${planoForm.version} subido`);
     setShowPlanoForm(false);
     setPlanoForm({ nombre: '', disciplina: 'arquitectura', version: '1.0', descripcion: '' });
   };
 
   const togglePlanoEstado = (id: string) => {
-    setPlanos(prev => prev.map(p => {
-      if (p.id !== id) return p;
-      const next: Plano['estado'] = p.estado === 'vigente' ? 'obsoleto' : 'vigente';
-      return { ...p, estado: next };
-    }));
+    const plano = planos.find(p => p.id === id);
+    if (!plano) return;
+    const next: Plano['estado'] = plano.estado === 'vigente' ? 'obsoleto' : 'vigente';
+    updatePlano(id, { estado: next });
     toast.success('Estado actualizado');
   };
 
@@ -134,7 +86,7 @@ const GestionDocumental: React.FC = () => {
     if (!plano) return;
     const [major, minor] = plano.version.split('.').map(Number);
     const newVer = `${major}.${(minor || 0) + 1}`;
-    setPlanos(prev => prev.map(p => p.id === id ? { ...p, version: newVer, fechaSubida: todayISO(), estado: 'vigente' as const } : p));
+    updatePlano(id, { version: newVer, fechaSubida: todayISO(), estado: 'vigente' });
     const vers = versiones[id] || [];
     setVersiones(prev => ({ ...prev, [id]: [...vers, newVer] }));
     toast.success(`Nueva versión ${newVer}`);
@@ -144,7 +96,7 @@ const GestionDocumental: React.FC = () => {
   const [showRFIForm, setShowRFIForm] = useState(false);
   const [rfiForm, setRfiForm] = useState({ titulo: '', descripcion: '', destino: '' });
 
-  const handleAddRFI = () => {
+  const handleAddRFI = async () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
     const rfiResult = rfiSchema.safeParse(rfiForm);
     if (!rfiResult.success) {
@@ -167,15 +119,14 @@ const GestionDocumental: React.FC = () => {
       estado: 'abierto',
       fechaSolicitud: todayISO(),
     };
-    const updated = [nueva, ...rfis];
-    setRfis(updated);
+    await addRfi(nueva);
     toast.success(`RFI ${nueva.numero} creado`);
     setShowRFIForm(false);
     setRfiForm({ titulo: '', descripcion: '', destino: '' });
   };
 
   const actualizarRFI = (id: string, estado: RFI['estado'], respuesta?: string) => {
-    setRfis(prev => prev.map(r => r.id === id ? { ...r, estado, respuesta, fechaRespuesta: respuesta ? todayISO() : r.fechaRespuesta } : r));
+    updateRfi(id, { estado, respuesta, ...(respuesta ? { fechaRespuesta: todayISO() } : {}) });
     toast.success(`RFI actualizado: ${estado}`);
   };
 
@@ -183,7 +134,7 @@ const GestionDocumental: React.FC = () => {
   const [showSubForm, setShowSubForm] = useState(false);
   const [subForm, setSubForm] = useState({ titulo: '', descripcion: '', categoria: 'material' as Submittal['categoria'], proveedor: '' });
 
-  const handleAddSubmittal = () => {
+  const handleAddSubmittal = async () => {
     if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
     const subResult = submittalSchema.safeParse({
       titulo: subForm.titulo,
@@ -211,15 +162,14 @@ const GestionDocumental: React.FC = () => {
       fechaEnvio: todayISO(),
       estado: 'pendiente',
     };
-    const updated = [nuevo, ...submittals];
-    setSubmittals(updated);
+    await addSubmittal(nuevo);
     toast.success('Submittal registrado');
     setShowSubForm(false);
     setSubForm({ titulo: '', descripcion: '', categoria: 'material', proveedor: '' });
   };
 
   const actualizarSubmittal = (id: string, estado: Submittal['estado']) => {
-    setSubmittals(prev => prev.map(s => s.id === id ? { ...s, estado } : s));
+    updateSubmittal(id, { estado });
     toast.success(`Submittal: ${estado}`);
   };
 

@@ -35,16 +35,9 @@ const liberacionSchema = z.object({
 type TabSSO = 'incidentes' | 'checklist-sso' | 'estadisticas' | 'emergencia' | 'pruebas' | 'nc' | 'liberaciones';
 
 const SSOCalidad: React.FC = () => {
-  const { proyectos, user, addNotificacion, incidentes, addIncidente, updateIncidente } = useErp();
+  const { proyectos, user, addNotificacion, incidentes, addIncidente, updateIncidente, pruebas, addPrueba, updatePrueba, ncs, addNC, updateNC, liberaciones, addLiberacion, updateLiberacion } = useErp();
   const [tab, setTab] = useState<TabSSO>('incidentes');
   const [selProyecto, setSelProyecto] = useState('');
-
-
-
-  // === STATE ===
-  const [pruebas, setPruebas] = useState<PruebaLaboratorio[]>([]);
-  const [ncs, setNcs] = useState<NoConformidad[]>([]);
-  const [liberaciones, setLiberaciones] = useState<LiberacionPartida[]>([]);
   const [diasSinAccidentes, setDiasSinAccidentes] = useState(() => {
     const ultimoIncidente = incidentes.filter(i => i.tipo === 'accidente').sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())[0];
     if (!ultimoIncidente) return 0;
@@ -119,25 +112,21 @@ const SSOCalidad: React.FC = () => {
       return;
     }
     setSsFormErrors({});
-    const nueva: PruebaLaboratorio = {
-      id: Date.now().toString(),
+    addPrueba({
       proyectoId: selProyecto,
       tipo: pruebaForm.tipo,
       descripcion: pruebaForm.descripcion,
       fechaMuestra: todayISO(),
       resultado: 'pendiente',
       responsable: pruebaForm.responsable,
-    };
-    const updated = [nueva, ...pruebas];
-    setPruebas(updated);
+    });
     toast.success('Prueba de laboratorio registrada');
     setShowPruebaForm(false);
     setPruebaForm({ tipo: 'concreto', descripcion: '', responsable: '' });
   };
 
   const actualizarResultadoPrueba = (id: string, resultado: PruebaLaboratorio['resultado']) => {
-    const updated = pruebas.map(p => p.id === id ? { ...p, resultado, fechaResultado: todayISO() } : p);
-    setPruebas(updated);
+    updatePrueba(id, { resultado, fechaResultado: todayISO() });
     toast.success(`Resultado actualizado: ${resultado}`);
   };
 
@@ -157,26 +146,23 @@ const SSOCalidad: React.FC = () => {
     }
     setSsFormErrors({});
     const count = ncs.filter(n => n.proyectoId === selProyecto).length + 1;
-    const nueva: NoConformidad = {
-      id: Date.now().toString(),
+    const codigo = `NC-${selProyecto.slice(0, 4)}-${String(count).padStart(3, '0')}`;
+    addNC({
       proyectoId: selProyecto,
-      codigo: `NC-${selProyecto.slice(0, 4)}-${String(count).padStart(3, '0')}`,
+      codigo,
       descripcion: ncForm.descripcion,
       categoria: ncForm.categoria,
       fechaDeteccion: todayISO(),
       detectadoPor: ncForm.detectadoPor,
       estado: 'detectado',
-    };
-    const updated = [nueva, ...ncs];
-    setNcs(updated);
-    toast.success(`NC ${nueva.codigo} registrada`);
+    });
+    toast.success(`NC ${codigo} registrada`);
     setShowNCForm(false);
     setNcForm({ descripcion: '', categoria: 'material', detectadoPor: '' });
   };
 
   const actualizarEstadoNC = (id: string, estado: NoConformidad['estado'], planAccion?: string) => {
-    const updated = ncs.map(n => n.id === id ? { ...n, estado, planAccion: planAccion || n.planAccion, fechaCierre: estado === 'cerrado' ? todayISO() : n.fechaCierre } : n);
-    setNcs(updated);
+    updateNC(id, { estado, ...(planAccion ? { planAccion } : {}), ...(estado === 'cerrado' ? { fechaCierre: todayISO() } : {}) });
     toast.success(`NC actualizada: ${estado}`);
   };
 
@@ -195,8 +181,7 @@ const SSOCalidad: React.FC = () => {
       return;
     }
     setSsFormErrors({});
-    const nueva: LiberacionPartida = {
-      id: Date.now().toString(),
+    addLiberacion({
       proyectoId: selProyecto,
       renglonId: libForm.renglonId || Date.now().toString(),
       renglonNombre: libForm.renglonNombre,
@@ -205,17 +190,14 @@ const SSOCalidad: React.FC = () => {
       supervisor: libForm.supervisor || '',
       checklistAprobado: false,
       estado: 'pendiente',
-    };
-    const updated = [nueva, ...liberaciones];
-    setLiberaciones(updated);
+    });
     toast.success('Solicitud de liberación creada');
     setShowLibForm(false);
     setLibForm({ renglonId: '', renglonNombre: '', solicitante: '', supervisor: '' });
   };
 
   const actualizarLiberacion = (id: string, estado: LiberacionPartida['estado']) => {
-    const updated = liberaciones.map(l => l.id === id ? { ...l, estado, fechaLiberacion: estado !== 'pendiente' ? todayISO() : l.fechaLiberacion, checklistAprobado: estado === 'liberado' } : l);
-    setLiberaciones(updated);
+    updateLiberacion(id, { estado, ...(estado !== 'pendiente' ? { fechaLiberacion: todayISO() } : {}), checklistAprobado: estado === 'liberado' });
     toast.success(`Liberación ${estado}`);
   };
 

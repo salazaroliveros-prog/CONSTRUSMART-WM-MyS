@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import KitsMateriales from '../components/KitsMateriales';
 
-// Zod schemas
 const activoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido').max(100, 'Máximo 100 caracteres'),
   codigoInventario: z.string().min(1, 'Código requerido').max(50, 'Máximo 50 caracteres'),
@@ -25,16 +24,11 @@ const pagoSchema = z.object({
 });
 
 export const LogisticaCompras: React.FC = () => {
-  useErp(); // reservado para futuras features de auditoría
-
+  const { activos, addActivo, updateActivo, deleteActivo, cuadros, addCuadro, updateCuadro, pagosProveedor, addPagoProveedor, updatePagoProveedor } = useErp();
   const [tab, setTab] = useState<'activos' | 'cuadros' | 'pagos'>('activos');
   const [showForm, setShowForm] = useState<string | null>(null);
   const [form, setForm] = useState<Record<string, any>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-
-  const [activos, setActivos] = useState<ActivoHerramienta[]>([]);
-  const [cuadros, setCuadros] = useState<any[]>([]);
-  const [pagos, setPagos] = useState<PagoProveedor[]>([]);
 
   const clearError = (field: string) => setFormErrors(prev => ({ ...prev, [field]: '' }));
   const updateForm = (field: string, value: any) => {
@@ -42,50 +36,24 @@ export const LogisticaCompras: React.FC = () => {
     clearError(field);
   };
 
-  const addActivo = (data: Omit<ActivoHerramienta, 'id'>) => {
-    const nuevo: ActivoHerramienta = { ...data, id: uid() };
-    const updated = [nuevo, ...activos];
-    setActivos(updated);
-  };
-
-  const updateActivo = (id: string, patch: Partial<ActivoHerramienta>) => {
-    const updated = activos.map(a => a.id === id ? { ...a, ...patch } : a);
-    setActivos(updated);
-  };
-
-  const deleteActivo = (id: string) => {
-    const updated = activos.filter(a => a.id !== id);
-    setActivos(updated);
-  };
-
-  const addCuadro = (data: any) => {
-    const nuevo = { ...data, id: uid(), cotizaciones: [] };
-    const updated = [nuevo, ...cuadros];
-    setCuadros(updated);
-  };
-
   const addCotizacion = (cuadroId: string, data: any) => {
-    const updated = cuadros.map(c => c.id === cuadroId ? { ...c, cotizaciones: [...(c.cotizaciones || []), { ...data, id: uid() }] } : c);
-    setCuadros(updated);
+    const cuadro = cuadros.find(c => c.id === cuadroId);
+    if (!cuadro) return;
+    updateCuadro(cuadroId, {
+      cotizaciones: [...(cuadro.cotizaciones || []), { ...data, id: uid() }],
+    });
   };
 
   const selectCotizacion = (cuadroId: string, cotizacionId: string) => {
-    const updated = cuadros.map(c => c.id === cuadroId ? { ...c, estado: 'adjudicado', cotizaciones: c.cotizaciones.map(ct => ({ ...ct, seleccionada: ct.id === cotizacionId })) } : c);
-    setCuadros(updated);
+    const cuadro = cuadros.find(c => c.id === cuadroId);
+    if (!cuadro) return;
+    updateCuadro(cuadroId, {
+      estado: 'adjudicado',
+      cotizaciones: cuadro.cotizaciones.map(ct => ({ ...ct, seleccionada: ct.id === cotizacionId })),
+    });
   };
 
-  const addPago = (data: Omit<PagoProveedor, 'id'>) => {
-    const nuevo: PagoProveedor = { ...data, id: uid() };
-    const updated = [nuevo, ...pagos];
-    setPagos(updated);
-  };
-
-  const updatePago = (id: string, patch: Partial<PagoProveedor>) => {
-    const updated = pagos.map(p => p.id === id ? { ...p, ...patch } : p);
-    setPagos(updated);
-  };
-
-  const pagosVencidos = pagos.filter(p => p.estado === 'vencido');
+  const pagosVencidos = pagosProveedor.filter(p => p.estado === 'vencido');
 
   const renderActivos = () => (
     <div>
@@ -241,14 +209,14 @@ export const LogisticaCompras: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {pagos.map(p => (
+            {pagosProveedor.map(p => (
               <tr key={p.id} className="border-t hover:bg-muted/50">
                 <td className="p-2 font-medium">{p.proveedorNombre}</td>
                 <td className="p-2 text-xs">{p.concepto}</td>
                 <td className="p-2 text-right font-mono">Q{p.monto.toFixed(2)}</td>
                 <td className="p-2 text-xs">{new Date(p.fechaVencimiento).toLocaleDateString()}</td>
                 <td className="p-2">
-                  <select value={p.estado} onChange={e => updatePago(p.id, { estado: e.target.value as PagoProveedor['estado'] })}
+                  <select value={p.estado} onChange={e => updatePagoProveedor(p.id, { estado: e.target.value as PagoProveedor['estado'] })}
                     className={`text-xs px-2 py-1 rounded border outline-none ${
                       p.estado === 'pagado' ? 'text-success bg-success/10' :
                       p.estado === 'vencido' ? 'text-destructive bg-destructive/10' :
@@ -263,7 +231,7 @@ export const LogisticaCompras: React.FC = () => {
                 </td>
                 <td className="p-2">
                   {p.estado === 'pendiente' && (
-                    <button onClick={() => updatePago(p.id, { estado: 'pagado', fechaPago: new Date().toISOString().split('T')[0] })}
+                    <button onClick={() => updatePagoProveedor(p.id, { estado: 'pagado', fechaPago: new Date().toISOString().split('T')[0] })}
                       className="bg-success text-success-foreground px-2 py-0.5 rounded text-xs hover:bg-success/90">Pagar</button>
                   )}
                 </td>
@@ -272,7 +240,7 @@ export const LogisticaCompras: React.FC = () => {
           </tbody>
         </table>
       </div>
-      {pagos.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">No hay pagos registrados</p>}
+      {pagosProveedor.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">No hay pagos registrados</p>}
     </div>
   );
 
@@ -280,7 +248,6 @@ export const LogisticaCompras: React.FC = () => {
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto">
         {[
           { key: 'activos', label: '🔧 Activos' },
@@ -298,7 +265,6 @@ export const LogisticaCompras: React.FC = () => {
       {tab === 'cuadros' && renderCuadros()}
       {tab === 'pagos' && renderPagos()}
 
-      {/* Modal with Zod validation */}
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => { setShowForm(null); setFormErrors({}); }} role="dialog" aria-modal="true" aria-label="Formulario">
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-lg" onClick={e => e.stopPropagation()}>
@@ -330,7 +296,7 @@ export const LogisticaCompras: React.FC = () => {
                   {formErrors.valorAdquisicion && <p className="text-xs text-destructive mt-1">{formErrors.valorAdquisicion}</p>}
                 </div>
                 <button onClick={() => {
-                  const result = activoSchema.safeParse(form);
+                  const result = activoSchema.omit({ id: true }).safeParse(form);
                   if (!result.success) {
                     const errs: Record<string, string> = {};
                     result.error.errors.forEach(e => { errs[e.path[0] as string] = e.message; });
@@ -410,8 +376,7 @@ export const LogisticaCompras: React.FC = () => {
                     toast({ title: 'Error', description: 'Corrige los errores', variant: 'destructive' });
                     return;
                   }
-                  addPago({
-                    proveedorId: uid(),
+                  addPagoProveedor({
                     proveedorNombre: result.data.proveedorNombre,
                     concepto: result.data.concepto,
                     monto: result.data.monto,

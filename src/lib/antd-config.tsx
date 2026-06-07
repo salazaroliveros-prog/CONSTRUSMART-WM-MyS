@@ -97,12 +97,9 @@ export const getAntdTheme = (mode: ThemeMode = 'light') => {
     components: {
       // Button
       Button: {
-        primaryColor: colors.primary,
         controlHeight: 40,
         borderRadius: 6,
         fontWeight: 500,
-        colorPrimaryHover: mode === 'light' ? '#ff9f54' : '#ffab5c',
-        colorPrimaryActive: mode === 'light' ? '#e67e22' : '#ff7a45',
         controlOutlineWidth: 2,
         paddingContentHorizontal: 16,
       },
@@ -299,13 +296,6 @@ export const getAntdTheme = (mode: ThemeMode = 'light') => {
         colorBorder: colors.border,
       },
       
-      // Select
-      SelectContent: {
-        colorBgElevated: colors.bgBase,
-        boxShadow: mode === 'light'
-          ? '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)'
-          : '0 3px 6px -4px rgba(0, 0, 0, 0.45), 0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.15)',
-      },
     },
   };
 };

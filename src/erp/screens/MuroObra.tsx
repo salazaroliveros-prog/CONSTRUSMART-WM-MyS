@@ -10,59 +10,9 @@ import { toast } from 'sonner';
 
 type TipoPublicacion = 'avance' | 'calidad' | 'seguridad' | 'general';
 
-interface Publicacion {
-  id: string;
-  proyectoId: string;
-  autor: string;
-  fecha: string;
-  texto: string;
-  tipo: TipoPublicacion;
-  fotos?: string[];
-  comentarios: Comentario[];
-  likes: number;
-}
-
-interface Comentario {
-  id: string;
-  autor: string;
-  texto: string;
-  fecha: string;
-}
-
 const MuroObra: React.FC = () => {
-  const { proyectos, user } = useErp();
+  const { proyectos, user, publicacionesMuro, addPublicacionMuro, addComentarioMuro, likePublicacionMuro } = useErp();
   const [loading, setLoading] = useState(true);
-  const [publicaciones, setPublicaciones] = useState<Publicacion[]>([
-    {
-      id: 'p1', proyectoId: 'p1', autor: 'Carlos Méndez', fecha: '2026-05-28',
-      texto: "Completamos el colado de la losa del tercer nivel. Se usaron 12m³ de concreto f'200. Sin novedades en calidad.",
-      tipo: 'avance', likes: 3,
-      comentarios: [
-        { id: 'c1', autor: 'Ana López', texto: 'Excelente avance. ¿Ya programaron el curado?', fecha: '2026-05-28' },
-        { id: 'c2', autor: 'Pedro Cux', texto: 'El concreto está dentro de especificaciones ✅', fecha: '2026-05-28' },
-      ],
-    },
-    {
-      id: 'p2', proyectoId: 'p2', autor: 'Marvin Tzoc', fecha: '2026-05-27',
-      texto: 'Inspección de calidad en columnas del nivel 2. Todas las varillas cumplen con especificación Grado 60.',
-      tipo: 'calidad', likes: 1,
-      comentarios: [],
-    },
-    {
-      id: 'p3', proyectoId: 'p4', autor: 'Pedro Cux', fecha: '2026-05-26',
-      texto: 'Reunión de seguridad SSO — se reforzó uso de casco y arnés en zona de trabajo en altura. 15 trabajadores capacitados.',
-      tipo: 'seguridad', likes: 5,
-      comentarios: [
-        { id: 'c3', autor: 'Sandra Pérez', texto: 'Buenas prácticas 👏', fecha: '2026-05-26' },
-      ],
-    },
-    {
-      id: 'p4', proyectoId: 'p3', autor: 'Luis García', fecha: '2026-05-25',
-      texto: 'Se completó la instalación de la estructura metálica del techo. Próximo paso: lámina galvanizada.',
-      tipo: 'general', likes: 2,
-      comentarios: [],
-    },
-  ]);
   const [showForm, setShowForm] = useState(false);
   const [filterTipo, setFilterTipo] = useState<TipoPublicacion | 'todos'>('todos');
   const [proyectoFilter, setProyectoFilter] = useState('');
@@ -74,44 +24,36 @@ const MuroObra: React.FC = () => {
   React.useEffect(() => { const t = setTimeout(() => setLoading(false), 200); return () => clearTimeout(t); }, []);
 
   const publicacionesFiltradas = useMemo(() => {
-    let f = publicaciones;
+    let f = publicacionesMuro;
     if (proyectoFilter) f = f.filter(p => p.proyectoId === proyectoFilter);
     if (filterTipo !== 'todos') f = f.filter(p => p.tipo === filterTipo);
-    return f.sort((a, b) => b.fecha.localeCompare(a.fecha));
-  }, [publicaciones, proyectoFilter, filterTipo]);
+    return [...f].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }, [publicacionesMuro, proyectoFilter, filterTipo]);
 
   const handlePublicar = () => {
     if (!nuevoTexto.trim()) { toast.error('Escribe algo para publicar'); return; }
-    const nueva: Publicacion = {
-      id: Date.now().toString(),
+    addPublicacionMuro({
       proyectoId: proyectoFilter || proyectos[0]?.id || '',
       autor: user?.nombre || 'Anónimo',
-      fecha: todayISO(),
-      texto: nuevoTexto.trim(),
+      contenido: nuevoTexto.trim(),
       tipo: nuevoTipo,
       fotos: [],
-      comentarios: [],
+      createdAt: new Date().toISOString(),
       likes: 0,
-    };
-    setPublicaciones(s => [nueva, ...s]);
+      comentarios: [],
+    });
     toast.success('Publicación creada');
     setNuevoTexto('');
     setShowForm(false);
   };
 
-  const handleLike = (id: string) => {
-    setPublicaciones(s => s.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p));
-  };
-
   const handleComentar = (pubId: string) => {
     if (!comentarioInput.trim()) return;
-    const nuevoComentario: Comentario = {
-      id: Date.now().toString(),
+    addComentarioMuro(pubId, {
       autor: user?.nombre || 'Anónimo',
-      texto: comentarioInput.trim(),
-      fecha: todayISO(),
-    };
-    setPublicaciones(s => s.map(p => p.id === pubId ? { ...p, comentarios: [...p.comentarios, nuevoComentario] } : p));
+      contenido: comentarioInput.trim(),
+      createdAt: new Date().toISOString(),
+    });
     setComentarioInput('');
     setComentando(null);
   };
@@ -136,7 +78,6 @@ const MuroObra: React.FC = () => {
         </button>
       </div>
 
-      {/* Filtros */}
       <div className="flex flex-wrap gap-2 mb-4">
         <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none bg-white">
           <option value="">Todos los proyectos</option>
@@ -149,7 +90,6 @@ const MuroObra: React.FC = () => {
         ))}
       </div>
 
-      {/* Formulario nueva publicación */}
       {showForm && (
         <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-4">
           <div className="flex items-center gap-2 mb-3">
@@ -177,7 +117,6 @@ const MuroObra: React.FC = () => {
         </div>
       )}
 
-      {/* Feed */}
       <div className="space-y-3">
         {publicacionesFiltradas.length === 0 ? (
           <div className="bg-white rounded-2xl p-8 text-center text-sm text-slate-400 border border-slate-100">
@@ -188,7 +127,6 @@ const MuroObra: React.FC = () => {
           const cfg = tipoConfig[pub.tipo];
           return (
             <div key={pub.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-              {/* Header de publicación */}
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
                   {pub.autor.split(' ').map(n => n[0]).join('').slice(0, 2)}
@@ -196,18 +134,16 @@ const MuroObra: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-slate-700 truncate">{pub.autor}</div>
                   <div className="text-[10px] text-slate-400 flex items-center gap-1">
-                    <Calendar className="w-3 h-3" /> {pub.fecha}
+                    <Calendar className="w-3 h-3" /> {pub.createdAt.slice(0, 10)}
                     <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Texto */}
-              <p className="text-sm text-slate-600 mb-3 leading-relaxed">{pub.texto}</p>
+              <p className="text-sm text-slate-600 mb-3 leading-relaxed">{pub.contenido}</p>
 
-              {/* Acciones */}
               <div className="flex items-center gap-3 text-[10px] text-slate-400">
-                <button onClick={() => handleLike(pub.id)} className="flex items-center gap-1 hover:text-red-500 transition-colors">
+                <button onClick={() => likePublicacionMuro(pub.id)} className="flex items-center gap-1 hover:text-red-500 transition-colors">
                   <Heart className="w-3.5 h-3.5" /> {pub.likes}
                 </button>
                 <button onClick={() => setComentando(comentando === pub.id ? null : pub.id)} className="flex items-center gap-1 hover:text-indigo-500 transition-colors">
@@ -215,7 +151,6 @@ const MuroObra: React.FC = () => {
                 </button>
               </div>
 
-              {/* Comentarios */}
               {pub.comentarios.length > 0 && (
                 <div className="mt-2 border-t border-slate-100 pt-2 space-y-1.5">
                   {pub.comentarios.map(c => (
@@ -225,15 +160,14 @@ const MuroObra: React.FC = () => {
                       </div>
                       <div>
                         <span className="text-[10px] font-semibold text-slate-600">{c.autor}</span>
-                        <span className="text-[10px] text-slate-400 ml-1">{c.fecha}</span>
-                        <p className="text-xs text-slate-600">{c.texto}</p>
+                        <span className="text-[10px] text-slate-400 ml-1">{c.createdAt.slice(0, 10)}</span>
+                        <p className="text-xs text-slate-600">{c.contenido}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Input de comentario */}
               {comentando === pub.id && (
                 <div className="mt-2 flex gap-2">
                   <input

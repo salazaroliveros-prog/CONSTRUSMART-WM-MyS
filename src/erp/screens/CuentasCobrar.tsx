@@ -7,33 +7,30 @@ import { toast } from 'sonner';
 import { todayISO, fmtQ } from '../utils';
 
 const CuentasCobrarScreen: React.FC = () => {
-  const { proyectos } = useErp();
-  const [cuentas, setCuentas] = useState<CuentaCobrar[]>([]);
+  const { proyectos, cuentasCobrar, addCuentaCobrar, updateCuentaCobrar, deleteCuentaCobrar } = useErp();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ proyectoId: '', cliente: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', notas: '' });
 
-  const save = (c: CuentaCobrar[]) => { setCuentas(c); };
-
   const agregar = () => {
     if (!form.cliente || !form.concepto || form.monto <= 0) { toast.error('Cliente, concepto y monto requeridos'); return; }
-    const nueva: CuentaCobrar = {
-      id: crypto.randomUUID(), proyectoId: form.proyectoId, cliente: form.cliente, concepto: form.concepto,
+    addCuentaCobrar({
+      proyectoId: form.proyectoId, cliente: form.cliente, concepto: form.concepto,
       monto: form.monto, saldoPendiente: form.monto, fechaEmision: form.fechaEmision,
-      fechaVencimiento: form.fechaVencimiento, estado: 'pendiente', notas: form.notas,
-    };
-    save([nueva, ...cuentas]); toast.success('Cuenta por cobrar registrada');
+      fechaVencimiento: form.fechaVencimiento, estado: 'pendiente', notas: form.notas || undefined,
+    });
+    toast.success('Cuenta por cobrar registrada');
     setShowForm(false); setForm({ proyectoId: '', cliente: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', notas: '' });
   };
 
   const cobrar = (id: string) => {
-    save(cuentas.map(c => c.id === id ? { ...c, estado: 'cobrado' as const, fechaCobro: todayISO(), saldoPendiente: 0 } : c));
+    updateCuentaCobrar(id, { estado: 'cobrado', fechaCobro: todayISO(), saldoPendiente: 0 });
     toast.success('Cobro registrado');
   };
 
-  const eliminar = (id: string) => { if (confirm('¿Eliminar?')) save(cuentas.filter(c => c.id !== id)); };
+  const eliminar = (id: string) => { if (confirm('¿Eliminar?')) deleteCuentaCobrar(id); };
 
-  const pendientes = cuentas.filter(c => c.estado === 'pendiente' || c.estado === 'parcial' || c.estado === 'vencido');
-  const vencidos = cuentas.filter(c => c.estado === 'vencido' || (c.estado === 'pendiente' && c.fechaVencimiento < todayISO()));
+  const pendientes = cuentasCobrar.filter(c => c.estado === 'pendiente' || c.estado === 'parcial' || c.estado === 'vencido');
+  const vencidos = cuentasCobrar.filter(c => c.estado === 'vencido' || (c.estado === 'pendiente' && c.fechaVencimiento < todayISO()));
   const totalPendiente = pendientes.reduce((a, c) => a + c.saldoPendiente, 0);
 
   return (
@@ -45,7 +42,7 @@ const CuentasCobrarScreen: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
         <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><DollarSign className="w-4 h-4 text-emerald-500" /><span className="text-xs text-slate-500">Total por cobrar</span></div><div className="text-xl font-bold text-emerald-600">{fmtQ(totalPendiente)}</div></div>
         <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-blue-500" /><span className="text-xs text-slate-500">Pendientes</span></div><div className="text-xl font-bold text-slate-800">{pendientes.length}</div></div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-amber-500" /><span className="text-xs text-slate-500">Cobradas</span></div><div className="text-xl font-bold text-amber-600">{cuentas.filter(c => c.estado === 'cobrado').length}</div></div>
+        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-amber-500" /><span className="text-xs text-slate-500">Cobradas</span></div><div className="text-xl font-bold text-amber-600">{cuentasCobrar.filter(c => c.estado === 'cobrado').length}</div></div>
         <div className={`rounded-xl p-3 border ${vencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-100'}`}><div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /><span className="text-xs text-slate-500">Vencidas</span></div><div className="text-xl font-bold text-red-600">{vencidos.length}</div></div>
       </div>
       {showForm && (
@@ -65,8 +62,8 @@ const CuentasCobrarScreen: React.FC = () => {
         </div>
       )}
       <div className="space-y-2">
-        {cuentas.length === 0 ? <div className="text-center py-10 text-slate-400"><DollarSign className="w-10 h-10 mx-auto mb-2 text-slate-300" /><p className="text-sm">Sin cuentas por cobrar</p></div>
-        : [...cuentas].sort((a, b) => a.fechaVencimiento.localeCompare(b.fechaVencimiento)).map(c => {
+        {cuentasCobrar.length === 0 ? <div className="text-center py-10 text-slate-400"><DollarSign className="w-10 h-10 mx-auto mb-2 text-slate-300" /><p className="text-sm">Sin cuentas por cobrar</p></div>
+        : [...cuentasCobrar].sort((a, b) => a.fechaVencimiento.localeCompare(b.fechaVencimiento)).map(c => {
           const vencida = c.estado === 'pendiente' && c.fechaVencimiento < todayISO();
           return (
             <div key={c.id} className={`bg-white rounded-xl border p-4 ${c.estado === 'cobrado' ? 'border-emerald-200 bg-emerald-50/30' : vencida ? 'border-red-200 bg-red-50/30' : 'border-slate-100'}`}>

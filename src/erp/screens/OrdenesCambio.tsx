@@ -1,59 +1,19 @@
 import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
+import { OrdenCambio } from '../types';
 import { fmtQ, todayISO } from '../utils';
-import {
-  GitBranch, Plus, Check, X, Clock,
-  ChevronRight, ChevronDown,
-} from 'lucide-react';
+import { GitBranch, Plus, Check, X, Clock, ChevronRight, ChevronDown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
-type EstadoOC = 'solicitud' | 'revision' | 'aprobado' | 'rechazado';
-
-interface OrdenCambio {
-  id: string;
-  proyectoId: string;
-  titulo: string;
-  descripcion: string;
-  solicitante: string;
-  fecha: string;
-  estado: EstadoOC;
-  impactoCosto: number;
-  impactoPlazo: number; // días
-  versionAnterior?: string;
-  versionNueva?: string;
-  aprobador?: string;
-  fechaAprobacion?: string;
-}
+type EstadoOC = OrdenCambio['estado'];
 
 const OrdenesCambio: React.FC = () => {
-  const { proyectos, user } = useErp();
+  const { proyectos, user, ordenesCambio, addOrdenCambio, updateOrdenCambio } = useErp();
   const [loading, setLoading] = useState(true);
-  const [ordenes, setOrdenes] = useState<OrdenCambio[]>([
-    {
-      id: 'oc1', proyectoId: 'p1', titulo: 'Cambiar diseño de fachada',
-      descripcion: 'El cliente solicita cambio de acabado exterior de concreto aparente a panel ACM. Se requiere actualización de memoria de cálculo.',
-      solicitante: 'Carlos Méndez', fecha: '2026-05-20', estado: 'aprobado',
-      impactoCosto: 125000, impactoPlazo: 15, aprobador: 'Gerente', fechaAprobacion: '2026-05-22',
-    },
-    {
-      id: 'oc2', proyectoId: 'p2', titulo: 'Ampliación de estacionamiento',
-      descripcion: 'Solicitud de 20 plazas adicionales. Requiere cambio de diseño estructural y新的 pavimento.',
-      solicitante: 'Marvin Tzoc', fecha: '2026-05-25', estado: 'revision',
-      impactoCosto: 380000, impactoPlazo: 30,
-    },
-    {
-      id: 'oc3', proyectoId: 'p4', titulo: 'Cambio de material tubería',
-     描述: 'Reemplazo de PVC por HDPE en sistema de drenaje por nuevas especificaciones municipales.',
-      solicitante: 'Pedro Cux', fecha: '2026-05-28', estado: 'solicitud',
-      impactoCosto: 45000, impactoPlazo: 5,
-    },
-  ]);
   const [showForm, setShowForm] = useState(false);
   const [proyectoFilter, setProyectoFilter] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
-
-  // Form
   const [fTitulo, setFTitulo] = useState('');
   const [fDesc, setFDesc] = useState('');
   const [fCosto, setFCosto] = useState(0);
@@ -62,37 +22,36 @@ const OrdenesCambio: React.FC = () => {
   React.useEffect(() => { const t = setTimeout(() => setLoading(false), 200); return () => clearTimeout(t); }, []);
 
   const filtered = useMemo(() => {
-    if (!proyectoFilter) return ordenes;
-    return ordenes.filter(o => o.proyectoId === proyectoFilter);
-  }, [ordenes, proyectoFilter]);
+    if (!proyectoFilter) return ordenesCambio;
+    return ordenesCambio.filter(o => o.proyectoId === proyectoFilter);
+  }, [ordenesCambio, proyectoFilter]);
 
   const handleCrear = () => {
     if (!fTitulo.trim()) { toast.error('Título requerido'); return; }
     if (!proyectoFilter) { toast.error('Selecciona un proyecto'); return; }
-    const nueva: OrdenCambio = {
-      id: Date.now().toString(),
+    addOrdenCambio({
       proyectoId: proyectoFilter,
       titulo: fTitulo.trim(),
       descripcion: fDesc.trim(),
       solicitante: user?.nombre || 'Anónimo',
-      fecha: todayISO(),
+      solicitanteRol: user?.rol || 'Residente',
       estado: 'solicitud',
       impactoCosto: fCosto,
       impactoPlazo: fPlazo,
-    };
-    setOrdenes(s => [nueva, ...s]);
+      createdAt: new Date().toISOString(),
+    });
     toast.success('Solicitud de cambio creada');
     setFTitulo(''); setFDesc(''); setFCosto(0); setFPlazo(0);
     setShowForm(false);
   };
 
   const handleAprobar = (id: string) => {
-    setOrdenes(s => s.map(o => o.id === id ? { ...o, estado: 'aprobado', aprobador: user?.nombre || 'Gerente', fechaAprobacion: todayISO() } : o));
+    updateOrdenCambio(id, { estado: 'aprobado', aprobador: user?.nombre || 'Gerente', fechaAprobacion: todayISO() });
     toast.success('Cambio aprobado');
   };
 
   const handleRechazar = (id: string) => {
-    setOrdenes(s => s.map(o => o.id === id ? { ...o, estado: 'rechazado', aprobador: user?.nombre || 'Gerente', fechaAprobacion: todayISO() } : o));
+    updateOrdenCambio(id, { estado: 'rechazado', aprobador: user?.nombre || 'Gerente', fechaAprobacion: todayISO() });
     toast.info('Cambio rechazado');
   };
 
@@ -103,8 +62,8 @@ const OrdenesCambio: React.FC = () => {
     rechazado: { color: 'text-red-600', bg: 'bg-red-50', label: 'Rechazado' },
   };
 
-  const pendientes = ordenes.filter(o => o.estado === 'solicitud' || o.estado === 'revision').length;
-  const costoTotal = ordenes.filter(o => o.estado === 'aprobado').reduce((a, o) => a + o.impactoCosto, 0);
+  const pendientes = ordenesCambio.filter(o => o.estado === 'solicitud' || o.estado === 'revision').length;
+  const costoTotal = ordenesCambio.filter(o => o.estado === 'aprobado').reduce((a, o) => a + o.impactoCosto, 0);
 
   if (loading) return <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 rounded-2xl" /></div>;
 
@@ -125,11 +84,10 @@ const OrdenesCambio: React.FC = () => {
         </div>
       </div>
 
-      {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="bg-white rounded-xl p-3 border border-slate-100">
           <div className="text-[10px] text-slate-400">Total Órdenes</div>
-          <div className="text-lg font-bold text-slate-800">{ordenes.length}</div>
+          <div className="text-lg font-bold text-slate-800">{ordenesCambio.length}</div>
         </div>
         <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
           <div className="text-[10px] text-amber-600">Pendientes</div>
@@ -141,7 +99,6 @@ const OrdenesCambio: React.FC = () => {
         </div>
       </div>
 
-      {/* Formulario */}
       {showForm && (
         <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-4">
           <h3 className="font-bold text-sm text-slate-700 mb-3">📝 Nueva Solicitud de Cambio</h3>
@@ -166,8 +123,13 @@ const OrdenesCambio: React.FC = () => {
         </div>
       )}
 
-      {/* Lista */}
       <div className="space-y-2">
+        {filtered.length === 0 && (
+          <div className="text-center py-10 text-slate-400">
+            <GitBranch className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+            <p className="text-sm">Sin órdenes de cambio</p>
+          </div>
+        )}
         {filtered.map(oc => {
           const cfg = estadoConfig[oc.estado];
           const isOpen = expanded === oc.id;
@@ -178,7 +140,7 @@ const OrdenesCambio: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-slate-700 truncate">{oc.titulo}</div>
                   <div className="text-[10px] text-slate-400 flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> {oc.fecha} · {oc.solicitante}
+                    <Clock className="w-3 h-3" /> {oc.createdAt?.slice(0, 10)} · {oc.solicitante}
                     <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                   </div>
                 </div>
