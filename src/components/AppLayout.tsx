@@ -169,7 +169,7 @@ const Shell: React.FC = () => {
           aria-label="Contenido principal"
         >
           <Suspense fallback={<ScreenLoader />}>
-            <div key={view} className="animate-slide-up">
+            <div key={view} className="animate-enter">
               {safeScreen}
             </div>
           </Suspense>

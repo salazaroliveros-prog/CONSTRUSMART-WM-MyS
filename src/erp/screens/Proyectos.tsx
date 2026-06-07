@@ -8,7 +8,7 @@ import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
 import { Progress } from '../components/Charts';
 import MapPicker from '../components/MapPicker';
 import { INPUT, BUTTON_PRIMARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER } from '../ui';
-import { Plus, MapPin, Trash2, X, Building2, Pencil } from 'lucide-react';
+import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, AlertCircle, ChevronRight } from 'lucide-react';
 
 const proyectoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -193,6 +193,30 @@ const Proyectos: React.FC = () => {
     setShow(true);
   };
 
+  const accionRapida = (p: Proyecto, accion: string) => {
+    switch (accion) {
+      case 'iniciar':
+        updateProyecto(p.id, { estado: 'ejecucion', etapa: 'preconstruccion', fechaInicioReal: todayISO() });
+        break;
+      case 'pausar':
+        updateProyecto(p.id, { estado: 'pausado' });
+        break;
+      case 'reanudar':
+        updateProyecto(p.id, { estado: 'ejecucion' });
+        break;
+      case 'finalizar':
+        updateProyecto(p.id, { estado: 'finalizado', etapa: 'cierre', avanceFisico: 100, avanceFinanciero: 100, fechaFinEstimada: todayISO() });
+        break;
+      case 'reabrir':
+        updateProyecto(p.id, { estado: 'planeacion', etapa: 'planificacion', avanceFisico: 0, avanceFinanciero: 0 });
+        break;
+    }
+  };
+
+  const estadoLabel: Record<string, string> = {
+    planeacion: 'Planeación', ejecucion: 'Ejecución', pausado: 'Pausado', finalizado: 'Finalizado',
+  };
+
   const wMoneda = watch('moneda');
   const wArea = watch('areaConstruccion');
 
@@ -229,11 +253,18 @@ const Proyectos: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-        {proyectos.map(p => (
-          <div key={p.id} className="bg-card text-card-foreground rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-border">
+        {proyectos.map((p, i) => (
+          <div
+            key={p.id}
+            className="group bg-card text-card-foreground rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-border hover:-translate-y-1 animate-enter"
+            style={{ animationDelay: `${i * 0.04}s` }}
+          >
+            {/* Barra superior de color según estado */}
+            <div className="h-1.5 rounded-t-2xl transition-all duration-300 group-hover:h-2" style={{ background: estadoColor(p) }} />
+
             <div className="p-5">
               <div className="flex items-start gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: estadoColor(p) }} aria-hidden="true">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0 transition-transform duration-300 group-hover:scale-110" style={{ background: estadoColor(p) }} aria-hidden="true">
                   <Building2 className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -241,7 +272,7 @@ const Proyectos: React.FC = () => {
                   <p className="text-[11px] text-muted-foreground truncate">{p.cliente}</p>
                   {p.areaConstruccion && <p className="text-[10px] text-muted-foreground">{p.areaConstruccion.toLocaleString()} m² · {p.numPisos ? `${p.numPisos} niveles` : ''}</p>}
                 </div>
-                <div className="flex gap-1 shrink-0">
+                <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={`Editar proyecto ${p.nombre}`}>
                     <Pencil className="w-4 h-4" aria-hidden="true" />
                   </button>
@@ -250,27 +281,42 @@ const Proyectos: React.FC = () => {
                   </button>
                 </div>
               </div>
+
               <div className="flex flex-wrap gap-1.5 mb-3">
                 <span className="text-[10px] px-2.5 py-1 rounded-full bg-muted text-foreground font-medium">{TIPOLOGIA_LABEL[p.tipologia]}</span>
-                <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium ${p.estado === 'ejecucion' ? 'bg-emerald-500/10 text-emerald-600' : p.estado === 'planeacion' ? 'bg-amber-500/10 text-amber-600' : 'bg-muted text-foreground/70'}`}>{p.estado}</span>
+                <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium transition-colors ${
+                  p.estado === 'ejecucion' ? 'bg-emerald-500/10 text-emerald-600' :
+                  p.estado === 'pausado' ? 'bg-amber-500/10 text-amber-600' :
+                  p.estado === 'finalizado' ? 'bg-blue-500/10 text-blue-600' :
+                  'bg-slate-500/10 text-slate-600'
+                }`}>{estadoLabel[p.estado] || p.estado}</span>
+                {p.etapa && <span className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground">{p.etapa}</span>}
                 {p.moneda && <span className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground">{p.moneda}</span>}
               </div>
+
               <div className="space-y-2.5 mb-4">
                 <div>
                   <div className="flex justify-between text-[11px] mb-1.5">
                     <span className="text-muted-foreground">Avance Físico</span>
                     <span className="font-semibold text-foreground">{fmtPct(p.avanceFisico)}</span>
                   </div>
-                  <Progress value={p.avanceFisico} color="#3b82f6" />
+                  <div className="relative overflow-hidden rounded-full">
+                    <Progress value={p.avanceFisico} color="#3b82f6" />
+                    <div className="shimmer-bar absolute inset-0 pointer-events-none" />
+                  </div>
                 </div>
                 <div>
                   <div className="flex justify-between text-[11px] mb-1.5">
                     <span className="text-muted-foreground">Avance Financiero</span>
                     <span className="font-semibold text-foreground">{fmtPct(p.avanceFinanciero)}</span>
                   </div>
-                  <Progress value={p.avanceFinanciero} color="#f97316" />
+                  <div className="relative overflow-hidden rounded-full">
+                    <Progress value={p.avanceFinanciero} color="#f97316" />
+                    <div className="shimmer-bar absolute inset-0 pointer-events-none" />
+                  </div>
                 </div>
               </div>
+
               <div className="pt-3.5 flex justify-between text-xs border-t border-border">
                 <div>
                   <span className="text-muted-foreground block text-[10px] mb-0.5">Presupuesto</span>
@@ -281,14 +327,64 @@ const Proyectos: React.FC = () => {
                   <b className="text-emerald-600 dark:text-emerald-400 font-semibold">{fmtQ(p.montoContrato || 0)}</b>
                 </div>
               </div>
+
+              {/* Botones de acción rápida */}
+              <div className="mt-3 pt-3 border-t border-border flex flex-wrap gap-1.5">
+                {p.estado === 'planeacion' && (
+                  <button
+                    onClick={() => accionRapida(p, 'iniciar')}
+                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
+                  >
+                    <Play className="w-3 h-3" /> Iniciar Ejecución
+                  </button>
+                )}
+                {p.estado === 'ejecucion' && (
+                  <>
+                    <button
+                      onClick={() => accionRapida(p, 'pausar')}
+                      className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
+                    >
+                      <Pause className="w-3 h-3" /> Pausar
+                    </button>
+                    <button
+                      onClick={() => accionRapida(p, 'finalizar')}
+                      className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
+                    >
+                      <CheckCircle2 className="w-3 h-3" /> Finalizar
+                    </button>
+                  </>
+                )}
+                {p.estado === 'pausado' && (
+                  <button
+                    onClick={() => accionRapida(p, 'reanudar')}
+                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
+                  >
+                    <RotateCcw className="w-3 h-3" /> Reanudar
+                  </button>
+                )}
+                {p.estado === 'finalizado' && (
+                  <button
+                    onClick={() => accionRapida(p, 'reabrir')}
+                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-slate-500 hover:bg-slate-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
+                  >
+                    <RotateCcw className="w-3 h-3" /> Reabrir
+                  </button>
+                )}
+                <button
+                  onClick={() => openEdit(p)}
+                  className="text-[11px] px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground font-medium flex items-center justify-center gap-1 transition-all active:scale-95"
+                >
+                  <ChevronRight className="w-3 h-3" /> Detalle
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
       {show && (
-        <div className={MODAL_OVERLAY} onClick={() => setShow(false)} role="dialog" aria-modal="true" aria-labelledby="modal-proyecto-title">
-          <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className={`${MODAL_PANEL} max-w-2xl max-h-[90vh] overflow-y-auto`}>
+        <div className={MODAL_OVERLAY + ' animate-enter'} onClick={() => setShow(false)} role="dialog" aria-modal="true" aria-labelledby="modal-proyecto-title">
+          <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className={`${MODAL_PANEL} max-w-2xl max-h-[90vh] overflow-y-auto animate-enter`}>
             <div className={MODAL_HEADER}>
               <h2 id="modal-proyecto-title" className={MODAL_TITLE}>{editingId ? 'Editar Proyecto' : 'Nuevo Proyecto'}</h2>
               <button type="button" onClick={() => { setShow(false); setEditingId(null); }} className={MODAL_CLOSE} aria-label="Cerrar">
@@ -438,7 +534,7 @@ const Proyectos: React.FC = () => {
               </div>
             </div>
 
-            <button type="submit" className={`${BUTTON_PRIMARY} mt-4`}>
+            <button type="submit" className={`${BUTTON_PRIMARY} mt-4 w-full justify-center active:scale-[0.98]`}>
               {editingId ? 'Guardar Cambios' : 'Crear Proyecto'}
             </button>
           </form>
