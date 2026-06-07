@@ -1,21 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useErp } from '../store';
-import { Tipologia } from '../types';
+import type { Proyecto, Tipologia } from '../types';
 import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
 import { Progress } from '../components/Charts';
+import MapPicker from '../components/MapPicker';
 import { INPUT, BUTTON_PRIMARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER } from '../ui';
 import { Plus, MapPin, Trash2, X, Building2, Pencil } from 'lucide-react';
 
 const proyectoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
-  cliente: z.string().min(1, 'Cliente requerido'),
-  ubicacion: z.string().min(1, 'Ubicación requerida'),
+  descripcion: z.string().optional(),
   tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica'] as const),
+  tipoObra: z.enum(['nueva', 'remodelacion', 'ampliacion'] as const).optional(),
+  cliente: z.string().min(1, 'Cliente requerido'),
+  clienteNit: z.string().optional(),
+  clienteTelefono: z.string().optional(),
+  clienteEmail: z.string().email('Email inválido').optional().or(z.literal('')),
+  ubicacion: z.string().min(1, 'Ubicación requerida'),
+  direccion: z.string().optional(),
+  ciudad: z.string().optional(),
+  departamento: z.string().optional(),
+  codigoPostal: z.string().optional(),
+  areaConstruccion: z.coerce.number().min(0, 'Debe ser positivo').optional(),
+  numPisos: z.coerce.number().int().min(0).optional(),
+  plazoSemanas: z.coerce.number().int().min(0).optional(),
+  ingenieroResidente: z.string().optional(),
+  supervisor: z.string().optional(),
+  arquitecto: z.string().optional(),
+  numeroExpediente: z.string().optional(),
+  numeroLicencia: z.string().optional(),
   presupuestoTotal: z.coerce.number().min(0, 'Valor requerido'),
   montoContrato: z.coerce.number().min(0, 'Valor requerido'),
+  fechaInicio: z.string().min(1, 'Fecha requerida'),
+  fechaFin: z.string().min(1, 'Fecha requerida'),
+  margenUtilidadObjetivo: z.coerce.number().min(0).max(100).optional(),
+  moneda: z.enum(['GTQ', 'USD'] as const).optional(),
 });
 
 type ProyectoFormData = z.infer<typeof proyectoSchema>;
@@ -30,106 +52,143 @@ const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado
 
 const Proyectos: React.FC = () => {
   const { proyectos, addProyecto, updateProyecto, deleteProyecto } = useErp();
-  const [show, setShow] = React.useState(false);
-  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [show, setShow] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ProyectoFormData>({
     resolver: zodResolver(proyectoSchema),
     defaultValues: {
       nombre: '',
-      cliente: '',
-      ubicacion: '',
+      descripcion: '',
       tipologia: 'residencial',
+      tipoObra: 'nueva',
+      cliente: '',
+      clienteNit: '',
+      clienteTelefono: '',
+      clienteEmail: '',
+      ubicacion: '',
+      direccion: '',
+      ciudad: '',
+      departamento: '',
+      codigoPostal: '',
+      areaConstruccion: undefined,
+      numPisos: undefined,
+      plazoSemanas: undefined,
+      ingenieroResidente: '',
+      supervisor: '',
+      arquitecto: '',
+      numeroExpediente: '',
+      numeroLicencia: '',
       presupuestoTotal: 0,
       montoContrato: 0,
+      fechaInicio: todayISO(),
+      fechaFin: todayISO(),
+      margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ',
     },
   });
 
   const onSubmit = (data: ProyectoFormData) => {
     if (editingId) {
-      updateProyecto(editingId, {
-        nombre: data.nombre,
-        cliente: data.cliente,
-        ubicacion: data.ubicacion,
-        tipologia: data.tipologia,
-        presupuestoTotal: data.presupuestoTotal,
-        montoContrato: data.montoContrato,
-      });
+      updateProyecto(editingId, { ...data, lat: coords.lat, lng: coords.lng });
     } else {
       addProyecto({
-        nombre: data.nombre,
-        cliente: data.cliente,
-        ubicacion: data.ubicacion,
-        tipologia: data.tipologia,
+        ...data,
         estado: 'planeacion',
-        presupuestoTotal: data.presupuestoTotal,
-        montoContrato: data.montoContrato,
+        etapa: 'planificacion',
         avanceFisico: 0,
         avanceFinanciero: 0,
-        lat: 14.6 + Math.random() * 0.2,
-        lng: -90.55 + Math.random() * 0.2,
-        fechaInicio: todayISO(),
-        fechaFin: todayISO(),
+        lat: coords.lat || 14.6349,
+        lng: coords.lng || -90.5069,
+        moneda: data.moneda || 'GTQ',
       });
     }
     reset();
     setEditingId(null);
     setShow(false);
+    setCoords({});
   };
 
   const openCreate = () => {
     setEditingId(null);
+    setCoords({});
     reset({
       nombre: '',
-      cliente: '',
-      ubicacion: '',
+      descripcion: '',
       tipologia: 'residencial',
+      tipoObra: 'nueva',
+      cliente: '',
+      clienteNit: '',
+      clienteTelefono: '',
+      clienteEmail: '',
+      ubicacion: '',
+      direccion: '',
+      ciudad: '',
+      departamento: '',
+      codigoPostal: '',
+      areaConstruccion: undefined,
+      numPisos: undefined,
+      plazoSemanas: undefined,
+      ingenieroResidente: '',
+      supervisor: '',
+      arquitecto: '',
+      numeroExpediente: '',
+      numeroLicencia: '',
       presupuestoTotal: 0,
       montoContrato: 0,
+      fechaInicio: todayISO(),
+      fechaFin: todayISO(),
+      margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ',
     });
     setShow(true);
   };
 
   const openEdit = (p: Proyecto) => {
     setEditingId(p.id);
+    setCoords({ lat: p.lat, lng: p.lng });
     reset({
       nombre: p.nombre,
-      cliente: p.cliente,
-      ubicacion: p.ubicacion,
+      descripcion: p.descripcion || '',
       tipologia: p.tipologia,
+      tipoObra: (p as any).tipoObra || 'nueva',
+      cliente: p.cliente || '',
+      clienteNit: (p as any).clienteNit || '',
+      clienteTelefono: (p as any).clienteTelefono || '',
+      clienteEmail: (p as any).clienteEmail || '',
+      ubicacion: p.ubicacion,
+      direccion: (p as any).direccion || '',
+      ciudad: (p as any).ciudad || '',
+      departamento: (p as any).departamento || '',
+      codigoPostal: (p as any).codigoPostal || '',
+      areaConstruccion: (p as any).areaConstruccion || undefined,
+      numPisos: (p as any).numPisos || undefined,
+      plazoSemanas: (p as any).plazoSemanas || undefined,
+      ingenieroResidente: (p as any).ingenieroResidente || '',
+      supervisor: (p as any).supervisor || '',
+      arquitecto: (p as any).arquitecto || '',
+      numeroExpediente: (p as any).numeroExpediente || '',
+      numeroLicencia: (p as any).numeroLicencia || '',
       presupuestoTotal: p.presupuestoTotal,
-      montoContrato: p.montoContrato,
+      montoContrato: p.montoContrato || 0,
+      fechaInicio: p.fechaInicio,
+      fechaFin: p.fechaFin,
+      margenUtilidadObjetivo: (p as any).margenUtilidadObjetivo || undefined,
+      moneda: (p as any).moneda || 'GTQ',
     });
     setShow(true);
   };
 
-  const Skeleton = (
-    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border animate-pulse space-y-3">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-lg bg-muted" />
-          <div className="space-y-2">
-            <div className="h-3 w-36 bg-muted rounded" />
-            <div className="h-2 w-24 bg-muted rounded" />
-          </div>
-        </div>
-        <div className="w-4 h-4 bg-muted rounded" />
-      </div>
-      <div className="space-y-2">
-        <div className="h-2 w-full bg-muted rounded" />
-        <div className="h-2 w-5/6 bg-muted rounded" />
-      </div>
-      <div className="space-y-2">
-        <div className="h-2 w-full bg-muted rounded" />
-        <div className="h-2 w-4/6 bg-muted rounded" />
-      </div>
-    </div>
-  );
+  const wMoneda = watch('moneda');
+  const wArea = watch('areaConstruccion');
 
   return (
     <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
@@ -164,7 +223,7 @@ const Proyectos: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-        {proyectos.length === 0 ? Array.from({ length: 3 }).map((_, i) => <div key={i}>{Skeleton}</div>) : proyectos.map(p => (
+        {proyectos.map(p => (
           <div key={p.id} className="bg-card text-card-foreground rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-border">
             <div className="p-5">
               <div className="flex items-start gap-3 mb-4">
@@ -173,9 +232,10 @@ const Proyectos: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-foreground text-sm truncate">{p.nombre}</h3>
-                  <p className="text-[11px] text-muted-foreground truncate">{p.cliente} · {p.ubicacion}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{p.cliente}</p>
+                  {p.areaConstruccion && <p className="text-[10px] text-muted-foreground">{p.areaConstruccion.toLocaleString()} m² · {p.numPisos ? `${p.numPisos} niveles` : ''}</p>}
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 shrink-0">
                   <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={`Editar proyecto ${p.nombre}`}>
                     <Pencil className="w-4 h-4" aria-hidden="true" />
                   </button>
@@ -184,9 +244,10 @@ const Proyectos: React.FC = () => {
                   </button>
                 </div>
               </div>
-              <div className="flex gap-2 mb-4">
+              <div className="flex flex-wrap gap-1.5 mb-3">
                 <span className="text-[10px] px-2.5 py-1 rounded-full bg-muted text-foreground font-medium">{TIPOLOGIA_LABEL[p.tipologia]}</span>
-                <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium ${p.estado === 'ejecucion' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : p.estado === 'planeacion' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-muted text-foreground/70'}`}>{p.estado}</span>
+                <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium ${p.estado === 'ejecucion' ? 'bg-emerald-500/10 text-emerald-600' : p.estado === 'planeacion' ? 'bg-amber-500/10 text-amber-600' : 'bg-muted text-foreground/70'}`}>{p.estado}</span>
+                {p.moneda && <span className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground">{p.moneda}</span>}
               </div>
               <div className="space-y-2.5 mb-4">
                 <div>
@@ -211,7 +272,7 @@ const Proyectos: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <span className="text-muted-foreground block text-[10px] mb-0.5">Contrato</span>
-                  <b className="text-emerald-600 dark:text-emerald-400 font-semibold">{fmtQ(p.montoContrato)}</b>
+                  <b className="text-emerald-600 dark:text-emerald-400 font-semibold">{fmtQ(p.montoContrato || 0)}</b>
                 </div>
               </div>
             </div>
@@ -221,32 +282,133 @@ const Proyectos: React.FC = () => {
 
       {show && (
         <div className={MODAL_OVERLAY} onClick={() => setShow(false)} role="dialog" aria-modal="true" aria-labelledby="modal-proyecto-title">
-          <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className={`${MODAL_PANEL} max-w-md`}>
+          <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className={`${MODAL_PANEL} max-w-2xl max-h-[90vh] overflow-y-auto`}>
             <div className={MODAL_HEADER}>
               <h2 id="modal-proyecto-title" className={MODAL_TITLE}>{editingId ? 'Editar Proyecto' : 'Nuevo Proyecto'}</h2>
-              <button type="button" onClick={() => { setShow(false); setEditingId(null); }} className={MODAL_CLOSE} aria-label="Cerrar diálogo">
+              <button type="button" onClick={() => { setShow(false); setEditingId(null); }} className={MODAL_CLOSE} aria-label="Cerrar">
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
-            <div className="space-y-3">
-              <input {...register('nombre')} placeholder="Nombre del proyecto" className={INPUT} />
-              {errors.nombre && <p className="text-xs text-red-500">{errors.nombre.message}</p>}
-              <input {...register('cliente')} placeholder="Cliente" className={INPUT} />
-              {errors.cliente && <p className="text-xs text-red-500">{errors.cliente.message}</p>}
-              <input {...register('ubicacion')} placeholder="Ubicación" className={INPUT} />
-              {errors.ubicacion && <p className="text-xs text-red-500">{errors.ubicacion.message}</p>}
-              <select {...register('tipologia')} className={INPUT}>
-                {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]}</option>)}
-              </select>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input type="number" {...register('presupuestoTotal')} placeholder="Presupuesto Q" className={INPUT} />
-                <input type="number" {...register('montoContrato')} placeholder="Contrato Q" className={INPUT} />
+
+            <div className="space-y-4">
+              {/* Informacion General */}
+              <div>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Información General</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="sm:col-span-2">
+                    <input {...register('nombre')} placeholder="Nombre del proyecto *" className={INPUT} />
+                    {errors.nombre && <p className="text-xs text-red-500 mt-0.5">{errors.nombre.message}</p>}
+                  </div>
+                  <div className="sm:col-span-2">
+                    <textarea {...register('descripcion')} placeholder="Descripción del proyecto" className={`${INPUT} min-h-[60px] resize-none`} rows={2} />
+                  </div>
+                  <select {...register('tipologia')} className={INPUT}>
+                    {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]}</option>)}
+                  </select>
+                  <select {...register('tipoObra')} className={INPUT}>
+                    <option value="nueva">Obra Nueva</option>
+                    <option value="remodelacion">Remodelación</option>
+                    <option value="ampliacion">Ampliación</option>
+                  </select>
+                  <select {...register('moneda')} className={INPUT}>
+                    <option value="GTQ">GTQ - Quetzal</option>
+                    <option value="USD">USD - Dólar</option>
+                  </select>
+                  <div className="flex gap-2">
+                    <input type="number" {...register('areaConstruccion')} placeholder="Área (m²)" className={INPUT} />
+                    <input type="number" {...register('numPisos')} placeholder="Niveles" className={INPUT} />
+                  </div>
+                  <input type="number" {...register('plazoSemanas')} placeholder="Plazo estimado (semanas)" className={INPUT} />
+                </div>
               </div>
-              {(errors.presupuestoTotal || errors.montoContrato) && (
-                <p className="text-xs text-red-500">{errors.presupuestoTotal?.message || errors.montoContrato?.message}</p>
-              )}
+
+              {/* Cliente */}
+              <div>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Cliente</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input {...register('cliente')} placeholder="Nombre del cliente *" className={INPUT} />
+                  {errors.cliente && <p className="text-xs text-red-500 mt-0.5">{errors.cliente.message}</p>}
+                  <input {...register('clienteNit')} placeholder="NIT" className={INPUT} />
+                  <input {...register('clienteTelefono')} placeholder="Teléfono" className={INPUT} />
+                  <input {...register('clienteEmail')} placeholder="Email" className={INPUT} />
+                  {errors.clienteEmail && <p className="text-xs text-red-500 mt-0.5">{errors.clienteEmail.message}</p>}
+                </div>
+              </div>
+
+              {/* Ubicacion y Mapa */}
+              <div>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Ubicación</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+                  <input {...register('ubicacion')} placeholder="Ubicación (texto) *" className={INPUT} />
+                  {errors.ubicacion && <p className="text-xs text-red-500 mt-0.5">{errors.ubicacion.message}</p>}
+                  <input {...register('direccion')} placeholder="Dirección" className={INPUT} />
+                  <input {...register('ciudad')} placeholder="Ciudad" className={INPUT} />
+                  <input {...register('departamento')} placeholder="Departamento" className={INPUT} />
+                  <input {...register('codigoPostal')} placeholder="Código Postal" className={INPUT + ' sm:col-span-2'} />
+                </div>
+                <MapPicker
+                  lat={coords.lat}
+                  lng={coords.lng}
+                  onChange={(lat, lng) => {
+                    setCoords({ lat, lng });
+                    setValue('ubicacion', `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+                  }}
+                />
+              </div>
+
+              {/* Responsables */}
+              <div>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Responsables</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input {...register('ingenieroResidente')} placeholder="Ingeniero Residente" className={INPUT} />
+                  <input {...register('supervisor')} placeholder="Supervisor" className={INPUT} />
+                  <input {...register('arquitecto')} placeholder="Arquitecto" className={INPUT + ' sm:col-span-2'} />
+                </div>
+              </div>
+
+              {/* Documentacion */}
+              <div>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Documentación</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input {...register('numeroExpediente')} placeholder="N° Expediente" className={INPUT} />
+                  <input {...register('numeroLicencia')} placeholder="N° Licencia Municipal" className={INPUT} />
+                </div>
+              </div>
+
+              {/* Presupuesto y Fechas */}
+              <div>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Presupuesto y Plazos</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Presupuesto Total</label>
+                    <input type="number" {...register('presupuestoTotal')} placeholder="Presupuesto" className={INPUT} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Monto Contrato</label>
+                    <input type="number" {...register('montoContrato')} placeholder="Contrato" className={INPUT} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Margen Utilidad Objetivo (%)</label>
+                    <input type="number" {...register('margenUtilidadObjetivo')} placeholder="Ej: 15" className={INPUT} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Fecha Inicio</label>
+                    <input type="date" {...register('fechaInicio')} className={INPUT} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Fecha Fin Estimada</label>
+                    <input type="date" {...register('fechaFin')} className={INPUT} />
+                  </div>
+                </div>
+                {(errors.presupuestoTotal || errors.montoContrato || errors.fechaInicio || errors.fechaFin) && (
+                  <p className="text-xs text-red-500 mt-1">Complete los campos requeridos</p>
+                )}
+              </div>
             </div>
-            <button type="submit" className={BUTTON_PRIMARY}>{editingId ? 'Guardar Cambios' : 'Crear Proyecto'}</button>
+
+            <button type="submit" className={`${BUTTON_PRIMARY} mt-4`}>
+              {editingId ? 'Guardar Cambios' : 'Crear Proyecto'}
+            </button>
           </form>
         </div>
       )}

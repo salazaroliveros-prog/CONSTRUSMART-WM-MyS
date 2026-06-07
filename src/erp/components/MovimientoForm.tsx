@@ -17,6 +17,13 @@ const movimientoSchema = z.object({
   categoria: z.enum(['materiales', 'mano_obra', 'equipo', 'subcontrato', 'administracion', 'transporte', 'imprevistos', 'marketing', 'licencias', 'seguros', 'otros']),
   costoUnitario: z.coerce.number().min(0, 'El costo debe ser positivo'),
   fecha: z.string().min(1, 'La fecha es requerida'),
+  proveedor: z.string().optional(),
+  factura: z.string().optional(),
+  formaPago: z.enum(['efectivo', 'transferencia', 'cheque', 'tarjeta', 'otro'] as const).optional(),
+  referenciaBancaria: z.string().optional(),
+  retencionIsr: z.coerce.number().min(0).optional(),
+  retencionIva: z.coerce.number().min(0).optional(),
+  notas: z.string().optional(),
 });
 
 type MovimientoFormData = z.infer<typeof movimientoSchema>;
@@ -42,6 +49,13 @@ const MovimientoForm: React.FC<{ compact?: boolean }> = ({ compact }) => {
       categoria: 'materiales',
       costoUnitario: 0,
       fecha: todayISO(),
+      proveedor: '',
+      factura: '',
+      formaPago: undefined,
+      referenciaBancaria: '',
+      retencionIsr: undefined,
+      retencionIva: undefined,
+      notas: '',
     },
   });
 
@@ -62,8 +76,15 @@ const MovimientoForm: React.FC<{ compact?: boolean }> = ({ compact }) => {
       monto: total,
       costoTotal: total,
       fecha: data.fecha,
+      proveedor: data.proveedor,
+      factura: data.factura,
+      formaPago: data.formaPago,
+      referenciaBancaria: data.referenciaBancaria,
+      retencionIsr: data.retencionIsr,
+      retencionIva: data.retencionIva,
+      notas: data.notas,
     });
-    reset({ ...data, descripcion: '', costoUnitario: 0, cantidad: 1 });
+    reset({ ...data, descripcion: '', costoUnitario: 0, cantidad: 1, factura: '', referenciaBancaria: '', notas: '' });
   };
 
   const inp = INPUT;
@@ -98,47 +119,41 @@ const MovimientoForm: React.FC<{ compact?: boolean }> = ({ compact }) => {
         </button>
       </div>
       <div className={`grid ${compact ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'} gap-2`}>
-        <select
-          {...register('proyectoId')}
-          className={inp + ' col-span-2'}
-        >
-          <option value="">— Sin proyecto (operativo/personal) —</option>
+        <select {...register('proyectoId')} className={inp + ' sm:col-span-2'}>
+          <option value="">— Sin proyecto —</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
-        <input
-          {...register('descripcion')}
-          placeholder="Descripción"
-          className={`${inp} ${errors.descripcion ? errorClass : ''} col-span-2`}
-        />
-        <input
-          type="number"
-          {...register('cantidad')}
-          placeholder="Cantidad"
-          className={`${inp} ${errors.cantidad ? errorClass : ''}`}
-        />
-        <input
-          {...register('unidad')}
-          placeholder="Unidad"
-          className={`${inp} ${errors.unidad ? errorClass : ''}`}
-        />
+        <input {...register('descripcion')} placeholder="Descripción *" className={`${inp} sm:col-span-2 ${errors.descripcion ? errorClass : ''}`} />
+        <input type="number" {...register('cantidad')} placeholder="Cantidad" className={`${inp} ${errors.cantidad ? errorClass : ''}`} />
+        <input {...register('unidad')} placeholder="Unidad" className={`${inp} ${errors.unidad ? errorClass : ''}`} />
         <select {...register('categoria')} className={inp}>
           {(Object.keys(CATEGORIA_LABEL) as Categoria[]).map(c => <option key={c} value={c}>{CATEGORIA_LABEL[c]}</option>)}
         </select>
-        <input
-          type="number"
-          {...register('costoUnitario')}
-          placeholder="Costo unit."
-          className={`${inp} ${errors.costoUnitario ? errorClass : ''}`}
-        />
-        <input
-          type="date"
-          {...register('fecha')}
-          className={inp}
-        />
+        <input type="number" {...register('costoUnitario')} placeholder="Costo unit." className={`${inp} ${errors.costoUnitario ? errorClass : ''}`} />
+        <input type="date" {...register('fecha')} className={inp} />
         <div className={`${inp} bg-muted flex items-center font-semibold text-foreground`}>Q {total.toFixed(2)}</div>
+
+        {/* Factura y proveedor */}
+        {tipo === 'gasto' && (
+          <>
+            <input {...register('proveedor')} placeholder="Proveedor" className={inp} />
+            <input {...register('factura')} placeholder="N° Factura" className={inp} />
+            <select {...register('formaPago')} className={inp}>
+              <option value="">Forma de Pago</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="cheque">Cheque</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="otro">Otro</option>
+            </select>
+            <input {...register('referenciaBancaria')} placeholder="Ref. Bancaria / N° Cheque" className={inp + ' sm:col-span-2'} />
+            <input type="number" {...register('retencionIsr')} placeholder="Retención ISR (Q)" className={inp} />
+            <input type="number" {...register('retencionIva')} placeholder="Retención IVA (Q)" className={inp} />
+            <textarea {...register('notas')} placeholder="Notas adicionales" className={`${inp} sm:col-span-2 min-h-[50px] resize-none`} rows={2} />
+          </>
+        )}
       </div>
       {errors.descripcion && <p className="text-xs text-red-500 mt-1">{errors.descripcion.message}</p>}
-      {errors.costoUnitario && <p className="text-xs text-red-500 mt-1">{errors.costoUnitario.message}</p>}
       <button
         type="submit"
         className="mt-3 w-full bg-foreground hover:bg-foreground/90 text-background py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
