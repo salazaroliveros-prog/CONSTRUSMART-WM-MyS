@@ -173,21 +173,6 @@ function validarArchivoPreSubida(file: File): string | null {
 }
 
 /**
- * Valida que un fileName no contenga path traversal
- */
-function _validarFileName(fileName: string): boolean {
-  if (!fileName || typeof fileName !== 'string') return false;
-  // Rechazar path traversal
-  if (fileName.includes('..') || fileName.startsWith('/') || fileName.startsWith('\\')) return false;
-  // Rechazar caracteres peligrosos
-  if (CARACTERES_PELIGROSOS.test(fileName)) return false;
-  // Verificar extensión
-  const ext = fileName.split('.').pop()?.toLowerCase();
-  if (!ext || !EXTENSIONES_PERMITIDAS.has(ext)) return false;
-  return true;
-}
-
-/**
  * Elimina un archivo por su URL pública
  */
 export async function deleteFile(publicUrl: string): Promise<boolean> {

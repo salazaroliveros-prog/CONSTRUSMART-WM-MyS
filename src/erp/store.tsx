@@ -7,9 +7,7 @@ import { toast } from '@/components/ui/sonner';
 import {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
 } from './types';
-import {
-  SEED_PROYECTOS, SEED_MOVIMIENTOS, SEED_EMPLEADOS, SEED_MATERIALES, SEED_OC, SEED_PROVEEDORES,
-} from './data';
+
 
 // Zod schemas for validation — alineados con esquema real de Supabase
 const proyectoSchema = z.object({
@@ -268,11 +266,6 @@ const STORAGE_WARN_THRESHOLD = 3 * 1024 * 1024; // 3MB advertencia
 /**
  * Estima el tamaño en bytes de una cadena JSON
  */
-function _estimarTamanoJSON<T>(data: T): number {
-  const json = JSON.stringify(data);
-  return new Blob([json]).size;
-}
-
 /**
  * Verifica el espacio en localStorage y emite advertencias
  */
@@ -415,7 +408,7 @@ export const ALLOWED: Record<Rol, View[]> = {
 
 interface Mutation {
   id: string;
-  type: 'addProyecto' | 'updateProyecto' | 'deleteProyecto' | 'addMovimiento' | 'deleteMovimiento' |
+  type: 'addProyecto' | 'updateProyecto' | 'deleteProyecto' | 'addMovimiento' | 'updateMovimiento' | 'deleteMovimiento' |
           'addEmpleado' | 'updateEmpleado' | 'deleteEmpleado' | 'addMaterial' | 'updateMaterial' | 'deleteMaterial' |
          'addOrden' | 'updateOrden' | 'addProveedor' | 'updateProveedor' | 'deleteProveedor' |
          'addEvento' | 'updateEvento' | 'deleteEvento' | 'addBitacora' | 'updateBitacora' | 'deleteBitacora' |
@@ -499,13 +492,6 @@ interface ErpState {
   valesSalida: ValeSalida[];
   addValeSalida: (v: Omit<ValeSalida, 'id'>) => Promise<void>;
   deleteValeSalida: (id: string) => Promise<void>;
-  hitos: any[];
-  addHito: (h: any) => Promise<void>;
-  updateHito: (id: string, patch: any) => Promise<void>;
-  deleteHito: (id: string) => Promise<void>;
-  riesgos: any[];
-  addRiesgo: (r: any) => Promise<void>;
-  updateRiesgo: (id: string, patch: any) => Promise<void>;
   incidentes: any[];
   addIncidente: (i: any) => Promise<void>;
   updateIncidente: (id: string, patch: any) => Promise<void>;
@@ -525,15 +511,7 @@ interface ErpState {
   appSettings: AppSettings;
   updateAppSettings: (patch: Partial<AppSettings>) => void;
   avanceFinancieroCalculado: (proyectoId: string) => number;
-  enqueueMutation: (type: Mutation['type'], payload: Record<string, unknown>) => string;
-  hitos: any[];
-  addHito: (h: any) => Promise<void>;
-  updateHito: (id: string, patch: any) => Promise<void>;
-  deleteHito: (id: string) => Promise<void>;
-  riesgos: any[];
-  addRiesgo: (r: any) => Promise<void>;
-  updateRiesgo: (id: string, patch: any) => Promise<void>;
-  deleteRiesgo: (id: string) => Promise<void>;
+  enqueueMutation: (type: Mutation['type'], payload: Record<string, any>) => string;
 }
 
 // ⚠️ Los consumidores DEBEN estar dentro de <ErpProvider>
@@ -595,12 +573,12 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [hitos, setHitos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_hitos', []));
   const [riesgos, setRiesgos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_riesgos', []));
   const [incidentes, setIncidentes] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_incidentes', []));
-  const [pruebas, setPruebas] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_pruebas', []));
-  const [noConformidades, setNoConformidades] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_no_conformidades', []));
-  const [liberaciones, setLiberaciones] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_liberaciones', []));
-  const [planos, setPlanos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_planos', []));
-  const [rfis, setRfis] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_rfis', []));
-  const [subcontratos, setSubcontratos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_subcontratos', []));
+  const [pruebas, _setPruebas] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_pruebas', []));
+  const [noConformidades, _setNoConformidades] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_no_conformidades', []));
+  const [liberaciones, _setLiberaciones] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_liberaciones', []));
+  const [planos, _setPlanos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_planos', []));
+  const [rfis, _setRfis] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_rfis', []));
+  const [subcontratos, _setSubcontratos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_subcontratos', []));
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
 
@@ -697,19 +675,20 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const fetchInitialData = useCallback(async () => {
     // Fetch individual para que un error en una tabla no bloquee las demás
-    const safeFrom = async (table: string, query?: (q: ReturnType<typeof supabase.from>) => ReturnType<typeof supabase.from>) => {
+    const safeFrom = async (table: string, query?: (q: ReturnType<typeof supabase.from>) => any) => {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000);
       try {
         const q = supabase.from(table);
-        const { data, error } = await (query ? query(q) : q.select('*'));
+        const res = await (query ? query(q) : q.select('*'));
+        const { data, error } = res as { data: any; error: any };
         if (error) {
           console.warn(`[Supabase] ${table}:`, error.message);
           return null;
         }
         if (!Array.isArray(data)) return data;
         clearTimeout(timeout);
-        return data.map((row) => sanitizarObjeto(row));
+        return data.map((row: any) => sanitizarObjeto(row));
       } catch (err) {
         console.warn(`[Supabase] ${table} fetch failed:`, err);
         return null;
@@ -777,7 +756,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       authLoaded = true;
       // Profile loading...
 
-      const defaultRol: Rol = email === ADMIN_EMAIL ? 'Administrador' : 'Residente';
+      const defaultRol = email === ADMIN_EMAIL ? 'Administrador' as const : 'Residente' as const;
       const avatarFromMeta = metadata?.avatar_url || metadata?.picture;
       let nombreFinal = metadata?.nombre || email?.split('@')[0] || 'Usuario';
       let rolFinal = defaultRol;
@@ -916,7 +895,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   /**
    * @returns mutation ID for tracking
    */
-  const enqueueMutation = useCallback((type: Mutation['type'], payload: Record<string, unknown>) => {
+  const enqueueMutation = useCallback((type: Mutation['type'], payload: Record<string, any>) => {
     const safePayload = sanitizarObjeto(payload);
     const mutation: Mutation = { id: uid(), type, payload: safePayload, timestamp: Date.now(), retryCount: 0 };
     setMutationQueue(q => {
@@ -1826,7 +1805,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       seguimientoEVM, addSeguimiento: async (s: Omit<SeguimientoEVM, 'id'>) => { setSeguimientoEVM(p => [{ ...s, id: uid() }, ...p]); },
       updateSeguimiento: async (id: string, patch: Partial<SeguimientoEVM>) => { setSeguimientoEVM(p => p.map(s => s.id === id ? { ...s, ...patch } : s)); },
       deleteSeguimiento: async (id: string) => { setSeguimientoEVM(p => p.filter(s => s.id !== id)); },
-      costoPorHoraHombre, empleadosDisponibles, avanceFinancieroCalculado,
+      avanceFinancieroCalculado,
       notificaciones, notificacionesNoLeidas, addNotificacion, markNotificacionLeida, marcarTodasLeidas,
       verificarStockCritico, verificarOrdenesCambioPendientes, verificarChecklistRechazado,
       notifyAvanceRegistrado, notifyDesviacionRendimiento,
