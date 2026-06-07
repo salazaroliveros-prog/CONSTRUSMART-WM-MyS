@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, type UIMode, type AppThemeMode } from '../store';
+import { THEMES, type ThemeName } from '@/lib/themes';
 import {
   Layout, Card, Row, Col, Switch, Select, Button, Divider,
   Typography, Space, Tabs, Tag, Avatar, Descriptions, Modal, message,
@@ -83,23 +84,38 @@ const Ajustes: React.FC = () => {
               <div style={colStyle}>
                 <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
                   <Space>
-                    {appSettings.appTheme === 'dark' ? <MoonOutlined style={{ fontSize: 18 }} /> : <SunOutlined style={{ fontSize: 18 }} />}
+                    <BgColorsOutlined style={{ fontSize: 18, color: token.colorPrimary }} />
                     <div>
                       <Text strong>Tema Visual</Text>
-                      <br /><Text type="secondary">Claro, Oscuro o Alto Contraste</Text>
+                      <br /><Text type="secondary">Elige entre 5 diseños para toda la app</Text>
                     </div>
                   </Space>
-                  <Radio.Group
-                    value={appSettings.appTheme}
-                    onChange={e => updateAppSettings({ appTheme: e.target.value as AppThemeMode })}
-                    optionType="button"
-                    buttonStyle="solid"
-                  >
-                    <Radio.Button value="light"><SunOutlined /> Claro</Radio.Button>
-                    <Radio.Button value="dark"><MoonOutlined /> Oscuro</Radio.Button>
-                    <Radio.Button value="high-contrast"><EyeOutlined /> Alto Contraste</Radio.Button>
-                  </Radio.Group>
                 </Space>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+                  {(Object.entries(THEMES) as [ThemeName, typeof THEMES[ThemeName]][]).map(([key, t]) => (
+                    <Tooltip key={key} title={t.description}>
+                      <div
+                        onClick={() => updateAppSettings({ appTheme: key as AppThemeMode })}
+                        style={{
+                          cursor: 'pointer',
+                          padding: '6px 14px',
+                          borderRadius: 8,
+                          border: `2px solid ${appSettings.appTheme === key ? t.colors.primary : token.colorBorder}`,
+                          background: t.colors.background,
+                          color: t.colors.foreground,
+                          fontWeight: appSettings.appTheme === key ? 700 : 400,
+                          fontSize: 13,
+                          transition: 'all 0.2s',
+                          boxShadow: appSettings.appTheme === key ? `0 0 0 3px ${t.colors.primary}33` : 'none',
+                          display: 'flex', alignItems: 'center', gap: 6,
+                        }}
+                      >
+                        <span style={{ width: 12, height: 12, borderRadius: '50%', background: t.colors.primary, display: 'inline-block', flexShrink: 0 }} />
+                        {t.label}
+                      </div>
+                    </Tooltip>
+                  ))}
+                </div>
               </div>
 
               <Divider style={{ margin: '12px 0' }} />

@@ -61,14 +61,31 @@ export function generateAntdThemeToken(settings: ThemeSettings) {
   };
 }
 
+// Mapa de appTheme → data-theme para los 5 temas de themes.css
+const THEME_MAP: Record<string, string> = {
+  'ant-design': 'ant-design',
+  'dark-pro': 'dark-pro',
+  'material3': 'material3',
+  'glassmorphism': 'glassmorphism',
+  'neomorphism': 'neomorphism',
+  // appTheme light/dark → ant-design por defecto
+  'light': 'ant-design',
+  'dark': 'dark-pro',
+  'high-contrast': 'material3',
+};
+
 /**
  * Aplica variables CSS al :root del documento
  */
 export function applyThemeToDocument(settings: ThemeSettings): void {
   const root = document.documentElement;
   
+  // Aplicar data-theme para activar el CSS correcto en themes.css
+  const dataTheme = THEME_MAP[settings.appTheme || 'light'] || 'ant-design';
+  root.setAttribute('data-theme', dataTheme);
+
   // Normalizar primaryColor: si es hex, no modificar; si es HSL, usar como está
-  const primaryColor = settings.primaryColor || 'hsl(222.2 47.4% 11.2%)';
+  const primaryColor = settings.primaryColor || '#E8752F';
   root.style.setProperty('--primary', primaryColor);
   
   // Aplicar otras propiedades
@@ -76,9 +93,12 @@ export function applyThemeToDocument(settings: ThemeSettings): void {
     root.style.setProperty('--radius', settings.compactMode ? '0.5rem' : '0.75rem');
   }
 
-  root.classList.toggle('dark', settings.appTheme === 'dark');
+  root.classList.toggle('dark', settings.appTheme === 'dark' || settings.appTheme === 'dark-pro' as any);
   root.classList.toggle('compact-mode', settings.compactMode === true);
   
+  // Persistir para próxima carga
+  localStorage.setItem('wm_erp_theme', dataTheme);
+
   // Forzar re-render de todos los elementos dependientes del tema
   document.body.style.transition = 'background-color 0.2s ease';
 }
