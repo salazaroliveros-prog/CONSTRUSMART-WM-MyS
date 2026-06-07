@@ -38,6 +38,8 @@ const proyectoSchema = z.object({
   fechaFin: z.string().min(1, 'Fecha requerida'),
   margenUtilidadObjetivo: z.coerce.number().min(0).max(100).optional(),
   moneda: z.enum(['GTQ', 'USD'] as const).optional(),
+  estado: z.enum(['planeacion', 'ejecucion', 'pausado', 'finalizado'] as const),
+  etapa: z.enum(['planificacion', 'diseno', 'preconstruccion', 'construccion', 'cierre'] as const).optional(),
 });
 
 type ProyectoFormData = z.infer<typeof proyectoSchema>;
@@ -93,6 +95,8 @@ const Proyectos: React.FC = () => {
       fechaFin: todayISO(),
       margenUtilidadObjetivo: undefined,
       moneda: 'GTQ',
+      estado: 'planeacion',
+      etapa: 'planificacion',
     },
   });
 
@@ -102,8 +106,6 @@ const Proyectos: React.FC = () => {
     } else {
       addProyecto({
         ...data,
-        estado: 'planeacion',
-        etapa: 'planificacion',
         avanceFisico: 0,
         avanceFinanciero: 0,
         lat: coords.lat || 14.6349,
@@ -148,6 +150,8 @@ const Proyectos: React.FC = () => {
       fechaFin: todayISO(),
       margenUtilidadObjetivo: undefined,
       moneda: 'GTQ',
+      estado: 'planeacion',
+      etapa: 'planificacion',
     });
     setShow(true);
   };
@@ -183,6 +187,8 @@ const Proyectos: React.FC = () => {
       fechaFin: p.fechaFin,
       margenUtilidadObjetivo: (p as any).margenUtilidadObjetivo || undefined,
       moneda: (p as any).moneda || 'GTQ',
+      estado: p.estado,
+      etapa: (p as any).etapa || 'planificacion',
     });
     setShow(true);
   };
@@ -372,6 +378,32 @@ const Proyectos: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <input {...register('numeroExpediente')} placeholder="N° Expediente" className={INPUT} />
                   <input {...register('numeroLicencia')} placeholder="N° Licencia Municipal" className={INPUT} />
+                </div>
+              </div>
+
+              {/* Estado y Etapa */}
+              <div>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Estado del Proyecto</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Estado</label>
+                    <select {...register('estado')} className={INPUT}>
+                      <option value="planeacion">Planeación</option>
+                      <option value="ejecucion">Ejecución</option>
+                      <option value="pausado">Pausado</option>
+                      <option value="finalizado">Finalizado</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Etapa</label>
+                    <select {...register('etapa')} className={INPUT}>
+                      <option value="planificacion">Planificación</option>
+                      <option value="diseno">Diseño</option>
+                      <option value="preconstruccion">Pre-construcción</option>
+                      <option value="construccion">Construcción</option>
+                      <option value="cierre">Cierre</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
