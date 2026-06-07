@@ -5,6 +5,7 @@ import './index.css'
 import './antd-global.css'
 import './styles/responsive.css'
 import './styles/themes.css'
+import 'leaflet/dist/leaflet.css'
 import './lib/i18n'
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN as string | undefined

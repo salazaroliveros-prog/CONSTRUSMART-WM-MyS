@@ -110,20 +110,49 @@ export interface Presupuesto {
 export interface Proyecto {
   id: string;
   nombre: string;
-  ubicacion: string;
+  descripcion?: string;
   tipologia: Tipologia;
+  tipoObra?: 'nueva' | 'remodelacion' | 'ampliacion';
+  // Cliente
+  cliente?: string;
+  clienteNit?: string;
+  clienteTelefono?: string;
+  clienteEmail?: string;
+  // Ubicacion
+  ubicacion: string;
+  direccion?: string;
+  ciudad?: string;
+  departamento?: string;
+  pais?: string;
+  codigoPostal?: string;
+  lat?: number;
+  lng?: number;
+  // Tecnicos
+  areaConstruccion?: number;
+  numPisos?: number;
+  plazoSemanas?: number;
+  // Responsables
+  ingenieroResidente?: string;
+  supervisor?: string;
+  arquitecto?: string;
+  // Documentacion
+  numeroExpediente?: string;
+  numeroLicencia?: string;
+  // Gestion
   presupuestoTotal: number;
   montoContrato?: number;
-  cliente?: string;
   presupuestoActualId?: string;
   fechaInicio: string;
   fechaFin: string;
+  fechaInicioReal?: string;
+  fechaFinEstimada?: string;
   avanceFisico: number;
   avanceFinanciero: number;
   estado: 'planeacion' | 'ejecucion' | 'pausado' | 'finalizado';
+  etapa?: 'planificacion' | 'diseno' | 'preconstruccion' | 'construccion' | 'cierre';
   factorSobrecosto?: FactorSobrecosto;
-  lat?: number;
-  lng?: number;
+  margenUtilidadObjetivo?: number;
+  moneda?: 'GTQ' | 'USD';
 }
 
 export type Categoria = 'materiales' | 'mano_obra' | 'equipo' | 'subcontrato' | 'administracion' | 'transporte' | 'imprevistos' | 'marketing' | 'licencias' | 'seguros' | 'otros';
@@ -141,7 +170,13 @@ export interface Movimiento {
   descripcion: string;
   fecha: string;
   proveedor?: string;
+  proveedorNit?: string;
   factura?: string;
+  formaPago?: 'efectivo' | 'transferencia' | 'cheque' | 'tarjeta' | 'otro';
+  referenciaBancaria?: string;
+  retencionIsr?: number;
+  retencionIva?: number;
+  notas?: string;
 }
 
 export interface Empleado {
