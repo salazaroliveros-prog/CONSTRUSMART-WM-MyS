@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { useErp } from '../store';
+import { useErp, uid } from '../store';
 import type { ActivoHerramienta, PagoProveedor } from '../types';
 import { z } from 'zod';
 import { toast } from 'sonner';
-
-const uid = () => Date.now().toString(36).substr(2, 9);
+import KitsMateriales from '../components/KitsMateriales';
 
 // Zod schemas
 const activoSchema = z.object({
@@ -33,19 +32,9 @@ export const LogisticaCompras: React.FC = () => {
   const [form, setForm] = useState<Record<string, any>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const [activos, setActivos] = useState<ActivoHerramienta[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_activos') || '[]'); } catch { return []; }
-  });
-  const [cuadros, setCuadros] = useState<any[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_cuadros') || '[]'); } catch { return []; }
-  });
-  const [pagos, setPagos] = useState<PagoProveedor[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_pagos') || '[]'); } catch { return []; }
-  });
-
-  const save = (key: string, data: unknown) => {
-    localStorage.setItem(key, JSON.stringify(data));
-  };
+  const [activos, setActivos] = useState<ActivoHerramienta[]>([]);
+  const [cuadros, setCuadros] = useState<any[]>([]);
+  const [pagos, setPagos] = useState<PagoProveedor[]>([]);
 
   const clearError = (field: string) => setFormErrors(prev => ({ ...prev, [field]: '' }));
   const updateForm = (field: string, value: any) => {
@@ -57,51 +46,43 @@ export const LogisticaCompras: React.FC = () => {
     const nuevo: ActivoHerramienta = { ...data, id: uid() };
     const updated = [nuevo, ...activos];
     setActivos(updated);
-    save('wm_activos', updated);
   };
 
   const updateActivo = (id: string, patch: Partial<ActivoHerramienta>) => {
     const updated = activos.map(a => a.id === id ? { ...a, ...patch } : a);
     setActivos(updated);
-    save('wm_activos', updated);
   };
 
   const deleteActivo = (id: string) => {
     const updated = activos.filter(a => a.id !== id);
     setActivos(updated);
-    save('wm_activos', updated);
   };
 
   const addCuadro = (data: any) => {
     const nuevo = { ...data, id: uid(), cotizaciones: [] };
     const updated = [nuevo, ...cuadros];
     setCuadros(updated);
-    save('wm_cuadros', updated);
   };
 
   const addCotizacion = (cuadroId: string, data: any) => {
     const updated = cuadros.map(c => c.id === cuadroId ? { ...c, cotizaciones: [...(c.cotizaciones || []), { ...data, id: uid() }] } : c);
     setCuadros(updated);
-    save('wm_cuadros', updated);
   };
 
   const selectCotizacion = (cuadroId: string, cotizacionId: string) => {
     const updated = cuadros.map(c => c.id === cuadroId ? { ...c, estado: 'adjudicado', cotizaciones: c.cotizaciones.map(ct => ({ ...ct, seleccionada: ct.id === cotizacionId })) } : c);
     setCuadros(updated);
-    save('wm_cuadros', updated);
   };
 
   const addPago = (data: Omit<PagoProveedor, 'id'>) => {
     const nuevo: PagoProveedor = { ...data, id: uid() };
     const updated = [nuevo, ...pagos];
     setPagos(updated);
-    save('wm_pagos', updated);
   };
 
   const updatePago = (id: string, patch: Partial<PagoProveedor>) => {
     const updated = pagos.map(p => p.id === id ? { ...p, ...patch } : p);
     setPagos(updated);
-    save('wm_pagos', updated);
   };
 
   const pagosVencidos = pagos.filter(p => p.estado === 'vencido');

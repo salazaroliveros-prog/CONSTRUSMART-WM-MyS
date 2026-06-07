@@ -76,15 +76,12 @@ interface ReporteProgramado {
 const ExportacionInteligente: React.FC = () => {
   const { proyectos, movimientos, empleados, materiales, presupuestos, avances } = useErp();
   const [exportando, setExportando] = useState<string | null>(null);
-  const [reportes, setReportes] = useState<ReporteProgramado[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_reportes_programados') || '[]'); } catch { return []; }
-  });
+  const [reportes, setReportes] = useState<ReporteProgramado[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ nombre: '', tipo: 'ejecutivo' as ReporteProgramado['tipo'], formato: 'json' as ExportFormat, frecuencia: 'semanal' as ReporteProgramado['frecuencia'], destinatarios: '' });
 
   const saveReportes = (r: ReporteProgramado[]) => {
     setReportes(r);
-    localStorage.setItem('wm_reportes_programados', JSON.stringify(r));
   };
 
   const downloadBlob = (content: string, filename: string, type: string) => {

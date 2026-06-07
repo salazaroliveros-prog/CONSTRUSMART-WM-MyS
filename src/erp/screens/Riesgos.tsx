@@ -6,9 +6,6 @@ import { AlertTriangle, Shield, Plus, X, TrendingUp, TrendingDown, Filter } from
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { todayISO } from '../utils';
-import { useNotifications } from '../hooks/useNotifications';
-
-const STORAGE_KEY = 'wm_riesgos';
 
 const calcularNivel = (prob: number, imp: number): Riesgo['nivel'] => {
   const score = prob * imp;
@@ -19,12 +16,7 @@ const calcularNivel = (prob: number, imp: number): Riesgo['nivel'] => {
 };
 
 const Riesgos: React.FC = () => {
-  const { proyectos, selectedProyectoId, setSelectedProyectoId } = useErp();
-  const { showLocalNotification } = useNotifications();
-  const [riesgos, setRiesgos] = useState<Riesgo[]>(() => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
-  });
-  const [synced, setSynced] = useState(false);
+  const { proyectos, selectedProyectoId, setSelectedProyectoId, riesgos, addRiesgo, updateRiesgo, deleteRiesgo, addNotificacion } = useErp();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     proyectoId: '',
@@ -44,40 +36,7 @@ const Riesgos: React.FC = () => {
     }
   }, [selectedProyectoId, form.proyectoId]);
 
-  useEffect(() => {
-    if (!synced) {
-      syncFromSupabase();
-      setSynced(true);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [synced]);
-
-  const syncFromSupabase = async () => {
-    if (!supabase) return;
-    try {
-      const { data, error } = await supabase.from('riesgos').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
-      if (data && data.length > 0) {
-        const mapped: Riesgo[] = data.map((r: any) => ({
-          id: r.id, proyectoId: r.proyecto_id, nombre: r.nombre,
-          descripcion: r.descripcion || '', tipo: r.tipo,
-          probabilidad: r.probabilidad, impacto: r.impacto,
-          nivel: calcularNivel(r.probabilidad, r.impacto),
-          planMitigacion: r.plan_mitigacion || '',
-          responsable: r.responsable || '',
-          fechaIdentificacion: r.fecha_identificacion,
-          estado: r.estado, costoSoporte: r.costo_soporte || undefined,
-          createdAt: r.created_at,
-        }));
-        const localIds = new Set(riesgos.map(r => r.id));
-        const nuevos = mapped.filter(r => !localIds.has(r.id));
-        if (nuevos.length > 0) setRiesgos(prev => [...nuevos, ...prev]);
-      }
-    } catch (e) { console.warn('[Riesgos] Error sync Supabase:', e); }
-  };
-
   const syncToSupabase = async (r: Riesgo[]) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(r));
     if (!supabase) return;
     try {
       const { error } = await supabase.from('riesgos').upsert(
@@ -98,10 +57,7 @@ const Riesgos: React.FC = () => {
       const criticos = r.filter(ri => ri.nivel === 'critico' && ri.estado === 'identificado');
       if (criticos.length > 0 && selectedProyectoId) {
         const proy = proyectos.find(p => p.id === selectedProyectoId);
-        showLocalNotification('⚠️ Riesgos críticos sin mitigar', {
-          body: `${criticos.length} riesgo(s) crítico(s) en ${proy?.nombre || 'el proyecto'}`,
-          tag: 'riesgos-criticos', url: '/riesgos',
-        });
+        addNotificacion('general', 'Riesgos críticos sin mitigar', `${criticos.length} riesgo(s) crítico(s) en ${proy?.nombre || 'el proyecto'}`, selectedProyectoId || undefined);
       }
     } catch (e) { console.warn('[Riesgos] Error sync Supabase:', e); }
   };
@@ -127,9 +83,8 @@ const Riesgos: React.FC = () => {
       costoSoporte: form.costoSoporte || undefined,
       createdAt: new Date().toISOString(),
     };
-    const nuevos = [nuevo, ...riesgos];
-    syncToSupabase(nuevos);
-    setRiesgos(nuevos);
+    syncToSupabase([nuevo, ...riesgos]);
+    addRiesgo(nuevo);
     toast.success('Riesgo registrado');
     setShowForm(false);
     setForm({ proyectoId: selectedProyectoId || '', nombre: '', descripcion: '', tipo: 'tecnico', probabilidad: 2, impacto: 2, planMitigacion: '', responsable: '', costoSoporte: 0 });
@@ -138,13 +93,10 @@ const Riesgos: React.FC = () => {
   const actualizarEstado = (id: string, estado: Riesgo['estado']) => {
     const nuevos = riesgos.map(r => r.id === id ? { ...r, estado } : r);
     syncToSupabase(nuevos);
-    setRiesgos(nuevos);
+    updateRiesgo(id, { estado });
     if (estado === 'materializado') {
       const riesgo = riesgos.find(r => r.id === id);
-      showLocalNotification('Riesgo materializado', {
-        body: `"${riesgo?.nombre}" se ha materializado.`,
-        tag: 'riesgo-materializado', url: '/riesgos',
-      });
+      addNotificacion('general', 'Riesgo materializado', `"${riesgo?.nombre}" se ha materializado.`, riesgo?.proyectoId);
     }
   };
 
@@ -152,7 +104,7 @@ const Riesgos: React.FC = () => {
     if (!confirm('¿Eliminar este riesgo?')) return;
     const nuevos = riesgos.filter(r => r.id !== id);
     syncToSupabase(nuevos);
-    setRiesgos(nuevos);
+    deleteRiesgo(id);
   };
 
   const nivelColor = (n: Riesgo['nivel']) => {

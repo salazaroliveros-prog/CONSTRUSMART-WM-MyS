@@ -22,16 +22,11 @@ export const Administracion: React.FC = () => {
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion'>('centros');
   const [showForm, setShowForm] = useState(false);
 
-  const [centrosCosto, setCentrosCosto] = useState<CentroCosto[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_centros_costo') || '[]'); } catch { return []; }
-  });
-  const [logs] = useState<LogAuditoria[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_logs_auditoria') || '[]'); } catch { return []; }
-  });
+  const [centrosCosto, setCentrosCosto] = useState<CentroCosto[]>([]);
+  const [logs] = useState<LogAuditoria[]>([]);
 
   const saveCentros = (data: CentroCosto[]) => {
     setCentrosCosto(data);
-    localStorage.setItem('wm_centros_costo', JSON.stringify(data));
   };
 
   const addCentroCosto = (data: Omit<CentroCosto, 'id'>) => {

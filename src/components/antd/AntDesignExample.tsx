@@ -11,14 +11,11 @@ import {
   AntModal,
   AntCard,
   AntDatePicker,
-  AntDateRange,
   AntDeleteButton,
   messageManager,
   notificationManager,
   PlusOutlined,
   EditOutlined,
-  DeleteOutlined,
-  SearchOutlined,
 } from './index';
 import { z } from 'zod';
 import { Input, Space, Form as AntFormComponent } from 'antd';
@@ -184,7 +181,6 @@ export const AntDesignExample: React.FC = () => {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         title="Nuevo Proyecto"
-        size="large"
       >
         <AntForm<ProjectFormData>
           schema={projectSchema}
@@ -208,7 +204,6 @@ export const AntDesignExample: React.FC = () => {
         </AntForm>
       </AntDrawer>
 
-      {/* Modal */}
       <AntModal
         open={modalOpen}
         title="Información"

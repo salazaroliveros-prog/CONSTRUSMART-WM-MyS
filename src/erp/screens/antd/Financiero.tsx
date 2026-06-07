@@ -25,8 +25,8 @@ const AntFinanciero: React.FC = () => {
     return () => clearTimeout(t);
   }, []);
 
-  const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
-  const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
+  const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.costoTotal || b.monto || 0), 0);
+  const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.costoTotal || b.monto || 0), 0);
   const utilidad = ingresos - gastos;
 
   const cashFlowMensual = useMemo(() => {
@@ -42,8 +42,8 @@ const AntFinanciero: React.FC = () => {
       const diffMonths = (hoy.getFullYear() - fechaMov.getFullYear()) * 12 + (hoy.getMonth() - fechaMov.getMonth());
       const idx = 11 - diffMonths;
       if (idx >= 0 && idx < 12) {
-        if (m.tipo === 'ingreso') meses[idx].ingresos += m.costoTotal;
-        else meses[idx].egresos += m.costoTotal;
+        if (m.tipo === 'ingreso') meses[idx].ingresos += (m.costoTotal || m.monto || 0);
+        else meses[idx].egresos += (m.costoTotal || m.monto || 0);
       }
     });
     let saldoAcum = 0;
@@ -176,7 +176,7 @@ const AntFinanciero: React.FC = () => {
             <div style={{ maxHeight: 240, overflow: 'auto' }}>
               {Object.entries(
                 movimientos.filter(m => m.tipo === 'gasto').reduce((acc: Record<string, number>, m) => {
-                  acc[m.categoria] = (acc[m.categoria] || 0) + m.costoTotal;
+                  acc[m.categoria] = (acc[m.categoria] || 0) + (m.costoTotal || m.monto || 0);
                   return acc;
                 }, {})
               ).sort((a, b) => b[1] - a[1]).map(([cat, val], i) => (

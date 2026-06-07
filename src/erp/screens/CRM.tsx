@@ -3,6 +3,7 @@ import { useErp } from '../store';
 import { Licitacion } from '../types';
 import { fmtQ, todayISO } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import LicitacionesDashboard from '../components/LicitacionesDashboard';
 import { 
   Plus, X, Target, TrendingUp, DollarSign, PieChart, 
   Briefcase, CheckCircle, Clock, AlertCircle, Send, Archive,
@@ -60,19 +61,7 @@ const CRM: React.FC = () => {
     const t = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(t);
   }, []);
-  const seededRef = React.useRef(false);
-  React.useEffect(() => {
-    if (seededRef.current || licitaciones.length > 0) { seededRef.current = true; return; }
-    seededRef.current = true;
-    const demoData = [
-      { titulo: 'Edificio Comercial Plaza Norte', cliente: 'Inmobiliaria del Valle', descripcion: 'Construcción de edificio de 5 niveles', monto: 2500000, estado: 'identificado' as const, fechaCreacion: '2026-01-02', probabilidad: 30, notas: 'Cliente potencial, primera reunión programada' },
-      { titulo: 'Residencial Los Pinos - Fase 2', cliente: 'Constructora Maya', descripcion: '20 casas unifamiliares', monto: 1800000, estado: 'en_estudio' as const, fechaCreacion: '2025-12-15', probabilidad: 60, notas: 'Presupuesto en elaboración' },
-      { titulo: 'Centro Comercial San Cristóbal', cliente: 'Grupo Inmobiliario GT', descripcion: 'Remodelación y ampliación', monto: 950000, estado: 'presentado' as const, fechaCreacion: '2025-11-20', probabilidad: 75, notas: 'Propuesta entregada, esperando respuesta' },
-      { titulo: 'Puente Vehicular Ruta 5', cliente: 'Municipalidad de Guatemala', descripcion: 'Construcción de puente de 40m', monto: 3200000, estado: 'ganado' as const, fechaCreacion: '2025-10-01', probabilidad: 100, notas: 'Contrato firmado, inicio en febrero 2026' },
-      { titulo: 'Oficinas Corporativas Torre Sur', cliente: 'Empresas ABC', descripcion: 'Remodelación de 3 pisos', monto: 750000, estado: 'perdido' as const, fechaCreacion: '2025-09-15', probabilidad: 0, notas: 'Cliente eligió otra empresa' },
-    ];
-    demoData.forEach(d => addLicitacion(d));
-  }, [addLicitacion, licitaciones.length]);
+  // Demo data removed - licitaciones are now user-managed only
 
   // Agrupar por estado
   const columns = useMemo(() => {
@@ -187,14 +176,14 @@ const CRM: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
+    <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
         <div>
-          <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
-            <Target className="w-6 h-6 text-primary" /> CRM / Licitaciones
+          <h1 className="text-lg sm:text-2xl font-black text-foreground flex items-center gap-2">
+            <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> CRM / Licitaciones
           </h1>
-          <p className="text-sm text-muted-foreground">Pipeline comercial y seguimiento de oportunidades</p>
+          <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Pipeline comercial y seguimiento de oportunidades</p>
         </div>
         <button 
           onClick={() => { resetForm(); setShowForm(true); }}
@@ -205,46 +194,46 @@ const CRM: React.FC = () => {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-1">
-            <Briefcase className="w-4 h-4 text-primary" />
-            <span className="text-xs text-muted-foreground">Total Oportunidades</span>
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+            <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+            <span className="text-[10px] sm:text-xs text-muted-foreground">Oportunidades</span>
           </div>
-          <div className="text-2xl font-bold text-foreground">{licitaciones.length}</div>
+          <div className="text-xl sm:text-2xl font-bold text-foreground">{licitaciones.length}</div>
           <div className="text-[10px] text-muted-foreground">
             {licitaciones.filter(l => l.estado === 'ganado').length} ganadas · {licitaciones.filter(l => l.estado === 'perdido').length} perdidas
           </div>
         </div>
-        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-1">
-            <DollarSign className="w-4 h-4 text-success" />
-            <span className="text-xs text-muted-foreground">Monto Total Pipeline</span>
+        <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+            <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success" />
+            <span className="text-[10px] sm:text-xs text-muted-foreground">Total Pipeline</span>
           </div>
-          <div className="text-2xl font-bold text-foreground">{fmtQ(totalMonto)}</div>
+          <div className="text-lg sm:text-2xl font-bold text-foreground truncate">{fmtQ(totalMonto)}</div>
         </div>
-        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-4 h-4 text-info" />
-            <span className="text-xs text-muted-foreground">Pipeline Ponderado</span>
+        <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-info" />
+            <span className="text-[10px] sm:text-xs text-muted-foreground">Ponderado</span>
           </div>
-          <div className="text-2xl font-bold text-info">{fmtQ(pipelineActivo)}</div>
+          <div className="text-lg sm:text-2xl font-bold text-info truncate">{fmtQ(pipelineActivo)}</div>
           <div className="text-[10px] text-muted-foreground">Basado en % probabilidad</div>
         </div>
-        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-1">
-            <PieChart className="w-4 h-4 text-warning" />
-            <span className="text-xs text-muted-foreground">Tasa de Conversión</span>
+        <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+            <PieChart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-warning" />
+            <span className="text-[10px] sm:text-xs text-muted-foreground">Conversión</span>
           </div>
-          <div className="text-2xl font-bold text-warning">{tasaConversion}%</div>
+          <div className="text-xl sm:text-2xl font-bold text-warning">{tasaConversion}%</div>
           <div className="text-[10px] text-muted-foreground">Ganadas vs decididas</div>
         </div>
       </div>
 
-      {/* Kanban Board */}
-      <div className="flex gap-4 overflow-x-auto pb-4 min-h-[500px]">
+      {/* Kanban Board — scroll horizontal en mobile, columnas en desktop */}
+      <div className="flex gap-2 sm:gap-3 lg:gap-4 overflow-x-auto pb-4 min-h-[400px] -mx-3 px-3 sm:mx-0 sm:px-0">
         {columns.map(col => (
-          <div key={col.key} className="flex-1 min-w-[250px] max-w-[320px] shrink-0">
+          <div key={col.key} className="flex-shrink-0 w-[220px] sm:w-[240px] lg:flex-1 lg:min-w-[200px] lg:max-w-[300px]">
             {/* Columna Header */}
             <div className={`${col.color} rounded-t-2xl p-3 border-b-2`}>
               <div className="flex items-center justify-between">

@@ -8,6 +8,8 @@ import { Progress, BarChart } from '../components/Charts';
 import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT_COMPACT } from '../ui';
+import ValeSalidaModal from '../components/ValeSalidaModal';
+import ConteoCiclico from '../components/ConteoCiclico';
 
 const proveedorSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -112,10 +114,10 @@ const Bodega: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h1 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
-          <Warehouse className="w-6 h-6 text-cyan-500" aria-hidden="true" /> Bodega, Compras y Proveedores
+    <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2">
+          <Warehouse className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" aria-hidden="true" /> <span className="hidden sm:inline">Bodega, Compras y Proveedores</span><span className="sm:hidden">Bodega</span>
         </h1>
         <div className="flex gap-2">
           <button onClick={() => setShowOrden(true)}
@@ -129,29 +131,29 @@ const Bodega: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <div className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border">
-          <div className="text-2xl font-bold text-foreground">{materiales.length}</div>
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <div className="bg-card text-card-foreground rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+          <div className="text-xl sm:text-2xl font-bold text-foreground">{materiales.length}</div>
           <div className="text-xs text-muted-foreground">Materiales</div>
         </div>
-        <div className="bg-red-50 dark:bg-red-950/40 rounded-2xl p-4 border border-red-100 dark:border-red-900/50">
-          <div className="text-2xl font-bold text-red-600 dark:text-red-400 flex items-center gap-1">
+        <div className="bg-red-50 dark:bg-red-950/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-red-100 dark:border-red-900/50">
+          <div className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400 flex items-center gap-1">
             <AlertTriangle className="w-5 h-5" aria-hidden="true" />{criticos.length}
           </div>
           <div className="text-xs text-red-500 dark:text-red-400">Stock Bajo Mínimo</div>
         </div>
-        <div className="bg-amber-50 dark:bg-amber-950/40 rounded-2xl p-4 border border-amber-100 dark:border-amber-900/50">
-          <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{pendientes.length}</div>
+        <div className="bg-amber-50 dark:bg-amber-950/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-amber-100 dark:border-amber-900/50">
+          <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">{pendientes.length}</div>
           <div className="text-xs text-amber-600 dark:text-amber-400">OC por Aprobar</div>
         </div>
-        <div className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border">
-          <div className="text-2xl font-bold text-foreground">{fmtQ(materiales.reduce((a, m) => a + m.stock * m.precio, 0))}</div>
+        <div className="bg-card text-card-foreground rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+          <div className="text-lg sm:text-2xl font-bold text-foreground truncate">{fmtQ(materiales.reduce((a, m) => a + m.stock * m.precio, 0))}</div>
           <div className="text-xs text-muted-foreground">Valor Inventario</div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-card text-card-foreground rounded-2xl shadow-md border border-border overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="lg:col-span-2 bg-card text-card-foreground rounded-xl sm:rounded-2xl shadow-md border border-border overflow-hidden">
           <div className="p-3 border-b border-border">
             <h3 className="font-bold text-foreground text-sm">Control de Stock</h3>
           </div>
@@ -160,19 +162,19 @@ const Bodega: React.FC = () => {
               const pct = (m.stock / Math.max(m.stockMinimo * 2, 1)) * 100;
               const bajo = m.stock < m.stockMinimo;
               return (
-                <div key={m.id} className="p-3">
+            <div key={m.id} className="p-2 sm:p-3">
                   <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-foreground">{m.nombre}</span>
-                      {m.critico && <span className="text-[9px] bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded-full">crítico</span>}
+                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                      <span className="text-xs sm:text-sm font-semibold text-foreground truncate">{m.nombre}</span>
+                      {m.critico && <span className="text-[9px] bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded-full shrink-0">crítico</span>}
                     </div>
-                    <div className="flex items-center gap-2 text-xs">
+                    <div className="flex items-center gap-1.5 text-xs shrink-0">
                       <input
                         type="number"
                         value={m.stock}
                         onChange={e => updateMaterial(m.id, { stock: +e.target.value })}
                         aria-label={`Stock de ${m.nombre}`}
-                        className="w-16 px-2 py-1 rounded border border-input bg-background text-foreground text-right focus:outline-none focus:ring-2 focus:ring-ring"
+                        className="w-14 sm:w-16 px-1.5 sm:px-2 py-1 rounded border border-input bg-background text-foreground text-right focus:outline-none focus:ring-2 focus:ring-ring text-xs"
                       />
                       <span className="text-muted-foreground">{m.unidad}</span>
                     </div>

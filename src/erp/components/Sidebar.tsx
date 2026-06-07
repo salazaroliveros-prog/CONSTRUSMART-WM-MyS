@@ -6,7 +6,7 @@ import {
   X, ChevronLeft, ChevronRight, Target, Receipt, TrendingUp, BookOpen, Newspaper,
   GitPullRequest, Bell, ShieldCheck, FolderOpen, BarChart3, Download,
   HardHat, DollarSign, Settings, Flag,
-  CreditCard, Landmark, Percent, TriangleAlert, BarChart2,
+  CreditCard, Landmark, Percent, TriangleAlert,
   ClipboardList, PieChart, Cpu, Truck, FileCog, Package,
 } from 'lucide-react';
 
@@ -30,7 +30,6 @@ const ITEMS: NavItem[] = [
   { id: 'seguimiento',       label: 'Seguimiento EVM',    icon: ClipboardCheck,  group: 'Ejecución'    },
   { id: 'curvas',            label: 'Curvas S',           icon: TrendingUp,      group: 'Ejecución'    },
   { id: 'rendimiento-campo', label: 'Rendimiento Campo',  icon: HardHat,         group: 'Ejecución'    },
-  { id: 'rendimientos',      label: 'Rendimientos',       icon: BarChart2,       group: 'Ejecución'    },
   { id: 'sso-calidad',       label: 'SSO & Calidad',      icon: ShieldCheck,     group: 'Ejecución'    },
   { id: 'muro',              label: 'Muro de Obra',       icon: Newspaper,       group: 'Ejecución'    },
   { id: 'ordenes-cambio',    label: 'Órdenes de Cambio',  icon: GitPullRequest,  group: 'Ejecución'    },

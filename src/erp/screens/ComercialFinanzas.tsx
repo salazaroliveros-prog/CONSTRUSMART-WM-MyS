@@ -13,29 +13,21 @@ export const ComercialFinanzas: React.FC = () => {
   const [form, setForm] = useState<Record<string, any>>({});
   const [amortInputs, setAmortInputs] = useState<Record<string, string>>({});
 
-  const [ventas, setVentas] = useState<VentaPaquete[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_ventas') || '[]'); } catch { return []; }
-  });
-  const [anticipos, setAnticipos] = useState<Anticipo[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_anticipos') || '[]'); } catch { return []; }
-  });
-  const [cajasChicas, setCajasChicas] = useState<CajaChica[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_cajas') || '[]'); } catch { return []; }
-  });
-
-  const save = (key: string, data: unknown) => localStorage.setItem(key, JSON.stringify(data));
+  const [ventas, setVentas] = useState<VentaPaquete[]>([]);
+  const [anticipos, setAnticipos] = useState<Anticipo[]>([]);
+  const [cajasChicas, setCajasChicas] = useState<CajaChica[]>([]);
 
   const addVenta = (data: Omit<VentaPaquete, 'id'>) => {
     const updated = [{ ...data, id: uid() }, ...ventas];
-    setVentas(updated); save('wm_ventas', updated);
+    setVentas(updated);
   };
   const updateVenta = (id: string, patch: Partial<VentaPaquete>) => {
     const updated = ventas.map(v => v.id === id ? { ...v, ...patch } : v);
-    setVentas(updated); save('wm_ventas', updated);
+    setVentas(updated);
   };
   const addAnticipo = (data: Omit<Anticipo, 'id' | 'amortizaciones'>) => {
     const updated = [{ ...data, id: uid(), amortizaciones: [] }, ...anticipos];
-    setAnticipos(updated); save('wm_anticipos', updated);
+    setAnticipos(updated);
   };
   const addAmortizacion = (anticipoId: string, data: Omit<AmortizacionItem, 'id'>) => {
     const updated = anticipos.map(a => {
@@ -44,15 +36,15 @@ export const ComercialFinanzas: React.FC = () => {
       const nuevoSaldo = Math.max(0, a.saldoPendiente - data.monto);
       return { ...a, saldoPendiente: nuevoSaldo, estado: nuevoSaldo === 0 ? 'amortizado' as const : a.estado, amortizaciones: [...a.amortizaciones, newAmort] };
     });
-    setAnticipos(updated); save('wm_anticipos', updated);
+    setAnticipos(updated);
   };
   const addCajaChica = (data: Omit<CajaChica, 'id'>) => {
     const updated = [{ ...data, id: uid() }, ...cajasChicas];
-    setCajasChicas(updated); save('wm_cajas', updated);
+    setCajasChicas(updated);
   };
   const updateCajaChica = (id: string, patch: Partial<CajaChica>) => {
     const updated = cajasChicas.map(c => c.id === id ? { ...c, ...patch } : c);
-    setCajasChicas(updated); save('wm_cajas', updated);
+    setCajasChicas(updated);
   };
 
   const INPUT = 'w-full px-3 py-2 border border-input rounded-lg text-sm outline-none focus:border-ring bg-background text-foreground';

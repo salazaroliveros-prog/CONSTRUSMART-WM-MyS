@@ -408,6 +408,13 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 13. SSO & Calidad ──
     case 'sso-calidad': {
+      const { incidentes, pruebas, noConformidades, liberaciones } = store;
+      const diasSinAccidentes = incidentes.length > 0
+        ? Math.floor((Date.now() - new Date(incidentes.sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())[0].fecha).getTime()) / 86400000)
+        : 999;
+      const checklistsOk = liberaciones.filter((l: any) => l.checklistAprobado === true).length;
+      const pruebasRealizadas = pruebas.length;
+      const ncAbiertas = noConformidades.filter((nc: any) => nc.estado !== 'cerrado').length;
       const tabs = [
         { key: 'incidentes', label: 'Incidentes' }, { key: 'checklist', label: 'Checklists' },
         { key: 'estadisticas', label: 'Estadísticas' }, { key: 'pruebas', label: 'Pruebas Lab' },
@@ -417,10 +424,10 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
         <div style={{ padding: 8 }}>
           <PageHeader icon={<SafetyOutlined style={{ color: token.colorPrimary }} />} title="SSO & Calidad" subtitle="Seguridad y control de calidad" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Días sin Accidentes" value={45} suffix="días" color="hsl(var(--success))" /></Col>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Checklists OK" value="12" color="hsl(var(--info))" /></Col>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Pruebas Realizadas" value="8" /></Col>
-            <Col xs={12} md={8} lg={6}><KpiCard title="NC Abiertas" value="3" color="hsl(var(--destructive))" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Días sin Accidentes" value={diasSinAccidentes} suffix="días" color="hsl(var(--success))" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Checklists OK" value={checklistsOk} color="hsl(var(--info))" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Pruebas Realizadas" value={pruebasRealizadas} /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="NC Abiertas" value={ncAbiertas} color="hsl(var(--destructive))" /></Col>
           </Row>
           <Tabs items={tabs} />
         </div>
@@ -576,14 +583,18 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 22. Riesgos ──
     case 'riesgos': {
+      const { riesgos } = store;
+      const riesgosAltos = riesgos.filter((r: any) => r.nivel === 'critico' || r.nivel === 'alto').length;
+      const riesgosMedios = riesgos.filter((r: any) => r.nivel === 'medio').length;
+      const riesgosBajos = riesgos.filter((r: any) => r.nivel === 'bajo').length;
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<AlertOutlined style={{ color: token.colorPrimary }} />} title="Gestión de Riesgos" subtitle="Matriz de probabilidad e impacto" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Riesgos Altos" value="0" color="hsl(var(--destructive))" /></Col>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Riesgos Medios" value="0" color="hsl(var(--warning))" /></Col>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Riesgos Bajos" value="0" color="hsl(var(--success))" /></Col>
-            <Col xs={12} md={8} lg={6}><KpiCard title="Total" value="0" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Riesgos Altos" value={riesgosAltos} color="hsl(var(--destructive))" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Riesgos Medios" value={riesgosMedios} color="hsl(var(--warning))" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Riesgos Bajos" value={riesgosBajos} color="hsl(var(--success))" /></Col>
+            <Col xs={12} md={8} lg={6}><KpiCard title="Total" value={riesgos.length} /></Col>
           </Row>
           <Table dataSource={[]} rowKey="id" size="small" locale={{ emptyText: <Empty description="Registra riesgos desde el módulo" /> }}
             columns={[ColDef('Riesgo', 'nombre', (t: string) => <Text strong>{t}</Text>),
@@ -611,13 +622,16 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 24. CxC ──
     case 'cuentas-cobrar': {
+      const { movimientos } = store;
+      const ingresos = movimientos.filter((m: any) => m.tipo === 'ingreso');
+      const totalCxC = ingresos.reduce((s: number, m: any) => s + (m.monto || 0), 0);
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<CreditCardOutlined style={{ color: token.colorPrimary }} />} title="Cuentas por Cobrar" subtitle="Gestión de cuentas pendientes" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} md={8}><KpiCard title="Pendientes" value="0" color="hsl(var(--destructive))" /></Col>
-            <Col xs={12} md={8}><KpiCard title="Cobradas" value="0" color="hsl(var(--success))" /></Col>
-            <Col xs={12} md={8}><KpiCard title="Total" value="Q0" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Pendientes" value={ingresos.length} color="hsl(var(--destructive))" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Cobradas" value={0} color="hsl(var(--success))" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Total" value={totalCxC} prefix="Q" /></Col>
           </Row>
           <Table dataSource={[]} rowKey="id" size="small" locale={{ emptyText: <Empty description="Sin cuentas por cobrar" /> }}
             columns={[ColDef('Cliente', 'cliente', (t: string) => <Text strong>{t}</Text>),
@@ -631,13 +645,16 @@ const GenericAntdScreen: React.FC<{ view: string }> = ({ view }) => {
 
     // ── 25. CxP ──
     case 'cuentas-pagar': {
+      const { movimientos } = store;
+      const egresos = movimientos.filter((m: any) => m.tipo === 'gasto' || m.tipo === 'egreso');
+      const totalCxP = egresos.reduce((s: number, m: any) => s + (m.monto || 0), 0);
       return (
         <div style={{ padding: 8 }}>
           <PageHeader icon={<ReconciliationOutlined style={{ color: token.colorPrimary }} />} title="Cuentas por Pagar" subtitle="Gestión de obligaciones" />
           <Row gutter={[sp, sp]} style={{ marginBottom: 16 }}>
-            <Col xs={12} md={8}><KpiCard title="Pendientes" value="0" color="hsl(var(--destructive))" /></Col>
-            <Col xs={12} md={8}><KpiCard title="Pagadas" value="0" color="hsl(var(--success))" /></Col>
-            <Col xs={12} md={8}><KpiCard title="Total" value="Q0" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Pendientes" value={egresos.length} color="hsl(var(--destructive))" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Pagadas" value={0} color="hsl(var(--success))" /></Col>
+            <Col xs={12} md={8}><KpiCard title="Total" value={totalCxP} prefix="Q" /></Col>
           </Row>
           <Table dataSource={[]} rowKey="id" size="small" locale={{ emptyText: <Empty description="Sin cuentas por pagar" /> }}
             columns={[ColDef('Proveedor', 'proveedor', (t: string) => <Text strong>{t}</Text>),

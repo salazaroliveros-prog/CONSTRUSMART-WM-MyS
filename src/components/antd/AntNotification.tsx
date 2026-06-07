@@ -1,4 +1,3 @@
-import React from 'react';
 import { notification } from 'antd';
 import {
   CheckCircleOutlined,
@@ -8,7 +7,7 @@ import {
   LoadingOutlined,
 } from '@ant-design/icons';
 
-export type NotificationType = 'success' | 'info' | 'warning' | 'error' | 'loading';
+export type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
 export interface NotificationConfig {
   title: string;
@@ -28,18 +27,24 @@ const getIcon = (type: NotificationType) => {
       return <ExclamationCircleOutlined {...iconProps} style={{ color: '#faad14', ...iconProps.style }} />;
     case 'info':
       return <InfoCircleOutlined {...iconProps} style={{ color: '#1890ff', ...iconProps.style }} />;
-    case 'loading':
-      return <LoadingOutlined {...iconProps} style={{ color: '#ff8c42', ...iconProps.style }} />;
     default:
       return null;
   }
 };
 
-class AntNotificationManager {
-  private notificationInstance: any = null;
+type NotificationApiFn = (config: {
+  icon: React.ReactNode;
+  message: string;
+  description: string;
+  duration: number;
+  top: number;
+  placement: 'topRight';
+}) => void;
 
+class AntNotificationManager {
   show(type: NotificationType, config: NotificationConfig) {
-    notification[type]({
+    const apiFn = notification[type] as NotificationApiFn;
+    apiFn({
       icon: getIcon(type),
       message: config.title,
       description: config.description || '',

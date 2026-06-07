@@ -1,11 +1,48 @@
 import React, { useState } from 'react';
 import { useErp } from '../store';
-import type { Plano, RFI, Submittal } from '../types';
 import { toast } from 'sonner';
 import { FileText, Plus, Upload, Send, MessageSquare, Package } from 'lucide-react';
 import { INPUT } from '../ui';
 import { todayISO } from '../utils';
 import { z } from 'zod';
+
+// Tipos locales para gestión documental
+interface Plano {
+  id: string;
+  proyectoId: string;
+  nombre: string;
+  disciplina: 'arquitectura' | 'estructura' | 'instalaciones' | 'electricas' | 'sanitarias' | 'otra';
+  version: string;
+  fechaSubida: string;
+  descripcion?: string;
+  estado: 'vigente' | 'obsoleto' | 'en_revision';
+  subidoPor: string;
+}
+
+interface RFI {
+  id: string;
+  proyectoId: string;
+  numero: string;
+  titulo: string;
+  descripcion: string;
+  solicitante: string;
+  destino: string;
+  estado: 'abierto' | 'en_respuesta' | 'cerrado';
+  fechaSolicitud: string;
+  respuesta?: string;
+  fechaRespuesta?: string;
+}
+
+interface Submittal {
+  id: string;
+  proyectoId: string;
+  titulo: string;
+  descripcion?: string;
+  categoria: 'material' | 'equipo' | 'especificacion' | 'otro';
+  proveedor: string;
+  fechaEnvio: string;
+  estado: 'pendiente' | 'aprobado' | 'rechazado' | 'con_comentarios';
+}
 
 // Zod schemas
 const planoSchema = z.object({
@@ -34,30 +71,14 @@ const GestionDocumental: React.FC = () => {
   const [tab, setTab] = useState<TabDoc>('planos');
   const [selProyecto, setSelProyecto] = useState('');
 
-  // === STORAGE KEYS ===
-  const PLANO_KEY = 'wm_planos';
-  const RFI_KEY = 'wm_rfis';
-  const SUB_KEY = 'wm_submittals';
-  const VERSION_KEY = 'wm_plano_versiones';
+
 
   // === STATE ===
-  const [planos, setPlanos] = useState<Plano[]>(() => {
-    try { return JSON.parse(localStorage.getItem(PLANO_KEY) || '[]'); } catch { return []; }
-  });
-  const [rfis, setRfis] = useState<RFI[]>(() => {
-    try { return JSON.parse(localStorage.getItem(RFI_KEY) || '[]'); } catch { return []; }
-  });
-  const [submittals, setSubmittals] = useState<Submittal[]>(() => {
-    try { return JSON.parse(localStorage.getItem(SUB_KEY) || '[]'); } catch { return []; }
-  });
-  const [versiones, setVersiones] = useState<Record<string, string[]>>(() => {
-    try { return JSON.parse(localStorage.getItem(VERSION_KEY) || '{}'); } catch { return {}; }
-  });
+  const [planos, setPlanos] = useState<Plano[]>([]);
+  const [rfis, setRfis] = useState<RFI[]>([]);
+  const [submittals, setSubmittals] = useState<Submittal[]>([]);
+  const [versiones, setVersiones] = useState<Record<string, string[]>>({});
   const [_gdFormErrors, setGdFormErrors] = useState<Record<string, string>>({});
-
-  const save = (key: string, data: unknown) => {
-    localStorage.setItem(key, JSON.stringify(data));
-  };
 
   const _clearGdError = (field: string) => setGdFormErrors(prev => ({ ...prev, [field]: '' }));
   const resetGdErrors = () => setGdFormErrors({});
@@ -94,14 +115,12 @@ const GestionDocumental: React.FC = () => {
     };
     const updated = [nuevo, ...planos];
     setPlanos(updated);
-    save(PLANO_KEY, updated);
     // Track version
     const vid = nuevo.id;
     const vers = versiones[vid] || [];
     const newVers = [...vers, nuevo.version];
     const newVersiones = { ...versiones, [vid]: newVers };
     setVersiones(newVersiones);
-    save(VERSION_KEY, newVersiones);
     toast.success(`Plano "${planoForm.nombre}" v${planoForm.version} subido`);
     setShowPlanoForm(false);
     setPlanoForm({ nombre: '', disciplina: 'arquitectura', version: '1.0', descripcion: '' });
@@ -114,7 +133,6 @@ const GestionDocumental: React.FC = () => {
       return { ...p, estado: next };
     });
     setPlanos(updated);
-    save(PLANO_KEY, updated);
     toast.success('Estado actualizado');
   };
 
@@ -125,12 +143,10 @@ const GestionDocumental: React.FC = () => {
     const newVer = `${major}.${(minor || 0) + 1}`;
     const updated = planos.map(p => p.id === id ? { ...p, version: newVer, fechaSubida: todayISO(), estado: 'vigente' } : p);
     setPlanos(updated);
-    save(PLANO_KEY, updated);
     const vers = versiones[id] || [];
     const newVers = [...vers, newVer];
     const newVersiones = { ...versiones, [id]: newVers };
     setVersiones(newVersiones);
-    save(VERSION_KEY, newVersiones);
     toast.success(`Nueva versión ${newVer}`);
   };
 
@@ -163,7 +179,6 @@ const GestionDocumental: React.FC = () => {
     };
     const updated = [nueva, ...rfis];
     setRfis(updated);
-    save(RFI_KEY, updated);
     toast.success(`RFI ${nueva.numero} creado`);
     setShowRFIForm(false);
     setRfiForm({ titulo: '', descripcion: '', destino: '' });
@@ -172,7 +187,6 @@ const GestionDocumental: React.FC = () => {
   const actualizarRFI = (id: string, estado: RFI['estado'], respuesta?: string) => {
     const updated = rfis.map(r => r.id === id ? { ...r, estado, respuesta, fechaRespuesta: respuesta ? todayISO() : r.fechaRespuesta } : r);
     setRfis(updated);
-    save(RFI_KEY, updated);
     toast.success(`RFI actualizado: ${estado}`);
   };
 
@@ -210,7 +224,6 @@ const GestionDocumental: React.FC = () => {
     };
     const updated = [nuevo, ...submittals];
     setSubmittals(updated);
-    save(SUB_KEY, updated);
     toast.success('Submittal registrado');
     setShowSubForm(false);
     setSubForm({ titulo: '', descripcion: '', categoria: 'material', proveedor: '' });
@@ -219,7 +232,6 @@ const GestionDocumental: React.FC = () => {
   const actualizarSubmittal = (id: string, estado: Submittal['estado']) => {
     const updated = submittals.map(s => s.id === id ? { ...s, estado } : s);
     setSubmittals(updated);
-    save(SUB_KEY, updated);
     toast.success(`Submittal: ${estado}`);
   };
 

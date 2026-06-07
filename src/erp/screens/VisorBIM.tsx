@@ -11,13 +11,14 @@ const VisorBIM: React.FC = () => {
   const { proyectos, presupuestos, avances } = useErp();
   const [tab, setTab] = useState<BIMTab>('visor');
   const [selProyecto, setSelProyecto] = useState('');
+  const [vinculos, setVinculos] = useState<Record<string, string>>({});
+  const [elementoSeleccionado, setElementoSeleccionado] = useState<string | null>(null);
   const presupuestoActual = presupuestos.find(p => p.proyectoId === selProyecto);
 
   const renglones = presupuestoActual?.renglones || [];
 
   const saveVinculos = (v: Record<string, string>) => {
     setVinculos(v);
-    localStorage.setItem('wm_bim_vinculos', JSON.stringify(v));
   };
 
   const vincularRenglon = (elementoId: string, renglonId: string) => {

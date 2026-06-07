@@ -132,11 +132,11 @@ const Proyectos: React.FC = () => {
   );
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <div className="flex items-center justify-between mb-4">
+    <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-foreground">Portafolio de Proyectos</h1>
-          <p className="text-sm text-muted-foreground">{proyectos.length} proyectos registrados</p>
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground">Portafolio de Proyectos</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">{proyectos.length} proyectos registrados</p>
         </div>
         <button onClick={openCreate} className={BUTTON_PRIMARY}>
           <Plus className="w-4 h-4" aria-hidden="true" /> Nuevo Proyecto
@@ -163,7 +163,7 @@ const Proyectos: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
         {proyectos.length === 0 ? Array.from({ length: 3 }).map((_, i) => <div key={i}>{Skeleton}</div>) : proyectos.map(p => (
           <div key={p.id} className="bg-card text-card-foreground rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-border">
             <div className="p-5">

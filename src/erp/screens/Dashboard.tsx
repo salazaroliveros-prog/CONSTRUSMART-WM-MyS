@@ -11,7 +11,7 @@ import { CARD, CARD_TITLE } from '../ui';
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
 
 const Dashboard: React.FC = () => {
-  const { proyectos, movimientos, setView } = useErp();
+  const { proyectos, movimientos, avances, selectedProyectoId, setView } = useErp();
   const [filtroProy, setFiltroProy] = useState('');
 
   const activos = proyectos.filter(p => p.estado === 'ejecucion');
@@ -24,9 +24,29 @@ const Dashboard: React.FC = () => {
     ? activos.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / activos.length : 0;
 
   const avanceData = useMemo(() => {
-    const prog = [0, 12, 28, 45, 62, 78, 90, 100];
-    return { prog, real: [0, 10, 24, 40, 55, 67, 79, 88] };
-  }, []);
+    const prog = [0];
+    const real = [0];
+    if (avances.length > 0) {
+      const steps = 8;
+      const stepSize = Math.floor(avances.length / (steps - 1)) || 1;
+      for (let i = 1; i < steps - 1; i++) {
+        const idx = i * stepSize;
+        const slice = avances.filter(a => a.proyectoId === (selectedProyectoId || undefined));
+        if (slice.length > 0) {
+          const avgAvance = slice.slice(0, Math.min(idx, slice.length)).reduce((s, a) => s + a.avanceFisico, 0) / Math.min(idx, slice.length);
+          prog.push(Math.round((idx / Math.max(slice.length, 1)) * 100));
+          real.push(Math.round(avgAvance));
+        } else {
+          prog.push(Math.round((idx / Math.max(avances.length, 1)) * 100));
+          real.push(Math.round(avances.slice(0, idx).reduce((s, a) => s + a.avanceFisico, 0) / Math.max(idx, 1)));
+        }
+      }
+      prog.push(100);
+      const lastSlice = avances.slice(0, avances.length);
+      real.push(Math.round(lastSlice.reduce((s, a) => s + a.avanceFisico, 0) / Math.max(lastSlice.length, 1)));
+    }
+    return { prog, real };
+  }, [avances, selectedProyectoId]);
 
   const movPorCategoria = useMemo(() => {
     const map: Record<string, number> = {};

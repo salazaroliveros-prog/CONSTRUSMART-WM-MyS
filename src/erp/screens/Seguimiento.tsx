@@ -5,6 +5,9 @@ import { fmtQ, todayISO } from '../utils';
 import { Progress, Gauge, BarChart } from '../components/Charts';
 import { CARD, CARD_TITLE, INPUT } from '../ui';
 import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X } from 'lucide-react';
+import GanttChart from '../components/GanttChart';
+import EnhancedGantt from '../components/EnhancedGantt';
+import PertGanttChart from '../components/PertGanttChart';
 
 const Seguimiento: React.FC = () => {
   const { proyectos, movimientos, bitacora, addBitacora, updateProyecto, updateBitacora, deleteBitacora } = useErp();
@@ -15,8 +18,8 @@ const Seguimiento: React.FC = () => {
   const [editingBit, setEditingBit] = useState<BitacoraEntry | null>(null);
 
   const proyData = useMemo(() => proyectos.map(p => {
-    const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-    const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+    const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? 0), 0);
+    const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? 0), 0);
     const pendiente = Math.max(0, (p.montoContrato ?? 0) - ing);
     return { ...p, ing, gas, pendiente };
   }), [proyectos, movimientos]);
@@ -80,17 +83,17 @@ const Seguimiento: React.FC = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <div className="mb-4">
-        <h1 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
-          <ClipboardCheck className="w-6 h-6 text-emerald-500" aria-hidden="true" /> Seguimiento y Control
+    <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
+      <div className="mb-3 sm:mb-4">
+        <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2">
+          <ClipboardCheck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" aria-hidden="true" /> Seguimiento y Control
         </h1>
-        <p className="text-sm text-muted-foreground">Avance físico-financiero, bitácora y valor ganado (EVM)</p>
+        <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Avance físico-financiero, bitácora y valor ganado (EVM)</p>
       </div>
 
-      <div className={`${CARD} overflow-hidden mb-4 p-0`}>
+      <div className={`${CARD} overflow-hidden mb-3 sm:mb-4 p-0`}>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[820px]">
+          <table className="w-full text-xs sm:text-sm min-w-[560px]">
             <thead className="bg-muted text-muted-foreground text-xs">
               <tr>
                 <th className="text-left p-3">Proyecto</th>
@@ -158,9 +161,9 @@ const Seguimiento: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 mb-3 sm:mb-4">
         <div className={`${CARD}`}>
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
             <h3 className={CARD_TITLE}>Valor Ganado (EVM)</h3>
             <select value={selProy} onChange={e => setSelProy(e.target.value)}
               aria-label="Seleccionar proyecto para EVM"
@@ -169,9 +172,9 @@ const Seguimiento: React.FC = () => {
               {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <div><Gauge value={CV} max={Math.abs(CV) + EV * 0.3 + 1} label="CV (Costo)" color={CV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${CV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(CV)}</div></div>
-            <div><Gauge value={SV} max={Math.abs(SV) + EV * 0.3 + 1} label="SV (Tiempo)" color={SV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${SV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(SV)}</div></div>
+          <div className="grid grid-cols-2 gap-2">
+            <div><Gauge value={CV} max={proy?.presupuestoTotal || 1} label="CV (Costo)" color={CV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${CV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(CV)}</div></div>
+            <div><Gauge value={SV} max={proy?.presupuestoTotal || 1} label="SV (Tiempo)" color={SV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${SV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(SV)}</div></div>
           </div>
         </div>
 
@@ -219,10 +222,10 @@ const Seguimiento: React.FC = () => {
       </div>
 
       <form onSubmit={guardarBit} className={`${CARD}`}>
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div>
-            <h3 className={`${CARD_TITLE}`}>{editingBit ? 'Editar entrada de Bitácora' : 'Reporte Diario de Campo (Bitácora Digital)'}</h3>
-            {editingBit && <p className="text-xs text-muted-foreground">Editando registro de {proyectos.find(p => p.id === editingBit.proyectoId)?.nombre}</p>}
+        <div className="flex items-start sm:items-center justify-between gap-2 mb-3 sm:mb-4">
+          <div className="min-w-0">
+            <h3 className={`${CARD_TITLE} text-sm sm:text-base`}>{editingBit ? 'Editar Bitácora' : 'Reporte Diario de Campo'}</h3>
+            {editingBit && <p className="text-xs text-muted-foreground truncate">Editando: {proyectos.find(p => p.id === editingBit.proyectoId)?.nombre}</p>}
           </div>
           {editingBit && (
             <button type="button" onClick={cancelEditBitacora} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
@@ -231,7 +234,7 @@ const Seguimiento: React.FC = () => {
           )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
-          <select value={selProy} onChange={e => setSelProy(e.target.value)} className={`${INPUT} col-span-2`}>
+          <select value={selProy} onChange={e => setSelProy(e.target.value)} className={`${INPUT} sm:col-span-2`}>
             <option value="">Selecciona proyecto</option>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
           </select>

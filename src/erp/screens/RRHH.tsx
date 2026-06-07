@@ -87,10 +87,10 @@ const RRHH: React.FC = () => {
 
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
-          <Users className="w-6 h-6 text-pink-500" aria-hidden="true" /> RRHH y Planillas
+    <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2">
+          <Users className="w-5 h-5 sm:w-6 sm:h-6 text-pink-500" aria-hidden="true" /> RRHH y Planillas
         </h1>
         <button
           onClick={() => {
@@ -110,34 +110,34 @@ const RRHH: React.FC = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <div className={CARD}>
-          <div className="text-2xl font-bold text-foreground">{empleados.length}</div>
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <div className={`${CARD}  p-3`}>
+          <div className="text-xl sm:text-2xl font-bold text-foreground">{empleados.length}</div>
           <div className="text-xs text-muted-foreground">Personal Activo</div>
         </div>
-        <div className={CARD}>
-          <div className="text-2xl font-bold text-foreground">{fmtQ(totalPlanilla)}</div>
+        <div className={`${CARD} p-3`}>
+          <div className="text-xl sm:text-2xl font-bold text-foreground">{fmtQ(totalPlanilla)}</div>
           <div className="text-xs text-muted-foreground">Planilla Base</div>
         </div>
-        <div className={CARD}>
-          <div className="text-2xl font-bold text-primary">{fmtQ(totalFSR)}</div>
+        <div className={`${CARD} p-3`}>
+          <div className="text-xl sm:text-2xl font-bold text-primary">{fmtQ(totalFSR)}</div>
           <div className="text-xs text-muted-foreground">Con FSR (+{(FSR_PRESTACIONES * 100).toFixed(0)}%)</div>
         </div>
-        <div className={CARD}>
-          <div className="text-2xl font-bold text-foreground">
+        <div className={`${CARD} p-3`}>
+          <div className="text-xl sm:text-2xl font-bold text-foreground">
             {empleados.filter(e => e.tipo === 'destajo').length}
           </div>
           <div className="text-xs text-muted-foreground">Destajistas</div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         <div className={`${CARD} lg:col-span-2 p-0 overflow-hidden`}>
-          <div className="p-3 border-b border-border">
+          <div className="p-2 sm:p-3 border-b border-border">
             <h3 className={CARD_TITLE}>Planilla Semanal</h3>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-xs min-w-[640px]">
+            <table className="w-full text-xs min-w-[480px]">
               <thead className="bg-muted text-muted-foreground">
                 <tr>
                   <th className="text-left p-2">Empleado</th>

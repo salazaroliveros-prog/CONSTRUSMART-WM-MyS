@@ -1,116 +1,276 @@
-import React from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 const W = 320, H = 180, PAD = 28;
 
 interface Series { label: string; color: string; data: number[]; }
+interface TooltipState { x: number; y: number; content: string; visible: boolean; }
 
-export const LineChart: React.FC<{ series: Series[]; labels?: string[]; height?: number }> = React.memo(({ series, labels, height = H }) => {
+// Hook animacion entrada (0→1 en `ms` ms)
+function useAnimIn(ms = 700) {
+  const [p, setP] = useState(0);
+  useEffect(() => {
+    let start: number;
+    const id = requestAnimationFrame(function tick(t) {
+      if (!start) start = t;
+      const progress = Math.min((t - start) / ms, 1);
+      // ease-out-cubic
+      setP(1 - Math.pow(1 - progress, 3));
+      if (progress < 1) requestAnimationFrame(tick);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [ms]);
+  return p;
+}
+
+// Tooltip flotante
+const Tooltip: React.FC<TooltipState> = ({ x, y, content, visible }) => {
+  if (!visible) return null;
+  return (
+    <g>
+      <rect
+        x={x - 36} y={y - 28} width={72} height={20} rx={4}
+        fill="hsl(var(--foreground))" opacity={0.9}
+      />
+      <text x={x} y={y - 14} fontSize={8} textAnchor="middle" fill="hsl(var(--background))" fontWeight="600">
+        {content}
+      </text>
+    </g>
+  );
+};
+
+export const LineChart: React.FC<{
+  series: Series[]; labels?: string[]; height?: number;
+}> = React.memo(({ series, labels, height = H }) => {
+  const p = useAnimIn(800);
+  const [tip, setTip] = useState<TooltipState>({ x: 0, y: 0, content: '', visible: false });
   const all = series.flatMap(s => s.data);
   const max = Math.max(...all, 1);
   const min = Math.min(...all, 0);
   const n = Math.max(...series.map(s => s.data.length), 2);
   const x = (i: number) => PAD + (i * (W - PAD * 2)) / (n - 1);
   const y = (v: number) => height - PAD - ((v - min) / (max - min || 1)) * (height - PAD * 2);
+
   return (
-    <svg viewBox={`0 0 ${W} ${height}`} className="w-full">
+    <svg viewBox={`0 0 ${W} ${height}`} className="w-full" role="img" aria-label="Gráfico de líneas">
+      <defs>
+        {series.map((s, si) => (
+          <linearGradient key={si} id={`lg-line-${si}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={s.color} stopOpacity="0.3" />
+            <stop offset="100%" stopColor={s.color} stopOpacity="0" />
+          </linearGradient>
+        ))}
+      </defs>
+      {/* Grid */}
       {[0, 0.25, 0.5, 0.75, 1].map((t, i) => (
-        <line key={i} x1={PAD} x2={W - PAD} y1={PAD + t * (height - PAD * 2)} y2={PAD + t * (height - PAD * 2)} stroke="hsl(var(--border))" strokeWidth={1} />
+        <line key={i} x1={PAD} x2={W - PAD}
+          y1={PAD + t * (height - PAD * 2)} y2={PAD + t * (height - PAD * 2)}
+          stroke="hsl(var(--border))" strokeWidth={0.8} strokeDasharray="3 3" />
       ))}
+      {/* Area + línea animada */}
       {series.map((s, si) => {
-        const d = s.data.map((v, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(v)}`).join(' ');
+        const pts = s.data.map((v, i) => [x(i), y(v)] as [number, number]);
+        const visiblePts = pts.slice(0, Math.max(2, Math.round(pts.length * p)));
+        const line = visiblePts.map(([px, py], i) => `${i === 0 ? 'M' : 'L'} ${px} ${py}`).join(' ');
+        const area = `${line} L ${visiblePts[visiblePts.length - 1][0]} ${height - PAD} L ${visiblePts[0][0]} ${height - PAD} Z`;
         return (
           <g key={si}>
-            <path d={d} fill="none" stroke={s.color} strokeWidth={2.5} strokeLinejoin="round" />
-            {s.data.map((v, i) => <circle key={i} cx={x(i)} cy={y(v)} r={2.5} fill={s.color} />)}
+            <path d={area} fill={`url(#lg-line-${si})`} />
+            <path d={line} fill="none" stroke={s.color} strokeWidth={2.5} strokeLinejoin="round"
+              strokeLinecap="round" />
+            {pts.map(([px, py], i) => (
+              <circle key={i} cx={px} cy={py} r={i < visiblePts.length ? 4 : 0}
+                fill={s.color} stroke="hsl(var(--card))" strokeWidth={1.5}
+                style={{ cursor: 'pointer', transition: 'r 0.2s' }}
+                onMouseEnter={() => setTip({ x: px, y: py, content: `${s.label}: ${s.data[i]}`, visible: true })}
+                onMouseLeave={() => setTip(t => ({ ...t, visible: false }))}
+              />
+            ))}
           </g>
         );
       })}
       {labels && labels.map((l, i) => (
-        <text key={i} x={x(i)} y={height - 8} fontSize={8} textAnchor="middle" fill="hsl(var(--muted-foreground))">{l}</text>
+        <text key={i} x={x(i)} y={height - 8} fontSize={8} textAnchor="middle"
+          fill="hsl(var(--muted-foreground))">{l}</text>
       ))}
+      <Tooltip {...tip} />
     </svg>
   );
 });
 LineChart.displayName = 'LineChart';
 
 export const AreaChart: React.FC<{ series: Series[]; labels?: string[] }> = React.memo(({ series, labels }) => {
+  const p = useAnimIn(900);
+  const [tip, setTip] = useState<TooltipState>({ x: 0, y: 0, content: '', visible: false });
   const all = series.flatMap(s => s.data);
   const max = Math.max(...all, 1);
   const n = Math.max(...series.map(s => s.data.length), 2);
   const x = (i: number) => PAD + (i * (W - PAD * 2)) / (n - 1);
   const y = (v: number) => H - PAD - (v / max) * (H - PAD * 2);
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Gráfico de área">
+      <defs>
+        {series.map((s, si) => (
+          <linearGradient key={si} id={`lg-area-${si}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={s.color} stopOpacity="0.5" />
+            <stop offset="100%" stopColor={s.color} stopOpacity="0.02" />
+          </linearGradient>
+        ))}
+      </defs>
+      {[0.25, 0.5, 0.75, 1].map((t, i) => (
+        <line key={i} x1={PAD} x2={W - PAD}
+          y1={PAD + t * (H - PAD * 2)} y2={PAD + t * (H - PAD * 2)}
+          stroke="hsl(var(--border))" strokeWidth={0.8} strokeDasharray="3 3" />
+      ))}
       {series.map((s, si) => {
-        const line = s.data.map((v, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(v)}`).join(' ');
-        const area = `${line} L ${x(s.data.length - 1)} ${H - PAD} L ${x(0)} ${H - PAD} Z`;
+        const pts = s.data.map((v, i) => [x(i), y(v)] as [number, number]);
+        const vis = pts.slice(0, Math.max(2, Math.round(pts.length * p)));
+        const line = vis.map(([px, py], i) => `${i === 0 ? 'M' : 'L'} ${px} ${py}`).join(' ');
+        const area = `${line} L ${vis[vis.length - 1][0]} ${H - PAD} L ${vis[0][0]} ${H - PAD} Z`;
         return (
           <g key={si}>
-            <path d={area} fill={s.color} opacity={0.15} />
-            <path d={line} fill="none" stroke={s.color} strokeWidth={2.5} />
+            <path d={area} fill={`url(#lg-area-${si})`} />
+            <path d={line} fill="none" stroke={s.color} strokeWidth={2.5} strokeLinecap="round" />
+            {pts.map(([px, py], i) => (
+              <circle key={i} cx={px} cy={py} r={i < vis.length ? 3.5 : 0}
+                fill={s.color} stroke="hsl(var(--card))" strokeWidth={1.5}
+                style={{ cursor: 'pointer' }}
+                onMouseEnter={() => setTip({ x: px, y: py, content: `${s.label}: ${s.data[i]}`, visible: true })}
+                onMouseLeave={() => setTip(t => ({ ...t, visible: false }))}
+              />
+            ))}
           </g>
         );
       })}
       {labels && labels.map((l, i) => (
-        <text key={i} x={x(i)} y={H - 8} fontSize={8} textAnchor="middle" fill="hsl(var(--muted-foreground))">{l}</text>
+        <text key={i} x={x(i)} y={H - 8} fontSize={8} textAnchor="middle"
+          fill="hsl(var(--muted-foreground))">{l}</text>
       ))}
+      <Tooltip {...tip} />
     </svg>
   );
 });
 AreaChart.displayName = 'AreaChart';
 
-export const BarChart: React.FC<{ data: { label: string; value: number; color?: string }[]; height?: number }> = React.memo(({ data, height = H }) => {
+export const BarChart: React.FC<{
+  data: { label: string; value: number; color?: string }[]; height?: number;
+}> = React.memo(({ data, height = H }) => {
+  const p = useAnimIn(700);
+  const [tip, setTip] = useState<TooltipState>({ x: 0, y: 0, content: '', visible: false });
   const max = Math.max(...data.map(d => d.value), 1);
-  const bw = (W - PAD * 2) / data.length;
+  const bw = (W - PAD * 2) / Math.max(data.length, 1);
+
   return (
-    <svg viewBox={`0 0 ${W} ${height}`} className="w-full">
+    <svg viewBox={`0 0 ${W} ${height}`} className="w-full" role="img" aria-label="Gráfico de barras">
+      <defs>
+        {data.map((d, i) => (
+          <linearGradient key={i} id={`lg-bar-${i}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={d.color || 'hsl(var(--primary))'} stopOpacity="1" />
+            <stop offset="100%" stopColor={d.color || 'hsl(var(--primary))'} stopOpacity="0.6" />
+          </linearGradient>
+        ))}
+      </defs>
+      {/* Grid */}
+      {[0.25, 0.5, 0.75, 1].map((t, i) => (
+        <line key={i} x1={PAD} x2={W - PAD}
+          y1={PAD + (1 - t) * (height - PAD * 2)} y2={PAD + (1 - t) * (height - PAD * 2)}
+          stroke="hsl(var(--border))" strokeWidth={0.7} strokeDasharray="3 3" />
+      ))}
       {data.map((d, i) => {
-        const h = (d.value / max) * (height - PAD * 2);
+        const fullH = (d.value / max) * (height - PAD * 2);
+        const animH = fullH * p;
+        const bx = PAD + i * bw + bw * 0.12;
+        const bwInner = bw * 0.76;
         return (
-          <g key={i}>
-            <rect x={PAD + i * bw + bw * 0.15} y={height - PAD - h} width={bw * 0.7} height={h} rx={3} fill={d.color || 'hsl(var(--primary))'} />
-            <text x={PAD + i * bw + bw * 0.5} y={height - 8} fontSize={7} textAnchor="middle" fill="hsl(var(--muted-foreground))">{d.label}</text>
+          <g key={i}
+            onMouseEnter={() => setTip({ x: bx + bwInner / 2, y: height - PAD - animH - 4, content: `${d.label}: ${d.value}`, visible: true })}
+            onMouseLeave={() => setTip(t => ({ ...t, visible: false }))}
+            style={{ cursor: 'pointer' }}>
+            <rect x={bx} y={height - PAD - animH} width={bwInner} height={animH}
+              rx={3} fill={`url(#lg-bar-${i})`} />
+            {/* Valor encima */}
+            {p > 0.95 && (
+              <text x={bx + bwInner / 2} y={height - PAD - fullH - 4}
+                fontSize={7} textAnchor="middle" fill={d.color || 'hsl(var(--primary))'} fontWeight="600">
+                {d.value}
+              </text>
+            )}
+            <text x={bx + bwInner / 2} y={height - 8} fontSize={7}
+              textAnchor="middle" fill="hsl(var(--muted-foreground))">{d.label}</text>
           </g>
         );
       })}
+      <Tooltip {...tip} />
     </svg>
   );
 });
 BarChart.displayName = 'BarChart';
 
-export const Donut: React.FC<{ data: { label: string; value: number; color: string }[]; size?: number }> = React.memo(({ data, size = 150 }) => {
+export const Donut: React.FC<{
+  data: { label: string; value: number; color: string }[]; size?: number;
+}> = React.memo(({ data, size = 150 }) => {
+  const p = useAnimIn(900);
+  const [hovered, setHovered] = useState<number | null>(null);
   const total = data.reduce((a, b) => a + b.value, 0) || 1;
+  const r = size / 2 - 12, cx = size / 2, cy = size / 2;
   let acc = 0;
-  const r = size / 2 - 10, cx = size / 2, cy = size / 2;
+
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
+    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label="Gráfico donut">
       {data.map((d, i) => {
-        const start = (acc / total) * 2 * Math.PI;
+        const startAng = (acc / total) * 2 * Math.PI;
         acc += d.value;
-        const end = (acc / total) * 2 * Math.PI;
-        const large = end - start > Math.PI ? 1 : 0;
-        const x1 = cx + r * Math.sin(start), y1 = cy - r * Math.cos(start);
-        const x2 = cx + r * Math.sin(end), y2 = cy - r * Math.cos(end);
-        return <path key={i} d={`M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`} fill={d.color} stroke="hsl(var(--card))" strokeWidth={1.5} />;
+        const endAng = (acc / total) * 2 * Math.PI;
+        const animEnd = startAng + (endAng - startAng) * p;
+        const large = animEnd - startAng > Math.PI ? 1 : 0;
+        const scale = hovered === i ? 1.06 : 1;
+        const x1 = cx + r * Math.sin(startAng) * scale, y1 = cy - r * Math.cos(startAng) * scale;
+        const x2 = cx + r * Math.sin(animEnd) * scale, y2 = cy - r * Math.cos(animEnd) * scale;
+        const path = `M ${cx} ${cy} L ${x1} ${y1} A ${r * scale} ${r * scale} 0 ${large} 1 ${x2} ${y2} Z`;
+        return (
+          <path key={i} d={path} fill={d.color}
+            stroke="hsl(var(--card))" strokeWidth={hovered === i ? 2 : 1.5}
+            style={{ cursor: 'pointer', transition: 'all 0.2s', filter: hovered === i ? `drop-shadow(0 2px 6px ${d.color}66)` : 'none' }}
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(null)}
+          >
+            <title>{d.label}: {Math.round(d.value / total * 100)}%</title>
+          </path>
+        );
       })}
-      <circle cx={cx} cy={cy} r={r * 0.55} fill="hsl(var(--card))" />
+      <circle cx={cx} cy={cy} r={r * 0.52} fill="hsl(var(--card))" />
+      {hovered !== null && (
+        <text x={cx} y={cy + 4} fontSize={9} textAnchor="middle" fontWeight="700"
+          fill={data[hovered]?.color}>
+          {Math.round((data[hovered]?.value || 0) / total * 100)}%
+        </text>
+      )}
     </svg>
   );
 });
 Donut.displayName = 'Donut';
 
-export const Gauge: React.FC<{ value: number; max: number; label: string; color?: string }> = React.memo(({ value, max, label, color = 'hsl(var(--success))' }) => {
+export const Gauge: React.FC<{
+  value: number; max: number; label: string; color?: string;
+}> = React.memo(({ value, max, label, color = 'hsl(var(--success))' }) => {
+  const p = useAnimIn(1000);
   const pct = Math.max(-1, Math.min(1, value / (max || 1)));
-  const angle = pct * 90;
+  const angle = pct * 90 * p;
   const r = 60, cx = 80, cy = 80;
   const rad = (angle - 90) * Math.PI / 180;
   const nx = cx + r * Math.cos(rad), ny = cy + r * Math.sin(rad);
+
   return (
-    <svg viewBox="0 0 160 100" className="w-full">
-      <path d={`M 20 80 A 60 60 0 0 1 140 80`} fill="none" stroke="hsl(var(--border))" strokeWidth={12} strokeLinecap="round" />
-      <path d={`M 20 80 A 60 60 0 0 1 80 20`} fill="none" stroke="hsl(var(--destructive))" strokeWidth={12} opacity={0.4} />
-      <path d={`M 80 20 A 60 60 0 0 1 140 80`} fill="none" stroke={color} strokeWidth={12} opacity={0.4} />
-      <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="hsl(var(--foreground))" strokeWidth={3} strokeLinecap="round" />
+    <svg viewBox="0 0 160 100" className="w-full" role="img" aria-label={`Gauge: ${label}`}>
+      <path d="M 20 80 A 60 60 0 0 1 140 80" fill="none" stroke="hsl(var(--border))"
+        strokeWidth={12} strokeLinecap="round" />
+      <path d="M 20 80 A 60 60 0 0 1 80 20" fill="none" stroke="hsl(var(--destructive))"
+        strokeWidth={12} opacity={0.35} />
+      <path d="M 80 20 A 60 60 0 0 1 140 80" fill="none" stroke={color}
+        strokeWidth={12} opacity={0.35} />
+      <line x1={cx} y1={cy} x2={nx} y2={ny}
+        stroke="hsl(var(--foreground))" strokeWidth={3} strokeLinecap="round"
+        style={{ transition: 'all 0.05s' }} />
       <circle cx={cx} cy={cy} r={5} fill="hsl(var(--foreground))" />
       <text x={80} y={97} fontSize={9} textAnchor="middle" fill="hsl(var(--muted-foreground))">{label}</text>
     </svg>
@@ -118,9 +278,49 @@ export const Gauge: React.FC<{ value: number; max: number; label: string; color?
 });
 Gauge.displayName = 'Gauge';
 
-export const Progress: React.FC<{ value: number; color?: string; bg?: string }> = React.memo(({ value, color = 'hsl(var(--primary))', bg = 'hsl(var(--border))' }) => (
-  <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: bg }}>
-    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(100, Math.max(0, value))}%`, background: color }} />
-  </div>
-));
+export const Progress: React.FC<{
+  value: number; color?: string; bg?: string;
+}> = React.memo(({ value, color = 'hsl(var(--primary))', bg = 'hsl(var(--border))' }) => {
+  const p = useAnimIn(600);
+  const animVal = value * p;
+  return (
+    <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: bg }}>
+      <div className="h-full rounded-full"
+        style={{
+          width: `${Math.min(100, Math.max(0, animVal))}%`,
+          background: `linear-gradient(90deg, ${color}, ${color}cc)`,
+          boxShadow: `0 0 8px ${color}66`,
+          transition: 'width 0.05s',
+        }} />
+    </div>
+  );
+});
 Progress.displayName = 'Progress';
+
+// Sparkline inline — nueva utilidad
+export const Sparkline: React.FC<{
+  data: number[]; color?: string; height?: number;
+}> = React.memo(({ data, color = 'hsl(var(--primary))', height = 40 }) => {
+  const p = useAnimIn(600);
+  if (data.length < 2) return null;
+  const max = Math.max(...data, 1), min = Math.min(...data, 0);
+  const w = 80;
+  const x = (i: number) => (i / (data.length - 1)) * w;
+  const y = (v: number) => height - ((v - min) / (max - min || 1)) * height;
+  const vis = data.slice(0, Math.max(2, Math.round(data.length * p)));
+  const line = vis.map((v, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(v)}`).join(' ');
+  const area = `${line} L ${x(vis.length - 1)} ${height} L ${x(0)} ${height} Z`;
+  return (
+    <svg viewBox={`0 0 ${w} ${height}`} style={{ width: '100%', height }} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="sp-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.4" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill="url(#sp-grad)" />
+      <path d={line} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+    </svg>
+  );
+});
+Sparkline.displayName = 'Sparkline';

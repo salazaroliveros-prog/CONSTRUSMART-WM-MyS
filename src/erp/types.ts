@@ -340,6 +340,9 @@ export interface Incidente {
   reportadoPor: string;
   latitud?: number;
   longitud?: number;
+  /** Alias para compatibilidad con mapas */
+  lat?: number;
+  lng?: number;
   fotos: string[];
   estado: 'abierto' | 'investigacion' | 'cerrado';
 }

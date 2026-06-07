@@ -6,17 +6,9 @@ import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter } from 'lucide
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { todayISO } from '../utils';
-import { useNotifications } from '../hooks/useNotifications';
-
-const STORAGE_KEY = 'wm_hitos';
 
 const HitosScreen: React.FC = () => {
-  const { proyectos, updateProyecto, selectedProyectoId, setSelectedProyectoId } = useErp();
-  const { showLocalNotification } = useNotifications();
-  const [hitos, setHitos] = useState<Hito[]>(() => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
-  });
-  const [synced, setSynced] = useState(false);
+  const { proyectos, updateProyecto, selectedProyectoId, setSelectedProyectoId, hitos, addHito, updateHito, deleteHito, addNotificacion } = useErp();
   const [showForm, setShowForm] = useState(false);
   const [vista, setVista] = useState<'lista' | 'calendario'>('lista');
   const [mesCalendario, setMesCalendario] = useState(() => {
@@ -30,36 +22,7 @@ const HitosScreen: React.FC = () => {
     }
   }, [selectedProyectoId, form.proyectoId]);
 
-  useEffect(() => {
-    if (!synced) {
-      syncFromSupabase();
-      setSynced(true);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [synced]);
-
-  const syncFromSupabase = async () => {
-    if (!supabase) return;
-    try {
-      const { data, error } = await supabase.from('hitos').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
-      if (data && data.length > 0) {
-        const mapped: Hito[] = data.map((r: any) => ({
-          id: r.id, proyectoId: r.proyecto_id, nombre: r.nombre,
-          descripcion: r.descripcion || '', fecha: r.fecha,
-          tipo: r.tipo, estado: r.estado,
-          responsable: r.responsable || '', dependeDe: r.depende_de || undefined,
-          completadoEn: r.completado_en || undefined, createdAt: r.created_at,
-        }));
-        const localIds = new Set(hitos.map(h => h.id));
-        const nuevos = mapped.filter(h => !localIds.has(h.id));
-        if (nuevos.length > 0) setHitos(prev => [...nuevos, ...prev]);
-      }
-    } catch (e) { console.warn('[Hitos] Error sync Supabase:', e); }
-  };
-
   const syncToSupabase = async (h: Hito[]) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(h));
     if (!supabase) return;
     try {
       const { error } = await supabase.from('hitos').upsert(
@@ -77,10 +40,7 @@ const HitosScreen: React.FC = () => {
       const vencidos = h.filter(hi => hi.estado === 'pendiente' && hi.fecha < hoy);
       if (vencidos.length > 0 && selectedProyectoId) {
         const proy = proyectos.find(p => p.id === selectedProyectoId);
-        showLocalNotification('Hitos vencidos', {
-          body: `${vencidos.length} hito(s) vencido(s) en ${proy?.nombre || 'el proyecto'}`,
-          tag: 'hitos-vencidos', url: '/hitos',
-        });
+        addNotificacion('general', 'Hitos vencidos', `${vencidos.length} hito(s) vencido(s) en ${proy?.nombre || 'el proyecto'}`, selectedProyectoId || undefined);
       }
     } catch (e) { console.warn('[Hitos] Error sync Supabase:', e); }
   };
@@ -103,7 +63,7 @@ const HitosScreen: React.FC = () => {
       createdAt: new Date().toISOString(),
     };
     syncToSupabase([nuevo, ...hitos]);
-    setHitos(prev => [nuevo, ...prev]);
+    addHito(nuevo);
     toast.success('Hito creado');
     setShowForm(false);
     setForm({ proyectoId: selectedProyectoId || '', nombre: '', descripcion: '', fecha: '', tipo: 'hito', responsable: '', dependeDe: [] });
@@ -125,15 +85,13 @@ const HitosScreen: React.FC = () => {
     }
     const fechaHoy = todayISO();
     const retrasado = hito.fecha < fechaHoy;
-    const nuevos = hitos.map(h => h.id === id ? { ...h, estado: retrasado ? 'retrasado' as const : 'completado' as const, completadoEn: fechaHoy } : h);
+    const nuevoEstado = retrasado ? 'retrasado' as const : 'completado' as const;
+    const nuevos = hitos.map(h => h.id === id ? { ...h, estado: nuevoEstado, completadoEn: fechaHoy } : h);
     syncToSupabase(nuevos);
-    setHitos(nuevos);
+    updateHito(id, { estado: nuevoEstado, completadoEn: fechaHoy });
     if (hito.tipo === 'cierre') {
       updateProyecto(hito.proyectoId, { estado: 'finalizado' });
-      showLocalNotification('Proyecto finalizado', {
-        body: `"${hito.nombre}" completó el proyecto.`,
-        tag: 'proyecto-finalizado', url: '/proyectos',
-      });
+      addNotificacion('general', 'Proyecto finalizado', `"${hito.nombre}" completó el proyecto.`, hito.proyectoId);
     }
     toast.success(retrasado ? '⚠️ Hito completado con retraso' : '✅ Hito completado');
   };
@@ -142,7 +100,7 @@ const HitosScreen: React.FC = () => {
     if (!confirm('¿Eliminar este hito?')) return;
     const nuevos = hitos.filter(h => h.id !== id);
     syncToSupabase(nuevos);
-    setHitos(nuevos);
+    deleteHito(id);
   };
 
   const hoy = todayISO();

@@ -15,34 +15,39 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
+// Leer si el tema activo es dark
+function getIsDark(): boolean {
+  try {
+    const theme = localStorage.getItem('wm_erp_theme') || '';
+    if (theme === 'dark-pro') return true;
+    const s = localStorage.getItem('wm_erp_data_settings');
+    if (s) {
+      const parsed = JSON.parse(s);
+      return parsed?.appTheme === 'dark' || parsed?.appTheme === 'dark-pro';
+    }
+  } catch { /* silent */ }
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
 const App = () => {
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
-    // Leer appSettings del store para sincronizar con el tema guardado
-    try {
-      const stored = localStorage.getItem('wm_erp_data_settings');
-      if (stored) {
-        const s = JSON.parse(stored);
-        if (s?.appTheme === 'dark' || s?.appTheme === 'dark-pro') return 'dark';
-      }
-    } catch { /* silent */ }
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    return (localStorage.getItem('theme-mode') as ThemeMode) || (prefersDark ? 'dark' : 'light');
-  });
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() =>
+    getIsDark() ? 'dark' : 'light'
+  );
 
   useEffect(() => {
-    // Escuchar cambios de tema desde el store (via storage event o custom event)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'wm_erp_data_settings' && e.newValue) {
-        try {
-          const s = JSON.parse(e.newValue);
-          if (s?.appTheme) {
-            setThemeMode(s.appTheme === 'dark' || s.appTheme === 'dark-pro' ? 'dark' : 'light');
-          }
-        } catch { /* silent */ }
-      }
+    // Escuchar custom event disparado por updateAppSettings (misma pestaña)
+    const onThemeChange = () => setThemeMode(getIsDark() ? 'dark' : 'light');
+    window.addEventListener('wm-theme-changed', onThemeChange);
+    // También escuchar storage (otras pestañas)
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'wm_erp_theme' || e.key === 'wm_erp_data_settings')
+        onThemeChange();
     };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener('wm-theme-changed', onThemeChange);
+      window.removeEventListener('storage', onStorage);
+    };
   }, []);
 
   return (
