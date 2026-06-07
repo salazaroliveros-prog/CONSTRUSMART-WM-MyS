@@ -7,6 +7,8 @@ import { fmtQ, factorSalarioReal, FSR_PRESTACIONES } from '../utils';
 import { CARD, CARD_TITLE, BUTTON_DARK, BUTTON_ACCENT, INPUT, ERROR_STATE } from '../ui';
 import { Users, Plus, Trash2 } from 'lucide-react';
 import { BarChart } from '../components/Charts';
+import ChartToolbar from '../components/ChartToolbar';
+import { useChartConfig } from '../hooks/useChartConfig';
 
 const empleadoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -20,6 +22,7 @@ const empleadoSchema = z.object({
 type EmpleadoFormData = z.infer<typeof empleadoSchema>;
 
 const RRHH: React.FC = () => {
+  const rrhhBarConfig = useChartConfig('line', 'default');
   const { empleados, addEmpleado, updateEmpleado, deleteEmpleado, proyectos } = useErp();
   const [editingId, setEditingId] = React.useState<string | null>(null);
 
@@ -189,9 +192,19 @@ const RRHH: React.FC = () => {
 
         <div className="space-y-4">
           <div className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border">
-            <h3 className="font-bold text-foreground text-sm mb-2">Costo MO por Proyecto</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-foreground text-sm">Costo MO por Proyecto</h3>
+              <ChartToolbar
+                types={['line']}
+                currentType={rrhhBarConfig.type}
+                onTypeChange={rrhhBarConfig.setType}
+                palette={rrhhBarConfig.palette}
+                onPaletteChange={rrhhBarConfig.setPalette}
+                onReset={rrhhBarConfig.reset}
+              />
+            </div>
             {porProyecto.length ? (
-              <BarChart height={140} data={porProyecto} />
+              <BarChart height={140} data={porProyecto} palette={rrhhBarConfig.palette} />
             ) : (
               <p className="text-xs text-muted-foreground">Sin datos</p>
             )}

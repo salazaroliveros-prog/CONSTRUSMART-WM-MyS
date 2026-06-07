@@ -4,7 +4,9 @@ import { fmtQ, fmtPct } from '../utils';
 import KpiCard from '../components/KpiCard';
 import Calendar from '../components/Calendar';
 import MovimientoForm from '../components/MovimientoForm';
-import { LineChart, BarChart, Donut } from '../components/Charts';
+import { ConfigurableLineArea, BarChart, Donut } from '../components/Charts';
+import ChartToolbar from '../components/ChartToolbar';
+import { useChartConfig } from '../hooks/useChartConfig';
 import { Building2, TrendingUp, DollarSign, AlertTriangle, Activity, Calculator, ClipboardCheck, Wallet, Users, Warehouse, ArrowRight } from 'lucide-react';
 import { CARD, CARD_TITLE } from '../ui';
 
@@ -13,6 +15,7 @@ const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4'
 const Dashboard: React.FC = () => {
   const { proyectos, movimientos, avances, selectedProyectoId, setView } = useErp();
   const [filtroProy, setFiltroProy] = useState('');
+  const curvaConfig = useChartConfig('area', 'cool');
 
   const activos = proyectos.filter(p => p.estado === 'ejecucion');
   const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
@@ -105,21 +108,37 @@ const Dashboard: React.FC = () => {
 
       {/* Main Grid */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-1.5 sm:gap-2 min-h-0">
-        {/* Curva S */}
+        {/* Curva S — configurable (cambia a Área por defecto para evitar duplicidad con módulo Curvas S) */}
         <div className={`${CARD} lg:col-span-2 flex flex-col min-h-0 p-2 sm:p-3`}>
           <div className="flex items-center justify-between mb-1 flex-shrink-0">
             <h3 className={`${CARD_TITLE} flex items-center gap-1 text-xs sm:text-sm mb-0`}><Activity className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" /> Curva S</h3>
-            <div className="flex gap-1.5 text-[8px] sm:text-[9px] text-muted-foreground" aria-hidden="true">
-              <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Prog</span>
-              <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Real</span>
+            <div className="flex items-center gap-1">
+              <div className="flex gap-1.5 text-[8px] sm:text-[9px] text-muted-foreground" aria-hidden="true">
+                <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Prog</span>
+                <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Real</span>
+              </div>
+              <ChartToolbar
+                types={['line', 'area']}
+                currentType={curvaConfig.type}
+                onTypeChange={curvaConfig.setType}
+                palette={curvaConfig.palette}
+                onPaletteChange={curvaConfig.setPalette}
+                series={[
+                  { id: 'Programado', label: 'Programado', color: '#3b82f6', visible: curvaConfig.isVisible('Programado') },
+                  { id: 'Real', label: 'Real', color: '#f97316', visible: curvaConfig.isVisible('Real') },
+                ]}
+                onToggleSeries={curvaConfig.toggleSeries}
+                onReset={curvaConfig.reset}
+              />
             </div>
           </div>
-          <div className="flex-1 min-h-0" role="img" aria-label="Gráfico Curva S: avance programado vs real">
-            <LineChart labels={['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A']}
+          <div className="flex-1 min-h-0 min-h-[140px]" role="img" aria-label="Gráfico Curva S: avance programado vs real">
+            <ConfigurableLineArea labels={['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A']}
+              type={curvaConfig.type} palette={curvaConfig.palette}
               series={[
                 { label: 'Programado', color: '#3b82f6', data: avanceData.prog },
                 { label: 'Real', color: '#f97316', data: avanceData.real },
-              ]} />
+              ].filter(s => curvaConfig.isVisible(s.label))} />
           </div>
         </div>
 
@@ -133,13 +152,13 @@ const Dashboard: React.FC = () => {
           <div className={`${CARD} flex flex-col p-2 sm:p-3 min-h-0`}>
             <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1`}>Gastos</h3>
             <div className="flex-1 min-h-0">
-              {movPorCategoria.length ? <BarChart data={movPorCategoria} height={80} /> : <p className="text-xs text-muted-foreground">Sin datos</p>}
+              {movPorCategoria.length ? <BarChart data={movPorCategoria} height={130} /> : <p className="text-xs text-muted-foreground">Sin datos</p>}
             </div>
           </div>
           <div className={`${CARD} flex flex-col p-2 sm:p-3 min-h-0`}>
             <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1`}>Ing vs Gast</h3>
             <div className="flex-1 flex items-center gap-2 min-h-0">
-              <Donut size={60} data={[
+              <Donut size={130} data={[
                 { label: 'Ingresos', value: ingresos, color: '#10b981' },
                 { label: 'Gastos', value: gastos, color: '#ef4444' },
               ]} />

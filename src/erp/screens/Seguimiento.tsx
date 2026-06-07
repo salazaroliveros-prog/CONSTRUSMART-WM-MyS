@@ -3,6 +3,8 @@ import { useErp } from '../store';
 import type { BitacoraEntry } from '../types';
 import { fmtQ, todayISO } from '../utils';
 import { Progress, Gauge, BarChart } from '../components/Charts';
+import ChartToolbar from '../components/ChartToolbar';
+import { useChartConfig } from '../hooks/useChartConfig';
 import { CARD, CARD_TITLE, INPUT } from '../ui';
 import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
@@ -11,6 +13,7 @@ import PertGanttChart from '../components/PertGanttChart';
 
 const Seguimiento: React.FC = () => {
   const { proyectos, movimientos, bitacora, addBitacora, updateProyecto, updateBitacora, deleteBitacora } = useErp();
+  const barConfig = useChartConfig('line', 'default');
   const [selProy, setSelProy] = useState(proyectos[0]?.id || '');
   const [bit, setBit] = useState({ clima: 'soleado', personal: '12', maquinaria: 'Retroexcavadora', tareas: '', observaciones: '' });
   const [editingProject, setEditingProject] = useState<string | null>(null);
@@ -179,11 +182,26 @@ const Seguimiento: React.FC = () => {
         </div>
 
         <div className={CARD}>
-          <h3 className={CARD_TITLE}>Físico vs Financiero</h3>
+          <div className="flex items-center justify-between">
+            <h3 className={CARD_TITLE}>Físico vs Financiero</h3>
+            <ChartToolbar
+              types={['line']}
+              currentType={barConfig.type}
+              onTypeChange={barConfig.setType}
+              palette={barConfig.palette}
+              onPaletteChange={barConfig.setPalette}
+              series={[
+                { id: 'Físico', label: 'Físico', color: '#3b82f6', visible: barConfig.isVisible('Físico') },
+                { id: 'Financ.', label: 'Financ.', color: '#f97316', visible: barConfig.isVisible('Financ.') },
+              ]}
+              onToggleSeries={barConfig.toggleSeries}
+              onReset={barConfig.reset}
+            />
+          </div>
           {proy && <BarChart height={150} data={[
             { label: 'Físico', value: proy.avanceFisico, color: '#3b82f6' },
             { label: 'Financ.', value: proy.avanceFinanciero, color: '#f97316' },
-          ]} />}
+          ]} palette={barConfig.palette} />}
         </div>
 
         <div className={CARD}>
