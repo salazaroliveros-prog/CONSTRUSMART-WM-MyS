@@ -1749,14 +1749,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   // ── Supabase Realtime subscriptions (F-10) ──
-  const realtimeActions = useMemo(() => ({
-    addProyecto, updateProyecto, deleteProyecto,
-    addMovimiento, updateMovimiento, deleteMovimiento,
-    addPresupuesto, updatePresupuesto, deletePresupuesto,
-    setOnline: setIsOnline,
-  }), [addProyecto, updateProyecto, deleteProyecto, addMovimiento, updateMovimiento, deleteMovimiento, addPresupuesto, updatePresupuesto, deletePresupuesto, setIsOnline]);
+  // DISABLED: Using Redux store now - realtime handled separately
+  // const realtimeActions = useMemo(() => ({
+  //   addProyecto, updateProyecto, deleteProyecto,
+  //   addMovimiento, updateMovimiento, deleteMovimiento,
+  //   addPresupuesto, updatePresupuesto, deletePresupuesto,
+  //   setOnline: setIsOnline,
+  // }), [addProyecto, updateProyecto, deleteProyecto, addMovimiento, updateMovimiento, deleteMovimiento, addPresupuesto, updatePresupuesto, deletePresupuesto, setIsOnline]);
 
-  useSupabaseRealtime(realtimeActions);
+  // useSupabaseRealtime(realtimeActions);
 
   const [syncMessage, setSyncMessage] = useState('');
 
