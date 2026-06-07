@@ -11,7 +11,7 @@ export default defineConfig(({ mode: _mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: mode === "production" ? "/" : "/",
+  base: "/",
   server: {
     host: "::",
     port: 8080,
