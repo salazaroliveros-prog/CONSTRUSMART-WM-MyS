@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useErp } from '../store';
-import { supabase } from '@/lib/supabase';
 import { Riesgo } from '../types';
 import { AlertTriangle, Shield, Plus, X, TrendingUp, TrendingDown, Filter } from 'lucide-react';
 import { INPUT } from '../ui';
@@ -36,30 +35,12 @@ const Riesgos: React.FC = () => {
     }
   }, [selectedProyectoId, form.proyectoId]);
 
-  const syncToSupabase = async (r: Riesgo[]) => {
-    if (!supabase) return;
-    try {
-      const { error } = await supabase.from('riesgos').upsert(
-        r.map(ri => ({
-          id: ri.id, proyecto_id: ri.proyectoId, nombre: ri.nombre,
-          descripcion: ri.descripcion || null, tipo: ri.tipo,
-          probabilidad: ri.probabilidad, impacto: ri.impacto,
-          plan_mitigacion: ri.planMitigacion || null,
-          responsable: ri.responsable || null,
-          fecha_identificacion: ri.fechaIdentificacion,
-          estado: ri.estado, costo_soporte: ri.costoSoporte || null,
-          created_at: ri.createdAt,
-        })),
-        { onConflict: 'id' }
-      );
-      if (error) console.warn('[Riesgos] Error sync Supabase:', error);
-
-      const criticos = r.filter(ri => ri.nivel === 'critico' && ri.estado === 'identificado');
-      if (criticos.length > 0 && selectedProyectoId) {
-        const proy = proyectos.find(p => p.id === selectedProyectoId);
-        addNotificacion('general', 'Riesgos críticos sin mitigar', `${criticos.length} riesgo(s) crítico(s) en ${proy?.nombre || 'el proyecto'}`, selectedProyectoId || undefined);
-      }
-    } catch (e) { console.warn('[Riesgos] Error sync Supabase:', e); }
+  const notifyCriticos = (todos: Riesgo[]) => {
+    const criticos = todos.filter(ri => ri.nivel === 'critico' && ri.estado === 'identificado');
+    if (criticos.length > 0 && selectedProyectoId) {
+      const proy = proyectos.find(p => p.id === selectedProyectoId);
+      addNotificacion('general', 'Riesgos críticos sin mitigar', `${criticos.length} riesgo(s) crítico(s) en ${proy?.nombre || 'el proyecto'}`, selectedProyectoId || undefined);
+    }
   };
 
   const agregar = () => {
@@ -83,16 +64,14 @@ const Riesgos: React.FC = () => {
       costoSoporte: form.costoSoporte || undefined,
       createdAt: new Date().toISOString(),
     };
-    syncToSupabase([nuevo, ...riesgos]);
     addRiesgo(nuevo);
+    notifyCriticos([nuevo, ...riesgos]);
     toast.success('Riesgo registrado');
     setShowForm(false);
     setForm({ proyectoId: selectedProyectoId || '', nombre: '', descripcion: '', tipo: 'tecnico', probabilidad: 2, impacto: 2, planMitigacion: '', responsable: '', costoSoporte: 0 });
   };
 
   const actualizarEstado = (id: string, estado: Riesgo['estado']) => {
-    const nuevos = riesgos.map(r => r.id === id ? { ...r, estado } : r);
-    syncToSupabase(nuevos);
     updateRiesgo(id, { estado });
     if (estado === 'materializado') {
       const riesgo = riesgos.find(r => r.id === id);
@@ -102,8 +81,6 @@ const Riesgos: React.FC = () => {
 
   const eliminar = (id: string) => {
     if (!confirm('¿Eliminar este riesgo?')) return;
-    const nuevos = riesgos.filter(r => r.id !== id);
-    syncToSupabase(nuevos);
     deleteRiesgo(id);
   };
 

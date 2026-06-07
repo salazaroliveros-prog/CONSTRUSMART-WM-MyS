@@ -33,7 +33,7 @@ const MapPicker: React.FC<MapPickerProps> = ({ lat, lng, onChange, height = 220 
       if (data.length > 0) {
         onChange(parseFloat(data[0].lat), parseFloat(data[0].lon));
       }
-    } catch { }
+    } catch { /* noop */ }
   };
 
   return (

@@ -64,6 +64,31 @@ export interface ThemeConfig {
 }
 
 /**
+ * Convierte un color HEX a HSL string (ej: '#ff8c42' → '24 96% 63%')
+ */
+function hexToHSL(hex: string): string {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.trim());
+  if (!result) return '24 96% 63%';
+  const r = parseInt(result[1], 16) / 255;
+  const g = parseInt(result[2], 16) / 255;
+  const b = parseInt(result[3], 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+}
+
+/**
  * Inicializa el tema en el documento basado en localStorage
  */
 export function initializeTheme(): void {
@@ -81,7 +106,9 @@ export function initializeTheme(): void {
         document.documentElement.classList.add('compact');
       }
       if (parsed?.primaryColor) {
-        document.documentElement.style.setProperty('--primary-hue', parsed.primaryColor);
+        const hsl = hexToHSL(parsed.primaryColor);
+        document.documentElement.style.setProperty('--primary-hue', hsl);
+        document.documentElement.style.setProperty('--primary', hsl);
       }
     }
   } catch {
@@ -106,6 +133,8 @@ export function applyThemeToDocument(config: Partial<ThemeConfig>): void {
   }
 
   if (config.primaryColor) {
-    document.documentElement.style.setProperty('--primary-hue', config.primaryColor);
+    const hsl = hexToHSL(config.primaryColor);
+    document.documentElement.style.setProperty('--primary-hue', hsl);
+    document.documentElement.style.setProperty('--primary', hsl);
   }
 }

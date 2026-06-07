@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useSelector } from 'react-redux';
-import { fmtQ, fmtPct } from '../utils';
+import { fmtQ } from '../utils';
 
 interface DashboardExportData {
   proyectos: any[];
@@ -16,16 +16,15 @@ interface DashboardExportData {
   };
 }
 
-export const exportDashboardToPDF = () => {
-  const { list: proyectos } = useSelector((state: any) => state.proyectos);
-  const { list: movimientos } = useSelector((state: any) => state.movimientos);
+export const buildDashboardExportData = (data: { proyectos: any[]; movimientos: any[] }): DashboardExportData => {
+  const { proyectos, movimientos } = data;
 
   const kpis = {
     totalProyectos: proyectos.length,
-    proyectosActivos: proyectos.filter(p => p.estado === 'ejecucion').length,
+    proyectosActivos: proyectos.filter((p) => p.estado === 'ejecucion').length,
     totalPresupuesto: proyectos.reduce((sum, p) => sum + (p.presupuestoTotal || 0), 0),
     totalGastado: movimientos
-      .filter(m => m.tipo === 'gasto')
+      .filter((m) => m.tipo === 'gasto')
       .reduce((sum, m) => sum + (m.monto || 0), 0),
     avancePromedioFisico: proyectos.length
       ? Math.round(proyectos.reduce((sum, p) => sum + (p.avanceFisico || 0), 0) / proyectos.length)
@@ -35,9 +34,25 @@ export const exportDashboardToPDF = () => {
       : 0,
   };
 
+  return { proyectos, movimientos, kpis };
+};
+
+export const useDashboardExportData = () => {
+  const { list: proyectos } = useSelector((state: any) => state.proyectos);
+  const { list: movimientos } = useSelector((state: any) => state.movimientos);
+
+  const build = () => buildDashboardExportData({ proyectos, movimientos });
+
+  return {
+    proyectos,
+    movimientos,
+    build,
+  };
+};
+
+export const exportDashboardToPDF = ({ proyectos, kpis }: { proyectos: any[]; kpis: DashboardExportData['kpis'] }) => {
   const doc = new jsPDF();
 
-  // Header
   doc.setFontSize(20);
   doc.setTextColor(40, 40, 40);
   doc.text('Reporte de Dashboard - CONSTRUSMART', 14, 22);
@@ -46,7 +61,6 @@ export const exportDashboardToPDF = () => {
   doc.setTextColor(100, 100, 100);
   doc.text(`Generado: ${new Date().toLocaleDateString('es-ES')}`, 14, 28);
 
-  // KPIs Table
   const kpiData = [
     ['Total Proyectos', kpis.totalProyectos.toString()],
     ['Proyectos Activos', kpis.proyectosActivos.toString()],
@@ -64,8 +78,7 @@ export const exportDashboardToPDF = () => {
     headStyles: { fillColor: [232, 117, 47] },
   });
 
-  // Proyectos Table
-  const proyectosData = proyectos.map(p => [
+  const proyectosData = proyectos.map((p: any) => [
     p.nombre,
     p.estado,
     fmtQ(p.presupuestoTotal || 0),
@@ -89,13 +102,12 @@ export const exportDashboardToPDF = () => {
     },
   });
 
-  // Save
   doc.save(`dashboard-constru-smart-${new Date().toISOString().slice(0, 10)}.pdf`);
 };
 
-// Hook for React components
 export const useDashboardExport = () => {
-  return { exportDashboardToPDF };
+  const { build } = useDashboardExportData();
+  return { exportDashboardToPDF: () => exportDashboardToPDF(build()) };
 };
 
 export default exportDashboardToPDF;

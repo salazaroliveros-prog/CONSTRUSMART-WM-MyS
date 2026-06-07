@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useErp } from '../store';
-import { supabase } from '@/lib/supabase';
 import { Hito } from '../types';
 import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter } from 'lucide-react';
 import { INPUT } from '../ui';
@@ -22,27 +21,13 @@ const HitosScreen: React.FC = () => {
     }
   }, [selectedProyectoId, form.proyectoId]);
 
-  const syncToSupabase = async (h: Hito[]) => {
-    if (!supabase) return;
-    try {
-      const { error } = await supabase.from('hitos').upsert(
-        h.map(hi => ({
-          id: hi.id, proyecto_id: hi.proyectoId, nombre: hi.nombre,
-          descripcion: hi.descripcion || null, fecha: hi.fecha,
-          tipo: hi.tipo, estado: hi.estado,
-          responsable: hi.responsable || null, depende_de: hi.dependeDe || null,
-          completado_en: hi.completadoEn || null, created_at: hi.createdAt,
-        })),
-        { onConflict: 'id' }
-      );
-      if (error) console.warn('[Hitos] Error sync Supabase:', error);
-      const hoy = todayISO();
-      const vencidos = h.filter(hi => hi.estado === 'pendiente' && hi.fecha < hoy);
-      if (vencidos.length > 0 && selectedProyectoId) {
-        const proy = proyectos.find(p => p.id === selectedProyectoId);
-        addNotificacion('general', 'Hitos vencidos', `${vencidos.length} hito(s) vencido(s) en ${proy?.nombre || 'el proyecto'}`, selectedProyectoId || undefined);
-      }
-    } catch (e) { console.warn('[Hitos] Error sync Supabase:', e); }
+  const notifyVencidos = (todosHitos: Hito[]) => {
+    const hoy = todayISO();
+    const vencidos = todosHitos.filter(hi => hi.estado === 'pendiente' && hi.fecha < hoy);
+    if (vencidos.length > 0 && selectedProyectoId) {
+      const proy = proyectos.find(p => p.id === selectedProyectoId);
+      addNotificacion('general', 'Hitos vencidos', `${vencidos.length} hito(s) vencido(s) en ${proy?.nombre || 'el proyecto'}`, selectedProyectoId || undefined);
+    }
   };
 
   const agregar = () => {
@@ -62,8 +47,8 @@ const HitosScreen: React.FC = () => {
       dependeDe: form.dependeDe.length > 0 ? form.dependeDe : undefined,
       createdAt: new Date().toISOString(),
     };
-    syncToSupabase([nuevo, ...hitos]);
     addHito(nuevo);
+    notifyVencidos([nuevo, ...hitos]);
     toast.success('Hito creado');
     setShowForm(false);
     setForm({ proyectoId: selectedProyectoId || '', nombre: '', descripcion: '', fecha: '', tipo: 'hito', responsable: '', dependeDe: [] });
@@ -86,8 +71,6 @@ const HitosScreen: React.FC = () => {
     const fechaHoy = todayISO();
     const retrasado = hito.fecha < fechaHoy;
     const nuevoEstado = retrasado ? 'retrasado' as const : 'completado' as const;
-    const nuevos = hitos.map(h => h.id === id ? { ...h, estado: nuevoEstado, completadoEn: fechaHoy } : h);
-    syncToSupabase(nuevos);
     updateHito(id, { estado: nuevoEstado, completadoEn: fechaHoy });
     if (hito.tipo === 'cierre') {
       updateProyecto(hito.proyectoId, { estado: 'finalizado' });
@@ -98,8 +81,6 @@ const HitosScreen: React.FC = () => {
 
   const eliminar = (id: string) => {
     if (!confirm('¿Eliminar este hito?')) return;
-    const nuevos = hitos.filter(h => h.id !== id);
-    syncToSupabase(nuevos);
     deleteHito(id);
   };
 

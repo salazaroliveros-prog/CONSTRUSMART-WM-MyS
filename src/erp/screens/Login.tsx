@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useErp, Rol } from '../store';
 import { EMPRESA } from '../utils';
-import { Building2, ArrowRight, ShieldCheck, Chrome } from 'lucide-react';
+import { Building2, ArrowRight, ShieldCheck, Chrome, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { INPUT, ERROR_STATE, BUTTON_SECONDARY } from '../ui';
 
 const loginSchema = z.object({
@@ -23,6 +23,8 @@ const Login: React.FC = () => {
   const { signIn, signUp, signInWithGoogle, authError } = useErp();
   const [mode, setMode] = React.useState<'in' | 'up'>('in');
   const [loading, setLoading] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
+  const emailRef = React.useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -32,6 +34,10 @@ const Login: React.FC = () => {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '', nombre: '', rol: 'Administrador' },
   });
+
+  React.useEffect(() => {
+    emailRef.current?.focus();
+  }, [mode]);
 
   const [registroError, setRegistroError] = React.useState<string | null>(null);
 
@@ -138,6 +144,7 @@ const Login: React.FC = () => {
             </>
           )}
           <input
+            ref={emailRef}
             type="email"
             autoComplete="email"
             {...register('email')}
@@ -145,13 +152,24 @@ const Login: React.FC = () => {
             className={`${INPUT} ${errors.email ? ERROR_STATE : ''}`}
           />
           {errors.email && <p className="text-xs text-destructive mb-2">{errors.email.message}</p>}
-          <input
-            type="password"
-            autoComplete="current-password"
-            {...register('password')}
-            placeholder={t('auth.contrasena')}
-            className={`${INPUT} ${errors.password ? ERROR_STATE : ''}`}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              {...register('password')}
+              placeholder={t('auth.contrasena')}
+              className={`${INPUT} pr-10 ${errors.password ? ERROR_STATE : ''}`}
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
           {errors.password && <p className="text-xs text-destructive mb-2">{errors.password.message}</p>}
 
           {authError && <p className="text-xs text-destructive mb-3">{authError}</p>}
@@ -162,7 +180,13 @@ const Login: React.FC = () => {
             disabled={loading}
             className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold py-3 sm:py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-60 active:scale-[0.98] transition-all"
           >
-            {loading ? t('common.cargando') : mode === 'in' ? t('auth.iniciar_sesion') : t('auth.registrarse')} <ArrowRight className="w-4 h-4" />
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <>
+                {mode === 'in' ? t('auth.iniciar_sesion') : t('auth.registrarse')} <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
           <button
             type="button"

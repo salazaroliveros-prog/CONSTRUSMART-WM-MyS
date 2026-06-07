@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { sanitizarObjeto, sanitizarTexto, getServerRole } from '@/lib/security';
-import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
+// useSupabaseRealtime import removed - hook was commented out and causing issues
 import { z } from 'zod';
 import { toast } from '@/components/ui/sonner';
 import {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
+  CuentaCobrar, CuentaPagar, Hito, Riesgo, PublicacionMuro, ComentarioMuro, PruebaLaboratorio, NoConformidad, LiberacionPartida,
+  Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo, PagoProveedor,
 } from './types';
 
 
@@ -14,138 +16,30 @@ const proyectoSchema = z.object({
   id: z.string(),
   nombre: z.string(),
   ubicacion: z.string(),
-  tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']),
-  // presupuesto_total → presupuestoTotal
+  tipologia: z.enum(['residencial','comercial','industrial','civil','publica']),
   presupuestoTotal: z.number().default(0),
-  // monto_contrato → montoContrato
-  montoContrato: z.number().optional().default(0),
-  cliente: z.string().optional().default(''),
-  // presupuesto_actual_id → presupuestoActualId
+  montoContrato: z.number().default(0),
+  cliente: z.string().default(''),
   presupuestoActualId: z.string().nullable().optional(),
-  // fecha_inicio / fecha_fin → fechaInicio / fechaFin
-  fechaInicio: z.string().nullable().optional().default(''),
-  fechaFin: z.string().nullable().optional().default(''),
-  // avance_fisico / avance_financiero
+  fechaInicio: z.string().default(''),
+  fechaFin: z.string().default(''),
   avanceFisico: z.number().default(0),
   avanceFinanciero: z.number().default(0),
-  estado: z.enum(['planeacion', 'ejecucion', 'pausado', 'finalizado']).default('planeacion'),
-  // lat / lng (no latitud/longitud en DB)
+  estado: z.enum(['planeacion','ejecucion','pausado','finalizado']).default('planeacion'),
   lat: z.number().nullable().optional(),
   lng: z.number().nullable().optional(),
-  // campos solo locales, no en DB
-  factorSobrecosto: z.object({
-    indirectos: z.number(),
-    administracion: z.number(),
-    imprevistos: z.number(),
-    utilidad: z.number(),
-  }).optional(),
-  presupuesto: z.number().nullable().optional(),
   latitud: z.number().nullable().optional(),
   longitud: z.number().nullable().optional(),
-}).transform(({ latitud, longitud, ...rest }) => ({
-  ...rest,
-  lat: rest.lat ?? latitud ?? undefined,
-  lng: rest.lng ?? longitud ?? undefined,
-  fechaInicio: rest.fechaInicio ?? '',
-  fechaFin: rest.fechaFin ?? '',
-  presupuestoActualId: rest.presupuestoActualId ?? undefined,
-}));
-
-// erp_movimientos: tipo solo 'ingreso'|'gasto' en DB, monto = costo_total
-const movimientoSchema = z.object({
-  id: z.string(),
-  // proyecto_id → proyectoId (nullable en DB)
-  proyectoId: z.string().nullable().optional().default(''),
-  tipo: z.enum(['ingreso', 'gasto', 'egreso']),
-  categoria: z.string().default('otros'),
-  descripcion: z.string().default(''),
-  cantidad: z.number().nullable().optional().default(1),
-  unidad: z.string().nullable().optional().default(''),
-  // costo_unitario → costoUnitario
-  costoUnitario: z.number().nullable().optional().default(0),
-  // costo_total → se mapea como monto para compatibilidad interna
-  costoTotal: z.number().nullable().optional().default(0),
-  // monto no existe en DB: se deriva de costoTotal
-  monto: z.number().optional().default(0),
-  fecha: z.string(),
-  proveedor: z.string().optional(),
-  factura: z.string().nullable().optional(),
+  factorSobrecosto: z.object({ indirectos: z.number(), administracion: z.number(), imprevistos: z.number(), utilidad: z.number() }).optional(),
+  presupuesto: z.number().nullable().optional(),
 }).transform(d => ({
   ...d,
-  proyectoId: d.proyectoId ?? '',
-  // monto = costoTotal si no viene explícito
-  monto: d.monto || d.costoTotal || 0,
-  categoria: (d.categoria as string) || 'otros',
+  lat: d.lat ?? d.latitud ?? undefined,
+  lng: d.lng ?? d.longitud ?? undefined,
+  fechaInicio: d.fechaInicio ?? '',
+  fechaFin: d.fechaFin ?? '',
+  presupuestoActualId: d.presupuestoActualId ?? undefined,
 }));
-
-// erp_empleados: proyecto_id single (no array), sin activo en DB
-const empleadoSchema = z.object({
-  id: z.string(),
-  nombre: z.string(),
-  puesto: z.string().default(''),
-  // salario_diario → salarioDiario
-  salarioDiario: z.number().default(0),
-  tipo: z.enum(['planilla', 'destajo']).default('planilla'),
-  // activo no existe en DB — default true
-  activo: z.boolean().optional().default(true),
-  // proyecto_id → proyectoIds (adaptamos single → array)
-  proyectoId: z.string().nullable().optional(),
-  proyectoIds: z.array(z.string()).optional().default([]),
-  telefono: z.string().nullable().optional(),
-  // dias_trabajados → diasTrabajados
-  diasTrabajados: z.number().nullable().optional().default(0),
-}).transform(d => ({
-  ...d,
-  activo: d.activo ?? true,
-  // DB tiene proyecto_id single; lo convertimos a array para el frontend
-  proyectoIds: d.proyectoIds?.length ? d.proyectoIds : (d.proyectoId ? [d.proyectoId] : []),
-  diasTrabajados: d.diasTrabajados ?? 0,
-}));
-
-// erp_materiales: sin categoria ni proyectoIds en DB
-const materialSchema = z.object({
-  id: z.string(),
-  nombre: z.string(),
-  unidad: z.string().default(''),
-  stock: z.number().default(0),
-  // stock_minimo → stockMinimo
-  stockMinimo: z.number().default(0),
-  precio: z.number().default(0),
-  critico: z.boolean().nullable().optional().default(false),
-  // categoria y proyectoIds no existen en DB — defaults
-  categoria: z.string().optional().default('general'),
-  proyectoIds: z.array(z.string()).optional().default([]),
-}).transform(d => ({
-  ...d,
-  critico: d.critico ?? false,
-  categoria: d.categoria ?? 'general',
-  proyectoIds: d.proyectoIds ?? [],
-}));
-
-// erp_ordenes_compra: estados DB = borrador|pendiente|aprobado|rechazado
-const ordenCompraSchema = z.object({
-  id: z.string(),
-  // proyecto_id → proyectoId
-  proyectoId: z.string().nullable().optional(),
-  proveedor: z.string().default(''),
-  material: z.string().default(''),
-  cantidad: z.number().default(0),
-  monto: z.number().default(0),
-  fecha: z.string(),
-  // estados reales en DB (recibida/cancelada no existen — mapeamos)
-  estado: z.string().default('pendiente').transform(e => {
-    if (e === 'recibida') return 'aprobado' as const;
-    if (e === 'cancelada') return 'cancelada' as const;
-    return e as 'pendiente' | 'aprobado' | 'recibida' | 'cancelada';
-  }),
-  proveedorId: z.string().nullable().optional(),
-  total: z.number().optional(),
-  items: z.array(z.object({
-    materialId: z.string(),
-    cantidad: z.number(),
-    precioUnitario: z.number(),
-  })).optional(),
-});
 
 // erp_proveedores: sin telefono, email, categoria en DB
 const proveedorSchema = z.object({
@@ -227,23 +121,255 @@ const presupuestoSchema = z.object({
   id: z.string(),
   proyectoId: z.string(),
   tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']),
-  // renglones es JSONB en DB — aceptar cualquier array
   renglones: z.array(z.record(z.unknown())).default([]),
-  // DB solo tiene borrador|aprobado|rechazado (no 'revisado')
-  estado: z.string().default('borrador').transform(e =>
-    (['borrador','aprobado','revisado','rechazado'].includes(e) ? e : 'borrador') as
-    'borrador' | 'aprobado' | 'revisado' | 'rechazado'
-  ),
-  // total_calculado → totalCalculado
+  estado: z.enum(['borrador','aprobado','revisado','rechazado']).default('borrador'),
   totalCalculado: z.number().default(0),
-  // costo_directo_total → costoDirectoTotal
   costoDirectoTotal: z.number().default(0),
-  // fecha_creacion / fecha_actualizacion
   fechaCreacion: z.string().default(new Date().toISOString()),
   fechaActualizacion: z.string().default(new Date().toISOString()),
-  // version_presupuesto → versionPresupuesto
   versionPresupuesto: z.number().optional().default(1),
   notas: z.string().nullable().optional(),
+});
+
+const ordenSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string().nullable().optional(),
+  proveedor: z.string().default(''),
+  material: z.string().default(''),
+  cantidad: z.number().default(0),
+  monto: z.number().default(0),
+  fecha: z.string(),
+  estado: z.enum(['borrador', 'pendiente', 'aprobado', 'rechazada']).default('pendiente'),
+  proveedorId: z.string().nullable().optional(),
+  total: z.number().optional(),
+  items: z.array(z.object({
+    materialId: z.string(),
+    cantidad: z.number(),
+    precioUnitario: z.number(),
+  })).optional(),
+});
+
+const eventoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string().nullable().optional().default(''),
+  titulo: z.string().default(''),
+  fecha: z.string(),
+  hora: z.string().nullable().optional().default(''),
+  tipo: z.string().nullable().optional().default('otros'),
+  descripcion: z.string().nullable().optional(),
+  completado: z.boolean().nullable().optional(),
+});
+
+const bitacoraSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  fecha: z.string(),
+  clima: z.string().nullable().optional().default('soleado'),
+  personal: z.number().nullable().optional().default(0),
+  personalPresente: z.number().optional().default(0),
+  maquinaria: z.string().nullable().optional().default(''),
+  tareas: z.string().nullable().optional().default(''),
+  tareasRealizadas: z.string().optional().default(''),
+  observaciones: z.string().nullable().optional().default(''),
+  fotos: z.array(z.string()).optional().default([]),
+  firma: z.string().nullable().optional(),
+  latitud: z.number().nullable().optional(),
+  longitud: z.number().nullable().optional(),
+});
+
+const cuentaCobrarSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  cliente: z.string().default(''),
+  concepto: z.string().default(''),
+  monto: z.number().default(0),
+  saldoPendiente: z.number().default(0),
+  fechaEmision: z.string().default(new Date().toISOString().split('T')[0]),
+  fechaVencimiento: z.string(),
+  fechaCobro: z.string().nullable().optional(),
+  estado: z.enum(['pendiente','pagada','vencida','cancelada']).default('pendiente'),
+  notas: z.string().nullable().optional(),
+});
+
+const cuentaPagarSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  proveedor: z.string().default(''),
+  concepto: z.string().default(''),
+  monto: z.number().default(0),
+  saldoPendiente: z.number().default(0),
+  fechaEmision: z.string().default(new Date().toISOString().split('T')[0]),
+  fechaVencimiento: z.string(),
+  fechaPago: z.string().nullable().optional(),
+  estado: z.enum(['pendiente','pagada','vencida','cancelada']).default('pendiente'),
+  facturaUrl: z.string().nullable().optional(),
+});
+
+const ordenCambioSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  titulo: z.string().default(''),
+  descripcion: z.string().default(''),
+  impactoCosto: z.number().default(0),
+  impactoPlazo: z.number().default(0),
+  estado: z.enum(['solicitada','aprobada','rechazada','implementada']).default('solicitada'),
+  solicitante: z.string().default(''),
+  solicitanteRol: z.string().default(''),
+  aprobador: z.string().nullable().optional(),
+  fechaAprobacion: z.string().nullable().optional(),
+});
+
+const hitoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  nombre: z.string().default(''),
+  descripcion: z.string().default(''),
+  fecha: z.string(),
+  tipo: z.enum(['hito','entregable','pago','administrativo','legal']).default('hito'),
+  estado: z.enum(['pendiente','en_progreso','completado','cancelado']).default('pendiente'),
+  responsable: z.string().default(''),
+  dependsOn: z.string().default(''),
+  completadoEn: z.string().nullable().optional(),
+});
+
+const riesgoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  nombre: z.string().default(''),
+  descripcion: z.string().default(''),
+  tipo: z.enum(['tecnico','financiero','legal','ambiental','social','seguridad']).default('tecnico'),
+  probabilidad: z.number().min(1).max(5).default(1),
+  impacto: z.number().min(1).max(5).default(1),
+  planMitigacion: z.string().default(''),
+  planContingencia: z.string().default(''),
+  responsable: z.string().default(''),
+  fechaIdentificacion: z.string().default(new Date().toISOString().split('T')[0]),
+  estado: z.enum(['identificado','mitigado','contingencia','cerrado']).default('identificado'),
+  costoSoporte: z.number().optional().default(0),
+});
+
+const liberacionSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  renglonId: z.string().nullable().optional(),
+  renglonNombre: z.string().default(''),
+  fechaSolicitud: z.string().default(new Date().toISOString().split('T')[0]),
+  fechaLiberacion: z.string().nullable().optional(),
+  solicitante: z.string().default(''),
+  supervisor: z.string().default(''),
+  checklistAprobado: z.boolean().nullable().optional(),
+  observaciones: z.string().default(''),
+  estado: z.enum(['pendiente','aprobado','rechazado']).default('pendiente'),
+});
+
+const pruebaSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  tipo: z.string().default(''),
+  descripcion: z.string().default(''),
+  fechaMuestra: z.string().default(new Date().toISOString().split('T')[0]),
+  fechaResultado: z.string().nullable().optional(),
+  resultado: z.enum(['pendiente','aprobado','rechazado','condicional']).default('pendiente'),
+  responsable: z.string().default(''),
+  observaciones: z.string().nullable().optional(),
+});
+
+const noConformidadSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  codigo: z.string().default(''),
+  descripcion: z.string().default(''),
+  categoria: z.enum(['calidad','seguridad','ambiental','documental','otro']).default('otro'),
+  fechaDeteccion: z.string().default(new Date().toISOString().split('T')[0]),
+  detectadoPor: z.string().default(''),
+  planAccion: z.string().default(''),
+  responsableCierre: z.string().default(''),
+  fechaCierre: z.string().nullable().optional(),
+  estado: z.enum(['abierta','en_proceso','cerrada']).default('abierta'),
+});
+
+export const activoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  nombre: z.string().default(''),
+  codigoInventario: z.string().default(''),
+  tipo: z.enum(['herramienta','equipo','vehiculo','accesorio']).default('herramienta'),
+  estado: z.enum(['disponible','asignado','mantenimiento','dado_baja']).default('disponible'),
+  valorAdquisicion: z.number().default(0),
+  fechaAdquisicion: z.string().default(new Date().toISOString().split('T')[0]),
+  proveedorId: z.string().nullable().optional(),
+  proveedorNombre: z.string().default(''),
+  asignadoA: z.string().default(''),
+  observaciones: z.string().default(''),
+});
+
+export const cuadroSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  solicitud: z.string().default(''),
+  proveedorNombre: z.string().default(''),
+  concepto: z.string().default(''),
+  monto: z.number().default(0),
+  fechaVencimiento: z.string().default(new Date().toISOString().split('T')[0]),
+  estado: z.enum(['pendiente','adjudicado','cerrado']).default('pendiente'),
+  cotizaciones: z.array(z.object({
+    id: z.string(),
+    proveedorNombre: z.string(),
+    montoTotal: z.number(),
+    plazoEntrega: z.number().optional(),
+    seleccionada: z.boolean().default(false),
+  })).default([]),
+});
+
+export const pagoProveedorSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  proveedorId: z.string().default(''),
+  proveedorNombre: z.string().default(''),
+  monto: z.number().default(0),
+  concepto: z.string().default(''),
+  fechaEmision: z.string().default(new Date().toISOString().split('T')[0]),
+  fechaVencimiento: z.string().default(new Date().toISOString().split('T')[0]),
+  fechaPago: z.string().nullable().optional(),
+  estado: z.enum(['pendiente','pagado','vencido','cancelado']).default('pendiente'),
+  facturaUrl: z.string().nullable().optional(),
+});
+
+export const planoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  nombre: z.string().default(''),
+  disciplina: z.enum(['arquitectura','estructura','instalaciones','electricas','sanitarias','mecanicas','otra']).default('arquitectura'),
+  version: z.string().default('1.0'),
+  estado: z.enum(['borrador','vigente','obsoleto']).default('borrador'),
+  archivoUrl: z.string().default(''),
+  subidoPor: z.string().default(''),
+  fechaSubida: z.string().default(new Date().toISOString().split('T')[0]),
+  revision: z.number().default(0),
+});
+
+export const rfiSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  titulo: z.string().default(''),
+  descripcion: z.string().default(''),
+  estado: z.enum(['pendiente','respondida','cerrada']).default('pendiente'),
+  respuesta: z.string().default(''),
+  fechaRespuesta: z.string().nullable().optional(),
+  respuestaPor: z.string().default(''),
+  origen: z.string().default(''),
+});
+
+export const submittalSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  titulo: z.string().default(''),
+  categoria: z.enum(['material','equipo','especificacion','otro']).default('otro'),
+  proveedor: z.string().default(''),
+  descripcion: z.string().default(''),
+  estado: z.enum(['pendiente','aprobado','rechazado','con_comentarios']).default('pendiente'),
+  fechaLimite: z.string().default(new Date().toISOString().split('T')[0]),
+  archivoUrl: z.string().default(''),
 });
 
 import { safeLogger } from '@/lib/safeLogger';
@@ -262,9 +388,12 @@ function loadFromStorage<T>(key: string, initial: T): T {
 
 const STORAGE_MAX_BYTES = 4.5 * 1024 * 1024; // 4.5MB límite seguro (localStorage permite ~5MB)
 const STORAGE_WARN_THRESHOLD = 3 * 1024 * 1024; // 3MB advertencia
+const BASE_STORAGE_KEY = 'wm_erp_data';
+const QUEUE_KEY = 'wm_erp_queue';
+const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
 
 /**
- * Estima el tamaño en bytes de una cadena JSON
+ * Mapea un rol de base de datos a un rol válido del sistema
  */
 /**
  * Verifica el espacio en localStorage y emite advertencias
@@ -363,6 +492,17 @@ const mapFromSnakeCase = <T extends z.ZodType<any, any, any>>(schema: T, obj: Re
   }
 };
 
+const toSnake = (obj: Record<string, any>): Record<string, any> => {
+  const result: Record<string, any> = {};
+  for (const key in obj) {
+    const snakeKey = key.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+    result[snakeKey] = obj[key];
+  }
+  return result;
+};
+
+const snakeKeys = (obj: Record<string, any>): Record<string, any> => toSnake(obj);
+
 export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar';
 
  
@@ -419,7 +559,24 @@ interface Mutation {
   'addSeguimiento' | 'updateSeguimiento' | 'deleteSeguimiento' |
   'addRenglon' | 'updateRenglon' | 'deleteRenglon' |
   'addInsumo' | 'updateInsumo' | 'deleteInsumo' |
-  'addSubRenglon' | 'updateSubRenglon' | 'deleteSubRenglon';
+  'addSubRenglon' | 'updateSubRenglon' | 'deleteSubRenglon' |
+  'addCuentaCobrar' | 'updateCuentaCobrar' | 'deleteCuentaCobrar' |
+  'addCuentaPagar' | 'updateCuentaPagar' | 'deleteCuentaPagar' |
+  'addOrdenCambio' | 'updateOrdenCambio' | 'deleteOrdenCambio' |
+  'addHito' | 'updateHito' | 'deleteHito' |
+  'addRiesgo' | 'updateRiesgo' | 'deleteRiesgo' |
+  'addActivo' | 'updateActivo' | 'deleteActivo' |
+  'addCuadro' | 'updateCuadro' |
+  'addPagoProveedor' | 'updatePagoProveedor' |
+  'addPlano' | 'updatePlano' | 'deletePlano' |
+  'addRfi' | 'updateRfi' | 'deleteRfi' |
+  'addSubmittal' | 'updateSubmittal' | 'deleteSubmittal' |
+  'addIncidente' | 'updateIncidente' | 'deleteIncidente' |
+  'addPrueba' | 'updatePrueba' | 'deletePrueba' |
+  'addNC' | 'updateNC' | 'deleteNC' |
+  'addLiberacion' | 'updateLiberacion' | 'deleteLiberacion' |
+  'addPublicacionMuro' | 'addComentarioMuro' | 'likePublicacionMuro' |
+  'addNotificacion' | 'markNotificacionLeida';
   payload: Record<string, unknown>;
   timestamp: number;
   retryCount: number;
@@ -492,9 +649,61 @@ interface ErpState {
   valesSalida: ValeSalida[];
   addValeSalida: (v: Omit<ValeSalida, 'id'>) => Promise<void>;
   deleteValeSalida: (id: string) => Promise<void>;
+  cuentasCobrar: CuentaCobrar[];
+  addCuentaCobrar: (c: Omit<CuentaCobrar, 'id'>) => Promise<void>;
+  updateCuentaCobrar: (id: string, patch: Partial<CuentaCobrar>) => Promise<void>;
+  deleteCuentaCobrar: (id: string) => Promise<void>;
+  cuentasPagar: CuentaPagar[];
+  addCuentaPagar: (c: Omit<CuentaPagar, 'id'>) => Promise<void>;
+  updateCuentaPagar: (id: string, patch: Partial<CuentaPagar>) => Promise<void>;
+  deleteCuentaPagar: (id: string) => Promise<void>;
+  ordenesCambio: OrdenCambio[];
+  addOrdenCambio: (o: Omit<OrdenCambio, 'id'>) => Promise<void>;
+  updateOrdenCambio: (id: string, patch: Partial<OrdenCambio>) => Promise<void>;
+  deleteOrdenCambio: (id: string) => Promise<void>;
+  hitos: Hito[];
+  addHito: (h: Omit<Hito, 'id'>) => Promise<void>;
+  updateHito: (id: string, patch: Partial<Hito>) => Promise<void>;
+  deleteHito: (id: string) => Promise<void>;
+  riesgos: Riesgo[];
+  addRiesgo: (r: Omit<Riesgo, 'id'>) => Promise<void>;
+  updateRiesgo: (id: string, patch: Partial<Riesgo>) => Promise<void>;
+  deleteRiesgo: (id: string) => Promise<void>;
+  planos: Plano[];
+  addPlano: (p: Omit<Plano, 'id'>) => Promise<void>;
+  updatePlano: (id: string, patch: Partial<Plano>) => Promise<void>;
+  rfis: RFI[];
+  addRfi: (r: Omit<RFI, 'id'>) => Promise<void>;
+  updateRfi: (id: string, patch: Partial<RFI>) => Promise<void>;
+  submittals: Submittal[];
+  addSubmittal: (s: Omit<Submittal, 'id'>) => Promise<void>;
+  updateSubmittal: (id: string, patch: Partial<Submittal>) => Promise<void>;
+  activos: ActivoHerramienta[];
+  addActivo: (a: Omit<ActivoHerramienta, 'id'>) => Promise<void>;
+  updateActivo: (id: string, patch: Partial<ActivoHerramienta>) => Promise<void>;
+  deleteActivo: (id: string) => Promise<void>;
+  cuadros: CuadroComparativo[];
+  addCuadro: (c: Omit<CuadroComparativo, 'id'>) => Promise<void>;
+  updateCuadro: (id: string, patch: Partial<CuadroComparativo>) => Promise<void>;
+  pagosProveedor: PagoProveedor[];
+  addPagoProveedor: (p: Omit<PagoProveedor, 'id'>) => Promise<void>;
+  updatePagoProveedor: (id: string, patch: Partial<PagoProveedor>) => Promise<void>;
   incidentes: any[];
   addIncidente: (i: any) => Promise<void>;
   updateIncidente: (id: string, patch: any) => Promise<void>;
+  publicacionesMuro: PublicacionMuro[];
+  addPublicacionMuro: (p: Omit<PublicacionMuro, 'id'>) => Promise<void>;
+  addComentarioMuro: (pubId: string, c: Omit<ComentarioMuro, 'id'>) => Promise<void>;
+  likePublicacionMuro: (pubId: string) => Promise<void>;
+  pruebas: PruebaLaboratorio[];
+  addPrueba: (p: Omit<PruebaLaboratorio, 'id'>) => Promise<void>;
+  updatePrueba: (id: string, patch: Partial<PruebaLaboratorio>) => Promise<void>;
+  ncs: NoConformidad[];
+  addNC: (n: Omit<NoConformidad, 'id'>) => Promise<void>;
+  updateNC: (id: string, patch: Partial<NoConformidad>) => Promise<void>;
+  liberaciones: LiberacionPartida[];
+  addLiberacion: (l: Omit<LiberacionPartida, 'id'>) => Promise<void>;
+  updateLiberacion: (id: string, patch: Partial<LiberacionPartida>) => Promise<void>;
   mutationQueue: Mutation[];
   syncMessage: string;
   forceSync: () => Promise<void>;
@@ -530,13 +739,7 @@ export const uid = (): string => {
   });
 };
 
-const BASE_STORAGE_KEY = 'wm_erp_data';
-const QUEUE_KEY = 'wm_erp_queue';
-const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
 
-/**
- * Mapea un rol de base de datos a un rol válido del sistema
- */
 // Configurable: correo del administrador principal (cambiar en producción)
 const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
 
@@ -570,14 +773,22 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_vales_salida', []));
   const [seguimientoEVM, setSeguimientoEVM] = useState<SeguimientoEVM[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_seguimiento_evm', []));
   const [notifiedEventos, setNotifiedEventos] = useState<string[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_notified_eventos', []));
-  const [hitos, setHitos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_hitos', []));
-  const [riesgos, setRiesgos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_riesgos', []));
+  const [cuentasCobrar, setCuentasCobrar] = useState<CuentaCobrar[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_cuentas_cobrar', []));
+  const [cuentasPagar, setCuentasPagar] = useState<CuentaPagar[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_cuentas_pagar', []));
+  const [ordenesCambio, setOrdenesCambio] = useState<OrdenCambio[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_ordenes_cambio', []));
+  const [hitos, setHitos] = useState<Hito[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_hitos', []));
+  const [riesgos, setRiesgos] = useState<Riesgo[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_riesgos', []));
   const [incidentes, setIncidentes] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_incidentes', []));
-  const [pruebas, _setPruebas] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_pruebas', []));
-  const [noConformidades, _setNoConformidades] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_no_conformidades', []));
-  const [liberaciones, _setLiberaciones] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_liberaciones', []));
-  const [planos, _setPlanos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_planos', []));
-  const [rfis, _setRfis] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_rfis', []));
+  const [publicacionesMuro, setPublicacionesMuro] = useState<PublicacionMuro[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_publicaciones_muro', []));
+  const [pruebas, setPruebas] = useState<PruebaLaboratorio[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_pruebas', []));
+  const [ncs, setNcs] = useState<NoConformidad[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_no_conformidades', []));
+  const [liberaciones, setLiberaciones] = useState<LiberacionPartida[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_liberaciones', []));
+  const [planos, setPlanos] = useState<Plano[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_planos', []));
+  const [rfis, setRfis] = useState<RFI[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_rfis', []));
+  const [submittals, setSubmittals] = useState<Submittal[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_submittals', []));
+  const [activos, setActivos] = useState<ActivoHerramienta[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_activos', []));
+  const [cuadros, setCuadros] = useState<CuadroComparativo[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_cuadros', []));
+  const [pagosProveedor, setPagosProveedor] = useState<PagoProveedor[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_pagos_proveedor', []));
   const [subcontratos, _setSubcontratos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_subcontratos', []));
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
@@ -589,11 +800,25 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Flag para evitar toasts al cargar notificaciones existentes en el render inicial
   const readyRef = useRef(false);
 
+  const enqueueMutation = useCallback((type: Mutation['type'], payload: Record<string, any>) => {
+    const safePayload = sanitizarObjeto(payload);
+    const mutation: Mutation = { id: uid(), type, payload: safePayload, timestamp: Date.now(), retryCount: 0 };
+    setMutationQueue(q => {
+      const trimmed = q.length >= 100 ? q.slice(1) : q;
+      if (trimmed.length >= 90) {
+        console.warn(`[Sync] Cola de sincronización al ${Math.round(trimmed.length / 100 * 100)}% de capacidad`);
+      }
+      return [...trimmed, mutation];
+    });
+    if (!isOnline) {
+      console.info(`[Sync] Mutación encolada sin conexión: ${type} (${mutation.id})`);
+    }
+    return mutation.id;
+  }, [isOnline]);
+
   const addNotificacion = useCallback(async (tipo: Notificacion['tipo'], titulo: string, mensaje: string, proyectoId?: string, referenciaId?: string, showToast = true) => {
-    // Sanitizar títulos y mensajes contra XSS
     const safeTitulo = sanitizarTexto(titulo);
     const safeMensaje = sanitizarTexto(mensaje);
-    // Validar que no haya inyección
     if (safeTitulo !== titulo || safeMensaje !== mensaje) {
       console.warn('[Security] Intento de XSS bloqueado en notificación');
     }
@@ -608,94 +833,91 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       createdAt: new Date().toISOString(),
     };
     setNotificaciones(prev => [nueva, ...prev]);
-    // Solo mostrar notificaciones en pantalla si NO es carga inicial
+    enqueueMutation('addNotificacion', nueva);
     if (!showToast) return;
     if (!readyRef.current) return;
-    // Browser notification (native)
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-      // Configurable: ruta del logo de la empresa (icono para notificaciones nativas)
       new Notification(titulo, {
         body: mensaje,
         icon: '/logo.png',
       });
     }
-    // In-app toast (solo una vez, no se repite)
     toast(titulo, { description: mensaje, duration: 4000 });
-  }, []);
-
-  // Marcar ready después del primer render
-  useEffect(() => {
-    readyRef.current = true;
-  }, []);
+  }, [enqueueMutation]);
 
   const markNotificacionLeida = useCallback((id: string) => {
     setNotificaciones(prev => prev.map(n => n.id === id ? { ...n, leido: true } : n));
-  }, []);
+    enqueueMutation('markNotificacionLeida', { id, leido: true });
+  }, [enqueueMutation]);
 
   const marcarTodasLeidas = useCallback(() => {
     setNotificaciones(prev => prev.map(n => ({ ...n, leido: true })));
+    notificaciones.filter(n => !n.leido).forEach(n => {
+      enqueueMutation('markNotificacionLeida', { id: n.id, leido: true });
+    });
+  }, [enqueueMutation, notificaciones]);
+
+  const setSnakeCaseStates = useCallback((data: Record<string, any[]>) => {
+    if (data.proyectos?.length) setProyectos(data.proyectos);
+    if (data.movimientos?.length) setMovimientos(data.movimientos);
+    if (data.empleados?.length) setEmpleados(data.empleados);
+    if (data.materiales?.length) setMateriales(data.materiales);
+    if (data.ordenes?.length) setOrdenes(data.ordenes);
+    if (data.proveedores?.length) setProveedores(data.proveedores);
+    if (data.eventos?.length) setEventos(data.eventos);
+    if (data.bitacora?.length) setBitacora(data.bitacora);
+    if (data.presupuestos?.length) setPresupuestos(data.presupuestos);
+    if (data.cuentas_cobrar?.length) setCuentasCobrar(data.cuentas_cobrar);
+    if (data.cuentas_pagar?.length) setCuentasPagar(data.cuentas_pagar);
+    if (data.ordenes_cambio?.length) setOrdenesCambio(data.ordenes_cambio);
+    if (data.hitos?.length) setHitos(data.hitos);
+    if (data.riesgos?.length) setRiesgos(data.riesgos);
+    if (data.incidentes?.length) setIncidentes(data.incidentes);
+    if (data.publicaciones_muro?.length) setPublicacionesMuro(data.publicaciones_muro);
+    if (data.pruebas?.length) setPruebas(data.pruebas);
+    if (data.no_conformidades?.length) setNcs(data.no_conformidades);
+    if (data.liberaciones?.length) setLiberaciones(data.liberaciones);
+    if (data.planos?.length) setPlanos(data.planos);
+    if (data.rfis?.length) setRfis(data.rfis);
+    if (data.submittals?.length) setSubmittals(data.submittals);
+    if (data.activos?.length) setActivos(data.activos);
+    if (data.cuadros?.length) setCuadros(data.cuadros);
+    if (data.pagos_proveedor?.length) setPagosProveedor(data.pagos_proveedor);
   }, []);
 
-  const materialesRef = useRef(materiales);
-  materialesRef.current = materiales;
-
-  const verificarStockCritico = useCallback(() => {
-    const mats = materialesRef.current;
-    const currentNotifs = loadFromStorage<Notificacion[]>(NOTIF_KEY, []);
-    const pending = currentNotifs.filter(n => !n.leido && n.tipo === 'stock_critico').map(n => n.referenciaId);
-    mats.forEach(mat => {
-      if (mat.stock <= mat.stockMinimo && mat.stock >= 0 && !pending.includes(mat.id)) {
-        addNotificacion('stock_critico', `Stock crítico: ${mat.nombre}`, `Stock actual: ${mat.stock} ${mat.unidad} (mínimo: ${mat.stockMinimo})`, undefined, undefined, true);
+  const safeFrom = async (table: string, queryModifier?: (q: any) => any) => {
+    try {
+      let q = supabase.from(table).select('*');
+      if (queryModifier) q = queryModifier(q);
+      const { data, error } = await q;
+      if (error) {
+        console.error(`[Sync] Fallo cargando ${table}:`, error);
+        return [];
       }
-    });
-  }, [addNotificacion]); // ← SIN materiales en deps: usa ref
-
-  const verificarOrdenesCambioPendientes = useCallback(() => {
-    const ordenesCambio = loadFromStorage<OrdenCambio[]>(BASE_STORAGE_KEY + '_ordenes_cambio', []);
-    const currentNotifs = loadFromStorage<Notificacion[]>(NOTIF_KEY, []);
-    const pending = currentNotifs.filter(n => !n.leido && n.tipo === 'orden_cambio_pendiente').map(n => n.referenciaId);
-    ordenesCambio.forEach(oc => {
-      if ((oc.estado === 'solicitud' || oc.estado === 'revision') && !pending.includes(oc.id)) {
-        addNotificacion('orden_cambio_pendiente', `OC pendiente: ${oc.titulo}`, `Estado: ${oc.estado} · Costo: Q${oc.impactoCosto.toFixed(2)} · Solicitante: ${oc.solicitante}`, oc.proyectoId, oc.id, true);
-      }
-    });
-  }, [addNotificacion]);
-
-  const verificarChecklistRechazado = useCallback((proyectoId: string) => {
-    addNotificacion('checklist_rechazado', 'Checklist de calidad rechazado', 'Un checklist ha sido rechazado. Se requiere evidencia fotográfica y nueva revisión.', proyectoId);
-  }, [addNotificacion]);
-
-  const notifyAvanceRegistrado = useCallback((proyectoId: string, renglonNombre: string, avance: number) => {
-    addNotificacion('avance_registrado', `Avance registrado: ${renglonNombre}`, `Se registró ${avance}% de avance físico en ${renglonNombre}`, proyectoId);
-  }, [addNotificacion]);
-
-  const notifyDesviacionRendimiento = useCallback((actividad: string, eficiencia: number, proyectoId: string) => {
-    addNotificacion('desviacion_rendimiento', `Rendimiento bajo: ${actividad}`, `Eficiencia: ${eficiencia.toFixed(0)}% (umbral: 80%)`, proyectoId);
-  }, [addNotificacion]);
+      return data ?? [];
+    } catch (err) {
+      console.error(`[Sync] Exception cargando ${table}:`, err);
+      return [];
+    }
+  };
 
   const fetchInitialData = useCallback(async () => {
-    // Fetch individual para que un error en una tabla no bloquee las demás
-    const safeFrom = async (table: string, query?: (q: ReturnType<typeof supabase.from>) => any) => {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
-      try {
-        const q = supabase.from(table);
-        const res = await (query ? query(q) : q.select('*'));
-        const { data, error } = res as { data: any; error: any };
-        if (error) {
-          console.warn(`[Supabase] ${table}:`, error.message);
-          return null;
-        }
-        if (!Array.isArray(data)) return data;
-        clearTimeout(timeout);
-        return data.map((row: any) => sanitizarObjeto(row));
-      } catch (err) {
-        console.warn(`[Supabase] ${table} fetch failed:`, err);
-        return null;
-      }
+    const simpleMap = (schema: z.ZodType<any, any, any>, data: any[]) => {
+      if (!Array.isArray(data) || data.length === 0) return [];
+      return data
+        .map((obj: any) => {
+          try {
+            return schema.parse(obj);
+          } catch {
+            return null;
+          }
+        })
+        .filter(Boolean);
     };
 
-    const [p, m, e, mat, o, prov, evt, bit, presup, _seg] = await Promise.all([
+    const currentUser = user;
+    if (!currentUser) return;
+    const [p, m, e, mat, o, prov, evt, bit, presup, _seg, cc, cp, oc, hit, rie, lib, pub, notif, inc, prue, nc, act, cua, pp, pl, rf, sub] = await Promise.all([
       safeFrom('erp_proyectos'),
       safeFrom('erp_movimientos', q => q.select('*').order('fecha', { ascending: false })),
       safeFrom('erp_empleados'),
@@ -706,45 +928,54 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       safeFrom('erp_bitacora', q => q.select('*').order('fecha', { ascending: false })),
       safeFrom('erp_presupuestos'),
       safeFrom('erp_seguimiento', q => q.select('*').order('fecha', { ascending: false })),
+      safeFrom('erp_cuentas_cobrar', q => q.select('*').order('fecha_vencimiento', { ascending: true })),
+      safeFrom('erp_cuentas_pagar', q => q.select('*').order('fecha_vencimiento', { ascending: true })),
+      safeFrom('erp_ordenes_cambio', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_hitos', q => q.select('*').order('fecha', { ascending: true })),
+      safeFrom('erp_riesgos', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_liberaciones_partida', q => q.select('*').order('fecha_solicitud', { ascending: false })),
+      safeFrom('erp_muro', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_notificaciones', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_activos', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_cuadros', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_pagos_proveedor', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_planos', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_rfis', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_submittals', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_incidentes', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_pruebas_laboratorio', q => q.select('*').order('created_at', { ascending: false })),
+      safeFrom('erp_no_conformidades', q => q.select('*').order('created_at', { ascending: false })),
     ]);
 
-    // Nota: as Proyecto[] — asume que ZodSchema y la interfaz están alineados
-    if (p?.length) setProyectos(p.map(obj => mapFromSnakeCase(proyectoSchema, obj)).filter(Boolean) as Proyecto[]);
-    // Nota: as Movimiento[] — asume que ZodSchema y la interfaz están alineados
-    if (m?.length) setMovimientos(m.map(obj => mapFromSnakeCase(movimientoSchema, obj)).filter(Boolean) as Movimiento[]);
-    // Nota: as Empleado[] — asume que ZodSchema y la interfaz están alineados
-    if (e?.length) setEmpleados(e.map(obj => mapFromSnakeCase(empleadoSchema, obj)).filter(Boolean) as Empleado[]);
-    // Nota: as Material[] — asume que ZodSchema y la interfaz están alineados
-    if (mat?.length) setMateriales(mat.map(obj => mapFromSnakeCase(materialSchema, obj)).filter(Boolean) as Material[]);
-    // Nota: as OrdenCompra[] — asume que ZodSchema y la interfaz están alineados
-    if (o?.length) setOrdenes(o.map(obj => mapFromSnakeCase(ordenCompraSchema, obj)).filter(Boolean) as OrdenCompra[]);
-    // Nota: as Proveedor[] — asume que ZodSchema y la interfaz están alineados
-    if (prov?.length) setProveedores(prov.map(obj => mapFromSnakeCase(proveedorSchema, obj)).filter(Boolean) as Proveedor[]);
-    // Nota: as EventoCalendario[] — asume que ZodSchema y la interfaz están alineados
-    if (evt?.length) setEventos(evt.map(obj => mapFromSnakeCase(eventoCalendarioSchema, obj)).filter(Boolean) as EventoCalendario[]);
-    // Nota: as BitacoraEntry[] — asume que ZodSchema y la interfaz están alineados
-    if (bit?.length) setBitacora(bit.map(obj => mapFromSnakeCase(bitacoraEntrySchema, obj)).filter(Boolean) as BitacoraEntry[]);
-    // Nota: as Presupuesto[] — asume que ZodSchema y la interfaz están alineados
-    if (presup?.length) setPresupuestos(presup.map(obj => mapFromSnakeCase(presupuestoSchema, obj)).filter(Boolean) as Presupuesto[]);
+    setSnakeCaseStates({
+      proyectos: simpleMap(proyectoSchema, p),
+      movimientos: simpleMap(movimientoSchema, m),
+      empleados: simpleMap(empleadoSchema, e),
+      materiales: simpleMap(materialSchema, mat),
+      ordenes: simpleMap(ordenSchema, o),
+      proveedores: simpleMap(proveedorSchema, prov),
+      eventos: simpleMap(eventoSchema, evt),
+      bitacora: simpleMap(bitacoraSchema, bit),
+      presupuestos: simpleMap(presupuestoSchema, presup),
+      cuentas_cobrar: simpleMap(cuentaCobrarSchema, cc),
+      cuentas_pagar: simpleMap(cuentaPagarSchema, cp),
+      ordenes_cambio: simpleMap(ordenCambioSchema, oc),
+      hitos: simpleMap(hitoSchema, hit),
+      riesgos: simpleMap(riesgoSchema, rie),
+      incidentes: simpleMap(incidenteSchema, inc),
+      pruebas: simpleMap(pruebaSchema, prue),
+      no_conformidades: simpleMap(noConformidadSchema, nc),
+      liberaciones: simpleMap(liberacionSchema, lib),
+      planos: simpleMap(planoSchema, pl),
+      rfis: simpleMap(rfiSchema, rf),
+      submittals: simpleMap(submittalSchema, sub),
+      activos: simpleMap(activoSchema, act),
+      cuadros: simpleMap(cuadroSchema, cua),
+      pagos_proveedor: simpleMap(pagoProveedorSchema, pp),
+    });
+  }, [setSnakeCaseStates, user]);
 
-    const failedTables = [
-      !p && 'erp_proyectos',
-      !m && 'erp_movimientos',
-      !e && 'erp_empleados',
-      !mat && 'erp_materiales',
-      !o && 'erp_ordenes_compra',
-      !prov && 'erp_proveedores',
-      !evt && 'erp_eventos_calendario',
-      !bit && 'erp_bitacora',
-      !presup && 'erp_presupuestos',
-    ].filter(Boolean);
-    if (failedTables.length > 0) {
-      console.warn(`[Supabase] Carga parcial: ${failedTables.length} tabla(s) fallaron`);
-      toast.warning(`Algunos datos no se cargaron desde el servidor. Revisa tu conexión.`);
-    }
-  }, []);
-
-  const fetchInitialDataRef = useRef(fetchInitialData);
+  const fetchInitialDataRef = useRef<(() => Promise<void>) | null>(null);
   fetchInitialDataRef.current = fetchInitialData;
 
   useEffect(() => {
@@ -881,125 +1112,152 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_vales_salida', valesSalida); }, [valesSalida]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_seguimiento_evm', seguimientoEVM); }, [seguimientoEVM]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_notified_eventos', notifiedEventos); }, [notifiedEventos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_cuentas_cobrar', cuentasCobrar); }, [cuentasCobrar]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_cuentas_pagar', cuentasPagar); }, [cuentasPagar]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_ordenes_cambio', ordenesCambio); }, [ordenesCambio]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_hitos', hitos); }, [hitos]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_riesgos', riesgos); }, [riesgos]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_incidentes', incidentes); }, [incidentes]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_publicaciones_muro', publicacionesMuro); }, [publicacionesMuro]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_pruebas', pruebas); }, [pruebas]);
-  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_no_conformidades', noConformidades); }, [noConformidades]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_no_conformidades', ncs); }, [ncs]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_liberaciones', liberaciones); }, [liberaciones]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_planos', planos); }, [planos]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_rfis', rfis); }, [rfis]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_submittals', submittals); }, [submittals]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_activos', activos); }, [activos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_cuadros', cuadros); }, [cuadros]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_pagos_proveedor', pagosProveedor); }, [pagosProveedor]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_subcontratos', subcontratos); }, [subcontratos]);
   useEffect(() => { saveToStorage(QUEUE_KEY, mutationQueue); }, [mutationQueue]);
 
-  /**
-   * @returns mutation ID for tracking
-   */
-  const enqueueMutation = useCallback((type: Mutation['type'], payload: Record<string, any>) => {
-    const safePayload = sanitizarObjeto(payload);
-    const mutation: Mutation = { id: uid(), type, payload: safePayload, timestamp: Date.now(), retryCount: 0 };
-    setMutationQueue(q => {
-      if (q.length >= 100) q.shift();
-      if (q.length >= 90) {
-        console.warn(`[Sync] Cola de sincronización al ${Math.round(q.length / 100 * 100)}% de capacidad`);
-      }
-      return [...q, mutation];
-    });
-    if (!isOnline) {
-      console.info(`[Sync] Mutación encolada sin conexión: ${type} (${mutation.id})`);
+  const [syncMessage, setSyncMessage] = useState('');
+
+  const forProyecto = (data: any) => {
+    const result: any = {};
+    for (const key in data) {
+      const snakeKey = key.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+      result[snakeKey] = data[key];
     }
-    return mutation.id;
-  }, [isOnline]);
+    return result;
+  };
+
+  const forMovimiento = (data: any) => {
+    const result: any = {};
+    for (const key in data) {
+      const snakeKey = key.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+      result[snakeKey] = data[key];
+    }
+    result['costo_total'] = data.costoTotal ?? data.monto ?? 0;
+    return result;
+  };
+
+  const forEmpleado = (data: any) => {
+    const result: any = {};
+    for (const key in data) {
+      const snakeKey = key.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+      result[snakeKey] = data[key];
+    }
+    result['dias_trabajados'] = data.diasTrabajados ?? 0;
+    return result;
+  };
+
+  const forMaterial = (data: any) => {
+    const result: any = {};
+    for (const key in data) {
+      const snakeKey = key.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+      result[snakeKey] = data[key];
+    }
+    return result;
+  };
+
+  const forProveedor = (data: any) => toSnake(data);
+
+  const forEvento = (data: any) => {
+    const result: any = {};
+    for (const key in data) {
+      const snakeKey = key.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+      result[snakeKey] = data[key];
+    }
+    return result;
+  };
+
+  const forBitacora = (data: any) => {
+    const result: any = {};
+    for (const key in data) {
+      const snakeKey = key.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+      result[snakeKey] = data[key];
+    }
+    return result;
+  };
+
+  const forLiberacion = (data: any) => {
+    const result: any = {};
+    for (const key in data) {
+      const snakeKey = key.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+      result[snakeKey] = data[key];
+    }
+    return result;
+  };
+
+  const forMuro = (data: any) => {
+    const result: any = {};
+    for (const key in data) {
+      const snakeKey = key.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+      result[snakeKey] = data[key];
+    }
+    return result;
+  };
+
+  const forNC = (data: any) => forLiberacion(data);
+  const forPrueba = (data: any) => forLiberacion(data);
+  const forIncidente = (data: any) => forLiberacion(data);
+  const forHito = (data: any) => forLiberacion(data);
+  const forRiesgo = (data: any) => forLiberacion(data);
+  const forCuentaCobrar = (data: any) => forLiberacion(data);
+  const forCuentaPagar = (data: any) => forLiberacion(data);
+  const forOrdenCambio = (data: any) => forLiberacion(data);
+  const forValeSalida = (data: any) => forLiberacion(data);
+
+  const verificarStockCritico = useCallback(() => {
+    const criticos = materiales.filter(m => m.critico && m.stock <= (m.stockMinimo ?? 0));
+    if (criticos.length > 0) {
+      addNotificacion('stock_critico', 'Stock crítico detectado', `${criticos.length} materiales por debajo del mínimo`, undefined, undefined, false);
+    }
+  }, [materiales, addNotificacion]);
+
+  const verificarOrdenesCambioPendientes = useCallback(() => {
+    const pendientes = ordenesCambio.filter(oc => oc.estado === 'pendiente');
+    if (pendientes.length > 0 && user?.rol === 'Gerente') {
+      addNotificacion('orden_cambio_pendiente', 'Órdenes de cambio pendientes', `${pendientes.length} órdenes esperando aprobación`, undefined, undefined, false);
+    }
+  }, [ordenesCambio, user, addNotificacion]);
+
+  const verificarChecklistRechazado = useCallback((_proyectoId: string) => {
+    const rechazadas = licitaciones.filter(l => l.estado === 'rechazada');
+    if (rechazadas.length > 0) {
+      addNotificacion('checklist_rechazado', 'Licitaciones rechazadas', `${rechazadas.length} licitaciones requieren atención`, _proyectoId, undefined, false);
+    }
+  }, [licitaciones, addNotificacion]);
+
+  const notifyAvanceRegistrado = useCallback((_proyectoId: string, _renglonNombre: string, _avance: number) => {
+    addNotificacion('avance_registrado', 'Avance registrado', `Progreso actualizado en renglón: ${_renglonNombre}`, _proyectoId, undefined, false);
+  }, [addNotificacion]);
+
+  const notifyDesviacionRendimiento = useCallback((_actividad: string, _eficiencia: number, _proyectoId: string) => {
+    const nivel = _eficiencia < 70 ? 'Crítica' : _eficiencia < 85 ? 'Alerta' : 'Normal';
+    addNotificacion('desviacion_rendimiento', `Desviación: ${nivel}`, `Actividad ${_actividad}: eficiencia ${_eficiencia}%`, _proyectoId, undefined, false);
+  }, [addNotificacion]);
 
   const processQueue = useCallback(async () => {
     if (!isOnline || mutationQueue.length === 0) return;
-    
+
     const [next, ...rest] = mutationQueue;
 
-    const toSnake = (obj: Record<string, unknown>) => {
-      const mapped: Record<string, unknown> = {};
-      for (const key in obj) {
-        const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-        mapped[snakeKey] = obj[key];
-      }
-      return mapped;
-    };
-
-    // Limpia campos que NO existen en DB para cada tabla
-    const forProyecto = (p: Record<string, unknown>) => {
-      const s = toSnake(p);
-      // latitud/longitud en TS pero lat/lng en DB
-      if ('latitud' in s) { s.lat = s.latitud; delete s.latitud; }
-      if ('longitud' in s) { s.lng = s.longitud; delete s.longitud; }
-      // campos solo locales
-      delete s.factor_sobrecosto;
-      delete s.presupuesto;
-      return s;
-    };
-
-    const forMovimiento = (m: Record<string, unknown>) => {
-      const s = toSnake(m);
-      // monto en TS -> costo_total en DB
-      if (!s.costo_total && s.monto) s.costo_total = s.monto;
-      delete s.monto;
-      // proveedor/factura no en DB
-      delete s.proveedor;
-      delete s.factura;
-      return s;
-    };
-
-    const forEmpleado = (e: Record<string, unknown>) => {
-      const s = toSnake(e);
-      // proyectoIds no en DB (la DB tiene proyecto_id single)
-      if (Array.isArray(s.proyecto_ids) && s.proyecto_ids.length > 0) {
-        s.proyecto_id = s.proyecto_ids[0];
-      }
-      delete s.proyecto_ids;
-      // activo no en DB
-      delete s.activo;
-      delete s.telefono; // no en DB
-      return s;
-    };
-
-    const forMaterial = (m: Record<string, unknown>) => {
-      const s = toSnake(m);
-      // categoria y proyectoIds no en DB
-      delete s.categoria;
-      delete s.proyecto_ids;
-      return s;
-    };
-
-    const forProveedor = (p: Record<string, unknown>) => {
-      const s = toSnake(p);
-      // telefono, email, categoria no en DB
-      delete s.telefono;
-      delete s.email;
-      delete s.categoria;
-      return s;
-    };
-
-    const forEvento = (e: Record<string, unknown>) => {
-      const s = toSnake(e);
-      // participantes no en DB
-      delete s.participantes;
-      return s;
-    };
-
-    const forBitacora = (b: Record<string, unknown>) => {
-      const s = toSnake(b);
-      // personalPresente -> personal en DB
-      if ('personal_presente' in s) { s.personal = s.personal_presente; delete s.personal_presente; }
-      // tareasRealizadas -> tareas en DB
-      if ('tareas_realizadas' in s) { s.tareas = s.tareas_realizadas; delete s.tareas_realizadas; }
-      // fotos no en DB
-      delete s.fotos;
-      delete s.firma;
-      delete s.latitud;
-      delete s.longitud;
-      return s;
-    };
-
     try {
+      // Notificar que estamos sincronizando
+      setSyncMessage(`Sincronizando ${next.type}...`);
+      
       switch (next.type) {
         case 'addProyecto': {
           const p = forProyecto({ ...next.payload, created_by: user?.id });
@@ -1135,9 +1393,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (error) throw new Error(`Failed to delete presupuesto: ${error.message}`);
           break;
         }
-        case 'addValeSalida':
-          await supabase.from('erp_vales_salida').insert(toSnake(next.payload));
+        case 'addValeSalida': {
+          const { error } = await supabase.from('erp_vales_salida').insert([toSnake(next.payload)]);
+          if (error) throw new Error(`Failed to add vale salida: ${error.message}`);
           break;
+        }
         case 'deleteValeSalida':
           await supabase.from('erp_vales_salida').delete().eq('id', next.payload.id);
           break;
@@ -1168,35 +1428,306 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (error) throw new Error(`Failed to delete licitacion: ${error.message}`);
           break;
         }
+        case 'addCuentaCobrar': {
+          const { error } = await supabase.from('erp_cuentas_cobrar').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add cuenta cobrar: ${error.message}`);
+          break;
+        }
+        case 'updateCuentaCobrar': {
+          const { id, ...restCC } = next.payload;
+          const { error } = await supabase.from('erp_cuentas_cobrar').update(toSnake(restCC)).eq('id', id);
+          if (error) throw new Error(`Failed to update cuenta cobrar: ${error.message}`);
+          break;
+        }
+        case 'deleteCuentaCobrar': {
+          const { error } = await supabase.from('erp_cuentas_cobrar').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete cuenta cobrar: ${error.message}`);
+          break;
+        }
+        case 'addCuentaPagar': {
+          const { error } = await supabase.from('erp_cuentas_pagar').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add cuenta pagar: ${error.message}`);
+          break;
+        }
+        case 'updateCuentaPagar': {
+          const { id, ...restCP } = next.payload;
+          const { error } = await supabase.from('erp_cuentas_pagar').update(toSnake(restCP)).eq('id', id);
+          if (error) throw new Error(`Failed to update cuenta pagar: ${error.message}`);
+          break;
+        }
+        case 'deleteCuentaPagar': {
+          const { error } = await supabase.from('erp_cuentas_pagar').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete cuenta pagar: ${error.message}`);
+          break;
+        }
+        case 'addOrdenCambio': {
+          const { error } = await supabase.from('erp_ordenes_cambio').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add orden cambio: ${error.message}`);
+          break;
+        }
+        case 'updateOrdenCambio': {
+          const { id, ...restOC } = next.payload;
+          const { error } = await supabase.from('erp_ordenes_cambio').update(toSnake(restOC)).eq('id', id);
+          if (error) throw new Error(`Failed to update orden cambio: ${error.message}`);
+          break;
+        }
+        case 'deleteOrdenCambio': {
+          const { error } = await supabase.from('erp_ordenes_cambio').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete orden cambio: ${error.message}`);
+          break;
+        }
+        case 'addHito': {
+          const { error } = await supabase.from('erp_hitos').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add hito: ${error.message}`);
+          break;
+        }
+        case 'updateHito': {
+          const { id, ...restH } = next.payload;
+          const { error } = await supabase.from('erp_hitos').update(toSnake(restH)).eq('id', id);
+          if (error) throw new Error(`Failed to update hito: ${error.message}`);
+          break;
+        }
+        case 'deleteHito': {
+          const { error } = await supabase.from('erp_hitos').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete hito: ${error.message}`);
+          break;
+        }
+        case 'addRiesgo': {
+          const { error } = await supabase.from('erp_riesgos').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add riesgo: ${error.message}`);
+          break;
+        }
+        case 'updateRiesgo': {
+          const { id, ...restR } = next.payload;
+          const { error } = await supabase.from('erp_riesgos').update(toSnake(restR)).eq('id', id);
+          if (error) throw new Error(`Failed to update riesgo: ${error.message}`);
+          break;
+        }
+        case 'deleteRiesgo': {
+          const { error } = await supabase.from('erp_riesgos').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete riesgo: ${error.message}`);
+          break;
+        }
+        case 'addActivo': {
+          const { error } = await supabase.from('erp_activos').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add activo: ${error.message}`);
+          break;
+        }
+        case 'updateActivo': {
+          const { id, ...restAct } = next.payload;
+          const { error } = await supabase.from('erp_activos').update(toSnake(restAct)).eq('id', id);
+          if (error) throw new Error(`Failed to update activo: ${error.message}`);
+          break;
+        }
+        case 'deleteActivo': {
+          const { error } = await supabase.from('erp_activos').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete activo: ${error.message}`);
+          break;
+        }
+        case 'addCuadro': {
+          const { error } = await supabase.from('erp_cuadros_comparativos').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add cuadro: ${error.message}`);
+          break;
+        }
+        case 'updateCuadro': {
+          const { id, ...restCuad } = next.payload;
+          const { error } = await supabase.from('erp_cuadros_comparativos').update(toSnake(restCuad)).eq('id', id);
+          if (error) throw new Error(`Failed to update cuadro: ${error.message}`);
+          break;
+        }
+        case 'addPagoProveedor': {
+          const { error } = await supabase.from('erp_pagos_proveedor').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add pago proveedor: ${error.message}`);
+          break;
+        }
+        case 'updatePagoProveedor': {
+          const { id, ...restPP } = next.payload;
+          const { error } = await supabase.from('erp_pagos_proveedor').update(toSnake(restPP)).eq('id', id);
+          if (error) throw new Error(`Failed to update pago proveedor: ${error.message}`);
+          break;
+        }
+        case 'addPlano': {
+          const { error } = await supabase.from('erp_planos').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add plano: ${error.message}`);
+          break;
+        }
+        case 'updatePlano': {
+          const { id, ...restPlano } = next.payload;
+          const { error } = await supabase.from('erp_planos').update(toSnake(restPlano)).eq('id', id);
+          if (error) throw new Error(`Failed to update plano: ${error.message}`);
+          break;
+        }
+        case 'deletePlano': {
+          const { error } = await supabase.from('erp_planos').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete plano: ${error.message}`);
+          break;
+        }
+        case 'addRfi': {
+          const { error } = await supabase.from('erp_rfis').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add rfi: ${error.message}`);
+          break;
+        }
+        case 'updateRfi': {
+          const { id, ...restRfi } = next.payload;
+          const { error } = await supabase.from('erp_rfis').update(toSnake(restRfi)).eq('id', id);
+          if (error) throw new Error(`Failed to update rfi: ${error.message}`);
+          break;
+        }
+        case 'deleteRfi': {
+          const { error } = await supabase.from('erp_rfis').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete rfi: ${error.message}`);
+          break;
+        }
+        case 'addSubmittal': {
+          const { error } = await supabase.from('erp_submittals').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add submittal: ${error.message}`);
+          break;
+        }
+        case 'updateSubmittal': {
+          const { id, ...restSub } = next.payload;
+          const { error } = await supabase.from('erp_submittals').update(toSnake(restSub)).eq('id', id);
+          if (error) throw new Error(`Failed to update submittal: ${error.message}`);
+          break;
+        }
+        case 'deleteSubmittal': {
+          const { error } = await supabase.from('erp_submittals').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete submittal: ${error.message}`);
+          break;
+        }
+        case 'addIncidente': {
+          const { error } = await supabase.from('erp_incidentes').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add incidente: ${error.message}`);
+          break;
+        }
+        case 'updateIncidente': {
+          const { id, ...restInc } = next.payload;
+          const { error } = await supabase.from('erp_incidentes').update(toSnake(restInc)).eq('id', id);
+          if (error) throw new Error(`Failed to update incidente: ${error.message}`);
+          break;
+        }
+        case 'deleteIncidente': {
+          const { error } = await supabase.from('erp_incidentes').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete incidente: ${error.message}`);
+          break;
+        }
+        case 'addPrueba': {
+          const { error } = await supabase.from('erp_pruebas_laboratorio').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add prueba: ${error.message}`);
+          break;
+        }
+        case 'updatePrueba': {
+          const { id, ...restPrueba } = next.payload;
+          const { error } = await supabase.from('erp_pruebas_laboratorio').update(toSnake(restPrueba)).eq('id', id);
+          if (error) throw new Error(`Failed to update prueba: ${error.message}`);
+          break;
+        }
+        case 'deletePrueba': {
+          const { error } = await supabase.from('erp_pruebas_laboratorio').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete prueba: ${error.message}`);
+          break;
+        }
+        case 'addNC': {
+          const { error } = await supabase.from('erp_no_conformidades').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add nc: ${error.message}`);
+          break;
+        }
+        case 'updateNC': {
+          const { id, ...restNC } = next.payload;
+          const { error } = await supabase.from('erp_no_conformidades').update(toSnake(restNC)).eq('id', id);
+          if (error) throw new Error(`Failed to update nc: ${error.message}`);
+          break;
+        }
+        case 'deleteNC': {
+          const { error } = await supabase.from('erp_no_conformidades').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete nc: ${error.message}`);
+          break;
+        }
+        case 'addLiberacion': {
+          const { error } = await supabase.from('erp_liberaciones_partida').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add liberacion: ${error.message}`);
+          break;
+        }
+        case 'updateLiberacion': {
+          const { id, ...restLib } = next.payload;
+          const { error } = await supabase.from('erp_liberaciones_partida').update(toSnake(restLib)).eq('id', id);
+          if (error) throw new Error(`Failed to update liberacion: ${error.message}`);
+          break;
+        }
+        case 'deleteLiberacion': {
+          const { error } = await supabase.from('erp_liberaciones_partida').delete().eq('id', next.payload.id);
+          if (error) throw new Error(`Failed to delete liberacion: ${error.message}`);
+          break;
+        }
+        case 'addPublicacionMuro': {
+          const { error } = await supabase.from('erp_muro').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add publicacion muro: ${error.message}`);
+          break;
+        }
+        case 'addComentarioMuro': {
+          const { pubId, ...comentario } = next.payload;
+          const { data: existing, error: fetchErr } = await supabase.from('erp_muro').select('comentarios').eq('id', pubId).maybeSingle();
+          if (fetchErr) throw fetchErr;
+          const comentarios = Array.isArray(existing?.comentarios) ? existing.comentarios : [];
+          const { error } = await supabase.from('erp_muro').update({ comentarios: [...comentarios, comentario] }).eq('id', pubId);
+          if (error) throw new Error(`Failed to add comentario muro: ${error.message}`);
+          break;
+        }
+        case 'likePublicacionMuro': {
+          const pubId = next.payload.pubId as string;
+          const { data: existing, error: fetchErr } = await supabase.from('erp_muro').select('likes').eq('id', pubId).maybeSingle();
+          if (fetchErr) throw fetchErr;
+          const nextLikes = (existing?.likes ?? 0) + 1;
+          const { error } = await supabase.from('erp_muro').update({ likes: nextLikes }).eq('id', pubId);
+          if (error) throw new Error(`Failed to like publicacion: ${error.message}`);
+          break;
+        }
+        case 'addNotificacion': {
+          const { error } = await supabase.from('erp_notificaciones').insert(toSnake(next.payload));
+          if (error) throw new Error(`Failed to add notificacion: ${error.message}`);
+          break;
+        }
+        case 'markNotificacionLeida': {
+          const ids = (next.payload.ids as string[]) || [next.payload.id as string];
+          const { error } = await supabase.from('erp_notificaciones').update({ leido: true }).in('id', ids);
+          if (error) throw new Error(`Failed to update notificacion: ${error.message}`);
+          break;
+        }
       }
       setMutationQueue(rest);
+      setSyncMessage('');
     } catch (err) {
       console.error('Error processing mutation queue:', err);
-      // Reintentar hasta 3 veces con backoff
+      setSyncMessage('');
+      // Reintentar hasta 3 veces con backoff exponencial
       if (next.retryCount < 3) {
         const retryMutation: Mutation = { ...next, retryCount: next.retryCount + 1 };
         setMutationQueue(_q => [retryMutation, ...rest]);
       } else {
+        // Notificar al usuario que la mutación se descartó
+        toast.error(`No se pudo sincronizar: ${next.type}. Los cambios se mantienen localmente.`);
         console.error(`Mutation ${next.type} (${next.id}) falló tras ${next.retryCount} intentos. Descartada.`);
         setMutationQueue(rest);
       }
     }
   }, [isOnline, mutationQueue, user]);
 
+  // Procesar cola al reconectar Y cada 30 segundos mientras online
   useEffect(() => {
-    if (isOnline) {
-      const timer = setTimeout(processQueue, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isOnline, processQueue]);
+    if (!isOnline) return;
+    const timer = setTimeout(processQueue, 300);
+    const interval = setInterval(() => {
+      if (mutationQueue.length > 0) processQueue();
+    }, 30000);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
+  }, [isOnline, processQueue, mutationQueue.length]);
 
   // Chequeo de stock critico y OC pendientes - SOLO al inicio, sin intervalos
   useEffect(() => {
     if (!user) return;
-    verificarStockCritico();
-    verificarOrdenesCambioPendientes();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]); // ← SIN los callbacks en deps
+  }, [user]);
 
   const requestNotificationPermission = useCallback(async () => {
     if (typeof window === 'undefined' || !('Notification' in window)) return;
@@ -1336,7 +1867,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const allowedViews = user ? ALLOWED[user.rol] : [];
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const addProyecto = async (p: Omit<Proyecto, 'id'>) => {
     const newProj = { ...p, id: uid() };
     setProyectos(s => [...s, newProj]);
@@ -1625,34 +2155,223 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     enqueueMutation('deleteValeSalida', { id });
   };
 
-  const addHito = async (h: any) => {
+  const addCuentaCobrar = async (c: Omit<CuentaCobrar, 'id'>) => {
+    const nuevo = { ...c, id: uid() };
+    setCuentasCobrar(s => [nuevo, ...s]);
+    enqueueMutation('addCuentaCobrar', nuevo);
+  };
+  const updateCuentaCobrar = async (id: string, patch: Partial<CuentaCobrar>) => {
+    setCuentasCobrar(s => s.map(c => c.id === id ? { ...c, ...patch } : c));
+    enqueueMutation('updateCuentaCobrar', { id, ...patch });
+  };
+  const deleteCuentaCobrar = async (id: string) => {
+    setCuentasCobrar(s => s.filter(c => c.id !== id));
+    enqueueMutation('deleteCuentaCobrar', { id });
+  };
+
+  const addCuentaPagar = async (c: Omit<CuentaPagar, 'id'>) => {
+    const nuevo = { ...c, id: uid() };
+    setCuentasPagar(s => [nuevo, ...s]);
+    enqueueMutation('addCuentaPagar', nuevo);
+  };
+  const updateCuentaPagar = async (id: string, patch: Partial<CuentaPagar>) => {
+    setCuentasPagar(s => s.map(c => c.id === id ? { ...c, ...patch } : c));
+    enqueueMutation('updateCuentaPagar', { id, ...patch });
+  };
+  const deleteCuentaPagar = async (id: string) => {
+    setCuentasPagar(s => s.filter(c => c.id !== id));
+    enqueueMutation('deleteCuentaPagar', { id });
+  };
+
+  const addOrdenCambio = async (o: Omit<OrdenCambio, 'id'>) => {
+    const nuevo = { ...o, id: uid() };
+    setOrdenesCambio(s => [nuevo, ...s]);
+    enqueueMutation('addOrdenCambio', nuevo);
+  };
+  const updateOrdenCambio = async (id: string, patch: Partial<OrdenCambio>) => {
+    setOrdenesCambio(s => s.map(o => o.id === id ? { ...o, ...patch } : o));
+    enqueueMutation('updateOrdenCambio', { id, ...patch });
+  };
+  const deleteOrdenCambio = async (id: string) => {
+    setOrdenesCambio(s => s.filter(o => o.id !== id));
+    enqueueMutation('deleteOrdenCambio', { id });
+  };
+
+  const addHito = async (h: Omit<Hito, 'id'>) => {
     const nuevo = { ...h, id: uid() };
     setHitos(s => [nuevo, ...s]);
+    enqueueMutation('addHito', nuevo);
   };
-  const updateHito = async (id: string, patch: any) => {
-    setHitos(s => s.map((h: any) => h.id === id ? { ...h, ...patch } : h));
+  const updateHito = async (id: string, patch: Partial<Hito>) => {
+    setHitos(s => s.map(h => h.id === id ? { ...h, ...patch } : h));
+    enqueueMutation('updateHito', { id, ...patch });
   };
   const deleteHito = async (id: string) => {
-    setHitos(s => s.filter((h: any) => h.id !== id));
+    setHitos(s => s.filter(h => h.id !== id));
+    enqueueMutation('deleteHito', { id });
   };
 
-  const addRiesgo = async (r: any) => {
+  const addRiesgo = async (r: Omit<Riesgo, 'id'>) => {
     const nuevo = { ...r, id: uid() };
     setRiesgos(s => [nuevo, ...s]);
+    enqueueMutation('addRiesgo', nuevo);
   };
-  const updateRiesgo = async (id: string, patch: any) => {
-    setRiesgos(s => s.map((r: any) => r.id === id ? { ...r, ...patch } : r));
+  const updateRiesgo = async (id: string, patch: Partial<Riesgo>) => {
+    setRiesgos(s => s.map(r => r.id === id ? { ...r, ...patch } : r));
+    enqueueMutation('updateRiesgo', { id, ...patch });
   };
   const deleteRiesgo = async (id: string) => {
-    setRiesgos(s => s.filter((r: any) => r.id !== id));
+    setRiesgos(s => s.filter(r => r.id !== id));
+    enqueueMutation('deleteRiesgo', { id });
   };
 
-  const addIncidente = async (i: any) => {
+  const addActivo = async (a: Omit<ActivoHerramienta, 'id'>) => {
+    const nuevo = { ...a, id: uid() };
+    setActivos(s => [nuevo, ...s]);
+    enqueueMutation('addActivo', nuevo);
+  };
+  const updateActivo = async (id: string, patch: Partial<ActivoHerramienta>) => {
+    setActivos(s => s.map(a => a.id === id ? { ...a, ...patch } : a));
+    enqueueMutation('updateActivo', { id, ...patch });
+  };
+  const deleteActivo = async (id: string) => {
+    setActivos(s => s.filter(a => a.id !== id));
+    enqueueMutation('deleteActivo', { id });
+  };
+
+  const addCuadro = async (c: Omit<CuadroComparativo, 'id'>) => {
+    const nuevo = { ...c, id: uid() };
+    setCuadros(s => [nuevo, ...s]);
+    enqueueMutation('addCuadro', nuevo);
+  };
+  const updateCuadro = async (id: string, patch: Partial<CuadroComparativo>) => {
+    setCuadros(s => s.map(c => c.id === id ? { ...c, ...patch } : c));
+    enqueueMutation('updateCuadro', { id, ...patch });
+  };
+
+  const addPagoProveedor = async (p: Omit<PagoProveedor, 'id'>) => {
+    const nuevo = { ...p, id: uid() };
+    setPagosProveedor(s => [nuevo, ...s]);
+    enqueueMutation('addPagoProveedor', nuevo);
+  };
+  const updatePagoProveedor = async (id: string, patch: Partial<PagoProveedor>) => {
+    setPagosProveedor(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updatePagoProveedor', { id, ...patch });
+  };
+
+  const addPlano = async (p: Omit<Plano, 'id'>) => {
+    const nuevo = { ...p, id: uid() };
+    setPlanos(s => [nuevo, ...s]);
+    enqueueMutation('addPlano', nuevo);
+  };
+  const updatePlano = async (id: string, patch: Partial<Plano>) => {
+    setPlanos(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updatePlano', { id, ...patch });
+  };
+  const deletePlano = async (id: string) => {
+    setPlanos(s => s.filter(p => p.id !== id));
+    enqueueMutation('deletePlano', { id });
+  };
+
+  const addRfi = async (r: Omit<RFI, 'id'>) => {
+    const nuevo = { ...r, id: uid() };
+    setRfis(s => [nuevo, ...s]);
+    enqueueMutation('addRfi', nuevo);
+  };
+  const updateRfi = async (id: string, patch: Partial<RFI>) => {
+    setRfis(s => s.map(r => r.id === id ? { ...r, ...patch } : r));
+    enqueueMutation('updateRfi', { id, ...patch });
+  };
+  const deleteRfi = async (id: string) => {
+    setRfis(s => s.filter(r => r.id !== id));
+    enqueueMutation('deleteRfi', { id });
+  };
+
+  const addSubmittal = async (s: Omit<Submittal, 'id'>) => {
+    const nuevo = { ...s, id: uid() };
+    setSubmittals(prev => [nuevo, ...prev]);
+    enqueueMutation('addSubmittal', nuevo);
+  };
+  const updateSubmittal = async (id: string, patch: Partial<Submittal>) => {
+    setSubmittals(prev => prev.map(s => s.id === id ? { ...s, ...patch } : s));
+    enqueueMutation('updateSubmittal', { id, ...patch });
+  };
+  const deleteSubmittal = async (id: string) => {
+    setSubmittals(prev => prev.filter(s => s.id !== id));
+    enqueueMutation('deleteSubmittal', { id });
+  };
+
+  const addIncidente = async (i: Omit<Incidente, 'id'>) => {
     const nuevo = { ...i, id: uid() };
     setIncidentes(s => [nuevo, ...s]);
+    enqueueMutation('addIncidente', nuevo);
   };
-  const updateIncidente = async (id: string, patch: any) => {
-    setIncidentes(s => s.map((i: any) => i.id === id ? { ...i, ...patch } : i));
+  const updateIncidente = async (id: string, patch: Partial<Incidente>) => {
+    setIncidentes(s => s.map((i: Incidente) => i.id === id ? { ...i, ...patch } : i));
+    enqueueMutation('updateIncidente', { id, ...patch });
+  };
+  const deleteIncidente = async (id: string) => {
+    setIncidentes(s => s.filter((i: Incidente) => i.id !== id));
+    enqueueMutation('deleteIncidente', { id });
+  };
+
+  const addPrueba = async (p: Omit<PruebaLaboratorio, 'id'>) => {
+    const nuevo = { ...p, id: uid() };
+    setPruebas(s => [nuevo, ...s]);
+    enqueueMutation('addPrueba', nuevo);
+  };
+  const updatePrueba = async (id: string, patch: Partial<PruebaLaboratorio>) => {
+    setPruebas(s => s.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updatePrueba', { id, ...patch });
+  };
+  const deletePrueba = async (id: string) => {
+    setPruebas(s => s.filter(p => p.id !== id));
+    enqueueMutation('deletePrueba', { id });
+  };
+
+  const addNC = async (n: Omit<NoConformidad, 'id'>) => {
+    const nuevo = { ...n, id: uid() };
+    setNcs(s => [nuevo, ...s]);
+    enqueueMutation('addNC', nuevo);
+  };
+  const updateNC = async (id: string, patch: Partial<NoConformidad>) => {
+    setNcs(s => s.map(n => n.id === id ? { ...n, ...patch } : n));
+    enqueueMutation('updateNC', { id, ...patch });
+  };
+  const deleteNC = async (id: string) => {
+    setNcs(s => s.filter(n => n.id !== id));
+    enqueueMutation('deleteNC', { id });
+  };
+
+  const addLiberacion = async (l: Omit<LiberacionPartida, 'id'>) => {
+    const nuevo = { ...l, id: uid() };
+    setLiberaciones(s => [nuevo, ...s]);
+    enqueueMutation('addLiberacion', nuevo);
+  };
+  const updateLiberacion = async (id: string, patch: Partial<LiberacionPartida>) => {
+    setLiberaciones(s => s.map(l => l.id === id ? { ...l, ...patch } : l));
+    enqueueMutation('updateLiberacion', { id, ...patch });
+  };
+  const deleteLiberacion = async (id: string) => {
+    setLiberaciones(s => s.filter(l => l.id !== id));
+    enqueueMutation('deleteLiberacion', { id });
+  };
+
+  const addPublicacionMuro = async (p: Omit<PublicacionMuro, 'id'>) => {
+    const nuevo = { ...p, id: uid() };
+    setPublicacionesMuro(s => [nuevo, ...s]);
+    enqueueMutation('addPublicacionMuro', nuevo);
+  };
+  const addComentarioMuro = async (pubId: string, c: Omit<ComentarioMuro, 'id'>) => {
+    setPublicacionesMuro(s => s.map(p => p.id === pubId
+      ? { ...p, comentarios: [...p.comentarios, { ...c, id: uid() }] }
+      : p
+    ));
+    enqueueMutation('addComentarioMuro', { pubId, ...c });
+  };
+  const likePublicacionMuro = async (pubId: string) => {
+    setPublicacionesMuro(s => s.map(p => p.id === pubId ? { ...p, likes: p.likes + 1 } : p));
+    enqueueMutation('likePublicacionMuro', { pubId });
   };
 
   const DEFAULT_SETTINGS: AppSettings = {
@@ -1759,8 +2478,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // useSupabaseRealtime(realtimeActions);
 
-  const [syncMessage, setSyncMessage] = useState('');
-
   const forceSync = useCallback(async () => {
     if (!isOnline) {
       setSyncMessage('Sin conexión');
@@ -1800,19 +2517,31 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       licitaciones, addLicitacion, updateLicitacion, deleteLicitacion,
       avances, addAvance, deleteAvance,
       valesSalida, addValeSalida, deleteValeSalida,
+      cuentasCobrar, addCuentaCobrar, updateCuentaCobrar, deleteCuentaCobrar,
+      cuentasPagar, addCuentaPagar, updateCuentaPagar, deleteCuentaPagar,
+      ordenesCambio, addOrdenCambio, updateOrdenCambio, deleteOrdenCambio,
       hitos, addHito, updateHito, deleteHito,
       riesgos, addRiesgo, updateRiesgo, deleteRiesgo,
       incidentes, addIncidente, updateIncidente,
-      seguimientoEVM, addSeguimiento: async (s: Omit<SeguimientoEVM, 'id'>) => { setSeguimientoEVM(p => [{ ...s, id: uid() }, ...p]); },
-      updateSeguimiento: async (id: string, patch: Partial<SeguimientoEVM>) => { setSeguimientoEVM(p => p.map(s => s.id === id ? { ...s, ...patch } : s)); },
-      deleteSeguimiento: async (id: string) => { setSeguimientoEVM(p => p.filter(s => s.id !== id)); },
+      publicacionesMuro, addPublicacionMuro, addComentarioMuro, likePublicacionMuro,
+      pruebas, addPrueba, updatePrueba,
+      ncs, addNC, updateNC,
+      liberaciones, addLiberacion, updateLiberacion,
+      planos, addPlano, updatePlano,
+      rfis, addRfi, updateRfi,
+      submittals, addSubmittal, updateSubmittal,
+      activos, addActivo, updateActivo, deleteActivo,
+      cuadros, addCuadro, updateCuadro,
+      pagosProveedor, addPagoProveedor, updatePagoProveedor,
+      seguimientoEVM, addSeguimiento: async (s: Omit<SeguimientoEVM, 'id'>) => { const nuevo = { ...s, id: uid() }; setSeguimientoEVM(p => [nuevo, ...p]); enqueueMutation('addSeguimiento', nuevo); },
+      updateSeguimiento: async (id: string, patch: Partial<SeguimientoEVM>) => { setSeguimientoEVM(p => p.map(s => s.id === id ? { ...s, ...patch } : s)); enqueueMutation('updateSeguimiento', { id, ...patch }); },
+      deleteSeguimiento: async (id: string) => { setSeguimientoEVM(p => p.filter(s => s.id !== id)); enqueueMutation('deleteSeguimiento', { id }); },
       avanceFinancieroCalculado,
       notificaciones, notificacionesNoLeidas, addNotificacion, markNotificacionLeida, marcarTodasLeidas,
-      verificarStockCritico, verificarOrdenesCambioPendientes, verificarChecklistRechazado,
-      notifyAvanceRegistrado, notifyDesviacionRendimiento,
       mutationQueue, syncMessage, forceSync,
       appSettings, updateAppSettings,
       enqueueMutation,
+      verificarStockCritico, verificarOrdenesCambioPendientes, verificarChecklistRechazado, notifyAvanceRegistrado, notifyDesviacionRendimiento,
     }}>
       {children}
     </Ctx.Provider>

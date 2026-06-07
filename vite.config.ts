@@ -24,7 +24,6 @@ export default defineConfig(({ mode: _mode }) => ({
         manualChunks: {
           three: ['three'],
           'web-ifc': ['web-ifc'],
-          ofimatica: ['jspdf', 'html2canvas', 'xlsx'],
           antd: ['antd', '@ant-design/icons'],
         },
       },

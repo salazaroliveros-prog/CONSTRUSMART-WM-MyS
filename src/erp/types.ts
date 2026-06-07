@@ -663,6 +663,43 @@ export interface CuentaPagar {
   facturaUrl?: string;
 }
 
+export interface Plano {
+  id: string;
+  proyectoId: string;
+  nombre: string;
+  disciplina: 'arquitectura' | 'estructura' | 'instalaciones' | 'electricas' | 'sanitarias' | 'mecanicas' | 'otra';
+  version: string;
+  fechaSubida: string;
+  descripcion?: string;
+  estado: 'vigente' | 'obsoleto' | 'en_revision';
+  subidoPor: string;
+}
+
+export interface RFI {
+  id: string;
+  proyectoId: string;
+  numero: string;
+  titulo: string;
+  descripcion: string;
+  solicitante: string;
+  destino: string;
+  estado: 'abierto' | 'en_respuesta' | 'cerrado';
+  fechaSolicitud: string;
+  respuesta?: string;
+  fechaRespuesta?: string;
+}
+
+export interface Submittal {
+  id: string;
+  proyectoId: string;
+  titulo: string;
+  descripcion?: string;
+  categoria: 'material' | 'equipo' | 'especificacion' | 'otro';
+  proveedor: string;
+  fechaEnvio: string;
+  estado: 'pendiente' | 'aprobado' | 'rechazado' | 'con_comentarios';
+}
+
 export interface CapturaRendimiento {
   id: string;
   proyectoId: string;

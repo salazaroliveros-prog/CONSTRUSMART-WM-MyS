@@ -35,6 +35,11 @@ const TABLES = [
   { table: 'erp_insumos', action: 'insumo' as const },
   { table: 'erp_renglones', action: 'renglon' as const },
   { table: 'erp_sub_renglones', action: 'subrenglon' as const },
+  { table: 'erp_cuentas_cobrar', action: 'cuenta_cobrar' as const },
+  { table: 'erp_cuentas_pagar', action: 'cuenta_pagar' as const },
+  { table: 'erp_ordenes_cambio', action: 'orden_cambio' as const },
+  { table: 'erp_hitos', action: 'hito' as const },
+  { table: 'erp_riesgos', action: 'riesgo' as const },
 ];
 
 /**
