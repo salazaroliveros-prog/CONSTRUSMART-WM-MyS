@@ -372,7 +372,7 @@ const mapFromSnakeCase = <T extends z.ZodType<any, any, any>>(schema: T, obj: Re
 
 export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar';
 
-// eslint-disable-next-line react-refresh/only-export-components
+ 
 export function parseView(v: string): { root: View; sub?: string } {
   const idx = v.indexOf(':');
   if (idx > 0) {
@@ -383,7 +383,7 @@ export function parseView(v: string): { root: View; sub?: string } {
   return { root: v as View, sub: undefined };
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
+ 
 export function buildView(root: View, sub?: string): string {
   return sub ? `${root}:${sub}` : root;
 }
@@ -404,7 +404,7 @@ export interface AppSettings {
 }
 export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeguero';
 
-// eslint-disable-next-line react-refresh/only-export-components
+ 
 export const ALLOWED: Record<Rol, View[]> = {
   Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar'],
   Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar'],
@@ -520,9 +520,9 @@ interface ErpState {
 
 // ⚠️ Los consumidores DEBEN estar dentro de <ErpProvider>
 const Ctx = createContext<ErpState>({} as ErpState);
-// eslint-disable-next-line react-refresh/only-export-components
+ 
 export const useErp = () => useContext(Ctx);
-// eslint-disable-next-line react-refresh/only-export-components
+ 
 export const uid = (): string => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();

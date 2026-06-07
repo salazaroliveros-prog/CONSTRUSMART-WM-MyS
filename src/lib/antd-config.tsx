@@ -3,11 +3,6 @@ import React from 'react';
 
 export type ThemeMode = 'light' | 'dark';
 
-interface AntdThemeConfig {
-  mode: ThemeMode;
-  primaryColor?: string;
-}
-
 // Paleta de colores CONSTRUSMART
 const BRAND_COLORS = {
   primary: '#ff8c42', // Naranja

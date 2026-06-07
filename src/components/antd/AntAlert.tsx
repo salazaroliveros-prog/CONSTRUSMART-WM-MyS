@@ -10,6 +10,35 @@ interface AntAlertProps extends Omit<AlertProps, 'type'> {
   onClose?: () => void;
 }
 
+interface AlertsProps {
+  alerts: Array<{
+    type: 'success' | 'info' | 'warning' | 'error';
+    title?: string;
+    description?: string;
+    key: string;
+  }>;
+  onClose?: (key: string) => void;
+}
+
+// Message helpers
+export const messageManager = {
+  success: (content: string, duration?: number) => {
+    message.success(content, duration);
+  },
+  error: (content: string, duration?: number) => {
+    message.error(content, duration);
+  },
+  info: (content: string, duration?: number) => {
+    message.info(content, duration);
+  },
+  warning: (content: string, duration?: number) => {
+    message.warning(content, duration);
+  },
+  loading: (content: string) => {
+    return message.loading(content);
+  },
+};
+
 export const AntAlert: React.FC<AntAlertProps> = ({
   type = 'info',
   closeable = true,
@@ -31,16 +60,6 @@ export const AntAlert: React.FC<AntAlertProps> = ({
   );
 };
 
-interface AlertsProps {
-  alerts: Array<{
-    type: 'success' | 'info' | 'warning' | 'error';
-    title?: string;
-    description?: string;
-    key: string;
-  }>;
-  onClose?: (key: string) => void;
-}
-
 export const AntAlerts: React.FC<AlertsProps> = ({ alerts, onClose }) => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="small">
@@ -55,25 +74,6 @@ export const AntAlerts: React.FC<AlertsProps> = ({ alerts, onClose }) => {
       ))}
     </Space>
   );
-};
-
-// Message helpers
-export const messageManager = {
-  success: (content: string, duration?: number) => {
-    message.success(content, duration);
-  },
-  error: (content: string, duration?: number) => {
-    message.error(content, duration);
-  },
-  info: (content: string, duration?: number) => {
-    message.info(content, duration);
-  },
-  warning: (content: string, duration?: number) => {
-    message.warning(content, duration);
-  },
-  loading: (content: string) => {
-    return message.loading(content);
-  },
 };
 
 // Notification helpers
