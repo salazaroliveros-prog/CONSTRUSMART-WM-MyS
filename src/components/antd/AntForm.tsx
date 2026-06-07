@@ -43,7 +43,7 @@ export const AntForm = <T extends FieldValues>({
         <AntFormComponent
           layout={layout}
           onFinish={form.handleSubmit(onSubmit)}
-          form={AntFormComponent.useForm()[0]}
+          form={form}
           className={`ant-form-wrapper ${className}`}
         >
           <Row gutter={[16, 16]}>
