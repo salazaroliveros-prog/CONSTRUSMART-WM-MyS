@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
 import { fmtQ, CATEGORIA_LABEL } from '../utils';
-import { AreaChart, Donut } from '../components/Charts';
+import { ConfigurableLineArea, Donut } from '../components/Charts';
+import ChartToolbar from '../components/ChartToolbar';
+import { useChartConfig } from '../hooks/useChartConfig';
 import MovimientoForm from '../components/MovimientoForm';
 import { Wallet, Trash2, TrendingUp, TrendingDown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,6 +14,8 @@ const Financiero: React.FC = () => {
   const { movimientos, deleteMovimiento, proyectos } = useErp();
   const [filtro, setFiltro] = useState<'todos' | 'ingreso' | 'gasto'>('todos');
   const [loading, setLoading] = useState(true);
+  const flowConfig = useChartConfig('line', 'default');
+  const donutConfig = useChartConfig('line', 'default');
 
   React.useEffect(() => {
     const t = setTimeout(() => setLoading(false), 300);
@@ -73,16 +77,45 @@ const Financiero: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 mb-3 sm:mb-4">
         <div className="lg:col-span-2 bg-card text-card-foreground rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
-          <h3 className="font-bold text-foreground text-sm mb-2">Flujo de Caja Proyectado (30/60/90 días)</h3>
-          <AreaChart labels={['30 días', '60 días', '90 días']} series={[
-            { label: 'Ingresos', color: '#10b981', data: cashFlow.ingresos },
-            { label: 'Egresos', color: '#ef4444', data: cashFlow.egresos },
-          ]} />
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-bold text-foreground text-sm">Flujo de Caja (12 meses)</h3>
+            <ChartToolbar
+              types={['line', 'area']}
+              currentType={flowConfig.type}
+              onTypeChange={flowConfig.setType}
+              palette={flowConfig.palette}
+              onPaletteChange={flowConfig.setPalette}
+              series={[
+                { id: 'Ingresos', label: 'Ingresos', color: '#10b981', visible: flowConfig.isVisible('Ingresos') },
+                { id: 'Egresos', label: 'Egresos', color: '#ef4444', visible: flowConfig.isVisible('Egresos') },
+              ]}
+              onToggleSeries={flowConfig.toggleSeries}
+              onReset={flowConfig.reset}
+            />
+          </div>
+          <div className="h-44">
+            <ConfigurableLineArea labels={['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']}
+              type={flowConfig.type} palette={flowConfig.palette}
+              series={[
+                { label: 'Ingresos', color: '#10b981', data: cashFlow.ingresos },
+                { label: 'Egresos', color: '#ef4444', data: cashFlow.egresos },
+              ].filter(s => flowConfig.isVisible(s.label))} />
+          </div>
         </div>
         <div className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border">
-          <h3 className="font-bold text-foreground text-sm mb-2">Gastos por Categoría</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-bold text-foreground text-sm">Gastos por Categoría</h3>
+            <ChartToolbar
+              types={['line']}
+              currentType={donutConfig.type}
+              onTypeChange={donutConfig.setType}
+              palette={donutConfig.palette}
+              onPaletteChange={donutConfig.setPalette}
+              onReset={donutConfig.reset}
+            />
+          </div>
           <div className="flex items-center gap-3">
-            <Donut size={110} data={porCategoria.length ? porCategoria : [{ label: '-', value: 1, color: '#e2e8f0' }]} />
+            <Donut size={130} data={porCategoria.length ? porCategoria : [{ label: '-', value: 1, color: '#e2e8f0' }]} />
             <div className="text-[11px] space-y-1 flex-1 max-h-32 overflow-y-auto">
               {porCategoria.map(c => <div key={c.label} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full" style={{ background: c.color }} />{c.label}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>)}
             </div>

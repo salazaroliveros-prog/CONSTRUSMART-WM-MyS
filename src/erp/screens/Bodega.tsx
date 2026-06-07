@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { useErp } from '../store';
 import { fmtQ, todayISO } from '../utils';
 import { Progress, BarChart } from '../components/Charts';
+import ChartToolbar from '../components/ChartToolbar';
+import { useChartConfig } from '../hooks/useChartConfig';
 import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT_COMPACT } from '../ui';
@@ -29,6 +31,7 @@ type ProveedorFormData = z.infer<typeof proveedorSchema>;
 type OrdenFormData = z.infer<typeof ordenSchema>;
 
 const Bodega: React.FC = () => {
+  const paretoConfig = useChartConfig('line', 'default');
   const { materiales, updateMaterial, ordenes, updateOrden, addOrden, proveedores, addProveedor, updateProveedor, deleteProveedor } = useErp();
   const [showProveedor, setShowProveedor] = useState(false);
   const [showOrden, setShowOrden] = useState(false);
@@ -191,8 +194,18 @@ const Bodega: React.FC = () => {
 
         <div className="space-y-4">
           <div className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border">
-            <h3 className="font-bold text-foreground text-sm mb-2">Pareto 80/20 Inventario</h3>
-            <BarChart height={150} data={pareto} />
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-foreground text-sm">Pareto 80/20 Inventario</h3>
+              <ChartToolbar
+                types={['line']}
+                currentType={paretoConfig.type}
+                onTypeChange={paretoConfig.setType}
+                palette={paretoConfig.palette}
+                onPaletteChange={paretoConfig.setPalette}
+                onReset={paretoConfig.reset}
+              />
+            </div>
+            <BarChart height={150} data={pareto} palette={paretoConfig.palette} />
           </div>
 
           <div className="bg-card text-card-foreground rounded-2xl shadow-md border border-border overflow-hidden">

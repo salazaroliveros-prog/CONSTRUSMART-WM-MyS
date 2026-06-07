@@ -1833,8 +1833,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       mutationQueue, syncMessage, forceSync,
       appSettings, updateAppSettings,
       enqueueMutation,
-      hitos, addHito, updateHito, deleteHito,
-      riesgos, addRiesgo, updateRiesgo, deleteRiesgo,
     }}>
       {children}
     </Ctx.Provider>

@@ -1,5 +1,22 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
+// ─── Color Palettes ──────────────────────────────────────────────────
+export const PALETTES: Record<string, string[]> = {
+  default: ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4'],
+  warm:    ['#ef4444', '#f97316', '#fbbf24', '#f59e0b', '#d97706', '#b45309'],
+  cool:    ['#3a86ff', '#06b6d4', '#10b981', '#6366f1', '#8b5cf6', '#a855f7'],
+  mono:    ['#6b7280', '#9ca3af', '#d1d5db', '#4b5563', '#374151', '#1f2937'],
+  vivid:   ['#ff006e', '#8338ec', '#3a86ff', '#06d6a0', '#ffbe0b', '#fb5607'],
+};
+export type PaletteName = keyof typeof PALETTES;
+export const PALETTE_NAMES = Object.keys(PALETTES) as PaletteName[];
+
+function pickColor(index: number, palette?: PaletteName, explicit?: string): string {
+  if (explicit) return explicit;
+  const pal = palette ? PALETTES[palette] || PALETTES.default : PALETTES.default;
+  return pal[index % pal.length];
+}
+
 const W = 320, H = 180, PAD = 28;
 
 interface Series { label: string; color: string; data: number[]; }
@@ -153,8 +170,8 @@ export const AreaChart: React.FC<{ series: Series[]; labels?: string[] }> = Reac
 AreaChart.displayName = 'AreaChart';
 
 export const BarChart: React.FC<{
-  data: { label: string; value: number; color?: string }[]; height?: number;
-}> = React.memo(({ data, height = H }) => {
+  data: { label: string; value: number; color?: string }[]; height?: number; palette?: PaletteName;
+}> = React.memo(({ data, height = H, palette }) => {
   const p = useAnimIn(700);
   const [tip, setTip] = useState<TooltipState>({ x: 0, y: 0, content: '', visible: false });
   const max = Math.max(...data.map(d => d.value), 1);
@@ -163,12 +180,15 @@ export const BarChart: React.FC<{
   return (
     <svg viewBox={`0 0 ${W} ${height}`} className="w-full" role="img" aria-label="Gráfico de barras">
       <defs>
-        {data.map((d, i) => (
-          <linearGradient key={i} id={`lg-bar-${i}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={d.color || 'hsl(var(--primary))'} stopOpacity="1" />
-            <stop offset="100%" stopColor={d.color || 'hsl(var(--primary))'} stopOpacity="0.6" />
-          </linearGradient>
-        ))}
+        {data.map((d, i) => {
+          const c = pickColor(i, palette, d.color);
+          return (
+            <linearGradient key={i} id={`lg-bar-${i}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={c} stopOpacity="1" />
+              <stop offset="100%" stopColor={c} stopOpacity="0.6" />
+            </linearGradient>
+          );
+        })}
       </defs>
       {/* Grid */}
       {[0.25, 0.5, 0.75, 1].map((t, i) => (
@@ -176,7 +196,8 @@ export const BarChart: React.FC<{
           y1={PAD + (1 - t) * (height - PAD * 2)} y2={PAD + (1 - t) * (height - PAD * 2)}
           stroke="hsl(var(--border))" strokeWidth={0.7} strokeDasharray="3 3" />
       ))}
-      {data.map((d, i) => {
+        {data.map((d, i) => {
+        const c = pickColor(i, palette, d.color);
         const fullH = (d.value / max) * (height - PAD * 2);
         const animH = fullH * p;
         const bx = PAD + i * bw + bw * 0.12;
@@ -188,10 +209,9 @@ export const BarChart: React.FC<{
             style={{ cursor: 'pointer' }}>
             <rect x={bx} y={height - PAD - animH} width={bwInner} height={animH}
               rx={3} fill={`url(#lg-bar-${i})`} />
-            {/* Valor encima */}
             {p > 0.95 && (
               <text x={bx + bwInner / 2} y={height - PAD - fullH - 4}
-                fontSize={7} textAnchor="middle" fill={d.color || 'hsl(var(--primary))'} fontWeight="600">
+                fontSize={7} textAnchor="middle" fill={c} fontWeight="600">
                 {d.value}
               </text>
             )}
@@ -216,7 +236,8 @@ export const Donut: React.FC<{
   let acc = 0;
 
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label="Gráfico donut">
+    <svg viewBox={`0 0 ${size} ${size}`} className="w-full max-w-[200px] h-auto mx-auto" role="img" aria-label="Gráfico donut"
+      style={{ maxWidth: Math.max(size, 60) }}>
       {data.map((d, i) => {
         const startAng = (acc / total) * 2 * Math.PI;
         acc += d.value;
@@ -297,7 +318,77 @@ export const Progress: React.FC<{
 });
 Progress.displayName = 'Progress';
 
-// Sparkline inline — nueva utilidad
+// ─── Configurable Line/Area (soporta cambio de tipo + paleta) ──────
+export const ConfigurableLineArea: React.FC<{
+  series: Series[];
+  labels?: string[];
+  type?: 'line' | 'area';
+  palette?: PaletteName;
+  height?: number;
+}> = React.memo(({ series: rawSeries, labels, type = 'line', palette, height = H }) => {
+  const p = useAnimIn(800);
+  const [tip, setTip] = useState<TooltipState>({ x: 0, y: 0, content: '', visible: false });
+  const ser = rawSeries.map((s, i) => ({ ...s, color: pickColor(i, palette, s.color) }));
+  const all = ser.flatMap(s => s.data);
+  const max = Math.max(...all, 1);
+  const min = Math.min(...all, 0);
+  const n = Math.max(...ser.map(s => s.data.length), 2);
+  const x = (i: number) => PAD + (i * (W - PAD * 2)) / (n - 1);
+  const y = (v: number) => height - PAD - ((v - min) / (max - min || 1)) * (height - PAD * 2);
+  const isArea = type === 'area';
+
+  return (
+    <svg viewBox={`0 0 ${W} ${height}`} className="w-full h-full" role="img" aria-label="Gráfico configurable">
+      <defs>
+        {ser.map((s, si) => (
+          <linearGradient key={si} id={`cfg-lg-${si}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={s.color} stopOpacity={isArea ? 0.4 : 0.3} />
+            <stop offset="100%" stopColor={s.color} stopOpacity={isArea ? 0.02 : 0} />
+          </linearGradient>
+        ))}
+      </defs>
+      {[0, 0.25, 0.5, 0.75, 1].map((t, i) => (
+        <line key={i} x1={PAD} x2={W - PAD}
+          y1={PAD + t * (height - PAD * 2)} y2={PAD + t * (height - PAD * 2)}
+          stroke="hsl(var(--border))" strokeWidth={0.8} strokeDasharray="3 3" />
+      ))}
+      {ser.map((s, si) => {
+        const pts = s.data.map((v, i) => [x(i), y(v)] as [number, number]);
+        const vis = pts.slice(0, Math.max(2, Math.round(pts.length * p)));
+        const line = vis.map(([px, py], i) => `${i === 0 ? 'M' : 'L'} ${px} ${py}`).join(' ');
+        const area = isArea
+          ? `${line} L ${vis[vis.length - 1][0]} ${height - PAD} L ${vis[0][0]} ${height - PAD} Z`
+          : '';
+        return (
+          <g key={si}>
+            {isArea && <path d={area} fill={`url(#cfg-lg-${si})`} />}
+            <path d={line} fill="none" stroke={s.color} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+            {!isArea && (
+              <path d={`M ${pts[0][0]} ${pts[0][1]} L ${pts[0][0]} ${height - PAD} L ${vis[vis.length - 1][0]} ${height - PAD} L ${vis[vis.length - 1][0]} ${vis[vis.length - 1][1]} Z`}
+                fill={`url(#cfg-lg-${si})`} opacity={0.25} />
+            )}
+            {pts.map(([px, py], i) => (
+              <circle key={i} cx={px} cy={py} r={i < vis.length ? 4 : 0}
+                fill={s.color} stroke="hsl(var(--card))" strokeWidth={1.5}
+                style={{ cursor: 'pointer' }}
+                onMouseEnter={() => setTip({ x: px, y: py, content: `${s.label}: ${s.data[i]}`, visible: true })}
+                onMouseLeave={() => setTip(t => ({ ...t, visible: false }))}
+              />
+            ))}
+          </g>
+        );
+      })}
+      {labels && labels.map((l, i) => (
+        <text key={i} x={x(Math.round(i * (n - 1) / (labels.length - 1)))} y={height - 8}
+          fontSize={8} textAnchor="middle" fill="hsl(var(--muted-foreground))">{l}</text>
+      ))}
+      <Tooltip {...tip} />
+    </svg>
+  );
+});
+ConfigurableLineArea.displayName = 'ConfigurableLineArea';
+
+// Sparkline inline
 export const Sparkline: React.FC<{
   data: number[]; color?: string; height?: number;
 }> = React.memo(({ data, color = 'hsl(var(--primary))', height = 40 }) => {
