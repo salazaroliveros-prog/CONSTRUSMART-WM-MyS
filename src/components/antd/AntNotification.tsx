@@ -17,30 +17,30 @@ export interface NotificationConfig {
   top?: number;
 }
 
+const getIcon = (type: NotificationType) => {
+  const iconProps = { style: { fontSize: '24px' } };
+  switch (type) {
+    case 'success':
+      return <CheckCircleOutlined {...iconProps} style={{ color: '#52c41a', ...iconProps.style }} />;
+    case 'error':
+      return <CloseCircleOutlined {...iconProps} style={{ color: '#f5222d', ...iconProps.style }} />;
+    case 'warning':
+      return <ExclamationCircleOutlined {...iconProps} style={{ color: '#faad14', ...iconProps.style }} />;
+    case 'info':
+      return <InfoCircleOutlined {...iconProps} style={{ color: '#1890ff', ...iconProps.style }} />;
+    case 'loading':
+      return <LoadingOutlined {...iconProps} style={{ color: '#ff8c42', ...iconProps.style }} />;
+    default:
+      return null;
+  }
+};
+
 class AntNotificationManager {
   private notificationInstance: any = null;
 
-  private getIcon(type: NotificationType) {
-    const iconProps = { style: { fontSize: '24px' } };
-    switch (type) {
-      case 'success':
-        return <CheckCircleOutlined {...iconProps} style={{ color: '#52c41a', ...iconProps.style }} />;
-      case 'error':
-        return <CloseCircleOutlined {...iconProps} style={{ color: '#f5222d', ...iconProps.style }} />;
-      case 'warning':
-        return <ExclamationCircleOutlined {...iconProps} style={{ color: '#faad14', ...iconProps.style }} />;
-      case 'info':
-        return <InfoCircleOutlined {...iconProps} style={{ color: '#1890ff', ...iconProps.style }} />;
-      case 'loading':
-        return <LoadingOutlined {...iconProps} style={{ color: '#ff8c42', ...iconProps.style }} />;
-      default:
-        return null;
-    }
-  }
-
   show(type: NotificationType, config: NotificationConfig) {
     notification[type]({
-      icon: this.getIcon(type),
+      icon: getIcon(type),
       message: config.title,
       description: config.description || '',
       duration: config.duration ?? 4.5,

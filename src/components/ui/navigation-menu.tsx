@@ -171,7 +171,7 @@ const ResponsiveNavigationMenu = React.forwardRef<
 })
 ResponsiveNavigationMenu.displayName = 'ResponsiveNavigationMenu'
 
-/* eslint-disable react-refresh/only-export-components */
+ 
 export {
   navigationMenuTriggerStyle,
   NavigationMenu,

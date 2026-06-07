@@ -1,12 +1,45 @@
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, createContext, useContext, useState } from 'react';
 import { ErpProvider, useErp } from '@/erp/store';
-import AppProvider from '@/contexts/AppContext';
-import { useAppContext } from '@/contexts/AppContext';
 import Header from '@/erp/components/Header';
 import Sidebar from '@/erp/components/Sidebar';
 import Login from '@/erp/screens/Login';
 import { applyThemeToDocument } from '@/utils/theme-generator';
 
+// Simple AppContext inline (reemplaza el archivo eliminado)
+interface AppContextType {
+  sidebarOpen: boolean;
+  toggleSidebar: () => void;
+  closeSidebar: () => void;
+  sidebarCollapsed: boolean;
+  toggleCollapse: () => void;
+}
+const AppContext = createContext<AppContextType | null>(null);
+export const useAppContext = () => {
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error('useAppContext debe usarse dentro de AppProvider');
+  return ctx;
+};
+
+const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem('wm_sidebar_collapsed') === 'true'; } catch { return false; }
+  });
+
+  return (
+    <AppContext.Provider value={{
+      sidebarOpen,
+      toggleSidebar: () => setSidebarOpen(p => !p),
+      closeSidebar: () => setSidebarOpen(false),
+      sidebarCollapsed,
+      toggleCollapse: () => setSidebarCollapsed(p => !p),
+    }}>
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+// Lazy load all screens
 const Dashboard          = lazy(() => import('@/erp/screens/Dashboard'));
 const Proyectos          = lazy(() => import('@/erp/screens/Proyectos'));
 const Presupuestos       = lazy(() => import('@/erp/screens/Presupuestos'));
@@ -17,7 +50,7 @@ const Bodega             = lazy(() => import('@/erp/screens/Bodega'));
 const CRM                = lazy(() => import('@/erp/screens/CRM'));
 const APUAvanzado        = lazy(() => import('@/erp/screens/APUAvanzado'));
 const CurvasS            = lazy(() => import('@/erp/screens/CurvasS'));
-const Rendimientos       = lazy(() => import('@/erp/screens/Rendimientos'));
+const Rendimientos       = lazy(() => import('@/erp/screens/RendimientoCampo'));
 const BasePrecios        = lazy(() => import('@/erp/screens/BasePrecios'));
 const ReportesTecnicos   = lazy(() => import('@/erp/screens/ReportesTecnicos'));
 const MuroObra           = lazy(() => import('@/erp/screens/MuroObra'));

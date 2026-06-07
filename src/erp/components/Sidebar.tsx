@@ -1,6 +1,6 @@
 import React from 'react';
 import { useErp, View } from '../store';
-import { useAppContext } from '@/contexts/AppContext';
+import { useAppContext } from '@/components/AppLayout';
 import {
   LayoutDashboard, Building2, Calculator, ClipboardCheck, Wallet, Users, Warehouse,
   X, ChevronLeft, ChevronRight, Target, Receipt, TrendingUp, BookOpen, Newspaper,

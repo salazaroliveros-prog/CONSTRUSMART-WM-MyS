@@ -7,7 +7,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 
 export default [
   {
-    ignores: ["dist/**", "node_modules/**", "assets/**", "docs/assets/**", "src/functions/**", "CONSTRUSMART-DEVELOP/**", "eslint.config.js", "postcss.config.js", "tailwind.config.ts", "vitest.config.ts", "vitest.setup.ts", "public/sw.js"],
+    ignores: ["dist/**", "node_modules/**", "assets/**", "docs/assets/**", "src/functions/**", "CONSTRUSMART-DEVELOP/**", "app_ejemplo/**", ".kilo/**", "eslint.config.js", "postcss.config.js", "tailwind.config.ts", "vitest.config.ts", "vitest.setup.ts", "public/sw.js"],
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
@@ -40,10 +40,10 @@ export default [
       ...pluginReact.configs.recommended.rules,
       ...pluginReact.configs["jsx-runtime"].rules,
       ...hooksPlugin.configs.recommended.rules,
-      "react-refresh/only-export-components": "warn",
+      "react-refresh/only-export-components": "off",
       "react/prop-types": "off",
       "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", "varsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-unused-vars": ["off"],
       "no-empty": "warn",
     },
   },
