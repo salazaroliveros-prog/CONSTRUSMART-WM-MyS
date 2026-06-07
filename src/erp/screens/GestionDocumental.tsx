@@ -11,7 +11,7 @@ interface Plano {
   id: string;
   proyectoId: string;
   nombre: string;
-  disciplina: 'arquitectura' | 'estructura' | 'instalaciones' | 'electricas' | 'sanitarias' | 'otra';
+  disciplina: 'arquitectura' | 'estructura' | 'instalaciones' | 'electricas' | 'sanitarias' | 'mecanicas' | 'otra';
   version: string;
   fechaSubida: string;
   descripcion?: string;
@@ -47,7 +47,7 @@ interface Submittal {
 // Zod schemas
 const planoSchema = z.object({
   nombre: z.string().min(1, 'Nombre del plano requerido').max(200, 'Máximo 200 caracteres'),
-  disciplina: z.enum(['arquitectura', 'estructura', 'electricas', 'sanitarias', 'mecanicas', 'otra']),
+  disciplina: z.enum(['arquitectura', 'estructura', 'instalaciones', 'electricas', 'sanitarias', 'mecanicas', 'otra']),
   version: z.string().min(1, 'Versión requerida').max(20, 'Máximo 20 caracteres'),
 });
 const rfiSchema = z.object({
@@ -79,13 +79,7 @@ const GestionDocumental: React.FC = () => {
   const [submittals, setSubmittals] = useState<Submittal[]>([]);
   const [versiones, setVersiones] = useState<Record<string, string[]>>({});
   const [_gdFormErrors, setGdFormErrors] = useState<Record<string, string>>({});
-
-  const _clearGdError = (field: string) => setGdFormErrors(prev => ({ ...prev, [field]: '' }));
   const resetGdErrors = () => setGdFormErrors({});
-
-  const _proyectoActual = proyectos.find(p => p.id === selProyecto);
-  const _rfiCount = rfis.filter(r => !selProyecto || r.proyectoId === selProyecto).length;
-  const _subCount = submittals.filter(s => !selProyecto || s.proyectoId === selProyecto).length;
 
   // === PLANO FORM ===
   const [showPlanoForm, setShowPlanoForm] = useState(false);
@@ -127,12 +121,11 @@ const GestionDocumental: React.FC = () => {
   };
 
   const togglePlanoEstado = (id: string) => {
-    const updated = planos.map(p => {
+    setPlanos(prev => prev.map(p => {
       if (p.id !== id) return p;
       const next: Plano['estado'] = p.estado === 'vigente' ? 'obsoleto' : 'vigente';
       return { ...p, estado: next };
-    });
-    setPlanos(updated);
+    }));
     toast.success('Estado actualizado');
   };
 
@@ -141,12 +134,9 @@ const GestionDocumental: React.FC = () => {
     if (!plano) return;
     const [major, minor] = plano.version.split('.').map(Number);
     const newVer = `${major}.${(minor || 0) + 1}`;
-    const updated = planos.map(p => p.id === id ? { ...p, version: newVer, fechaSubida: todayISO(), estado: 'vigente' } : p);
-    setPlanos(updated);
+    setPlanos(prev => prev.map(p => p.id === id ? { ...p, version: newVer, fechaSubida: todayISO(), estado: 'vigente' as const } : p));
     const vers = versiones[id] || [];
-    const newVers = [...vers, newVer];
-    const newVersiones = { ...versiones, [id]: newVers };
-    setVersiones(newVersiones);
+    setVersiones(prev => ({ ...prev, [id]: [...vers, newVer] }));
     toast.success(`Nueva versión ${newVer}`);
   };
 
@@ -185,8 +175,7 @@ const GestionDocumental: React.FC = () => {
   };
 
   const actualizarRFI = (id: string, estado: RFI['estado'], respuesta?: string) => {
-    const updated = rfis.map(r => r.id === id ? { ...r, estado, respuesta, fechaRespuesta: respuesta ? todayISO() : r.fechaRespuesta } : r);
-    setRfis(updated);
+    setRfis(prev => prev.map(r => r.id === id ? { ...r, estado, respuesta, fechaRespuesta: respuesta ? todayISO() : r.fechaRespuesta } : r));
     toast.success(`RFI actualizado: ${estado}`);
   };
 
@@ -230,8 +219,7 @@ const GestionDocumental: React.FC = () => {
   };
 
   const actualizarSubmittal = (id: string, estado: Submittal['estado']) => {
-    const updated = submittals.map(s => s.id === id ? { ...s, estado } : s);
-    setSubmittals(updated);
+    setSubmittals(prev => prev.map(s => s.id === id ? { ...s, estado } : s));
     toast.success(`Submittal: ${estado}`);
   };
 
@@ -247,6 +235,7 @@ const GestionDocumental: React.FC = () => {
     { value: 'instalaciones', label: 'Instalaciones' },
     { value: 'electricas', label: 'Eléctricas' },
     { value: 'sanitarias', label: 'Sanitarias' },
+    { value: 'mecanicas', label: 'Mecánicas' },
     { value: 'otra', label: 'Otra' },
   ];
 
