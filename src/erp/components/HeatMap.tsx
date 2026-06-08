@@ -55,7 +55,7 @@ const HeatMap: React.FC<{ proyectos: Proyecto[] }> = ({ proyectos }) => {
   const center: [number, number] = [14.6349, -90.5069];
 
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden" style={{ height: 220 }}>
+    <div className="relative w-full rounded-2xl overflow-hidden isolate" style={{ height: 220 }}>
       <MapContainer center={center} zoom={7} scrollWheelZoom={false} className="w-full h-full">
         <LayerSwitcher />
         {proyectos.map(p =>
