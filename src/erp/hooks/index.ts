@@ -1,7 +1,6 @@
 // Redux hooks barrel export
 export { useProyectosRedux } from './useProyectosRedux';
 export { useMovimientosRedux } from './useMovimientosRedux';
-export { usePresupuestosRedux } from './usePresupuestosRedux';
 export { useEmpleadosRedux } from './useEmpleadosRedux';
 export { useMaterialesRedux } from './useMaterialesRedux';
 export { useOrdenesRedux } from './useOrdenesRedux';
