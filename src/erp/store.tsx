@@ -2689,49 +2689,55 @@ case 'addNotificacion': {
   // ── Supabase Realtime subscriptions (v2 API) ──
   useEffect(() => {
     const handleRenglones = (payload: any) => {
-      if (payload.eventType === 'INSERT') {
-        setRenglones((prev: any[]) => [payload.new, ...prev]);
-      } else if (payload.eventType === 'UPDATE') {
-        setRenglones((prev: any[]) => prev.map((r: any) => r.id === payload.new.id ? payload.new : r));
-      } else if (payload.eventType === 'DELETE') {
-        setRenglones((prev: any[]) => prev.filter((r: any) => r.id !== payload.old.id));
+      const mapper = buildCamelMapper(payload.new || payload.old || {});
+      if (payload.eventType === 'INSERT' && payload.new) {
+        setRenglones((prev: any[]) => [mapper(payload.new), ...prev]);
+      } else if (payload.eventType === 'UPDATE' && payload.new) {
+        setRenglones((prev: any[]) => prev.map((r: any) => r.id === mapper(payload.new).id ? mapper(payload.new) : r));
+      } else if (payload.eventType === 'DELETE' && payload.old) {
+        const oldMapper = buildCamelMapper(payload.old);
+        setRenglones((prev: any[]) => prev.filter((r: any) => r.id !== oldMapper(payload.old).id));
       }
     };
     const handleInsumos = (payload: any) => {
-      if (payload.eventType === 'INSERT') {
-        setInsumos((prev: any[]) => [payload.new, ...prev]);
-      } else if (payload.eventType === 'UPDATE') {
-        setInsumos((prev: any[]) => prev.map((i: any) => i.id === payload.new.id ? payload.new : i));
-      } else if (payload.eventType === 'DELETE') {
-        setInsumos((prev: any[]) => prev.filter((i: any) => i.id !== payload.old.id));
+      const mapper = buildCamelMapper(payload.new || payload.old || {});
+      if (payload.eventType === 'INSERT' && payload.new) {
+        setInsumos((prev: any[]) => [mapper(payload.new), ...prev]);
+      } else if (payload.eventType === 'UPDATE' && payload.new) {
+        setInsumos((prev: any[]) => prev.map((i: any) => i.id === mapper(payload.new).id ? mapper(payload.new) : i));
+      } else if (payload.eventType === 'DELETE' && payload.old) {
+        const oldMapper = buildCamelMapper(payload.old);
+        setInsumos((prev: any[]) => prev.filter((i: any) => i.id !== oldMapper(payload.old).id));
       }
     };
     const handleSubRenglones = (payload: any) => {
-      if (payload.eventType === 'INSERT') {
-        setSubRenglones((prev: any[]) => [payload.new, ...prev]);
-      } else if (payload.eventType === 'UPDATE') {
-        setSubRenglones((prev: any[]) => prev.map((s: any) => s.id === payload.new.id ? payload.new : s));
-      } else if (payload.eventType === 'DELETE') {
-        setSubRenglones((prev: any[]) => prev.filter((s: any) => s.id !== payload.old.id));
+      const mapper = buildCamelMapper(payload.new || payload.old || {});
+      if (payload.eventType === 'INSERT' && payload.new) {
+        setSubRenglones((prev: any[]) => [mapper(payload.new), ...prev]);
+      } else if (payload.eventType === 'UPDATE' && payload.new) {
+        setSubRenglones((prev: any[]) => prev.map((s: any) => s.id === mapper(payload.new).id ? mapper(payload.new) : s));
+      } else if (payload.eventType === 'DELETE' && payload.old) {
+        const oldMapper = buildCamelMapper(payload.old);
+        setSubRenglones((prev: any[]) => prev.filter((s: any) => s.id !== oldMapper(payload.old).id));
       }
     };
 
     const handlePresupuestos = (payload: any) => {
       if (payload.eventType === 'INSERT' && payload.new) {
         try {
-          const toCamel = buildCamelMapper(payload.new);
-          const parsed = presupuestoSchema.parse(toCamel(payload.new));
+          const mapper = buildCamelMapper(payload.new);
+          const parsed = presupuestoSchema.parse(mapper(payload.new));
           setPresupuestos((prev: Presupuesto[]) => [parsed, ...prev]);
         } catch { /* skip invalid payload */ }
       } else if (payload.eventType === 'UPDATE' && payload.new) {
         try {
-          const toCamel = buildCamelMapper(payload.new);
-          const parsed = presupuestoSchema.parse(toCamel(payload.new));
+          const mapper = buildCamelMapper(payload.new);
+          const parsed = presupuestoSchema.parse(mapper(payload.new));
           setPresupuestos((prev: Presupuesto[]) => prev.map((p: Presupuesto) => p.id === parsed.id ? parsed : p));
         } catch { /* skip invalid payload */ }
       } else if (payload.eventType === 'DELETE' && payload.old) {
-        const toCamel = buildCamelMapper(payload.old);
-        const raw = toCamel(payload.old);
+        const mapper = buildCamelMapper(payload.old);
+        const raw = mapper(payload.old);
         setPresupuestos((prev: Presupuesto[]) => prev.filter((p: Presupuesto) => p.id !== raw.id));
       }
     };

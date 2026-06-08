@@ -1,7 +1,7 @@
 # 📋 Guía de Implementación Pendiente — ERP CONSTRUSMART
 
-> **Fecha:** 7 de junio 2026  
-> **Estado:** Store saneado, arranque validado en 8080, notificaciones sincronizadas.  
+> **Fecha:** 8 de junio 2026  
+> **Estado:** Store saneado, arranque validado en 8080, notificaciones sincronizadas, realtime corregido.  
 > **Objetivo:** Completar al 100% la funcionalidad de la ERP.
 
 ---
@@ -291,7 +291,8 @@ CREATE TABLE IF NOT EXISTS erp_cotizaciones (
 | Persistencia Supabase (Fase 1 completa) | ✅ Completada |
 | Carga inicial + mapeos snake_case | ✅ Avanzada |
 | Helpers de sincronización (`safeFrom`, `setSnakeCaseStates`) | ✅ Avanzada |
-| **Corrección bloqueante `store.tsx` (orden `enqueueMutation`)** | 🔴 Pendiente |
+| **Bug `handlePresupuestos` - mapper redundante** | ✅ Corregido |
+| **Realtime: conversión snake_case→camelCase en renglones/insumos/subrenglones** | ✅ Corregido |
 | **Consolidación `processQueue` para tablas nuevas** | 🟠 Pendiente |
 | **Verificación columnas `fetchInitialData` contra Supabase** | 🟠 Pendiente |
-| **Migración SQL a Supabase** | 🟡 Pendiente |
+| **Migración SQL a Supabase** | 🟡 Difiere del equipo (ejecutar en Supabase) |
