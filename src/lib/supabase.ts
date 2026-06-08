@@ -16,7 +16,7 @@ if (typeof window !== 'undefined') {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      storage: window.localStorage as unknown as any,
+      storage: window.localStorage satisfies Storage,
     },
   });
 } else {
