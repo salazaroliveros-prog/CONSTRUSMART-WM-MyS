@@ -1,4 +1,4 @@
-import { RenglonPresupuesto } from './types';
+import { RenglonPresupuesto, CotizacionCliente } from './types';
 import { sanitizarTexto } from '@/lib/security';
 import { EMPRESA, fmtQ, costoDirectoUnitario, precioUnitarioVenta, TIPOLOGIA_LABEL, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD, HERRAMIENTA_MENOR, downloadBlob, sanitizeCSV } from './utils';
 import { jsPDF } from 'jspdf';
@@ -469,3 +469,185 @@ export const exportXLSX = (renglones: RenglonPresupuesto[], proyecto: string, ti
 };
 
 export { validarUrlImagen as _validarUrlImagen };
+
+export const exportCotizacionPDF = (cotizacion: CotizacionCliente) => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 14;
+  const contentWidth = pageWidth - 2 * margin;
+  let y = margin;
+
+  const ORANGE = [249, 115, 22] as const;
+  const DARK = [15, 23, 42] as const;
+  const GRAY = [100, 116, 139] as const;
+
+  const addFooter = () => {
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      const fy = doc.internal.pageSize.getHeight() - 10;
+      doc.setFontSize(7);
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+      const footerText = `${EMPRESA.nombre} — ${EMPRESA.eslogan} | Pág. ${i} de ${pageCount}`;
+      const fw = doc.getTextWidth(footerText);
+      doc.text(footerText, (pageWidth - fw) / 2, fy);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(margin, fy - 2, pageWidth - margin, fy - 2);
+
+      const esloganY = fy + 3;
+      doc.setFontSize(7);
+      doc.setTextColor(249, 115, 22);
+      const esloganText = 'SU CONFIANZA EN NOSOTROS ES NUESTRA MAYOR PRIORIDAD';
+      const esloganW = doc.getTextWidth(esloganText);
+      doc.text(esloganText, (pageWidth - esloganW) / 2, esloganY);
+    }
+    doc.setPage(pageCount);
+  };
+
+  const checkPage = (needed: number) => {
+    const pageHeight = doc.internal.pageSize.getHeight();
+    if (y + needed > pageHeight - 25) {
+      addFooter();
+      doc.addPage();
+      y = margin;
+    }
+  };
+
+  const empresaNombre = sanitizarTexto(EMPRESA.nombre);
+  const fecha = new Date().toLocaleDateString('es-GT', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  doc.setFontSize(16);
+  doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+  doc.text('COTIZACIÓN', margin, y);
+  y += 6;
+
+  doc.setFontSize(9);
+  doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+  doc.text(`${empresaNombre} — ${sanitizarTexto(EMPRESA.eslogan)}`, margin, y);
+  y += 4;
+  doc.text(`NIT:  ______-__    |    Tel:  ______    |    Email:  ______`, margin, y);
+  y += 8;
+
+  doc.setDrawColor(ORANGE[0], ORANGE[1], ORANGE[2]);
+  doc.setLineWidth(0.8);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 6;
+
+  doc.setFontSize(10);
+  doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+  doc.text(`Cotización N°: ${sanitizarTexto(cotizacion.numero)}`, margin, y);
+  y += 5;
+  doc.text(`Fecha: ${fecha}`, margin, y);
+  y += 5;
+  doc.text(`Vencimiento: ${sanitizarTexto(cotizacion.fechaVencimiento || 'N/A')}`, margin, y);
+  y += 8;
+
+  doc.setFontSize(9);
+  doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+  doc.text('DATOS DEL CLIENTE', margin, y);
+  y += 5;
+  doc.setFontSize(8);
+  doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+  doc.text(`Nombre: ${sanitizarTexto(cotizacion.clienteNombre)}`, margin, y);
+  y += 4;
+  if (cotizacion.clienteNit) {
+    doc.text(`NIT: ${sanitizarTexto(cotizacion.clienteNit)}`, margin, y);
+    y += 4;
+  }
+  if (cotizacion.clienteTelefono) {
+    doc.text(`Tel: ${sanitizarTexto(cotizacion.clienteTelefono)}`, margin, y);
+    y += 4;
+  }
+  if (cotizacion.clienteEmail) {
+    doc.text(`Email: ${sanitizarTexto(cotizacion.clienteEmail)}`, margin, y);
+    y += 4;
+  }
+  if (cotizacion.clienteDireccion) {
+    doc.text(`Dirección: ${sanitizarTexto(cotizacion.clienteDireccion)}`, margin, y);
+    y += 4;
+  }
+  y += 4;
+
+  doc.setFontSize(9);
+  doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+  doc.text('DESCRIPCIÓN DEL SERVICIO', margin, y);
+  y += 5;
+  doc.setFontSize(8);
+  doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+  doc.text(sanitizarTexto(cotizacion.descripcion || cotizacion.alcance || 'Servicio según alcance acordado'), margin, y);
+  y += 8;
+
+  if (cotizacion.renglones.length > 0) {
+    doc.setFontSize(9);
+    doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+    doc.text('DETALLE DE SERVICIOS / ACTIVIDADES', margin, y);
+    y += 5;
+
+    const tableBody = cotizacion.renglones.map((r, i) => {
+      const cd = costoDirectoUnitario(r.costoMateriales, r.costoManoObra || 0, r.costoEquipo || 0);
+      const pv = precioUnitarioVenta(cd);
+      const total = pv * r.cantidad;
+      return [
+        `${i + 1}`,
+        sanitizarTexto(r.nombre),
+        sanitizarTexto(r.unidad),
+        r.cantidad.toString(),
+        fmtQ(cd),
+        fmtQ(pv),
+        fmtQ(total),
+      ];
+    });
+
+    checkPage(40);
+    autoTable(doc, {
+      startY: y,
+      head: [['#', 'Descripción', 'Ud.', 'Cant.', 'Costo Dir.', 'Precio Unit.', 'Total']],
+      body: tableBody,
+      foot: [[{ content: 'TOTAL COTIZACIÓN', colSpan: 6, styles: { halign: 'right', fontStyle: 'bold' } }, fmtQ(cotizacion.precioVentaTotal)]],
+      theme: 'grid',
+      headStyles: { fillColor: [249, 115, 22], fontSize: 8 },
+      bodyStyles: { fontSize: 7 },
+      footStyles: { fillColor: [255, 247, 237], fontSize: 8, fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 8, halign: 'center' },
+        1: { cellWidth: 70 },
+        2: { cellWidth: 12, halign: 'center' },
+        3: { cellWidth: 12, halign: 'center' },
+        4: { cellWidth: 22, halign: 'right' },
+        5: { cellWidth: 22, halign: 'right' },
+        6: { cellWidth: 22, halign: 'right' },
+      },
+      margin: { left: margin, right: margin },
+    });
+    y = (doc as any).lastAutoTable.finalY + 8;
+  }
+
+  checkPage(20);
+  doc.setFontSize(9);
+  doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+  doc.text('CONDICIONES COMERCIALES', margin, y);
+  y += 5;
+  doc.setFontSize(8);
+  doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+  doc.text('Forma de pago: 50% anticipo, 50% contra entrega / hito', margin, y);
+  y += 4;
+  doc.text('Validez de la oferta: 15 días calendario', margin, y);
+  y += 4;
+  doc.text('Tiempo de entrega: según cronograma acordado', margin, y);
+  y += 8;
+
+  if (cotizacion.notas) {
+    checkPage(20);
+    doc.setFontSize(9);
+    doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+    doc.text('NOTAS ADICIONALES', margin, y);
+    y += 5;
+    doc.setFontSize(8);
+    doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+    doc.text(sanitizarTexto(cotizacion.notas), margin, y);
+    y += 6;
+  }
+
+  addFooter();
+  doc.save(`Cotizacion_${cotizacion.numero.replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`);
+};

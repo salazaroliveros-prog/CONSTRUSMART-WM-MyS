@@ -73,6 +73,7 @@ const Hitos              = lazy(() => import('@/erp/screens/Hitos'));
 const Riesgos            = lazy(() => import('@/erp/screens/Riesgos'));
 const CuentasCobrar      = lazy(() => import('@/erp/screens/CuentasCobrar'));
 const CuentasPagar       = lazy(() => import('@/erp/screens/CuentasPagar'));
+const Cotizaciones       = lazy(() => import('@/erp/screens/Cotizaciones'));
 
 const ScreenLoader: React.FC = () => (
   <div className="flex items-center justify-center h-64" role="status" aria-label="Cargando módulo">
@@ -151,6 +152,7 @@ const Shell: React.FC = () => {
     riesgos:           <Riesgos />,
     'cuentas-cobrar':  <CuentasCobrar />,
     'cuentas-pagar':   <CuentasPagar />,
+    cotizaciones:      <Cotizaciones />,
   };
 
   // P3: Solo renderizar screens permitidas para el rol

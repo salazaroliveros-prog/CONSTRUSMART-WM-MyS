@@ -7,7 +7,7 @@ import { toast } from '@/components/ui/sonner';
 import {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
   CuentaCobrar, CuentaPagar, Hito, Riesgo, PublicacionMuro, ComentarioMuro, PruebaLaboratorio, NoConformidad, LiberacionPartida,
-  Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo, PagoProveedor,
+  Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo, PagoProveedor, CotizacionCliente,
 } from './types';
 
 
@@ -196,6 +196,29 @@ const renglonPresupuestoZ = z.object({
   avanceFisico: z.number().optional(),
   avanceFinanciero: z.number().optional(),
   predecesores: z.array(z.string()).optional().default([]),
+});
+
+const cotizacionSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string().nullable().optional().default(''),
+  tipo: z.enum(['construccion','planos_registro','estudio_planificacion','diseno_urbanistico','anteproyecto_residencial']),
+  numero: z.string().default(''),
+  fecha: z.string().default(''),
+  fechaVencimiento: z.string().nullable().optional().default(''),
+  clienteNombre: z.string().default(''),
+  clienteNit: z.string().nullable().optional().default(''),
+  clienteTelefono: z.string().nullable().optional().default(''),
+  clienteEmail: z.string().nullable().optional().default(''),
+  clienteDireccion: z.string().nullable().optional().default(''),
+  descripcion: z.string().default(''),
+  alcance: z.string().default(''),
+  renglones: z.array(renglonPresupuestoZ).default([]),
+  costoDirectoTotal: z.number().default(0),
+  precioVentaTotal: z.number().default(0),
+  estado: z.enum(['borrador','enviada','aprobada','rechazada','vencida']).default('borrador'),
+  notas: z.string().nullable().optional(),
+  createdAt: z.string().default(new Date().toISOString()),
+  updatedAt: z.string().default(new Date().toISOString()),
 });
 
 const presupuestoSchema = z.object({
@@ -411,14 +434,25 @@ export const cuadroSchema = z.object({
   observaciones: z.string().nullable().optional(),
   cotizaciones: z.array(z.object({
     id: z.string(),
-    cuadroId: z.string(),
-    proveedorId: z.string(),
-    proveedorNombre: z.string(),
-    montoTotal: z.number(),
-    plazoEntrega: z.number().optional(),
-    condicionesPago: z.string().optional(),
-    validezOferta: z.string().optional(),
-    seleccionada: z.boolean().default(false),
+    proyectoId: z.string().optional().default(''),
+    tipo: z.enum(['construccion','planos_registro','estudio_planificacion','diseno_urbanistico','anteproyecto_residencial']),
+    numero: z.string().default(''),
+    fecha: z.string().default(''),
+    fechaVencimiento: z.string().optional().default(''),
+    clienteNombre: z.string().default(''),
+    clienteNit: z.string().optional().default(''),
+    clienteTelefono: z.string().optional().default(''),
+    clienteEmail: z.string().optional().default(''),
+    clienteDireccion: z.string().optional().default(''),
+    descripcion: z.string().default(''),
+    alcance: z.string().default(''),
+    renglones: z.array(z.any()).default([]),
+    costoDirectoTotal: z.number().default(0),
+    precioVentaTotal: z.number().default(0),
+    estado: z.enum(['borrador','enviada','aprobada','rechazada','vencida']).default('borrador'),
+    notas: z.string().optional().default(''),
+    createdAt: z.string().default(''),
+    updatedAt: z.string().default(''),
   })).default([]),
 });
 
@@ -722,7 +756,7 @@ const toSnake = (obj: Record<string, any>): Record<string, any> => {
 
 const snakeKeys = (obj: Record<string, any>): Record<string, any> => toSnake(obj);
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones';
 
  
 export function parseView(v: string): { root: View; sub?: string } {
@@ -758,10 +792,10 @@ export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeg
 
  
 export const ALLOWED: Record<Rol, View[]> = {
-  Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar'],
-  Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar'],
-  Residente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'hitos', 'riesgos', 'ajustes'],
-  Compras: ['dashboard', 'bodega', 'proyectos', 'cuentas-pagar', 'ajustes'],
+  Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar', 'cotizaciones'],
+  Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar', 'cotizaciones'],
+  Residente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'hitos', 'riesgos', 'ajustes', 'cotizaciones'],
+  Compras: ['dashboard', 'bodega', 'proyectos', 'cuentas-pagar', 'ajustes', 'cotizaciones'],
   Bodeguero: ['dashboard', 'bodega', 'ajustes'],
 };
 
@@ -858,6 +892,10 @@ interface ErpState {
   addLicitacion: (l: Omit<Licitacion, 'id'>) => Promise<void>;
   updateLicitacion: (id: string, patch: Partial<Licitacion>) => Promise<void>;
   deleteLicitacion: (id: string) => Promise<void>;
+  cotizaciones: CotizacionCliente[];
+  addCotizacion: (c: Omit<CotizacionCliente, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateCotizacion: (id: string, patch: Partial<CotizacionCliente>) => Promise<void>;
+  deleteCotizacion: (id: string) => Promise<void>;
   avances: AvanceObra[];
   addAvance: (a: Omit<AvanceObra, 'id'>) => Promise<void>;
   deleteAvance: (id: string) => Promise<void>;
@@ -1009,6 +1047,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [cuadros, setCuadros] = useState<CuadroComparativo[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_cuadros', []));
   const [pagosProveedor, setPagosProveedor] = useState<PagoProveedor[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_pagos_proveedor', []));
   const [subcontratos, _setSubcontratos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_subcontratos', []));
+  const [cotizaciones, setCotizacionesClientes] = useState<CotizacionCliente[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_cotizaciones', []));
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
 
@@ -1106,6 +1145,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (data.muro?.length) setPublicacionesMuro(data.muro);
     if (data.notificaciones?.length) setNotificaciones(data.notificaciones);
     if (data.licitaciones?.length) setLicitaciones(data.licitaciones);
+    if (data.cotizaciones?.length) setCotizacionesClientes(data.cotizaciones);
   }, []);
 
   const safeFrom = async (table: string, queryModifier?: (q: any) => any) => {
@@ -1341,6 +1381,7 @@ setSnakeCaseStates({
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_presupuestos', presupuestos); }, [presupuestos]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_selected_proyecto_id', selectedProyectoId); }, [selectedProyectoId]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_licitaciones', licitaciones); }, [licitaciones]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_cotizaciones', cotizaciones); }, [cotizaciones]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_avances', avances); }, [avances]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_vales_salida', valesSalida); }, [valesSalida]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_seguimiento_evm', seguimientoEVM); }, [seguimientoEVM]);
@@ -2264,42 +2305,31 @@ case 'addNotificacion': {
     enqueueMutation('deleteLicitacion', { id });
   };
 
+  const addCotizacion = async (c: Omit<CotizacionCliente, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date().toISOString();
+    const nueva: CotizacionCliente = { ...c, id: uid(), createdAt: now, updatedAt: now };
+    setCotizaciones(s => [nueva, ...s]);
+    enqueueMutation('addCotizacion', nueva);
+    return nueva;
+  };
+
+  const updateCotizacion = async (id: string, patch: Partial<CotizacionCliente>) => {
+    setCotizaciones(s => s.map(c => c.id === id ? { ...c, ...patch, updatedAt: new Date().toISOString() } : c));
+    enqueueMutation('updateCotizacion', { id, ...patch, updatedAt: new Date().toISOString() });
+  };
+
+  const deleteCotizacion = async (id: string) => {
+    setCotizaciones(s => s.filter(c => c.id !== id));
+    enqueueMutation('deleteCotizacion', { id });
+  };
+
   const updateMaterial = async (id: string, patch: Partial<Material>) => {
     setMateriales(s => s.map(m => m.id === id ? { ...m, ...patch } : m));
     enqueueMutation('updateMaterial', { id, ...patch });
   };
-  const addMaterial = async (m: Omit<Material, 'id'>) => {
-    const newMat = { ...m, id: uid() };
-    setMateriales(s => [newMat, ...s]);
-    enqueueMutation('addMaterial', newMat);
-  };
   const deleteMaterial = async (id: string) => {
     setMateriales(s => s.filter(m => m.id !== id));
     enqueueMutation('deleteMaterial', { id });
-  };
-
-  const addOrden = async (o: Omit<OrdenCompra, 'id'>) => {
-    const newOrd = { ...o, id: uid() };
-    setOrdenes(s => [newOrd, ...s]);
-    enqueueMutation('addOrden', newOrd);
-  };
-  const updateOrden = async (id: string, estado: OrdenCompra['estado']) => {
-    setOrdenes(s => s.map(o => o.id === id ? { ...o, estado } : o));
-    enqueueMutation('updateOrden', { id, estado });
-    
-    // P2: Descuento automático de stock cuando OC es recibida/aprobada
-    if ((estado === 'aprobado' || estado === 'recibida') && Array.isArray(ordenes)) {
-      const orden = ordenes.find(o => o.id === id);
-      if (orden?.items && Array.isArray(orden.items)) {
-        orden.items.forEach(item => {
-          setMateriales(prev => prev.map(m =>
-            m.id === item.materialId
-              ? { ...m, stock: m.stock + item.cantidad }
-              : m
-          ));
-        });
-      }
-    }
   };
 
   const addProveedor = async (p: Omit<Proveedor, 'id'>) => {
@@ -2761,6 +2791,7 @@ case 'addNotificacion': {
       presupuestos, addPresupuesto, updatePresupuesto, deletePresupuesto, getPresupuestoByProyecto,
       selectedProyectoId, setSelectedProyectoId,
       licitaciones, addLicitacion, updateLicitacion, deleteLicitacion,
+      cotizaciones, addCotizacion, updateCotizacion, deleteCotizacion,
       avances, addAvance, deleteAvance,
       valesSalida, addValeSalida, deleteValeSalida,
       cuentasCobrar, addCuentaCobrar, updateCuentaCobrar, deleteCuentaCobrar,
