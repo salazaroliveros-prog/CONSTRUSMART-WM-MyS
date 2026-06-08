@@ -89,7 +89,7 @@ git push origin main
 
 Vercel auto-deploya. Esperar 3-5 min.
 
-Verificar: https://erp-construsmart-wm.vercel.app/
+Verificar: https://construsmart-wm2026.vercel.app/
 
 ---
 

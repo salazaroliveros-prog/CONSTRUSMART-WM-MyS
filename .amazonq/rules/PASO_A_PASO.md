@@ -197,7 +197,7 @@ git push origin main
 **Resultado esperado:**
 ```
 ✓ Build completado sin errores
-✓ URL de deploy: https://erp-construsmart-wm.vercel.app/
+✓ URL de deploy: https://construsmart-wm2026.vercel.app/
 ```
 
 **❌ Si build falla:**
@@ -214,7 +214,7 @@ git push origin main
 
 1. Abre en navegador incógnito (nueva ventana privada):
    ```
-   https://erp-construsmart-wm.vercel.app/
+   https://construsmart-wm2026.vercel.app/
    ```
 
 2. Verificar:
@@ -241,7 +241,7 @@ Si todos los pasos se completaron ✅:
 ║         🚀 DEPLOY EXITOSO 🚀                       ║
 ║                                                     ║
 ║  App está en PRODUCCIÓN:                           ║
-║  https://erp-construsmart-wm.vercel.app/           ║
+║  https://construsmart-wm2026.vercel.app/           ║
 ║                                                     ║
 ║  Status: ✅ ONLINE                                  ║
 ║  Build: ✅ Sin errores                             ║

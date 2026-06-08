@@ -4,7 +4,7 @@
 
 CONSTRUSMART is a comprehensive web-based ERP (Enterprise Resource Planning) system designed specifically for the construction industry. It centralizes project management, cost estimation, financial control, HR, warehouse/inventory, field tracking, CRM, and supply chain into a single platform. It supports both online (Supabase-backed) and offline-first operation via IndexedDB.
 
-**Live deployment:** https://erp-construsmart-wm.vercel.app/
+**Live deployment:** https://construsmart-wm2026.vercel.app/
 
 ---
 

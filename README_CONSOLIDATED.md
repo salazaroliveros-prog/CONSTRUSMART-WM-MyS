@@ -2,7 +2,7 @@
 
 **Versión:** 2026-06-07 (Post-Consolidación)  
 **Status:** 🚀 **LISTO PARA DEPLOY**  
-**Build:** ✅ 0 errores | **Tests:** ✅ 76/76 | **Deploy:** https://erp-construsmart-wm.vercel.app/
+**Build:** ✅ 0 errores | **Tests:** ✅ 76/76 | **Deploy:** https://construsmart-wm2026.vercel.app/
 
 ---
 
@@ -229,7 +229,7 @@ npm run test
 ## 📞 Contacto & Soporte
 
 **Repo:** https://github.com/salazaroliveros-prog/ERP-CONSTRUSMART-WM.git  
-**Deploy:** https://erp-construsmart-wm.vercel.app/  
+**Deploy:** https://construsmart-wm2026.vercel.app/  
 **Supabase:** https://app.supabase.com/  
 **Documentation:** `.amazonq/rules/`  
 
