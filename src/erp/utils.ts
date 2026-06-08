@@ -76,7 +76,7 @@ export const TIPOLOGIA_LABEL: Record<Tipologia, string> = {
 
 export const EMPRESA = {
   nombre: 'CONSTRUCTORA WM / M&S',
-  eslogan: 'SU CONFIANZA EN NOSOTROS ES NUESTRA MAYOR PRIORIDAD',
+  eslogan: 'Edificando el Futuro',
 };
 
 export const todayISO = () => new Date().toISOString().slice(0, 10);

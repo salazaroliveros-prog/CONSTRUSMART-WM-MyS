@@ -102,6 +102,7 @@ const Login: React.FC = () => {
               </div>
             ))}
           </div>
+          <p className="text-primary-foreground/60 text-[10px] sm:text-xs mt-8">SU CONFIANZA EN NOSOTROS ES NUESTRA MAYOR PRIORIDAD</p>
         </div>
       </div>
 
