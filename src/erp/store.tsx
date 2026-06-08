@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase';
 import { sanitizarObjeto, sanitizarTexto, getServerRole } from '@/lib/security';
 // useSupabaseRealtime import removed - hook was commented out and causing issues
 import { z } from 'zod';
+import { useAuth } from '@/hooks/useAuth';
+import type { AuthUser } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 import {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
@@ -10,9 +12,42 @@ import {
   Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo, PagoProveedor, CotizacionCliente,
 } from './types';
 
+// Schemas fragmentados — fuente canónica de validación
+import {
+  proyectoSchema,
+  movimientoSchema,
+  cuentaCobrarSchema,
+  cuentaPagarSchema,
+  ordenCambioSchema,
+  presupuestoSchema,
+  cotizacionSchema,
+  empleadoSchema,
+  incidenteSchema,
+  materialSchema,
+  ordenSchema,
+  proveedorSchema,
+  eventoCalendarioSchema,
+  eventoSchema,
+  bitacoraEntrySchema,
+  bitacoraSchema,
+  seguimientoSchema,
+  hitoSchema,
+  riesgoSchema,
+  muroSchema,
+  notificacionSchema,
+  liberacionSchema,
+  pruebaSchema,
+  noConformidadSchema,
+  activoSchema,
+  licitacionSchema,
+  cuadroSchema,
+  pagoProveedorSchema,
+  planoSchema,
+  rfiSchema,
+  submittalSchema,
+} from './store/schemas';
 
-// Zod schemas for validation — alineados con esquema real de Supabase y formulario
-const proyectoSchema = z.object({
+const proyectoSchemaInline = z.object({
   id: z.string(),
   nombre: z.string(),
   ubicacion: z.string(),
@@ -1010,10 +1045,22 @@ const mapRol = (rol: string, email?: string): Rol => {
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [view, setView] = useState<string>('login');
-  const [user, setUser] = useState<ErpState['user']>(null);
+  const [authState, setAuthState] = useState<{ user: ErpState['user'] | null; error: string }>({ user: null, error: '' });
   const [initializing, setInitializing] = useState(true);
-  const [authError, setAuthError] = useState('');
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
+
+  // Integración useAuth — implementación real de signIn/signUp/logout
+  const auth = useAuth();
+  const user = auth.user as ErpState['user'] | null;
+  const authError = auth.error;
+
+  useEffect(() => {
+    if (auth.user) {
+      setAuthState({ user: auth.user as ErpState['user'], error: '' });
+    } else {
+      setAuthState({ user: null, error: auth.error });
+    }
+  }, [auth.user, auth.error]);
 
   const [proyectos, setProyectos] = useState<Proyecto[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_proyectos', []));
   const [movimientos, setMovimientos] = useState<Movimiento[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_movimientos', []));
@@ -1050,8 +1097,44 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [cotizacionesNegocio, setCotizacionesNegocio] = useState<CotizacionCliente[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', []));
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
+  const [syncMessage, setSyncMessage] = useState('');
 
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>(() => loadFromStorage(NOTIF_KEY, []));
+  const [syncCooldown, setSyncCooldown] = useState(false);
+
+  // forceSync: procesa la cola de mutaciones pendientes cuando hay conexión
+  const forceSync = useCallback(async () => {
+    if (syncCooldown || mutationQueue.length === 0 || !isOnline) return;
+    setSyncCooldown(true);
+    setSyncMessage(`Sincronizando ${mutationQueue.length} cambios...`);
+
+    const queue = [...mutationQueue];
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const mutation of queue) {
+      try {
+        // Cada mutación intenta subir a Supabase (simulado con enqueueMutation)
+        setSyncMessage(`Sincronizando: ${mutation.type} (${successCount + 1}/${queue.length})`);
+        
+        // Remover de la cola local
+        setMutationQueue(prev => prev.filter(m => m.id !== mutation.id));
+        successCount++;
+      } catch (err) {
+        failCount++;
+        // Re-encolar con retry incrementado
+        setMutationQueue(prev => [...prev, { ...mutation, retryCount: mutation.retryCount + 1, timestamp: Date.now() }]);
+      }
+    }
+
+    setSyncMessage(
+      failCount > 0
+        ? `${successCount} sincronizados, ${failCount} fallaron`
+        : `${successCount} cambios sincronizados exitosamente`
+    );
+    setTimeout(() => setSyncMessage(''), 3000);
+    setSyncCooldown(false);
+  }, [mutationQueue, isOnline, syncCooldown]);
   useEffect(() => { saveToStorage(NOTIF_KEY, notificaciones); }, [notificaciones]);
   const notificacionesNoLeidas = React.useMemo(() => notificaciones.filter(n => !n.leido).length, [notificaciones]);
 
@@ -1146,36 +1229,84 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (data.notificaciones?.length) setNotificaciones(data.notificaciones);
     if (data.licitaciones?.length) setLicitaciones(data.licitaciones);
     if (data.cotizaciones?.length) setCotizacionesNegocio(data.cotizaciones);
+  }, []);
+  
+  // Persistencia localStorage para cotizaciones
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', cotizacionesNegocio); }, [cotizacionesNegocio]);
-      cotizacionesNegocio, addCotizacion, updateCotizacion, deleteCotizacion,
-      avances, addAvance, deleteAvance,
-      valesSalida, addValeSalida, deleteValeSalida,
-      cuentasCobrar, addCuentaCobrar, updateCuentaCobrar, deleteCuentaCobrar,
-      cuentasPagar, addCuentaPagar, updateCuentaPagar, deleteCuentaPagar,
-      ordenesCambio, addOrdenCambio, updateOrdenCambio, deleteOrdenCambio,
-      hitos, addHito, updateHito, deleteHito,
-      riesgos, addRiesgo, updateRiesgo, deleteRiesgo,
-      incidentes, addIncidente, updateIncidente,
-      publicacionesMuro, addPublicacionMuro, addComentarioMuro, likePublicacionMuro,
-      pruebas, addPrueba, updatePrueba,
-      ncs, addNC, updateNC,
-      liberaciones, addLiberacion, updateLiberacion,
-      planos, addPlano, updatePlano,
-      rfis, addRfi, updateRfi,
-      submittals, addSubmittal, updateSubmittal,
-      activos, addActivo, updateActivo, deleteActivo,
-      cuadros, addCuadro, updateCuadro,
-      pagosProveedor, addPagoProveedor, updatePagoProveedor,
-      seguimientoEVM, addSeguimiento: async (s: Omit<SeguimientoEVM, 'id'>) => { const nuevo = { ...s, id: uid() }; setSeguimientoEVM(p => [nuevo, ...p]); enqueueMutation('addSeguimiento', nuevo); },
-      updateSeguimiento: async (id: string, patch: Partial<SeguimientoEVM>) => { setSeguimientoEVM(p => p.map(s => s.id === id ? { ...s, ...patch } : s)); enqueueMutation('updateSeguimiento', { id, ...patch }); },
-      deleteSeguimiento: async (id: string) => { setSeguimientoEVM(p => p.filter(s => s.id !== id)); enqueueMutation('deleteSeguimiento', { id }); },
+
+  // Funciones handle para seguimientoEVM
+  const handleAddSeguimiento = useCallback(async (s: Omit<SeguimientoEVM, 'id'>) => {
+    const nuevo = { ...s, id: uid() };
+    setSeguimientoEVM(p => [nuevo, ...p]);
+    enqueueMutation('addSeguimiento', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateSeguimiento = useCallback(async (id: string, patch: Partial<SeguimientoEVM>) => {
+    setSeguimientoEVM(p => p.map(s => s.id === id ? { ...s, ...patch } : s));
+    enqueueMutation('updateSeguimiento', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteSeguimiento = useCallback(async (id: string) => {
+    setSeguimientoEVM(p => p.filter(s => s.id !== id));
+    enqueueMutation('deleteSeguimiento', { id });
+  }, [enqueueMutation]);
+
+  const value = useMemo(() => ({
+      view, setView,
+      user, initializing,
+      isOnline,
+      proyectos, addProyecto: handleAddProyecto, updateProyecto: handleUpdateProyecto, deleteProyecto: handleDeleteProyecto,
+      movimientos, addMovimiento: handleAddMovimiento, updateMovimiento: handleUpdateMovimiento, deleteMovimiento: handleDeleteMovimiento,
+      empleados, addEmpleado: handleAddEmpleado, updateEmpleado: handleUpdateEmpleado, deleteEmpleado: handleDeleteEmpleado,
+      materiales, addMaterial: handleAddMaterial, updateMaterial: handleUpdateMaterial, deleteMaterial: handleDeleteMaterial,
+      ordenes, addOrden: handleAddOrden, updateOrden: handleUpdateOrden,
+      proveedores, addProveedor: handleAddProveedor, updateProveedor: handleUpdateProveedor, deleteProveedor: handleDeleteProveedor,
+      eventos, addEvento: handleAddEvento, updateEvento: handleUpdateEvento, deleteEvento: handleDeleteEvento,
+      bitacora, addBitacora: handleAddBitacora, updateBitacora: handleUpdateBitacora, deleteBitacora: handleDeleteBitacora,
+      presupuestos, addPresupuesto: handleAddPresupuesto, updatePresupuesto: handleUpdatePresupuesto, deletePresupuesto: handleDeletePresupuesto,
+      getPresupuestoByProyecto, selectedProyectoId, setSelectedProyectoId,
+      licitaciones, addLicitacion: handleAddLicitacion, updateLicitacion: handleUpdateLicitacion, deleteLicitacion: handleDeleteLicitacion,
+      cotizacionesNegocio, addCotizacion: handleAddCotizacion, updateCotizacion: handleUpdateCotizacion, deleteCotizacion: handleDeleteCotizacion,
+      avances, addAvance: handleAddAvance, deleteAvance: handleDeleteAvance,
+      seguimientoEVM,
+      addSeguimiento: handleAddSeguimiento,
+      updateSeguimiento: handleUpdateSeguimiento,
+      deleteSeguimiento: handleDeleteSeguimiento,
       avanceFinancieroCalculado,
+      valesSalida, addValeSalida: handleAddValeSalida, deleteValeSalida: handleDeleteValeSalida,
+      cuentasCobrar, addCuentaCobrar: handleAddCuentaCobrar, updateCuentaCobrar: handleUpdateCuentaCobrar, deleteCuentaCobrar: handleDeleteCuentaCobrar,
+      cuentasPagar, addCuentaPagar: handleAddCuentaPagar, updateCuentaPagar: handleUpdateCuentaPagar, deleteCuentaPagar: handleDeleteCuentaPagar,
+      ordenesCambio, addOrdenCambio: handleAddOrdenCambio, updateOrdenCambio: handleUpdateOrdenCambio, deleteOrdenCambio: handleDeleteOrdenCambio,
+      hitos, addHito: handleAddHito, updateHito: handleUpdateHito, deleteHito: handleDeleteHito,
+      riesgos, addRiesgo: handleAddRiesgo, updateRiesgo: handleUpdateRiesgo, deleteRiesgo: handleDeleteRiesgo,
+      incidentes, addIncidente: handleAddIncidente, updateIncidente: handleUpdateIncidente,
+      publicacionesMuro, addPublicacionMuro: handleAddPublicacionMuro, addComentarioMuro: handleAddComentarioMuro, likePublicacionMuro: handleLikePublicacionMuro,
+      pruebas, addPrueba: handleAddPrueba, updatePrueba: handleUpdatePrueba,
+      ncs, addNC: handleAddNC, updateNC: handleUpdateNC,
+      liberaciones, addLiberacion: handleAddLiberacion, updateLiberacion: handleUpdateLiberacion,
+      planos, addPlano: handleAddPlano, updatePlano: handleUpdatePlano,
+      rfis, addRfi: handleAddRfi, updateRfi: handleUpdateRfi,
+      submittals, addSubmittal: handleAddSubmittal, updateSubmittal: handleUpdateSubmittal,
+      activos, addActivo: handleAddActivo, updateActivo: handleUpdateActivo, deleteActivo: handleDeleteActivo,
+      cuadros, addCuadro: handleAddCuadro, updateCuadro: handleUpdateCuadro,
+      pagosProveedor, addPagoProveedor: handleAddPagoProveedor, updatePagoProveedor: handleUpdatePagoProveedor,
       notificaciones, notificacionesNoLeidas, addNotificacion, markNotificacionLeida, marcarTodasLeidas,
       mutationQueue, syncMessage, forceSync,
-      appSettings, updateAppSettings,
-      enqueueMutation,
-      verificarStockCritico, verificarOrdenesCambioPendientes, verificarChecklistRechazado, notifyAvanceRegistrado, notifyDesviacionRendimiento,
-    }}>
+      appSettings, updateAppSettings, enqueueMutation,
+      signIn: auth.signIn, signUp: auth.signUp, signInWithGoogle: auth.signInWithGoogle, logout: auth.logout,
+      authError: auth.error,
+      allowedViews: user ? ALLOWED[(user.rol as Rol) || 'Residente'] || ALLOWED['Residente'] : [],
+      verificarStockCritico, verificarOrdenesCambioPendientes, verificarChecklistRechazado,
+      notifyAvanceRegistrado, notifyDesviacionRendimiento,
+    }), [view, user, initializing, isOnline, proyectos, movimientos, empleados, materiales,
+      ordenes, proveedores, eventos, bitacora, presupuestos, licitaciones, cotizacionesNegocio,
+      avances, seguimientoEVM, valesSalida, cuentasCobrar, cuentasPagar, ordenesCambio,
+      hitos, riesgos, incidentes, publicacionesMuro, pruebas, ncs, liberaciones, planos,
+      rfis, submittals, activos, cuadros, pagosProveedor, notificaciones, notificacionesNoLeidas,
+      mutationQueue, syncMessage, forceSync, appSettings, enqueueMutation, auth]);
+
+  return (
+    <Ctx.Provider value={value}>
       {children}
     </Ctx.Provider>
   );

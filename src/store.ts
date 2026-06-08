@@ -1,6 +1,18 @@
-import { configureStore, createSlice, createAsyncThunk, combineReducers } from '@reduxjs/toolkit';
+import { configureStore, createSlice, createAsyncThunk, combineReducers, UnknownAction } from '@reduxjs/toolkit';
 import { supabase } from './lib/supabase';
 import { z } from 'zod';
+
+// Types inferidos de Zod schemas
+export type Proyecto = z.infer<typeof proyectoSchema>;
+export type Movimiento = z.infer<typeof movimientoSchema>;
+export type Presupuesto = z.infer<typeof presupuestoSchema>;
+export type Empleado = z.infer<typeof empleadoSchema>;
+export type Material = z.infer<typeof materialSchema>;
+export type Orden = z.infer<typeof ordenSchema>;
+
+// RootState type
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
 // Zod schemas for validation
 const proyectoSchema = z.object({

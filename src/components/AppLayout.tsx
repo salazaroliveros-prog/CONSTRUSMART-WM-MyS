@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect, createContext, useContext, useState } from 'react';
 import { ErpProvider, useErp } from '@/erp/store';
+import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
 import Header from '@/erp/components/Header';
 import Sidebar from '@/erp/components/Sidebar';
 import Login from '@/erp/screens/Login';
@@ -91,8 +92,21 @@ const AppLoader: React.FC = () => (
 );
 
 const Shell: React.FC = () => {
-  const { view, initializing, appSettings, user, allowedViews } = useErp();
+  const { view, initializing, appSettings, user, allowedViews, setView } = useErp();
   const { sidebarOpen, toggleSidebar, closeSidebar, sidebarCollapsed } = useAppContext();
+
+  // Conexión Realtime en tiempo real para datos ERP
+  useSupabaseRealtime({
+    tablas: [
+      'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
+      'erp_notificaciones', 'erp_muro',
+    ],
+    enabled: !!user && view !== 'login',
+    onCambio: (payload) => {
+      // Los cambios Realtime activan recarga de datos via auto-logger
+      console.log(`[Realtime] ${payload.tabla}: ${payload.tipo} (${payload.id})`);
+    },
+  });
 
   useEffect(() => {
     // Aplicar tema guardado al inicializar (antes del primer render)

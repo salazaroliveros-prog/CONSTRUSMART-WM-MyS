@@ -162,7 +162,7 @@ export const FormGrid: React.FC<{ children: React.ReactNode; gutter?: number | [
   children,
   gutter = [16, 12],
 }) => {
-  const { isMobile } = useResponsiveResponsive
+  const { isMobile } = useResponsive()
 
   return (
     <Row gutter={isMobile ? [8, 8] : gutter}>

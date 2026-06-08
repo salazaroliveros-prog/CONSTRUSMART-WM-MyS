@@ -1,6 +1,6 @@
 const CACHE_NAME = 'construsmart-v5';
 const OFFLINE_URL = '/offline.html';
-const PUSH_PUBLIC_KEY = 'BC2v9F0k9sA3dF5gH7jK9lQ2wE4rT6yU8iOp1xZ3cV5bN7mQ9sD1fG3hJ5kL7zX9cV1bN3m';
+let PUSH_PUBLIC_KEY = '';
 
 const PRECACHE_ASSETS = [
   '/', '/index.html', '/offline.html', '/manifest.json',
@@ -131,15 +131,40 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
-    const { title, body, tag, url } = event.data.payload || {};
-    self.registration.showNotification(title || 'CONSTRUSMART ERP', {
-      body: body || '',
-      icon: '/logo.png',
-      badge: '/favicon.ico',
-      tag: tag || 'app-notification',
-      data: { url: url || '/' },
-      requireInteraction: true,
-    });
+  if (!event.data) return;
+
+  switch (event.data.type) {
+    case 'SHOW_NOTIFICATION': {
+      const { title, body, tag, url } = event.data.payload || {};
+      self.registration.showNotification(title || 'CONSTRUSMART ERP', {
+        body: body || '',
+        icon: '/logo.png',
+        badge: '/favicon.ico',
+        tag: tag || 'app-notification',
+        data: { url: url || '/' },
+        requireInteraction: true,
+      });
+      break;
+    }
+
+    case 'SET_VAPID_KEY': {
+      if (event.data.payload?.key) {
+        PUSH_PUBLIC_KEY = event.data.payload.key;
+        // Confirmar recepción al cliente
+        event.source?.postMessage({
+          type: 'VAPID_KEY_RECEIVED',
+          payload: { timestamp: Date.now() },
+        });
+      } else {
+        event.source?.postMessage({
+          type: 'VAPID_KEY_MISSING',
+          payload: { timestamp: Date.now() },
+        });
+      }
+      break;
+    }
+
+    default:
+      break;
   }
 });
