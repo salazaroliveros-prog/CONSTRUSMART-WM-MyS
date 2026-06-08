@@ -1273,6 +1273,411 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     enqueueMutation('deleteSeguimiento', { id });
   }, [enqueueMutation]);
 
+  // ===== HANDLERS PARA TODAS LAS ENTIDADES =====
+  const handleAddProyecto = useCallback(async (p: Omit<Proyecto, 'id'>) => {
+    const nuevo = { ...p, id: uid() };
+    setProyectos(prev => [nuevo, ...prev]);
+    enqueueMutation('addProyecto', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateProyecto = useCallback(async (id: string, patch: Partial<Proyecto>) => {
+    setProyectos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateProyecto', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteProyecto = useCallback(async (id: string) => {
+    setProyectos(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteProyecto', { id });
+  }, [enqueueMutation]);
+
+  const handleAddMovimiento = useCallback(async (m: Omit<Movimiento, 'id'>) => {
+    const nuevo = { ...m, id: uid() };
+    setMovimientos(prev => [nuevo, ...prev]);
+    enqueueMutation('addMovimiento', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateMovimiento = useCallback(async (id: string, patch: Partial<Movimiento>) => {
+    setMovimientos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateMovimiento', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteMovimiento = useCallback(async (id: string) => {
+    setMovimientos(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteMovimiento', { id });
+  }, [enqueueMutation]);
+
+  const handleAddEmpleado = useCallback(async (e: Omit<Empleado, 'id'>) => {
+    const nuevo = { ...e, id: uid() };
+    setEmpleados(prev => [nuevo, ...prev]);
+    enqueueMutation('addEmpleado', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateEmpleado = useCallback(async (id: string, patch: Partial<Empleado>) => {
+    setEmpleados(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateEmpleado', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteEmpleado = useCallback(async (id: string) => {
+    setEmpleados(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteEmpleado', { id });
+  }, [enqueueMutation]);
+
+  const handleAddMaterial = useCallback(async (m: Omit<Material, 'id'>) => {
+    const nuevo = { ...m, id: uid() };
+    setMateriales(prev => [nuevo, ...prev]);
+    enqueueMutation('addMaterial', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateMaterial = useCallback(async (id: string, patch: Partial<Material>) => {
+    setMateriales(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateMaterial', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteMaterial = useCallback(async (id: string) => {
+    setMateriales(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteMaterial', { id });
+  }, [enqueueMutation]);
+
+  const handleAddOrden = useCallback(async (o: Omit<OrdenCompra, 'id'>) => {
+    const nuevo = { ...o, id: uid() };
+    setOrdenes(prev => [nuevo, ...prev]);
+    enqueueMutation('addOrden', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateOrden = useCallback(async (id: string, estado: OrdenCompra['estado']) => {
+    setOrdenes(prev => prev.map(p => p.id === id ? { ...p, estado } : p));
+    enqueueMutation('updateOrden', { id, estado });
+  }, [enqueueMutation]);
+
+  const handleAddProveedor = useCallback(async (p: Omit<Proveedor, 'id'>) => {
+    const nuevo = { ...p, id: uid() };
+    setProveedores(prev => [nuevo, ...prev]);
+    enqueueMutation('addProveedor', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateProveedor = useCallback(async (id: string, patch: Partial<Proveedor>) => {
+    setProveedores(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateProveedor', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteProveedor = useCallback(async (id: string) => {
+    setProveedores(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteProveedor', { id });
+  }, [enqueueMutation]);
+
+  const handleAddEvento = useCallback(async (e: Omit<EventoCalendario, 'id'>) => {
+    const nuevo = { ...e, id: uid() };
+    setEventos(prev => [nuevo, ...prev]);
+    enqueueMutation('addEvento', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateEvento = useCallback(async (id: string, patch: Partial<EventoCalendario>) => {
+    setEventos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateEvento', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteEvento = useCallback(async (id: string) => {
+    setEventos(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteEvento', { id });
+  }, [enqueueMutation]);
+
+  const handleAddBitacora = useCallback(async (b: Omit<BitacoraEntry, 'id'>) => {
+    const nuevo = { ...b, id: uid() };
+    setBitacora(prev => [nuevo, ...prev]);
+    enqueueMutation('addBitacora', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateBitacora = useCallback(async (id: string, patch: Partial<BitacoraEntry>) => {
+    setBitacora(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateBitacora', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteBitacora = useCallback(async (id: string) => {
+    setBitacora(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteBitacora', { id });
+  }, [enqueueMutation]);
+
+  const handleAddPresupuesto = useCallback(async (p: Omit<Presupuesto, 'id'>) => {
+    const nuevo = { ...p, id: uid() };
+    setPresupuestos(prev => [nuevo, ...prev]);
+    enqueueMutation('addPresupuesto', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdatePresupuesto = useCallback(async (id: string, patch: Partial<Presupuesto>) => {
+    setPresupuestos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updatePresupuesto', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeletePresupuesto = useCallback(async (id: string) => {
+    setPresupuestos(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deletePresupuesto', { id });
+  }, [enqueueMutation]);
+
+  const handleAddLicitacion = useCallback(async (l: Omit<Licitacion, 'id'>) => {
+    const nuevo = { ...l, id: uid() };
+    setLicitaciones(prev => [nuevo, ...prev]);
+    enqueueMutation('addLicitacion', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateLicitacion = useCallback(async (id: string, patch: Partial<Licitacion>) => {
+    setLicitaciones(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateLicitacion', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteLicitacion = useCallback(async (id: string) => {
+    setLicitaciones(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteLicitacion', { id });
+  }, [enqueueMutation]);
+
+  const handleAddCotizacion = useCallback(async (c: Omit<CotizacionCliente, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const nuevo = { ...c, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    setCotizacionesNegocio(prev => [nuevo, ...prev]);
+    enqueueMutation('addLicitacion', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateCotizacion = useCallback(async (id: string, patch: Partial<CotizacionCliente>) => {
+    setCotizacionesNegocio(prev => prev.map(p => p.id === id ? { ...p, ...patch, updatedAt: new Date().toISOString() } : p));
+    enqueueMutation('updateLicitacion', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteCotizacion = useCallback(async (id: string) => {
+    setCotizacionesNegocio(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteLicitacion', { id });
+  }, [enqueueMutation]);
+
+  const handleAddAvance = useCallback(async (a: Omit<AvanceObra, 'id'>) => {
+    const nuevo = { ...a, id: uid() };
+    setAvances(prev => [nuevo, ...prev]);
+    enqueueMutation('addAvance', nuevo);
+  }, [enqueueMutation]);
+
+  const handleDeleteAvance = useCallback(async (id: string) => {
+    setAvances(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteAvance', { id });
+  }, [enqueueMutation]);
+
+  const handleAddValeSalida = useCallback(async (v: Omit<ValeSalida, 'id'>) => {
+    const nuevo = { ...v, id: uid() };
+    setValesSalida(prev => [nuevo, ...prev]);
+    enqueueMutation('addValeSalida', nuevo);
+  }, [enqueueMutation]);
+
+  const handleDeleteValeSalida = useCallback(async (id: string) => {
+    setValesSalida(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteValeSalida', { id });
+  }, [enqueueMutation]);
+
+  const handleAddCuentaCobrar = useCallback(async (c: Omit<CuentaCobrar, 'id'>) => {
+    const nuevo = { ...c, id: uid() };
+    setCuentasCobrar(prev => [nuevo, ...prev]);
+    enqueueMutation('addCuentaCobrar', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateCuentaCobrar = useCallback(async (id: string, patch: Partial<CuentaCobrar>) => {
+    setCuentasCobrar(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateCuentaCobrar', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteCuentaCobrar = useCallback(async (id: string) => {
+    setCuentasCobrar(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteCuentaCobrar', { id });
+  }, [enqueueMutation]);
+
+  const handleAddCuentaPagar = useCallback(async (c: Omit<CuentaPagar, 'id'>) => {
+    const nuevo = { ...c, id: uid() };
+    setCuentasPagar(prev => [nuevo, ...prev]);
+    enqueueMutation('addCuentaPagar', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateCuentaPagar = useCallback(async (id: string, patch: Partial<CuentaPagar>) => {
+    setCuentasPagar(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateCuentaPagar', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteCuentaPagar = useCallback(async (id: string) => {
+    setCuentasPagar(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteCuentaPagar', { id });
+  }, [enqueueMutation]);
+
+  const handleAddOrdenCambio = useCallback(async (o: Omit<OrdenCambio, 'id'>) => {
+    const nuevo = { ...o, id: uid() };
+    setOrdenesCambio(prev => [nuevo, ...prev]);
+    enqueueMutation('addOrdenCambio', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateOrdenCambio = useCallback(async (id: string, patch: Partial<OrdenCambio>) => {
+    setOrdenesCambio(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateOrdenCambio', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteOrdenCambio = useCallback(async (id: string) => {
+    setOrdenesCambio(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteOrdenCambio', { id });
+  }, [enqueueMutation]);
+
+  const handleAddHito = useCallback(async (h: Omit<Hito, 'id'>) => {
+    const nuevo = { ...h, id: uid() };
+    setHitos(prev => [nuevo, ...prev]);
+    enqueueMutation('addHito', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateHito = useCallback(async (id: string, patch: Partial<Hito>) => {
+    setHitos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateHito', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteHito = useCallback(async (id: string) => {
+    setHitos(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteHito', { id });
+  }, [enqueueMutation]);
+
+  const handleAddRiesgo = useCallback(async (r: Omit<Riesgo, 'id'>) => {
+    const nuevo = { ...r, id: uid() };
+    setRiesgos(prev => [nuevo, ...prev]);
+    enqueueMutation('addRiesgo', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateRiesgo = useCallback(async (id: string, patch: Partial<Riesgo>) => {
+    setRiesgos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateRiesgo', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteRiesgo = useCallback(async (id: string) => {
+    setRiesgos(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteRiesgo', { id });
+  }, [enqueueMutation]);
+
+  const handleAddIncidente = useCallback(async (i: any) => {
+    const nuevo = { ...i, id: uid() };
+    setIncidentes(prev => [nuevo, ...prev]);
+    enqueueMutation('addIncidente', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateIncidente = useCallback(async (id: string, patch: any) => {
+    setIncidentes(prev => prev.map((p: any) => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateIncidente', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleAddPublicacionMuro = useCallback(async (p: Omit<PublicacionMuro, 'id'>) => {
+    const nuevo = { ...p, id: uid() };
+    setPublicacionesMuro(prev => [nuevo, ...prev]);
+    enqueueMutation('addPublicacionMuro', nuevo);
+  }, [enqueueMutation]);
+
+  const handleAddComentarioMuro = useCallback(async (pubId: string, c: Omit<ComentarioMuro, 'id'>) => {
+    setPublicacionesMuro(prev => prev.map(p => p.id === pubId ? { ...p, comentarios: [...p.comentarios, { ...c, id: uid() }] } : p));
+    enqueueMutation('addComentarioMuro', { pubId, ...c });
+  }, [enqueueMutation]);
+
+  const handleLikePublicacionMuro = useCallback(async (pubId: string) => {
+    setPublicacionesMuro(prev => prev.map(p => p.id === pubId ? { ...p, likes: (p.likes || 0) + 1 } : p));
+    enqueueMutation('likePublicacionMuro', { pubId });
+  }, [enqueueMutation]);
+
+  const handleAddPrueba = useCallback(async (p: Omit<PruebaLaboratorio, 'id'>) => {
+    const nuevo = { ...p, id: uid() };
+    setPruebas(prev => [nuevo, ...prev]);
+    enqueueMutation('addPrueba', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdatePrueba = useCallback(async (id: string, patch: Partial<PruebaLaboratorio>) => {
+    setPruebas(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updatePrueba', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleAddNC = useCallback(async (n: Omit<NoConformidad, 'id'>) => {
+    const nuevo = { ...n, id: uid() };
+    setNcs(prev => [nuevo, ...prev]);
+    enqueueMutation('addNC', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateNC = useCallback(async (id: string, patch: Partial<NoConformidad>) => {
+    setNcs(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateNC', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleAddLiberacion = useCallback(async (l: Omit<LiberacionPartida, 'id'>) => {
+    const nuevo = { ...l, id: uid() };
+    setLiberaciones(prev => [nuevo, ...prev]);
+    enqueueMutation('addLiberacion', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateLiberacion = useCallback(async (id: string, patch: Partial<LiberacionPartida>) => {
+    setLiberaciones(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateLiberacion', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleAddPlano = useCallback(async (p: Omit<Plano, 'id'>) => {
+    const nuevo = { ...p, id: uid() };
+    setPlanos(prev => [nuevo, ...prev]);
+    enqueueMutation('addPlano', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdatePlano = useCallback(async (id: string, patch: Partial<Plano>) => {
+    setPlanos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updatePlano', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleAddRfi = useCallback(async (r: Omit<RFI, 'id'>) => {
+    const nuevo = { ...r, id: uid() };
+    setRfis(prev => [nuevo, ...prev]);
+    enqueueMutation('addRfi', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateRfi = useCallback(async (id: string, patch: Partial<RFI>) => {
+    setRfis(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateRfi', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleAddSubmittal = useCallback(async (s: Omit<Submittal, 'id'>) => {
+    const nuevo = { ...s, id: uid() };
+    setSubmittals(prev => [nuevo, ...prev]);
+    enqueueMutation('addSubmittal', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateSubmittal = useCallback(async (id: string, patch: Partial<Submittal>) => {
+    setSubmittals(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateSubmittal', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleAddActivo = useCallback(async (a: Omit<ActivoHerramienta, 'id'>) => {
+    const nuevo = { ...a, id: uid() };
+    setActivos(prev => [nuevo, ...prev]);
+    enqueueMutation('addActivo', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateActivo = useCallback(async (id: string, patch: Partial<ActivoHerramienta>) => {
+    setActivos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateActivo', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleDeleteActivo = useCallback(async (id: string) => {
+    setActivos(prev => prev.filter(p => p.id !== id));
+    enqueueMutation('deleteActivo', { id });
+  }, [enqueueMutation]);
+
+  const handleAddCuadro = useCallback(async (c: Omit<CuadroComparativo, 'id'>) => {
+    const nuevo = { ...c, id: uid() };
+    setCuadros(prev => [nuevo, ...prev]);
+    enqueueMutation('addCuadro', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdateCuadro = useCallback(async (id: string, patch: Partial<CuadroComparativo>) => {
+    setCuadros(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updateCuadro', { id, ...patch });
+  }, [enqueueMutation]);
+
+  const handleAddPagoProveedor = useCallback(async (p: Omit<PagoProveedor, 'id'>) => {
+    const nuevo = { ...p, id: uid() };
+    setPagosProveedor(prev => [nuevo, ...prev]);
+    enqueueMutation('addPagoProveedor', nuevo);
+  }, [enqueueMutation]);
+
+  const handleUpdatePagoProveedor = useCallback(async (id: string, patch: Partial<PagoProveedor>) => {
+    setPagosProveedor(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    enqueueMutation('updatePagoProveedor', { id, ...patch });
+  }, [enqueueMutation]);
+
   const value = useMemo(() => ({
       view, setView,
       user, initializing,
