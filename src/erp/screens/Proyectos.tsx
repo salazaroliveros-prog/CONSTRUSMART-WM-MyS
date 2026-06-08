@@ -11,6 +11,7 @@ import MapPicker from '../components/MapPicker';
 import HeatMap from '../components/HeatMap';
 import { INPUT, BUTTON_PRIMARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER } from '../ui';
 import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, AlertCircle, ChevronRight } from 'lucide-react';
+import { message } from 'antd';
 
 const proyectoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -103,23 +104,32 @@ const Proyectos: React.FC = () => {
     },
   });
 
+  const [submitting, setSubmitting] = useState(false);
+
   const onSubmit = (data: ProyectoFormData) => {
-    if (editingId) {
-      updateProyecto(editingId, { ...data, lat: coords.lat, lng: coords.lng });
-    } else {
-      addProyecto({
-        ...data,
-        avanceFisico: 0,
-        avanceFinanciero: 0,
-        lat: coords.lat || 14.6349,
-        lng: coords.lng || -90.5069,
-        moneda: data.moneda || 'GTQ',
-      });
+    setSubmitting(true);
+    try {
+      if (editingId) {
+        updateProyecto(editingId, { ...data, lat: coords.lat, lng: coords.lng });
+      } else {
+        addProyecto({
+          ...data,
+          avanceFisico: 0,
+          avanceFinanciero: 0,
+          lat: coords.lat || 14.6349,
+          lng: coords.lng || -90.5069,
+          moneda: data.moneda || 'GTQ',
+        });
+      }
+      reset();
+      setEditingId(null);
+      setCoords({});
+      setShow(false);
+    } catch {
+      message.error('No se pudo guardar. Se reintentará cuando haya conexión.');
+    } finally {
+      setSubmitting(false);
     }
-    reset();
-    setEditingId(null);
-    setShow(false);
-    setCoords({});
   };
 
   const openCreate = () => {
@@ -380,7 +390,7 @@ const Proyectos: React.FC = () => {
       </div>
 
       {show && (
-        <div className={MODAL_OVERLAY + ' animate-enter'} onClick={() => setShow(false)} role="dialog" aria-modal="true" aria-labelledby="modal-proyecto-title">
+        <div className={MODAL_OVERLAY + ' animate-enter'} role="dialog" aria-modal="true" aria-labelledby="modal-proyecto-title">
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className={`${MODAL_PANEL} max-w-2xl max-h-[90vh] overflow-y-auto animate-enter`}>
             <div className={MODAL_HEADER}>
               <h2 id="modal-proyecto-title" className={MODAL_TITLE}>{editingId ? t('proyectos.editar') : t('proyectos.nuevo')}</h2>
