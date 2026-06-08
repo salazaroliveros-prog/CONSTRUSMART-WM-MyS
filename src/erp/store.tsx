@@ -2681,47 +2681,8 @@ case 'addNotificacion': {
     });
   }, []);
 
-  // ── Nuevas tablas: erp_renglones, erp_insumos, erp_sub_renglones ──
-  const [_renglones, setRenglones] = useState(() => loadFromStorage(BASE_STORAGE_KEY + '_renglones', []));
-  const [_insumos, setInsumos] = useState(() => loadFromStorage(BASE_STORAGE_KEY + '_insumos', []));
-  const [_subRenglones, setSubRenglones] = useState(() => loadFromStorage(BASE_STORAGE_KEY + '_sub_renglones', []));
-
   // ── Supabase Realtime subscriptions (v2 API) ──
   useEffect(() => {
-    const handleRenglones = (payload: any) => {
-      const mapper = buildCamelMapper(payload.new || payload.old || {});
-      if (payload.eventType === 'INSERT' && payload.new) {
-        setRenglones((prev: any[]) => [mapper(payload.new), ...prev]);
-      } else if (payload.eventType === 'UPDATE' && payload.new) {
-        setRenglones((prev: any[]) => prev.map((r: any) => r.id === mapper(payload.new).id ? mapper(payload.new) : r));
-      } else if (payload.eventType === 'DELETE' && payload.old) {
-        const oldMapper = buildCamelMapper(payload.old);
-        setRenglones((prev: any[]) => prev.filter((r: any) => r.id !== oldMapper(payload.old).id));
-      }
-    };
-    const handleInsumos = (payload: any) => {
-      const mapper = buildCamelMapper(payload.new || payload.old || {});
-      if (payload.eventType === 'INSERT' && payload.new) {
-        setInsumos((prev: any[]) => [mapper(payload.new), ...prev]);
-      } else if (payload.eventType === 'UPDATE' && payload.new) {
-        setInsumos((prev: any[]) => prev.map((i: any) => i.id === mapper(payload.new).id ? mapper(payload.new) : i));
-      } else if (payload.eventType === 'DELETE' && payload.old) {
-        const oldMapper = buildCamelMapper(payload.old);
-        setInsumos((prev: any[]) => prev.filter((i: any) => i.id !== oldMapper(payload.old).id));
-      }
-    };
-    const handleSubRenglones = (payload: any) => {
-      const mapper = buildCamelMapper(payload.new || payload.old || {});
-      if (payload.eventType === 'INSERT' && payload.new) {
-        setSubRenglones((prev: any[]) => [mapper(payload.new), ...prev]);
-      } else if (payload.eventType === 'UPDATE' && payload.new) {
-        setSubRenglones((prev: any[]) => prev.map((s: any) => s.id === mapper(payload.new).id ? mapper(payload.new) : s));
-      } else if (payload.eventType === 'DELETE' && payload.old) {
-        const oldMapper = buildCamelMapper(payload.old);
-        setSubRenglones((prev: any[]) => prev.filter((s: any) => s.id !== oldMapper(payload.old).id));
-      }
-    };
-
     const handlePresupuestos = (payload: any) => {
       if (payload.eventType === 'INSERT' && payload.new) {
         try {
@@ -2744,9 +2705,6 @@ case 'addNotificacion': {
 
     const channel = supabase.channel('erp-realtime-changes');
     channel
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'erp_renglones' }, handleRenglones)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'erp_insumos' }, handleInsumos)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'erp_sub_renglones' }, handleSubRenglones)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'erp_presupuestos' }, handlePresupuestos)
       .subscribe();
 

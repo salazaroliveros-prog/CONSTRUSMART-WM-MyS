@@ -13,7 +13,7 @@ import {
   MoonOutlined, SunOutlined, BgColorsOutlined,
   FontSizeOutlined, EyeOutlined, KeyOutlined,
   DownloadOutlined, UploadOutlined, DeleteOutlined,
-  CheckCircleOutlined, ExperimentOutlined,
+  CheckCircleOutlined, ExperimentOutlined, ExportOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -34,6 +34,27 @@ const Ajustes: React.FC = () => {
   const { token } = antTheme.useToken();
   const colStyle: React.CSSProperties = {
     marginBottom: 16,
+  };
+
+  const exportBackup = () => {
+    try {
+      const data: Record<string, string> = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('wm_')) data[k] = localStorage.getItem(k) || '';
+      }
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `construsmart_backup_${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      message.error('No se pudo exportar el respaldo');
+    }
   };
 
   const sectionCard: React.CSSProperties = {
@@ -375,7 +396,7 @@ const Ajustes: React.FC = () => {
           <Col xs={24} lg={12}>
             <Card title="Gestión de Datos" style={sectionCard} size="small">
               <Space direction="vertical" style={{ width: '100%' }} size={16}>
-                <Button icon={<DownloadOutlined />} block size="large">
+                <Button icon={<DownloadOutlined />} block size="large" onClick={exportBackup}>
                   Exportar copia de seguridad
                 </Button>
                 <Button icon={<UploadOutlined />} block size="large">
