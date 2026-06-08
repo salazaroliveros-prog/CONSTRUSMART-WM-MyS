@@ -8,6 +8,7 @@ import type { Proyecto, Tipologia } from '../types';
 import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
 import { Progress } from '../components/Charts';
 import MapPicker from '../components/MapPicker';
+import HeatMap from '../components/HeatMap';
 import { INPUT, BUTTON_PRIMARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER } from '../ui';
 import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, AlertCircle, ChevronRight } from 'lucide-react';
 
@@ -234,23 +235,17 @@ const Proyectos: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-slate-900 rounded-2xl p-4 mb-4 relative overflow-hidden" style={{ height: 220 }}>
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200)', backgroundSize: 'cover' }} />
-        <div className="relative z-10 flex items-center gap-2 text-white mb-1">
-          <MapPin className="w-4 h-4 text-orange-400" /><span className="text-sm font-bold">Mapa de Calor - Geolocalización de Obras</span>
-        </div>
-        <div className="relative z-10 flex gap-3 text-[10px] text-slate-300 mb-2">
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />En tiempo</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" />Riesgo</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" />Desviado</span>
-        </div>
-        <div className="relative z-10 h-[130px]">
-          {proyectos.map((p) => (
-            <div key={p.id} className="absolute group" style={{ left: `${Math.round(((p.lng + 90.7) / 0.4) * 100)}%`, top: `${Math.round(((14.7 - p.lat) / 0.3) * 100)}%` }}>
-              <div className="w-4 h-4 rounded-full ring-2 ring-white animate-pulse cursor-pointer" style={{ background: estadoColor(p) }} />
-              <div className="hidden group-hover:block absolute left-5 -top-1 bg-card text-foreground text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-20 border border-border">{p.nombre}</div>
-            </div>
-          ))}
+      <div className="relative mb-4">
+        <HeatMap proyectos={proyectos} />
+        <div className="absolute top-0 left-0 right-0 z-20 p-4">
+          <div className="flex items-center gap-2 text-white mb-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+            <MapPin className="w-4 h-4 text-orange-200" /><span className="text-sm font-bold">Mapa de Calor - Geolocalización de Obras</span>
+          </div>
+          <div className="flex gap-3 text-[10px] text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />En tiempo</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" />Riesgo</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" />Desviado</span>
+          </div>
         </div>
       </div>
 
@@ -418,7 +413,7 @@ const Proyectos: React.FC = () => {
                     <option value="GTQ">GTQ - Quetzal</option>
                     <option value="USD">USD - Dólar</option>
                   </select>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 sm:col-span-2">
                     <input type="number" {...register('areaConstruccion')} placeholder="Área (m²)" className={INPUT} />
                     <input type="number" {...register('numPisos')} placeholder="Niveles" className={INPUT} />
                   </div>

@@ -61,3 +61,5 @@ CONSTRUSMART-DEVELOP/
 gh-pages/
 
 # Playwright test artifacts.playwright-mcp/
+.playwright-mcp/
+*.png
