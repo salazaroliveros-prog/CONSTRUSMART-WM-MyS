@@ -127,6 +127,10 @@
     "error_auth": "Authentication error",
     "error_permisos": "Insufficient permissions"
   },
+  "login_hero": {
+    "items": ["Budgets", "Control", "Finance"],
+    "confianza": "YOUR TRUST IN US IS OUR TOP PRIORITY"
+  },
   "dashboard": {
     "titulo": "Dashboard",
     "bienvenida": "Welcome, {nombre}",
