@@ -95,14 +95,14 @@ const Login: React.FC = () => {
           <p className="text-primary-foreground text-base sm:text-lg italic mt-2">{EMPRESA.eslogan}</p>
           <p className="text-primary-foreground/90 mt-6 leading-relaxed text-sm sm:text-base">{t('auth.ingrese_credenciales')}</p>
           <div className="flex flex-wrap gap-4 sm:gap-6 mt-8 justify-center">
-            {['Presupuestos', 'Control', 'Finanzas'].map(lbl => (
+            {(t('login_hero.items', { returnObjects: true }) as string[]).map(lbl => (
               <div key={lbl} className="text-center">
                 <ShieldCheck className="w-5 h-5 mx-auto text-primary-foreground/80" />
                 <span className="text-xs text-primary-foreground/60 mt-1 block">{lbl}</span>
               </div>
             ))}
           </div>
-          <p className="text-primary-foreground/60 text-[10px] sm:text-xs mt-8">SU CONFIANZA EN NOSOTROS ES NUESTRA MAYOR PRIORIDAD</p>
+          <p className="text-primary-foreground/60 text-[10px] sm:text-xs mt-8">{t('login_hero.confianza')}</p>
         </div>
       </div>
 

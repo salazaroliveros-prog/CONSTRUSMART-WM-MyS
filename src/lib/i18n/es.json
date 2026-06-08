@@ -127,6 +127,10 @@
     "error_auth": "Error de autenticación",
     "error_permisos": "No tienes permisos suficientes"
   },
+  "login_hero": {
+    "items": ["Presupuestos", "Control", "Finanzas"],
+    "confianza": "SU CONFIANZA EN NOSOTROS ES NUESTRA MAYOR PRIORIDAD"
+  },
   "dashboard": {
     "titulo": "Panel de Control",
     "bienvenida": "Bienvenido, {nombre}",
