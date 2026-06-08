@@ -2323,6 +2323,12 @@ case 'addNotificacion': {
     enqueueMutation('deleteCotizacion', { id });
   };
 
+  const addMaterial = async (m: Omit<Material, 'id'>) => {
+    const newMat = { ...m, id: uid() };
+    setMateriales(s => [...s, newMat]);
+    enqueueMutation('addMaterial', newMat);
+  };
+
   const updateMaterial = async (id: string, patch: Partial<Material>) => {
     setMateriales(s => s.map(m => m.id === id ? { ...m, ...patch } : m));
     enqueueMutation('updateMaterial', { id, ...patch });
