@@ -77,7 +77,7 @@ const Login: React.FC = () => {
     <div className="min-h-screen flex flex-col lg:flex-row bg-background">
       <div className="hidden lg:flex flex-1 bg-primary relative overflow-hidden items-center justify-center p-12">
         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'image-set(url(/empresa_b.webp) type("image/webp"), url(/empresa_b.jpg) type("image/jpeg"))', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/50 via-primary/30 to-accent/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/50 to-black/50" />
         <div className="relative z-10 text-primary-foreground max-w-md text-center">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="w-16 h-16 rounded-2xl bg-background/20 flex items-center justify-center ring-1 ring-primary-foreground/30 shadow-[0_0_8px_hsl(var(--primary)/0.35)]">
