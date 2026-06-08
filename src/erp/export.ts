@@ -55,9 +55,9 @@ export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tip
     if (r.subRenglones && r.subRenglones.length > 0) {
       r.subRenglones.forEach(sub => {
         const cantTotal = sub.cantidadUnitaria * r.cantidad;
-        rows.push(`;;${sanitizeCSV(`Material: ${sub.nombreMaterial}`)};${sub.cantidadUnitaria};${cantTotal.toFixed(2)};${sanitizeCSV(sub.unidad)};${sanitizeCSV(`Precio: Q${sub.precioUnitario.toFixed(2)}`)};${sanitizeCSV(`Total: Q${(cantTotal * sub.precioUnitario).toFixed(2)}`)};;;;`);
+        rows.push(`;Material:;${sanitizeCSV(sub.nombreMaterial)};${sub.cantidadUnitaria};${cantTotal.toFixed(2)};${sanitizeCSV(sub.unidad)};${sanitizeCSV(`Precio: Q${sub.precioUnitario.toFixed(2)}`)};${sanitizeCSV(`Total: Q${(cantTotal * sub.precioUnitario).toFixed(2)}`)};;;;`);
       });
-      rows.push(`;;[Total materiales del renglón];;;${cantMat.toFixed(2)};;;;;;;;${fmtQ(r.subRenglones.reduce((a, s) => a + s.cantidadUnitaria * r.cantidad * s.precioUnitario, 0))}`);
+      rows.push(`;Total materiales del renglón;;;;${cantMat.toFixed(2)};;;;;;;;`);
     }
     if (r.costoManoObra > 0) {
       const jornales = Math.round(r.costoManoObra / 350);
