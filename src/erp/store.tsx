@@ -238,15 +238,17 @@ const riesgoSchema = z.object({
   proyectoId: z.string(),
   nombre: z.string().default(''),
   descripcion: z.string().default(''),
-  tipo: z.enum(['tecnico','financiero','cronograma','legal','ambiental','social','seguridad','otro']).default('tecnico'),
+  tipo: z.enum(['tecnico','financiero','cronograma','legal','ambiental','seguridad','otro']).default('tecnico'),
   probabilidad: z.number().min(1).max(5).default(1),
   impacto: z.number().min(1).max(5).default(1),
-  planMitigacion: z.string().default(''),
-  planContingencia: z.string().default(''),
-  responsable: z.string().default(''),
+  nivel: z.enum(['bajo','medio','alto','critico']).default('bajo'),
+  planMitigacion: z.string().optional(),
+  planContingencia: z.string().optional(),
+  responsable: z.string().optional(),
   fechaIdentificacion: z.string().default(new Date().toISOString().split('T')[0]),
-  estado: z.enum(['identificado','mitigado','contingencia','cerrado']).default('identificado'),
-  costoSoporte: z.number().optional().default(0),
+  estado: z.enum(['identificado','en_mitigacion','mitigado','materializado']).default('identificado'),
+  costoSoporte: z.number().optional(),
+  createdAt: z.string().default(new Date().toISOString()),
 });
 
 const liberacionSchema = z.object({
@@ -1811,12 +1813,28 @@ case 'deleteValeSalida': {
           if (error) throw new Error(`Failed to like publicacion: ${error.message}`);
           break;
         }
-        case 'addNotificacion': {
-          const { error } = await supabase.from('erp_notificaciones').insert(toSnake(next.payload));
-          if (error) throw new Error(`Failed to add notificacion: ${error.message}`);
-          break;
-        }
-        case 'markNotificacionLeida': {
+case 'addNotificacion': {
+           const { error } = await supabase.from('erp_notificaciones').insert(toSnake(next.payload));
+           if (error) throw new Error(`Failed to add notificacion: ${error.message}`);
+           break;
+         }
+         case 'addSeguimiento': {
+           const { error } = await supabase.from('erp_seguimiento').insert(toSnake(next.payload));
+           if (error) throw new Error(`Failed to add seguimiento: ${error.message}`);
+           break;
+         }
+         case 'updateSeguimiento': {
+           const { id, ...restSeg } = next.payload;
+           const { error } = await supabase.from('erp_seguimiento').update(toSnake(restSeg)).eq('id', id);
+           if (error) throw new Error(`Failed to update seguimiento: ${error.message}`);
+           break;
+         }
+         case 'deleteSeguimiento': {
+           const { error } = await supabase.from('erp_seguimiento').delete().eq('id', next.payload.id);
+           if (error) throw new Error(`Failed to delete seguimiento: ${error.message}`);
+           break;
+         }
+         case 'markNotificacionLeida': {
           const ids = (next.payload.ids as string[]) || [next.payload.id as string];
           const { error } = await supabase.from('erp_notificaciones').update({ leido: true }).in('id', ids);
           if (error) throw new Error(`Failed to update notificacion: ${error.message}`);

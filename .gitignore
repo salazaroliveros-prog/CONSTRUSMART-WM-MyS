@@ -41,6 +41,7 @@ reports/
 # Temp
 temp_untracked_files/
 *.tmp
+session-*.md
 
 # Cache
 .cache/
