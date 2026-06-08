@@ -235,7 +235,7 @@ const Proyectos: React.FC = () => {
         </button>
       </div>
 
-      <div className="relative mb-4">
+      <div className="relative mb-4 isolate">
         <HeatMap proyectos={proyectos} />
         <div className="absolute top-0 left-0 right-0 z-20 p-4">
           <div className="flex items-center gap-2 text-white mb-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
