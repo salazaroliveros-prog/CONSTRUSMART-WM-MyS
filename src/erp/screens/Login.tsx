@@ -108,7 +108,7 @@ const Login: React.FC = () => {
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-background min-h-screen lg:min-h-0">
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center ring-1 ring-primary/30 shadow-[0_0_6px_hsl(var(--primary)/0.35)]">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-b from-primary to-black/60 flex items-center justify-center ring-1 ring-primary-foreground/30 shadow-[0_0_6px_hsl(var(--primary)/0.35)]">
               <picture>
                 <source srcSet="/logo.webp" type="image/webp" />
                 <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
@@ -178,7 +178,7 @@ const Login: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold py-3 sm:py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-60 active:scale-[0.98] transition-all"
+            className="w-full bg-gradient-to-r from-primary via-primary to-primary/80 hover:from-primary/90 hover:via-orange-400 hover:to-orange-500 text-primary-foreground font-semibold py-3 sm:py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/40 hover:brightness-110 disabled:opacity-60 active:scale-[0.98] transition-all"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -192,7 +192,7 @@ const Login: React.FC = () => {
             type="button"
             disabled={loading}
             onClick={async () => { setLoading(true); try { await signInWithGoogle(); } finally { setLoading(false); } }}
-            className={`${BUTTON_SECONDARY} w-full justify-center`}
+            className={`${BUTTON_SECONDARY} w-full justify-center hover:border-primary hover:text-primary hover:shadow-md hover:shadow-primary/10`}
           >
             <Chrome className="w-4 h-4" /> {t('auth.google')}
           </button>
