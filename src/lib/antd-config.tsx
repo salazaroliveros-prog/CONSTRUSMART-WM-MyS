@@ -1,5 +1,10 @@
 import { ConfigProvider, theme } from 'antd';
 import React from 'react';
+import dayjs from 'dayjs';
+import 'dayjs/locale/es';
+
+const { defaultAlgorithm, darkAlgorithm } = theme;
+dayjs.locale('es');
 
 export type ThemeMode = 'light' | 'dark';
 

@@ -11,7 +11,7 @@ import {
 } from './types';
 
 
-// Zod schemas for validation — alineados con esquema real de Supabase
+// Zod schemas for validation — alineados con esquema real de Supabase y formulario
 const proyectoSchema = z.object({
   id: z.string(),
   nombre: z.string(),
@@ -26,16 +26,35 @@ const proyectoSchema = z.object({
   avanceFisico: z.number().default(0),
   avanceFinanciero: z.number().default(0),
   estado: z.enum(['planeacion','ejecucion','pausado','finalizado']).default('planeacion'),
+  // Campos extendidos del formulario
+  descripcion: z.string().optional().default(''),
+  tipoObra: z.enum(['nueva','remodelacion','ampliacion']).optional().default('nueva'),
+  clienteNit: z.string().optional().default(''),
+  clienteTelefono: z.string().optional().default(''),
+  clienteEmail: z.string().optional().default(''),
+  direccion: z.string().optional().default(''),
+  ciudad: z.string().optional().default(''),
+  departamento: z.string().optional().default(''),
+  codigoPostal: z.string().optional().default(''),
+  areaConstruccion: z.number().optional(),
+  numPisos: z.number().optional(),
+  plazoSemanas: z.number().optional(),
+  ingenieroResidente: z.string().optional().default(''),
+  supervisor: z.string().optional().default(''),
+  arquitecto: z.string().optional().default(''),
+  numeroExpediente: z.string().optional().default(''),
+  numeroLicencia: z.string().optional().default(''),
+  margenUtilidadObjetivo: z.number().optional(),
+  moneda: z.enum(['GTQ','USD']).optional().default('GTQ'),
+  etapa: z.enum(['planificacion','diseno','preconstruccion','construccion','cierre']).optional().default('planificacion'),
   lat: z.number().nullable().optional(),
   lng: z.number().nullable().optional(),
   latitud: z.number().nullable().optional(),
   longitud: z.number().nullable().optional(),
-  factorSobrecosto: z.object({ indirectos: z.number(), administracion: z.number(), imprevistos: z.number(), utilidad: z.number() }).optional(),
-  presupuesto: z.number().nullable().optional(),
 }).transform(d => ({
   ...d,
-  lat: d.lat ?? d.latitud ?? undefined,
-  lng: d.lng ?? d.longitud ?? undefined,
+  lat: d.lat ?? d.latitud ?? 14.6349,
+  lng: d.lng ?? d.longitud ?? -90.5069,
   fechaInicio: d.fechaInicio ?? '',
   fechaFin: d.fechaFin ?? '',
   presupuestoActualId: d.presupuestoActualId ?? undefined,
@@ -304,6 +323,19 @@ export const activoSchema = z.object({
   proveedorNombre: z.string().default(''),
   asignadoA: z.string().default(''),
   observaciones: z.string().default(''),
+});
+
+export const licitacionSchema = z.object({
+  id: z.string(),
+  titulo: z.string(),
+  cliente: z.string(),
+  monto: z.number(),
+  fechaLimite: z.string().optional().default(''),
+  estado: z.enum(['identificado','en_estudio','presentado','ganado','perdido']).default('identificado'),
+  probabilidad: z.number().default(30),
+  fechaCreacion: z.string().default(''),
+  documentos: z.array(z.object({ nombre: z.string(), url: z.string() })).optional().default([]),
+  notas: z.string().optional(),
 });
 
 export const cuadroSchema = z.object({
@@ -1011,6 +1043,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (data.seguimiento?.length) setSeguimientoEVM(data.seguimiento);
     if (data.muro?.length) setPublicacionesMuro(data.muro);
     if (data.notificaciones?.length) setNotificaciones(data.notificaciones);
+    if (data.licitaciones?.length) setLicitaciones(data.licitaciones);
   }, []);
 
   const safeFrom = async (table: string, queryModifier?: (q: any) => any) => {
@@ -1045,64 +1078,66 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const currentUser = user;
     if (!currentUser) return;
-    const [p, m, e, mat, o, prov, evt, bit, presup, _seg, cc, cp, oc, hit, rie, lib, pub, notif, inc, prue, nc, act, cua, pp, pl, rf, sub] = await Promise.all([
-      safeFrom('erp_proyectos'),
-      safeFrom('erp_movimientos', q => q.select('*').order('fecha', { ascending: false })),
-      safeFrom('erp_empleados'),
-      safeFrom('erp_materiales'),
-      safeFrom('erp_ordenes_compra', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_proveedores'),
-      safeFrom('erp_eventos_calendario'),
-      safeFrom('erp_bitacora', q => q.select('*').order('fecha', { ascending: false })),
-      safeFrom('erp_presupuestos'),
-      safeFrom('erp_seguimiento', q => q.select('*').order('fecha', { ascending: false })),
-      safeFrom('erp_cuentas_cobrar', q => q.select('*').order('fecha_vencimiento', { ascending: true })),
-      safeFrom('erp_cuentas_pagar', q => q.select('*').order('fecha_vencimiento', { ascending: true })),
-      safeFrom('erp_ordenes_cambio', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_hitos', q => q.select('*').order('fecha', { ascending: true })),
-      safeFrom('erp_riesgos', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_liberaciones_partida', q => q.select('*').order('fecha_solicitud', { ascending: false })),
-      safeFrom('erp_muro', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_notificaciones', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_activos', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_cuadros', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_pagos_proveedor', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_planos', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_rfis', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_submittals', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_incidentes', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_pruebas_laboratorio', q => q.select('*').order('created_at', { ascending: false })),
-      safeFrom('erp_no_conformidades', q => q.select('*').order('created_at', { ascending: false })),
-    ]);
+const [p, m, e, mat, o, prov, evt, bit, presup, _seg, cc, cp, oc, hit, rie, lib, pub, notif, inc, prue, nc, act, cua, pp, pl, rf, sub, licit] = await Promise.all([
+       safeFrom('erp_proyectos'),
+       safeFrom('erp_movimientos', q => q.select('*').order('fecha', { ascending: false })),
+       safeFrom('erp_empleados'),
+       safeFrom('erp_materiales'),
+       safeFrom('erp_ordenes_compra', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_proveedores'),
+       safeFrom('erp_eventos_calendario'),
+       safeFrom('erp_bitacora', q => q.select('*').order('fecha', { ascending: false })),
+       safeFrom('erp_presupuestos'),
+       safeFrom('erp_seguimiento', q => q.select('*').order('fecha', { ascending: false })),
+       safeFrom('erp_cuentas_cobrar', q => q.select('*').order('fecha_vencimiento', { ascending: true })),
+       safeFrom('erp_cuentas_pagar', q => q.select('*').order('fecha_vencimiento', { ascending: true })),
+       safeFrom('erp_ordenes_cambio', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_hitos', q => q.select('*').order('fecha', { ascending: true })),
+       safeFrom('erp_riesgos', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_liberaciones_partida', q => q.select('*').order('fecha_solicitud', { ascending: false })),
+       safeFrom('erp_muro', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_notificaciones', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_activos', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_cuadros', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_pagos_proveedor', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_planos', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_rfis', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_submittals', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_incidentes', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_pruebas_laboratorio', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_no_conformidades', q => q.select('*').order('created_at', { ascending: false })),
+       safeFrom('erp_licitaciones', q => q.select('*').order('created_at', { ascending: false })),
+     ]);
 
-    setSnakeCaseStates({
-      proyectos: simpleMap(proyectoSchema, p),
-      movimientos: simpleMap(movimientoSchema, m),
-      empleados: simpleMap(empleadoSchema, e),
-      materiales: simpleMap(materialSchema, mat),
-      ordenes: simpleMap(ordenSchema, o),
-      proveedores: simpleMap(proveedorSchema, prov),
-      eventos: simpleMap(eventoSchema, evt),
-      bitacora: simpleMap(bitacoraSchema, bit),
-      presupuestos: simpleMap(presupuestoSchema, presup),
-      cuentas_cobrar: simpleMap(cuentaCobrarSchema, cc),
-      cuentas_pagar: simpleMap(cuentaPagarSchema, cp),
-      ordenes_cambio: simpleMap(ordenCambioSchema, oc),
-      hitos: simpleMap(hitoSchema, hit),
-      riesgos: simpleMap(riesgoSchema, rie),
-      incidentes: simpleMap(incidenteSchema, inc),
-      pruebas: simpleMap(pruebaSchema, prue),
-      no_conformidades: simpleMap(noConformidadSchema, nc),
-      liberaciones: simpleMap(liberacionSchema, lib),
-      planos: simpleMap(planoSchema, pl),
-      rfis: simpleMap(rfiSchema, rf),
-      submittals: simpleMap(submittalSchema, sub),
-      activos: simpleMap(activoSchema, act),
-      cuadros: simpleMap(cuadroSchema, cua),
-      pagos_proveedor: simpleMap(pagoProveedorSchema, pp),
-      seguimiento: simpleMap(seguimientoSchema, _seg),
-      muro: simpleMap(muroSchema, pub),
-    });
+setSnakeCaseStates({
+       proyectos: simpleMap(proyectoSchema, p),
+       movimientos: simpleMap(movimientoSchema, m),
+       empleados: simpleMap(empleadoSchema, e),
+       materiales: simpleMap(materialSchema, mat),
+       ordenes: simpleMap(ordenSchema, o),
+       proveedores: simpleMap(proveedorSchema, prov),
+       eventos: simpleMap(eventoSchema, evt),
+       bitacora: simpleMap(bitacoraSchema, bit),
+       presupuestos: simpleMap(presupuestoSchema, presup),
+       cuentas_cobrar: simpleMap(cuentaCobrarSchema, cc),
+       cuentas_pagar: simpleMap(cuentaPagarSchema, cp),
+       ordenes_cambio: simpleMap(ordenCambioSchema, oc),
+       hitos: simpleMap(hitoSchema, hit),
+       riesgos: simpleMap(riesgoSchema, rie),
+       incidentes: simpleMap(incidenteSchema, inc),
+       pruebas: simpleMap(pruebaSchema, prue),
+       no_conformidades: simpleMap(noConformidadSchema, nc),
+       liberaciones: simpleMap(liberacionSchema, lib),
+       planos: simpleMap(planoSchema, pl),
+       rfis: simpleMap(rfiSchema, rf),
+       submittals: simpleMap(submittalSchema, sub),
+       activos: simpleMap(activoSchema, act),
+       cuadros: simpleMap(cuadroSchema, cua),
+       pagos_proveedor: simpleMap(pagoProveedorSchema, pp),
+       seguimiento: simpleMap(seguimientoSchema, _seg),
+       muro: simpleMap(muroSchema, pub),
+       licitaciones: simpleMap(licitacionSchema, licit),
+     });
   }, [setSnakeCaseStates, user]);
 
   const fetchInitialDataRef = useRef<(() => Promise<void>) | null>(null);

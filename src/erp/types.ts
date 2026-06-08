@@ -289,12 +289,14 @@ export interface AvanceObra {
 
 export interface Licitacion {
   id: string;
-  nombre: string;
+  titulo: string;
   cliente: string;
   monto: number;
   fechaLimite: string;
-  estado: 'activa' | 'ganada' | 'perdida' | 'cancelada';
-  documentos: { nombre: string; url: string }[];
+  estado: 'identificado' | 'en_estudio' | 'presentado' | 'ganado' | 'perdido';
+  probabilidad: number;
+  fechaCreacion: string;
+  documentos?: { nombre: string; url: string }[];
   notas?: string;
 }
 
