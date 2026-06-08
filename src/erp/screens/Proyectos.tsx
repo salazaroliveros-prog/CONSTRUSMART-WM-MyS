@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { Proyecto, Tipologia } from '../types';
 import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
@@ -53,6 +54,7 @@ const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado
 };
 
 const Proyectos: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, addProyecto, updateProyecto, deleteProyecto } = useErp();
   const [show, setShow] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -386,8 +388,8 @@ const Proyectos: React.FC = () => {
         <div className={MODAL_OVERLAY + ' animate-enter'} onClick={() => setShow(false)} role="dialog" aria-modal="true" aria-labelledby="modal-proyecto-title">
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className={`${MODAL_PANEL} max-w-2xl max-h-[90vh] overflow-y-auto animate-enter`}>
             <div className={MODAL_HEADER}>
-              <h2 id="modal-proyecto-title" className={MODAL_TITLE}>{editingId ? 'Editar Proyecto' : 'Nuevo Proyecto'}</h2>
-              <button type="button" onClick={() => { setShow(false); setEditingId(null); }} className={MODAL_CLOSE} aria-label="Cerrar">
+              <h2 id="modal-proyecto-title" className={MODAL_TITLE}>{editingId ? t('proyectos.editar') : t('proyectos.nuevo')}</h2>
+              <button type="button" onClick={() => { setShow(false); setEditingId(null); }} className={MODAL_CLOSE} aria-label={t('common.cerrar')}>
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
@@ -395,7 +397,7 @@ const Proyectos: React.FC = () => {
             <div className="space-y-4">
               {/* Informacion General */}
               <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Información General</h3>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.informacion_general')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="sm:col-span-2">
                     <input {...register('nombre')} placeholder="Nombre del proyecto *" className={INPUT} />
@@ -426,7 +428,7 @@ const Proyectos: React.FC = () => {
 
               {/* Cliente */}
               <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Cliente</h3>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.cliente')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <input {...register('cliente')} placeholder="Nombre del cliente *" className={INPUT} />
                   {errors.cliente && <p className="text-xs text-red-500 mt-0.5">{errors.cliente.message}</p>}
@@ -439,7 +441,7 @@ const Proyectos: React.FC = () => {
 
               {/* Ubicacion y Mapa */}
               <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Ubicación</h3>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.ubicacion')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
                   <input {...register('ubicacion')} placeholder="Ubicación (texto) *" className={INPUT} />
                   {errors.ubicacion && <p className="text-xs text-red-500 mt-0.5">{errors.ubicacion.message}</p>}
@@ -460,7 +462,7 @@ const Proyectos: React.FC = () => {
 
               {/* Responsables */}
               <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Responsables</h3>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.responsables')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <input {...register('ingenieroResidente')} placeholder="Ingeniero Residente" className={INPUT} />
                   <input {...register('supervisor')} placeholder="Supervisor" className={INPUT} />
@@ -470,7 +472,7 @@ const Proyectos: React.FC = () => {
 
               {/* Documentacion */}
               <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Documentación</h3>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.documentacion')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <input {...register('numeroExpediente')} placeholder="N° Expediente" className={INPUT} />
                   <input {...register('numeroLicencia')} placeholder="N° Licencia Municipal" className={INPUT} />
@@ -479,7 +481,7 @@ const Proyectos: React.FC = () => {
 
               {/* Estado y Etapa */}
               <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Estado del Proyecto</h3>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.estado_proyecto')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">Estado</label>
@@ -505,7 +507,7 @@ const Proyectos: React.FC = () => {
 
               {/* Presupuesto y Fechas */}
               <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Presupuesto y Plazos</h3>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.presupuesto_plazos')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">Presupuesto Total</label>
@@ -531,11 +533,11 @@ const Proyectos: React.FC = () => {
                 {(errors.presupuestoTotal || errors.montoContrato || errors.fechaInicio || errors.fechaFin) && (
                   <p className="text-xs text-red-500 mt-1">Complete los campos requeridos</p>
                 )}
-              </div>
-            </div>
+</div>
+             </div>
 
             <button type="submit" className={`${BUTTON_PRIMARY} mt-4 w-full justify-center active:scale-[0.98]`}>
-              {editingId ? 'Guardar Cambios' : 'Crear Proyecto'}
+              {editingId ? t('proyectos.guardar_cambios') : t('proyectos.crear')}
             </button>
           </form>
         </div>

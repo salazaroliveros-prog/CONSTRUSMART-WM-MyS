@@ -146,13 +146,23 @@
     "proximos_vencimientos": "Upcoming Deadlines",
     "actividad_reciente": "Recent Activity"
   },
-  "proyectos": {
+"proyectos": {
     "titulo": "Projects",
     "portafolio": "Project Portfolio",
     "nuevo": "New Project",
-    "crear": "Create Project",
     "editar": "Edit Project",
     "guardar_cambios": "Save Changes",
+    "crear": "Create Project",
+    "informacion_general": "General Information",
+    "cliente": "Client",
+    "ubicacion": "Location",
+    "responsables": "Personnel",
+    "documentacion": "Documentation",
+    "estado_proyecto": "Project Status",
+    "presupuesto_plazos": "Budget & Timeline",
+    "guardar": "Save",
+    "editar_tooltip": "Edit",
+    "eliminar_tooltip": "Delete"
     "contrato": "Contract",
     "monto_contrato": "Contract Amount",
     "presupuesto_total": "Total Budget",
