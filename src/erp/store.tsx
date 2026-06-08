@@ -1218,7 +1218,12 @@ setSnakeCaseStates({
       } else {
         setInitializing(false);
       }
-    }).catch(err => {
+    }).catch((err: any) => {
+      if (err?.message?.includes('Refresh Token') || err?.message?.includes('Invalid')) {
+        // Token inválido - limpiar estado y redirigir a login
+        setUser(null);
+        setView('login');
+      }
       console.error('[Auth] Error en getSession():', err);
       setInitializing(false);
     });
