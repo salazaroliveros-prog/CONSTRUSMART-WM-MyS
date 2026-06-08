@@ -23,6 +23,8 @@ const proyectoSchema = z.object({
   presupuestoActualId: z.string().nullable().optional(),
   fechaInicio: z.string().default(''),
   fechaFin: z.string().default(''),
+  fechaInicioReal: z.string().optional().default(''),
+  fechaFinEstimada: z.string().optional().default(''),
   avanceFisico: z.number().default(0),
   avanceFinanciero: z.number().default(0),
   estado: z.enum(['planeacion','ejecucion','pausado','finalizado']).default('planeacion'),
@@ -36,6 +38,7 @@ const proyectoSchema = z.object({
   ciudad: z.string().optional().default(''),
   departamento: z.string().optional().default(''),
   codigoPostal: z.string().optional().default(''),
+  pais: z.string().optional().default('Guatemala'),
   areaConstruccion: z.number().optional(),
   numPisos: z.number().optional(),
   plazoSemanas: z.number().optional(),
@@ -51,6 +54,12 @@ const proyectoSchema = z.object({
   lng: z.number().nullable().optional(),
   latitud: z.number().nullable().optional(),
   longitud: z.number().nullable().optional(),
+  factorSobrecosto: z.object({
+    indirectos: z.number(),
+    administracion: z.number(),
+    imprevistos: z.number(),
+    utilidad: z.number(),
+  }).optional(),
 }).transform(d => ({
   ...d,
   lat: d.lat ?? d.latitud ?? 14.6349,
@@ -1065,10 +1074,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const fetchInitialData = useCallback(async () => {
     const simpleMap = (schema: z.ZodType<any, any, any>, data: any[]) => {
       if (!Array.isArray(data) || data.length === 0) return [];
+      const toCamel = buildCamelMapper(data[0]);
       return data
         .map((obj: any) => {
           try {
-            return schema.parse(obj);
+            return schema.parse(toCamel(obj));
           } catch {
             return null;
           }
@@ -1302,6 +1312,16 @@ setSnakeCaseStates({
   useEffect(() => { saveToStorage(QUEUE_KEY, mutationQueue); }, [mutationQueue]);
 
   const [syncMessage, setSyncMessage] = useState('');
+
+  const snakeToCamel = (str: string) => str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+  const buildCamelMapper = (sample: Record<string, any>) => {
+    const map = Object.keys(sample).map(k => [k, snakeToCamel(k)] as const);
+    return (obj: Record<string, any>) => {
+      const out: Record<string, any> = {};
+      for (const [snake, camel] of map) out[camel] = obj[snake];
+      return out;
+    };
+  };
 
   const forProyecto = (data: any) => {
     const result: any = {};

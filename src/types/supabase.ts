@@ -1,3 +1,4 @@
+Initialising login role...
 export type Json =
   | string
   | number
@@ -94,15 +95,7 @@ export type Database = {
           ubicacion?: string | null
           valor_adquisicion?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "activos_herramientas_proyecto_id_fkey"
-            columns: ["proyecto_id"]
-            isOneToOne: false
-            referencedRelation: "erp_proyectos"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       amortizaciones: {
         Row: {
@@ -185,15 +178,7 @@ export type Database = {
           saldo_pendiente?: number
           tipo?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "anticipos_proyecto_id_fkey"
-            columns: ["proyecto_id"]
-            isOneToOne: false
-            referencedRelation: "erp_proyectos"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       cajas_chicas: {
         Row: {
@@ -250,15 +235,7 @@ export type Database = {
           proyecto_id?: string
           solicitante?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "cajas_chicas_proyecto_id_fkey"
-            columns: ["proyecto_id"]
-            isOneToOne: false
-            referencedRelation: "erp_proyectos"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       centros_costo: {
         Row: {
@@ -291,15 +268,7 @@ export type Database = {
           proyecto_id?: string
           tipo?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "centros_costo_proyecto_id_fkey"
-            columns: ["proyecto_id"]
-            isOneToOne: false
-            referencedRelation: "erp_proyectos"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       cotizaciones: {
         Row: {
@@ -343,13 +312,6 @@ export type Database = {
             referencedRelation: "cuadro_comparativo_proveedores"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "cotizaciones_proveedor_id_fkey"
-            columns: ["proveedor_id"]
-            isOneToOne: false
-            referencedRelation: "erp_proveedores"
-            referencedColumns: ["id"]
-          },
         ]
       }
       cuadro_comparativo_proveedores: {
@@ -389,22 +351,7 @@ export type Database = {
           proyecto_id?: string | null
           solicitud?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "cuadro_comparativo_proveedores_adjudicado_a_fkey"
-            columns: ["adjudicado_a"]
-            isOneToOne: false
-            referencedRelation: "erp_proveedores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cuadro_comparativo_proveedores_proyecto_id_fkey"
-            columns: ["proyecto_id"]
-            isOneToOne: false
-            referencedRelation: "erp_proyectos"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       destajos: {
         Row: {
@@ -452,12 +399,155 @@ export type Database = {
           renglon_codigo?: string
           unidad?: string
         }
+        Relationships: []
+      }
+      erp_activos: {
+        Row: {
+          asignado_a: string | null
+          costo: number | null
+          created_at: string | null
+          created_by: string | null
+          estado: string | null
+          fecha_compra: string | null
+          id: string
+          modelo: string | null
+          nombre: string
+          numero_serie: string | null
+          proyecto_id: string
+          tipo: string
+          ubicacion: string | null
+          updated_at: string | null
+          vida_util: number | null
+        }
+        Insert: {
+          asignado_a?: string | null
+          costo?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          estado?: string | null
+          fecha_compra?: string | null
+          id?: string
+          modelo?: string | null
+          nombre: string
+          numero_serie?: string | null
+          proyecto_id: string
+          tipo: string
+          ubicacion?: string | null
+          updated_at?: string | null
+          vida_util?: number | null
+        }
+        Update: {
+          asignado_a?: string | null
+          costo?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          estado?: string | null
+          fecha_compra?: string | null
+          id?: string
+          modelo?: string | null
+          nombre?: string
+          numero_serie?: string | null
+          proyecto_id?: string
+          tipo?: string
+          ubicacion?: string | null
+          updated_at?: string | null
+          vida_util?: number | null
+        }
         Relationships: [
           {
-            foreignKeyName: "destajos_proyecto_id_fkey"
+            foreignKeyName: "erp_activos_proyecto_id_fkey"
             columns: ["proyecto_id"]
             isOneToOne: false
             referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_auditoria: {
+        Row: {
+          accion: string
+          creado_en: string
+          datos: Json | null
+          id: string
+          ip: string | null
+          registro_id: string | null
+          tabla: string
+          user_agent: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          accion: string
+          creado_en?: string
+          datos?: Json | null
+          id?: string
+          ip?: string | null
+          registro_id?: string | null
+          tabla: string
+          user_agent?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          accion?: string
+          creado_en?: string
+          datos?: Json | null
+          id?: string
+          ip?: string | null
+          registro_id?: string | null
+          tabla?: string
+          user_agent?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
+      erp_avances: {
+        Row: {
+          avance_fisico: number
+          cantidad_ejecutada: number
+          created_at: string
+          created_by: string | null
+          fecha: string
+          foto: string | null
+          id: string
+          latitud: number | null
+          longitud: number | null
+          presupuesto_id: string | null
+          proyecto_id: string
+          renglon_id: string | null
+        }
+        Insert: {
+          avance_fisico?: number
+          cantidad_ejecutada?: number
+          created_at?: string
+          created_by?: string | null
+          fecha?: string
+          foto?: string | null
+          id?: string
+          latitud?: number | null
+          longitud?: number | null
+          presupuesto_id?: string | null
+          proyecto_id: string
+          renglon_id?: string | null
+        }
+        Update: {
+          avance_fisico?: number
+          cantidad_ejecutada?: number
+          created_at?: string
+          created_by?: string | null
+          fecha?: string
+          foto?: string | null
+          id?: string
+          latitud?: number | null
+          longitud?: number | null
+          presupuesto_id?: string | null
+          proyecto_id?: string
+          renglon_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_avances_presupuesto_id_fkey"
+            columns: ["presupuesto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_presupuestos"
             referencedColumns: ["id"]
           },
         ]
@@ -512,8 +602,171 @@ export type Database = {
           },
         ]
       }
+      erp_cuadros: {
+        Row: {
+          archivo_url: string | null
+          created_at: string | null
+          created_by: string | null
+          descripcion: string | null
+          id: string
+          nombre: string
+          proyecto_id: string
+          tipo: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          archivo_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          descripcion?: string | null
+          id?: string
+          nombre: string
+          proyecto_id: string
+          tipo?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          archivo_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          descripcion?: string | null
+          id?: string
+          nombre?: string
+          proyecto_id?: string
+          tipo?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_cuadros_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_cuentas_cobrar: {
+        Row: {
+          cliente: string
+          concepto: string
+          created_at: string
+          created_by: string | null
+          estado: string
+          fecha_cobro: string | null
+          fecha_emision: string
+          fecha_vencimiento: string
+          id: string
+          monto: number
+          notas: string | null
+          proyecto_id: string
+          saldo_pendiente: number
+          updated_at: string
+        }
+        Insert: {
+          cliente: string
+          concepto: string
+          created_at?: string
+          created_by?: string | null
+          estado?: string
+          fecha_cobro?: string | null
+          fecha_emision: string
+          fecha_vencimiento: string
+          id?: string
+          monto: number
+          notas?: string | null
+          proyecto_id: string
+          saldo_pendiente: number
+          updated_at?: string
+        }
+        Update: {
+          cliente?: string
+          concepto?: string
+          created_at?: string
+          created_by?: string | null
+          estado?: string
+          fecha_cobro?: string | null
+          fecha_emision?: string
+          fecha_vencimiento?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          proyecto_id?: string
+          saldo_pendiente?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_cuentas_cobrar_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_cuentas_pagar: {
+        Row: {
+          concepto: string
+          created_at: string
+          created_by: string | null
+          estado: string
+          factura_url: string | null
+          fecha_emision: string
+          fecha_pago: string | null
+          fecha_vencimiento: string
+          id: string
+          monto: number
+          proveedor: string
+          proyecto_id: string
+          saldo_pendiente: number
+          updated_at: string
+        }
+        Insert: {
+          concepto: string
+          created_at?: string
+          created_by?: string | null
+          estado?: string
+          factura_url?: string | null
+          fecha_emision: string
+          fecha_pago?: string | null
+          fecha_vencimiento: string
+          id?: string
+          monto: number
+          proveedor: string
+          proyecto_id: string
+          saldo_pendiente: number
+          updated_at?: string
+        }
+        Update: {
+          concepto?: string
+          created_at?: string
+          created_by?: string | null
+          estado?: string
+          factura_url?: string | null
+          fecha_emision?: string
+          fecha_pago?: string | null
+          fecha_vencimiento?: string
+          id?: string
+          monto?: number
+          proveedor?: string
+          proyecto_id?: string
+          saldo_pendiente?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_cuentas_pagar_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       erp_empleados: {
         Row: {
+          avatar_url: string | null
           created_at: string
           created_by: string | null
           dias_trabajados: number
@@ -526,6 +779,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           created_by?: string | null
           dias_trabajados?: number
@@ -538,6 +792,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           created_by?: string | null
           dias_trabajados?: number
@@ -602,6 +857,130 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "erp_eventos_calendario_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_hitos: {
+        Row: {
+          completado_en: string | null
+          created_at: string
+          created_by: string | null
+          depends_on: string | null
+          descripcion: string | null
+          estado: string
+          fecha: string
+          id: string
+          nombre: string
+          proyecto_id: string
+          responsable: string | null
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          completado_en?: string | null
+          created_at?: string
+          created_by?: string | null
+          depends_on?: string | null
+          descripcion?: string | null
+          estado?: string
+          fecha: string
+          id?: string
+          nombre: string
+          proyecto_id: string
+          responsable?: string | null
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          completado_en?: string | null
+          created_at?: string
+          created_by?: string | null
+          depends_on?: string | null
+          descripcion?: string | null
+          estado?: string
+          fecha?: string
+          id?: string
+          nombre?: string
+          proyecto_id?: string
+          responsable?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_hitos_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_incidentes: {
+        Row: {
+          acciones_inmediatas: string | null
+          afectados: string
+          created_at: string
+          created_by: string | null
+          descripcion: string
+          estado: string
+          fecha: string
+          fotos: string[] | null
+          hora: string | null
+          id: string
+          latitud: number | null
+          longitud: number | null
+          proyecto_id: string
+          reportado_por: string
+          testigos: string | null
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          acciones_inmediatas?: string | null
+          afectados: string
+          created_at?: string
+          created_by?: string | null
+          descripcion: string
+          estado?: string
+          fecha: string
+          fotos?: string[] | null
+          hora?: string | null
+          id?: string
+          latitud?: number | null
+          longitud?: number | null
+          proyecto_id: string
+          reportado_por: string
+          testigos?: string | null
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          acciones_inmediatas?: string | null
+          afectados?: string
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string
+          estado?: string
+          fecha?: string
+          fotos?: string[] | null
+          hora?: string | null
+          id?: string
+          latitud?: number | null
+          longitud?: number | null
+          proyecto_id?: string
+          reportado_por?: string
+          testigos?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_incidentes_proyecto_id_fkey"
             columns: ["proyecto_id"]
             isOneToOne: false
             referencedRelation: "erp_proyectos"
@@ -689,6 +1068,107 @@ export type Database = {
         }
         Relationships: []
       }
+      erp_liberaciones_partida: {
+        Row: {
+          checklist_aprobado: boolean | null
+          created_at: string
+          created_by: string | null
+          estado: string
+          fecha_liberacion: string | null
+          fecha_solicitud: string
+          id: string
+          observaciones: string | null
+          proyecto_id: string
+          renglon_id: string | null
+          renglon_nombre: string
+          solicitante: string
+          supervisor: string
+          updated_at: string
+        }
+        Insert: {
+          checklist_aprobado?: boolean | null
+          created_at?: string
+          created_by?: string | null
+          estado?: string
+          fecha_liberacion?: string | null
+          fecha_solicitud: string
+          id?: string
+          observaciones?: string | null
+          proyecto_id: string
+          renglon_id?: string | null
+          renglon_nombre: string
+          solicitante: string
+          supervisor: string
+          updated_at?: string
+        }
+        Update: {
+          checklist_aprobado?: boolean | null
+          created_at?: string
+          created_by?: string | null
+          estado?: string
+          fecha_liberacion?: string | null
+          fecha_solicitud?: string
+          id?: string
+          observaciones?: string | null
+          proyecto_id?: string
+          renglon_id?: string | null
+          renglon_nombre?: string
+          solicitante?: string
+          supervisor?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_liberaciones_partida_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_licitaciones: {
+        Row: {
+          cliente: string
+          created_at: string
+          created_by: string | null
+          documentos: Json
+          estado: string
+          fecha_limite: string
+          id: string
+          monto: number
+          nombre: string
+          notas: string | null
+          updated_at: string
+        }
+        Insert: {
+          cliente: string
+          created_at?: string
+          created_by?: string | null
+          documentos?: Json
+          estado?: string
+          fecha_limite: string
+          id?: string
+          monto?: number
+          nombre: string
+          notas?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cliente?: string
+          created_at?: string
+          created_by?: string | null
+          documentos?: Json
+          estado?: string
+          fecha_limite?: string
+          id?: string
+          monto?: number
+          nombre?: string
+          notas?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       erp_materiales: {
         Row: {
           created_at: string
@@ -737,9 +1217,16 @@ export type Database = {
           created_at: string
           created_by: string | null
           descripcion: string
+          factura: string | null
           fecha: string
+          forma_pago: string | null
           id: string
+          notas: string | null
+          proveedor_nit: string | null
           proyecto_id: string | null
+          referencia_bancaria: string | null
+          retencion_isr: number | null
+          retencion_iva: number | null
           tipo: string
           unidad: string
           updated_at: string
@@ -752,9 +1239,16 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descripcion: string
+          factura?: string | null
           fecha?: string
+          forma_pago?: string | null
           id?: string
+          notas?: string | null
+          proveedor_nit?: string | null
           proyecto_id?: string | null
+          referencia_bancaria?: string | null
+          retencion_isr?: number | null
+          retencion_iva?: number | null
           tipo: string
           unidad: string
           updated_at?: string
@@ -767,9 +1261,16 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descripcion?: string
+          factura?: string | null
           fecha?: string
+          forma_pago?: string | null
           id?: string
+          notas?: string | null
+          proveedor_nit?: string | null
           proyecto_id?: string | null
+          referencia_bancaria?: string | null
+          retencion_isr?: number | null
+          retencion_iva?: number | null
           tipo?: string
           unidad?: string
           updated_at?: string
@@ -777,6 +1278,180 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "erp_movimientos_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_muro: {
+        Row: {
+          autor: string
+          autor_avatar: string | null
+          comentarios: Json | null
+          contenido: string
+          created_at: string
+          created_by: string | null
+          documento: Json | null
+          fotos: string[] | null
+          id: string
+          likes: number | null
+          proyecto_id: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          autor: string
+          autor_avatar?: string | null
+          comentarios?: Json | null
+          contenido: string
+          created_at?: string
+          created_by?: string | null
+          documento?: Json | null
+          fotos?: string[] | null
+          id?: string
+          likes?: number | null
+          proyecto_id: string
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          autor?: string
+          autor_avatar?: string | null
+          comentarios?: Json | null
+          contenido?: string
+          created_at?: string
+          created_by?: string | null
+          documento?: Json | null
+          fotos?: string[] | null
+          id?: string
+          likes?: number | null
+          proyecto_id?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_muro_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_no_conformidades: {
+        Row: {
+          categoria: string
+          codigo: string
+          created_at: string
+          created_by: string | null
+          descripcion: string
+          detectado_por: string
+          estado: string
+          fecha_cierre: string | null
+          fecha_deteccion: string
+          id: string
+          plan_accion: string | null
+          proyecto_id: string
+          responsable_cierre: string | null
+          updated_at: string
+        }
+        Insert: {
+          categoria: string
+          codigo: string
+          created_at?: string
+          created_by?: string | null
+          descripcion: string
+          detectado_por: string
+          estado?: string
+          fecha_cierre?: string | null
+          fecha_deteccion: string
+          id?: string
+          plan_accion?: string | null
+          proyecto_id: string
+          responsable_cierre?: string | null
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string
+          codigo?: string
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string
+          detectado_por?: string
+          estado?: string
+          fecha_cierre?: string | null
+          fecha_deteccion?: string
+          id?: string
+          plan_accion?: string | null
+          proyecto_id?: string
+          responsable_cierre?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_no_conformidades_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_ordenes_cambio: {
+        Row: {
+          aprobador: string | null
+          created_at: string
+          created_by: string | null
+          descripcion: string
+          estado: string
+          fecha_aprobacion: string | null
+          id: string
+          impacto_costo: number
+          impacto_plazo: number
+          proyecto_id: string
+          solicitante: string
+          solicitante_rol: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          aprobador?: string | null
+          created_at?: string
+          created_by?: string | null
+          descripcion: string
+          estado?: string
+          fecha_aprobacion?: string | null
+          id?: string
+          impacto_costo: number
+          impacto_plazo: number
+          proyecto_id: string
+          solicitante: string
+          solicitante_rol: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          aprobador?: string | null
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string
+          estado?: string
+          fecha_aprobacion?: string | null
+          id?: string
+          impacto_costo?: number
+          impacto_plazo?: number
+          proyecto_id?: string
+          solicitante?: string
+          solicitante_rol?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_ordenes_cambio_proyecto_id_fkey"
             columns: ["proyecto_id"]
             isOneToOne: false
             referencedRelation: "erp_proyectos"
@@ -792,9 +1467,11 @@ export type Database = {
           estado: string
           fecha: string
           id: string
+          items: Json | null
           material: string
           monto: number
           proveedor: string
+          proyecto_id: string | null
           updated_at: string
         }
         Insert: {
@@ -804,9 +1481,11 @@ export type Database = {
           estado?: string
           fecha?: string
           id?: string
+          items?: Json | null
           material: string
           monto?: number
           proveedor: string
+          proyecto_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -816,12 +1495,81 @@ export type Database = {
           estado?: string
           fecha?: string
           id?: string
+          items?: Json | null
           material?: string
           monto?: number
           proveedor?: string
+          proyecto_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "erp_ordenes_compra_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_planos: {
+        Row: {
+          archivo_url: string | null
+          created_at: string | null
+          created_by: string | null
+          disciplina: string | null
+          estado: string
+          fecha_revision: string | null
+          id: string
+          nombre: string
+          observaciones: string | null
+          proyecto_id: string
+          revisado_por: string | null
+          tipo: string
+          updated_at: string | null
+          version: number
+        }
+        Insert: {
+          archivo_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          disciplina?: string | null
+          estado?: string
+          fecha_revision?: string | null
+          id?: string
+          nombre: string
+          observaciones?: string | null
+          proyecto_id: string
+          revisado_por?: string | null
+          tipo: string
+          updated_at?: string | null
+          version?: number
+        }
+        Update: {
+          archivo_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          disciplina?: string | null
+          estado?: string
+          fecha_revision?: string | null
+          id?: string
+          nombre?: string
+          observaciones?: string | null
+          proyecto_id?: string
+          revisado_por?: string | null
+          tipo?: string
+          updated_at?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_planos_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       erp_presupuestos: {
         Row: {
@@ -869,106 +1617,179 @@ export type Database = {
           updated_by?: string | null
           version_presupuesto?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "erp_presupuestos_proyecto_id_fkey"
-            columns: ["proyecto_id"]
-            isOneToOne: false
-            referencedRelation: "erp_proyectos"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       erp_proveedores: {
         Row: {
           calificacion: number
+          categoria: string | null
           contacto: string | null
           created_at: string
           created_by: string | null
+          email: string | null
           id: string
           nombre: string
           rubro: string | null
+          telefono: string | null
           updated_at: string
         }
         Insert: {
           calificacion?: number
+          categoria?: string | null
           contacto?: string | null
           created_at?: string
           created_by?: string | null
+          email?: string | null
           id?: string
           nombre: string
           rubro?: string | null
+          telefono?: string | null
           updated_at?: string
         }
         Update: {
           calificacion?: number
+          categoria?: string | null
           contacto?: string | null
           created_at?: string
           created_by?: string | null
+          email?: string | null
           id?: string
           nombre?: string
           rubro?: string | null
+          telefono?: string | null
           updated_at?: string
         }
         Relationships: []
       }
       erp_proyectos: {
         Row: {
+          area_construccion: number | null
+          arquitecto: string | null
           avance_financiero: number
           avance_fisico: number
+          ciudad: string | null
           cliente: string
+          cliente_email: string | null
+          cliente_nit: string | null
+          cliente_telefono: string | null
+          codigo_postal: string | null
           created_at: string
           created_by: string | null
+          departamento: string | null
+          descripcion: string | null
+          direccion: string | null
           estado: string
+          etapa: string | null
+          factor_sobrecosto: Json | null
           fecha_fin: string | null
+          fecha_fin_estimada: string | null
           fecha_inicio: string | null
+          fecha_inicio_real: string | null
           id: string
+          ingeniero_residente: string | null
           lat: number | null
           lng: number | null
+          margen_utilidad_objetivo: number | null
+          moneda: string | null
           monto_contrato: number
           nombre: string
+          num_pisos: number | null
+          numero_expediente: string | null
+          numero_licencia: string | null
+          pais: string | null
+          plazo_semanas: number | null
           presupuesto_actual_id: string | null
           presupuesto_total: number
+          supervisor: string | null
+          tipo_obra: string | null
           tipologia: string
           ubicacion: string
           updated_at: string
         }
         Insert: {
+          area_construccion?: number | null
+          arquitecto?: string | null
           avance_financiero?: number
           avance_fisico?: number
+          ciudad?: string | null
           cliente: string
+          cliente_email?: string | null
+          cliente_nit?: string | null
+          cliente_telefono?: string | null
+          codigo_postal?: string | null
           created_at?: string
           created_by?: string | null
+          departamento?: string | null
+          descripcion?: string | null
+          direccion?: string | null
           estado?: string
+          etapa?: string | null
+          factor_sobrecosto?: Json | null
           fecha_fin?: string | null
+          fecha_fin_estimada?: string | null
           fecha_inicio?: string | null
+          fecha_inicio_real?: string | null
           id?: string
+          ingeniero_residente?: string | null
           lat?: number | null
           lng?: number | null
+          margen_utilidad_objetivo?: number | null
+          moneda?: string | null
           monto_contrato?: number
           nombre: string
+          num_pisos?: number | null
+          numero_expediente?: string | null
+          numero_licencia?: string | null
+          pais?: string | null
+          plazo_semanas?: number | null
           presupuesto_actual_id?: string | null
           presupuesto_total?: number
+          supervisor?: string | null
+          tipo_obra?: string | null
           tipologia: string
           ubicacion: string
           updated_at?: string
         }
         Update: {
+          area_construccion?: number | null
+          arquitecto?: string | null
           avance_financiero?: number
           avance_fisico?: number
+          ciudad?: string | null
           cliente?: string
+          cliente_email?: string | null
+          cliente_nit?: string | null
+          cliente_telefono?: string | null
+          codigo_postal?: string | null
           created_at?: string
           created_by?: string | null
+          departamento?: string | null
+          descripcion?: string | null
+          direccion?: string | null
           estado?: string
+          etapa?: string | null
+          factor_sobrecosto?: Json | null
           fecha_fin?: string | null
+          fecha_fin_estimada?: string | null
           fecha_inicio?: string | null
+          fecha_inicio_real?: string | null
           id?: string
+          ingeniero_residente?: string | null
           lat?: number | null
           lng?: number | null
+          margen_utilidad_objetivo?: number | null
+          moneda?: string | null
           monto_contrato?: number
           nombre?: string
+          num_pisos?: number | null
+          numero_expediente?: string | null
+          numero_licencia?: string | null
+          pais?: string | null
+          plazo_semanas?: number | null
           presupuesto_actual_id?: string | null
           presupuesto_total?: number
+          supervisor?: string | null
+          tipo_obra?: string | null
           tipologia?: string
           ubicacion?: string
           updated_at?: string
@@ -983,27 +1804,89 @@ export type Database = {
           },
         ]
       }
+      erp_pruebas_laboratorio: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          descripcion: string
+          fecha_muestra: string
+          fecha_resultado: string | null
+          id: string
+          observaciones: string | null
+          proyecto_id: string
+          responsable: string
+          resultado: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          descripcion: string
+          fecha_muestra: string
+          fecha_resultado?: string | null
+          id?: string
+          observaciones?: string | null
+          proyecto_id: string
+          responsable: string
+          resultado?: string
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string
+          fecha_muestra?: string
+          fecha_resultado?: string | null
+          id?: string
+          observaciones?: string | null
+          proyecto_id?: string
+          responsable?: string
+          resultado?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_pruebas_laboratorio_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       erp_rendimientos_cuadrilla: {
         Row: {
           actividad: string
+          created_at: string | null
+          created_by: string | null
           cuadrilla: string
           id: string
           rendimiento_diario: number
           unidad: string
+          updated_at: string | null
         }
         Insert: {
           actividad: string
+          created_at?: string | null
+          created_by?: string | null
           cuadrilla: string
           id?: string
           rendimiento_diario?: number
           unidad: string
+          updated_at?: string | null
         }
         Update: {
           actividad?: string
+          created_at?: string | null
+          created_by?: string | null
           cuadrilla?: string
           id?: string
           rendimiento_diario?: number
           unidad?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1059,6 +1942,136 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "erp_renglones_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_rfis: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          descripcion: string | null
+          destinatario: string
+          estado: string | null
+          fecha_envio: string | null
+          fecha_respuesta_esperada: string | null
+          id: string
+          numero: string
+          prioridad: string | null
+          proyecto_id: string
+          remitente: string
+          respuesta: string | null
+          titulo: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          descripcion?: string | null
+          destinatario: string
+          estado?: string | null
+          fecha_envio?: string | null
+          fecha_respuesta_esperada?: string | null
+          id?: string
+          numero: string
+          prioridad?: string | null
+          proyecto_id: string
+          remitente: string
+          respuesta?: string | null
+          titulo: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          descripcion?: string | null
+          destinatario?: string
+          estado?: string | null
+          fecha_envio?: string | null
+          fecha_respuesta_esperada?: string | null
+          id?: string
+          numero?: string
+          prioridad?: string | null
+          proyecto_id?: string
+          remitente?: string
+          respuesta?: string | null
+          titulo?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_rfis_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_riesgos: {
+        Row: {
+          costo_soporte: number | null
+          created_at: string
+          created_by: string | null
+          descripcion: string | null
+          estado: string
+          fecha_identificacion: string
+          id: string
+          impacto: number
+          nivel: string
+          nombre: string
+          plan_contingencia: string | null
+          plan_mitigacion: string | null
+          probabilidad: number
+          proyecto_id: string
+          responsable: string | null
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          costo_soporte?: number | null
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          estado?: string
+          fecha_identificacion: string
+          id?: string
+          impacto: number
+          nivel: string
+          nombre: string
+          plan_contingencia?: string | null
+          plan_mitigacion?: string | null
+          probabilidad: number
+          proyecto_id: string
+          responsable?: string | null
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          costo_soporte?: number | null
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          estado?: string
+          fecha_identificacion?: string
+          id?: string
+          impacto?: number
+          nivel?: string
+          nombre?: string
+          plan_contingencia?: string | null
+          plan_mitigacion?: string | null
+          probabilidad?: number
+          proyecto_id?: string
+          responsable?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_riesgos_proyecto_id_fkey"
             columns: ["proyecto_id"]
             isOneToOne: false
             referencedRelation: "erp_proyectos"
@@ -1172,6 +2185,95 @@ export type Database = {
           },
         ]
       }
+      erp_submittals: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          descripcion: string | null
+          estado: string | null
+          fecha_aprobacion: string | null
+          fecha_envio: string | null
+          id: string
+          numero: string
+          proyecto_id: string
+          titulo: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          descripcion?: string | null
+          estado?: string | null
+          fecha_aprobacion?: string | null
+          fecha_envio?: string | null
+          id?: string
+          numero: string
+          proyecto_id: string
+          titulo: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          descripcion?: string | null
+          estado?: string | null
+          fecha_aprobacion?: string | null
+          fecha_envio?: string | null
+          id?: string
+          numero?: string
+          proyecto_id?: string
+          titulo?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_submittals_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "erp_proyectos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_vales_salida: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          fecha: string
+          id: string
+          items: Json
+          observaciones: string | null
+          proyecto_id: string | null
+          renglon_id: string | null
+          solicitante: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          fecha?: string
+          id?: string
+          items?: Json
+          observaciones?: string | null
+          proyecto_id?: string | null
+          renglon_id?: string | null
+          solicitante?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          fecha?: string
+          id?: string
+          items?: Json
+          observaciones?: string | null
+          proyecto_id?: string | null
+          renglon_id?: string | null
+          solicitante?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       logs_sistema: {
         Row: {
           accion: string
@@ -1254,25 +2356,11 @@ export type Database = {
           proveedor_id?: string
           proyecto_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "pagos_proveedores_proveedor_id_fkey"
-            columns: ["proveedor_id"]
-            isOneToOne: false
-            referencedRelation: "erp_proveedores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pagos_proveedores_proyecto_id_fkey"
-            columns: ["proyecto_id"]
-            isOneToOne: false
-            referencedRelation: "erp_proyectos"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
           id: string
           nombre: string
@@ -1280,6 +2368,7 @@ export type Database = {
           user_metadata: Json | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           id: string
           nombre?: string
@@ -1287,6 +2376,7 @@ export type Database = {
           user_metadata?: Json | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           id?: string
           nombre?: string
@@ -1344,25 +2434,59 @@ export type Database = {
           proyecto_id?: string
           tipo?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "ventas_paquetes_proyecto_id_fkey"
-            columns: ["proyecto_id"]
-            isOneToOne: false
-            referencedRelation: "erp_proyectos"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_accessible_proyectos: { Args: never; Returns: string[] }
+      get_current_user_role: { Args: never; Returns: string }
+      get_user_role: { Args: never; Returns: string }
+      obtener_kpis_dashboard: { Args: never; Returns: Json }
+      verificar_rol_usuario: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          nombre: string
+          rol: string
+        }[]
+      }
+      verificar_sesion_activa: {
+        Args: never
+        Returns: {
+          email: string
+          sesion_valida: boolean
+          ultimo_acceso: string
+          usuario_id: string
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      estado_activo: "disponible" | "asignado" | "mantenimiento" | "baja"
+      estado_anticipo: "activo" | "amortizado" | "cancelado"
+      estado_caja: "pendiente" | "aprobada" | "rechazada"
+      estado_cuadro: "abierto" | "cerrado" | "adjudicado"
+      estado_licitacion: "activa" | "ganada" | "perdida" | "cancelada"
+      estado_orden:
+        | "borrador"
+        | "pendiente"
+        | "aprobado"
+        | "rechazado"
+        | "recibida"
+        | "cancelada"
+      estado_pago: "pendiente" | "pagado" | "vencido" | "cancelado"
+      estado_presupuesto: "borrador" | "aprobado" | "revisado" | "rechazado"
+      estado_proyecto: "planeacion" | "ejecucion" | "pausado" | "finalizado"
+      estado_venta: "disponible" | "reservado" | "vendido" | "entregado"
+      tipo_activo: "herramienta" | "equipo" | "vehiculo" | "accesorio"
+      tipo_caja:
+        | "materiales"
+        | "herramientas"
+        | "transporte"
+        | "comidas"
+        | "otros"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1492,6 +2616,34 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      estado_activo: ["disponible", "asignado", "mantenimiento", "baja"],
+      estado_anticipo: ["activo", "amortizado", "cancelado"],
+      estado_caja: ["pendiente", "aprobada", "rechazada"],
+      estado_cuadro: ["abierto", "cerrado", "adjudicado"],
+      estado_licitacion: ["activa", "ganada", "perdida", "cancelada"],
+      estado_orden: [
+        "borrador",
+        "pendiente",
+        "aprobado",
+        "rechazado",
+        "recibida",
+        "cancelada",
+      ],
+      estado_pago: ["pendiente", "pagado", "vencido", "cancelado"],
+      estado_presupuesto: ["borrador", "aprobado", "revisado", "rechazado"],
+      estado_proyecto: ["planeacion", "ejecucion", "pausado", "finalizado"],
+      estado_venta: ["disponible", "reservado", "vendido", "entregado"],
+      tipo_activo: ["herramienta", "equipo", "vehiculo", "accesorio"],
+      tipo_caja: [
+        "materiales",
+        "herramientas",
+        "transporte",
+        "comidas",
+        "otros",
+      ],
+    },
   },
 } as const
+A new version of Supabase CLI is available: v2.105.0 (currently installed v2.75.0)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli
