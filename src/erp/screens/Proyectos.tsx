@@ -400,11 +400,11 @@ const Proyectos: React.FC = () => {
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.informacion_general')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="sm:col-span-2">
-                    <input {...register('nombre')} placeholder="Nombre del proyecto *" className={INPUT} />
+                    <input {...register('nombre')} placeholder={t('proyectos.nombre_placeholder')} className={INPUT} />
                     {errors.nombre && <p className="text-xs text-red-500 mt-0.5">{errors.nombre.message}</p>}
                   </div>
                   <div className="sm:col-span-2">
-                    <textarea {...register('descripcion')} placeholder="Descripción del proyecto" className={`${INPUT} min-h-[60px] resize-none`} rows={2} />
+                    <textarea {...register('descripcion')} placeholder={t('proyectos.descripcion_placeholder')} className={`${INPUT} min-h-[60px] resize-none`} rows={2} />
                   </div>
                   <select {...register('tipologia')} className={INPUT}>
                     {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]}</option>)}
@@ -483,8 +483,8 @@ const Proyectos: React.FC = () => {
               <div>
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.estado_proyecto')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Estado</label>
+<div>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.estado')}</label>
                     <select {...register('estado')} className={INPUT}>
                       <option value="planeacion">Planeación</option>
                       <option value="ejecucion">Ejecución</option>
@@ -493,7 +493,7 @@ const Proyectos: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Etapa</label>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.etapa')}</label>
                     <select {...register('etapa')} className={INPUT}>
                       <option value="planificacion">Planificación</option>
                       <option value="diseno">Diseño</option>
@@ -510,31 +510,31 @@ const Proyectos: React.FC = () => {
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.presupuesto_plazos')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Presupuesto Total</label>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.presupuesto_total')}</label>
                     <input type="number" {...register('presupuestoTotal')} placeholder="Presupuesto" className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Monto Contrato</label>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.monto_contrato')}</label>
                     <input type="number" {...register('montoContrato')} placeholder="Contrato" className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Margen Utilidad Objetivo (%)</label>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.margen_utilidad')}</label>
                     <input type="number" {...register('margenUtilidadObjetivo')} placeholder="Ej: 15" className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Fecha Inicio</label>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.fecha_inicio')}</label>
                     <input type="date" {...register('fechaInicio')} className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">Fecha Fin Estimada</label>
+                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.fecha_fin_estimada')}</label>
                     <input type="date" {...register('fechaFin')} className={INPUT} />
                   </div>
                 </div>
                 {(errors.presupuestoTotal || errors.montoContrato || errors.fechaInicio || errors.fechaFin) && (
                   <p className="text-xs text-red-500 mt-1">Complete los campos requeridos</p>
                 )}
-</div>
-             </div>
+              </div>
+            </div>
 
             <button type="submit" className={`${BUTTON_PRIMARY} mt-4 w-full justify-center active:scale-[0.98]`}>
               {editingId ? t('proyectos.guardar_cambios') : t('proyectos.crear')}
