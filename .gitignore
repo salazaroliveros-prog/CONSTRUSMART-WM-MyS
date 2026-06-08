@@ -59,3 +59,5 @@ CONSTRUSMART-DEVELOP/
 
 # GitHub Pages (nunca crear rama gh-pages)
 gh-pages/
+
+# Playwright test artifacts.playwright-mcp/
