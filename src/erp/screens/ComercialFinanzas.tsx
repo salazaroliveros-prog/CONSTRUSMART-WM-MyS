@@ -278,7 +278,7 @@ export const ComercialFinanzas: React.FC = () => {
 
       {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowForm(null)} role="dialog" aria-modal="true">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-lg" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4 text-foreground">
               {showForm === 'venta'    && 'Nueva Venta / Paquete'}
