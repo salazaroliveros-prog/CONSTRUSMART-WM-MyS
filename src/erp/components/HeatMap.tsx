@@ -72,7 +72,7 @@ const HeatMap: React.FC<{ proyectos: Proyecto[] }> = ({ proyectos }) => {
           )
         )}
       </MapContainer>
-      <div className="absolute inset-0 pointer-events-none z-10" style={{ background: 'rgba(255, 140, 0, 0.1)' }} />
+      <div className="absolute inset-0 pointer-events-none z-10 bg-gradient-to-b from-orange-500/20 to-black/80" />
     </div>
   );
 };
