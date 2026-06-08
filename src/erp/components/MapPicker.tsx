@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import type { LatLng } from 'leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { MapPin, Navigation } from 'lucide-react';
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
 
 interface MapPickerProps {
   lat?: number;
@@ -55,8 +64,8 @@ const MapPicker: React.FC<MapPickerProps> = ({ lat, lng, onChange, height = 220 
           <Navigation className="w-3 h-3" /> Ir
         </button>
       </div>
-      <div className="rounded-xl overflow-hidden border border-border" style={{ height }}>
-        <MapContainer center={center} zoom={lat ? 16 : 7} scrollWheelZoom style={{ width: '100%', height: '100%' }}>
+      <div className="rounded-xl overflow-hidden border border-border h-[160px] sm:h-[200px] md:h-[220px]">
+        <MapContainer center={center} zoom={lat ? 16 : 7} scrollWheelZoom className="w-full h-full">
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

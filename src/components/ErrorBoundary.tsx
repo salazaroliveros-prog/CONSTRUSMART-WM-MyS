@@ -22,7 +22,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     const safeError = { message: '[Error Details]', stack: '[Stack Trace]' };
-    console.error('ErrorBoundary caught error');
+    console.error('ErrorBoundary caught error:', error.message, errorInfo.componentStack);
     Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
     try {
       const logs = JSON.parse(localStorage.getItem('errorLogs') || '[]');
