@@ -391,7 +391,7 @@ const Proyectos: React.FC = () => {
 
       {show && (
         <div className={MODAL_OVERLAY + ' animate-enter'} role="dialog" aria-modal="true" aria-labelledby="modal-proyecto-title">
-          <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className={`${MODAL_PANEL} max-w-2xl max-h-[90vh] overflow-y-auto animate-enter`}>
+          <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className={`${MODAL_PANEL.replace('max-w-lg sm:max-w-xl md:max-w-2xl', 'max-w-xl')} animate-enter`}>
             <div className={MODAL_HEADER}>
               <h2 id="modal-proyecto-title" className={MODAL_TITLE}>{editingId ? t('proyectos.editar') : t('proyectos.nuevo')}</h2>
               <button type="button" onClick={() => { setShow(false); setEditingId(null); }} className={MODAL_CLOSE} aria-label={t('common.cerrar')}>
@@ -399,7 +399,7 @@ const Proyectos: React.FC = () => {
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="p-4 sm:p-6 space-y-5">
               {/* Informacion General */}
               <div>
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.informacion_general')}</h3>
