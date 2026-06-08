@@ -1102,6 +1102,28 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>(() => loadFromStorage(NOTIF_KEY, []));
   const [syncCooldown, setSyncCooldown] = useState(false);
 
+  // appSettings: estado de configuración del usuario
+  const [appSettings, setAppSettings] = useState<AppSettings>(() => loadFromStorage(BASE_STORAGE_KEY + '_settings', {
+    uiMode: 'antd',
+    appTheme: 'ant-design',
+    primaryColor: '#ff8c42',
+    language: 'es',
+    dateFormat: 'DD/MM/YYYY',
+    currency: 'GTQ',
+    sidebarCollapsed: false,
+    animationsEnabled: true,
+    compactMode: false,
+    fontSize: 'medium',
+  }));
+
+  const updateAppSettings = useCallback((patch: Partial<AppSettings>) => {
+    setAppSettings(prev => {
+      const next = { ...prev, ...patch };
+      saveToStorage(BASE_STORAGE_KEY + '_settings', next);
+      return next;
+    });
+  }, []);
+
   // forceSync: procesa la cola de mutaciones pendientes cuando hay conexión
   const forceSync = useCallback(async () => {
     if (syncCooldown || mutationQueue.length === 0 || !isOnline) return;
