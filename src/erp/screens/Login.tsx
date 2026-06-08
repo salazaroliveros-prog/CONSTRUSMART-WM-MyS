@@ -80,7 +80,7 @@ const Login: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-primary/50 to-black/50" />
         <div className="relative z-10 text-primary-foreground max-w-md text-center">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-background/20 flex items-center justify-center ring-1 ring-primary-foreground/30 shadow-[0_0_8px_hsl(var(--primary)/0.35)]">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-primary to-black/60 flex items-center justify-center ring-1 ring-primary-foreground/30 shadow-[0_0_8px_hsl(var(--primary)/0.35)]">
               <picture>
                 <source srcSet="/logo.webp" type="image/webp" />
                 <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
