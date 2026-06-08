@@ -476,6 +476,31 @@ export interface CotizacionItem {
   seleccionada: boolean;
 }
 
+export type CotizacionTipo = 'construccion' | 'planos_registro' | 'estudio_planificacion' | 'diseno_urbanistico' | 'anteproyecto_residencial';
+
+export interface CotizacionCliente {
+  id: string;
+  proyectoId?: string;
+  tipo: CotizacionTipo;
+  numero: string;
+  fecha: string;
+  fechaVencimiento?: string;
+  clienteNombre: string;
+  clienteNit?: string;
+  clienteTelefono?: string;
+  clienteEmail?: string;
+  clienteDireccion?: string;
+  descripcion: string;
+  alcance: string;
+  renglones: RenglonPresupuesto[];
+  costoDirectoTotal: number;
+  precioVentaTotal: number;
+  estado: 'borrador' | 'enviada' | 'aprobada' | 'rechazada' | 'vencida';
+  notas?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface VinculacionOCExplosion {
   renglonCodigo: string;
   materialId: string;

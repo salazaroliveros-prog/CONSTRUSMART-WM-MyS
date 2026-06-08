@@ -7,7 +7,8 @@ import {
   GitPullRequest, Bell, ShieldCheck, FolderOpen, BarChart3, Download,
   HardHat, DollarSign, Settings, Flag,
   CreditCard, Landmark, Percent, TriangleAlert,
-  ClipboardList, PieChart, Cpu, Truck, FileCog, Package,
+   ClipboardList, PieChart, Cpu, Truck, FileCog, Package,
+   FileText, FileDown,
 } from 'lucide-react';
 
 interface NavItem { id: View; label: string; icon: React.ElementType; group: string }

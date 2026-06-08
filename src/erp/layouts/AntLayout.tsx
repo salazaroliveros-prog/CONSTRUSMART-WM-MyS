@@ -17,6 +17,7 @@ import {
   FlagOutlined, CreditCardOutlined, ReconciliationOutlined,
   MenuFoldOutlined, MenuUnfoldOutlined, UserOutlined,
   LogoutOutlined, SunOutlined, MoonOutlined, RocketOutlined,
+  FileTextOutlined, FilePdfOutlined,
 } from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
