@@ -1678,6 +1678,53 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     enqueueMutation('updatePagoProveedor', { id, ...patch });
   }, [enqueueMutation]);
 
+  // ===== FUNCIONES AUXILIARES PARA CONTEXT =====
+
+  const getPresupuestoByProyecto = useCallback((proyectoId: string): Presupuesto | undefined => {
+    return presupuestos.find(p => p.proyectoId === proyectoId);
+  }, [presupuestos]);
+
+  const avanceFinancieroCalculado = useCallback((proyectoId: string): number => {
+    const proyecto = proyectos.find(p => p.id === proyectoId);
+    if (!proyecto) return 0;
+    const presupuesto = presupuestos.find(p => p.proyectoId === proyectoId);
+    if (!presupuesto || !presupuesto.totalCalculado) return 0;
+    const totalReal = movimientos
+      .filter(m => m.proyectoId === proyectoId)
+      .reduce((sum, m) => sum + (m.costoTotal || m.monto || 0), 0);
+    return Math.min(100, (totalReal / presupuesto.totalCalculado) * 100);
+  }, [proyectos, presupuestos, movimientos]);
+
+  const verificarStockCritico = useCallback(() => {
+    materiales.forEach(m => {
+      if (m.stock <= m.stockMinimo && m.critico !== false) {
+        addNotificacion('stock_critico', 'Stock Crítico', `${m.nombre} tiene stock bajo: ${m.stock} ${m.unidad} (mínimo: ${m.stockMinimo})`, undefined, m.id, false);
+      }
+    });
+  }, [materiales, addNotificacion]);
+
+  const verificarOrdenesCambioPendientes = useCallback(() => {
+    const pendientes = ordenesCambio.filter(o => o.estado === 'solicitud');
+    if (pendientes.length > 0) {
+      addNotificacion('orden_cambio_pendiente', 'Órdenes de Cambio Pendientes', `Hay ${pendientes.length} órdenes de cambio pendientes de revisión`, undefined, undefined, false);
+    }
+  }, [ordenesCambio, addNotificacion]);
+
+  const verificarChecklistRechazado = useCallback((proyectoId: string) => {
+    const liberacionesRechazadas = liberaciones.filter(l => l.proyectoId === proyectoId && l.estado === 'rechazado');
+    if (liberacionesRechazadas.length > 0) {
+      addNotificacion('checklist_rechazado', 'Checklist Rechazado', `Hay ${liberacionesRechazadas.length} checklist(s) rechazados en el proyecto`, proyectoId, undefined, false);
+    }
+  }, [liberaciones, addNotificacion]);
+
+  const notifyAvanceRegistrado = useCallback((proyectoId: string, renglonNombre: string, avance: number) => {
+    addNotificacion('avance_registrado', 'Avance Registrado', `Se registró avance del ${avance.toFixed(1)}% en "${renglonNombre}"`, proyectoId, undefined, true);
+  }, [addNotificacion]);
+
+  const notifyDesviacionRendimiento = useCallback((actividad: string, eficiencia: number, proyectoId: string) => {
+    addNotificacion('desviacion_rendimiento', 'Desviación de Rendimiento', `La actividad "${actividad}" tiene eficiencia del ${eficiencia.toFixed(1)}% — fuera de rango esperado`, proyectoId, undefined, true);
+  }, [addNotificacion]);
+
   const value = useMemo(() => ({
       view, setView,
       user, initializing,
