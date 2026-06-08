@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useErp } from '../store';
 import { Download, FileJson, FileSpreadsheet, FileText, Plus, Trash2, Clock, Send, Table } from 'lucide-react';
 import { toast } from 'sonner';
-import { fmtQ, todayISO } from '../utils';
+import { fmtQ, todayISO, downloadBlob } from '../utils';
 import { sanitizarTexto } from '@/lib/security';
 import { INPUT } from '../ui';
 import * as XLSX from 'xlsx';
@@ -84,16 +84,6 @@ const ExportacionInteligente: React.FC = () => {
     setReportes(r);
   };
 
-  const downloadBlob = (content: string, filename: string, type: string) => {
-    const blob = new Blob([content], { type });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   // === EXPORTAR JSON ===
   const exportarJSON = useCallback(() => {
     setExportando('json');
@@ -127,7 +117,7 @@ const ExportacionInteligente: React.FC = () => {
         })),
         exportadoEn: new Date().toISOString(),
       };
-      downloadBlob(JSON.stringify(data, null, 2), `construsmart-export-${todayISO()}.json`, 'application/json');
+      downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), `construsmart-export-${todayISO()}.json`);
       toast.success('JSON exportado exitosamente');
       setExportando(null);
     }, 300);
@@ -164,7 +154,7 @@ const ExportacionInteligente: React.FC = () => {
         }
         return cell;
       }).join(',')).join('\n');
-      downloadBlob(csv, `construsmart-export-${todayISO()}.csv`, 'text/csv;charset=utf-8');
+      downloadBlob(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' }), `construsmart-export-${todayISO()}.csv`);
       toast.success('CSV exportado exitosamente');
       setExportando(null);
     }, 500);

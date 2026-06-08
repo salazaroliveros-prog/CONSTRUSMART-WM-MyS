@@ -80,3 +80,27 @@ export const EMPRESA = {
 };
 
 export const todayISO = () => new Date().toISOString().slice(0, 10);
+
+export function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export function sanitizeCSV(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  const str = String(value);
+  const escaped = str.replace(/"/g, '""');
+  const needsQuote = /[;"\n\r]/.test(escaped) || /^[=+\-@\t]/.test(escaped);
+  if (needsQuote) return `"${escaped}"`;
+  return escaped;
+}
+
+export function esFormulaInjection(value: string): boolean {
+  return /^[=+\-@\t]/.test(value);
+}

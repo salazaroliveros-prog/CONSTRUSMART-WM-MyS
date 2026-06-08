@@ -6,7 +6,7 @@ import { useErp } from '../store';
 import { Tipologia, RenglonPresupuesto, SubRenglon, Presupuesto } from '../types';
 import { generarRenglones } from '../data';
 import { fmtQ, TIPOLOGIA_LABEL, costoDirectoUnitario, precioUnitarioVenta, precioUnitarioVentaConFactores, duracionPorRendimiento, HERRAMIENTA_MENOR, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD } from '../utils';
-import { exportCSV, exportPDF } from '../export';
+import { exportCSV, exportPDF, exportXLSX } from '../export';
 import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X } from 'lucide-react';
 import PresupuestosList from '../components/PresupuestosList';
 import HistorialPresupuestosModal from '../components/HistorialPresupuestosModal';
@@ -532,10 +532,11 @@ const Presupuestos: React.FC = () => {
               {editingPresupuesto && <p className="text-xs text-orange-600 font-semibold">{editingPresupuesto && t('presupuestos.editando_version', { version: editingPresupuesto.versionPresupuesto })}</p>}
             </div>
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <button onClick={save} className={`${BUTTON_DARK} text-xs sm:text-sm px-2 sm:px-3`} disabled={!items.length || !projectId}><Save className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">{saved ? t('presupuestos.guardado') : editingPresupuesto ? t('presupuestos.guardar_cambios') : t('presupuestos.guardar')}</span><span className="xs:hidden">{saved ? '✓' : '💾'}</span></button>
+              <button onClick={save} className={`${BUTTON_DARK} text-xs sm:text-sm px-2 sm:px-3`} disabled={!items.length || !projectId}><Save className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">{saved ? t('presupuestos.guardado') : editingPresupuesto ? t('presupuestos.guardar_cambios') : t('presupuestos.guardar')}</span><span className="sm:hidden">{saved ? '✓' : '💾'}</span></button>
               <button onClick={handleRegistrarGastoTotal} disabled={!projectId || !granTotal} className="bg-indigo-600 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><span className="hidden sm:inline">{t('presupuestos.registrar_gasto')}</span><span className="sm:hidden">Gasto</span></button>
               <button disabled={!items.length} onClick={() => exportPDF(items, proyecto, tipologia)} className="bg-red-500 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><FileText className="w-3.5 h-3.5" /> PDF</button>
               <button disabled={!items.length} onClick={() => exportCSV(items, proyecto, tipologia)} className="bg-emerald-600 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><FileSpreadsheet className="w-3.5 h-3.5" /> CSV</button>
+              <button disabled={!items.length} onClick={() => exportXLSX(items, proyecto, tipologia)} className="bg-green-700 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><FileSpreadsheet className="w-3.5 h-3.5" /> XLSX</button>
               {editingPresupuesto && <button onClick={() => { setEditingPresupuesto(null); setItems([]); }} className="bg-slate-400 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs"><X className="w-3.5 h-3.5" /></button>}
             </div>
           </div>

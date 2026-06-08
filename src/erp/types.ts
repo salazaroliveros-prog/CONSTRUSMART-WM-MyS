@@ -3,9 +3,12 @@ export type Tipologia = 'residencial' | 'comercial' | 'industrial' | 'civil' | '
 export interface Insumo {
   id: string;
   nombre: string;
+  nombreMaterial?: string;
   unidad: string;
   cantidad: number;
+  cantidadUnitaria?: number;
   precioUnitario: number;
+  precio?: number;
   tipo: 'material' | 'mano_obra' | 'equipo' | 'subcontrato';
   rendimiento?: number;
 }
@@ -13,9 +16,13 @@ export interface Insumo {
 export interface SubRenglon {
   id: string;
   nombreMaterial: string;
+  nombre?: string;
   unidad: string;
   cantidadUnitaria: number;
+  cantidad?: number;
   precioUnitario: number;
+  tipo?: 'material' | 'mano_obra' | 'equipo' | 'subcontrato';
+  rendimiento?: number;
 }
 
 export interface SeguimientoEVM {

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useErp, uid } from '../store';
 import type { Destajo } from '../types';
+import { downloadBlob } from '../utils';
 
 export const PlanillaDestajos: React.FC = () => {
   const { proyectos } = useErp();
@@ -167,9 +168,7 @@ export const PlanillaDestajos: React.FC = () => {
             planilla.forEach(p => { csv += `"${p.cuadrilla}",${p.totalEjecutado.toFixed(2)},"${p.unidad}",${p.dias},${p.tasa},${p.pagoSemanal.toFixed(2)}\n`; });
             csv += `,,,,TOTAL,${totalPagar.toFixed(2)}\n`;
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `planilla_destajos_${semanaFilter}.csv`; a.click();
-            URL.revokeObjectURL(url);
+            downloadBlob(blob, `planilla_destajos_${semanaFilter}.csv`);
           }} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">
             📥 Exportar CSV
           </button>

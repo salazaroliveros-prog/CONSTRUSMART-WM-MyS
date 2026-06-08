@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { downloadBlob } from '../utils';
 import { SEED_INSUMOS_BASE } from '../data';
 import { InsumoBase } from '../types';
 
@@ -97,12 +98,7 @@ const BasePrecios: React.FC = () => {
     ).join('\n');
     const csv = `${header}\n${rows}`;
     const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `base-precios-${zonaSeleccionada}-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(blob, `base-precios-${zonaSeleccionada}-${new Date().toISOString().slice(0,10)}.csv`);
     toast.success('📥 CSV exportado');
   };
 

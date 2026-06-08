@@ -269,7 +269,7 @@ const Proyectos: React.FC = () => {
                   <p className="text-[11px] text-muted-foreground truncate">{p.cliente}</p>
                   {p.areaConstruccion && <p className="text-[10px] text-muted-foreground">{p.areaConstruccion.toLocaleString()} m² · {p.numPisos ? `${p.numPisos} niveles` : ''}</p>}
                 </div>
-                <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="flex gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
                   <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={`Editar proyecto ${p.nombre}`}>
                     <Pencil className="w-4 h-4" aria-hidden="true" />
                   </button>

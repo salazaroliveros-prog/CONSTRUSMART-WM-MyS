@@ -1,6 +1,9 @@
 import { RenglonPresupuesto } from './types';
 import { sanitizarTexto } from '@/lib/security';
-import { EMPRESA, fmtQ, costoDirectoUnitario, precioUnitarioVenta, TIPOLOGIA_LABEL, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD, HERRAMIENTA_MENOR } from './utils';
+import { EMPRESA, fmtQ, costoDirectoUnitario, precioUnitarioVenta, TIPOLOGIA_LABEL, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD, HERRAMIENTA_MENOR, downloadBlob, sanitizeCSV } from './utils';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 const calcRow = (r: RenglonPresupuesto) => {
   const cd = costoDirectoUnitario(r.costoMateriales, r.costoManoObra, r.costoEquipo);
@@ -8,7 +11,6 @@ const calcRow = (r: RenglonPresupuesto) => {
   return { cd, pv, total: pv * r.cantidad };
 };
 
-// Función para generar resumen de materiales
 const getResumenMateriales = (renglones: RenglonPresupuesto[]) => {
   const materiales: Record<string, { unidad: string; cantidad: number; total: number }> = {};
   renglones.forEach(r => {
@@ -28,22 +30,20 @@ const getResumenMateriales = (renglones: RenglonPresupuesto[]) => {
   return Object.entries(materiales).map(([nombre, data]) => ({ nombre, ...data }));
 };
 
-// Materiales totales por renglón (para la tabla principal)
 const getMaterialesPorRenglon = (r: RenglonPresupuesto) => {
   if (!r.subRenglones || r.subRenglones.length === 0) return 0;
   return r.subRenglones.reduce((sum, sub) => sum + sub.cantidadUnitaria * r.cantidad, 0);
 };
 
-
 export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tipologia: string) => {
   const fecha = new Date().toLocaleDateString('es-GT');
   const rows: string[] = [];
-  rows.push(`${EMPRESA.nombre}`);
-  rows.push(`${EMPRESA.nombre} - ${EMPRESA.eslogan}`);
-  rows.push(`"${EMPRESA.direccion || ''}"`);
-  rows.push(`"Tel: ${EMPRESA.telefono || ''} | Email: ${EMPRESA.email || ''}"`);
-  rows.push(`Fecha: ${fecha}`);
-  rows.push(`Proyecto: ${proyecto};Tipologia: ${TIPOLOGIA_LABEL[tipologia as keyof typeof TIPOLOGIA_LABEL] || tipologia}`);
+  rows.push(sanitizeCSV(EMPRESA.nombre));
+  rows.push(sanitizeCSV(`${EMPRESA.nombre} - ${EMPRESA.eslogan}`));
+  rows.push(sanitizeCSV(EMPRESA.direccion || ''));
+  rows.push(sanitizeCSV(`Tel: ${EMPRESA.telefono || ''} | Email: ${EMPRESA.email || ''}`));
+  rows.push(sanitizeCSV(`Fecha: ${fecha}`));
+  rows.push(`${sanitizeCSV(`Proyecto: ${proyecto}`)};${sanitizeCSV(`Tipologia: ${TIPOLOGIA_LABEL[tipologia as keyof typeof TIPOLOGIA_LABEL] || tipologia}`)}`);
   rows.push('');
   rows.push('Codigo;Renglon;Unidad;Cantidad;Cant.Materiales;Materiales;Mano Obra;Equipo;Costo Directo;Precio Unitario;Total');
   let gran = 0;
@@ -51,25 +51,22 @@ export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tip
     const { cd, pv, total } = calcRow(r);
     const cantMat = getMaterialesPorRenglon(r);
     gran += total;
-    rows.push(`${r.codigo};${r.nombre};${r.unidad};${r.cantidad};${cantMat.toFixed(2)};${r.costoMateriales.toFixed(2)};${r.costoManoObra.toFixed(2)};${r.costoEquipo.toFixed(2)};${cd.toFixed(2)};${pv.toFixed(2)};${total.toFixed(2)}`);
-    // Desglose de materiales unitarios por renglón
+    rows.push(`${sanitizeCSV(r.codigo)};${sanitizeCSV(r.nombre)};${sanitizeCSV(r.unidad)};${r.cantidad};${cantMat.toFixed(2)};${r.costoMateriales.toFixed(2)};${r.costoManoObra.toFixed(2)};${r.costoEquipo.toFixed(2)};${cd.toFixed(2)};${pv.toFixed(2)};${total.toFixed(2)}`);
     if (r.subRenglones && r.subRenglones.length > 0) {
       r.subRenglones.forEach(sub => {
         const cantTotal = sub.cantidadUnitaria * r.cantidad;
-        rows.push(`;;Material: ${sub.nombreMaterial};${sub.cantidadUnitaria};${cantTotal.toFixed(2)};${sub.unidad};Precio: Q${sub.precioUnitario.toFixed(2)};Total: Q${(cantTotal * sub.precioUnitario).toFixed(2)};;;`);
+        rows.push(`;;${sanitizeCSV(`Material: ${sub.nombreMaterial}`)};${sub.cantidadUnitaria};${cantTotal.toFixed(2)};${sanitizeCSV(sub.unidad)};${sanitizeCSV(`Precio: Q${sub.precioUnitario.toFixed(2)}`)};${sanitizeCSV(`Total: Q${(cantTotal * sub.precioUnitario).toFixed(2)}`)};;;;`);
       });
-      rows.push(`;;[Total materiales del renglón];;;${cantMat.toFixed(2)};;;;;;${fmtQ(r.subRenglones.reduce((a, s) => a + s.cantidadUnitaria * r.cantidad * s.precioUnitario, 0))}`);
+      rows.push(`;;[Total materiales del renglón];;;${cantMat.toFixed(2)};;;;;;;;${fmtQ(r.subRenglones.reduce((a, s) => a + s.cantidadUnitaria * r.cantidad * s.precioUnitario, 0))}`);
     }
-    // Personal del renglón
     if (r.costoManoObra > 0) {
       const jornales = Math.round(r.costoManoObra / 350);
-      rows.push(`;;[Personal cuadrilla];;;${jornales} persona(s);;;;;;Jornal: ${fmtQ(r.costoManoObra)}`);
+      rows.push(`;;[Personal cuadrilla];;;${jornales} persona(s);;;;;;;;;`);
     }
   });
   rows.push('');
-  rows.push(`;;;;;;;;;;TOTAL;${gran.toFixed(2)}`);
+  rows.push(`${''.repeat(10)}TOTAL;${gran.toFixed(2)}`);
 
-  // Agregar resumen de materiales
   const materiales = getResumenMateriales(renglones);
   if (materiales.length > 0) {
     rows.push('');
@@ -78,245 +75,397 @@ export const exportCSV = (renglones: RenglonPresupuesto[], proyecto: string, tip
     let totalMateriales = 0;
     materiales.forEach(m => {
       totalMateriales += m.total;
-      rows.push(`${m.nombre};${m.cantidad.toFixed(2)};${m.unidad};${m.total.toFixed(2)}`);
+      rows.push(`${sanitizeCSV(m.nombre)};${m.cantidad.toFixed(2)};${sanitizeCSV(m.unidad)};${m.total.toFixed(2)}`);
     });
     rows.push('');
     rows.push(`Total Materiales;;${totalMateriales.toFixed(2)}`);
   }
 
   const blob = new Blob(['\ufeff' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `Presupuesto_${proyecto.replace(/\s+/g, '_')}.csv`; a.click();
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `Presupuesto_${proyecto.replace(/\s+/g, '_')}.csv`);
 };
 
-/**
- * Valida que una URL de imagen use esquemas permitidos (solo https o data:image)
- */
 function validarUrlImagen(url: string): boolean {
   if (!url) return false;
   return url.startsWith('https://') || url.startsWith('data:image/') || url.startsWith('/');
 }
 
 export const exportPDF = (renglones: RenglonPresupuesto[], proyecto: string, tipologia: string, firma?: string) => {
-  // Sanitizar todos los textos de usuario
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 14;
+  const contentWidth = pageWidth - 2 * margin;
+  let y = margin;
+
   const proyectoSanitizado = sanitizarTexto(proyecto);
-  const _tipologiaSanitizada = sanitizarTexto(tipologia);
-  const firmaSanitizada = firma && validarUrlImagen(firma) ? firma : undefined;
+  const tipologiaSanitizada = sanitizarTexto(TIPOLOGIA_LABEL[tipologia as keyof typeof TIPOLOGIA_LABEL] || tipologia);
   const empresaNombre = sanitizarTexto(EMPRESA.nombre);
   const empresaEslogan = sanitizarTexto(EMPRESA.eslogan);
-  const empresaDireccion = sanitizarTexto(EMPRESA.direccion || 'Guatemala');
-  const empresaTelefono = sanitizarTexto(EMPRESA.telefono || '');
-  const empresaEmail = sanitizarTexto(EMPRESA.email || '');
+  const fecha = new Date().toLocaleDateString('es-GT', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const ORANGE = [249, 115, 22] as const;
+  const DARK = [15, 23, 42] as const;
+  const GRAY = [100, 116, 139] as const;
+
+  const addFooter = () => {
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      const fy = doc.internal.pageSize.getHeight() - 10;
+      doc.setFontSize(7);
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+      const footerText = `${empresaNombre} — ${empresaEslogan} | Pág. ${i} de ${pageCount} | ${fecha}`;
+      const fw = doc.getTextWidth(footerText);
+      doc.text(footerText, (pageWidth - fw) / 2, fy);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(margin, fy - 2, pageWidth - margin, fy - 2);
+    }
+    doc.setPage(pageCount);
+  };
+
+  const checkPage = (needed: number) => {
+    const pageHeight = doc.internal.pageSize.getHeight();
+    if (y + needed > pageHeight - 20) {
+      addFooter();
+      doc.addPage();
+      y = margin;
+    }
+  };
+
+  doc.setFontSize(18);
+  doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+  doc.text('PRESUPUESTO', margin, y);
+  y += 6;
+  doc.setFontSize(8);
+  doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+  doc.text(`${empresaNombre} — ${empresaEslogan}`, margin, y);
+  y += 4;
+  doc.text(`Fecha: ${fecha}`, margin, y);
+  y += 8;
+
+  doc.setDrawColor(ORANGE[0], ORANGE[1], ORANGE[2]);
+  doc.setLineWidth(0.8);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 6;
+
+  doc.setFontSize(10);
+  doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+  doc.text(`Proyecto: ${proyectoSanitizado}`, margin, y);
+  y += 5;
+  doc.text(`Tipología: ${tipologiaSanitizada}`, margin, y);
+  y += 5;
+  doc.text(`Renglones: ${renglones.length}`, margin, y);
+  y += 10;
+
   let gran = 0;
   let granDir = 0;
-  const filas = renglones.map((r, i) => {
+  const renglonBody = renglones.map((r, i) => {
     const { cd, pv, total } = calcRow(r);
-    const cantMat = getMaterialesPorRenglon(r);
     gran += total;
     granDir += cd * r.cantidad;
-    const codigo = sanitizarTexto(r.codigo);
-    const nombre = sanitizarTexto(r.nombre);
-    const unidad = sanitizarTexto(r.unidad);
-    return `<tr>
-      <td>${i + 1}</td><td>${codigo}</td><td style="text-align:left">${nombre}</td>
-      <td>${unidad}</td><td>${r.cantidad}</td><td>${cantMat.toFixed(2)}</td><td>${fmtQ(cd)}</td><td>${fmtQ(pv)}</td><td style="text-align:right">${fmtQ(total)}</td>
-    </tr>`;
-  }).join('');
+    const cantMat = getMaterialesPorRenglon(r);
+    return [
+      `${i + 1}`,
+      r.codigo,
+      r.nombre,
+      r.unidad,
+      r.cantidad.toString(),
+      cantMat.toFixed(2),
+      fmtQ(cd),
+      fmtQ(pv),
+      fmtQ(total),
+    ];
+  });
 
-  // Resumen de materiales para PDF
-  const materiales = getResumenMateriales(renglones);
-  let resumenMatHTML = '';
-  if (materiales.length > 0) {
-    let totalMat = 0;
-    let granCant = 0;
-    const porUnidad: Record<string, { cantidad: number; total: number }> = {};
-    const filasMateria = materiales.map(m => {
-      totalMat += m.total;
-      granCant += m.cantidad;
-      if (!porUnidad[m.unidad]) porUnidad[m.unidad] = { cantidad: 0, total: 0 };
-      porUnidad[m.unidad].cantidad += m.cantidad;
-      porUnidad[m.unidad].total += m.total;
-      return `<tr><td style="text-align:left">${sanitizarTexto(m.nombre)}</td><td>${m.cantidad.toFixed(2)}</td><td>${sanitizarTexto(m.unidad)}</td><td style="text-align:right">${fmtQ(m.total)}</td></tr>`;
-    }).join('');
-    const filasPorUnidad = Object.entries(porUnidad).map(([unidad, data]) =>
-      `<tr><td style="text-align:left;padding-left:16px;color:#64748b">Total en ${sanitizarTexto(unidad)}</td><td>${data.cantidad.toFixed(2)}</td><td>${sanitizarTexto(unidad)}</td><td style="text-align:right">${fmtQ(data.total)}</td></tr>`
-    ).join('');
-    resumenMatHTML = `
-      <div class="section">
-        <div class="section-title">📦 Resumen de Materiales a Utilizar</div>
-        <table class="t"><thead><tr><th style="text-align:left">Material</th><th>Cantidad</th><th>Unidad</th><th>Subtotal</th></tr></thead>
-        <tbody>${filasMateria}<tr style="background:#f1f5f9"><td colspan="4" style="font-weight:bold;font-size:10px">── Total por tipo de unidad ──</td></tr>${filasPorUnidad}<tr class="total"><td style="text-align:left;font-weight:bold">TOTAL MATERIALES</td><td style="font-weight:bold">${granCant.toFixed(2)}</td><td></td><td style="text-align:right;font-weight:bold">${fmtQ(totalMat)}</td></tr></tbody></table>
-      </div>`;
-  }
+  checkPage(40);
+  autoTable(doc, {
+    startY: y,
+    head: [['#', 'Código', 'Descripción', 'Ud.', 'Cant.', 'C.Mat.', 'C.Directo', 'P.Unit.', 'Total']],
+    body: renglonBody,
+    foot: [[{ content: 'TOTAL DEL PRESUPUESTO', colSpan: 8, styles: { halign: 'right', fontStyle: 'bold' } }, fmtQ(gran)]],
+    theme: 'grid',
+    headStyles: { fillColor: [249, 115, 22], fontSize: 7 },
+    bodyStyles: { fontSize: 7 },
+    footStyles: { fillColor: [255, 247, 237], fontSize: 8 },
+    columnStyles: {
+      0: { cellWidth: 8, halign: 'center' },
+      1: { cellWidth: 14 },
+      2: { cellWidth: 55 },
+      3: { cellWidth: 10, halign: 'center' },
+      4: { cellWidth: 12, halign: 'center' },
+      5: { cellWidth: 12, halign: 'right' },
+      6: { cellWidth: 18, halign: 'right' },
+      7: { cellWidth: 18, halign: 'right' },
+      8: { cellWidth: 20, halign: 'right' },
+    },
+    margin: { left: margin, right: margin },
+  });
+  y = (doc as any).lastAutoTable.finalY + 8;
 
-  const desglose = renglones.map(r => {
-    const insHTML = r.insumos.map(s => `<tr><td style="text-align:left">${sanitizarTexto(s.nombre)}</td><td>${sanitizarTexto(s.tipo)}</td><td>${sanitizarTexto(s.unidad)}</td><td style="text-align:right">${fmtQ(s.precio)}</td></tr>`).join('');
-
-    // Desglose de materiales por actividad (sub-renglones)
-    const subrenglonHTML = r.subRenglones && r.subRenglones.length > 0 ? `
-      <div style="margin-top:8px;padding:8px;background:#f0fdf4;border-left:3px solid #10b981">
-        <b style="color:#047857">📦 Desglose de Materiales Unitarios por Renglón:</b>
-        <table class="t" style="margin-top:4px;border-collapse:collapse;width:100%">
-          <thead><tr style="background:#e2e8f0">
-            <th style="text-align:left;padding:4px;font-size:9px">Material</th>
-            <th style="text-align:right;padding:4px;font-size:9px">Cant/Unidad</th>
-            <th style="text-align:right;padding:4px;font-size:9px">Cant Total</th>
-            <th style="text-align:left;padding:4px;font-size:9px">Unidad</th>
-            <th style="text-align:right;padding:4px;font-size:9px">Precio Unit.</th>
-            <th style="text-align:right;padding:4px;font-size:9px">Costo Total</th>
-          </tr>
-          ${r.subRenglones.map((s, i) => {
-            const costoSub = s.cantidadUnitaria * r.cantidad * s.precioUnitario;
-            return `<tr style="${i % 2 === 0 ? 'background:#f0fdf4' : ''}">
-              <td style="padding:4px;font-size:10px;text-align:left">${sanitizarTexto(s.nombreMaterial)}</td>
-              <td style="padding:4px;font-size:10px;text-align:right">${s.cantidadUnitaria}</td>
-              <td style="padding:4px;font-size:10px;text-align:right">${(s.cantidadUnitaria * r.cantidad).toFixed(2)}</td>
-              <td style="padding:4px;font-size:10px">${s.unidad}</td>
-              <td style="padding:4px;font-size:10px;text-align:right">${fmtQ(s.precioUnitario)}</td>
-              <td style="padding:4px;font-size:10px;text-align:right;font-weight:bold;color:#047857">${fmtQ(costoSub)}</td>
-            </tr>`;
-          }).join('')}
-          <tr style="background:#10b981;color:white">
-            <td colspan="5" style="padding:4px;font-size:10px;text-align:right;font-weight:bold">TOTAL MATERIALES</td>
-            <td style="padding:4px;font-size:10px;text-align:right;font-weight:bold">${fmtQ(r.subRenglones.reduce((a, s) => a + s.cantidadUnitaria * r.cantidad * s.precioUnitario, 0))}</td>
-          </tr>
-        </table>
-      </div>` : '';
-
-    // Personal del renglón
-    const personalHTML = r.costoManoObra > 0 ? `
-      <div style="margin-top:6px;padding:6px;background:#eff6ff;border-left:3px solid #3b82f6">
-        <b style="color:#1e40af">👷 Cuadrilla:</b>
-        <span style="font-size:10px;color:#374151">${Math.round(r.costoManoObra / 350)} persona(s) · Jornal: ${fmtQ(r.costoManoObra)} · Rendimiento: ${r.rendimientoCuadrilla} ${r.unidad}/día</span>
-      </div>` : '';
-
-    return `<h4 style="margin:14px 0 4px;color:#1e293b">${r.codigo} — ${r.nombre}</h4>
-      <table class="t"><thead><tr><th style="text-align:left">Insumo</th><th>Tipo</th><th>Unidad</th><th>Precio</th></tr></thead><tbody>${insHTML}</tbody></table>${subrenglonHTML}${personalHTML}`;
-  }).join('');
-
-  const fecha = new Date().toLocaleDateString('es-GT', { year: 'numeric', month: 'long', day: 'numeric' });
-  const firmaHTML = firmaSanitizada 
-    ? `<div style="margin-top:30px;padding-top:20px;border-top:2px solid #e2e8f0">
-        <div style="margin-bottom:4px;font-size:10px;color:#64748b">Firma del responsable:</div>
-        <img src="${firmaSanitizada}" style="max-height:60px;border:1px solid #e2e8f0;border-radius:4px;padding:4px" />
-        <div style="margin-top:4px;font-size:9px;color:#94a3b8">Vo.Bo. Residente de Obra</div>
-       </div>`
-    : '';
-
-  // Cálculo de márgenes
   const indirectos = granDir * COSTOS_INDIRECTOS;
   const administracion = (granDir + indirectos) * ADMINISTRACION;
   const imprevistos = (granDir + indirectos + administracion) * IMPREVISTOS;
   const utilidad = (granDir + indirectos + administracion + imprevistos) * UTILIDAD;
 
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Presupuesto ${proyectoSanitizado}</title>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'unsafe-inline' 'self'; script-src 'none'">
-  <style>
-    @page { margin: 20mm 15mm }
-    body{font-family:Arial,Helvetica,sans-serif;color:#334155;margin:0;padding:0;font-size:11px;line-height:1.4}
-    .header{border-bottom:3px solid #f97316;padding-bottom:16px;margin-bottom:20px;display:flex;align-items:center;gap:16px}
-    .logo{width:60px;height:60px;border-radius:12px;overflow:hidden;background:#0f172a;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .logo img{width:100%;height:100%;object-fit:contain;display:block}
-    .empresa-info{flex:1}
-    .empresa-info h1{margin:0;font-size:20px;color:#0f172a;letter-spacing:-0.3px}
-    .empresa-info .slogan{color:#f97316;font-style:italic;font-size:12px;margin:2px 0}
-    .empresa-info .datos{color:#64748b;font-size:9px;margin-top:4px}
-    .doc-ref{text-align:right;flex-shrink:0}
-    .doc-ref .tit{font-size:16px;font-weight:bold;color:#f97316}
-    .doc-ref .subt{font-size:9px;color:#64748b;margin-top:2px}
-    .meta{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:8px 24px;font-size:10px}
-    .meta-item{display:flex;flex-direction:column}
-    .meta-item .label{color:#64748b;font-size:8px;text-transform:uppercase;letter-spacing:0.5px}
-    .meta-item .value{font-weight:bold;color:#0f172a;font-size:11px}
-    .section{margin-bottom:24px}
-    .section-title{color:#f97316;font-size:13px;font-weight:bold;border-bottom:2px solid #fed7aa;padding-bottom:6px;margin-bottom:10px}
-    table.t{width:100%;border-collapse:collapse;font-size:10px}
-    table.t th{background:#1e293b;color:#fff;padding:7px 6px;font-size:9px;text-align:center;letter-spacing:0.3px}
-    table.t td{border:1px solid #e2e8f0;padding:5px 6px;text-align:center}
-    table.t tr:hover td{background:#f8fafc}
-    .total-row td{background:#fff7ed;font-weight:bold;border-top:2px solid #f97316}
-    .margen-table td{border:1px solid #e2e8f0;padding:5px 8px;font-size:10px}
-    .margen-table .val{font-weight:bold;text-align:right}
-    .foot{margin-top:30px;padding-top:12px;border-top:2px solid #e2e8f0;text-align:center;color:#94a3b8;font-size:8px;line-height:1.6}
-    .foot strong{color:#64748b}
-    @media print{body{font-size:10px}.no-print{display:none}}
-    .badge{display:inline-block;background:#fef3c7;color:#92400e;font-size:8px;padding:2px 6px;border-radius:4px;font-weight:bold}
-  </style></head><body>
-  
-  <div class="header">
-    <div class="logo"><img src="/logo.png" alt="WM" /></div>
-    <div class="empresa-info">
-      <h1>${empresaNombre}</h1>
-      <div class="slogan">“${empresaEslogan}”</div>
-      <div class="datos">${empresaDireccion} · ${empresaTelefono ? 'Tel: ' + empresaTelefono : ''} ${empresaEmail ? '· ' + empresaEmail : ''}</div>
-    </div>
-    <div class="doc-ref">
-      <div class="tit">PRESUPUESTO</div>
-      <div class="subt">${fecha}</div>
-      <div class="subt" style="margin-top: 4px"><span class="badge">Versi&oacute;n 1.0</span></div>
-    </div>
-  </div>
+  checkPage(40);
+  doc.setFontSize(11);
+  doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+  doc.text('Desglose de Márgenes', margin, y);
+  y += 5;
 
-  <div class="meta">
-    <div class="meta-item"><span class="label">Proyecto</span><span class="value">${proyectoSanitizado}</span></div>
-    <div class="meta-item"><span class="label">Tipolog&iacute;a</span><span class="value">${sanitizarTexto(TIPOLOGIA_LABEL[tipologia as keyof typeof TIPOLOGIA_LABEL] || tipologia)}</span></div>
-    <div class="meta-item"><span class="label">Renglones</span><span class="value">${renglones.length}</span></div>
-    <div class="meta-item"><span class="label">Moneda</span><span class="value">Quetzales (GTQ)</span></div>
-    <div class="meta-item"><span class="label">Herramienta Menor</span><span class="value">${(HERRAMIENTA_MENOR * 100).toFixed(0)}%</span></div>
-  </div>
+  autoTable(doc, {
+    startY: y,
+    head: [['Concepto', '%', 'Monto']],
+    body: [
+      ['Costo Directo Total', '—', fmtQ(granDir)],
+      ['Costos Indirectos', `${(COSTOS_INDIRECTOS * 100).toFixed(0)}%`, fmtQ(indirectos)],
+      ['Administración', `${(ADMINISTRACION * 100).toFixed(0)}%`, fmtQ(administracion)],
+      ['Imprevistos', `${(IMPREVISTOS * 100).toFixed(0)}%`, fmtQ(imprevistos)],
+      ['Utilidad', `${(UTILIDAD * 100).toFixed(0)}%`, fmtQ(utilidad)],
+    ],
+    foot: [['TOTAL PRESUPUESTO', '', fmtQ(gran)]],
+    theme: 'grid',
+    headStyles: { fillColor: [249, 115, 22], fontSize: 7 },
+    bodyStyles: { fontSize: 7 },
+    footStyles: { fillColor: [255, 247, 237], fontSize: 8, fontStyle: 'bold' },
+    columnStyles: {
+      0: { cellWidth: 60 },
+      1: { cellWidth: 20, halign: 'center' },
+      2: { cellWidth: 25, halign: 'right' },
+    },
+    margin: { left: margin, right: margin },
+  });
+  y = (doc as any).lastAutoTable.finalY + 8;
 
-  <div class="section">
-    <div class="section-title">📋 Resumen de Renglones</div>
-    <table class="t">
-      <thead><tr><th>#</th><th>C&oacute;digo</th><th style="text-align:left">Descripci&oacute;n</th><th>Unidad</th><th>Cant.</th><th>Cant. Mat.</th><th>C. Directo</th><th>P. Unitario</th><th>TOTAL</th></tr></thead>
-      <tbody>${filas}<tr class="total-row"><td colspan="8" style="text-align:right">TOTAL DEL PRESUPUESTO</td><td style="text-align:right">${fmtQ(gran)}</td></tr></tbody>
-    </table>
-  </div>
+  const materiales = getResumenMateriales(renglones);
+  if (materiales.length > 0) {
+    let totalMat = 0;
+    const matBody = materiales.map(m => {
+      totalMat += m.total;
+      return [m.nombre, m.cantidad.toFixed(2), m.unidad, fmtQ(m.total)];
+    });
 
-  <div class="section">
-    <div class="section-title">📊 Desglose de M&aacute;rgenes</div>
-    <table class="t" style="width:auto;min-width:400px">
-      <thead><tr><th style="text-align:left">Concepto</th><th>%</th><th style="text-align:right">Monto</th></tr></thead>
-      <tbody>
-        <tr><td style="text-align:left">Costo Directo Total</td><td>—</td><td class="val">${fmtQ(granDir)}</td></tr>
-        <tr><td style="text-align:left">Costos Indirectos</td><td>${(COSTOS_INDIRECTOS * 100).toFixed(0)}%</td><td class="val">${fmtQ(indirectos)}</td></tr>
-        <tr><td style="text-align:left">Administraci&oacute;n</td><td>${(ADMINISTRACION * 100).toFixed(0)}%</td><td class="val">${fmtQ(administracion)}</td></tr>
-        <tr><td style="text-align:left">Imprevistos</td><td>${(IMPREVISTOS * 100).toFixed(0)}%</td><td class="val">${fmtQ(imprevistos)}</td></tr>
-        <tr><td style="text-align:left">Utilidad</td><td>${(UTILIDAD * 100).toFixed(0)}%</td><td class="val">${fmtQ(utilidad)}</td></tr>
-        <tr class="total-row"><td style="text-align:left;font-weight:bold">TOTAL PRESUPUESTO</td><td></td><td class="val" style="font-size:13px">${fmtQ(gran)}</td></tr>
-      </tbody>
-    </table>
-  </div>
+    checkPage(40);
+    doc.setFontSize(11);
+    doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+    doc.text('Resumen de Materiales', margin, y);
+    y += 5;
 
-  ${resumenMatHTML}
-
-  <div class="section">
-    <div class="section-title">🔧 Desglose Unitario de Materiales (APU)</div>
-    ${desglose}
-  </div>
-
-  ${firmaHTML}
-
-  <div class="foot">
-    <strong>${empresaNombre}</strong> — ${empresaEslogan}<br>
-    ${empresaDireccion} ${empresaTelefono ? '· Tel: ' + empresaTelefono : ''} ${empresaEmail ? '· ' + empresaEmail : ''}<br>
-    Documento generado por el ERP CONSTRUSMART &mdash; Los precios est&aacute;n sujetos a variaci&oacute;n del mercado.<br>
-    Precios V&aacute;lidos por 30 d&iacute;as a partir de la fecha de emisi&oacute;n.
-  </div>
-
-  </body></html>`;
-
-  // Abrir ventana para impresión con verificación de popup blocker
-  const w = window.open('', '_blank');
-  if (!w || w.closed || typeof w.closed === 'undefined') {
-    console.warn('[Export] El navegador bloqueó la ventana emergente. Verifica la configuración de popups.');
-    return;
+    autoTable(doc, {
+      startY: y,
+      head: [['Material', 'Cantidad', 'Unidad', 'Subtotal']],
+      body: matBody,
+      foot: [['TOTAL MATERIALES', '', '', fmtQ(totalMat)]],
+      theme: 'grid',
+      headStyles: { fillColor: [249, 115, 22], fontSize: 7 },
+      bodyStyles: { fontSize: 7 },
+      footStyles: { fillColor: [255, 247, 237], fontSize: 8, fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 70 },
+        1: { cellWidth: 20, halign: 'right' },
+        2: { cellWidth: 15, halign: 'center' },
+        3: { cellWidth: 25, halign: 'right' },
+      },
+      margin: { left: margin, right: margin },
+    });
+    y = (doc as any).lastAutoTable.finalY + 10;
   }
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => {
-    try { w.print(); } catch { console.warn('[Export] No se pudo imprimir automáticamente.'); }
-  }, 500);
+
+  renglones.forEach(r => {
+    const checkH = 40 + (r.subRenglones ? r.subRenglones.length * 8 : 0) + (r.insumos ? r.insumos.length * 6 : 0);
+    checkPage(checkH);
+
+    doc.setFontSize(9);
+    doc.setTextColor(30, 41, 59);
+    doc.text(`${r.codigo} — ${r.nombre}`, margin, y);
+    y += 4;
+
+    doc.setFontSize(7);
+    doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+    const cd = costoDirectoUnitario(r.costoMateriales, r.costoManoObra, r.costoEquipo);
+    const pv = precioUnitarioVenta(cd);
+    doc.text(`Costo Directo: ${fmtQ(cd)}  |  Precio Unitario: ${fmtQ(pv)}  |  Cantidad: ${r.cantidad} ${r.unidad}`, margin, y);
+    y += 6;
+
+    if (r.insumos && r.insumos.length > 0) {
+      const insBody = r.insumos.map(s => [s.nombre, s.tipo, s.unidad, fmtQ(s.precio)]);
+      autoTable(doc, {
+        startY: y,
+        head: [['Insumo', 'Tipo', 'Unidad', 'Precio']],
+        body: insBody,
+        theme: 'plain',
+        headStyles: { fillColor: [241, 245, 249], textColor: [71, 85, 105], fontSize: 7, fontStyle: 'bold' },
+        bodyStyles: { fontSize: 6 },
+        columnStyles: {
+          0: { cellWidth: 60 },
+          1: { cellWidth: 20 },
+          2: { cellWidth: 15, halign: 'center' },
+          3: { cellWidth: 20, halign: 'right' },
+        },
+        margin: { left: margin + 4, right: margin },
+      });
+      y = (doc as any).lastAutoTable.finalY + 3;
+    }
+
+    if (r.subRenglones && r.subRenglones.length > 0) {
+      const subBody = r.subRenglones.map(s => {
+        const costoTot = s.cantidadUnitaria * r.cantidad * s.precioUnitario;
+        return [s.nombreMaterial, s.cantidadUnitaria.toString(), (s.cantidadUnitaria * r.cantidad).toFixed(2), s.unidad, fmtQ(s.precioUnitario), fmtQ(costoTot)];
+      });
+      const subTotal = r.subRenglones.reduce((a, s) => a + s.cantidadUnitaria * r.cantidad * s.precioUnitario, 0);
+
+      autoTable(doc, {
+        startY: y,
+        head: [['Material', 'Cant/Unidad', 'Cant Total', 'Ud.', 'Precio Unit.', 'Costo Total']],
+        body: subBody,
+        foot: [[{ content: 'TOTAL MATERIALES', colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } }, fmtQ(subTotal)]],
+        theme: 'plain',
+        headStyles: { fillColor: [240, 253, 244], textColor: [4, 120, 87], fontSize: 6, fontStyle: 'bold' },
+        bodyStyles: { fontSize: 6 },
+        footStyles: { fillColor: [16, 185, 129], textColor: [255, 255, 255], fontSize: 6, fontStyle: 'bold' },
+        columnStyles: {
+          0: { cellWidth: 40 },
+          1: { cellWidth: 15, halign: 'right' },
+          2: { cellWidth: 15, halign: 'right' },
+          3: { cellWidth: 10, halign: 'center' },
+          4: { cellWidth: 18, halign: 'right' },
+          5: { cellWidth: 18, halign: 'right' },
+        },
+        margin: { left: margin + 8, right: margin },
+      });
+      y = (doc as any).lastAutoTable.finalY + 4;
+    }
+  });
+
+  if (firma && validarUrlImagen(firma)) {
+    checkPage(30);
+    y = Math.max(y, doc.internal.pageSize.getHeight() - 50);
+    doc.setDrawColor(226, 232, 240);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 6;
+    doc.setFontSize(8);
+    doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+    doc.text('Firma del responsable:', margin, y);
+    y += 4;
+    try {
+      doc.addImage(firma, 'PNG', margin, y, 40, 15);
+      y += 20;
+    } catch {
+      y += 4;
+    }
+    doc.setFontSize(7);
+    doc.setTextColor(148, 163, 184);
+    doc.text('Vo.Bo. Residente de Obra', margin, y);
+    y += 8;
+  }
+
+  addFooter();
+  doc.save(`Presupuesto_${proyecto.replace(/\s+/g, '_')}.pdf`);
 };
+
+export const exportXLSX = (renglones: RenglonPresupuesto[], proyecto: string, tipologia: string) => {
+  const wb = XLSX.utils.book_new();
+  const proyectoSanitizado = sanitizarTexto(proyecto);
+  const tipologiaSanitizada = sanitizarTexto(TIPOLOGIA_LABEL[tipologia as keyof typeof TIPOLOGIA_LABEL] || tipologia);
+
+  let gran = 0;
+  let granDir = 0;
+  const renglonRows = renglones.map(r => {
+    const { cd, pv, total } = calcRow(r);
+    gran += total;
+    granDir += cd * r.cantidad;
+    const cantMat = getMaterialesPorRenglon(r);
+    return {
+      'Código': r.codigo,
+      'Renglón': r.nombre,
+      'Unidad': r.unidad,
+      'Cantidad': r.cantidad,
+      'Cant. Materiales': cantMat,
+      'Costo Materiales': r.costoMateriales,
+      'Mano de Obra': r.costoManoObra,
+      'Equipo': r.costoEquipo,
+      'Costo Directo': cd,
+      'Precio Unitario': pv,
+      'Total': total,
+    };
+  });
+
+  const wsRenglones = XLSX.utils.json_to_sheet(renglonRows);
+  XLSX.utils.sheet_add_aoa(wsRenglones, [['TOTAL DEL PRESUPUESTO', '', '', '', '', '', '', '', '', '', gran]], { origin: -1 });
+  const colWidths = [
+    { wch: 10 }, { wch: 35 }, { wch: 8 }, { wch: 10 }, { wch: 14 },
+    { wch: 16 }, { wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 14 }, { wch: 14 },
+  ];
+  wsRenglones['!cols'] = colWidths;
+  XLSX.utils.book_append_sheet(wb, wsRenglones, 'Renglones');
+
+  const indirectos = granDir * COSTOS_INDIRECTOS;
+  const administracion = (granDir + indirectos) * ADMINISTRACION;
+  const imprevistos = (granDir + indirectos + administracion) * IMPREVISTOS;
+  const utilidad = (granDir + indirectos + administracion + imprevistos) * UTILIDAD;
+
+  const margenRows = [
+    { Concepto: 'Costo Directo Total', Porcentaje: '—', Monto: granDir },
+    { Concepto: 'Costos Indirectos', Porcentaje: `${(COSTOS_INDIRECTOS * 100).toFixed(0)}%`, Monto: indirectos },
+    { Concepto: 'Administración', Porcentaje: `${(ADMINISTRACION * 100).toFixed(0)}%`, Monto: administracion },
+    { Concepto: 'Imprevistos', Porcentaje: `${(IMPREVISTOS * 100).toFixed(0)}%`, Monto: imprevistos },
+    { Concepto: 'Utilidad', Porcentaje: `${(UTILIDAD * 100).toFixed(0)}%`, Monto: utilidad },
+    { Concepto: 'TOTAL PRESUPUESTO', Porcentaje: '', Monto: gran },
+  ];
+  const wsMargenes = XLSX.utils.json_to_sheet(margenRows);
+  wsMargenes['!cols'] = [{ wch: 30 }, { wch: 15 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, wsMargenes, 'Márgenes');
+
+  const materiales = getResumenMateriales(renglones);
+  if (materiales.length > 0) {
+    let totalMat = 0;
+    const matRows = materiales.map(m => {
+      totalMat += m.total;
+      return { Material: m.nombre, Cantidad: m.cantidad, Unidad: m.unidad, Subtotal: m.total };
+    });
+    matRows.push({ Material: 'TOTAL MATERIALES', Cantidad: 0, Unidad: '', Subtotal: totalMat });
+    const wsMateriales = XLSX.utils.json_to_sheet(matRows);
+    wsMateriales['!cols'] = [{ wch: 35 }, { wch: 14 }, { wch: 8 }, { wch: 18 }];
+    XLSX.utils.book_append_sheet(wb, wsMateriales, 'Materiales');
+  }
+
+  const subData: any[] = [];
+  renglones.forEach(r => {
+    if (r.subRenglones && r.subRenglones.length > 0) {
+      r.subRenglones.forEach(s => {
+        const cantTotal = s.cantidadUnitaria * r.cantidad;
+        const costoTot = cantTotal * s.precioUnitario;
+        subData.push({
+          'Renglón': `${r.codigo} — ${r.nombre}`,
+          'Material': s.nombreMaterial,
+          'Cant/Unidad': s.cantidadUnitaria,
+          'Cant Total': cantTotal,
+          'Unidad': s.unidad,
+          'Precio Unit.': s.precioUnitario,
+          'Costo Total': costoTot,
+        });
+      });
+    }
+  });
+  if (subData.length > 0) {
+    const wsSub = XLSX.utils.json_to_sheet(subData);
+    wsSub['!cols'] = [{ wch: 30 }, { wch: 30 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 14 }, { wch: 14 }];
+    XLSX.utils.book_append_sheet(wb, wsSub, 'Desglose Materiales');
+  }
+
+  const metaRows = [
+    { '': 'Proyecto', _: proyectoSanitizado },
+    { '': 'Tipología', _: tipologiaSanitizada },
+    { '': 'Renglones', _: renglones.length },
+    { '': 'Moneda', _: 'Quetzales (GTQ)' },
+    { '': 'Herramienta Menor', _: `${(HERRAMIENTA_MENOR * 100).toFixed(0)}%` },
+    { '': 'Fecha', _: new Date().toLocaleDateString('es-GT') },
+  ];
+  const wsMeta = XLSX.utils.json_to_sheet(metaRows);
+  XLSX.utils.book_append_sheet(wb, wsMeta, 'Metadatos');
+
+  const filename = `Presupuesto_${proyecto.replace(/\s+/g, '_')}.xlsx`;
+  XLSX.writeFile(wb, filename);
+};
+
+export { validarUrlImagen as _validarUrlImagen };
