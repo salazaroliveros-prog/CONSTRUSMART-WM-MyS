@@ -88,6 +88,18 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <Layout style={{ minHeight: '100vh', background: token.colorBgLayout }}>
+      {isMobile && !collapsed && (
+        <div
+          onClick={() => setCollapsed(true)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 99,
+          }}
+          aria-hidden="true"
+        />
+      )}
       <Sider
         collapsible
         collapsed={collapsed}

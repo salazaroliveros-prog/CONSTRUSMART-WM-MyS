@@ -145,11 +145,64 @@ const bitacoraEntrySchema = z.object({
   fotos: d.fotos ?? [],
 }));
 
+const factorSobrecostoZ = z.object({
+  indirectos: z.number(),
+  administracion: z.number(),
+  imprevistos: z.number(),
+  utilidad: z.number(),
+});
+
+const insumoZ = z.object({
+  id: z.string(),
+  nombre: z.string(),
+  nombreMaterial: z.string().optional(),
+  unidad: z.string(),
+  cantidad: z.number(),
+  cantidadUnitaria: z.number().optional(),
+  precioUnitario: z.number(),
+  precio: z.number().optional(),
+  tipo: z.enum(['material', 'mano_obra', 'equipo', 'subcontrato']),
+  rendimiento: z.number().optional(),
+});
+
+const subRenglonZ = z.object({
+  id: z.string(),
+  nombreMaterial: z.string(),
+  nombre: z.string().optional(),
+  unidad: z.string(),
+  cantidadUnitaria: z.number(),
+  cantidad: z.number().optional(),
+  precioUnitario: z.number(),
+  tipo: z.enum(['material', 'mano_obra', 'equipo', 'subcontrato']).optional(),
+  rendimiento: z.number().optional(),
+});
+
+const renglonPresupuestoZ = z.object({
+  id: z.string(),
+  codigo: z.string(),
+  nombre: z.string(),
+  unidad: z.string(),
+  tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']),
+  cantidad: z.number(),
+  rendimientoCuadrilla: z.number().default(0),
+  costoMateriales: z.number().default(0),
+  costoManoObra: z.number().default(0),
+  costoEquipo: z.number().default(0),
+  insumos: z.array(insumoZ).default([]),
+  subRenglones: z.array(subRenglonZ).optional().default([]),
+  factorSobrecosto: factorSobrecostoZ.optional(),
+  totalCD: z.number().optional(),
+  totalPV: z.number().optional(),
+  avanceFisico: z.number().optional(),
+  avanceFinanciero: z.number().optional(),
+  predecesores: z.array(z.string()).optional().default([]),
+});
+
 const presupuestoSchema = z.object({
   id: z.string(),
   proyectoId: z.string(),
   tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']),
-  renglones: z.array(z.record(z.unknown())).default([]),
+  renglones: z.array(renglonPresupuestoZ).default([]),
   estado: z.enum(['borrador','aprobado','revisado','rechazado']).default('borrador'),
   totalCalculado: z.number().default(0),
   costoDirectoTotal: z.number().default(0),
@@ -2663,11 +2716,32 @@ case 'addNotificacion': {
       }
     };
 
+    const handlePresupuestos = (payload: any) => {
+      if (payload.eventType === 'INSERT' && payload.new) {
+        try {
+          const toCamel = buildCamelMapper(payload.new);
+          const parsed = presupuestoSchema.parse(toCamel(payload.new));
+          setPresupuestos((prev: Presupuesto[]) => [parsed, ...prev]);
+        } catch { /* skip invalid payload */ }
+      } else if (payload.eventType === 'UPDATE' && payload.new) {
+        try {
+          const toCamel = buildCamelMapper(payload.new);
+          const parsed = presupuestoSchema.parse(toCamel(payload.new));
+          setPresupuestos((prev: Presupuesto[]) => prev.map((p: Presupuesto) => p.id === parsed.id ? parsed : p));
+        } catch { /* skip invalid payload */ }
+      } else if (payload.eventType === 'DELETE' && payload.old) {
+        const toCamel = buildCamelMapper(payload.old);
+        const raw = toCamel(payload.old);
+        setPresupuestos((prev: Presupuesto[]) => prev.filter((p: Presupuesto) => p.id !== raw.id));
+      }
+    };
+
     const channel = supabase.channel('erp-realtime-changes');
     channel
       .on('postgres_changes', { event: '*', schema: 'public', table: 'erp_renglones' }, handleRenglones)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'erp_insumos' }, handleInsumos)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'erp_sub_renglones' }, handleSubRenglones)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'erp_presupuestos' }, handlePresupuestos)
       .subscribe();
 
     return () => {

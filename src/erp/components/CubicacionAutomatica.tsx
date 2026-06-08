@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Calculator, Ruler, Weight, Square, Box, Trash2, Plus, Download } from 'lucide-react';
 import { CARD, CARD_TITLE } from '../ui';
-import { fmtNum } from '../utils';
+import { fmtNum, downloadBlob } from '../utils';
 import { toast } from 'sonner';
 
 type TipoElemento = 'concreto' | 'acero' | 'mamposteria' | 'encofrado' | 'excavacion';
@@ -130,10 +130,7 @@ const CubicacionAutomatica: React.FC = () => {
       ...resultados.map(r => `${r.tipo},${r.nombre},${r.cantidad.toFixed(2)},${r.unidad},"${r.formula}"`),
     ].join('\n');
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `cubicacion_${new Date().toISOString().slice(0, 10)}.csv`; a.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(blob, `cubicacion_${new Date().toISOString().slice(0, 10)}.csv`);
     toast.success('Cubicación exportada a CSV');
   };
 

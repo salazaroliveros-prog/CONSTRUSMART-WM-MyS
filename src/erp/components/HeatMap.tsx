@@ -39,7 +39,7 @@ const LayerSwitcher: React.FC = () => {
     const baseLayers: Record<string, L.TileLayer> = {};
     entries.forEach(([name], i) => { baseLayers[name] = layers[i]; });
 
-    const control = L.control.layers(baseLayers, {}, { position: 'bottomleft', collapsed: false }).addTo(map);
+    const control = L.control.layers(baseLayers, {}, { position: 'bottomleft', collapsed: true }).addTo(map);
     layers[0].addTo(map);
 
     return () => {
@@ -55,7 +55,7 @@ const HeatMap: React.FC<{ proyectos: Proyecto[] }> = ({ proyectos }) => {
   const center: [number, number] = [14.6349, -90.5069];
 
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden isolate" style={{ height: 220 }}>
+    <div className="relative w-full rounded-2xl overflow-hidden isolate h-[180px] sm:h-[220px]">
       <MapContainer center={center} zoom={7} scrollWheelZoom={false} className="w-full h-full">
         <LayerSwitcher />
         {proyectos.map(p =>
