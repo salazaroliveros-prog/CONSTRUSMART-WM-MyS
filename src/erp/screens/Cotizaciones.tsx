@@ -48,7 +48,7 @@ const ESTADOS_COTIZACION = [
 
 const Cotizaciones: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, cotizaciones, addCotizacion, updateCotizacion, deleteCotizacion, presupuestos } = useErp();
+  const { proyectos, cotizacionesNegocio: cotizaciones, addCotizacion, updateCotizacion, deleteCotizacion, presupuestos } = useErp();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<CotizacionFormData>({
