@@ -1060,7 +1060,13 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } else {
       setAuthState({ user: null, error: auth.error });
     }
-  }, [auth.user, auth.error]);
+    // Cuando la primera sesión se resuelve, terminar de inicializar
+    if (initializing) {
+      setInitializing(false);
+      // Permitir toasts después de la primera carga
+      setTimeout(() => { readyRef.current = true; }, 1000);
+    }
+  }, [auth.user, auth.error, initializing]);
 
   const [proyectos, setProyectos] = useState<Proyecto[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_proyectos', []));
   const [movimientos, setMovimientos] = useState<Movimiento[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_movimientos', []));
