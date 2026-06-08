@@ -279,8 +279,7 @@ const Bodega: React.FC = () => {
       </div>
 
       {showProveedor && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowProveedor(false)}
-          role="dialog" aria-modal="true" aria-labelledby="modal-proveedor-title">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-proveedor-title">
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmitProv(onAddProveedor)}
             className="bg-card text-card-foreground rounded-2xl p-6 w-full max-w-md border border-border shadow-xl">
             <div className="flex items-center justify-between mb-4">
@@ -309,8 +308,7 @@ const Bodega: React.FC = () => {
       )}
 
       {showOrden && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowOrden(false)}
-          role="dialog" aria-modal="true" aria-labelledby="modal-orden-title">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-orden-title">
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmitOrd(onAddOrden)}
             className="bg-card text-card-foreground rounded-2xl p-6 w-full max-w-md border border-border shadow-xl">
             <div className="flex items-center justify-between mb-4">

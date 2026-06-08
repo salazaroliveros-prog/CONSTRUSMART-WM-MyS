@@ -266,7 +266,7 @@ export const LogisticaCompras: React.FC = () => {
       {tab === 'pagos' && renderPagos()}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => { setShowForm(null); setFormErrors({}); }} role="dialog" aria-modal="true" aria-label="Formulario">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Formulario">
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-lg" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4">
               {showForm === 'activo' && 'Nuevo Activo / Herramienta'}

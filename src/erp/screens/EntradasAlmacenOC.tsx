@@ -154,7 +154,7 @@ export const EntradasAlmacenOC: React.FC = () => {
 
       {/* Modal de recepción */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowForm(null)}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4">Registrar Recepción</h3>
             <p className="text-sm text-gray-500 mb-3">

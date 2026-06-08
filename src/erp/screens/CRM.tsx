@@ -324,7 +324,7 @@ const CRM: React.FC = () => {
 
       {/* Modal de creación/edición */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => { setShowForm(false); resetForm(); }}>
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit} className="bg-card text-card-foreground rounded-2xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto border border-border">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-lg text-foreground">

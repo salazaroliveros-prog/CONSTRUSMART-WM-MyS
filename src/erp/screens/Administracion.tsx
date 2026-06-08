@@ -208,7 +208,7 @@ export const Administracion: React.FC = () => {
 
       {/* Modal Centro Costo */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowForm(false)} role="dialog" aria-modal="true">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
           <form onSubmit={handleSubmit(onAddCentroCosto)} onClick={e => e.stopPropagation()} className="bg-card rounded-lg p-6 w-full max-w-md shadow-lg">
             <h3 className="font-bold mb-4 text-foreground">Nuevo Centro de Costo</h3>
             <div className="grid gap-3">
