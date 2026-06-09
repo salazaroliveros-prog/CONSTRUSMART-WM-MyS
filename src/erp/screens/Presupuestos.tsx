@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CARD, INPUT, BUTTON_DARK } from '../ui';
+import { toast } from 'sonner';
 
 import { useErp } from '../store';
 import { Tipologia, RenglonPresupuesto, SubRenglon, Presupuesto } from '../types';
@@ -369,40 +370,57 @@ const Presupuestos: React.FC = () => {
   }, [items]);
 
   const save = async () => {
-    // Safety: ensure costoMateriales is synced from subRenglones before saving
-    const itemsSeguros = items.map(r => {
-      if (!r.subRenglones || r.subRenglones.length === 0) return r;
-      const costoMat = r.subRenglones.reduce((sum, s) => sum + (s.cantidadUnitaria * s.precioUnitario), 0);
-      return { ...r, costoMateriales: costoMat };
-    });
-    const totalCalc = itemsSeguros.reduce((a, r) => a + calc(r).total, 0);
-    const costoDir = itemsSeguros.reduce((a, r) => a + costoDirectoUnitario(r.costoMateriales, r.costoManoObra, r.costoEquipo) * r.cantidad, 0);
+    if (!items.length) {
+      toast.warning('No hay renglones para guardar');
+      return;
+    }
+    try {
+      // Safety: ensure costoMateriales is synced from subRenglones before saving
+      const itemsSeguros = items.map(r => {
+        if (!r.subRenglones || r.subRenglones.length === 0) return r;
+        const costoMat = r.subRenglones.reduce((sum, s) => sum + (s.cantidadUnitaria * s.precioUnitario), 0);
+        return { ...r, costoMateriales: costoMat };
+      });
+      const totalCalc = itemsSeguros.reduce((a, r) => a + calc(r).total, 0);
+      const costoDir = itemsSeguros.reduce((a, r) => a + costoDirectoUnitario(r.costoMateriales, r.costoManoObra, r.costoEquipo) * r.cantidad, 0);
 
-    if (editingPresupuesto) {
-      await updatePresupuesto(editingPresupuesto.id, {
-        renglones: itemsSeguros,
-        totalCalculado: totalCalc,
-        costoDirectoTotal: costoDir,
-        fechaActualizacion: new Date().toISOString(),
-        notas: proyecto,
-        versionPresupuesto: (editingPresupuesto.versionPresupuesto || 1) + 1,
-      });
-      setEditingPresupuesto(null);
-    } else if (projectId) {
-      await addPresupuesto({
-        proyectoId: projectId,
-        tipologia,
-        renglones: itemsSeguros,
-        totalCalculado: totalCalc,
-        costoDirectoTotal: costoDir,
-        estado: 'borrador',
-        fechaCreacion: new Date().toISOString(),
-        fechaActualizacion: new Date().toISOString(),
-        notas: proyecto,
-        versionPresupuesto: 1,
-      });
-    } else {
-      try { localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(itemsSeguros)); } catch { /* ignore */ }
+      if (editingPresupuesto) {
+        await updatePresupuesto(editingPresupuesto.id, {
+          renglones: itemsSeguros,
+          totalCalculado: totalCalc,
+          costoDirectoTotal: costoDir,
+          fechaActualizacion: new Date().toISOString(),
+          notas: proyecto,
+          versionPresupuesto: (editingPresupuesto.versionPresupuesto || 1) + 1,
+        });
+        setEditingPresupuesto(null);
+        toast.success('Presupuesto actualizado correctamente', { description: `Versión ${(editingPresupuesto.versionPresupuesto || 1) + 1} · Total: Q${totalCalc.toFixed(2)}` });
+      } else if (projectId) {
+        await addPresupuesto({
+          proyectoId: projectId,
+          tipologia,
+          renglones: itemsSeguros,
+          totalCalculado: totalCalc,
+          costoDirectoTotal: costoDir,
+          estado: 'borrador',
+          fechaCreacion: new Date().toISOString(),
+          fechaActualizacion: new Date().toISOString(),
+          notas: proyecto,
+          versionPresupuesto: 1,
+        });
+        toast.success('Presupuesto guardado correctamente', { description: `${itemsSeguros.length} renglones · Total: Q${totalCalc.toFixed(2)}` });
+      } else {
+        try {
+          localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(itemsSeguros));
+          toast.success('Presupuesto guardado localmente', { description: 'Sin proyecto asociado · Guardado en localStorage' });
+        } catch (err) { 
+          toast.error('Error al guardar localmente'); 
+        }
+      }
+    } catch (err) {
+      console.error('Error guardando presupuesto:', err);
+      toast.error('Error al guardar presupuesto', { description: 'Inténtalo de nuevo' });
+      return;
     }
 
     // Auto-fill project fields from budget totals
