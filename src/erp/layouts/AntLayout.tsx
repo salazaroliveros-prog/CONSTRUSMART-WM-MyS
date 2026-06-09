@@ -31,7 +31,7 @@ const MENU_ITEMS: { key: View; label: string; icon: React.ReactNode }[] = [
   { key: 'apu', label: 'APU Avanzado', icon: <ApartmentOutlined /> },
   { key: 'seguimiento', label: 'Seguimiento', icon: <AuditOutlined /> },
   { key: 'curvas', label: 'Curvas S', icon: <BarChartOutlined /> },
-  { key: 'rendimientos', label: 'Rendimientos', icon: <RiseOutlined /> },
+  { key: 'rendimiento-campo', label: 'Rendimiento Campo', icon: <RiseOutlined /> },
   { key: 'muro', label: 'Muro Obra', icon: <MessageOutlined /> },
   { key: 'ordenes-cambio', label: 'Órdenes Cambio', icon: <SwapOutlined /> },
   { key: 'financiero', label: 'Financiero', icon: <WalletOutlined /> },

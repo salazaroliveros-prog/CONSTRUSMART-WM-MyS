@@ -19,6 +19,7 @@ const ITEMS: NavItem[] = [
   { id: 'dashboard',         label: 'Tablero',            icon: LayoutDashboard, group: 'Principal'    },
   { id: 'proyectos',         label: 'Proyectos',          icon: Building2,       group: 'Principal'    },
   { id: 'crm',               label: 'CRM / Pipeline',     icon: Target,          group: 'Principal'    },
+  { id: 'cotizaciones',      label: 'Cotizaciones',        icon: FileText,       group: 'Principal'    },
 
   // ── 2. PLANIFICACIÓN ──────────────────────────────────────────────────────
   { id: 'presupuestos',      label: 'Presupuestos APU',   icon: Calculator,      group: 'Planificación'},

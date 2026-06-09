@@ -7,7 +7,7 @@ import MovimientoForm from '../components/MovimientoForm';
 import { ConfigurableLineArea, BarChart, Donut } from '../components/Charts';
 import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
-import { Building2, TrendingUp, DollarSign, AlertTriangle, Activity, Calculator, ClipboardCheck, Wallet, Users, Warehouse, ArrowRight } from 'lucide-react';
+import { Building2, TrendingUp, DollarSign, AlertTriangle, Activity, Calculator, ClipboardCheck, Wallet, Users, Warehouse, ArrowRight, FileText } from 'lucide-react';
 import { CARD, CARD_TITLE } from '../ui';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
@@ -22,32 +22,36 @@ const Dashboard: React.FC = () => {
   const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
   const presupuestoTotal = activos.reduce((a, b) => a + b.presupuestoTotal, 0);
   const margenProm = activos.length
-    ? activos.reduce((a, b) => a + ((b.montoContrato - b.presupuestoTotal) / b.montoContrato) * 100, 0) / activos.length : 0;
+    ? activos.reduce((a, b) => {
+        const m = b.montoContrato > 0 ? ((b.montoContrato - b.presupuestoTotal) / b.montoContrato) * 100 : 0;
+        return a + m;
+      }, 0) / activos.length : 0;
   const desviacion = activos.length
     ? activos.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / activos.length : 0;
 
   const avanceData = useMemo(() => {
+    const steps = 8;
+    if (avances.length === 0) {
+      return { prog: Array(steps).fill(0), real: Array(steps).fill(0) };
+    }
     const prog = [0];
     const real = [0];
-    if (avances.length > 0) {
-      const steps = 8;
-      const stepSize = Math.floor(avances.length / (steps - 1)) || 1;
-      for (let i = 1; i < steps - 1; i++) {
-        const idx = i * stepSize;
-        const slice = avances.filter(a => a.proyectoId === (selectedProyectoId || undefined));
-        if (slice.length > 0) {
-          const avgAvance = slice.slice(0, Math.min(idx, slice.length)).reduce((s, a) => s + a.avanceFisico, 0) / Math.min(idx, slice.length);
-          prog.push(Math.round((idx / Math.max(slice.length, 1)) * 100));
-          real.push(Math.round(avgAvance));
-        } else {
-          prog.push(Math.round((idx / Math.max(avances.length, 1)) * 100));
-          real.push(Math.round(avances.slice(0, idx).reduce((s, a) => s + a.avanceFisico, 0) / Math.max(idx, 1)));
-        }
+    const stepSize = Math.floor(avances.length / (steps - 1)) || 1;
+    for (let i = 1; i < steps - 1; i++) {
+      const idx = i * stepSize;
+      const slice = avances.filter(a => a.proyectoId === (selectedProyectoId || undefined));
+      if (slice.length > 0) {
+        const avgAvance = slice.slice(0, Math.min(idx, slice.length)).reduce((s, a) => s + a.avanceFisico, 0) / Math.min(idx, slice.length);
+        prog.push(Math.round((idx / Math.max(slice.length, 1)) * 100));
+        real.push(Math.round(avgAvance));
+      } else {
+        prog.push(Math.round((idx / Math.max(avances.length, 1)) * 100));
+        real.push(Math.round(avances.slice(0, idx).reduce((s, a) => s + a.avanceFisico, 0) / Math.max(idx, 1)));
       }
-      prog.push(100);
-      const lastSlice = avances.slice(0, avances.length);
-      real.push(Math.round(lastSlice.reduce((s, a) => s + a.avanceFisico, 0) / Math.max(lastSlice.length, 1)));
     }
+    prog.push(100);
+    const lastSlice = avances.slice(0, avances.length);
+    real.push(Math.round(lastSlice.reduce((s, a) => s + a.avanceFisico, 0) / Math.max(lastSlice.length, 1)));
     return { prog, real };
   }, [avances, selectedProyectoId]);
 
@@ -65,6 +69,7 @@ const Dashboard: React.FC = () => {
     { id: 'financiero', label: 'Financiero', icon: Wallet, c: 'from-violet-500 to-purple-600' },
     { id: 'rrhh', label: 'RRHH', icon: Users, c: 'from-pink-500 to-rose-600' },
     { id: 'bodega', label: 'Bodega', icon: Warehouse, c: 'from-cyan-500 to-sky-600' },
+    { id: 'cotizaciones', label: 'Cotizaciones', icon: FileText, c: 'from-rose-500 to-pink-600' },
   ];
 
   const SkeletonCard: React.FC<{ h?: string }> = ({ h = 'h-8' }) => (

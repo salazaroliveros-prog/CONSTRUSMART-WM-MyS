@@ -525,7 +525,7 @@ export const exportCotizacionPDF = (cotizacion: CotizacionCliente) => {
   doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
   doc.text(`${empresaNombre} — ${sanitizarTexto(EMPRESA.eslogan)}`, margin, y);
   y += 4;
-  doc.text(`NIT:  ______-__    |    Tel:  ______    |    Email:  ______`, margin, y);
+  doc.text(`NIT: ${sanitizarTexto(EMPRESA.nit)}    |    Tel: ${sanitizarTexto(EMPRESA.telefono)}    |    Email: ${sanitizarTexto(EMPRESA.email)}`, margin, y);
   y += 8;
 
   doc.setDrawColor(ORANGE[0], ORANGE[1], ORANGE[2]);
