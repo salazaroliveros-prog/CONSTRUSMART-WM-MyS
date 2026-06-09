@@ -94,7 +94,7 @@ const ACTIVIDAD_POR_RENGLON: Record<string, string> = {
 
 const Presupuestos: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores } = useErp();
+  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores, updateProyecto } = useErp();
   const [tab, setTab] = useState<'crear' | 'guardados'>('crear');
   const [tipologia, setTipologia] = useState<Tipologia>('residencial');
   const [proyecto, setProyecto] = useState('Nuevo Presupuesto');
@@ -403,6 +403,29 @@ const Presupuestos: React.FC = () => {
       });
     } else {
       try { localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(itemsSeguros)); } catch { /* ignore */ }
+    }
+
+    // Auto-fill project fields from budget totals
+    if (projectId && totalCalc > 0) {
+      const proyectoActual = proyectos.find(p => p.id === projectId);
+      if (proyectoActual) {
+        const patch: Record<string, any> = {};
+        // Only update if project's presupuestoTotal is 0 or less (first budget)
+        if (!proyectoActual.presupuestoTotal || proyectoActual.presupuestoTotal <= 0) {
+          patch.presupuestoTotal = Math.round(totalCalc * 100) / 100;
+        }
+        // Auto-fill montoContrato if empty
+        if (!proyectoActual.montoContrato || proyectoActual.montoContrato <= 0) {
+          patch.montoContrato = Math.round(totalCalc * 100) / 100;
+        }
+        // Auto-fill margenUtilidadObjetivo if empty
+        if (!proyectoActual.margenUtilidadObjetivo) {
+          patch.margenUtilidadObjetivo = Math.round(UTILIDAD * 100);
+        }
+        if (Object.keys(patch).length > 0) {
+          updateProyecto(projectId, patch);
+        }
+      }
     }
 
     setSaved(true);
