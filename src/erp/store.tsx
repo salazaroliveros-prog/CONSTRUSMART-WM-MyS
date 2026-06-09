@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, hasSupabase } from '@/lib/supabase';
 import { sanitizarObjeto, sanitizarTexto, getServerRole } from '@/lib/security';
 // useSupabaseRealtime import removed - hook was commented out and causing issues
 import { z } from 'zod';
@@ -97,570 +97,10 @@ const proyectoSchemaInline = z.object({
   }).optional(),
 }).transform(d => ({
   ...d,
-  lat: d.lat ?? d.latitud ?? 14.6349,
-  lng: d.lng ?? d.longitud ?? -90.5069,
-  fechaInicio: d.fechaInicio ?? '',
-  fechaFin: d.fechaFin ?? '',
-  presupuestoActualId: d.presupuestoActualId ?? undefined,
 }));
-
-// erp_proveedores: sin telefono, email, categoria en DB
-const proveedorSchema = z.object({
-  id: z.string(),
-  nombre: z.string(),
-  contacto: z.string().nullable().optional().default(''),
-  rubro: z.string().nullable().optional(),
-  calificacion: z.number().nullable().optional(),
-  // campos no en DB — defaults
-  telefono: z.string().optional().default(''),
-  email: z.string().optional().default(''),
-  categoria: z.string().optional().default('materiales'),
-}).transform(d => ({
-  ...d,
-  contacto: d.contacto ?? '',
-  telefono: d.telefono ?? '',
-  email: d.email ?? '',
-  categoria: (d.categoria ?? 'materiales') as import('./types').Categoria,
-}));
-
-// erp_eventos_calendario: sin participantes en DB
-const eventoCalendarioSchema = z.object({
-  id: z.string(),
-  // proyecto_id → proyectoId
-  proyectoId: z.string().nullable().optional().default(''),
-  titulo: z.string().default(''),
-  fecha: z.string(),
-  hora: z.string().nullable().optional().default(''),
-  // tipo DB = Recordatorio|Actividad|Reunión|Visita (distinto al tipo TS)
-  tipo: z.string().nullable().optional().default('otros').transform(t => {
-    const map: Record<string, string> = {
-      'Recordatorio': 'otros', 'Actividad': 'otros',
-      'Reunión': 'reunion', 'Visita': 'inspeccion',
-    };
-    return (map[t ?? ''] ?? t ?? 'otros') as 'reunion' | 'inspeccion' | 'entrega' | 'pago' | 'otros';
-  }),
-  descripcion: z.string().nullable().optional(),
-  completado: z.boolean().nullable().optional(),
-  // participantes no existe en DB
-  participantes: z.array(z.string()).optional().default([]),
-}).transform(d => ({
-  ...d,
-  proyectoId: d.proyectoId ?? '',
-  hora: d.hora ?? '',
-  participantes: d.participantes ?? [],
-}));
-
-// erp_bitacora: personal (no personalPresente), tareas (no tareasRealizadas), sin fotos
-const bitacoraEntrySchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  fecha: z.string(),
-  clima: z.string().nullable().optional().default('soleado').transform(c =>
-    (c ?? 'soleado') as 'soleado' | 'nublado' | 'lluvia'
-  ),
-  // personal → personalPresente
-  personal: z.number().nullable().optional().default(0),
-  personalPresente: z.number().optional().default(0),
-  maquinaria: z.string().nullable().optional().default(''),
-  // tareas → tareasRealizadas
-  tareas: z.string().nullable().optional().default(''),
-  tareasRealizadas: z.string().optional().default(''),
-  observaciones: z.string().nullable().optional().default(''),
-  // fotos no existe en DB
-  fotos: z.array(z.string()).optional().default([]),
-  firma: z.string().nullable().optional(),
-  latitud: z.number().nullable().optional(),
-  longitud: z.number().nullable().optional(),
-}).transform(d => ({
-  ...d,
-  personalPresente: d.personalPresente || d.personal || 0,
-  tareasRealizadas: d.tareasRealizadas || d.tareas || '',
-  maquinaria: d.maquinaria ?? '',
-  observaciones: d.observaciones ?? '',
-  fotos: d.fotos ?? [],
-}));
-
-const factorSobrecostoZ = z.object({
-  indirectos: z.number(),
-  administracion: z.number(),
-  imprevistos: z.number(),
-  utilidad: z.number(),
-});
-
-const insumoZ = z.object({
-  id: z.string(),
-  nombre: z.string(),
-  nombreMaterial: z.string().optional(),
-  unidad: z.string(),
-  cantidad: z.number(),
-  cantidadUnitaria: z.number().optional(),
-  precioUnitario: z.number(),
-  precio: z.number().optional(),
-  tipo: z.enum(['material', 'mano_obra', 'equipo', 'subcontrato']),
-  rendimiento: z.number().optional(),
-});
-
-const subRenglonZ = z.object({
-  id: z.string(),
-  nombreMaterial: z.string(),
-  nombre: z.string().optional(),
-  unidad: z.string(),
-  cantidadUnitaria: z.number(),
-  cantidad: z.number().optional(),
-  precioUnitario: z.number(),
-  tipo: z.enum(['material', 'mano_obra', 'equipo', 'subcontrato']).optional(),
-  rendimiento: z.number().optional(),
-});
-
-const renglonPresupuestoZ = z.object({
-  id: z.string(),
-  codigo: z.string(),
-  nombre: z.string(),
-  unidad: z.string(),
-  tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']),
-  cantidad: z.number(),
-  rendimientoCuadrilla: z.number().default(0),
-  costoMateriales: z.number().default(0),
-  costoManoObra: z.number().default(0),
-  costoEquipo: z.number().default(0),
-  insumos: z.array(insumoZ).default([]),
-  subRenglones: z.array(subRenglonZ).optional().default([]),
-  factorSobrecosto: factorSobrecostoZ.optional(),
-  totalCD: z.number().optional(),
-  totalPV: z.number().optional(),
-  avanceFisico: z.number().optional(),
-  avanceFinanciero: z.number().optional(),
-  predecesores: z.array(z.string()).optional().default([]),
-});
-
-const cotizacionSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string().nullable().optional().default(''),
-  tipo: z.enum(['construccion','planos_registro','estudio_planificacion','diseno_urbanistico','anteproyecto_residencial']),
-  numero: z.string().default(''),
-  fecha: z.string().default(''),
-  fechaVencimiento: z.string().nullable().optional().default(''),
-  clienteNombre: z.string().default(''),
-  clienteNit: z.string().nullable().optional().default(''),
-  clienteTelefono: z.string().nullable().optional().default(''),
-  clienteEmail: z.string().nullable().optional().default(''),
-  clienteDireccion: z.string().nullable().optional().default(''),
-  descripcion: z.string().default(''),
-  alcance: z.string().default(''),
-  renglones: z.array(renglonPresupuestoZ).default([]),
-  costoDirectoTotal: z.number().default(0),
-  precioVentaTotal: z.number().default(0),
-  estado: z.enum(['borrador','enviada','aprobada','rechazada','vencida']).default('borrador'),
-  notas: z.string().nullable().optional(),
-  createdAt: z.string().default(new Date().toISOString()),
-  updatedAt: z.string().default(new Date().toISOString()),
-});
-
-const presupuestoSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']),
-  renglones: z.array(renglonPresupuestoZ).default([]),
-  estado: z.enum(['borrador','aprobado','revisado','rechazado']).default('borrador'),
-  totalCalculado: z.number().default(0),
-  costoDirectoTotal: z.number().default(0),
-  fechaCreacion: z.string().default(new Date().toISOString()),
-  fechaActualizacion: z.string().default(new Date().toISOString()),
-  versionPresupuesto: z.number().optional().default(1),
-  notas: z.string().nullable().optional(),
-});
-
-const ordenSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string().nullable().optional(),
-  proveedor: z.string().default(''),
-  material: z.string().default(''),
-  cantidad: z.number().default(0),
-  monto: z.number().default(0),
-  fecha: z.string(),
-  estado: z.enum(['borrador', 'pendiente', 'aprobado', 'recibida', 'rechazada', 'cancelada']).default('pendiente'),
-  proveedorId: z.string().nullable().optional(),
-  total: z.number().optional(),
-  items: z.array(z.object({
-    materialId: z.string(),
-    cantidad: z.number(),
-    precioUnitario: z.number(),
-  })).optional(),
-});
-
-const eventoSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string().nullable().optional().default(''),
-  titulo: z.string().default(''),
-  fecha: z.string(),
-  hora: z.string().nullable().optional().default(''),
-  tipo: z.string().nullable().optional().default('otros'),
-  descripcion: z.string().nullable().optional(),
-  completado: z.boolean().nullable().optional(),
-});
-
-const bitacoraSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  fecha: z.string(),
-  clima: z.string().nullable().optional().default('soleado'),
-  personal: z.number().nullable().optional().default(0),
-  personalPresente: z.number().optional().default(0),
-  maquinaria: z.string().nullable().optional().default(''),
-  tareas: z.string().nullable().optional().default(''),
-  tareasRealizadas: z.string().optional().default(''),
-  observaciones: z.string().nullable().optional().default(''),
-  fotos: z.array(z.string()).optional().default([]),
-  firma: z.string().nullable().optional(),
-  latitud: z.number().nullable().optional(),
-  longitud: z.number().nullable().optional(),
-});
-
-const cuentaCobrarSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  cliente: z.string().default(''),
-  concepto: z.string().default(''),
-  monto: z.number().default(0),
-  saldoPendiente: z.number().default(0),
-  fechaEmision: z.string().default(new Date().toISOString().split('T')[0]),
-  fechaVencimiento: z.string(),
-  fechaCobro: z.string().nullable().optional(),
-  estado: z.enum(['pendiente','parcial','cobrado','vencido','incobrable']).default('pendiente'),
-  notas: z.string().nullable().optional(),
-});
-
-const cuentaPagarSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  proveedor: z.string().default(''),
-  concepto: z.string().default(''),
-  monto: z.number().default(0),
-  saldoPendiente: z.number().default(0),
-  fechaEmision: z.string().default(new Date().toISOString().split('T')[0]),
-  fechaVencimiento: z.string(),
-  fechaPago: z.string().nullable().optional(),
-  estado: z.enum(['pendiente','parcial','pagado','vencido']).default('pendiente'),
-  facturaUrl: z.string().nullable().optional(),
-});
-
-const ordenCambioSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  titulo: z.string().default(''),
-  descripcion: z.string().default(''),
-  impactoCosto: z.number().default(0),
-  impactoPlazo: z.number().default(0),
-  estado: z.enum(['solicitud','revision','aprobado','rechazado']).default('solicitud'),
-  solicitante: z.string().default(''),
-  solicitanteRol: z.string().default(''),
-  aprobador: z.string().nullable().optional(),
-  fechaAprobacion: z.string().nullable().optional(),
-  createdAt: z.string().default(new Date().toISOString()),
-});
-
-const hitoSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  nombre: z.string().default(''),
-  descripcion: z.string().default(''),
-  fecha: z.string(),
-  tipo: z.enum(['inicio','hito','entrega','cierre']).default('hito'),
-  estado: z.enum(['pendiente','completado','retrasado']).default('pendiente'),
-  responsable: z.string().default(''),
-  dependeDe: z.array(z.string()).optional().default([]),
-  completadoEn: z.string().nullable().optional(),
-});
-
-const riesgoSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  nombre: z.string().default(''),
-  descripcion: z.string().default(''),
-  tipo: z.enum(['tecnico','financiero','cronograma','legal','ambiental','seguridad','otro']).default('tecnico'),
-  probabilidad: z.number().min(1).max(5).default(1),
-  impacto: z.number().min(1).max(5).default(1),
-  nivel: z.enum(['bajo','medio','alto','critico']).default('bajo'),
-  planMitigacion: z.string().optional(),
-  planContingencia: z.string().optional(),
-  responsable: z.string().optional(),
-  fechaIdentificacion: z.string().default(new Date().toISOString().split('T')[0]),
-  estado: z.enum(['identificado','en_mitigacion','mitigado','materializado']).default('identificado'),
-  costoSoporte: z.number().optional(),
-  createdAt: z.string().default(new Date().toISOString()),
-});
-
-const liberacionSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  renglonId: z.string().nullable().optional(),
-  renglonNombre: z.string().default(''),
-  fechaSolicitud: z.string().default(new Date().toISOString().split('T')[0]),
-  fechaLiberacion: z.string().nullable().optional(),
-  solicitante: z.string().default(''),
-  supervisor: z.string().default(''),
-  checklistAprobado: z.boolean().nullable().optional(),
-  observaciones: z.string().default(''),
-  estado: z.enum(['pendiente','liberado','rechazado']).default('pendiente'),
-});
-
-const pruebaSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  tipo: z.enum(['concreto','suelos','acero','asfalto','otro']).default('concreto'),
-  descripcion: z.string().default(''),
-  fechaMuestra: z.string().default(new Date().toISOString().split('T')[0]),
-  fechaResultado: z.string().nullable().optional(),
-  resultado: z.enum(['pendiente','pasa','no_pasa']).default('pendiente'),
-  responsable: z.string().default(''),
-  observaciones: z.string().nullable().optional(),
-});
-
-const noConformidadSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  codigo: z.string().default(''),
-  descripcion: z.string().default(''),
-  categoria: z.enum(['material','proceso','documentacion','seguridad','otro']).default('otro'),
-  fechaDeteccion: z.string().default(new Date().toISOString().split('T')[0]),
-  detectadoPor: z.string().default(''),
-  planAccion: z.string().default(''),
-  responsableCierre: z.string().default(''),
-  fechaCierre: z.string().nullable().optional(),
-  estado: z.enum(['detectado','plan_accion','cerrado']).default('detectado'),
-});
-
-export const activoSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  nombre: z.string().default(''),
-  codigoInventario: z.string().default(''),
-  tipo: z.enum(['herramienta','equipo','vehiculo','accesorio']).default('herramienta'),
-  estado: z.enum(['disponible','asignado','mantenimiento','dado_baja']).default('disponible'),
-  valorAdquisicion: z.number().default(0),
-  fechaAdquisicion: z.string().default(new Date().toISOString().split('T')[0]),
-  proveedorId: z.string().nullable().optional(),
-  proveedorNombre: z.string().default(''),
-  asignadoA: z.string().default(''),
-  observaciones: z.string().default(''),
-});
-
-export const licitacionSchema = z.object({
-  id: z.string(),
-  titulo: z.string(),
-  cliente: z.string(),
-  monto: z.number(),
-  fechaLimite: z.string().optional().default(''),
-  estado: z.enum(['identificado','en_estudio','presentado','ganado','perdido']).default('identificado'),
-  probabilidad: z.number().default(30),
-  fechaCreacion: z.string().default(''),
-  documentos: z.array(z.object({ nombre: z.string(), url: z.string() })).optional().default([]),
-  notas: z.string().optional(),
-});
-
-export const cuadroSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string().optional(),
-  solicitud: z.string().default(''),
-  fechaSolicitud: z.string().default(new Date().toISOString().split('T')[0]),
-  fechaCierre: z.string().nullable().optional(),
-  estado: z.enum(['abierto','cerrado','adjudicado']).default('abierto'),
-  adjudicadoA: z.string().nullable().optional(),
-  observaciones: z.string().nullable().optional(),
-  cotizacionesNegocio: z.array(z.object({
-    id: z.string(),
-    proyectoId: z.string().optional().default(''),
-    tipo: z.enum(['construccion','planos_registro','estudio_planificacion','diseno_urbanistico','anteproyecto_residencial']),
-    numero: z.string().default(''),
-    fecha: z.string().default(''),
-    fechaVencimiento: z.string().optional().default(''),
-    clienteNombre: z.string().default(''),
-    clienteNit: z.string().optional().default(''),
-    clienteTelefono: z.string().optional().default(''),
-    clienteEmail: z.string().optional().default(''),
-    clienteDireccion: z.string().optional().default(''),
-    descripcion: z.string().default(''),
-    alcance: z.string().default(''),
-    renglones: z.array(z.any()).default([]),
-    costoDirectoTotal: z.number().default(0),
-    precioVentaTotal: z.number().default(0),
-    estado: z.enum(['borrador','enviada','aprobada','rechazada','vencida']).default('borrador'),
-    notas: z.string().optional().default(''),
-    createdAt: z.string().default(''),
-    updatedAt: z.string().default(''),
-  })).default([]),
-});
-
-export const pagoProveedorSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  proveedorId: z.string().default(''),
-  proveedorNombre: z.string().default(''),
-  monto: z.number().default(0),
-  concepto: z.string().default(''),
-  fechaEmision: z.string().default(new Date().toISOString().split('T')[0]),
-  fechaVencimiento: z.string().default(new Date().toISOString().split('T')[0]),
-  fechaPago: z.string().nullable().optional(),
-  estado: z.enum(['pendiente','pagado','vencido','cancelado']).default('pendiente'),
-  facturaUrl: z.string().nullable().optional(),
-});
-
-export const planoSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  nombre: z.string().default(''),
-  disciplina: z.enum(['arquitectura','estructura','instalaciones','electricas','sanitarias','mecanicas','otra']).default('arquitectura'),
-  version: z.string().default('1.0'),
-  estado: z.enum(['borrador','vigente','obsoleto']).default('borrador'),
-  archivoUrl: z.string().default(''),
-  subidoPor: z.string().default(''),
-  fechaSubida: z.string().default(new Date().toISOString().split('T')[0]),
-  revision: z.number().default(0),
-});
-
-export const rfiSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  numero: z.string().default(''),
-  titulo: z.string().default(''),
-  descripcion: z.string().default(''),
-  solicitante: z.string().default(''),
-  destino: z.string().default(''),
-  estado: z.enum(['abierto','en_respuesta','cerrado']).default('abierto'),
-  fechaSolicitud: z.string().default(new Date().toISOString().split('T')[0]),
-  respuesta: z.string().nullable().optional(),
-  fechaRespuesta: z.string().nullable().optional(),
-});
-
-export const submittalSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  titulo: z.string().default(''),
-  categoria: z.enum(['material','equipo','especificacion','otro']).default('otro'),
-  proveedor: z.string().default(''),
-  fechaEnvio: z.string().default(new Date().toISOString().split('T')[0]),
-  estado: z.enum(['pendiente','aprobado','rechazado','con_comentarios']).default('pendiente'),
-});
-
-const seguimientoSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  fecha: z.string(),
-  avanceFisico: z.number().default(0),
-  avanceFinanciero: z.number().default(0),
-  costoPlaneado: z.number().default(0),
-  costoReal: z.number().default(0),
-  valorPlaneado: z.number().default(0),
-  valorGanado: z.number().default(0),
-  cv: z.number().nullable().optional(),
-  sv: z.number().nullable().optional(),
-  createdAt: z.string().default(new Date().toISOString()),
-});
-
-const muroSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  autor: z.string().default(''),
-  autorAvatar: z.string().nullable().optional(),
-  contenido: z.string().default(''),
-  tipo: z.enum(['avance','calidad','seguridad','general']).default('general'),
-  fotos: z.array(z.string()).default([]),
-  documento: z.object({
-    nombre: z.string(),
-    url: z.string(),
-  }).nullable().optional(),
-  createdAt: z.string().default(new Date().toISOString()),
-  likes: z.number().default(0),
-  comentarios: z.array(z.object({
-    id: z.string(),
-    autor: z.string(),
-    autorAvatar: z.string().nullable().optional(),
-    contenido: z.string(),
-    createdAt: z.string(),
-  })).default([]),
-});
-
-const notificacionSchema = z.object({
-  id: z.string(),
-  tipo: z.enum(['checklist_rechazado','orden_cambio_pendiente','stock_critico','desviacion_rendimiento','avance_registrado','general']).default('general'),
-  titulo: z.string().default(''),
-  mensaje: z.string().default(''),
-  proyectoId: z.string().nullable().optional(),
-  referenciaId: z.string().nullable().optional(),
-  leido: z.boolean().default(false),
-  createdAt: z.string().default(new Date().toISOString()),
-});
-
-// Schemas faltantes para fetchInitialData
-const movimientoSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string().nullable().optional(),
-  tipo: z.enum(['ingreso','gasto','egreso']).default('gasto'),
-  categoria: z.string().default('materiales'),
-  monto: z.number().default(0),
-  costoTotal: z.number().nullable().optional(),
-  costoUnitario: z.number().nullable().optional(),
-  cantidad: z.number().nullable().optional(),
-  unidad: z.string().nullable().optional(),
-  descripcion: z.string().default(''),
-  fecha: z.string(),
-  proveedor: z.string().nullable().optional(),
-  proveedorNit: z.string().nullable().optional(),
-  factura: z.string().nullable().optional(),
-  formaPago: z.enum(['efectivo','transferencia','cheque','tarjeta','otro']).nullable().optional(),
-  referenciaBancaria: z.string().nullable().optional(),
-  retencionIsr: z.number().nullable().optional(),
-  retencionIva: z.number().nullable().optional(),
-  notas: z.string().nullable().optional(),
-}).transform(d => ({
-  ...d,
-  proveedor: d.proveedor ?? undefined,
-}));
-
-const empleadoSchema = z.object({
-  id: z.string(),
-  nombre: z.string(),
-  puesto: z.string(),
-  salarioDiario: z.number(),
-  tipo: z.enum(['planilla','destajo']).default('planilla'),
-  activo: z.boolean().default(true),
-  proyectoIds: z.array(z.string()).default([]),
-  telefono: z.string().nullable().optional(),
-  diasTrabajados: z.number().nullable().optional(),
-});
-
-const materialSchema = z.object({
-  id: z.string(),
-  nombre: z.string(),
-  unidad: z.string(),
-  stock: z.number(),
-  stockMinimo: z.number(),
-  precio: z.number(),
-  categoria: z.string(),
-  proyectoIds: z.array(z.string()).default([]),
-  critico: z.boolean().optional(),
-});
-
-const incidenteSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  tipo: z.enum(['accidente','cuasi-accidente','condicion_insegura','acto_inseguro']).default('acto_inseguro'),
-  fecha: z.string(),
-  hora: z.string().default('00:00'),
-  descripcion: z.string().default(''),
-  afectados: z.string().default(''),
-  testigos: z.string().nullable().optional(),
-  accionesInmediatas: z.string().nullable().optional(),
-  reportadoPor: z.string().default(''),
-  latitud: z.number().nullable().optional(),
-  longitud: z.number().nullable().optional(),
-  lat: z.number().nullable().optional(),
-  lng: z.number().nullable().optional(),
-  fotos: z.array(z.string()).default([]),
-  estado: z.enum(['abierto','investigacion','cerrado']).default('abierto'),
-});
 
 import { safeLogger } from '@/lib/safeLogger';
+import { scheduleHealthCheck } from '@/lib/store-health';
 
 function loadFromStorage<T>(key: string, initial: T): T {
   try {
@@ -705,6 +145,21 @@ function verificarEspacioStorage(tamanoNuevo: number): boolean {
   }
 
   return true;
+}
+
+function loadAndValidateFromStorage<T>(key: string, schema: z.ZodTypeAny, initial: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return initial;
+    const parsed = JSON.parse(raw);
+    const result = z.array(schema).safeParse(parsed);
+    if (result.success) return result.data as unknown as T;
+    safeLogger.warn(`[Storage] Validación fallida para ${key}, usando valores por defecto`);
+    return initial;
+  } catch {
+    safeLogger.warn(`[Storage] Datos corruptos en localStorage para key: ${key}. Usando valores por defecto.`);
+    return initial;
+  }
 }
 
 function saveToStorage<T>(key: string, data: T) {
@@ -791,7 +246,7 @@ const toSnake = (obj: Record<string, any>): Record<string, any> => {
 
 const snakeKeys = (obj: Record<string, any>): Record<string, any> => toSnake(obj);
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones';
 
  
 export function parseView(v: string): { root: View; sub?: string } {
@@ -827,9 +282,9 @@ export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeg
 
  
 export const ALLOWED: Record<Rol, View[]> = {
-  Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar', 'cotizaciones'],
-  Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar', 'cotizaciones'],
-  Residente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'apu', 'curvas', 'rendimientos', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'hitos', 'riesgos', 'ajustes', 'cotizaciones'],
+  Administrador: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar', 'cotizaciones'],
+  Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'curvas', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar', 'cotizaciones'],
+  Residente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'apu', 'curvas', 'baseprecios', 'reportes', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'hitos', 'riesgos', 'ajustes', 'cotizaciones'],
   Compras: ['dashboard', 'bodega', 'proyectos', 'cuentas-pagar', 'ajustes', 'cotizaciones'],
   Bodeguero: ['dashboard', 'bodega', 'ajustes'],
 };
@@ -843,6 +298,7 @@ interface Mutation {
   'addPresupuesto' | 'updatePresupuesto' | 'deletePresupuesto' |
   'addLicitacion' | 'updateLicitacion' | 'deleteLicitacion' |
   'addValeSalida' | 'deleteValeSalida' |
+  'addCotizacion' | 'updateCotizacion' | 'deleteCotizacion' |
   'addAvance' | 'deleteAvance' |
   'addSeguimiento' | 'updateSeguimiento' | 'deleteSeguimiento' |
   'addRenglon' | 'updateRenglon' | 'deleteRenglon' |
@@ -864,7 +320,8 @@ interface Mutation {
 'addNC' | 'updateNC' | 'deleteNC' |
    'addLiberacion' | 'updateLiberacion' | 'deleteLiberacion' |
    'addPublicacionMuro' | 'addComentarioMuro' | 'likePublicacionMuro' |
-   'addNotificacion' | 'markNotificacionLeida' | 'deleteLicitacion';
+   'addNotificacion' | 'markNotificacionLeida' | 'deleteLicitacion' |
+   'deleteNC';
   payload: Record<string, unknown>;
   timestamp: number;
   retryCount: number;
@@ -1032,8 +489,7 @@ export const uid = (): string => {
 };
 
 
-// Configurable: correo del administrador principal (cambiar en producción)
-const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'salazaroliveros@gmail.com';
 
 const mapRol = (rol: string, email?: string): Rol => {
   const validRoles: Rol[] = ['Administrador', 'Gerente', 'Residente', 'Compras', 'Bodeguero'];
@@ -1063,10 +519,12 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   // Auto-trigger forceSync cuando se recupera conexión
+  const forceSyncRef = useRef(forceSync);
+  forceSyncRef.current = forceSync;
   useEffect(() => {
     if (isOnline && mutationQueue.length > 0) {
       console.info(`[Sync] Conexión recuperada — sincronizando ${mutationQueue.length} cambios pendientes`);
-      forceSync();
+      forceSyncRef.current();
     }
   }, [isOnline, mutationQueue.length]);
 
@@ -1093,26 +551,102 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [auth.user, auth.error, initializing, view]);
 
-  const [proyectos, setProyectos] = useState<Proyecto[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_proyectos', []));
-  const [movimientos, setMovimientos] = useState<Movimiento[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_movimientos', []));
-  const [empleados, setEmpleados] = useState<Empleado[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_empleados', []));
-  const [materiales, setMateriales] = useState<Material[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_materiales', []));
-  const [ordenes, setOrdenes] = useState<OrdenCompra[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_ordenes', []));
-  const [proveedores, setProveedores] = useState<Proveedor[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_proveedores', []));
+  // Health check automático del store
+  useEffect(() => {
+    const cancelHealthCheck = scheduleHealthCheck(
+      () => ({
+        proyectos: proyectos.length,
+        movimientos: movimientos.length,
+        empleados: empleados.length,
+        materiales: materiales.length,
+        ordenes: ordenes.length,
+        presupuestos: presupuestos.length,
+        licitaciones: licitaciones.length,
+        cotizacionesNegocio: cotizacionesNegocio.length,
+        mutationQueue: mutationQueue.length,
+        notificaciones: notificaciones.length,
+        isOnline,
+        user: !!user,
+      }),
+      'ErpProvider',
+      600000
+    );
+    return cancelHealthCheck;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Fetch initial data from Supabase on first auth
+  const fetchedRef = useRef(false);
+  useEffect(() => {
+    if (user && !fetchedRef.current && hasSupabase) {
+      fetchedRef.current = true;
+      const fetchTable = async (tableName: string) => {
+        try {
+          const { data, error } = await supabase.from(tableName).select('*');
+          if (!error && data) return data as Record<string, unknown>[];
+        } catch {
+          // Silencioso — la app funciona offline
+        }
+        return null;
+      };
+      (async () => {
+        const [
+          pData, mData, eData, matData, oData, provData, presData,
+          ccData, cpData, ocData, hData, rData, licData, cotData,
+        ] = await Promise.all([
+          fetchTable('erp_proyectos'),
+          fetchTable('erp_movimientos'),
+          fetchTable('erp_empleados'),
+          fetchTable('erp_materiales'),
+          fetchTable('erp_ordenes_compra'),
+          fetchTable('erp_proveedores'),
+          fetchTable('erp_presupuestos'),
+          fetchTable('erp_cuentas_cobrar'),
+          fetchTable('erp_cuentas_pagar'),
+          fetchTable('erp_ordenes_cambio'),
+          fetchTable('erp_hitos'),
+          fetchTable('erp_riesgos'),
+          fetchTable('erp_licitaciones'),
+          fetchTable('erp_cotizaciones_negocio'),
+        ]);
+        if (pData) setProyectos(pData as Proyecto[]);
+        if (mData) setMovimientos(mData as Movimiento[]);
+        if (eData) setEmpleados(eData as Empleado[]);
+        if (matData) setMateriales(matData as Material[]);
+        if (oData) setOrdenes(oData as OrdenCompra[]);
+        if (provData) setProveedores(provData as Proveedor[]);
+        if (presData) setPresupuestos(presData as Presupuesto[]);
+        if (ccData) setCuentasCobrar(ccData as CuentaCobrar[]);
+        if (cpData) setCuentasPagar(cpData as CuentaPagar[]);
+        if (ocData) setOrdenesCambio(ocData as OrdenCambio[]);
+        if (hData) setHitos(hData as Hito[]);
+        if (rData) setRiesgos(rData as Riesgo[]);
+        if (licData) setLicitaciones(licData as Licitacion[]);
+        if (cotData) setCotizacionesNegocio(cotData as CotizacionCliente[]);
+      })();
+    }
+  }, [user]);
+
+  const [proyectos, setProyectos] = useState<Proyecto[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_proyectos', proyectoSchema, []));
+  const [movimientos, setMovimientos] = useState<Movimiento[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_movimientos', movimientoSchema, []));
+  const [empleados, setEmpleados] = useState<Empleado[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_empleados', empleadoSchema, []));
+  const [materiales, setMateriales] = useState<Material[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_materiales', materialSchema, []));
+  const [ordenes, setOrdenes] = useState<OrdenCompra[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_ordenes', ordenSchema, []));
+  const [proveedores, setProveedores] = useState<Proveedor[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_proveedores', proveedorSchema, []));
   const [eventos, setEventos] = useState<EventoCalendario[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_eventos', []));
   const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_bitacora', []));
-  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_presupuestos', []));
+  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_presupuestos', presupuestoSchema, []));
   const [selectedProyectoId, setSelectedProyectoId] = useState<string | null>(() => loadFromStorage(BASE_STORAGE_KEY + '_selected_proyecto_id', null));
-  const [licitaciones, setLicitaciones] = useState<Licitacion[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_licitaciones', []));
+  const [licitaciones, setLicitaciones] = useState<Licitacion[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_licitaciones', licitacionSchema, []));
   const [avances, setAvances] = useState<AvanceObra[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_avances', []));
   const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_vales_salida', []));
   const [seguimientoEVM, setSeguimientoEVM] = useState<SeguimientoEVM[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_seguimiento_evm', []));
   const [notifiedEventos, setNotifiedEventos] = useState<string[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_notified_eventos', []));
-  const [cuentasCobrar, setCuentasCobrar] = useState<CuentaCobrar[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_cuentas_cobrar', []));
-  const [cuentasPagar, setCuentasPagar] = useState<CuentaPagar[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_cuentas_pagar', []));
-  const [ordenesCambio, setOrdenesCambio] = useState<OrdenCambio[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_ordenes_cambio', []));
-  const [hitos, setHitos] = useState<Hito[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_hitos', []));
-  const [riesgos, setRiesgos] = useState<Riesgo[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_riesgos', []));
+  const [cuentasCobrar, setCuentasCobrar] = useState<CuentaCobrar[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_cuentas_cobrar', cuentaCobrarSchema, []));
+  const [cuentasPagar, setCuentasPagar] = useState<CuentaPagar[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_cuentas_pagar', cuentaPagarSchema, []));
+  const [ordenesCambio, setOrdenesCambio] = useState<OrdenCambio[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_ordenes_cambio', ordenCambioSchema, []));
+  const [hitos, setHitos] = useState<Hito[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_hitos', hitoSchema, []));
+  const [riesgos, setRiesgos] = useState<Riesgo[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_riesgos', riesgoSchema, []));
   const [incidentes, setIncidentes] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_incidentes', []));
   const [publicacionesMuro, setPublicacionesMuro] = useState<PublicacionMuro[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_publicaciones_muro', []));
   const [pruebas, setPruebas] = useState<PruebaLaboratorio[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_pruebas', []));
@@ -1124,8 +658,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activos, setActivos] = useState<ActivoHerramienta[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_activos', []));
   const [cuadros, setCuadros] = useState<CuadroComparativo[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_cuadros', []));
   const [pagosProveedor, setPagosProveedor] = useState<PagoProveedor[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_pagos_proveedor', []));
-  const [subcontratos, _setSubcontratos] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_subcontratos', []));
-  const [cotizacionesNegocio, setCotizacionesNegocio] = useState<CotizacionCliente[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', []));
+  const [cotizacionesNegocio, setCotizacionesNegocio] = useState<CotizacionCliente[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', cotizacionSchema, []));
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
   const [syncMessage, setSyncMessage] = useState('');
@@ -1195,7 +728,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           addActivo: 'erp_activos_herramienta', updateActivo: 'erp_activos_herramienta',
           addCuadro: 'erp_cuadros_comparativos', updateCuadro: 'erp_cuadros_comparativos',
           addPagoProveedor: 'erp_pagos_proveedores', updatePagoProveedor: 'erp_pagos_proveedores',
-          addNotificacion: 'erp_notificaciones', markNotificacionLeida: 'erp_notificaciones',
+           addCotizacion: 'cotizaciones_negocio', updateCotizacion: 'cotizaciones_negocio', deleteCotizacion: 'cotizaciones_negocio',
+           addNotificacion: 'erp_notificaciones', markNotificacionLeida: 'erp_notificaciones',
         };
 
         const table = tableMap[mutation.type];
@@ -1431,8 +965,18 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const handleUpdateOrden = useCallback(async (id: string, estado: OrdenCompra['estado']) => {
     setOrdenes(prev => prev.map(p => p.id === id ? { ...p, estado } : p));
+    if (estado === 'aprobado' || estado === 'recibida') {
+      const orden = ordenes.find(o => o.id === id);
+      if (orden?.items?.length) {
+        orden.items.forEach(item => {
+          setMateriales(prev => prev.map(m =>
+            m.id === item.materialId ? { ...m, stock: m.stock + item.cantidad } : m
+          ));
+        });
+      }
+    }
     enqueueMutation('updateOrden', { id, estado });
-  }, [enqueueMutation]);
+  }, [enqueueMutation, ordenes]);
 
   const handleAddProveedor = useCallback(async (p: Omit<Proveedor, 'id'>) => {
     const nuevo = { ...p, id: uid() };
@@ -1517,17 +1061,17 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const handleAddCotizacion = useCallback(async (c: Omit<CotizacionCliente, 'id' | 'createdAt' | 'updatedAt'>) => {
     const nuevo = { ...c, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     setCotizacionesNegocio(prev => [nuevo, ...prev]);
-    enqueueMutation('addLicitacion', nuevo);
+    enqueueMutation('addCotizacion', nuevo);
   }, [enqueueMutation]);
 
   const handleUpdateCotizacion = useCallback(async (id: string, patch: Partial<CotizacionCliente>) => {
     setCotizacionesNegocio(prev => prev.map(p => p.id === id ? { ...p, ...patch, updatedAt: new Date().toISOString() } : p));
-    enqueueMutation('updateLicitacion', { id, ...patch });
+    enqueueMutation('updateCotizacion', { id, ...patch });
   }, [enqueueMutation]);
 
   const handleDeleteCotizacion = useCallback(async (id: string) => {
     setCotizacionesNegocio(prev => prev.filter(p => p.id !== id));
-    enqueueMutation('deleteLicitacion', { id });
+    enqueueMutation('deleteCotizacion', { id });
   }, [enqueueMutation]);
 
   const handleAddAvance = useCallback(async (a: Omit<AvanceObra, 'id'>) => {
@@ -1542,10 +1086,21 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [enqueueMutation]);
 
   const handleAddValeSalida = useCallback(async (v: Omit<ValeSalida, 'id'>) => {
+    for (const item of v.items) {
+      const mat = materiales.find(m => m.id === item.materialId);
+      if (!mat || mat.stock < item.cantidad) {
+        throw new Error(`Stock insuficiente: ${mat?.nombre ?? item.materialId} (disponible: ${mat?.stock ?? 0}, requerido: ${item.cantidad})`);
+      }
+    }
     const nuevo = { ...v, id: uid() };
+    v.items.forEach(item => {
+      setMateriales(prev => prev.map(m =>
+        m.id === item.materialId ? { ...m, stock: m.stock - item.cantidad } : m
+      ));
+    });
     setValesSalida(prev => [nuevo, ...prev]);
     enqueueMutation('addValeSalida', nuevo);
-  }, [enqueueMutation]);
+  }, [enqueueMutation, materiales]);
 
   const handleDeleteValeSalida = useCallback(async (id: string) => {
     setValesSalida(prev => prev.filter(p => p.id !== id));

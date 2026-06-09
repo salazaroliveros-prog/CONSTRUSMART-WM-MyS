@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_DANGER, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
 import { fmtQ, fmtPct, EMPRESA } from '../utils';
+import { exportCotizacionPDF } from '../export';
 import { Plus, X, Send, FileText, Trash2, Pencil, Eye, Copy, CheckCircle2, Clock, Archive } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -267,6 +268,9 @@ const Cotizaciones: React.FC = () => {
                           <Send className="w-3 h-3" /> Enviar
                         </button>
                       )}
+                      <button onClick={() => { exportCotizacionPDF(c); }} className="text-xs bg-emerald-500 text-white px-2 py-1 rounded hover:bg-emerald-600 flex items-center gap-1">
+                        <FileText className="w-3 h-3" /> PDF
+                      </button>
                       <button onClick={() => openEdit(c)} className="text-xs bg-muted text-foreground px-2 py-1 rounded hover:bg-muted/80 flex items-center gap-1">
                         <Pencil className="w-3 h-3" /> Editar
                       </button>

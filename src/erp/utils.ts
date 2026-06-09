@@ -77,6 +77,12 @@ export const TIPOLOGIA_LABEL: Record<Tipologia, string> = {
 export const EMPRESA = {
   nombre: 'CONSTRUCTORA WM / M&S',
   eslogan: 'Edificando el Futuro',
+  nit: '1234567-8',
+  telefono: '(502) 1234-5678',
+  email: 'info@construsmart.gt',
+  direccion: 'Ciudad de Guatemala, Guatemala',
+  ciudad: 'Guatemala',
+  pais: 'Guatemala',
 };
 
 export const todayISO = () => new Date().toISOString().slice(0, 10);

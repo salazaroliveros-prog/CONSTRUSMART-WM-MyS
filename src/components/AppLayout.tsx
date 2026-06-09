@@ -1,6 +1,8 @@
 import React, { Suspense, lazy, useEffect, createContext, useContext, useState } from 'react';
 import { ErpProvider, useErp } from '@/erp/store';
 import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
+import { useSessionTimeout } from '@/hooks/useSessionTimeout';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import Header from '@/erp/components/Header';
 import Sidebar from '@/erp/components/Sidebar';
 import Login from '@/erp/screens/Login';
@@ -51,7 +53,6 @@ const Bodega             = lazy(() => import('@/erp/screens/Bodega'));
 const CRM                = lazy(() => import('@/erp/screens/CRM'));
 const APUAvanzado        = lazy(() => import('@/erp/screens/APUAvanzado'));
 const CurvasS            = lazy(() => import('@/erp/screens/CurvasS'));
-const Rendimientos       = lazy(() => import('@/erp/screens/RendimientoCampo'));
 const BasePrecios        = lazy(() => import('@/erp/screens/BasePrecios'));
 const ReportesTecnicos   = lazy(() => import('@/erp/screens/ReportesTecnicos'));
 const MuroObra           = lazy(() => import('@/erp/screens/MuroObra'));
@@ -92,19 +93,31 @@ const AppLoader: React.FC = () => (
 );
 
 const Shell: React.FC = () => {
-  const { view, initializing, appSettings, user, allowedViews, setView } = useErp();
+  const { view, initializing, appSettings, user, allowedViews, setView, forceSync } = useErp();
   const { sidebarOpen, toggleSidebar, closeSidebar, sidebarCollapsed } = useAppContext();
+
+  // Monitoreo de inactividad — cierre automático de sesión
+  useSessionTimeout({
+    timeout: 30 * 60 * 1000,
+    showWarning: true,
+    warningLeadTime: 60 * 1000,
+    onSessionExpired: () => {
+      console.info('[Session] Sesión expirada por inactividad');
+    },
+  });
 
   // Conexión Realtime en tiempo real para datos ERP
   useSupabaseRealtime({
     tablas: [
       'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
-      'erp_notificaciones', 'erp_muro',
+      'erp_notificaciones', 'erp_publicaciones_muro',
+      'erp_presupuestos', 'erp_ordenes_compra', 'erp_avances', 'erp_vales_salida',
+      'cotizaciones_negocio',
     ],
     enabled: !!user && view !== 'login',
     onCambio: (payload) => {
-      // Los cambios Realtime activan recarga de datos via auto-logger
       console.log(`[Realtime] ${payload.tabla}: ${payload.tipo} (${payload.id})`);
+      if (forceSync) forceSync();
     },
   });
 
@@ -143,7 +156,6 @@ const Shell: React.FC = () => {
     crm:               <CRM />,
     apu:               <APUAvanzado />,
     curvas:            <CurvasS />,
-    rendimientos:      <Rendimientos />,
     baseprecios:       <BasePrecios />,
     reportes:          <ReportesTecnicos />,
     muro:              <MuroObra />,
@@ -171,7 +183,8 @@ const Shell: React.FC = () => {
 
   // P3: Solo renderizar screens permitidas para el rol
   const allAllowedScreens = Object.keys(screens).filter(key => allowedViews.includes(key as any));
-  const safeScreen = allAllowedScreens.includes(viewName) ? screens[viewName] : screens['dashboard'];
+  const resolvedView = viewName === 'rendimientos' ? 'rendimiento-campo' : viewName;
+  const safeScreen = allAllowedScreens.includes(resolvedView) ? screens[resolvedView] : screens['dashboard'];
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
@@ -185,9 +198,11 @@ const Shell: React.FC = () => {
           aria-label="Contenido principal"
         >
           <div key={view} className="animate-enter">
-            <Suspense fallback={<ScreenLoader />}>
-              {safeScreen}
-            </Suspense>
+            <ErrorBoundary moduleName={viewName}>
+              <Suspense fallback={<ScreenLoader />}>
+                {safeScreen}
+              </Suspense>
+            </ErrorBoundary>
           </div>
         </main>
       </div>

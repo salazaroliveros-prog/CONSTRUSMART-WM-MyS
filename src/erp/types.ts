@@ -234,7 +234,7 @@ export interface OrdenCompra {
   cantidad: number;
   monto: number;
   fecha: string;
-  estado: 'pendiente' | 'aprobado' | 'recibida' | 'rechazado' | 'cancelada';
+  estado: 'borrador' | 'pendiente' | 'aprobado' | 'recibida' | 'rechazado' | 'cancelada';
   proveedorId?: string;
   total?: number;
   items?: { materialId: string; cantidad: number; precioUnitario: number }[];
