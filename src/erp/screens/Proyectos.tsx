@@ -12,6 +12,7 @@ import HeatMap from '../components/HeatMap';
 import { INPUT, BUTTON_PRIMARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER } from '../ui';
 import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, AlertCircle, ChevronRight } from 'lucide-react';
 import { message } from 'antd';
+import { toast } from 'sonner';
 
 const proyectoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -111,6 +112,7 @@ const Proyectos: React.FC = () => {
     try {
       if (editingId) {
         updateProyecto(editingId, { ...data, lat: coords.lat, lng: coords.lng });
+        toast.success(`Proyecto "${data.nombre}" actualizado`, { description: 'Cambios guardados correctamente' });
       } else {
         addProyecto({
           ...data,
@@ -120,13 +122,14 @@ const Proyectos: React.FC = () => {
           lng: coords.lng || -90.5069,
           moneda: data.moneda || 'GTQ',
         });
+        toast.success(`Proyecto "${data.nombre}" creado`, { description: 'Proyecto registrado exitosamente' });
       }
       reset();
       setEditingId(null);
       setCoords({});
       setShow(false);
     } catch {
-      message.error('No se pudo guardar. Se reintentará cuando haya conexión.');
+      toast.error('No se pudo guardar', { description: 'Se reintentará cuando haya conexión.' });
     } finally {
       setSubmitting(false);
     }
@@ -210,18 +213,23 @@ const Proyectos: React.FC = () => {
     switch (accion) {
       case 'iniciar':
         updateProyecto(p.id, { estado: 'ejecucion', etapa: 'preconstruccion', fechaInicioReal: todayISO() });
+        toast.success(`Proyecto "${p.nombre}" iniciado`, { description: 'Estado cambiado a Ejecución' });
         break;
       case 'pausar':
         updateProyecto(p.id, { estado: 'pausado' });
+        toast.warning(`Proyecto "${p.nombre}" pausado`, { description: 'Estado cambiado a Pausado' });
         break;
       case 'reanudar':
         updateProyecto(p.id, { estado: 'ejecucion' });
+        toast.success(`Proyecto "${p.nombre}" reanudado`, { description: 'Estado cambiado a Ejecución' });
         break;
       case 'finalizar':
         updateProyecto(p.id, { estado: 'finalizado', etapa: 'cierre', avanceFisico: 100, avanceFinanciero: 100, fechaFinEstimada: todayISO() });
+        toast.success(`Proyecto "${p.nombre}" finalizado`, { description: 'Estado cambiado a Finalizado' });
         break;
       case 'reabrir':
         updateProyecto(p.id, { estado: 'planeacion', etapa: 'planificacion', avanceFisico: 0, avanceFinanciero: 0 });
+        toast.info(`Proyecto "${p.nombre}" reabierto`, { description: 'Estado cambiado a Planeación' });
         break;
     }
   };
