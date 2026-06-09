@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
     </div>
   );
 
-  const loading = proyectos.length === 0 && movimientos.length === 0;
+  const loading = proyectos.length === 0;
 
   return (
     <div className="h-full flex flex-col p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto overflow-hidden">
