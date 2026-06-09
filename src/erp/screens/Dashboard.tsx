@@ -31,27 +31,22 @@ const Dashboard: React.FC = () => {
 
   const avanceData = useMemo(() => {
     const steps = 8;
-    if (avances.length === 0) {
+    const data = selectedProyectoId
+      ? avances.filter(a => a.proyectoId === selectedProyectoId)
+      : avances;
+    if (data.length === 0) {
       return { prog: Array(steps).fill(0), real: Array(steps).fill(0) };
     }
     const prog = [0];
     const real = [0];
-    const stepSize = Math.floor(avances.length / (steps - 1)) || 1;
+    const stepSize = Math.floor(data.length / (steps - 1)) || 1;
     for (let i = 1; i < steps - 1; i++) {
       const idx = i * stepSize;
-      const slice = avances.filter(a => a.proyectoId === (selectedProyectoId || undefined));
-      if (slice.length > 0) {
-        const avgAvance = slice.slice(0, Math.min(idx, slice.length)).reduce((s, a) => s + a.avanceFisico, 0) / Math.min(idx, slice.length);
-        prog.push(Math.round((idx / Math.max(slice.length, 1)) * 100));
-        real.push(Math.round(avgAvance));
-      } else {
-        prog.push(Math.round((idx / Math.max(avances.length, 1)) * 100));
-        real.push(Math.round(avances.slice(0, idx).reduce((s, a) => s + a.avanceFisico, 0) / Math.max(idx, 1)));
-      }
+      prog.push(Math.round((idx / data.length) * 100));
+      real.push(Math.round(data.slice(0, idx).reduce((s, a) => s + a.avanceFisico, 0) / Math.max(idx, 1)));
     }
     prog.push(100);
-    const lastSlice = avances.slice(0, avances.length);
-    real.push(Math.round(lastSlice.reduce((s, a) => s + a.avanceFisico, 0) / Math.max(lastSlice.length, 1)));
+    real.push(Math.round(data.reduce((s, a) => s + a.avanceFisico, 0) / Math.max(data.length, 1)));
     return { prog, real };
   }, [avances, selectedProyectoId]);
 

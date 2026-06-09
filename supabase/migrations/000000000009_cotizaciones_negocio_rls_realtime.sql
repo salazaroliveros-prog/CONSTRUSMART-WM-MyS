@@ -1,7 +1,7 @@
 -- Enable RLS
-ALTER TABLE cotizaciones_negocio ENABLE ROW LEVEL SECURITY;
+ALTER TABLE erp_cotizaciones_negocio ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "cotizaciones_negocio_access" ON cotizaciones_negocio
+CREATE POLICY "cotizaciones_negocio_access" ON erp_cotizaciones_negocio
   FOR ALL TO authenticated
   USING (
     EXISTS (
@@ -12,4 +12,4 @@ CREATE POLICY "cotizaciones_negocio_access" ON cotizaciones_negocio
   );
 
 -- Enable realtime
-ALTER PUBLICATION supabase_realtime ADD TABLE cotizaciones_negocio;
+ALTER PUBLICATION supabase_realtime ADD TABLE erp_cotizaciones_negocio;

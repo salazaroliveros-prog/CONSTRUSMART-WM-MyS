@@ -728,7 +728,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           addActivo: 'erp_activos_herramienta', updateActivo: 'erp_activos_herramienta',
           addCuadro: 'erp_cuadros_comparativos', updateCuadro: 'erp_cuadros_comparativos',
           addPagoProveedor: 'erp_pagos_proveedores', updatePagoProveedor: 'erp_pagos_proveedores',
-           addCotizacion: 'cotizaciones_negocio', updateCotizacion: 'cotizaciones_negocio', deleteCotizacion: 'cotizaciones_negocio',
+           addLicitacion: 'erp_licitaciones', updateLicitacion: 'erp_licitaciones', deleteLicitacion: 'erp_licitaciones',
+           addCotizacion: 'erp_cotizaciones_negocio', updateCotizacion: 'erp_cotizaciones_negocio', deleteCotizacion: 'erp_cotizaciones_negocio',
            addNotificacion: 'erp_notificaciones', markNotificacionLeida: 'erp_notificaciones',
         };
 

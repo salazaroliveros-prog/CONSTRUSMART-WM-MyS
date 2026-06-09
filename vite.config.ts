@@ -16,6 +16,9 @@ export default defineConfig(({ mode: _mode }) => ({
     host: "::",
     port: 8080,
   },
+  optimizeDeps: {
+    include: ["antd", "@ant-design/icons"],
+  },
   build: {
     chunkSizeWarningLimit: 2000,
     rollupOptions: {
@@ -23,7 +26,6 @@ export default defineConfig(({ mode: _mode }) => ({
         manualChunks: {
           three: ["three"],
           "web-ifc": ["web-ifc"],
-          antd: ["antd", "@ant-design/icons"],
         },
       },
     },

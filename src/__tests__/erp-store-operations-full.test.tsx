@@ -1048,11 +1048,11 @@ describe('13. Realtime y Suscripciones', () => {
       'erp_ordenes_compra',
       'erp_avances',
       'erp_vales_salida',
-      'cotizaciones_negocio',
+      'erp_cotizaciones_negocio',
     ];
     expect(tablasRealtime).toHaveLength(6);
-    expect(tablasRealtime).toContain('cotizaciones_negocio');
-    expect(tablasRealtime).not.toContain('erp_cotizaciones_negocio');
+    expect(tablasRealtime).toContain('erp_cotizaciones_negocio');
+    expect(tablasRealtime).not.toContain('cotizaciones_negocio');
   });
 
   it('13.2 onCambio forceSync existe como callback', () => {
