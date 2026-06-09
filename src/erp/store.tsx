@@ -1057,6 +1057,10 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (auth.user) {
       setAuthState({ user: auth.user as ErpState['user'], error: '' });
+      // Si hay usuario autenticado, ir al dashboard
+      if (view === 'login') {
+        setView('dashboard');
+      }
     } else {
       setAuthState({ user: null, error: auth.error });
     }
@@ -1066,7 +1070,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Permitir toasts después de la primera carga
       setTimeout(() => { readyRef.current = true; }, 1000);
     }
-  }, [auth.user, auth.error, initializing]);
+  }, [auth.user, auth.error, initializing, view]);
 
   const [proyectos, setProyectos] = useState<Proyecto[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_proyectos', []));
   const [movimientos, setMovimientos] = useState<Movimiento[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_movimientos', []));
