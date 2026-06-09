@@ -612,20 +612,25 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         } catch (networkError) {
           log('warn', 'store', 'fetchInitialData falló por red; se continúa en modo offline', { error: String(networkError) });
         }
-        if (pData) setProyectos(pData as Proyecto[]);
-        if (mData) setMovimientos(mData as Movimiento[]);
-        if (eData) setEmpleados(eData as Empleado[]);
-        if (matData) setMateriales(matData as Material[]);
-        if (oData) setOrdenes(oData as OrdenCompra[]);
-        if (provData) setProveedores(provData as Proveedor[]);
-        if (presData) setPresupuestos(presData as Presupuesto[]);
-        if (ccData) setCuentasCobrar(ccData as CuentaCobrar[]);
-        if (cpData) setCuentasPagar(cpData as CuentaPagar[]);
-        if (ocData) setOrdenesCambio(ocData as OrdenCambio[]);
-        if (hData) setHitos(hData as Hito[]);
-        if (rData) setRiesgos(rData as Riesgo[]);
-        if (licData) setLicitaciones(licData as Licitacion[]);
-        if (cotData) setCotizacionesNegocio(cotData as CotizacionCliente[]);
+        const assign = (setter: (v: any[]) => void, raw: any[] | null, fallback: any[] = []) => {
+          if (!Array.isArray(raw)) return setter(fallback);
+          const normalized = raw.map((item: any) => (typeof item === 'object' && item !== null ? item : {}));
+          setter(normalized);
+        };
+        if (pData) assign((v) => setProyectos(v as Proyecto[]), pData);
+        if (mData) assign((v) => setMovimientos(v as Movimiento[]), mData);
+        if (eData) assign((v) => setEmpleados(v as Empleado[]), eData);
+        if (matData) assign((v) => setMateriales(v as Material[]), matData);
+        if (oData) assign((v) => setOrdenes(v as OrdenCompra[]), oData);
+        if (provData) assign((v) => setProveedores(v as Proveedor[]), provData);
+        if (presData) assign((v) => setPresupuestos(v as Presupuesto[]), presData);
+        if (ccData) assign((v) => setCuentasCobrar(v as CuentaCobrar[]), ccData);
+        if (cpData) assign((v) => setCuentasPagar(v as CuentaPagar[]), cpData);
+        if (ocData) assign((v) => setOrdenesCambio(v as OrdenCambio[]), ocData);
+        if (hData) assign((v) => setHitos(v as Hito[]), hData);
+        if (rData) assign((v) => setRiesgos(v as Riesgo[]), rData);
+        if (licData) assign((v) => setLicitaciones(v as Licitacion[]), licData);
+        if (cotData) assign((v) => setCotizacionesNegocio(v as CotizacionCliente[]), cotData);
       })();
     }
   }, [user]);
