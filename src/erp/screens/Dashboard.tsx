@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useErp, type View } from '../store';
 import { fmtQ, fmtPct } from '../utils';
 import KpiCard from '../components/KpiCard';
@@ -11,9 +11,18 @@ import { Building2, TrendingUp, DollarSign, AlertTriangle, Activity, Calculator,
 import { CARD, CARD_TITLE } from '../ui';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
+const SAFE_STEPS = 8;
 
 const Dashboard: React.FC = () => {
-  const { proyectos, movimientos, avances, selectedProyectoId, setView } = useErp();
+  const ctx = useErp();
+  if (!ctx) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-sm text-muted-foreground">No se pudo cargar el panel. Reintente nuevamente.</p>
+      </div>
+    );
+  }
+  const { proyectos, movimientos, avances, selectedProyectoId, setView } = ctx;
   const [filtroProy, setFiltroProy] = useState('');
   const curvaConfig = useChartConfig('area', 'cool');
 

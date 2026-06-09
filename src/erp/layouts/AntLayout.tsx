@@ -103,11 +103,11 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       )}
       <Sider
         collapsible
-        collapsed={collapsed}
-        onCollapse={setCollapsed}
+        collapsed={isMobile ? false : collapsed}
+        onCollapse={(c) => { if (!isMobile) setCollapsed(c); else setCollapsed(false); }}
         trigger={null}
         width={240}
-        collapsedWidth={isMobile ? 0 : 64}
+        collapsedWidth={isMobile ? 240 : 64}
         style={{
           background: token.colorBgContainer,
           borderRight: `1px solid ${token.colorBorder}`,

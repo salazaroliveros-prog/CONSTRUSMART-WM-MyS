@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import LoaderSpinner from "@/components/LoaderSpinner";
@@ -15,7 +15,6 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
-// Leer si el tema activo es dark
 function getIsDark(): boolean {
   try {
     const theme = localStorage.getItem('wm_erp_theme') || '';
@@ -35,10 +34,8 @@ const App = () => {
   );
 
   useEffect(() => {
-    // Escuchar custom event disparado por updateAppSettings (misma pestaña)
     const onThemeChange = () => setThemeMode(getIsDark() ? 'dark' : 'light');
     window.addEventListener('wm-theme-changed', onThemeChange);
-    // También escuchar storage (otras pestañas)
     const onStorage = (e: StorageEvent) => {
       if (e.key === 'wm_erp_theme' || e.key === 'wm_erp_data_settings')
         onThemeChange();
@@ -61,7 +58,7 @@ const App = () => {
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index />} />
-                  <Route path="*" element={<NotFound />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </BrowserRouter>
             </ErrorBoundary>

@@ -1,0 +1,448 @@
+- generic [ref=e3]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - button "Abrir menú" [ref=e7] [cursor=pointer]:
+          - img [ref=e8]
+        - img "WM" [ref=e10]
+        - generic [ref=e11]:
+          - generic [ref=e12]: CONSTRUCTORA WM / M&S
+          - generic [ref=e13]: Edificando el Futuro
+      - generic [ref=e14]:
+        - button "Notificaciones" [ref=e15] [cursor=pointer]:
+          - img [ref=e16]
+        - button "Cambiar foto de perfil" [ref=e19] [cursor=pointer]:
+          - img "wilson salazar" [ref=e20]
+          - img [ref=e22]
+        - button "Cerrar sesión" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+    - generic [ref=e29]:
+      - complementary [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]: Módulos
+          - button "Cerrar menú" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+        - generic [ref=e38]:
+          - generic [ref=e40]: W
+          - generic [ref=e41]:
+            - paragraph [ref=e42]: wilson salazar
+            - paragraph [ref=e43]: Administrador
+        - navigation "Navegación principal" [ref=e44]:
+          - generic [ref=e45]:
+            - generic [ref=e46]:
+              - generic [ref=e49]: Principal
+              - generic [ref=e50]:
+                - button "Tablero" [ref=e51] [cursor=pointer]:
+                  - img [ref=e52]
+                  - generic [ref=e57]: Tablero
+                - button "Proyectos" [ref=e58] [cursor=pointer]:
+                  - img [ref=e59]
+                  - generic [ref=e63]: Proyectos
+                - button "CRM / Pipeline" [ref=e64] [cursor=pointer]:
+                  - img [ref=e65]
+                  - generic [ref=e69]: CRM / Pipeline
+                - button "Cotizaciones" [ref=e70] [cursor=pointer]:
+                  - img [ref=e71]
+                  - generic [ref=e74]: Cotizaciones
+            - generic [ref=e75]:
+              - generic [ref=e79]: Planificación
+              - generic [ref=e80]:
+                - button "Presupuestos APU" [ref=e81] [cursor=pointer]:
+                  - img [ref=e82]
+                  - generic [ref=e84]: Presupuestos APU
+                - button "APU Avanzado" [ref=e85] [cursor=pointer]:
+                  - img [ref=e86]
+                  - generic [ref=e89]: APU Avanzado
+                - button "Base de Precios" [ref=e90] [cursor=pointer]:
+                  - img [ref=e91]
+                  - generic [ref=e93]: Base de Precios
+                - button "Hitos" [ref=e94] [cursor=pointer]:
+                  - img [ref=e95]
+                  - generic [ref=e97]: Hitos
+                - button "Riesgos" [ref=e98] [cursor=pointer]:
+                  - img [ref=e99]
+                  - generic [ref=e101]: Riesgos
+            - generic [ref=e102]:
+              - generic [ref=e106]: Ejecución
+              - generic [ref=e107]:
+                - button "Seguimiento EVM" [ref=e108] [cursor=pointer]:
+                  - img [ref=e109]
+                  - generic [ref=e113]: Seguimiento EVM
+                - button "Curvas S" [ref=e114] [cursor=pointer]:
+                  - img [ref=e115]
+                  - generic [ref=e118]: Curvas S
+                - button "Rendimiento Campo" [ref=e119] [cursor=pointer]:
+                  - img [ref=e120]
+                  - generic [ref=e125]: Rendimiento Campo
+                - button "SSO & Calidad" [ref=e126] [cursor=pointer]:
+                  - img [ref=e127]
+                  - generic [ref=e130]: SSO & Calidad
+                - button "Muro de Obra" [ref=e131] [cursor=pointer]:
+                  - img [ref=e132]
+                  - generic [ref=e135]: Muro de Obra
+                - button "Órdenes de Cambio" [ref=e136] [cursor=pointer]:
+                  - img [ref=e137]
+                  - generic [ref=e141]: Órdenes de Cambio
+                - button "Documentos" [ref=e142] [cursor=pointer]:
+                  - img [ref=e143]
+                  - generic [ref=e145]: Documentos
+                - button "Visor BIM" [ref=e146] [cursor=pointer]:
+                  - img [ref=e147]
+                  - generic [ref=e150]: Visor BIM
+            - generic [ref=e151]:
+              - generic [ref=e155]: Suministro
+              - generic [ref=e156]:
+                - button "Bodega" [ref=e157] [cursor=pointer]:
+                  - img [ref=e158]
+                  - generic [ref=e161]: Bodega
+                - button "Logística/Compras" [ref=e162] [cursor=pointer]:
+                  - img [ref=e163]
+                  - generic [ref=e168]: Logística/Compras
+                - button "Entradas Almacén" [ref=e169] [cursor=pointer]:
+                  - img [ref=e170]
+                  - generic [ref=e174]: Entradas Almacén
+            - generic [ref=e175]:
+              - generic [ref=e179]: RRHH
+              - generic [ref=e180]:
+                - button "RRHH" [ref=e181] [cursor=pointer]:
+                  - img [ref=e182]
+                  - generic [ref=e187]: RRHH
+                - button "Planilla Destajos" [ref=e188] [cursor=pointer]:
+                  - img [ref=e189]
+                  - generic [ref=e192]: Planilla Destajos
+            - generic [ref=e193]:
+              - generic [ref=e197]: Finanzas
+              - generic [ref=e198]:
+                - button "Financiero" [ref=e199] [cursor=pointer]:
+                  - img [ref=e200]
+                  - generic [ref=e203]: Financiero
+                - button "Comercial/Finanzas" [ref=e204] [cursor=pointer]:
+                  - img [ref=e205]
+                  - generic [ref=e207]: Comercial/Finanzas
+                - button "Cuentas x Cobrar" [ref=e208] [cursor=pointer]:
+                  - img [ref=e209]
+                  - generic [ref=e211]: Cuentas x Cobrar
+                - button "Cuentas x Pagar" [ref=e212] [cursor=pointer]:
+                  - img [ref=e213]
+                  - generic [ref=e215]: Cuentas x Pagar
+                - button "Impuestos" [ref=e216] [cursor=pointer]:
+                  - img [ref=e217]
+                  - generic [ref=e221]: Impuestos
+            - generic [ref=e222]:
+              - generic [ref=e226]: Análisis BI
+              - generic [ref=e227]:
+                - button "Dashboard BI" [ref=e228] [cursor=pointer]:
+                  - img [ref=e229]
+                  - generic [ref=e232]: Dashboard BI
+                - button "Exportación" [ref=e233] [cursor=pointer]:
+                  - img [ref=e234]
+                  - generic [ref=e237]: Exportación
+                - button "Reportes Técnicos" [ref=e238] [cursor=pointer]:
+                  - img [ref=e239]
+                  - generic [ref=e241]: Reportes Técnicos
+            - generic [ref=e242]:
+              - generic [ref=e246]: Sistema
+              - generic [ref=e247]:
+                - button "Notificaciones" [ref=e248] [cursor=pointer]:
+                  - img [ref=e249]
+                  - generic [ref=e252]: Notificaciones
+                - button "Administración" [ref=e253] [cursor=pointer]:
+                  - img [ref=e254]
+                  - generic [ref=e266]: Administración
+                - button "Ajustes" [ref=e267] [cursor=pointer]:
+                  - img [ref=e268]
+                  - generic [ref=e271]: Ajustes
+        - generic [ref=e273]:
+          - paragraph [ref=e274]: CONSTRUSMART ERP
+          - paragraph [ref=e275]: Edificando el Futuro
+      - main "Contenido principal" [ref=e276]:
+        - generic [ref=e278]:
+          - generic [ref=e279]:
+            - generic [ref=e280]:
+              - heading "Tablero" [level=1] [ref=e281]
+              - paragraph [ref=e282]: Métricas en tiempo real
+            - combobox "Filtrar por proyecto" [ref=e283]:
+              - option "Todos" [selected]
+              - option "Puente Vehicula"
+              - option "Edificio Corpor"
+              - option "Residencial Las"
+              - option "Proyecto Test K"
+              - option "Proyecto Test P"
+              - option "Proyecto E2E Co"
+              - option "Edificio Reside"
+              - option "Edificio Reside"
+              - option "Edificio Reside"
+              - option "Edificio Reside"
+          - generic [ref=e284]:
+            - generic [ref=e285]:
+              - generic [ref=e287]:
+                - img [ref=e289]
+                - generic [ref=e292]: ↑ Prom.
+              - generic [ref=e293]:
+                - generic [ref=e294]: 12.2%
+                - generic [ref=e295]: Margen Util.
+            - generic [ref=e296]:
+              - generic [ref=e298]:
+                - img [ref=e300]
+                - generic [ref=e304]: ↑ 10 total
+              - generic [ref=e305]:
+                - generic [ref=e306]: "8"
+                - generic [ref=e307]: Proyectos
+            - generic [ref=e308]:
+              - img [ref=e312]
+              - generic [ref=e314]:
+                - generic [ref=e315]: Q 204.000.000
+                - generic [ref=e316]: Presupuesto
+            - generic [ref=e317]:
+              - generic [ref=e319]:
+                - img [ref=e321]
+                - generic [ref=e323]: ↑ Sano
+              - generic [ref=e324]:
+                - generic [ref=e325]: "-3.5%"
+                - generic [ref=e326]: Desviación
+          - generic [ref=e327]:
+            - generic [ref=e328]:
+              - generic [ref=e329]:
+                - heading "Curva S" [level=3] [ref=e330]:
+                  - img [ref=e331]
+                  - text: Curva S
+                - generic [ref=e333]:
+                  - generic [ref=e334]:
+                    - generic [ref=e335]: Prog
+                    - generic [ref=e337]: Real
+                  - button "Configurar gráfica" [ref=e340] [cursor=pointer]:
+                    - img [ref=e341]
+              - 'img "Gráfico Curva S: avance programado vs real" [ref=e344]':
+                - img "Gráfico configurable" [ref=e345]:
+                  - generic [ref=e364]: E
+                  - generic [ref=e365]: F
+                  - generic [ref=e366]: M
+                  - generic [ref=e367]: A
+                  - generic [ref=e368]: M
+                  - generic [ref=e369]: J
+                  - generic [ref=e370]: J
+                  - generic [ref=e371]: A
+            - generic [ref=e373]:
+              - generic [ref=e374]:
+                - generic [ref=e375]: junio de 2026
+                - generic [ref=e376]:
+                  - button [ref=e377] [cursor=pointer]:
+                    - img [ref=e378]
+                  - button [ref=e380] [cursor=pointer]:
+                    - img [ref=e381]
+              - generic [ref=e383]:
+                - generic [ref=e384]: D
+                - generic [ref=e385]: L
+                - generic [ref=e386]: M
+                - generic [ref=e387]: M
+                - generic [ref=e388]: J
+                - generic [ref=e389]: V
+                - generic [ref=e390]: S
+                - button "1" [ref=e392] [cursor=pointer]
+                - button "2" [ref=e393] [cursor=pointer]
+                - button "3" [ref=e394] [cursor=pointer]
+                - button "4" [ref=e395] [cursor=pointer]
+                - button "5" [ref=e396] [cursor=pointer]
+                - button "6" [ref=e397] [cursor=pointer]
+                - button "7" [ref=e398] [cursor=pointer]
+                - button "8" [ref=e399] [cursor=pointer]
+                - button "9" [ref=e400] [cursor=pointer]
+                - button "10" [ref=e401] [cursor=pointer]
+                - button "11" [ref=e402] [cursor=pointer]
+                - button "12" [ref=e403] [cursor=pointer]
+                - button "13" [ref=e404] [cursor=pointer]
+                - button "14" [ref=e405] [cursor=pointer]
+                - button "15" [ref=e406] [cursor=pointer]
+                - button "16" [ref=e407] [cursor=pointer]
+                - button "17" [ref=e408] [cursor=pointer]
+                - button "18" [ref=e409] [cursor=pointer]
+                - button "19" [ref=e410] [cursor=pointer]
+                - button "20" [ref=e411] [cursor=pointer]
+                - button "21" [ref=e412] [cursor=pointer]
+                - button "22" [ref=e413] [cursor=pointer]
+                - button "23" [ref=e414] [cursor=pointer]
+                - button "24" [ref=e415] [cursor=pointer]
+                - button "25" [ref=e416] [cursor=pointer]
+                - button "26" [ref=e417] [cursor=pointer]
+                - button "27" [ref=e418] [cursor=pointer]
+                - button "28" [ref=e419] [cursor=pointer]
+                - button "29" [ref=e420] [cursor=pointer]
+                - button "30" [ref=e421] [cursor=pointer]
+              - generic [ref=e422]:
+                - generic [ref=e423]:
+                  - generic [ref=e424]:
+                    - generic [ref=e425]:
+                      - generic [ref=e426]: Próximas actividades
+                      - generic [ref=e427]: 0 agenda
+                    - paragraph [ref=e428]: No hay recordatorios próximos. Crea uno seleccionando un día.
+                  - generic [ref=e429]:
+                    - generic [ref=e430]:
+                      - generic [ref=e431]: Crear recordatorio
+                      - generic [ref=e432]: "Fecha: Ninguno"
+                    - generic [ref=e433]:
+                      - generic [ref=e434]:
+                        - textbox "Título" [ref=e435]
+                        - textbox [ref=e436]:
+                          - /placeholder: 00:00
+                          - text: 09:00
+                      - textbox "Descripción" [ref=e437]
+                      - generic [ref=e438]:
+                        - combobox [ref=e439]:
+                          - option "Recordatorio" [selected]
+                          - option "Actividad"
+                          - option "Reunión"
+                          - option "Visita"
+                        - combobox [ref=e440]:
+                          - option "Sin proyecto" [selected]
+                          - option "Puente Vehicular San Miguel"
+                          - option "Edificio Corporativo Torre Centro"
+                          - option "Residencial Las Margaritas"
+                          - option "Proyecto Test Kilo"
+                          - option "Proyecto Test Playwright"
+                          - option "Proyecto E2E Completo QA"
+                          - option "Edificio Residencial Vista Hermosa"
+                          - option "Edificio Residencial Vista Hermosa"
+                          - option "Edificio Residencial Vista Hermosa"
+                          - option "Edificio Residencial Vista Hermosa"
+                      - button "Guardar" [disabled] [ref=e441]:
+                        - img [ref=e442]
+                        - text: Guardar
+                - generic [ref=e443]:
+                  - generic [ref=e444]:
+                    - generic [ref=e445]:
+                      - generic [ref=e446]: Próximas actividades
+                      - generic [ref=e447]: Elige un día
+                    - paragraph [ref=e448]: Selecciona un día para ver sus actividades y detalles de recordatorio.
+                  - generic [ref=e449]:
+                    - generic [ref=e450]:
+                      - img [ref=e451]
+                      - text: Disponibilidad por proyecto
+                    - generic [ref=e456]:
+                      - generic [ref=e457]:
+                        - generic [ref=e458]: Puente Vehicular San Miguel
+                        - generic [ref=e459]: 0 personas
+                      - generic [ref=e460]:
+                        - generic [ref=e461]: Edificio Corporativo Torre Centro
+                        - generic [ref=e462]: 0 personas
+                      - generic [ref=e463]:
+                        - generic [ref=e464]: Residencial Las Margaritas
+                        - generic [ref=e465]: 0 personas
+                      - generic [ref=e466]:
+                        - generic [ref=e467]: Proyecto Test Kilo
+                        - generic [ref=e468]: 0 personas
+                      - generic [ref=e469]:
+                        - generic [ref=e470]: Proyecto Test Playwright
+                        - generic [ref=e471]: 0 personas
+                      - paragraph [ref=e472]: +5 proyectos más...
+            - generic [ref=e473]:
+              - generic [ref=e474]:
+                - heading "Gastos" [level=3] [ref=e475]
+                - paragraph [ref=e477]: Sin datos
+              - generic [ref=e478]:
+                - heading "Ing vs Gast" [level=3] [ref=e479]
+                - generic [ref=e480]:
+                  - img "Gráfico donut" [ref=e481]:
+                    - 'generic "Ingresos: 0%"'
+                    - 'generic "Gastos: 0%"'
+                  - generic [ref=e483]:
+                    - generic [ref=e484]:
+                      - text: Ing
+                      - text: Q 0.00
+                    - generic [ref=e486]:
+                      - text: Gas
+                      - text: Q 0.00
+          - generic [ref=e488]:
+            - generic [ref=e489]:
+              - heading "Registro Rápido" [level=3] [ref=e490]
+              - generic [ref=e491]:
+                - group "Tipo de movimiento" [ref=e492]:
+                  - button "Ingreso" [ref=e493] [cursor=pointer]
+                  - button "Gasto" [pressed] [ref=e494] [cursor=pointer]
+                - generic [ref=e495]:
+                  - combobox [ref=e496]:
+                    - option "— Sin proyecto —" [selected]
+                    - option "Puente Vehicular San Miguel"
+                    - option "Edificio Corporativo Torre Centro"
+                    - option "Residencial Las Margaritas"
+                    - option "Proyecto Test Kilo"
+                    - option "Proyecto Test Playwright"
+                    - option "Proyecto E2E Completo QA"
+                    - option "Edificio Residencial Vista Hermosa"
+                    - option "Edificio Residencial Vista Hermosa"
+                    - option "Edificio Residencial Vista Hermosa"
+                    - option "Edificio Residencial Vista Hermosa"
+                  - textbox "Descripción *" [ref=e497]
+                  - spinbutton [ref=e498]: "1"
+                  - textbox "Unidad" [ref=e499]: global
+                  - combobox [ref=e500]:
+                    - option "Materiales" [selected]
+                    - option "Mano de Obra"
+                    - option "Equipo"
+                    - option "Subcontrato"
+                    - option "Administración"
+                    - option "Transporte"
+                    - option "Imprevistos"
+                    - option "Marketing"
+                    - option "Licencias"
+                    - option "Seguros"
+                    - option "Otros"
+                  - spinbutton [ref=e501]: "0"
+                  - textbox [ref=e502]: 2026-06-09
+                  - generic [ref=e503]: Q 0.00
+                  - textbox "Proveedor" [ref=e504]
+                  - textbox "N° Factura" [ref=e505]
+                  - combobox [ref=e506]:
+                    - option "Forma de Pago" [selected]
+                    - option "Efectivo"
+                    - option "Transferencia"
+                    - option "Cheque"
+                    - option "Tarjeta"
+                    - option "Otro"
+                  - textbox "Ref. Bancaria / N° Cheque" [ref=e507]
+                  - spinbutton [ref=e508]
+                  - spinbutton [ref=e509]
+                  - textbox "Notas adicionales" [ref=e510]
+                - button "Registrar gasto" [ref=e511] [cursor=pointer]:
+                  - img [ref=e512]
+                  - text: Registrar gasto
+            - generic [ref=e513]:
+              - heading "Módulos" [level=3] [ref=e514]
+              - navigation "Acceso rápido a módulos" [ref=e515]:
+                - button "Ir a Proyectos" [ref=e516] [cursor=pointer]:
+                  - img [ref=e517]
+                  - generic [ref=e521]:
+                    - text: Proyecto
+                    - img [ref=e522]
+                - button "Ir a Presupuestos" [ref=e524] [cursor=pointer]:
+                  - img [ref=e525]
+                  - generic [ref=e527]:
+                    - text: Presupue
+                    - img [ref=e528]
+                - button "Ir a Seguimiento" [ref=e530] [cursor=pointer]:
+                  - img [ref=e531]
+                  - generic [ref=e535]:
+                    - text: Seguimie
+                    - img [ref=e536]
+                - button "Ir a Financiero" [ref=e538] [cursor=pointer]:
+                  - img [ref=e539]
+                  - generic [ref=e542]:
+                    - text: Financie
+                    - img [ref=e543]
+                - button "Ir a RRHH" [ref=e545] [cursor=pointer]:
+                  - img [ref=e546]
+                  - generic [ref=e551]:
+                    - text: RRHH
+                    - img [ref=e552]
+                - button "Ir a Bodega" [ref=e554] [cursor=pointer]:
+                  - img [ref=e555]
+                  - generic [ref=e558]:
+                    - text: Bodega
+                    - img [ref=e559]
+                - button "Ir a Cotizaciones" [ref=e561] [cursor=pointer]:
+                  - img [ref=e562]
+                  - generic [ref=e565]:
+                    - text: Cotizaci
+                    - img [ref=e566]

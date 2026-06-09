@@ -1,0 +1,26 @@
+- generic [ref=e3]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - img "WM" [ref=e10]
+      - generic [ref=e11]:
+        - generic [ref=e12]: CONSTRUCTORA WM / M&S
+        - generic [ref=e13]: Edificando el Futuro
+    - generic [ref=e14]:
+      - img [ref=e15]
+      - heading "Iniciar Sesión" [level=2] [ref=e19]
+    - paragraph [ref=e20]: Ingresa tus credenciales para acceder al sistema
+    - textbox "Correo electrónico" [ref=e21]
+    - generic [ref=e22]:
+      - textbox "Contraseña" [ref=e23]
+      - button "Mostrar contraseña" [ref=e24] [cursor=pointer]:
+        - img [ref=e25]
+    - button "Iniciar Sesión" [ref=e28] [cursor=pointer]:
+      - text: Iniciar Sesión
+      - img [ref=e29]
+    - button "Continuar con Google" [ref=e31] [cursor=pointer]:
+      - img [ref=e32]
+      - text: Continuar con Google
+    - button "¿No tienes cuenta?" [ref=e37] [cursor=pointer]

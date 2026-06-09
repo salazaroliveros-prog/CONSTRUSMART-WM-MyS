@@ -117,20 +117,44 @@ export function recoverStoreState<T extends Record<string, unknown>>(
 export function scheduleHealthCheck(
   getState: () => Record<string, unknown>,
   moduleName: string,
-  intervalMs: number = HEALTH_CHECK_INTERVAL
+  intervalMs: number = HEALTH_CHECK_INTERVAL,
+  onIssue?: (report: import('./auto-logger').LogEntry) => void
 ): () => void {
   const intervalId = setInterval(() => {
     try {
-      const state = getState()
-      checkStoreHealth(state, moduleName)
+      const state = getState();
+      const issues: string[] = [];
+
+      for (const [key, value] of Object.entries(state)) {
+        if (value === undefined) issues.push(`Key "${key}" is undefined`);
+        else if (value === null) issues.push(`Key "${key}" is null`);
+        else if (typeof value === 'number' && isNaN(value)) issues.push(`Key "${key}" is NaN`);
+        else if (typeof value === 'string' && value.length === 0 && key !== '') issues.push(`Key "${key}" is empty string`);
+      }
+
+      if (issues.length > 0) {
+        const report = {
+          healthy: false,
+          issues,
+          timestamp: new Date().toISOString(),
+          module: moduleName,
+          recoveredKeys: [],
+        };
+
+        log('warn', `StoreHealth:${moduleName}`, `Health check failed: ${issues.length} issues`, report);
+
+        if (onIssue) {
+          try { onIssue(report); } catch (e) { /* noop */ }
+        }
+      }
     } catch (error) {
       log('error', `StoreHealth:${moduleName}`, 'Health check execution failed', {
         error: String(error),
-      })
+      });
     }
-  }, intervalMs)
+  }, intervalMs);
 
-  return () => clearInterval(intervalId)
+  return () => clearInterval(intervalId);
 }
 
 /**
