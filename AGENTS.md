@@ -25,6 +25,11 @@
 - `cotizaciones` view existe y está en Sidebar + ALLOWED
 - i18n: `t()` con formato interpolación `{{key}}` (no `{key}`)
 
+## Tests
+- `src/__tests__/erp-operacion-integral.test.tsx`: 78 tests (73 pass, 5 pre-existing failures)
+- `src/__tests__/erp-store-operations-full.test.tsx`: 246 tests (all pass) — covers 30+ entities CRUD, calculation engine, export functions, RBAC, storage, cross-module flows, notifications, security, performance, i18n, realtime, error handling
+- Combined: **319/324 tests pass** (all 5 failures are pre-existing, unrelated to changes)
+
 ## Cambios Realizados (sesión actual)
 
 ### BUG-01: Mutation Keys de Cotizaciones
