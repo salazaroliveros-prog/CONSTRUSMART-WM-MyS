@@ -112,7 +112,7 @@ const Shell: React.FC = () => {
       'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
       'erp_notificaciones', 'erp_publicaciones_muro',
       'erp_presupuestos', 'erp_ordenes_compra', 'erp_avances', 'erp_vales_salida',
-      'cotizaciones_negocio',
+      'erp_cotizaciones_negocio',
     ],
     enabled: !!user && view !== 'login',
     onCambio: (payload) => {
