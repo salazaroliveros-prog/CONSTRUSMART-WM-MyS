@@ -64,7 +64,7 @@ self.addEventListener('fetch', (event) => {
         const clone = res.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         return res;
-      }).catch(() => caches.match(request).then((cached) => cached || caches.match('/offline.html')))
+      }).catch(() => caches.match(request).then((cached) => cached || caches.match('/index.html')))
     );
     return;
   }

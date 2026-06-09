@@ -13,7 +13,7 @@ export default defineConfig(({ mode: _mode }) => ({
   },
   base: "/",
   server: {
-    host: "::",
+    host: "0.0.0.0",
     port: 8080,
   },
   optimizeDeps: {
