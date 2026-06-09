@@ -184,11 +184,11 @@ const Shell: React.FC = () => {
           role="main"
           aria-label="Contenido principal"
         >
-          <Suspense fallback={<ScreenLoader />}>
-            <div key={view} className="animate-enter">
+          <div key={view} className="animate-enter">
+            <Suspense fallback={<ScreenLoader />}>
               {safeScreen}
-            </div>
-          </Suspense>
+            </Suspense>
+          </div>
         </main>
       </div>
     </div>

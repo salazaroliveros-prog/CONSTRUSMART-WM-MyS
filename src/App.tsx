@@ -59,12 +59,10 @@ const App = () => {
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <Suspense fallback={<LoaderSpinner size={60} text="Cargando..." fullScreen />}>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
               </BrowserRouter>
             </ErrorBoundary>
           </TooltipProvider>
