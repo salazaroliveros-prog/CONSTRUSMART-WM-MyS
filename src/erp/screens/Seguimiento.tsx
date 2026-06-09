@@ -21,8 +21,8 @@ const Seguimiento: React.FC = () => {
   const [editingBit, setEditingBit] = useState<BitacoraEntry | null>(null);
 
   const proyData = useMemo(() => proyectos.map(p => {
-    const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? 0), 0);
-    const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? 0), 0);
+    const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+    const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
     const pendiente = Math.max(0, (p.montoContrato ?? 0) - ing);
     return { ...p, ing, gas, pendiente };
   }), [proyectos, movimientos]);

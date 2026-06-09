@@ -11,7 +11,7 @@ export { materialSchema, ordenSchema, proveedorSchema } from './bodega';
 
 export { eventoCalendarioSchema, eventoSchema, bitacoraEntrySchema, bitacoraSchema } from './calendario';
 
-export { seguimientoSchema, hitoSchema, riesgoSchema } from './seguimiento';
+export { seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema } from './seguimiento';
 export { muroSchema, notificacionSchema } from './social';
 export { liberacionSchema, pruebaSchema, noConformidadSchema } from './calidad';
 export { activoSchema, licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema } from './gestion';

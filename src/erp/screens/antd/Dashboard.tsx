@@ -18,20 +18,49 @@ const { useBreakpoint } = Grid;
 const _COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
 
 const AntDashboard: React.FC = () => {
-  const { proyectos, movimientos, setView, notificacionesNoLeidas, notificaciones, marcarTodasLeidas } = useErp();
+  const { proyectos, movimientos, avances, setView, notificacionesNoLeidas, notificaciones, marcarTodasLeidas } = useErp();
   const [filtroProy, setFiltroProy] = useState('');
   const { token } = theme.useToken();
   const screens = useBreakpoint();
   const sp = screens.lg ? 16 : 8;
 
-  const activos = proyectos.filter(p => p.estado === 'ejecucion');
+  const proyFiltrados = filtroProy
+    ? proyectos.filter(p => p.id === filtroProy)
+    : proyectos;
+  const activos = proyFiltrados.filter(p => p.estado === 'ejecucion');
   const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
   const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
   const presupuestoTotal = activos.reduce((a, b) => a + b.presupuestoTotal, 0);
   const margenProm = activos.length
-    ? activos.reduce((a, b) => a + ((b.montoContrato - b.presupuestoTotal) / b.montoContrato) * 100, 0) / activos.length : 0;
+    ? activos.reduce((a, b) => {
+        const m = b.montoContrato > 0 ? ((b.montoContrato - b.presupuestoTotal) / b.montoContrato) * 100 : 0;
+        return a + m;
+      }, 0) / activos.length : 0;
   const desviacion = activos.length
     ? activos.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / activos.length : 0;
+
+  const avanceData = useMemo(() => {
+    const steps = 8;
+    const data = avances;
+    if (data.length === 0) {
+      return { prog: Array(steps).fill(0), real: Array(steps).fill(0) };
+    }
+    const sorted = [...data].sort((a, b) => a.fecha.localeCompare(b.fecha));
+    const prog = Array.from({ length: steps }, (_, i) => {
+      if (i === 0) return 0;
+      if (i === steps - 1) return 100;
+      const t = i / (steps - 1);
+      return Math.round(100 / (1 + Math.exp(-8 * (t - 0.5))));
+    });
+    const real = Array.from({ length: steps }, (_, i) => {
+      if (i === 0) return 0;
+      const count = Math.round((i / (steps - 1)) * sorted.length);
+      const slice = sorted.slice(0, count);
+      const avg = slice.reduce((s, a) => s + a.avanceFisico, 0) / slice.length;
+      return Math.round(avg);
+    });
+    return { prog, real };
+  }, [avances]);
 
   const alertasRetraso = useMemo(() => {
     const hoy = todayISO();
@@ -178,7 +207,7 @@ const AntDashboard: React.FC = () => {
             }
           >
             <div style={{ height: 220, display: 'flex', alignItems: 'flex-end', gap: 4, padding: '8px 0' }}>
-              {[0, 12, 28, 45, 62, 78, 90, 100].map((v, i) => (
+              {avanceData.prog.map((v, i) => (
                 <Tooltip title={`Programado: ${v}%`} key={`p${i}`}>
                   <div style={{
                     flex: 1, background: '#3b82f6', borderRadius: '4px 4px 0 0',
@@ -187,7 +216,7 @@ const AntDashboard: React.FC = () => {
                   }} />
                 </Tooltip>
               ))}
-              {[0, 10, 24, 40, 55, 67, 79, 88].map((v, i) => (
+              {avanceData.real.map((v, i) => (
                 <Tooltip title={`Real: ${v}%`} key={`r${i}`}>
                   <div style={{
                     flex: 1, background: '#f97316', borderRadius: '4px 4px 0 0',

@@ -30,7 +30,7 @@ import {
   eventoSchema,
   bitacoraEntrySchema,
   bitacoraSchema,
-  seguimientoSchema,
+  seguimientoSchema, avanceObraSchema,
   hitoSchema,
   riesgoSchema,
   muroSchema,
@@ -628,7 +628,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [presupuestos, setPresupuestos] = useState<Presupuesto[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_presupuestos', presupuestoSchema, []));
   const [selectedProyectoId, setSelectedProyectoId] = useState<string | null>(() => loadFromStorage(BASE_STORAGE_KEY + '_selected_proyecto_id', null));
   const [licitaciones, setLicitaciones] = useState<Licitacion[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_licitaciones', licitacionSchema, []));
-  const [avances, setAvances] = useState<AvanceObra[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_avances', []));
+  const [avances, setAvances] = useState<AvanceObra[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_avances', avanceObraSchema, []));
   const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_vales_salida', []));
   const [seguimientoEVM, setSeguimientoEVM] = useState<SeguimientoEVM[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_seguimiento_evm', []));
   const [notifiedEventos, setNotifiedEventos] = useState<string[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_notified_eventos', []));
@@ -1109,7 +1109,26 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const nuevo = { ...a, id: uid() };
     setAvances(prev => [nuevo, ...prev]);
     enqueueMutation('addAvance', nuevo);
-  }, [enqueueMutation]);
+    setProyectos(prev => prev.map(p => {
+      if (p.id !== a.proyectoId) return p;
+      const proyAvances = avances.concat(nuevo).filter(x => x.proyectoId === a.proyectoId);
+      const avgFisico = proyAvances.length
+        ? Math.round(proyAvances.reduce((s, x) => s + x.avanceFisico, 0) / proyAvances.length)
+        : 0;
+      const presupuesto = presupuestos.find(pr => pr.proyectoId === a.proyectoId);
+      const totalGastado = movimientos
+        .filter(m => m.proyectoId === a.proyectoId && m.tipo === 'gasto')
+        .reduce((s, m) => s + (m.costoTotal || m.monto || 0), 0);
+      const avanceFin = (presupuesto?.totalCalculado && presupuesto.totalCalculado > 0)
+        ? Math.min(100, Math.round((totalGastado / presupuesto.totalCalculado) * 100))
+        : p.avanceFinanciero;
+      return {
+        ...p,
+        avanceFisico: Math.max(p.avanceFisico ?? 0, avgFisico),
+        avanceFinanciero: Math.max(p.avanceFinanciero ?? 0, avanceFin),
+      };
+    }));
+  }, [enqueueMutation, avances, presupuestos, movimientos]);
 
   const handleDeleteAvance = useCallback(async (id: string) => {
     setAvances(prev => prev.filter(p => p.id !== id));

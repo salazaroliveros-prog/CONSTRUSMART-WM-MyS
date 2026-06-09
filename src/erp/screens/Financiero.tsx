@@ -22,8 +22,8 @@ const Financiero: React.FC = () => {
     return () => clearTimeout(t);
   }, []);
 
-  const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? 0), 0);
-  const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? 0), 0);
+  const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+  const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
   const utilidad = ingresos - gastos;
 
   const porCategoria = useMemo(() => {
@@ -33,8 +33,8 @@ const Financiero: React.FC = () => {
   }, [movimientos]);
 
   const centrosCosto = useMemo(() => proyectos.map(p => {
-    const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? 0), 0);
-    const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? 0), 0);
+    const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+    const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
     return { nombre: p.nombre, ing, gas, margen: ing - gas };
   }), [proyectos, movimientos]);
 

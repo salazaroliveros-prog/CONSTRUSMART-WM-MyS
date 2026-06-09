@@ -17,7 +17,10 @@ const Dashboard: React.FC = () => {
   const [filtroProy, setFiltroProy] = useState('');
   const curvaConfig = useChartConfig('area', 'cool');
 
-  const activos = proyectos.filter(p => p.estado === 'ejecucion');
+  const proyFiltrados = filtroProy
+    ? proyectos.filter(p => p.id === filtroProy)
+    : proyectos;
+  const activos = proyFiltrados.filter(p => p.estado === 'ejecucion');
   const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
   const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
   const presupuestoTotal = activos.reduce((a, b) => a + b.presupuestoTotal, 0);
@@ -37,16 +40,20 @@ const Dashboard: React.FC = () => {
     if (data.length === 0) {
       return { prog: Array(steps).fill(0), real: Array(steps).fill(0) };
     }
-    const prog = [0];
-    const real = [0];
-    const stepSize = Math.floor(data.length / (steps - 1)) || 1;
-    for (let i = 1; i < steps - 1; i++) {
-      const idx = i * stepSize;
-      prog.push(Math.round((idx / data.length) * 100));
-      real.push(Math.round(data.slice(0, idx).reduce((s, a) => s + a.avanceFisico, 0) / Math.max(idx, 1)));
-    }
-    prog.push(100);
-    real.push(Math.round(data.reduce((s, a) => s + a.avanceFisico, 0) / Math.max(data.length, 1)));
+    const sorted = [...data].sort((a, b) => a.fecha.localeCompare(b.fecha));
+    const prog = Array.from({ length: steps }, (_, i) => {
+      if (i === 0) return 0;
+      if (i === steps - 1) return 100;
+      const t = i / (steps - 1);
+      return Math.round(100 / (1 + Math.exp(-8 * (t - 0.5))));
+    });
+    const real = Array.from({ length: steps }, (_, i) => {
+      if (i === 0) return 0;
+      const count = Math.round((i / (steps - 1)) * sorted.length);
+      const slice = sorted.slice(0, count);
+      const avg = slice.reduce((s, a) => s + a.avanceFisico, 0) / slice.length;
+      return Math.round(avg);
+    });
     return { prog, real };
   }, [avances, selectedProyectoId]);
 
