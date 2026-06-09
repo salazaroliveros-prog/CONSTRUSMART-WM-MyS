@@ -113,6 +113,15 @@
 ### FIX: Realtime Table Names Consistentes
 - `AppLayout.tsx` y test actualizados: `cotizaciones_negocio` → `erp_cotizaciones_negocio`
 
+### FIX: forceSync TDZ Runtime Error
+- **Root cause**: `const forceSyncRef = useRef(forceSync)` en store.tsx línea 522 referenciaba `forceSync` antes de su declaración `const forceSync = useCallback(...)` en línea 692, provocando Temporal Dead Zone en dev mode
+- **Fix**: Movido el bloque `forceSyncRef` + auto-trigger effect después de la definición de `forceSync`
+
+### FIX: Data Persistence — Missing localStorage Effects
+- **Bug**: Solo `notificaciones` y `cotizacionesNegocio` tienen `useEffect` que persiste a localStorage. Las demás entidades (`proyectos`, `movimientos`, `empleados`, `materiales`, `ordenes`, `presupuestos`, `avances`, `hitos`, `riesgos`, etc.) cargan desde localStorage al iniciar pero NUNCA se guardan — datos se pierden al refrescar la página
+- **Impacto**: CRITICAL — cualquier dato ingresado se pierde si el usuario recarga la página
+- **Fix pendiente**: Agregar `useEffect` con `saveToStorage` para cada entidad
+
 ### FIX: 5 Pre-Existing Test Failures
 - **Ajustes**: timeout 30s (screen pesada con imports de Ant Design Settings)
 - **fmtQ**: locale-agnostic (jsdom sin `es-GT`)
