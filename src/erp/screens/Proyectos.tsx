@@ -291,7 +291,12 @@ const Proyectos: React.FC = () => {
                   <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={`Editar proyecto ${p.nombre}`}>
                     <Pencil className="w-4 h-4" aria-hidden="true" />
                   </button>
-                  <button onClick={() => deleteProyecto(p.id)} className={BUTTON_DANGER} aria-label={`Eliminar proyecto ${p.nombre}`}>
+                  <button onClick={() => {
+                    if (window.confirm(`¿Eliminar proyecto "${p.nombre}"?\nEsta acción no se puede deshacer.`)) {
+                      deleteProyecto(p.id);
+                      toast.success(`Proyecto "${p.nombre}" eliminado`);
+                    }
+                  }} className={BUTTON_DANGER} aria-label={`Eliminar proyecto ${p.nombre}`}>
                     <Trash2 className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
