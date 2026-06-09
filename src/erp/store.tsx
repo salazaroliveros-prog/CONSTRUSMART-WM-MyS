@@ -565,10 +565,21 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch initial data from Supabase on first auth
+  // Fetch initial data from Supabase on first auth (offline-safe)
   const fetchedRef = useRef(false);
+  const isOnlineRef = useRef(navigator.onLine);
   useEffect(() => {
-    if (user && !fetchedRef.current && hasSupabase) {
+    const handleOnline = () => { isOnlineRef.current = true; };
+    const handleOffline = () => { isOnlineRef.current = false; };
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+  useEffect(() => {
+    if (user && !fetchedRef.current && hasSupabase && isOnlineRef.current) {
       fetchedRef.current = true;
       const fetchTable = async (tableName: string) => {
         try {
@@ -580,25 +591,27 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return null;
       };
       (async () => {
-        const [
-          pData, mData, eData, matData, oData, provData, presData,
-          ccData, cpData, ocData, hData, rData, licData, cotData,
-        ] = await Promise.all([
-          fetchTable('erp_proyectos'),
-          fetchTable('erp_movimientos'),
-          fetchTable('erp_empleados'),
-          fetchTable('erp_materiales'),
-          fetchTable('erp_ordenes_compra'),
-          fetchTable('erp_proveedores'),
-          fetchTable('erp_presupuestos'),
-          fetchTable('erp_cuentas_cobrar'),
-          fetchTable('erp_cuentas_pagar'),
-          fetchTable('erp_ordenes_cambio'),
-          fetchTable('erp_hitos'),
-          fetchTable('erp_riesgos'),
-          fetchTable('erp_licitaciones'),
-          fetchTable('erp_cotizaciones_negocio'),
-        ]);
+        let pData, mData, eData, matData, oData, provData, presData, ccData, cpData, ocData, hData, rData, licData, cotData;
+        try {
+          [pData, mData, eData, matData, oData, provData, presData, ccData, cpData, ocData, hData, rData, licData, cotData] = await Promise.all([
+            fetchTable('erp_proyectos'),
+            fetchTable('erp_movimientos'),
+            fetchTable('erp_empleados'),
+            fetchTable('erp_materiales'),
+            fetchTable('erp_ordenes_compra'),
+            fetchTable('erp_proveedores'),
+            fetchTable('erp_presupuestos'),
+            fetchTable('erp_cuentas_cobrar'),
+            fetchTable('erp_cuentas_pagar'),
+            fetchTable('erp_ordenes_cambio'),
+            fetchTable('erp_hitos'),
+            fetchTable('erp_riesgos'),
+            fetchTable('erp_licitaciones'),
+            fetchTable('erp_cotizaciones_negocio'),
+          ]);
+        } catch (networkError) {
+          log('warn', 'store', 'fetchInitialData falló por red; se continúa en modo offline', { error: String(networkError) });
+        }
         if (pData) setProyectos(pData as Proyecto[]);
         if (mData) setMovimientos(mData as Movimiento[]);
         if (eData) setEmpleados(eData as Empleado[]);
