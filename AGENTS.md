@@ -28,7 +28,9 @@
 ## Tests
 - `src/__tests__/erp-operacion-integral.test.tsx`: 78 tests (ALL pass — 5 pre-existing failures fixed)
 - `src/__tests__/erp-store-operations-full.test.tsx`: 246 tests (all pass) — covers 30+ entities CRUD, calculation engine, export functions, RBAC, storage, cross-module flows, notifications, security, performance, i18n, realtime, error handling
-- Combined: **324/324 tests pass** (0 failures)
+- `src/lib/__tests__/auto-repair.test.ts`: 27 tests (store health, safeParse, recoverStoreState)
+- `src/erp/__tests__/integrity.test.ts`: 3 tests (Zod schema integrity)
+- Combined: **427/427 tests pass** (0 failures) — 9 test files
 
 ## Cambios Realizados (sesión actual)
 
@@ -117,10 +119,9 @@
 - **Root cause**: `const forceSyncRef = useRef(forceSync)` en store.tsx línea 522 referenciaba `forceSync` antes de su declaración `const forceSync = useCallback(...)` en línea 692, provocando Temporal Dead Zone en dev mode
 - **Fix**: Movido el bloque `forceSyncRef` + auto-trigger effect después de la definición de `forceSync`
 
-### FIX: Data Persistence — Missing localStorage Effects
-- **Bug**: Solo `notificaciones` y `cotizacionesNegocio` tienen `useEffect` que persiste a localStorage. Las demás entidades (`proyectos`, `movimientos`, `empleados`, `materiales`, `ordenes`, `presupuestos`, `avances`, `hitos`, `riesgos`, etc.) cargan desde localStorage al iniciar pero NUNCA se guardan — datos se pierden al refrescar la página
-- **Impacto**: CRITICAL — cualquier dato ingresado se pierde si el usuario recarga la página
-- **Fix pendiente**: Agregar `useEffect` con `saveToStorage` para cada entidad
+### FIX: Data Persistence — Missing localStorage Effects (RESUELTO)
+- Todas las entidades ya tienen `useEffect(() => saveToStorage(...), [...])` en store.tsx líneas 877-907
+- **Cobertura**: proyectos, movimientos, empleados, materiales, ordenes, proveedores, eventos, bitacora, presupuestos, licitaciones, avances, vales_salida, seguimiento_evm, cuentas_cobrar, cuentas_pagar, ordenes_cambio, hitos, riesgos, incidentes, publicaciones_muro, pruebas, no_conformidades, liberaciones, planos, rfis, submittals, activos, cuadros, pagos_proveedor, notificaciones, cotizacionesNegocio, mutationQueue, settings
 
 ### FIX: 5 Pre-Existing Test Failures
 - **Ajustes**: timeout 30s (screen pesada con imports de Ant Design Settings)
@@ -128,6 +129,19 @@
 - **Margen**: valor esperado corregido 20 → 22.5
 - **Sanitize XSS**: string concatenation evita decoding de HTML entities
 - **`__proto__`**: cambiado a `constructor` para evitar interceptación del prototype
+
+### SESIÓN-06 (2026-06-08): Migraciones Supabase + Data Persistence Confirmation
+- **Duplicado de número de migración**: Renombrado `000000000002_rls_policies.sql` → `000000000007` para eliminar conflicto con `_complementary_tables_and_realtime.sql`
+- **DROP POLICY IF EXISTS**: Añadido a todas las `CREATE POLICY` en migración 007 y `fix_schema_inconsistencies` (evita error "already exists" en re-ejecución)
+- **Policy expression fix**: `= ANY(public.get_accessible_proyectos())` → `IN (SELECT * FROM public.get_accessible_proyectos())` — set-returning functions no están permitidas en policy expressions
+- **ALTER PUBLICATION fix**: Reemplazado `ADD TABLE IF NOT EXISTS` (sintaxis inválida en PG) con manejo de excepción `duplicate_object`
+- **pg_publication_tables.publicationname fix**: Corregido a `pubname` (columna correcta en PG)
+- **uuid_generate_v4() → gen_random_uuid()**: No requiere extensión uuid-ossp (built-in en PG 13+)
+- **Views removidas de publicación**: `erp_publicaciones_muro` es vista, no se puede agregar a una publicación
+- **Migración redundante eliminada**: 000000000009 (superseded by 010)
+- **Stale file removido**: `20260806_apply_all_fixes.sql`
+- **Data Persistence confirmada**: Todos los `useEffect` con `saveToStorage` ya existen en store.tsx líneas 877-907 (33 entidades)
+- **Build production**: `npm run build` exitoso (solo warnings esperados de antd "use client")
 
 ## Pendientes / Issues Conocidos
 - Build produce warnings de "use client" ignorados (Ant Design v5) — normal, no afectan funcionalidad
