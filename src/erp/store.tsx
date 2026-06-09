@@ -518,16 +518,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
-  // Auto-trigger forceSync cuando se recupera conexión
-  const forceSyncRef = useRef(forceSync);
-  forceSyncRef.current = forceSync;
-  useEffect(() => {
-    if (isOnline && mutationQueue.length > 0) {
-      console.info(`[Sync] Conexión recuperada — sincronizando ${mutationQueue.length} cambios pendientes`);
-      forceSyncRef.current();
-    }
-  }, [isOnline, mutationQueue.length]);
-
   // Integración useAuth — implementación real de signIn/signUp/logout
   const auth = useAuth();
   const user = auth.user as ErpState['user'] | null;
@@ -778,6 +768,16 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSyncCooldown(false);
   }, [mutationQueue, isOnline, syncCooldown]);
   useEffect(() => { saveToStorage(NOTIF_KEY, notificaciones); }, [notificaciones]);
+
+  // Auto-trigger forceSync cuando se recupera conexión
+  const forceSyncRef = useRef(forceSync);
+  forceSyncRef.current = forceSync;
+  useEffect(() => {
+    if (isOnline && mutationQueue.length > 0) {
+      console.info(`[Sync] Conexión recuperada — sincronizando ${mutationQueue.length} cambios pendientes`);
+      forceSyncRef.current();
+    }
+  }, [isOnline, mutationQueue.length]);
   const notificacionesNoLeidas = React.useMemo(() => notificaciones.filter(n => !n.leido).length, [notificaciones]);
 
   // Flag para evitar toasts al cargar notificaciones existentes en el render inicial
