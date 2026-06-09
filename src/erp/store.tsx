@@ -876,6 +876,36 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Persistencia localStorage para cotizaciones
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', cotizacionesNegocio); }, [cotizacionesNegocio]);
 
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_proyectos', proyectos); }, [proyectos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_movimientos', movimientos); }, [movimientos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_empleados', empleados); }, [empleados]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_materiales', materiales); }, [materiales]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_ordenes', ordenes); }, [ordenes]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_proveedores', proveedores); }, [proveedores]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_eventos', eventos); }, [eventos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_bitacora', bitacora); }, [bitacora]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_presupuestos', presupuestos); }, [presupuestos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_licitaciones', licitaciones); }, [licitaciones]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_avances', avances); }, [avances]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_vales_salida', valesSalida); }, [valesSalida]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_seguimiento_evm', seguimientoEVM); }, [seguimientoEVM]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_cuentas_cobrar', cuentasCobrar); }, [cuentasCobrar]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_cuentas_pagar', cuentasPagar); }, [cuentasPagar]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_ordenes_cambio', ordenesCambio); }, [ordenesCambio]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_hitos', hitos); }, [hitos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_riesgos', riesgos); }, [riesgos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_incidentes', incidentes); }, [incidentes]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_publicaciones_muro', publicacionesMuro); }, [publicacionesMuro]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_pruebas', pruebas); }, [pruebas]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_no_conformidades', ncs); }, [ncs]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_liberaciones', liberaciones); }, [liberaciones]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_planos', planos); }, [planos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_rfis', rfis); }, [rfis]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_submittals', submittals); }, [submittals]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_activos', activos); }, [activos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_cuadros', cuadros); }, [cuadros]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_pagos_proveedor', pagosProveedor); }, [pagosProveedor]);
+
   // Funciones handle para seguimientoEVM
   const handleAddSeguimiento = useCallback(async (s: Omit<SeguimientoEVM, 'id'>) => {
     const nuevo = { ...s, id: uid() };
