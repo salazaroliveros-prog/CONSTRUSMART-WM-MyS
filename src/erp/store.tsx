@@ -1049,6 +1049,27 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [initializing, setInitializing] = useState(true);
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
+  // Listeners online/offline para disparar forceSync automáticamente al reconectar
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const goOnline = () => { setIsOnline(true); };
+    const goOffline = () => { setIsOnline(false); };
+    window.addEventListener('online', goOnline);
+    window.addEventListener('offline', goOffline);
+    return () => {
+      window.removeEventListener('online', goOnline);
+      window.removeEventListener('offline', goOffline);
+    };
+  }, []);
+
+  // Auto-trigger forceSync cuando se recupera conexión
+  useEffect(() => {
+    if (isOnline && mutationQueue.length > 0) {
+      console.info(`[Sync] Conexión recuperada — sincronizando ${mutationQueue.length} cambios pendientes`);
+      forceSync();
+    }
+  }, [isOnline, mutationQueue.length]);
+
   // Integración useAuth — implementación real de signIn/signUp/logout
   const auth = useAuth();
   const user = auth.user as ErpState['user'] | null;
@@ -1146,16 +1167,70 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     for (const mutation of queue) {
       try {
-        // Cada mutación intenta subir a Supabase (simulado con enqueueMutation)
         setSyncMessage(`Sincronizando: ${mutation.type} (${successCount + 1}/${queue.length})`);
-        
+
+        // Construir nombre de la tabla Supabase desde el tipo de mutación
+        const tableMap: Record<string, string> = {
+          addProyecto: 'erp_proyectos', updateProyecto: 'erp_proyectos', deleteProyecto: 'erp_proyectos',
+          addMovimiento: 'erp_movimientos', updateMovimiento: 'erp_movimientos', deleteMovimiento: 'erp_movimientos',
+          addEmpleado: 'erp_empleados', updateEmpleado: 'erp_empleados', deleteEmpleado: 'erp_empleados',
+          addMaterial: 'erp_materiales', updateMaterial: 'erp_materiales', deleteMaterial: 'erp_materiales',
+          addOrden: 'erp_ordenes_compra', updateOrden: 'erp_ordenes_compra',
+          addProveedor: 'erp_proveedores', updateProveedor: 'erp_proveedores', deleteProveedor: 'erp_proveedores',
+          addEvento: 'erp_eventos_calendario', updateEvento: 'erp_eventos_calendario', deleteEvento: 'erp_eventos_calendario',
+          addBitacora: 'erp_bitacora', updateBitacora: 'erp_bitacora', deleteBitacora: 'erp_bitacora',
+          addPresupuesto: 'erp_presupuestos', updatePresupuesto: 'erp_presupuestos', deletePresupuesto: 'erp_presupuestos',
+          addAvance: 'erp_avances', deleteAvance: 'erp_avances',
+          addValeSalida: 'erp_vales_salida', deleteValeSalida: 'erp_vales_salida',
+          addCuentaCobrar: 'erp_cuentas_cobrar', updateCuentaCobrar: 'erp_cuentas_cobrar', deleteCuentaCobrar: 'erp_cuentas_cobrar',
+          addCuentaPagar: 'erp_cuentas_pagar', updateCuentaPagar: 'erp_cuentas_pagar', deleteCuentaPagar: 'erp_cuentas_pagar',
+          addOrdenCambio: 'erp_ordenes_cambio', updateOrdenCambio: 'erp_ordenes_cambio', deleteOrdenCambio: 'erp_ordenes_cambio',
+          addHito: 'erp_hitos', updateHito: 'erp_hitos', deleteHito: 'erp_hitos',
+          addRiesgo: 'erp_riesgos', updateRiesgo: 'erp_riesgos', deleteRiesgo: 'erp_riesgos',
+          addNC: 'erp_no_conformidades', updateNC: 'erp_no_conformidades',
+          addLiberacion: 'erp_liberaciones_partidas', updateLiberacion: 'erp_liberaciones_partidas',
+          addPlano: 'erp_planos', updatePlano: 'erp_planos',
+          addRfi: 'erp_rfis', updateRfi: 'erp_rfis',
+          addSubmittal: 'erp_submittals', updateSubmittal: 'erp_submittals',
+          addActivo: 'erp_activos_herramienta', updateActivo: 'erp_activos_herramienta',
+          addCuadro: 'erp_cuadros_comparativos', updateCuadro: 'erp_cuadros_comparativos',
+          addPagoProveedor: 'erp_pagos_proveedores', updatePagoProveedor: 'erp_pagos_proveedores',
+          addNotificacion: 'erp_notificaciones', markNotificacionLeida: 'erp_notificaciones',
+        };
+
+        const table = tableMap[mutation.type];
+        const isDelete = mutation.type.startsWith('delete');
+        const isUpdate = mutation.type.startsWith('update') || mutation.type === 'markNotificacionLeida';
+
+        if (table && mutation.payload.id) {
+          const snakePayload = toSnake(mutation.payload as Record<string, any>);
+          
+          if (isDelete) {
+            const { error: deleteError } = await supabase.from(table).delete().eq('id', mutation.payload.id);
+            if (deleteError) throw deleteError;
+          } else if (isUpdate) {
+            const { error: updateError } = await supabase.from(table).update(snakePayload).eq('id', mutation.payload.id);
+            if (updateError) throw updateError;
+          } else {
+            const { error: insertError } = await supabase.from(table).insert(snakePayload);
+            if (insertError) throw insertError;
+          }
+        }
+
         // Remover de la cola local
         setMutationQueue(prev => prev.filter(m => m.id !== mutation.id));
         successCount++;
       } catch (err) {
         failCount++;
-        // Re-encolar con retry incrementado
-        setMutationQueue(prev => [...prev, { ...mutation, retryCount: mutation.retryCount + 1, timestamp: Date.now() }]);
+        console.warn(`[Sync] Falló ${mutation.type} (intento ${mutation.retryCount + 1}):`, err);
+        if (mutation.retryCount < 3) {
+          // Re-encolar con retry incrementado
+          setMutationQueue(prev => [...prev, { ...mutation, retryCount: mutation.retryCount + 1, timestamp: Date.now() + 5000 * (mutation.retryCount + 1) }]);
+        } else {
+          console.error(`[Sync] Mutación ${mutation.type} agotó reintentos y se descartó:`, mutation.id);
+          // Descartar la mutación después de 3 intentos
+          setMutationQueue(prev => prev.filter(m => m.id !== mutation.id));
+        }
       }
     }
 
