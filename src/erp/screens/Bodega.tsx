@@ -21,22 +21,36 @@ const proveedorSchema = z.object({
 });
 
 const ordenSchema = z.object({
+  proyectoId: z.string().optional().default(''),
   proveedor: z.string().min(1, 'Proveedor requerido'),
+  proveedorId: z.string().optional().default(''),
   material: z.string().min(1, 'Material requerido'),
+  categoria: z.string().optional().default('materiales'),
   cantidad: z.coerce.number().min(1, 'Cantidad requerida'),
   monto: z.coerce.number().min(0, 'Monto requerido'),
 });
 
 type ProveedorFormData = z.infer<typeof proveedorSchema>;
 type OrdenFormData = z.infer<typeof ordenSchema>;
+type ProveedorOption = { id: string; nombre: string };
+
 
 const Bodega: React.FC = () => {
   const paretoConfig = useChartConfig('line', 'default');
-  const { materiales, updateMaterial, ordenes, updateOrden, addOrden, proveedores, addProveedor, updateProveedor, deleteProveedor } = useErp();
+  const ctx = useErp();
+  if (!ctx) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-sm text-muted-foreground">No se pudo cargar Bodega. Reintente nuevamente.</p>
+      </div>
+    );
+  }
+  const { materiales, updateMaterial, ordenes, updateOrden, addOrden, proveedores, addProveedor, updateProveedor, deleteProveedor, proyectos } = ctx;
   const [showProveedor, setShowProveedor] = useState(false);
   const [showOrden, setShowOrden] = useState(false);
   const [editingProveedor, setEditingProveedor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const proveedorOptions = useMemo<ProveedorOption[]>(() => proveedores.map((p) => ({ id: p.id, nombre: p.nombre })), [proveedores]);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 300);
@@ -64,7 +78,7 @@ const Bodega: React.FC = () => {
     formState: { errors: errorsOrd },
   } = useForm<OrdenFormData>({
     resolver: zodResolver(ordenSchema),
-    defaultValues: { proveedor: '', material: '', cantidad: 1, monto: 0 },
+    defaultValues: { proveedor: '', proyectoId: '', proveedorId: '', material: '', categoria: 'materiales', cantidad: 1, monto: 0 },
   });
 
   const onAddProveedor = (data: ProveedorFormData) => {
@@ -321,7 +335,20 @@ const Bodega: React.FC = () => {
             <div className="space-y-3">
               <select {...registerOrd('proveedor')} className={`${inp} ${errorsOrd.proveedor ? 'border-red-400' : ''}`}>
                 <option value="">— Seleccionar proveedor —</option>
-                {proveedores.map(p => <option key={p.id} value={p.nombre}>{p.nombre}</option>)}
+                {proveedorOptions.map((p) => (
+                  <option key={p.id} value={p.nombre}>
+                    {p.nombre}
+                  </option>
+                ))}
+              </select>
+              <input type="hidden" {...registerOrd('proveedorId')} value={registerOrd('proveedor').value || ''} />
+              <select {...registerOrd('proyectoId')} className={`${inp} ${errorsOrd.proyectoId ? 'border-red-400' : ''}`}>
+                <option value="">— Seleccionar proyecto —</option>
+                {proyectos.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nombre}
+                  </option>
+                ))}
               </select>
               <input {...registerOrd('material')} placeholder="Material" className={`${inp} ${errorsOrd.material ? 'border-red-400' : ''}`} />
               <input type="number" {...registerOrd('cantidad')} placeholder="Cantidad" className={`${inp} ${errorsOrd.cantidad ? 'border-red-400' : ''}`} />

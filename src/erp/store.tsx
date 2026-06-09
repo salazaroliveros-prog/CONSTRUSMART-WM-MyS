@@ -244,6 +244,15 @@ const toSnake = (obj: Record<string, any>): Record<string, any> => {
   return result;
 };
 
+const toCamel = (obj: Record<string, any>): Record<string, any> => {
+  const result: Record<string, any> = {};
+  for (const key in obj) {
+    const camelKey = key.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+    result[camelKey] = obj[key];
+  }
+  return result;
+};
+
 const snakeKeys = (obj: Record<string, any>): Record<string, any> => toSnake(obj);
 
 export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones';
@@ -614,7 +623,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
         const assign = (setter: (v: any[]) => void, raw: any[] | null, fallback: any[] = []) => {
           if (!Array.isArray(raw)) return setter(fallback);
-          const normalized = raw.map((item: any) => (typeof item === 'object' && item !== null ? item : {}));
+          const normalized = raw.map((item: any) => {
+            if (typeof item !== 'object' || item === null) return {};
+            const camel = toCamel(item);
+            return camel;
+          });
           setter(normalized);
         };
         if (pData) assign((v) => setProyectos(v as Proyecto[]), pData);
@@ -635,44 +648,163 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [user]);
 
-  const [proyectos, setProyectos] = useState<Proyecto[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_proyectos', proyectoSchema, []));
-  const [movimientos, setMovimientos] = useState<Movimiento[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_movimientos', movimientoSchema, []));
-  const [empleados, setEmpleados] = useState<Empleado[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_empleados', empleadoSchema, []));
-  const [materiales, setMateriales] = useState<Material[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_materiales', materialSchema, []));
-  const [ordenes, setOrdenes] = useState<OrdenCompra[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_ordenes', ordenSchema, []));
-  const [proveedores, setProveedores] = useState<Proveedor[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_proveedores', proveedorSchema, []));
-  const [eventos, setEventos] = useState<EventoCalendario[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_eventos', []));
-  const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_bitacora', []));
-  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_presupuestos', presupuestoSchema, []));
-  const [selectedProyectoId, setSelectedProyectoId] = useState<string | null>(() => loadFromStorage(BASE_STORAGE_KEY + '_selected_proyecto_id', null));
-  const [licitaciones, setLicitaciones] = useState<Licitacion[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_licitaciones', licitacionSchema, []));
-  const [avances, setAvances] = useState<AvanceObra[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_avances', avanceObraSchema, []));
-  const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_vales_salida', []));
-  const [seguimientoEVM, setSeguimientoEVM] = useState<SeguimientoEVM[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_seguimiento_evm', []));
-  const [notifiedEventos, setNotifiedEventos] = useState<string[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_notified_eventos', []));
-  const [cuentasCobrar, setCuentasCobrar] = useState<CuentaCobrar[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_cuentas_cobrar', cuentaCobrarSchema, []));
-  const [cuentasPagar, setCuentasPagar] = useState<CuentaPagar[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_cuentas_pagar', cuentaPagarSchema, []));
-  const [ordenesCambio, setOrdenesCambio] = useState<OrdenCambio[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_ordenes_cambio', ordenCambioSchema, []));
-  const [hitos, setHitos] = useState<Hito[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_hitos', hitoSchema, []));
-  const [riesgos, setRiesgos] = useState<Riesgo[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_riesgos', riesgoSchema, []));
-  const [incidentes, setIncidentes] = useState<any[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_incidentes', []));
-  const [publicacionesMuro, setPublicacionesMuro] = useState<PublicacionMuro[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_publicaciones_muro', []));
-  const [pruebas, setPruebas] = useState<PruebaLaboratorio[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_pruebas', []));
-  const [ncs, setNcs] = useState<NoConformidad[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_no_conformidades', []));
-  const [liberaciones, setLiberaciones] = useState<LiberacionPartida[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_liberaciones', []));
-  const [planos, setPlanos] = useState<Plano[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_planos', []));
-  const [rfis, setRfis] = useState<RFI[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_rfis', []));
-  const [submittals, setSubmittals] = useState<Submittal[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_submittals', []));
-  const [activos, setActivos] = useState<ActivoHerramienta[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_activos', []));
-  const [cuadros, setCuadros] = useState<CuadroComparativo[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_cuadros', []));
-  const [pagosProveedor, setPagosProveedor] = useState<PagoProveedor[]>(() => loadFromStorage(BASE_STORAGE_KEY + '_pagos_proveedor', []));
-  const [cotizacionesNegocio, setCotizacionesNegocio] = useState<CotizacionCliente[]>(() => loadAndValidateFromStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', cotizacionSchema, []));
+  const [proyectos, setProyectos] = useState<Proyecto[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_proyectos', []);
+    const validated = z.array(proyectoSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [movimientos, setMovimientos] = useState<Movimiento[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_movimientos', []);
+    const validated = z.array(movimientoSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [empleados, setEmpleados] = useState<Empleado[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_empleados', []);
+    const validated = z.array(empleadoSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [materiales, setMateriales] = useState<Material[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_materiales', []);
+    const validated = z.array(materialSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [ordenes, setOrdenes] = useState<OrdenCompra[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_ordenes', []);
+    const validated = z.array(ordenSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [proveedores, setProveedores] = useState<Proveedor[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_proveedores', []);
+    const validated = z.array(proveedorSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [eventos, setEventos] = useState<EventoCalendario[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_eventos', []);
+    const validated = z.array(eventoSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_presupuestos', []);
+    const validated = z.array(presupuestoSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [cuentasCobrar, setCuentasCobrar] = useState<CuentaCobrar[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_cuentas_cobrar', []);
+    const validated = z.array(cuentaCobrarSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [cuentasPagar, setCuentasPagar] = useState<CuentaPagar[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_cuentas_pagar', []);
+    const validated = z.array(cuentaPagarSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [ordenesCambio, setOrdenesCambio] = useState<OrdenCambio[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_ordenes_cambio', []);
+    const validated = z.array(ordenCambioSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [hitos, setHitos] = useState<Hito[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_hitos', []);
+    const validated = z.array(hitoSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [riesgos, setRiesgos] = useState<Riesgo[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_riesgos', []);
+    const validated = z.array(riesgoSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [licitaciones, setLicitaciones] = useState<Licitacion[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_licitaciones', []);
+    const validated = z.array(licitacionSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [cotizacionesNegocio, setCotizacionesNegocio] = useState<CotizacionCliente[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', []);
+    const validated = z.array(cotizacionSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_bitacora', []);
+    const validated = z.array(bitacoraSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [pruebas, setPruebas] = useState<Prueba[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_pruebas', []);
+    const validated = z.array(pruebaSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [ncs, setNcs] = useState<NoConformidad[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_no_conformidades', []);
+    const validated = z.array(noConformidadSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [avances, setAvances] = useState<AvanceObra[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_avances', []);
+    const validated = z.array(avanceObraSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_vales_salida', []);
+    const validated = z.array(avanceObraSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [seguimientoEVM, setSeguimientoEVM] = useState<SeguimientoEVM[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_seguimiento_evm', []);
+    const validated = z.array(seguimientoSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [incidentes, setIncidentes] = useState<IncidenteSeguridad[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_incidentes', []);
+    const validated = z.array(incidenteSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [publicacionesMuro, setPublicacionesMuro] = useState<PublicacionMuro[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_publicaciones_muro', []);
+    const validated = z.array(muroSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [liberaciones, setLiberaciones] = useState<LiberacionPartida[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_liberaciones', []);
+    const validated = z.array(liberacionSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [planos, setPlanos] = useState<Plano[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_planos', []);
+    const validated = z.array(planoSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [rfis, setRfis] = useState<RFI[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_rfis', []);
+    const validated = z.array(rfiSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [submittals, setSubmittals] = useState<Submittal[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_submittals', []);
+    const validated = z.array(submittalSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [activos, setActivos] = useState<ActivoHerramienta[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_activos', []);
+    const validated = z.array(activoSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [cuadros, setCuadros] = useState<CuadroComparativo[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_cuadros', []);
+    const validated = z.array(cuadroSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [pagosProveedor, setPagosProveedor] = useState<PagoProveedor[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_pagos_proveedor', []);
+    const validated = z.array(pagoProveedorSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
   const [syncMessage, setSyncMessage] = useState('');
 
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>(() => loadFromStorage(NOTIF_KEY, []));
   const [syncCooldown, setSyncCooldown] = useState(false);
+  const [selectedProyectoId, setSelectedProyectoId] = useState<string | null>(null);
 
   // appSettings: estado de configuración del usuario
   const [appSettings, setAppSettings] = useState<AppSettings>(() => loadFromStorage(BASE_STORAGE_KEY + '_settings', {
@@ -890,9 +1022,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (data.licitaciones?.length) setLicitaciones(data.licitaciones);
     if (data.cotizaciones?.length) setCotizacionesNegocio(data.cotizaciones);
   }, []);
-  
-  // Persistencia localStorage para cotizaciones
-  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', cotizacionesNegocio); }, [cotizacionesNegocio]);
 
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_proyectos', proyectos); }, [proyectos]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_movimientos', movimientos); }, [movimientos]);
