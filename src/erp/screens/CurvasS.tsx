@@ -35,7 +35,7 @@ const generarCurvaS = (total: number, meses: number, avanceActual: number, mesAc
 };
 
 const CurvasS: React.FC = () => {
-  const { proyectos, movimientos } = useErp();
+  const { proyectos, movimientos, avances } = useErp();
   const chartRef = useRef<HTMLDivElement>(null);
 
   const [selectedProyectoId, setSelectedProyectoId] = useState('');
@@ -53,8 +53,22 @@ const CurvasS: React.FC = () => {
     const mesesTranscurridos = Math.max(0, Math.min(mesesTotales,
       Math.ceil((hoy.getTime() - fechaInicio.getTime()) / (30 * 24 * 60 * 60 * 1000))
     ));
-    return generarCurvaS(presupuesto, mesesTotales, proyecto.avanceFisico || 0, mesesTranscurridos);
-  }, [proyecto]);
+    const proyAvances = avances
+      .filter(a => a.proyectoId === proyecto.id)
+      .sort((a, b) => a.fecha.localeCompare(b.fecha));
+    const realPorMes = proyAvances.length > 0
+      ? Array.from({ length: mesesTotales }, (_, i) => {
+          const count = Math.round(((i + 1) / mesesTotales) * proyAvances.length);
+          const slice = proyAvances.slice(0, count);
+          return Math.round(slice.reduce((s, a) => s + a.avanceFisico, 0) / slice.length);
+        })
+      : [];
+    const theoretical = generarCurvaS(presupuesto, mesesTotales, proyecto.avanceFisico || 0, mesesTranscurridos);
+    return theoretical.map((p, i) => ({
+      ...p,
+      real: i < realPorMes.length ? presupuesto * (realPorMes[i] / 100) : null,
+    }));
+  }, [proyecto, avances]);
 
   // ===== FLUJO DE CAJA =====
   const flujoCaja = useMemo(() => {
@@ -73,8 +87,8 @@ const CurvasS: React.FC = () => {
       const diffMonths = (hoy.getFullYear() - fechaMov.getFullYear()) * 12 + (hoy.getMonth() - fechaMov.getMonth());
       const idx = 11 - diffMonths;
       if (idx >= 0 && idx < 12) {
-        if (m.tipo === 'ingreso') meses[idx].ingresos += m.costoTotal;
-        else meses[idx].egresos += m.costoTotal;
+        if (m.tipo === 'ingreso') meses[idx].ingresos += (m.costoTotal ?? m.monto ?? 0);
+        else meses[idx].egresos += (m.costoTotal ?? m.monto ?? 0);
       }
     });
     return meses;
@@ -100,7 +114,7 @@ const CurvasS: React.FC = () => {
 
       // Proyección sobrecosto
       const movsProy = movimientos.filter(m => m.proyectoId === p.id);
-      const totalGastado = movsProy.filter(m => m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
+      const totalGastado = movsProy.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.costoTotal ?? b.monto ?? 0), 0);
       if (p.avanceFisico > 0 && totalGastado > 0) {
         const costoProyectado = (totalGastado / (p.avanceFisico / 100));
         const sobrecosto = costoProyectado - p.presupuestoTotal;
@@ -119,7 +133,7 @@ const CurvasS: React.FC = () => {
     // Quema de horas hombre (simplificada con empleados)
     const totalSalarios = movimientos
       .filter(m => m.tipo === 'gasto' && m.categoria === 'mano_obra')
-      .reduce((a, b) => a + b.costoTotal, 0);
+      .reduce((a, b) => a + (b.costoTotal ?? b.monto ?? 0), 0);
     if (totalSalarios > 0) {
       list.push({
         tipo: 'info',
@@ -130,8 +144,8 @@ const CurvasS: React.FC = () => {
     }
 
     // Resumen ingresos vs egresos
-    const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + b.costoTotal, 0);
-    const egresos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + b.costoTotal, 0);
+    const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.costoTotal ?? b.monto ?? 0), 0);
+    const egresos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.costoTotal ?? b.monto ?? 0), 0);
     const ratio = egresos > 0 ? ingresos / egresos : 0;
     if (ratio < 1) {
       list.push({

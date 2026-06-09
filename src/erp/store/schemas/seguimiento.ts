@@ -1,5 +1,21 @@
 import { z } from 'zod';
 
+export const avanceObraSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  presupuestoId: z.string(),
+  renglonId: z.string(),
+  renglonCodigo: z.string().optional(),
+  renglonNombre: z.string().optional(),
+  fecha: z.string(),
+  avanceFisico: z.number().default(0),
+  cantidadEjecutada: z.number().default(0),
+  foto: z.string().optional(),
+  notas: z.string().optional(),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+});
+
 export const seguimientoSchema = z.object({
   id: z.string(),
   proyectoId: z.string(),
