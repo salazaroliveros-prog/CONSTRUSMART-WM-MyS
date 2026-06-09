@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useErp, type View, parseView } from '../store';
+import { useAppContext } from '@/components/AppLayout';
 import {
   Layout, Menu, Avatar, Badge, Typography, Space, Breadcrumb,
   Dropdown, Button, theme as antTheme, Grid,
@@ -87,11 +88,14 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { key: 'logout', icon: <LogoutOutlined />, label: 'Cerrar Sesión', danger: true },
   ];
 
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const siderCollapsed = isMobile ? !mobileOpen : collapsed;
+
   return (
     <Layout style={{ minHeight: '100vh', background: token.colorBgLayout }}>
-      {isMobile && !collapsed && (
+      {isMobile && mobileOpen && (
         <div
-          onClick={() => setCollapsed(true)}
+          onClick={() => setMobileOpen(false)}
           style={{
             position: 'fixed',
             inset: 0,
@@ -103,8 +107,11 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       )}
       <Sider
         collapsible
-        collapsed={isMobile ? false : collapsed}
-        onCollapse={(c) => { if (!isMobile) setCollapsed(c); else setCollapsed(false); }}
+        collapsed={siderCollapsed}
+        onCollapse={(next) => {
+          if (isMobile) setMobileOpen(!next);
+          else setCollapsed(next);
+        }}
         trigger={null}
         width={240}
         collapsedWidth={isMobile ? 240 : 64}
@@ -151,7 +158,7 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           />
         </div>
 
-        {!collapsed && (
+        {!mobileOpen && (
           <div style={{
             position: 'absolute',
             bottom: 0,
@@ -184,13 +191,16 @@ const AntLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           zIndex: 99,
         }}>
           <Space>
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              size="large"
-              aria-label={collapsed ? 'Abrir menú' : 'Cerrar menú'}
-            />
+          <Button
+            type="text"
+            icon={siderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => {
+              if (isMobile) setMobileOpen(prev => !prev);
+              else setCollapsed(prev => !prev);
+            }}
+            size="large"
+            aria-label={siderCollapsed ? 'Abrir menú' : 'Cerrar menú'}
+          />
             <Breadcrumb items={[
               { title: 'CONSTRUSMART' },
               { title: MENU_ITEMS.find(m => m.key === parseView(view).root)?.label || 'Módulo' },
