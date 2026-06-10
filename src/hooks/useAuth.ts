@@ -114,7 +114,7 @@ export function useAuth(): UseAuthReturn {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       log('info', 'useAuth', `Auth event: ${event}`, { hasSession: !!session });
 
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
         await buildUserFromSession();
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
