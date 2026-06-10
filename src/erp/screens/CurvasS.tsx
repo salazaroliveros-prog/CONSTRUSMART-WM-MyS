@@ -7,31 +7,38 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Curva S: genera puntos programado vs real a lo largo de meses del proyecto
-const generarCurvaS = (total: number, meses: number, avanceActual: number, mesActual: number) => {
-  // Curva S teórica: crecimiento logístico
-  const puntos: { mes: number; label: string; programado: number; real: number | null }[] = [];
+// Curva S teórica: genera el programado siguiendo la forma logística (sigmoide)
+const generarCurvaSTeorica = (total: number, meses: number): number[] => {
+  const puntos: number[] = [];
   for (let i = 0; i < meses; i++) {
     const t = (i + 1) / meses;
-    // Función sigmoide para Curva S
     const pctProg = 100 / (1 + Math.exp(-8 * (t - 0.5)));
     const pctProgNorm = (pctProg - 100 / (1 + Math.exp(4))) / (100 / (1 + Math.exp(-4)) - 100 / (1 + Math.exp(4))) * 100;
-    const label = `Mes ${i + 1}`;
-    // Real: usa avance actual hasta mesActual, luego null
-    const real = i < mesActual
-      ? total * (avanceActual / 100) * ((i + 1) / mesActual) / (mesActual > 0 ? 1 : 1)
-      : null;
-    void real;
-    // Para real lo simplificamos: distribución lineal del avance actual
-    const realVal = i < mesActual ? total * (avanceActual / 100) * ((i + 1) / mesActual) : null;
-    puntos.push({
-      mes: i + 1,
-      label,
-      programado: +(total * Math.min(pctProgNorm, 100) / 100).toFixed(0),
-      real: realVal ? +realVal.toFixed(0) : null,
-    });
+    puntos.push(+(total * Math.min(pctProgNorm, 100) / 100).toFixed(0));
   }
   return puntos;
+};
+
+// Genera el real acumulado mes a mes desde los avances registrados
+const generarRealDesdeAvances = (avances: { fecha: string; avanceFisico: number }[], total: number, meses: number): (number | null)[] => {
+  if (avances.length === 0) return Array(meses).fill(null);
+  const sorted = [...avances].sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const real: (number | null)[] = [];
+  let acumulado = 0;
+  for (let i = 0; i < meses; i++) {
+    // Avances de este mes (fecha contiene el mes)
+    const avancesMes = sorted.filter(a => {
+      const m = parseInt(a.fecha.split('-')[1]) - 1;
+      return m === i;
+    });
+    if (avancesMes.length > 0) {
+      acumulado += avancesMes.reduce((s, a) => s + a.avanceFisico, 0);
+      real.push(+(total * Math.min(acumulado, 100) / 100).toFixed(0));
+    } else {
+      real.push(acumulado > 0 ? +(total * Math.min(acumulado, 100) / 100).toFixed(0) : null);
+    }
+  }
+  return real;
 };
 
 const CurvasS: React.FC = () => {
@@ -49,24 +56,21 @@ const CurvasS: React.FC = () => {
     const fechaInicio = new Date(proyecto.fechaInicio);
     const fechaFin = new Date(proyecto.fechaFin);
     const mesesTotales = Math.max(1, Math.ceil((fechaFin.getTime() - fechaInicio.getTime()) / (30 * 24 * 60 * 60 * 1000)));
-    const hoy = new Date();
-    const mesesTranscurridos = Math.max(0, Math.min(mesesTotales,
-      Math.ceil((hoy.getTime() - fechaInicio.getTime()) / (30 * 24 * 60 * 60 * 1000))
-    ));
+
+    // Programado teórico (curva S logística)
+    const programado = generarCurvaSTeorica(presupuesto, mesesTotales);
+
+    // Real desde avances registrados en Supabase
     const proyAvances = avances
       .filter(a => a.proyectoId === proyecto.id)
       .sort((a, b) => a.fecha.localeCompare(b.fecha));
-    const realPorMes = proyAvances.length > 0
-      ? Array.from({ length: mesesTotales }, (_, i) => {
-          const count = Math.round(((i + 1) / mesesTotales) * proyAvances.length);
-          const slice = proyAvances.slice(0, count);
-          return Math.round(slice.reduce((s, a) => s + a.avanceFisico, 0) / slice.length);
-        })
-      : [];
-    const theoretical = generarCurvaS(presupuesto, mesesTotales, proyecto.avanceFisico || 0, mesesTranscurridos);
-    return theoretical.map((p, i) => ({
-      ...p,
-      real: i < realPorMes.length ? presupuesto * (realPorMes[i] / 100) : null,
+    const real = generarRealDesdeAvances(proyAvances, presupuesto, mesesTotales);
+
+    return programado.map((prog, i) => ({
+      mes: i + 1,
+      label: `Mes ${i + 1}`,
+      programado: prog,
+      real: real[i],
     }));
   }, [proyecto, avances]);
 
