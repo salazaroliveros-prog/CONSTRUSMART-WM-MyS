@@ -64,7 +64,7 @@ describe('1. Store CRUD Completo (14+ entidades)', () => {
   makeEntityTests('EventoCalendario', { proyectoId: 'p1', titulo: 'Reunión', fecha: '2026-01-01', hora: '10:00', tipo: 'reunion', participantes: [] });
   makeEntityTests('BitacoraEntry', { proyectoId: 'p1', fecha: '2026-01-01', clima: 'soleado', personalPresente: 5, maquinaria: '', tareasRealizadas: '', observaciones: '', fotos: [] });
   makeEntityTests('Presupuesto', { proyectoId: 'p1', tipologia: 'residencial', renglones: [], estado: 'borrador', totalCalculado: 0, costoDirectoTotal: 0, fechaCreacion: '2026-01-01', fechaActualizacion: '2026-01-01' });
-  makeEntityTests('Licitacion', { titulo: 'Obra X', cliente: 'Cliente A', monto: 500000, fechaLimite: '2026-06-30', estado: 'identificado', probabilidad: 50, fechaCreacion: '2026-01-01' });
+  makeEntityTests('Licitacion', { nombre: 'Obra X', cliente: 'Cliente A', monto: 500000, fechaLimite: '2026-06-30', estado: 'activa', probabilidad: 50, createdAt: '2026-01-01' });
   makeEntityTests('AvanceObra', { proyectoId: 'p1', presupuestoId: 'pr1', renglonId: 'r1', fecha: '2026-01-01', avanceFisico: 50, cantidadEjecutada: 10 });
   makeEntityTests('ValeSalida', { proyectoId: 'p1', fecha: '2026-01-01', items: [{ materialId: 'm1', cantidad: 5 }], solicitante: 'Juan' });
   makeEntityTests('Hito', { proyectoId: 'p1', nombre: 'Inicio', fecha: '2026-01-01', tipo: 'inicio', estado: 'pendiente', createdAt: '2026-01-01' });
@@ -85,6 +85,8 @@ describe('1. Store CRUD Completo (14+ entidades)', () => {
   makeEntityTests('CotizacionCliente', { tipo: 'construccion', numero: 'COT-001', fecha: '2026-01-01', clienteNombre: 'Cliente', descripcion: 'Test', alcance: 'Alcance', renglones: [], costoDirectoTotal: 0, precioVentaTotal: 0, estado: 'borrador', createdAt: '2026-01-01', updatedAt: '2026-01-01' });
   makeEntityTests('CuentaCobrar', { proyectoId: 'p1', cliente: 'Cliente', concepto: 'Pago', monto: 10000, saldoPendiente: 10000, fechaEmision: '2026-01-01', fechaVencimiento: '2026-02-01', estado: 'pendiente' });
   makeEntityTests('CuentaPagar', { proyectoId: 'p1', proveedor: 'Prov A', concepto: 'Factura', monto: 5000, saldoPendiente: 5000, fechaEmision: '2026-01-01', fechaVencimiento: '2026-02-01', estado: 'pendiente' });
+  makeEntityTests('Destajo', { proyectoId: 'p1', renglonCodigo: 'EXC-001', cuadrilla: 'Albañil', fecha: '2026-06-01', cantidadEjecutada: 10, unidad: 'm³', horasTrabajadas: 8, rendimientoReal: 1.25, rendimientoTeorico: 1.5 });
+  makeEntityTests('RecepcionAlmacen', { ocId: 'oc1', fecha: '2026-06-01T00:00:00.000Z', cantidadRecibida: 50, cantidadOC: 100, diferencia: 50, material: 'Cemento', proveedor: 'Prov A' });
 });
 
 // =====================================================================

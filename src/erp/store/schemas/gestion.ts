@@ -17,15 +17,15 @@ export const activoSchema = z.object({
 
 export const licitacionSchema = z.object({
   id: z.string(),
-  titulo: z.string(),
+  nombre: z.string(),
   cliente: z.string(),
   monto: z.number(),
   fechaLimite: z.string().optional().default(''),
-  estado: z.enum(['identificado','en_estudio','presentado','ganado','perdido'] as const).default('identificado'),
-  probabilidad: z.number().default(30),
-  fechaCreacion: z.string().default(''),
+  estado: z.enum(['activa','adjudicada','perdida','cerrada'] as const).default('activa'),
+  probabilidad: z.number().default(50),
   documentos: z.array(z.object({ nombre: z.string(), url: z.string() })).optional().default([]),
   notas: z.string().optional(),
+  createdAt: z.string().default(''),
 });
 
 export const cuadroSchema = z.object({
@@ -100,6 +100,31 @@ export const rfiSchema = z.object({
   fechaSolicitud: z.string().default(new Date().toISOString().split('T')[0]),
   respuesta: z.string().nullable().optional(),
   fechaRespuesta: z.string().nullable().optional(),
+});
+
+export const destajoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  renglonCodigo: z.string(),
+  cuadrilla: z.string(),
+  fecha: z.string(),
+  cantidadEjecutada: z.number(),
+  unidad: z.string(),
+  horasTrabajadas: z.number(),
+  rendimientoReal: z.number().default(0),
+  rendimientoTeorico: z.number().default(0),
+  observaciones: z.string().optional().default(''),
+});
+
+export const recepcionAlmacenSchema = z.object({
+  id: z.string(),
+  ocId: z.string(),
+  fecha: z.string(),
+  cantidadRecibida: z.number(),
+  cantidadOC: z.number(),
+  diferencia: z.number(),
+  material: z.string(),
+  proveedor: z.string(),
 });
 
 export const submittalSchema = z.object({

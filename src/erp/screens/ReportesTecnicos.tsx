@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
 
 const ReportesTecnicos: React.FC = () => {
-  const { proyectos, movimientos, empleados, presupuestos, valesSalida } = useErp();
+  const { proyectos, movimientos, empleados, presupuestos, valesSalida, materiales } = useErp();
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState<Reporte>('cubicacion');
   const [proyectoId, setProyectoId] = useState('');
@@ -329,7 +329,10 @@ const ReportesTecnicos: React.FC = () => {
                           <td className="py-1.5 px-2 border border-slate-200">{v.fecha}</td>
                           <td className="py-1.5 px-2 border border-slate-200 font-medium">{v.solicitante}</td>
                           <td className="py-1.5 px-2 border border-slate-200 text-right">{v.items.length}</td>
-                          <td className="py-1.5 px-2 border border-slate-200 text-right font-bold">{fmtQ(0)}</td>
+                          <td className="py-1.5 px-2 border border-slate-200 text-right font-bold">{fmtQ(v.items.reduce((sum, item) => {
+                            const mat = materiales.find(m => m.id === item.materialId);
+                            return sum + (mat?.precio || 0) * item.cantidad;
+                          }, 0))}</td>
                         </tr>
                       ))}
                     </tbody>

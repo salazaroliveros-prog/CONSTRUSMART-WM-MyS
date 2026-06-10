@@ -12,8 +12,8 @@ export const avanceObraSchema = z.object({
   cantidadEjecutada: z.number().default(0),
   foto: z.string().optional(),
   notas: z.string().optional(),
-  lat: z.number().optional(),
-  lng: z.number().optional(),
+  latitud: z.number().optional(),
+  longitud: z.number().optional(),
 });
 
 export const seguimientoSchema = z.object({

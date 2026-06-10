@@ -1,13 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { useErp } from '../store';
-import RecepcionMateriales from '../components/RecepcionMateriales';
 
 export const EntradasAlmacenOC: React.FC = () => {
-  const { ordenes, materiales, updateMaterial, updateOrden } = useErp();
+  const { ordenes, materiales, updateMaterial, updateOrden, recepciones, addRecepcion } = useErp();
   const [ocFilter, setOcFilter] = useState<'todas' | 'pendientes' | 'aprobadas'>('todas');
   const [showForm, setShowForm] = useState<string | null>(null);
   const [formCantidad, setFormCantidad] = useState(0);
-  const [recepciones, setRecepciones] = useState<any[]>([]);
 
   const ocFiltradas = useMemo(() => {
     let filtered = ordenes;
@@ -20,10 +18,8 @@ export const EntradasAlmacenOC: React.FC = () => {
     const orden = ordenes.find(o => o.id === ocId);
     if (!orden) return;
 
-    const cantidad = recepciones[ocId] || 0;
-    if (cantidad <= 0) return;
+    if (formCantidad <= 0) return;
 
-    // Actualizar stock de materiales - matching exacto primero, luego por ID, luego fuzzy
     const materialNombre = orden.material?.toLowerCase() || '';
     const material =
       materiales.find(m => m.nombre.toLowerCase() === materialNombre) ||
@@ -35,34 +31,39 @@ export const EntradasAlmacenOC: React.FC = () => {
 
     if (material) {
       updateMaterial(material.id, {
-        stock: material.stock + cantidad
+        stock: material.stock + formCantidad
       });
     }
 
     updateOrden(ocId, 'recibida');
 
-    // Actualizar estado de OC
-    const recibidoTotal = cantidad;
+    const recibidoTotal = formCantidad;
     const diferencia = orden.cantidad - recibidoTotal;
 
-    // Registrar recepción en store
-    const nuevaRecepcion = {
-      id: Date.now().toString(),
+    addRecepcion({
       ocId,
       fecha: new Date().toISOString(),
-      cantidadRecibida: cantidad,
+      cantidadRecibida: formCantidad,
       cantidadOC: orden.cantidad,
       diferencia,
       material: orden.material,
       proveedor: orden.proveedor
-    };
-    setRecepciones(prev => [...prev, nuevaRecepcion]);
+    });
 
     setShowForm(null);
     setFormCantidad(0);
   };
 
   const historialRecepciones = recepciones;
+  const recsPorOC = useMemo(() => {
+    const map = new Map<string, { totalRecibido: number }>();
+    recepciones.forEach(r => {
+      const existing = map.get(r.ocId);
+      if (existing) existing.totalRecibido += r.cantidadRecibida;
+      else map.set(r.ocId, { totalRecibido: r.cantidadRecibida });
+    });
+    return map;
+  }, [recepciones]);
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
@@ -70,7 +71,6 @@ export const EntradasAlmacenOC: React.FC = () => {
         <h1 className="text-xl font-bold">📦 Entradas de Almacén vs Órdenes de Compra</h1>
       </div>
 
-      {/* Filtros */}
       <div className="flex flex-wrap gap-3 mb-4">
         <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
           {(['todas', 'pendientes', 'aprobadas'] as const).map(f => (
@@ -85,7 +85,6 @@ export const EntradasAlmacenOC: React.FC = () => {
         <span className="text-xs text-gray-400 self-center">{ocFiltradas.length} OC(s)</span>
       </div>
 
-      {/* Tabla de OC */}
       <div className="overflow-x-auto mb-6">
         <table className="w-full text-sm">
           <thead>
@@ -101,9 +100,8 @@ export const EntradasAlmacenOC: React.FC = () => {
           </thead>
           <tbody>
             {ocFiltradas.map(oc => {
-              // Calcular total recibido
-              const recs = historialRecepciones.filter((r: any) => r.ocId === oc.id);
-              const totalRecibido = recs.reduce((a: number, r: any) => a + r.cantidadRecibida, 0);
+              const ocRecs = recsPorOC.get(oc.id);
+              const totalRecibido = ocRecs?.totalRecibido || 0;
               const saldo = oc.cantidad - totalRecibido;
               const completada = saldo <= 0;
 
@@ -152,7 +150,6 @@ export const EntradasAlmacenOC: React.FC = () => {
         </table>
       </div>
 
-      {/* Modal de recepción */}
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
@@ -183,7 +180,6 @@ export const EntradasAlmacenOC: React.FC = () => {
         </div>
       )}
 
-      {/* Historial de recepciones */}
       {historialRecepciones.length > 0 && (
         <div className="bg-white border rounded-lg p-4">
           <h3 className="text-sm font-semibold text-gray-500 mb-3">
@@ -202,7 +198,7 @@ export const EntradasAlmacenOC: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {historialRecepciones.slice().reverse().map((r: any) => (
+                {historialRecepciones.slice().reverse().map(r => (
                   <tr key={r.id} className={`border-t ${r.diferencia < 0 ? 'bg-red-50' : 'hover:bg-gray-50'}`}>
                     <td className="p-2 text-xs">{new Date(r.fecha).toLocaleDateString()}</td>
                     <td className="p-2 text-xs">{r.proveedor}</td>

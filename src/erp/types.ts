@@ -64,7 +64,7 @@ export interface RendimientoCuadrilla {
   id: string;
   actividad: string;
   unidad: string;
-  cuadrillaTipo: string;
+  cuadrilla: string;
   rendimientoDiario: number;
 }
 
@@ -290,21 +290,21 @@ export interface AvanceObra {
   cantidadEjecutada: number;
   foto?: string;
   notas?: string;
-  lat?: number;
-  lng?: number;
+  latitud?: number;
+  longitud?: number;
 }
 
 export interface Licitacion {
   id: string;
-  titulo: string;
+  nombre: string;
   cliente: string;
   monto: number;
   fechaLimite: string;
-  estado: 'identificado' | 'en_estudio' | 'presentado' | 'ganado' | 'perdido';
+  estado: 'activa' | 'adjudicada' | 'perdida' | 'cerrada';
   probabilidad: number;
-  fechaCreacion: string;
   documentos?: { nombre: string; url: string }[];
   notas?: string;
+  createdAt: string;
 }
 
 export interface PublicacionMuro {
@@ -524,6 +524,17 @@ export interface ValeSalidaRenglon {
 // ============================================================
 // NUEVAS INTERFACES FASE 2 - Campo y Evidencia
 // ============================================================
+
+export interface RecepcionAlmacen {
+  id: string;
+  ocId: string;
+  fecha: string;
+  cantidadRecibida: number;
+  cantidadOC: number;
+  diferencia: number;
+  material: string;
+  proveedor: string;
+}
 
 export interface Destajo {
   id: string;

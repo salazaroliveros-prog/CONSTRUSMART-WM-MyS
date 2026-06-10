@@ -1,10 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { useErp, uid } from '../store';
-import type { Destajo } from '../types';
+import { useErp } from '../store';
 import { downloadBlob } from '../utils';
 
 export const PlanillaDestajos: React.FC = () => {
-  const { proyectos } = useErp();
+  const { proyectos, destajos, addDestajo, deleteDestajo } = useErp();
 
   const [proyectoFilter, setProyectoFilter] = useState('');
   const [semanaFilter, setSemanaFilter] = useState(() => {
@@ -15,13 +14,12 @@ export const PlanillaDestajos: React.FC = () => {
   });
   const [tasaPago, setTasaPago] = useState<Record<string, number>>({});
 
-  const [destajos, setDestajos] = useState<Destajo[]>([]);
-
-  const addDestajo = (data: Omit<Destajo, 'id' | 'rendimientoReal'>) => {
-    const rendimientoReal = data.horasTrabajadas > 0 ? data.cantidadEjecutada / data.horasTrabajadas : 0;
-    const nuevo: Destajo = { ...data, id: uid(), rendimientoReal };
-    setDestajos(prev => [nuevo, ...prev]);
-  };
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    proyectoId: '', renglonCodigo: '', cuadrilla: '',
+    fecha: new Date().toISOString().split('T')[0],
+    cantidadEjecutada: 0, unidad: '', horasTrabajadas: 8, rendimientoTeorico: 0,
+  });
 
   const semanaInicio = useMemo(() => new Date(semanaFilter), [semanaFilter]);
   const semanaFin = useMemo(() => {
@@ -61,6 +59,18 @@ export const PlanillaDestajos: React.FC = () => {
 
   const totalPagar = planilla.reduce((a, p) => a + p.pagoSemanal, 0);
 
+  const handleSubmitForm = () => {
+    if (!formData.proyectoId || !formData.renglonCodigo || !formData.cuadrilla) return;
+    const rendimientoReal = formData.horasTrabajadas > 0 ? formData.cantidadEjecutada / formData.horasTrabajadas : 0;
+    addDestajo({ ...formData, rendimientoReal });
+    setFormData({
+      proyectoId: '', renglonCodigo: '', cuadrilla: '',
+      fecha: new Date().toISOString().split('T')[0],
+      cantidadEjecutada: 0, unidad: '', horasTrabajadas: 8, rendimientoTeorico: 0,
+    });
+    setShowForm(false);
+  };
+
   const INPUT = 'text-sm px-3 py-2 border border-input rounded-lg outline-none focus:border-ring bg-background text-foreground';
 
   return (
@@ -72,11 +82,10 @@ export const PlanillaDestajos: React.FC = () => {
             {semanaInicio.toLocaleDateString()} — {semanaFin.toLocaleDateString()}
           </p>
         </div>
-        <button onClick={() => {
-          const proy = proyectos[0];
-          if (!proy) return;
-          addDestajo({ proyectoId: proy.id, renglonCodigo: 'EXC-001', cuadrilla: '1 Albañil + 1 Ayudante', fecha: new Date().toISOString().split('T')[0], cantidadEjecutada: Math.round(Math.random() * 20 + 5), unidad: 'm³', horasTrabajadas: 8, rendimientoTeorico: 10 });
-        }} className="bg-success text-success-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-success/90 font-medium">+ Demo Destajo</button>
+        <button onClick={() => setShowForm(true)}
+          className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">
+          + Nuevo Destajo
+        </button>
       </div>
 
       {/* Filtros */}
@@ -157,7 +166,7 @@ export const PlanillaDestajos: React.FC = () => {
       {planilla.length === 0 && (
         <div className="text-center py-12">
           <p className="text-muted-foreground text-sm">No hay destajos registrados para esta semana.</p>
-          <p className="text-muted-foreground text-xs mt-1">Registra destajos en Rendimiento → Destajos.</p>
+          <p className="text-muted-foreground text-xs mt-1">Agrega un destajo usando el botón "+ Nuevo Destajo".</p>
         </div>
       )}
 
@@ -172,6 +181,42 @@ export const PlanillaDestajos: React.FC = () => {
           }} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">
             📥 Exportar CSV
           </button>
+        </div>
+      )}
+
+      {/* Modal Nuevo Destajo */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold mb-4">Nuevo Destajo</h3>
+            <div className="grid gap-3">
+              <select value={formData.proyectoId} onChange={e => setFormData(p => ({ ...p, proyectoId: e.target.value }))} className={INPUT}>
+                <option value="">Seleccionar proyecto</option>
+                {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+              </select>
+              <input placeholder="Renglón código" value={formData.renglonCodigo} onChange={e => setFormData(p => ({ ...p, renglonCodigo: e.target.value }))} className={INPUT} />
+              <input placeholder="Cuadrilla" value={formData.cuadrilla} onChange={e => setFormData(p => ({ ...p, cuadrilla: e.target.value }))} className={INPUT} />
+              <input type="date" value={formData.fecha} onChange={e => setFormData(p => ({ ...p, fecha: e.target.value }))} className={INPUT} />
+              <div className="grid grid-cols-2 gap-2">
+                <input type="number" placeholder="Cant. ejecutada" value={formData.cantidadEjecutada || ''} onChange={e => setFormData(p => ({ ...p, cantidadEjecutada: +e.target.value }))} className={INPUT} />
+                <input placeholder="Unidad" value={formData.unidad} onChange={e => setFormData(p => ({ ...p, unidad: e.target.value }))} className={INPUT} />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input type="number" placeholder="Horas trabajadas" value={formData.horasTrabajadas || ''} onChange={e => setFormData(p => ({ ...p, horasTrabajadas: +e.target.value }))} className={INPUT} />
+                <input type="number" placeholder="Rend. teórico" value={formData.rendimientoTeorico || ''} onChange={e => setFormData(p => ({ ...p, rendimientoTeorico: +e.target.value }))} className={INPUT} />
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleSubmitForm}
+                  className="flex-1 bg-green-600 text-white py-2 rounded text-sm hover:bg-green-700">
+                  ✅ Guardar Destajo
+                </button>
+                <button onClick={() => setShowForm(false)}
+                  className="px-4 py-2 border rounded text-sm hover:bg-gray-50">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -130,7 +130,19 @@
 - **Sanitize XSS**: string concatenation evita decoding de HTML entities
 - **`__proto__`**: cambiado a `constructor` para evitar interceptación del prototype
 
-### SESIÓN-06 (2026-06-08): Migraciones Supabase + Data Persistence Confirmation
+### SESIÓN-07 (2026-06-10): Migración 017 + Destajos/Recepciones Store + ForceSync + Reportes + Delete Handlers
+- **Migración 017**: Columna `probabilidad` añadida a `erp_licitaciones` (ya existía, skip)
+- **Migración 018**: RPC functions `append_comentario_muro` y `increment_likes_muro` para manejo correcto de JSONB array y contador
+- **Destajos → Store**: `destajos` entity con schema Zod, state, fetch/assign Supabase (table `destajos`), handlers (add/update/delete), saveToStorage, tableMap, ErpState, value memo. PlanillaDestajos.tsx ahora usa store en vez de useState local. Modal de creación añadido.
+- **Recepciones → Store**: `recepciones` entity (tipo `RecepcionAlmacen`) con schema Zod, estado, handlers (add/delete), saveToStorage, ErpState, value memo. Solo local (sin tabla Supabase). EntradasAlmacenOC.tsx ahora usa store.
+- **ForceSync fix**: `addComentarioMuro` y `likePublicacionMuro` ahora usan RPC functions (en vez de INSERT) para actualizar correctamente JSONB array y contador `likes`
+- **ReportesTecnicos fix**: `{fmtQ(0)}` en valor de vale de salida ahora calcula total desde `items[] * precio` de materiales
+- **Delete handlers añadidos**: `deleteCuadro`, `deletePagoProveedor`, `deleteIncidente` (handlers, tableMap, ErpState, value memo)
+- **Migración 019**: Tabla `recepciones_almacen` con RLS + realtime
+- **Recepciones → forceSync**: Activado forceSync para `addRecepcion`/`deleteRecepcion` (tabla `recepciones_almacen`)
+- **CRM polish**: Slider de probabilidad en formulario de licitaciones (create + edit), weighted pipeline bar chart en LicitacionesDashboard
+- **Tests**: +8 tests para Destajo y RecepcionAlmacen (makeEntityTests)
+- Tests: **564/564** pass (11 files, +129 tests vs sesión anterior)
 - **Duplicado de número de migración**: Renombrado `000000000002_rls_policies.sql` → `000000000007` para eliminar conflicto con `_complementary_tables_and_realtime.sql`
 - **DROP POLICY IF EXISTS**: Añadido a todas las `CREATE POLICY` en migración 007 y `fix_schema_inconsistencies` (evita error "already exists" en re-ejecución)
 - **Policy expression fix**: `= ANY(public.get_accessible_proyectos())` → `IN (SELECT * FROM public.get_accessible_proyectos())` — set-returning functions no están permitidas en policy expressions

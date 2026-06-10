@@ -8,7 +8,8 @@ import { toast } from '@/components/ui/sonner';
 import {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
   CuentaCobrar, CuentaPagar, Hito, Riesgo, PublicacionMuro, ComentarioMuro, PruebaLaboratorio, NoConformidad, LiberacionPartida,
-  Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo, PagoProveedor, CotizacionCliente,
+  Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo, PagoProveedor, CotizacionCliente, VentaPaquete,
+  Destajo, RecepcionAlmacen,
 } from './types';
 
 import {
@@ -18,6 +19,7 @@ import {
   bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema, muroSchema,
   notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
   licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
+  destajoSchema, recepcionAlmacenSchema,
 } from './store/schemas';
 
 const proyectoSchemaInline = z.object({
@@ -227,9 +229,17 @@ interface ErpState {
   deleteActivo: (id: string) => Promise<void>;
   cuadros: CuadroComparativo[]; addCuadro: (c: Omit<CuadroComparativo, 'id'>) => Promise<void>;
   updateCuadro: (id: string, patch: Partial<CuadroComparativo>) => Promise<void>;
+  deleteCuadro: (id: string) => Promise<void>;
   pagosProveedor: PagoProveedor[]; addPagoProveedor: (p: Omit<PagoProveedor, 'id'>) => Promise<void>;
   updatePagoProveedor: (id: string, patch: Partial<PagoProveedor>) => Promise<void>;
+  deletePagoProveedor: (id: string) => Promise<void>;
   incidentes: any[]; addIncidente: (i: any) => Promise<void>; updateIncidente: (id: string, patch: any) => Promise<void>;
+  deleteIncidente: (id: string) => Promise<void>;
+  destajos: Destajo[]; addDestajo: (d: Omit<Destajo, 'id'>) => Promise<void>;
+  updateDestajo: (id: string, patch: Partial<Destajo>) => Promise<void>;
+  deleteDestajo: (id: string) => Promise<void>;
+  recepciones: RecepcionAlmacen[]; addRecepcion: (r: Omit<RecepcionAlmacen, 'id'>) => Promise<void>;
+  deleteRecepcion: (id: string) => Promise<void>;
   publicacionesMuro: PublicacionMuro[]; addPublicacionMuro: (p: Omit<PublicacionMuro, 'id'>) => Promise<void>;
   addComentarioMuro: (pubId: string, c: Omit<ComentarioMuro, 'id'>) => Promise<void>;
   likePublicacionMuro: (pubId: string) => Promise<void>;
@@ -398,6 +408,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activos, setActivos] = useState<ActivoHerramienta[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_activos', activoSchema, []));
   const [cuadros, setCuadros] = useState<CuadroComparativo[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_cuadros', cuadroSchema, []));
   const [pagosProveedor, setPagosProveedor] = useState<PagoProveedor[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_pagos_proveedor', pagoProveedorSchema, []));
+  const [destajos, setDestajos] = useState<Destajo[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_destajos', destajoSchema, []));
+  const [recepciones, setRecepciones] = useState<RecepcionAlmacen[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema, []));
 
   const [mutationQueue, setMutationQueue] = useState<Mutation[]>(() => loadFromStorage(QUEUE_KEY, []));
   const [syncMessage, setSyncMessage] = useState('');
@@ -430,14 +442,22 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     fetchedRef.current = true;
     const fetchTable = async (t: string) => { try { const { data, error } = await supabase.from(t).select('*'); if (!error && data) return data as Record<string, unknown>[]; } catch {} return null; };
     (async () => {
-      let pd, md, ed, matd, od, provd, presd, ccd, cpd, ocd, hd, rd, licd, cotd, pubd, pland, rfid, subd, vpd;
-      try { [pd, md, ed, matd, od, provd, presd, ccd, cpd, ocd, hd, rd, licd, cotd, pubd, pland, rfid, subd, vpd] = await Promise.all([
+      let pd, md, ed, matd, od, provd, presd, ccd, cpd, ocd, hd, rd, licd, cotd, pubd, pland, rfid, subd, vpd, avd, evmd;
+      let bitd, incd, pruebd, ncd, libd, vsd, evtd, notifd, actd, cud, pagod, destd, recd;
+      try { [pd, md, ed, matd, od, provd, presd, ccd, cpd, ocd, hd, rd, licd, cotd, pubd, pland, rfid, subd, vpd, avd, evmd,
+        bitd, incd, pruebd, ncd, libd, vsd, evtd, notifd, actd, cud, pagod, destd, recd] = await Promise.all([
         fetchTable('erp_proyectos'), fetchTable('erp_movimientos'), fetchTable('erp_empleados'),
         fetchTable('erp_materiales'), fetchTable('erp_ordenes_compra'), fetchTable('erp_proveedores'),
         fetchTable('erp_presupuestos'), fetchTable('erp_cuentas_cobrar'), fetchTable('erp_cuentas_pagar'),
         fetchTable('erp_ordenes_cambio'), fetchTable('erp_hitos'), fetchTable('erp_riesgos'),
         fetchTable('erp_licitaciones'), fetchTable('erp_cotizaciones_negocio'), fetchTable('erp_publicaciones_muro'),
         fetchTable('erp_planos'), fetchTable('erp_rfis'), fetchTable('erp_submittals'), fetchTable('ventas_paquetes'),
+        fetchTable('erp_avances'), fetchTable('erp_seguimiento_evm'),
+        fetchTable('erp_bitacora'), fetchTable('erp_incidentes'), fetchTable('erp_pruebas_laboratorio'),
+        fetchTable('erp_no_conformidades'), fetchTable('erp_liberaciones_partida'), fetchTable('erp_vales_salida'),
+        fetchTable('erp_eventos_calendario'), fetchTable('erp_notificaciones'), fetchTable('activos_herramientas'),
+        fetchTable('cuadro_comparativo_proveedores'), fetchTable('pagos_proveedores'),
+        fetchTable('destajos'), fetchTable('recepciones_almacen'),
       ]); } catch {}
       const assign = (setter: (v: any[]) => void, raw: any[] | null) => { if (Array.isArray(raw)) setter(raw.map((item: any) => typeof item === 'object' && item ? toCamel(item) : {})); };
       if (pd) assign((v: any) => setProyectos(v), pd);
@@ -455,10 +475,25 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (licd) assign((v: any) => setLicitaciones(v), licd);
       if (cotd) assign((v: any) => setCotizacionesNegocio(v), cotd);
       if (vpd) assign((v: any) => setVentasPaquetes(v), vpd);
+      if (avd) assign((v: any) => setAvances(v), avd);
+      if (evmd) assign((v: any) => setSeguimientoEVM(v), evmd);
       if (pubd) assign((v: any) => setPublicacionesMuro(v), pubd);
       if (pland) assign((v: any) => setPlanos(v), pland);
       if (rfid) assign((v: any) => setRfis(v), rfid);
       if (subd) assign((v: any) => setSubmittals(v), subd);
+      if (bitd) assign((v: any) => setBitacora(v), bitd);
+      if (incd) assign((v: any) => setIncidentes(v), incd);
+      if (pruebd) assign((v: any) => setPruebas(v), pruebd);
+      if (ncd) assign((v: any) => setNcs(v), ncd);
+      if (libd) assign((v: any) => setLiberaciones(v), libd);
+      if (vsd) assign((v: any) => setValesSalida(v), vsd);
+      if (evtd) assign((v: any) => setEventos(v), evtd);
+      if (notifd) assign((v: any) => setNotificaciones(v), notifd);
+      if (actd) assign((v: any) => setActivos(v), actd);
+      if (cud) assign((v: any) => setCuadros(v), cud);
+      if (pagod) assign((v: any) => setPagosProveedor(v), pagod);
+      if (destd) assign((v: any) => setDestajos(v), destd);
+      if (recd) assign((v: any) => setRecepciones(v), recd);
     })();
   }, [user]);
 
@@ -495,11 +530,20 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           addRfi: 'erp_rfis', updateRfi: 'erp_rfis',
           addSubmittal: 'erp_submittals', updateSubmittal: 'erp_submittals',
           addActivo: 'activos_herramientas', updateActivo: 'activos_herramientas',
-          addCuadro: 'erp_cuadros_comparativos', updateCuadro: 'erp_cuadros_comparativos',
-          addPagoProveedor: 'erp_pagos_proveedores', updatePagoProveedor: 'erp_pagos_proveedores',
+          addCuadro: 'cuadro_comparativo_proveedores', updateCuadro: 'cuadro_comparativo_proveedores',
+          addPagoProveedor: 'pagos_proveedores', updatePagoProveedor: 'pagos_proveedores',
           addLicitacion: 'erp_licitaciones', updateLicitacion: 'erp_licitaciones', deleteLicitacion: 'erp_licitaciones',
           addCotizacion: 'erp_cotizaciones_negocio', updateCotizacion: 'erp_cotizaciones_negocio', deleteCotizacion: 'erp_cotizaciones_negocio',
           addNotificacion: 'erp_notificaciones', markNotificacionLeida: 'erp_notificaciones',
+          addVentaPaquete: 'ventas_paquetes',
+          addSeguimiento: 'erp_seguimiento_evm', updateSeguimiento: 'erp_seguimiento_evm', deleteSeguimiento: 'erp_seguimiento_evm',
+          addComentarioMuro: 'erp_publicaciones_muro', likePublicacionMuro: 'erp_publicaciones_muro',
+          addIncidente: 'erp_incidentes', updateIncidente: 'erp_incidentes', deleteIncidente: 'erp_incidentes',
+          addPrueba: 'erp_pruebas_laboratorio', updatePrueba: 'erp_pruebas_laboratorio',
+          deleteActivo: 'activos_herramientas',
+          addDestajo: 'destajos', updateDestajo: 'destajos', deleteDestajo: 'destajos',
+          addRecepcion: 'recepciones_almacen', deleteRecepcion: 'recepciones_almacen',
+          deleteCuadro: 'cuadro_comparativo_proveedores', deletePagoProveedor: 'pagos_proveedores',
         };
         const table = tableMap[mutation.type];
         const isDelete = mutation.type.startsWith('delete');
@@ -507,7 +551,13 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (table && mutation.payload.id) {
           const snakePayload = toSnake(mutation.payload as Record<string, any>);
           if (isDelete) { const { error } = await supabase.from(table).delete().eq('id', mutation.payload.id); if (error) throw error; }
-          else if (isUpdate) { const { error } = await supabase.from(table).update(snakePayload).eq('id', mutation.payload.id); if (error) throw error; }
+          else if (mutation.type === 'addComentarioMuro') {
+            const { error: err } = await supabase.rpc('append_comentario_muro', { pub_id: mutation.payload.publicacionId, comentario: mutation.payload.comentario });
+            if (err) throw err;
+          } else if (mutation.type === 'likePublicacionMuro') {
+            const { error: err } = await supabase.rpc('increment_likes_muro', { pub_id: mutation.payload.id });
+            if (err) throw err;
+          } else if (isUpdate) { const { error } = await supabase.from(table).update(snakePayload).eq('id', mutation.payload.id); if (error) throw error; }
           else { const { error } = await supabase.from(table).insert(snakePayload); if (error) throw error; }
         }
         setMutationQueue(prev => prev.filter(m => m.id !== mutation.id));
@@ -567,6 +617,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_proveedores', proveedores); }, [proveedores]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_presupuestos', presupuestos); }, [presupuestos]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_avances', avances); }, [avances]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_destajos', destajos); }, [destajos]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_recepciones', recepciones); }, [recepciones]);
 
   // Handlers
   const handleAddProyecto = useCallback(async (p: Omit<Proyecto, 'id'>) => { const n = { ...p, id: uid() }; setProyectos(prev => [n, ...prev]); enqueueMutation('addProyecto', n); }, [enqueueMutation]);
@@ -594,9 +646,69 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const handleAddLicitacion = useCallback(async (l: Omit<Licitacion, 'id'>) => { const n = { ...l, id: uid() }; setLicitaciones(prev => [n, ...prev]); enqueueMutation('addLicitacion', n); }, [enqueueMutation]);
   const handleUpdateLicitacion = useCallback(async (id: string, patch: Partial<Licitacion>) => { setLicitaciones(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateLicitacion', { id, ...patch }); }, [enqueueMutation]);
   const handleDeleteLicitacion = useCallback(async (id: string) => { setLicitaciones(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteLicitacion', { id }); }, [enqueueMutation]);
-  const handleAddCotizacion = useCallback(async (c: Omit<CotizacionCliente, 'id' | 'createdAt' | 'updatedAt'>) => { const n = { ...c, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }; setCotizacionesNegocio(prev => [n, ...prev]); enqueueMutation('addCotizacion', n); }, [enqueueMutation]);
-  const handleUpdateCotizacion = useCallback(async (id: string, patch: Partial<CotizacionCliente>) => { setCotizacionesNegocio(prev => prev.map(p => p.id === id ? { ...p, ...patch, updatedAt: new Date().toISOString() } : p)); enqueueMutation('updateCotizacion', { id, ...patch }); }, [enqueueMutation]);
+  const handleAddCotizacion = useCallback(async (c: Omit<CotizacionCliente, 'id' | 'createdAt' | 'updatedAt'>) => { const n = { ...c, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }; setCotizacionesNegocio(prev => [n, ...prev]); const { proyectoId: _, ...payload } = n; enqueueMutation('addCotizacion', payload); }, [enqueueMutation]);
+  const handleUpdateCotizacion = useCallback(async (id: string, patch: Partial<CotizacionCliente>) => { setCotizacionesNegocio(prev => prev.map(p => p.id === id ? { ...p, ...patch, updatedAt: new Date().toISOString() } : p)); const { proyectoId: _, ...cleanPatch } = patch; enqueueMutation('updateCotizacion', { id, ...cleanPatch }); }, [enqueueMutation]);
   const handleDeleteCotizacion = useCallback(async (id: string) => { setCotizacionesNegocio(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteCotizacion', { id }); }, [enqueueMutation]);
+
+  const handleAddEvento = useCallback(async (e: Omit<EventoCalendario, 'id'>) => { const n = { ...e, id: uid() }; setEventos(prev => [n, ...prev]); enqueueMutation('addEvento', n); }, [enqueueMutation]);
+  const handleUpdateEvento = useCallback(async (id: string, patch: Partial<EventoCalendario>) => { setEventos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateEvento', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteEvento = useCallback(async (id: string) => { setEventos(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteEvento', { id }); }, [enqueueMutation]);
+  const handleAddBitacora = useCallback(async (b: Omit<BitacoraEntry, 'id'>) => { const n = { ...b, id: uid() }; setBitacora(prev => [n, ...prev]); enqueueMutation('addBitacora', n); }, [enqueueMutation]);
+  const handleUpdateBitacora = useCallback(async (id: string, patch: Partial<BitacoraEntry>) => { setBitacora(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateBitacora', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteBitacora = useCallback(async (id: string) => { setBitacora(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteBitacora', { id }); }, [enqueueMutation]);
+  const handleAddVentaPaquete = useCallback(async (v: Omit<VentaPaquete, 'id'>) => { const n = { ...v, id: uid() }; setVentasPaquetes(prev => [n, ...prev]); enqueueMutation('addVentaPaquete', n); }, [enqueueMutation]);
+  const handleAddValeSalida = useCallback(async (v: Omit<ValeSalida, 'id'>) => { const n = { ...v, id: uid() }; setValesSalida(prev => [n, ...prev]); enqueueMutation('addValeSalida', n); }, [enqueueMutation]);
+  const handleDeleteValeSalida = useCallback(async (id: string) => { setValesSalida(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteValeSalida', { id }); }, [enqueueMutation]);
+  const handleAddCuentaCobrar = useCallback(async (c: Omit<CuentaCobrar, 'id'>) => { const n = { ...c, id: uid() }; setCuentasCobrar(prev => [n, ...prev]); enqueueMutation('addCuentaCobrar', n); }, [enqueueMutation]);
+  const handleUpdateCuentaCobrar = useCallback(async (id: string, patch: Partial<CuentaCobrar>) => { setCuentasCobrar(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateCuentaCobrar', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteCuentaCobrar = useCallback(async (id: string) => { setCuentasCobrar(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteCuentaCobrar', { id }); }, [enqueueMutation]);
+  const handleAddCuentaPagar = useCallback(async (c: Omit<CuentaPagar, 'id'>) => { const n = { ...c, id: uid() }; setCuentasPagar(prev => [n, ...prev]); enqueueMutation('addCuentaPagar', n); }, [enqueueMutation]);
+  const handleUpdateCuentaPagar = useCallback(async (id: string, patch: Partial<CuentaPagar>) => { setCuentasPagar(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateCuentaPagar', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteCuentaPagar = useCallback(async (id: string) => { setCuentasPagar(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteCuentaPagar', { id }); }, [enqueueMutation]);
+  const handleAddOrdenCambio = useCallback(async (o: Omit<OrdenCambio, 'id'>) => { const n = { ...o, id: uid() }; setOrdenesCambio(prev => [n, ...prev]); enqueueMutation('addOrdenCambio', n); }, [enqueueMutation]);
+  const handleUpdateOrdenCambio = useCallback(async (id: string, patch: Partial<OrdenCambio>) => { setOrdenesCambio(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateOrdenCambio', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteOrdenCambio = useCallback(async (id: string) => { setOrdenesCambio(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteOrdenCambio', { id }); }, [enqueueMutation]);
+  const handleAddHito = useCallback(async (h: Omit<Hito, 'id'>) => { const n = { ...h, id: uid() }; setHitos(prev => [n, ...prev]); enqueueMutation('addHito', n); }, [enqueueMutation]);
+  const handleUpdateHito = useCallback(async (id: string, patch: Partial<Hito>) => { setHitos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateHito', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteHito = useCallback(async (id: string) => { setHitos(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteHito', { id }); }, [enqueueMutation]);
+  const handleAddRiesgo = useCallback(async (r: Omit<Riesgo, 'id'>) => { const n = { ...r, id: uid() }; setRiesgos(prev => [n, ...prev]); enqueueMutation('addRiesgo', n); }, [enqueueMutation]);
+  const handleUpdateRiesgo = useCallback(async (id: string, patch: Partial<Riesgo>) => { setRiesgos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateRiesgo', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteRiesgo = useCallback(async (id: string) => { setRiesgos(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteRiesgo', { id }); }, [enqueueMutation]);
+  const handleAddPlano = useCallback(async (p: Omit<Plano, 'id'>) => { const n = { ...p, id: uid() }; setPlanos(prev => [n, ...prev]); enqueueMutation('addPlano', n); }, [enqueueMutation]);
+  const handleUpdatePlano = useCallback(async (id: string, patch: Partial<Plano>) => { setPlanos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updatePlano', { id, ...patch }); }, [enqueueMutation]);
+  const handleAddRfi = useCallback(async (r: Omit<RFI, 'id'>) => { const n = { ...r, id: uid() }; setRfis(prev => [n, ...prev]); enqueueMutation('addRfi', n); }, [enqueueMutation]);
+  const handleUpdateRfi = useCallback(async (id: string, patch: Partial<RFI>) => { setRfis(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateRfi', { id, ...patch }); }, [enqueueMutation]);
+  const handleAddSubmittal = useCallback(async (s: Omit<Submittal, 'id'>) => { const n = { ...s, id: uid() }; setSubmittals(prev => [n, ...prev]); enqueueMutation('addSubmittal', n); }, [enqueueMutation]);
+  const handleUpdateSubmittal = useCallback(async (id: string, patch: Partial<Submittal>) => { setSubmittals(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateSubmittal', { id, ...patch }); }, [enqueueMutation]);
+  const handleAddActivo = useCallback(async (a: Omit<ActivoHerramienta, 'id'>) => { const n = { ...a, id: uid() }; setActivos(prev => [n, ...prev]); enqueueMutation('addActivo', n); }, [enqueueMutation]);
+  const handleUpdateActivo = useCallback(async (id: string, patch: Partial<ActivoHerramienta>) => { setActivos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateActivo', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteActivo = useCallback(async (id: string) => { setActivos(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteActivo', { id }); }, [enqueueMutation]);
+  const handleAddDestajo = useCallback(async (d: Omit<Destajo, 'id'>) => { const n = { ...d, id: uid() }; setDestajos(prev => [n, ...prev]); enqueueMutation('addDestajo', n); }, [enqueueMutation]);
+  const handleUpdateDestajo = useCallback(async (id: string, patch: Partial<Destajo>) => { setDestajos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateDestajo', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteDestajo = useCallback(async (id: string) => { setDestajos(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteDestajo', { id }); }, [enqueueMutation]);
+  const handleAddRecepcion = useCallback(async (r: Omit<RecepcionAlmacen, 'id'>) => { const n = { ...r, id: uid() }; setRecepciones(prev => [n, ...prev]); enqueueMutation('addRecepcion', n); }, [enqueueMutation]);
+  const handleDeleteRecepcion = useCallback(async (id: string) => { setRecepciones(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteRecepcion', { id }); }, [enqueueMutation]);
+  const handleAddCuadro = useCallback(async (c: Omit<CuadroComparativo, 'id'>) => { const n = { ...c, id: uid() }; setCuadros(prev => [n, ...prev]); enqueueMutation('addCuadro', n); }, [enqueueMutation]);
+  const handleUpdateCuadro = useCallback(async (id: string, patch: Partial<CuadroComparativo>) => { setCuadros(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateCuadro', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteCuadro = useCallback(async (id: string) => { setCuadros(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteCuadro', { id }); }, [enqueueMutation]);
+  const handleAddPagoProveedor = useCallback(async (p: Omit<PagoProveedor, 'id'>) => { const n = { ...p, id: uid() }; setPagosProveedor(prev => [n, ...prev]); enqueueMutation('addPagoProveedor', n); }, [enqueueMutation]);
+  const handleUpdatePagoProveedor = useCallback(async (id: string, patch: Partial<PagoProveedor>) => { setPagosProveedor(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updatePagoProveedor', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeletePagoProveedor = useCallback(async (id: string) => { setPagosProveedor(prev => prev.filter(p => p.id !== id)); enqueueMutation('deletePagoProveedor', { id }); }, [enqueueMutation]);
+  const handleAddIncidente = useCallback(async (i: any) => { const n = { ...i, id: uid() }; setIncidentes(prev => [n, ...prev]); enqueueMutation('addIncidente', n); }, [enqueueMutation]);
+  const handleUpdateIncidente = useCallback(async (id: string, patch: any) => { setIncidentes(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateIncidente', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteIncidente = useCallback(async (id: string) => { setIncidentes(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteIncidente', { id }); }, [enqueueMutation]);
+  const handleAddPrueba = useCallback(async (p: Omit<PruebaLaboratorio, 'id'>) => { const n = { ...p, id: uid() }; setPruebas(prev => [n, ...prev]); enqueueMutation('addPrueba', n); }, [enqueueMutation]);
+  const handleUpdatePrueba = useCallback(async (id: string, patch: Partial<PruebaLaboratorio>) => { setPruebas(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updatePrueba', { id, ...patch }); }, [enqueueMutation]);
+  const handleAddNC = useCallback(async (n: Omit<NoConformidad, 'id'>) => { const nc = { ...n, id: uid() }; setNcs(prev => [nc, ...prev]); enqueueMutation('addNC', nc); }, [enqueueMutation]);
+  const handleUpdateNC = useCallback(async (id: string, patch: Partial<NoConformidad>) => { setNcs(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateNC', { id, ...patch }); }, [enqueueMutation]);
+  const handleAddLiberacion = useCallback(async (l: Omit<LiberacionPartida, 'id'>) => { const n = { ...l, id: uid() }; setLiberaciones(prev => [n, ...prev]); enqueueMutation('addLiberacion', n); }, [enqueueMutation]);
+  const handleUpdateLiberacion = useCallback(async (id: string, patch: Partial<LiberacionPartida>) => { setLiberaciones(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateLiberacion', { id, ...patch }); }, [enqueueMutation]);
+  const handleAddPublicacionMuro = useCallback(async (p: Omit<PublicacionMuro, 'id' | 'createdAt' | 'likes' | 'comentarios'>) => { const n = { ...p, id: uid(), createdAt: new Date().toISOString(), likes: 0, comentarios: [] }; setPublicacionesMuro(prev => [n, ...prev]); enqueueMutation('addPublicacionMuro', n); }, [enqueueMutation]);
+  const handleAddComentarioMuro = useCallback(async (publicacionId: string, comentario: { autor: string; autorAvatar?: string; contenido: string }) => { const c: ComentarioMuro = { ...comentario, id: uid(), createdAt: new Date().toISOString() }; setPublicacionesMuro(prev => prev.map(p => p.id === publicacionId ? { ...p, comentarios: [...p.comentarios, c] } : p)); enqueueMutation('addComentarioMuro', { publicacionId, comentario: c }); }, [enqueueMutation]);
+  const handleLikePublicacionMuro = useCallback(async (id: string) => { setPublicacionesMuro(prev => prev.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p)); enqueueMutation('likePublicacionMuro', { id }); }, [enqueueMutation]);
+  const handleAddSeguimiento = useCallback(async (s: Omit<SeguimientoEVM, 'id'>) => { const n = { ...s, id: uid() }; setSeguimientoEVM(prev => [n, ...prev]); enqueueMutation('addSeguimiento', n); }, [enqueueMutation]);
+  const handleUpdateSeguimiento = useCallback(async (id: string, patch: Partial<SeguimientoEVM>) => { setSeguimientoEVM(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateSeguimiento', { id, ...patch }); }, [enqueueMutation]);
+  const handleDeleteSeguimiento = useCallback(async (id: string) => { setSeguimientoEVM(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteSeguimiento', { id }); }, [enqueueMutation]);
 
   const getPresupuestoByProyecto = useCallback((proyectoId: string) => presupuestos.find(p => p.proyectoId === proyectoId), [presupuestos]);
 
@@ -608,34 +720,35 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     materiales, addMaterial: handleAddMaterial, updateMaterial: handleUpdateMaterial, deleteMaterial: handleDeleteMaterial,
     ordenes, addOrden: handleAddOrden, updateOrden: handleUpdateOrden,
     proveedores, addProveedor: handleAddProveedor, updateProveedor: handleUpdateProveedor, deleteProveedor: handleDeleteProveedor,
-    eventos, addEvento: async () => {}, updateEvento: async () => {}, deleteEvento: async () => {},
-    bitacora, addBitacora: async () => {}, updateBitacora: async () => {}, deleteBitacora: async () => {},
+    eventos, addEvento: handleAddEvento, updateEvento: handleUpdateEvento, deleteEvento: handleDeleteEvento,
+    bitacora, addBitacora: handleAddBitacora, updateBitacora: handleUpdateBitacora, deleteBitacora: handleDeleteBitacora,
     presupuestos, addPresupuesto: handleAddPresupuesto, updatePresupuesto: handleUpdatePresupuesto, deletePresupuesto: handleDeletePresupuesto,
     getPresupuestoByProyecto, selectedProyectoId, setSelectedProyectoId,
     licitaciones, addLicitacion: handleAddLicitacion, updateLicitacion: handleUpdateLicitacion, deleteLicitacion: handleDeleteLicitacion,
     cotizacionesNegocio, addCotizacion: handleAddCotizacion, updateCotizacion: handleUpdateCotizacion, deleteCotizacion: handleDeleteCotizacion,
-    ventasPaquetes, addVentaPaquete: async () => {},
+    ventasPaquetes, addVentaPaquete: handleAddVentaPaquete,
     avances, addAvance: handleAddAvance, deleteAvance: handleDeleteAvance,
-    seguimientoEVM,
-    addSeguimiento: async () => {}, updateSeguimiento: async () => {}, deleteSeguimiento: async () => {},
+    seguimientoEVM, addSeguimiento: handleAddSeguimiento, updateSeguimiento: handleUpdateSeguimiento, deleteSeguimiento: handleDeleteSeguimiento,
     avanceFinancieroCalculado: () => 0,
-    valesSalida, addValeSalida: async () => {}, deleteValeSalida: async () => {},
-    cuentasCobrar, addCuentaCobrar: async () => {}, updateCuentaCobrar: async () => {}, deleteCuentaCobrar: async () => {},
-    cuentasPagar, addCuentaPagar: async () => {}, updateCuentaPagar: async () => {}, deleteCuentaPagar: async () => {},
-    ordenesCambio, addOrdenCambio: async () => {}, updateOrdenCambio: async () => {}, deleteOrdenCambio: async () => {},
-    hitos, addHito: async () => {}, updateHito: async () => {}, deleteHito: async () => {},
-    riesgos, addRiesgo: async () => {}, updateRiesgo: async () => {}, deleteRiesgo: async () => {},
-    planos, addPlano: async () => {}, updatePlano: async () => {},
-    rfis, addRfi: async () => {}, updateRfi: async () => {},
-    submittals, addSubmittal: async () => {}, updateSubmittal: async () => {},
-    activos, addActivo: async () => {}, updateActivo: async () => {}, deleteActivo: async () => {},
-    cuadros, addCuadro: async () => {}, updateCuadro: async () => {},
-    pagosProveedor, addPagoProveedor: async () => {}, updatePagoProveedor: async () => {},
-    incidentes, addIncidente: async () => {}, updateIncidente: async () => {},
-    publicacionesMuro, addPublicacionMuro: async () => {}, addComentarioMuro: async () => {}, likePublicacionMuro: async () => {},
-    pruebas, addPrueba: async () => {}, updatePrueba: async () => {},
-    ncs, addNC: async () => {}, updateNC: async () => {},
-    liberaciones, addLiberacion: async () => {}, updateLiberacion: async () => {},
+    valesSalida, addValeSalida: handleAddValeSalida, deleteValeSalida: handleDeleteValeSalida,
+    cuentasCobrar, addCuentaCobrar: handleAddCuentaCobrar, updateCuentaCobrar: handleUpdateCuentaCobrar, deleteCuentaCobrar: handleDeleteCuentaCobrar,
+    cuentasPagar, addCuentaPagar: handleAddCuentaPagar, updateCuentaPagar: handleUpdateCuentaPagar, deleteCuentaPagar: handleDeleteCuentaPagar,
+    ordenesCambio, addOrdenCambio: handleAddOrdenCambio, updateOrdenCambio: handleUpdateOrdenCambio, deleteOrdenCambio: handleDeleteOrdenCambio,
+    hitos, addHito: handleAddHito, updateHito: handleUpdateHito, deleteHito: handleDeleteHito,
+    riesgos, addRiesgo: handleAddRiesgo, updateRiesgo: handleUpdateRiesgo, deleteRiesgo: handleDeleteRiesgo,
+    planos, addPlano: handleAddPlano, updatePlano: handleUpdatePlano,
+    rfis, addRfi: handleAddRfi, updateRfi: handleUpdateRfi,
+    submittals, addSubmittal: handleAddSubmittal, updateSubmittal: handleUpdateSubmittal,
+    activos, addActivo: handleAddActivo, updateActivo: handleUpdateActivo, deleteActivo: handleDeleteActivo,
+    cuadros, addCuadro: handleAddCuadro, updateCuadro: handleUpdateCuadro, deleteCuadro: handleDeleteCuadro,
+    pagosProveedor, addPagoProveedor: handleAddPagoProveedor, updatePagoProveedor: handleUpdatePagoProveedor, deletePagoProveedor: handleDeletePagoProveedor,
+    incidentes, addIncidente: handleAddIncidente, updateIncidente: handleUpdateIncidente, deleteIncidente: handleDeleteIncidente,
+    destajos, addDestajo: handleAddDestajo, updateDestajo: handleUpdateDestajo, deleteDestajo: handleDeleteDestajo,
+    recepciones, addRecepcion: handleAddRecepcion, deleteRecepcion: handleDeleteRecepcion,
+    publicacionesMuro, addPublicacionMuro: handleAddPublicacionMuro, addComentarioMuro: handleAddComentarioMuro, likePublicacionMuro: handleLikePublicacionMuro,
+    pruebas, addPrueba: handleAddPrueba, updatePrueba: handleUpdatePrueba,
+    ncs, addNC: handleAddNC, updateNC: handleUpdateNC,
+    liberaciones, addLiberacion: handleAddLiberacion, updateLiberacion: handleUpdateLiberacion,
     notificaciones, notificacionesNoLeidas, addNotificacion, markNotificacionLeida, marcarTodasLeidas,
     mutationQueue, syncMessage, forceSync,
     appSettings, updateAppSettings, enqueueMutation,
@@ -644,8 +757,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     allowedViews: user ? ALLOWED[(user.rol as Rol) || 'Residente'] || ALLOWED['Residente'] : [],
     verificarStockCritico: () => {}, verificarOrdenesCambioPendientes: () => {}, verificarChecklistRechazado: () => {},
     notifyAvanceRegistrado: () => {}, notifyDesviacionRendimiento: () => {},
-  }), [view, user, initializing, isOnline, proyectos, movimientos, empleados, materiales, ordenes, proveedores,
-    presupuestos, licitaciones, cotizacionesNegocio, ventasPaquetes, avances, notificaciones, notificacionesNoLeidas,
+  }), [view, user, initializing, isOnline, proyectos, movimientos, empleados, materiales, ordenes, proveedores, eventos, bitacora,
+    presupuestos, licitaciones, cotizacionesNegocio, ventasPaquetes, avances, seguimientoEVM, valesSalida, cuentasCobrar, cuentasPagar,
+    ordenesCambio, hitos, riesgos, planos, rfis, submittals, activos, cuadros, pagosProveedor, incidentes, publicacionesMuro,
+    destajos, recepciones,
+    pruebas, ncs, liberaciones, notificaciones, notificacionesNoLeidas,
     mutationQueue, syncMessage, forceSync, appSettings, enqueueMutation, auth]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
