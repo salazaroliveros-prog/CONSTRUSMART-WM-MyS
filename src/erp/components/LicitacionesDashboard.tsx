@@ -4,27 +4,24 @@ import { fmtQ } from '../utils';
 import { Target, ArrowRight, Briefcase } from 'lucide-react';
 
 const ESTADO_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  identificado: { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400' },
-  en_estudio: { bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-400' },
-  presentado: { bg: 'bg-amber-50', text: 'text-amber-600', dot: 'bg-amber-400' },
-  ganado: { bg: 'bg-emerald-50', text: 'text-emerald-600', dot: 'bg-emerald-400' },
-  perdido: { bg: 'bg-red-50', text: 'text-red-500', dot: 'bg-red-400' },
+  activa: { bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-400' },
+  adjudicada: { bg: 'bg-emerald-50', text: 'text-emerald-600', dot: 'bg-emerald-400' },
+  perdida: { bg: 'bg-red-50', text: 'text-red-500', dot: 'bg-red-400' },
+  cerrada: { bg: 'bg-slate-50', text: 'text-slate-500', dot: 'bg-slate-400' },
 };
 
 const ESTADO_LABELS: Record<string, string> = {
-  identificado: 'Identificado',
-  en_estudio: 'En Estudio',
-  presentado: 'Presentado',
-  ganado: 'Ganado 🏆',
-  perdido: 'Perdido',
+  activa: 'Activa',
+  adjudicada: 'Adjudicada 🏆',
+  perdida: 'Perdida',
+  cerrada: 'Cerrada',
 };
 
 const LicitacionesDashboard: React.FC = () => {
   const { licitaciones, setView } = useErp();
 
-  const activas = licitaciones.filter(l => l.estado !== 'ganado' && l.estado !== 'perdido');
-  const ganadas = licitaciones.filter(l => l.estado === 'ganado');
-  const pipelinePonderado = activas.reduce((a, l) => a + l.monto * (l.probabilidad / 100), 0);
+  const activas = licitaciones.filter(l => l.estado === 'activa');
+  const ganadas = licitaciones.filter(l => l.estado === 'adjudicada');
 
   if (licitaciones.length === 0) return null;
 
@@ -42,8 +39,7 @@ const LicitacionesDashboard: React.FC = () => {
         </button>
       </div>
 
-      {/* Resumen rápido */}
-      <div className="flex gap-2 mb-2 text-[10px]">
+      <div className="flex gap-2 mb-1.5 text-[10px]">
         <div className="bg-purple-50 rounded-lg px-2 py-1 flex-1">
           <div className="font-bold text-purple-700">{activas.length}</div>
           <div className="text-purple-500">Activas</div>
@@ -53,12 +49,26 @@ const LicitacionesDashboard: React.FC = () => {
           <div className="text-emerald-500">Ganadas</div>
         </div>
         <div className="bg-blue-50 rounded-lg px-2 py-1 flex-1">
-          <div className="font-bold text-blue-700">{fmtQ(pipelinePonderado)}</div>
-          <div className="text-blue-500">Ponderado</div>
+          <div className="font-bold text-blue-700">{fmtQ(activas.reduce((a, l) => a + l.monto, 0))}</div>
+          <div className="text-blue-500">Pipeline</div>
         </div>
       </div>
 
-      {/* Lista compacta de licitaciones activas */}
+      <div className="mb-2 bg-slate-50 rounded-lg p-1.5 text-[9px]">
+        <div className="flex justify-between text-slate-500 mb-0.5">
+          <span>Pipeline ponderado</span>
+          <span className="font-bold text-purple-600">{fmtQ(activas.reduce((a, l) => a + l.monto * (l.probabilidad / 100), 0))}</span>
+        </div>
+        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full transition-all" 
+            style={{ width: `${Math.min(100, activas.reduce((a, l) => a + l.monto * (l.probabilidad / 100), 0) / Math.max(1, activas.reduce((a, l) => a + l.monto, 0)) * 100)}%` }} />
+        </div>
+        <div className="flex justify-between text-slate-400 mt-0.5">
+          <span>Monto total</span>
+          <span className="font-medium">{fmtQ(activas.reduce((a, l) => a + l.monto, 0))}</span>
+        </div>
+      </div>
+
       <div className="space-y-1.5 flex-1 overflow-y-auto min-h-0">
         {activas.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-4 text-slate-300">
@@ -69,7 +79,7 @@ const LicitacionesDashboard: React.FC = () => {
           <div key={l.id} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-50 transition-colors group">
             <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: ESTADO_COLORS[l.estado]?.dot || '#94a3b8' }} />
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] font-semibold text-slate-700 truncate">{l.titulo}</div>
+              <div className="text-[10px] font-semibold text-slate-700 truncate">{l.nombre}</div>
               <div className="flex items-center gap-1.5 text-[9px] text-slate-400">
                 <span>{l.cliente}</span>
                 <span>·</span>
