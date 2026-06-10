@@ -47,7 +47,7 @@ const Dashboard: React.FC = () => {
       ? avances.filter(a => a.proyectoId === selectedProyectoId)
       : avances;
     if (data.length === 0) {
-      return { prog: Array(steps).fill(0), real: Array(steps).fill(0) };
+      return { prog: Array(steps).fill(0), real: Array(steps).fill(0), labels: ['E','F','M','A','M','J','J','A'] };
     }
     const sorted = [...data].sort((a, b) => a.fecha.localeCompare(b.fecha));
     const prog = Array.from({ length: steps }, (_, i) => {
@@ -56,14 +56,23 @@ const Dashboard: React.FC = () => {
       const t = i / (steps - 1);
       return Math.round(100 / (1 + Math.exp(-8 * (t - 0.5))));
     });
+    const stepSize = sorted.length / (steps - 1);
+    let acumulado = 0;
     const real = Array.from({ length: steps }, (_, i) => {
       if (i === 0) return 0;
-      const count = Math.round((i / (steps - 1)) * sorted.length);
-      const slice = sorted.slice(0, count);
-      const avg = slice.reduce((s, a) => s + a.avanceFisico, 0) / slice.length;
-      return Math.round(avg);
+      const endIdx = Math.min(Math.round(i * stepSize), sorted.length);
+      const slice = sorted.slice(Math.round((i - 1) * stepSize), endIdx);
+      acumulado += slice.reduce((s, a) => s + a.avanceFisico, 0);
+      return Math.round(Math.min(acumulado, 100));
     });
-    return { prog, real };
+    const mesesSet = new Set<string>();
+    sorted.forEach(a => { if (a.fecha?.length >= 7) mesesSet.add(a.fecha.substring(0, 7)); });
+    const mesesArr = Array.from(mesesSet).sort();
+    const labelMap: Record<string, string> = { '01':'E','02':'F','03':'M','04':'A','05':'M','06':'J','07':'J','08':'A','09':'S','10':'O','11':'N','12':'D' };
+    const labels = mesesArr.length >= steps
+      ? mesesArr.slice(0, steps).map(m => labelMap[m.split('-')[1]] || m)
+      : ['E','F','M','A','M','J','J','A'];
+    return { prog, real, labels };
   }, [avances, selectedProyectoId]);
 
   const movPorCategoria = useMemo(() => {
@@ -149,7 +158,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="flex-1 min-h-0 min-h-[140px]" role="img" aria-label="Gráfico Curva S: avance programado vs real">
-            <ConfigurableLineArea labels={['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A']}
+            <ConfigurableLineArea labels={avanceData.labels}
               type={curvaConfig.type} palette={curvaConfig.palette}
               series={[
                 { label: 'Programado', color: '#3b82f6', data: avanceData.prog },
