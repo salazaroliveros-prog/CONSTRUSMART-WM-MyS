@@ -397,6 +397,8 @@ interface ErpState {
   addCotizacion: (c: Omit<CotizacionCliente, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   updateCotizacion: (id: string, patch: Partial<CotizacionCliente>) => Promise<void>;
   deleteCotizacion: (id: string) => Promise<void>;
+  ventasPaquetes: VentaPaquete[];
+  addVentaPaquete: (v: Omit<VentaPaquete, 'id' | 'created_at'>) => Promise<void>;
   avances: AvanceObra[];
   addAvance: (a: Omit<AvanceObra, 'id'>) => Promise<void>;
   deleteAvance: (id: string) => Promise<void>;
@@ -539,15 +541,20 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (view === 'login') {
         setView('dashboard');
       }
-    } else {
+      // Finalizar inicialización cuando tenemos usuario
+      if (initializing) {
+        setInitializing(false);
+        readyRef.current = true;
+      }
+    } else if (auth.error) {
       setAuthState({ user: null, error: auth.error });
+      // Si hay error de auth, finalizar inicialización igual (mostrar login con error)
+      if (initializing) {
+        setInitializing(false);
+        readyRef.current = true;
+      }
     }
-    // Cuando la primera sesión se resuelve, terminar de inicializar
-    if (initializing) {
-      setInitializing(false);
-      // Permitir toasts después de la primera carga
-      setTimeout(() => { readyRef.current = true; }, 1000);
-    }
+    // Si no hay user ni error y estamos initializing, esperamos — no finalizar hasta tener respuesta
   }, [auth.user, auth.error, initializing, view]);
 
   // Health check automático del store
@@ -600,9 +607,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return null;
       };
       (async () => {
-        let pData, mData, eData, matData, oData, provData, presData, ccData, cpData, ocData, hData, rData, licData, cotData;
+        let pData, mData, eData, matData, oData, provData, presData, ccData, cpData, ocData, hData, rData, licData, cotData, pubData, planData, rfiData, subData, vpData;
         try {
-          [pData, mData, eData, matData, oData, provData, presData, ccData, cpData, ocData, hData, rData, licData, cotData] = await Promise.all([
+          [pData, mData, eData, matData, oData, provData, presData, ccData, cpData, ocData, hData, rData, licData, cotData, pubData, planData, rfiData, subData, vpData] = await Promise.all([
             fetchTable('erp_proyectos'),
             fetchTable('erp_movimientos'),
             fetchTable('erp_empleados'),
@@ -617,10 +624,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             fetchTable('erp_riesgos'),
             fetchTable('erp_licitaciones'),
             fetchTable('erp_cotizaciones_negocio'),
+            fetchTable('erp_publicaciones_muro'),
+            fetchTable('erp_planos'),
+            fetchTable('erp_rfis'),
+            fetchTable('erp_submittals'),
+            fetchTable('ventas_paquetes'),
           ]);
-        } catch (networkError) {
-          log('warn', 'store', 'fetchInitialData falló por red; se continúa en modo offline', { error: String(networkError) });
-        }
+         } catch (networkError) {
+           log('warn', 'store', 'fetchInitialData falló por red; se continúa en modo offline', { error: String(networkError) });
+         }
         const assign = (setter: (v: any[]) => void, raw: any[] | null, fallback: any[] = []) => {
           if (!Array.isArray(raw)) return setter(fallback);
           const normalized = raw.map((item: any) => {
@@ -644,6 +656,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (rData) assign((v) => setRiesgos(v as Riesgo[]), rData);
         if (licData) assign((v) => setLicitaciones(v as Licitacion[]), licData);
         if (cotData) assign((v) => setCotizacionesNegocio(v as CotizacionCliente[]), cotData);
+        if (vpData) assign((v) => setVentasPaquetes(v), vpData);
+        if (pubData) assign((v) => setPublicacionesMuro(v as PublicacionMuro[]), pubData);
+        if (planData) assign((v) => setPlanos(v as Plano[]), planData);
+        if (rfiData) assign((v) => setRfis(v as RFI[]), rfiData);
+        if (subData) assign((v) => setSubmittals(v as Submittal[]), subData);
       })();
     }
   }, [user]);
@@ -721,6 +738,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [cotizacionesNegocio, setCotizacionesNegocio] = useState<CotizacionCliente[]>(() => {
     const stored = loadFromStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', []);
     const validated = z.array(cotizacionSchema).safeParse(stored);
+    return validated.success ? validated.data : [];
+  });
+  const [ventasPaquetes, setVentasPaquetes] = useState<any[]>(() => {
+    const stored = loadFromStorage(BASE_STORAGE_KEY + '_ventasPaquetes', []);
+    const validated = z.array(z.object({ id: z.string(), proyecto_id: z.string(), tipo: z.string(), identificador: z.string(), precio_venta: z.number(), precio_contrato: z.number(), estado: z.string(), cliente: z.string().optional().default(''), created_at: z.string() })).safeParse(stored);
     return validated.success ? validated.data : [];
   });
   const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => {
@@ -861,11 +883,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           addHito: 'erp_hitos', updateHito: 'erp_hitos', deleteHito: 'erp_hitos',
           addRiesgo: 'erp_riesgos', updateRiesgo: 'erp_riesgos', deleteRiesgo: 'erp_riesgos',
           addNC: 'erp_no_conformidades', updateNC: 'erp_no_conformidades',
-          addLiberacion: 'erp_liberaciones_partidas', updateLiberacion: 'erp_liberaciones_partidas',
+          addLiberacion: 'erp_liberaciones_partida', updateLiberacion: 'erp_liberaciones_partida',
           addPlano: 'erp_planos', updatePlano: 'erp_planos',
           addRfi: 'erp_rfis', updateRfi: 'erp_rfis',
           addSubmittal: 'erp_submittals', updateSubmittal: 'erp_submittals',
-          addActivo: 'erp_activos_herramienta', updateActivo: 'erp_activos_herramienta',
+          addActivo: 'activos_herramientas', updateActivo: 'activos_herramientas',
           addCuadro: 'erp_cuadros_comparativos', updateCuadro: 'erp_cuadros_comparativos',
           addPagoProveedor: 'erp_pagos_proveedores', updatePagoProveedor: 'erp_pagos_proveedores',
            addLicitacion: 'erp_licitaciones', updateLicitacion: 'erp_licitaciones', deleteLicitacion: 'erp_licitaciones',
@@ -1043,9 +1065,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_riesgos', riesgos); }, [riesgos]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_incidentes', incidentes); }, [incidentes]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_publicaciones_muro', publicacionesMuro); }, [publicacionesMuro]);
-  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_pruebas', pruebas); }, [pruebas]);
-  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_no_conformidades', ncs); }, [ncs]);
-  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_liberaciones', liberaciones); }, [liberaciones]);
+  useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_ventasPaquetes', ventasPaquetes); }, [ventasPaquetes]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_planos', planos); }, [planos]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_rfis', rfis); }, [rfis]);
   useEffect(() => { saveToStorage(BASE_STORAGE_KEY + '_submittals', submittals); }, [submittals]);
@@ -1578,6 +1598,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       getPresupuestoByProyecto, selectedProyectoId, setSelectedProyectoId,
       licitaciones, addLicitacion: handleAddLicitacion, updateLicitacion: handleUpdateLicitacion, deleteLicitacion: handleDeleteLicitacion,
       cotizacionesNegocio, addCotizacion: handleAddCotizacion, updateCotizacion: handleUpdateCotizacion, deleteCotizacion: handleDeleteCotizacion,
+      ventasPaquetes,
       avances, addAvance: handleAddAvance, deleteAvance: handleDeleteAvance,
       seguimientoEVM,
       addSeguimiento: handleAddSeguimiento,
@@ -1611,6 +1632,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       notifyAvanceRegistrado, notifyDesviacionRendimiento,
     }), [view, user, initializing, isOnline, proyectos, movimientos, empleados, materiales,
       ordenes, proveedores, eventos, bitacora, presupuestos, licitaciones, cotizacionesNegocio,
+      ventasPaquetes,
       avances, seguimientoEVM, valesSalida, cuentasCobrar, cuentasPagar, ordenesCambio,
       hitos, riesgos, incidentes, publicacionesMuro, pruebas, ncs, liberaciones, planos,
       rfis, submittals, activos, cuadros, pagosProveedor, notificaciones, notificacionesNoLeidas,

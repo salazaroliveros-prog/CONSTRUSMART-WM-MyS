@@ -6,16 +6,21 @@ import { toast } from 'sonner';
 const uid = () => Date.now().toString(36).substr(2, 9);
 
 export const ComercialFinanzas: React.FC = () => {
-  const { proyectos, user } = useErp();
+  const { proyectos, user, ventasPaquetes } = useErp();
 
   const [tab, setTab] = useState<'ventas' | 'anticipos' | 'cajas'>('ventas');
   const [showForm, setShowForm] = useState<string | null>(null);
   const [form, setForm] = useState<Record<string, any>>({});
   const [amortInputs, setAmortInputs] = useState<Record<string, string>>({});
 
-  const [ventas, setVentas] = useState<VentaPaquete[]>([]);
   const [anticipos, setAnticipos] = useState<Anticipo[]>([]);
   const [cajasChicas, setCajasChicas] = useState<CajaChica[]>([]);
+
+  const ventas = (ventasPaquetes ?? []) as VentaPaquete[];
+  const setVentas = (updater: React.SetStateAction<VentaPaquete[]>) => {
+    const next = typeof updater === 'function' ? (updater as (v: VentaPaquete[]) => VentaPaquete[])(ventas) : updater;
+    console.warn('ComercialFinanzas: setVentas no persistirá en backend');
+  };
 
   const addVenta = (data: Omit<VentaPaquete, 'id'>) => {
     const updated = [{ ...data, id: uid() }, ...ventas];
