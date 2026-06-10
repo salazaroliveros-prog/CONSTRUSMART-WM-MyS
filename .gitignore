@@ -42,6 +42,25 @@ reports/
 temp_untracked_files/
 *.tmp
 session-*.md
+test-output*.txt
+tests-finales.txt
+constraints-output.txt
+current-state-snapshot.yml
+apply-fix-015.mjs
+check-constraints.cjs
+check-db.mjs
+check-fix-result.mjs
+check-tables.c
+check-views.cjs
+check-views.js
+console.error*
+list-tables.cjs
+seed-completo.cjs
+seed-final
+seed-pooler.c
+seed-pooler.cjs
+seed-via-api.mjs
+VALIDACION-SESION-*
 
 # Cache
 .cache/
@@ -57,9 +76,27 @@ session-*.md
 CONSTRUSMART-DEVELOP/
 .vercel
 
+# Audit/analysis docs (not for repo)
+ANALISIS-ERP-CONSTRUSMART.md
+AUDITORIA_EXHAUSTIVA_2026.md
+auditoria-mapeo-inconsistencias.md
+ESTADO-ACTUAL.md
+ESTADO-PRODUCCION.md
+IMPLEMENTACION-PENDIENTE.md
+README_CONSOLIDATED.md
+SCRIPT-FIX-VITE.md
+app-snapshot.md
+
 # GitHub Pages (nunca crear rama gh-pages)
 gh-pages/
 
-# Playwright test artifacts.playwright-mcp/
+# Playwright test artifacts
 .playwright-mcp/
 *.png
+
+# Temp scripts (not for repo)
+scripts/check-supabase-counts.mjs
+scripts/fix-supabase-views.mjs
+scripts/seed-comercial-bi.mjs
+scripts/seed-supabase-remote.mjs
+scripts/seed-vacio.mjs
