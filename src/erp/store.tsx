@@ -537,25 +537,25 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (auth.user) {
       setAuthState({ user: auth.user as ErpState['user'], error: '' });
-      // Si hay usuario autenticado, ir al dashboard
       if (view === 'login') {
         setView('dashboard');
       }
-      // Finalizar inicialización cuando tenemos usuario
       if (initializing) {
         setInitializing(false);
         readyRef.current = true;
       }
     } else if (auth.error) {
       setAuthState({ user: null, error: auth.error });
-      // Si hay error de auth, finalizar inicialización igual (mostrar login con error)
       if (initializing) {
         setInitializing(false);
         readyRef.current = true;
       }
+    } else if (!auth.loading && initializing) {
+      setAuthState({ user: null, error: '' });
+      setInitializing(false);
+      readyRef.current = true;
     }
-    // Si no hay user ni error y estamos initializing, esperamos — no finalizar hasta tener respuesta
-  }, [auth.user, auth.error, initializing, view]);
+  }, [auth.user, auth.error, auth.loading, initializing, view]);
 
   // Health check automático del store
   useEffect(() => {
