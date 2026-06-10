@@ -287,10 +287,31 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const user = auth.user as ErpState['user'] | null;
   const authError = auth.error;
 
+  // Timeout de seguridad: si initializing no resuelve en 8s, forzar false
   useEffect(() => {
-    if (auth.user) { if (view === 'login') setView('dashboard'); if (initializing) setInitializing(false); }
-    else if (auth.error) { if (initializing) setInitializing(false); }
-    else if (!auth.loading && initializing) setInitializing(false);
+    const timer = setTimeout(() => {
+      if (initializing) {
+        console.warn('[Store] initializing timeout — forzando false');
+        setInitializing(false);
+      }
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (auth.user) {
+      if (view === 'login') setView('dashboard');
+      if (initializing) setInitializing(false);
+      return;
+    }
+    if (auth.error) {
+      console.warn('[Store] auth.error detectado:', auth.error);
+      if (initializing) setInitializing(false);
+      return;
+    }
+    if (auth.loading === false && initializing) {
+      setInitializing(false);
+    }
   }, [auth.user, auth.error, auth.loading, initializing, view]);
 
   const fetchedRef = useRef(false);
