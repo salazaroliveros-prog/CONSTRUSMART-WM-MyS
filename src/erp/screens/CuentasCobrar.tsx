@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useErp } from '../store';
 import { CuentaCobrar } from '../types';
+import ProyectoFilter from '../components/ProyectoFilter';
 import { DollarSign, Plus, X, TrendingUp, CalendarDays, AlertTriangle } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
@@ -9,6 +10,7 @@ import { todayISO, fmtQ } from '../utils';
 const CuentasCobrarScreen: React.FC = () => {
   const { proyectos, cuentasCobrar, addCuentaCobrar, updateCuentaCobrar, deleteCuentaCobrar } = useErp();
   const [showForm, setShowForm] = useState(false);
+  const [filtroProyecto, setFiltroProyecto] = useState('');
   const [form, setForm] = useState({ proyectoId: '', cliente: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', notas: '' });
 
   const agregar = () => {
@@ -29,20 +31,24 @@ const CuentasCobrarScreen: React.FC = () => {
 
   const eliminar = (id: string) => { if (confirm('¿Eliminar?')) deleteCuentaCobrar(id); };
 
-  const pendientes = cuentasCobrar.filter(c => c.estado === 'pendiente' || c.estado === 'parcial' || c.estado === 'vencido');
-  const vencidos = cuentasCobrar.filter(c => c.estado === 'vencido' || (c.estado === 'pendiente' && c.fechaVencimiento < todayISO()));
+  const filtradas = filtroProyecto ? cuentasCobrar.filter(c => c.proyectoId === filtroProyecto) : cuentasCobrar;
+  const pendientes = filtradas.filter(c => c.estado === 'pendiente' || c.estado === 'parcial' || c.estado === 'vencido');
+  const vencidos = filtradas.filter(c => c.estado === 'vencido' || (c.estado === 'pendiente' && c.fechaVencimiento < todayISO()));
   const totalPendiente = pendientes.reduce((a, c) => a + c.saldoPendiente, 0);
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">
         <div><h1 className="text-2xl font-black text-slate-800 flex items-center gap-2"><DollarSign className="w-6 h-6 text-emerald-500" /> Cuentas por Cobrar</h1><p className="text-sm text-slate-400">Gestión de cuentas por cobrar a clientes</p></div>
-        <button onClick={() => setShowForm(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2"><Plus className="w-4 h-4" /> Nueva Cuenta</button>
+        <div className="flex items-center gap-2">
+          <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} />
+          <button onClick={() => setShowForm(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2"><Plus className="w-4 h-4" /> Nueva Cuenta</button>
+        </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
         <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><DollarSign className="w-4 h-4 text-emerald-500" /><span className="text-xs text-slate-500">Total por cobrar</span></div><div className="text-xl font-bold text-emerald-600">{fmtQ(totalPendiente)}</div></div>
         <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-blue-500" /><span className="text-xs text-slate-500">Pendientes</span></div><div className="text-xl font-bold text-slate-800">{pendientes.length}</div></div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-amber-500" /><span className="text-xs text-slate-500">Cobradas</span></div><div className="text-xl font-bold text-amber-600">{cuentasCobrar.filter(c => c.estado === 'cobrado').length}</div></div>
+        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-amber-500" /><span className="text-xs text-slate-500">Cobradas</span></div><div className="text-xl font-bold text-amber-600">{filtradas.filter(c => c.estado === 'cobrado').length}</div></div>
         <div className={`rounded-xl p-3 border ${vencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-100'}`}><div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /><span className="text-xs text-slate-500">Vencidas</span></div><div className="text-xl font-bold text-red-600">{vencidos.length}</div></div>
       </div>
       {showForm && (
@@ -62,8 +68,8 @@ const CuentasCobrarScreen: React.FC = () => {
         </div>
       )}
       <div className="space-y-2">
-        {cuentasCobrar.length === 0 ? <div className="text-center py-10 text-slate-400"><DollarSign className="w-10 h-10 mx-auto mb-2 text-slate-300" /><p className="text-sm">Sin cuentas por cobrar</p></div>
-        : [...cuentasCobrar].sort((a, b) => a.fechaVencimiento.localeCompare(b.fechaVencimiento)).map(c => {
+        {filtradas.length === 0 ? <div className="text-center py-10 text-slate-400"><DollarSign className="w-10 h-10 mx-auto mb-2 text-slate-300" /><p className="text-sm">Sin cuentas por cobrar</p></div>
+        : [...filtradas].sort((a, b) => a.fechaVencimiento.localeCompare(b.fechaVencimiento)).map(c => {
           const vencida = c.estado === 'pendiente' && c.fechaVencimiento < todayISO();
           return (
             <div key={c.id} className={`bg-white rounded-xl border p-4 ${c.estado === 'cobrado' ? 'border-emerald-200 bg-emerald-50/30' : vencida ? 'border-red-200 bg-red-50/30' : 'border-slate-100'}`}>

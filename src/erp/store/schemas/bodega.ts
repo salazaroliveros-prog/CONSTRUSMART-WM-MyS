@@ -10,6 +10,9 @@ export const materialSchema = z.object({
   categoria: z.string(),
   proyectoIds: z.array(z.string()).default([]),
   critico: z.boolean().optional(),
+  cantidadPresupuestada: z.number().optional(),
+  costoPresupuestado: z.number().optional(),
+  ultimaActualizacionPresupuesto: z.string().optional(),
 });
 
 export const ordenSchema = z.object({

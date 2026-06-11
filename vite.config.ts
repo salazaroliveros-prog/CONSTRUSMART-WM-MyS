@@ -20,7 +20,7 @@ export default defineConfig(({ mode: _mode }) => ({
     include: ["antd", "@ant-design/icons"],
   },
   build: {
-    chunkSizeWarningLimit: 2000,
+    chunkSizeWarningLimit: 5000,
     rollupOptions: {
       output: {
         manualChunks: {

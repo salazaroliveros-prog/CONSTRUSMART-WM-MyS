@@ -125,8 +125,15 @@ export function useAuth(): UseAuthReturn {
     // Cargar sesión inicial
     buildUserFromSession();
 
+    const refreshInterval = setInterval(async () => {
+      try {
+        if (hasSupabase) await supabase.auth.refreshSession();
+      } catch { /* next interval will retry */ }
+    }, 25 * 60 * 1000);
+
     return () => {
       subscription.unsubscribe();
+      clearInterval(refreshInterval);
     };
   }, [buildUserFromSession]);
 

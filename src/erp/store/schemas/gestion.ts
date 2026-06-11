@@ -17,6 +17,7 @@ export const activoSchema = z.object({
 
 export const licitacionSchema = z.object({
   id: z.string(),
+  proyectoId: z.string().optional().default(''),
   nombre: z.string(),
   cliente: z.string(),
   monto: z.number(),

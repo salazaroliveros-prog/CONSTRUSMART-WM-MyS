@@ -1,7 +1,69 @@
 export type Tipologia = 'residencial' | 'comercial' | 'industrial' | 'civil' | 'publica';
+export type EtapaObra = 'planificacion' | 'diseno' | 'preconstruccion' | 'construccion' | 'cierre';
+
+export const APP_STAGES = {
+  planificacion: {
+    label: 'Planificación',
+    icon: '📋',
+    color: '#6366f1',
+    bg: 'bg-indigo-50',
+    border: 'border-indigo-200',
+    texto: 'text-indigo-700',
+    descripcion: 'Captación de datos del cliente y especificaciones del terreno',
+    modulosPermitidos: ['proyectos', 'documentos', 'muro', 'notificaciones', 'ajustes'],
+    vistasSiguiente: ['diseno'],
+  },
+  diseno: {
+    label: 'Diseño',
+    icon: '✏️',
+    color: '#8b5cf6',
+    bg: 'bg-purple-50',
+    border: 'border-purple-200',
+    texto: 'text-purple-700',
+    descripcion: 'Fase de diseño para aprobación del cliente',
+    modulosPermitidos: ['proyectos', 'documentos', 'muro', 'presupuestos', 'apu', 'baseprecios', 'cotizaciones', 'notificaciones', 'ajustes'],
+    vistasSiguiente: ['preconstruccion'],
+  },
+  preconstruccion: {
+    label: 'Presupuestación',
+    icon: '💰',
+    color: '#f59e0b',
+    bg: 'bg-amber-50',
+    border: 'border-amber-200',
+    texto: 'text-amber-700',
+    descripcion: 'Presupuestación detallada, costos totales, cronograma y materiales',
+    modulosPermitidos: ['presupuestos', 'apu', 'baseprecios', 'cotizaciones', 'curvas', 'hitos', 'riesgos', 'muro', 'notificaciones', 'ajustes'],
+    vistasSiguiente: ['construccion'],
+  },
+  construccion: {
+    label: 'Construcción',
+    icon: '🏗️',
+    color: '#10b981',
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
+    texto: 'text-emerald-700',
+    descripcion: 'Ejecución: controles físicos, financieros y procesos constructivos',
+    modulosPermitidos: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'muro', 'reportes', 'avances', 'documentos', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'entradas-almacen', 'planilla-destajos', 'rendimiento-campo', 'comercial-fin', 'ajustes'],
+    vistasSiguiente: ['cierre'],
+  },
+  cierre: {
+    label: 'Cierre',
+    icon: '✅',
+    color: '#3b82f6',
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
+    texto: 'text-blue-700',
+    descripcion: 'Liquidación final, entrega y cierre contable',
+    modulosPermitidos: ['dashboard', 'reportes', 'financiero', 'cuentas-cobrar', 'cuentas-pagar', 'documentos', 'muro', 'notificaciones', 'ajustes'],
+    vistasSiguiente: [],
+  },
+} as const;
+
+export type EtapaKey = keyof typeof APP_STAGES;
 
 export interface Insumo {
   id: string;
+  proyectoId: string;
   nombre: string;
   nombreMaterial?: string;
   unidad: string;
@@ -43,6 +105,7 @@ export interface SeguimientoEVM {
 export interface InsumoBase {
   id: string;
   codigo: string;
+  proyectoId: string;
   nombre: string;
   categoria: string;
   unidad: string;
@@ -77,6 +140,7 @@ export interface FactorSobrecosto {
 
 export interface RenglonBase {
   codigo: string;
+  proyectoId: string;
   nombre: string;
   unidad: string;
   tipologia: Tipologia;
@@ -114,18 +178,19 @@ export interface Presupuesto {
   notas?: string;
 }
 
+export type EtapaObra = 'planificacion' | 'diseno' | 'preconstruccion' | 'construccion' | 'cierre';
+
 export interface Proyecto {
   id: string;
+  proyectoId: string;
   nombre: string;
   descripcion?: string;
   tipologia: Tipologia;
   tipoObra?: 'nueva' | 'remodelacion' | 'ampliacion';
-  // Cliente
   cliente?: string;
   clienteNit?: string;
   clienteTelefono?: string;
   clienteEmail?: string;
-  // Ubicacion
   ubicacion: string;
   direccion?: string;
   ciudad?: string;
@@ -134,18 +199,14 @@ export interface Proyecto {
   codigoPostal?: string;
   lat?: number;
   lng?: number;
-  // Tecnicos
   areaConstruccion?: number;
   numPisos?: number;
   plazoSemanas?: number;
-  // Responsables
   ingenieroResidente?: string;
   supervisor?: string;
   arquitecto?: string;
-  // Documentacion
   numeroExpediente?: string;
   numeroLicencia?: string;
-  // Gestion
   presupuestoTotal: number;
   montoContrato?: number;
   presupuestoActualId?: string;
@@ -156,7 +217,9 @@ export interface Proyecto {
   avanceFisico: number;
   avanceFinanciero: number;
   estado: 'planeacion' | 'ejecucion' | 'pausado' | 'finalizado';
-  etapa?: 'planificacion' | 'diseno' | 'preconstruccion' | 'construccion' | 'cierre';
+  etapa: EtapaObra;
+  etapaAnterior?: EtapaObra;
+  fechaCambioEtapa?: string;
   factorSobrecosto?: FactorSobrecosto;
   margenUtilidadObjetivo?: number;
   moneda?: 'GTQ' | 'USD';
@@ -188,6 +251,7 @@ export interface Movimiento {
 
 export interface Empleado {
   id: string;
+  proyectoId: string;
   nombre: string;
   puesto: string;
   salarioDiario: number;
@@ -201,6 +265,7 @@ export interface Empleado {
 
 export interface Material {
   id: string;
+  proyectoId: string;
   nombre: string;
   unidad: string;
   stock: number;
@@ -209,6 +274,9 @@ export interface Material {
   categoria: string;
   proyectoIds: string[];
   critico?: boolean;
+  cantidadPresupuestada?: number;
+  costoPresupuestado?: number;
+  ultimaActualizacionPresupuesto?: string;
 }
 
 export interface ValeSalida {
@@ -242,6 +310,7 @@ export interface OrdenCompra {
 
 export interface Proveedor {
   id: string;
+  proyectoId: string;
   nombre: string;
   contacto: string;
   telefono: string;
@@ -296,6 +365,7 @@ export interface AvanceObra {
 
 export interface Licitacion {
   id: string;
+  proyectoId: string;
   nombre: string;
   cliente: string;
   monto: number;
@@ -357,6 +427,7 @@ export interface Notificacion {
 
 export interface Hito {
   id: string;
+  proyectoId: string;
   proyectoId: string;
   nombre: string;
   descripcion?: string;
@@ -437,6 +508,7 @@ export interface LiberacionPartida {
 
 export interface ActivoHerramienta {
   id: string;
+  proyectoId: string;
   nombre: string;
   codigoInventario: string;
   tipo: 'herramienta' | 'equipo' | 'vehiculo' | 'accesorio';
@@ -636,6 +708,7 @@ export interface CentroCosto {
   id: string;
   proyectoId: string;
   codigo: string;
+  proyectoId: string;
   nombre: string;
   presupuestoAsignado: number;
   gastoActual: number;
@@ -664,6 +737,7 @@ export interface LogAuditoria {
 
 export interface Riesgo {
   id: string;
+  proyectoId: string;
   proyectoId: string;
   nombre: string;
   descripcion?: string;
@@ -710,6 +784,7 @@ export interface CuentaPagar {
 
 export interface Plano {
   id: string;
+  proyectoId: string;
   proyectoId: string;
   nombre: string;
   disciplina: 'arquitectura' | 'estructura' | 'instalaciones' | 'electricas' | 'sanitarias' | 'mecanicas' | 'otra';

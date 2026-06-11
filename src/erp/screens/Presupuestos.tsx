@@ -157,6 +157,15 @@ const Presupuestos: React.FC = () => {
     if (editingPresupuesto?.id === p.id) {
       setEditingPresupuesto({ ...editingPresupuesto, estado: 'aprobado' });
     }
+    const todo = ctx.materiales.filter(m => m.proyectoIds.includes(p.proyectoId));
+    const need: Array<{ id: string; cantidadPresupuestada: number; costoPresupuestado: number }> = [];
+    (p.renglones || []).forEach(r => {
+      const m = todo.find(t => t.nombre === r.nombreMaterial || t.nombre === r.nombre);
+      if (m) {
+        need.push({ id: m.id, cantidadPresupuestada: r.cantidad ?? 0, costoPresupuestado: (r.cantidad ?? 0) * (r.precioUnitario ?? 0) });
+      }
+    });
+    need.forEach(n => ctx.updateMaterial(n.id, { ...n, ultimaActualizacionPresupuesto: new Date().toISOString() }));
   };
 
   const handleRejectPresupuesto = async (p: Presupuesto) => {

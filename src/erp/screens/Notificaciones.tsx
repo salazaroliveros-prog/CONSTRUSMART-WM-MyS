@@ -1,5 +1,6 @@
 import React from 'react';
 import { useErp } from '../store';
+import ProyectoFilter from '../components/ProyectoFilter';
 import { Bell, Check, CheckCheck, AlertTriangle, ClipboardList, Package, TrendingDown, Activity } from 'lucide-react';
 
 const MAPA_ICONOS: Record<string, React.ReactNode> = {
@@ -32,15 +33,16 @@ const MAPA_LABEL: Record<string, string> = {
 export default function Notificaciones() {
   const { notificaciones, markNotificacionLeida, marcarTodasLeidas, proyectos } = useErp();
   const [filtroTipo, setFiltroTipo] = React.useState<string | null>(null);
+  const [filtroProyecto, setFiltroProyecto] = React.useState('');
   const [tab, setTab] = React.useState<'alertas' | 'historial'>('alertas');
 
   const noLeidas = notificaciones.filter(n => !n.leido);
   const leidas = notificaciones.filter(n => n.leido);
 
   const baseList = tab === 'alertas' ? noLeidas : notificaciones;
-  const filtradas = filtroTipo
-    ? baseList.filter(n => n.tipo === filtroTipo)
-    : baseList;
+  const filtradas = baseList
+    .filter(n => !filtroTipo || n.tipo === filtroTipo)
+    .filter(n => !filtroProyecto || n.proyectoId === filtroProyecto);
 
   const tiposExistentes = [...new Set(notificaciones.map(n => n.tipo))];
 
@@ -100,8 +102,9 @@ export default function Notificaciones() {
         </button>
       </div>
 
-      {/* Filtros por tipo */}
-      <div className="flex flex-wrap gap-2">
+      {/* Filtros */}
+      <div className="flex flex-wrap items-center gap-2">
+        <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} />
         <button
           onClick={() => setFiltroTipo(null)}
           className={`px-3 py-1 text-xs rounded-full transition-colors ${

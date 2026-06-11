@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useErp } from '../../store';
+import ProyectoFilter from '../../components/ProyectoFilter';
 import { fmtQ, todayISO } from '../../utils';
 import {
   Row, Col, Card, Statistic, Tag, Badge, Dropdown, Button,
@@ -28,10 +29,11 @@ const COLUMN_COLORS: Record<string, string> = {
 };
 
 const AntCRM: React.FC = () => {
-  const { licitaciones, addLicitacion, updateLicitacion, deleteLicitacion } = useErp();
+  const { proyectos, licitaciones, addLicitacion, updateLicitacion, deleteLicitacion } = useErp();
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [filtroProyecto, setFiltroProyecto] = useState('');
   const [form] = Form.useForm();
   const { token: _token } = theme.useToken();
 
@@ -43,26 +45,31 @@ const AntCRM: React.FC = () => {
   React.useEffect(() => {
     if (licitaciones.length > 0) return;
     const demoData = [
-      { nombre: 'Edificio Comercial Plaza Norte', cliente: 'Inmobiliaria del Valle', monto: 2500000, estado: 'activa' as const, fechaLimite: '2026-03-15', documentos: [], notas: 'Cliente potencial' },
-      { nombre: 'Residencial Los Pinos - Fase 2', cliente: 'Constructora Maya', monto: 1800000, estado: 'activa' as const, fechaLimite: '2026-02-20', documentos: [], notas: 'Presupuesto en elaboración' },
-      { nombre: 'Centro Comercial San Cristóbal', cliente: 'Grupo Inmobiliario GT', monto: 950000, estado: 'activa' as const, fechaLimite: '2026-01-30', documentos: [], notas: 'Propuesta entregada' },
-      { nombre: 'Puente Vehicular Ruta 5', cliente: 'Municipalidad de Guatemala', monto: 3200000, estado: 'ganada' as const, fechaLimite: '2025-12-01', documentos: [], notas: 'Contrato firmado' },
-      { nombre: 'Oficinas Corporativas Torre Sur', cliente: 'Empresas ABC', monto: 750000, estado: 'perdida' as const, fechaLimite: '2025-11-15', documentos: [], notas: 'Cliente eligió otra' },
+      { nombre: 'Edificio Comercial Plaza Norte', cliente: 'Inmobiliaria del Valle', monto: 2500000, estado: 'activa' as const, fechaLimite: '2026-03-15', documentos: [], notas: 'Cliente potencial', proyectoId: '' },
+      { nombre: 'Residencial Los Pinos - Fase 2', cliente: 'Constructora Maya', monto: 1800000, estado: 'activa' as const, fechaLimite: '2026-02-20', documentos: [], notas: 'Presupuesto en elaboración', proyectoId: '' },
+      { nombre: 'Centro Comercial San Cristóbal', cliente: 'Grupo Inmobiliario GT', monto: 950000, estado: 'activa' as const, fechaLimite: '2026-01-30', documentos: [], notas: 'Propuesta entregada', proyectoId: '' },
+      { nombre: 'Puente Vehicular Ruta 5', cliente: 'Municipalidad de Guatemala', monto: 3200000, estado: 'ganada' as const, fechaLimite: '2025-12-01', documentos: [], notas: 'Contrato firmado', proyectoId: '' },
+      { nombre: 'Oficinas Corporativas Torre Sur', cliente: 'Empresas ABC', monto: 750000, estado: 'perdida' as const, fechaLimite: '2025-11-15', documentos: [], notas: 'Cliente eligió otra', proyectoId: '' },
     ];
     demoData.forEach(d => addLicitacion(d));
   }, [addLicitacion, licitaciones.length]);
 
+  const licitacionesFiltradas = useMemo(
+    () => licitaciones.filter(l => !filtroProyecto || l.proyectoId === filtroProyecto),
+    [licitaciones, filtroProyecto],
+  );
+
   const columns = useMemo(() => ESTADOS.map(est => ({
     ...est,
-    items: licitaciones.filter(l => l.estado === est.key as any)
+    items: licitacionesFiltradas.filter(l => l.estado === est.key as any)
       .sort((a, b) => new Date(b.fechaLimite).getTime() - new Date(a.fechaLimite).getTime()),
-  })), [licitaciones]);
+  })), [licitacionesFiltradas]);
 
-  const totalMonto = licitaciones.reduce((a, l) => a + l.monto, 0);
-  const ganadas = licitaciones.filter(l => l.estado === 'ganada');
-  const tasaConversion = licitaciones.filter(l => l.estado === 'ganada' || l.estado === 'perdida').length > 0
-    ? Math.round((ganadas.length / licitaciones.filter(l => l.estado === 'ganada' || l.estado === 'perdida').length) * 100) : 0;
-  const pipelineActivo = licitaciones.filter(l => l.estado !== 'ganada' && l.estado !== 'perdida')
+  const totalMonto = licitacionesFiltradas.reduce((a, l) => a + l.monto, 0);
+  const ganadas = licitacionesFiltradas.filter(l => l.estado === 'ganada');
+  const tasaConversion = licitacionesFiltradas.filter(l => l.estado === 'ganada' || l.estado === 'perdida').length > 0
+    ? Math.round((ganadas.length / licitacionesFiltradas.filter(l => l.estado === 'ganada' || l.estado === 'perdida').length) * 100) : 0;
+  const pipelineActivo = licitacionesFiltradas.filter(l => l.estado !== 'ganada' && l.estado !== 'perdida')
     .reduce((a, l) => a + l.monto * 0.5, 0);
 
   const openCreate = () => { setEditingId(null); form.resetFields(); setShowForm(true); };
@@ -103,18 +110,27 @@ const AntCRM: React.FC = () => {
           <Text type="secondary">Pipeline comercial y seguimiento de oportunidades</Text>
         </Col>
         <Col>
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}
-            style={{ background: 'hsl(var(--primary))', borderColor: 'hsl(var(--primary))' }}>
-            Nueva Licitación
-          </Button>
+          <Space>
+            {proyectos.length > 0 && (
+              <ProyectoFilter
+                value={filtroProyecto}
+                onChange={setFiltroProyecto}
+                proyectos={proyectos}
+              />
+            )}
+            <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}
+              style={{ background: 'hsl(var(--primary))', borderColor: 'hsl(var(--primary))' }}>
+              Nueva Licitación
+            </Button>
+          </Space>
         </Col>
       </Row>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={12} lg={6}><Card size="small">
-          <Statistic title="Total Oportunidades" value={licitaciones.length}
+          <Statistic title="Total Oportunidades" value={licitacionesFiltradas.length}
             prefix={<RocketOutlined style={{ color: 'hsl(var(--primary))' }} />}
-            suffix={<Text type="secondary" style={{ fontSize: 12 }}>{ganadas.length} ganadas · {licitaciones.filter(l => l.estado === 'perdido').length} perdidas</Text>} />
+            suffix={<Text type="secondary" style={{ fontSize: 12 }}>{ganadas.length} ganadas · {licitacionesFiltradas.filter(l => l.estado === 'perdido').length} perdidas</Text>} />
         </Card></Col>
         <Col xs={12} lg={6}><Card size="small">
           <Statistic title="Monto Total Pipeline" value={totalMonto} prefix="Q" precision={0}

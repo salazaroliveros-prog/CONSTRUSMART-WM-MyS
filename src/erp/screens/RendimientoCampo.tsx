@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useErp } from '../store';
+import ProyectoFilter from '../components/ProyectoFilter';
 import type { Destajo, CapturaRendimiento, PlantillaSubrenglon, ValeSalidaRenglon } from '../types';
 
 const uid = () => Date.now().toString(36).substr(2, 9);
@@ -47,10 +48,7 @@ export const RendimientoCampo: React.FC = () => {
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
           <h2 className="text-lg font-bold text-foreground">🏗️ Destajos — Rendimiento Real</h2>
           <div className="flex gap-2 flex-wrap">
-            <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)} className={SELECT}>
-              <option value="">Todos los proyectos</option>
-              {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-            </select>
+            <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
             <button onClick={() => {
               const proy = proyectos[0]; if (!proy) return;
               addDestajo({ proyectoId: proy.id, renglonCodigo: '', cuadrilla: '', fecha: new Date().toISOString().split('T')[0], cantidadEjecutada: 0, unidad: '', horasTrabajadas: 0, rendimientoTeorico: 0 });

@@ -59,6 +59,17 @@ const Bodega: React.FC = () => {
 
   const criticos = materiales.filter(m => m.stock < m.stockMinimo);
   const pendientes = ordenes.filter(o => o.estado === 'pendiente');
+  const conPlan = materiales.filter(m => typeof m.cantidadPresupuestada === 'number' && m.cantidadPresupuestada > 0);
+
+  const coverage = conPlan.length
+    ? conPlan.reduce((a, m) => a + (m.cantidadPresupuestada ?? 0), 0)
+    : 0;
+  const avgDesv = conPlan.length
+    ? conPlan.reduce((a, m) => a + ((m.stock - (m.cantidadPresupuestada ?? 0)) / Math.max(m.cantidadPresupuestada ?? 1, 1)) * 100, 0) / conPlan.length
+    : 0;
+  const maxDesvMat = conPlan.length
+    ? [...conPlan].sort((a, b) => Math.abs((b.stock - (b.cantidadPresupuestada ?? 0)) / Math.max(b.cantidadPresupuestada ?? 1, 1) * 100) - Math.abs((a.stock - (a.cantidadPresupuestada ?? 0)) / Math.max(a.cantidadPresupuestada ?? 1, 1) * 100))[0]
+    : null;
 
   const {
     register: registerProv,
@@ -167,42 +178,74 @@ const Bodega: React.FC = () => {
           <div className="text-lg sm:text-2xl font-bold text-foreground truncate">{fmtQ(materiales.reduce((a, m) => a + m.stock * m.precio, 0))}</div>
           <div className="text-xs text-muted-foreground">Valor Inventario</div>
         </div>
+        <div className="bg-violet-50 dark:bg-violet-950/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-violet-100 dark:border-violet-900/50">
+          <div className="text-xl sm:text-2xl font-bold text-violet-700 dark:text-violet-300">{conPlan.length}</div>
+          <div className="text-xs text-violet-600 dark:text-violet-400">Items con presupuesto</div>
+        </div>
+        <div className="bg-sky-50 dark:bg-sky-950/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-sky-100 dark:border-sky-900/50">
+          <div className="text-xl sm:text-2xl font-bold text-sky-700 dark:text-sky-300 truncate">{fmtQ(coverage)}</div>
+          <div className="text-xs text-sky-600 dark:text-sky-400">Presupuestado en bodega</div>
+        </div>
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-emerald-100 dark:border-emerald-900/50">
+          <div className="text-xl sm:text-2xl font-bold text-emerald-700 dark:text-emerald-300">{fmtPct(avgDesv)}</div>
+          <div className="text-xs text-emerald-600 dark:text-emerald-400">Desviación promedio</div>
+        </div>
+        <div className="bg-rose-50 dark:bg-rose-950/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-rose-100 dark:border-rose-900/50">
+          <div className="text-xl sm:text-2xl font-bold text-rose-700 dark:text-rose-300 truncate">{maxDesvMat?.nombre?.split(' ')[0] ?? '—'}</div>
+          <div className="text-xs text-rose-600 dark:text-rose-400">Mayor desviación</div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         <div className="lg:col-span-2 bg-card text-card-foreground rounded-xl sm:rounded-2xl shadow-md border border-border overflow-hidden">
-          <div className="p-3 border-b border-border">
+          <div className="p-3 border-b border-border flex items-center justify-between">
             <h3 className="font-bold text-foreground text-sm">Control de Stock</h3>
+            <div className="flex items-center gap-2">
+              <button onClick={exportPDF} disabled={!ctx || materiales.length === 0} className="px-2 py-1 bg-primary text-primary-foreground rounded-lg text-xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">PDF</button>
+            </div>
           </div>
-          <div className="divide-y divide-border">
-            {materiales.map(m => {
-              const pct = (m.stock / Math.max(m.stockMinimo * 2, 1)) * 100;
-              const bajo = m.stock < m.stockMinimo;
-              return (
-            <div key={m.id} className="p-2 sm:p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                      <span className="text-xs sm:text-sm font-semibold text-foreground truncate">{m.nombre}</span>
-                      {m.critico && <span className="text-[9px] bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded-full shrink-0">crítico</span>}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs shrink-0">
-                      <input
-                        type="number"
-                        value={m.stock}
-                        onChange={e => updateMaterial(m.id, { stock: +e.target.value })}
-                        aria-label={`Stock de ${m.nombre}`}
-                        className="w-14 sm:w-16 px-1.5 sm:px-2 py-1 rounded border border-input bg-background text-foreground text-right focus:outline-none focus:ring-2 focus:ring-ring text-xs"
-                      />
-                      <span className="text-muted-foreground">{m.unidad}</span>
-                    </div>
-                  </div>
-                  <Progress value={pct} color={bajo ? '#ef4444' : '#10b981'} />
-                  <div className="text-[10px] text-muted-foreground mt-1">
-                    Mínimo: {m.stockMinimo} {m.unidad} {bajo && <span className="text-red-500 dark:text-red-400 font-semibold">· ¡Reabastecer!</span>}
-                  </div>
-                </div>
-              );
-            })}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-muted-foreground border-b border-border">
+                  <th className="px-3 py-2">Material</th>
+                  <th className="px-3 py-2 text-right">Stock</th>
+                  <th className="px-3 py-2 text-right">Mínimo</th>
+                  <th className="px-3 py-2 text-right">Planificado</th>
+                  <th className="px-3 py-2 text-right">Desviación %</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {materiales.map(m => {
+                  const planificado = m.cantidadPresupuestada ?? 0;
+                  const desv = planificado > 0 ? ((m.stock - planificado) / Math.max(planificado, 1)) * 100 : 0;
+                  const pct = (m.stock / Math.max(m.stockMinimo * 2, 1)) * 100;
+                  const claseDesv = Math.abs(desv) > 15 ? 'text-red-600 dark:text-red-400' : Math.abs(desv) > 5 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400';
+                  return (
+                    <tr key={m.id} className="hover:bg-muted/50">
+                      <td className="px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate max-w-[180px]">{m.nombre}</span>
+                          {m.critico && <span className="text-[9px] bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded-full">crítico</span>}
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        <input type="number" value={m.stock} onChange={e => updateMaterial(m.id, { stock: +e.target.value })} className="w-16 px-1.5 py-1 rounded border border-input bg-background text-foreground text-right text-xs focus:outline-none focus:ring-2 focus:ring-ring" />
+                      </td>
+                      <td className="px-3 py-2 text-right">{m.stockMinimo} <span className="text-muted-foreground">{m.unidad}</span></td>
+                      <td className="px-3 py-2 text-right">
+                        <span className={planificado === 0 ? 'text-muted-foreground italic' : 'text-foreground'}>{planificado === 0 ? '—' : `${planificado} ${m.unidad}`}</span>
+                      </td>
+                      <td className={`px-3 py-2 text-right ${claseDesv}`}>{planificado === 0 ? '—' : `${fmtPct(desv)}`}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="p-3">
+            <Progress value={Math.min(100, Math.max(0, 100 - Math.abs(avgDesv)))} color={avgDesv > 15 ? '#ef4444' : '#10b981'} />
+            <p className="text-[10px] text-muted-foreground mt-1">Cobertura presupuestaria promedio: desviación normalizada {fmtPct(avgDesv)}</p>
           </div>
         </div>
 
@@ -211,7 +254,7 @@ const Bodega: React.FC = () => {
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-bold text-foreground text-sm">Pareto 80/20 Inventario</h3>
               <ChartToolbar
-                types={['line']}
+                types={['bar']}
                 currentType={paretoConfig.type}
                 onTypeChange={paretoConfig.setType}
                 palette={paretoConfig.palette}
@@ -219,7 +262,7 @@ const Bodega: React.FC = () => {
                 onReset={paretoConfig.reset}
               />
             </div>
-            <BarChart height={150} data={pareto} palette={paretoConfig.palette} />
+            <BarChart height={160} data={pareto} palette={paretoConfig.palette} type={paretoConfig.type} />
           </div>
 
           <div className="bg-card text-card-foreground rounded-2xl shadow-md border border-border overflow-hidden">
@@ -234,6 +277,8 @@ const Bodega: React.FC = () => {
                     <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
                       o.estado === 'aprobado'
                         ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                        : o.estado === 'recibida'
+                        ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
                         : o.estado === 'rechazado'
                         ? 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400'
                         : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
@@ -242,7 +287,7 @@ const Bodega: React.FC = () => {
                   <div className="text-muted-foreground mt-0.5">{o.proveedor} · {o.cantidad} u · {fmtQ(o.monto)}</div>
                   {o.estado === 'pendiente' && (
                     <div className="flex gap-1 mt-1.5">
-                      <button onClick={() => updateOrden(o.id, 'aprobado')}
+                      <button onClick={() => { if (window.confirm('¿Aprobar orden?')) updateOrden(o.id, 'aprobado'); }}
                         aria-label={`Aprobar orden de ${o.material}`}
                         className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
                         <Check className="w-3 h-3" aria-hidden="true" /> Aprobar

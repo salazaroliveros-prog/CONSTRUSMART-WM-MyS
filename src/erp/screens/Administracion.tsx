@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useErp } from '../store';
 import type { CentroCosto, LogAuditoria } from '../types';
+import ProyectoFilter from '../components/ProyectoFilter';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,6 +24,7 @@ export const Administracion: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
 
   const [centrosCosto, setCentrosCosto] = useState<CentroCosto[]>([]);
+  const [filtroProyecto, setFiltroProyecto] = useState('');
   const [logs] = useState<LogAuditoria[]>([]);
 
   const saveCentros = (data: CentroCosto[]) => {
@@ -49,24 +51,28 @@ export const Administracion: React.FC = () => {
   const inp = (hasErr: boolean) => `${INPUT_BASE} ${hasErr ? 'border-destructive' : 'border-input'}`;
 
   const renderCentros = () => {
-    const totalPresupuesto = centrosCosto.reduce((a, c) => a + c.presupuestoAsignado, 0);
-    const totalGasto = centrosCosto.reduce((a, c) => a + c.gastoActual, 0);
+    const centrosFiltered = filtroProyecto ? centrosCosto.filter(c => c.proyectoId === filtroProyecto) : centrosCosto;
+    const totalPresupuesto = centrosFiltered.reduce((a, c) => a + c.presupuestoAsignado, 0);
+    const totalGasto = centrosFiltered.reduce((a, c) => a + c.gastoActual, 0);
     const pctEjecucion = totalPresupuesto > 0 ? (totalGasto / totalPresupuesto) * 100 : 0;
 
     return (
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold text-foreground">🏢 Centros de Costo</h2>
-          <button onClick={() => { setShowForm(true); reset(); }}
-            className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">
-            + Nuevo Centro
-          </button>
+          <div className="flex items-center gap-2">
+            <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} />
+            <button onClick={() => { setShowForm(true); reset(); }}
+              className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">
+              + Nuevo Centro
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <div className="p-3 bg-info/10 rounded-lg text-center">
             <p className="text-xs text-info font-medium">Centros</p>
-            <p className="text-xl font-bold text-info">{centrosCosto.length}</p>
+            <p className="text-xl font-bold text-info">{centrosFiltered.length}</p>
           </div>
           <div className="p-3 bg-success/10 rounded-lg text-center">
             <p className="text-xs text-success font-medium">Presupuesto</p>
@@ -96,7 +102,7 @@ export const Administracion: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {centrosCosto.map(cc => {
+              {centrosFiltered.map(cc => {
                 const saldo = cc.presupuestoAsignado - cc.gastoActual;
                 const pct = cc.presupuestoAsignado > 0 ? (cc.gastoActual / cc.presupuestoAsignado) * 100 : 0;
                 return (
@@ -120,7 +126,7 @@ export const Administracion: React.FC = () => {
             </tbody>
           </table>
         </div>
-        {centrosCosto.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">No hay centros de costo registrados</p>}
+        {centrosFiltered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">No hay centros de costo registrados</p>}
       </div>
     );
   };

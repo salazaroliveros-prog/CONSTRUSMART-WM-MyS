@@ -14,6 +14,7 @@ import { z } from 'zod';
 
 const licitacionFormSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido').max(200, 'Máximo 200 caracteres'),
+  proyectoId: z.string().optional().default(''),
   cliente: z.string().min(1, 'Cliente requerido').max(150, 'Máximo 150 caracteres'),
   descripcion: z.string().max(2000).optional().default(''),
   monto: z.coerce.number().min(0, 'Monto debe ser ≥ 0').max(999_999_999, 'Monto muy alto'),
@@ -38,12 +39,15 @@ const ESTADO_SIGUIENTE: Record<string, string> = {
 };
 
 const CRM: React.FC = () => {
-  const { licitaciones, addLicitacion, updateLicitacion, deleteLicitacion } = useErp();
+  const { proyectos, licitaciones, addLicitacion, updateLicitacion, deleteLicitacion } = useErp();
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [filtroProyecto, setFiltroProyecto] = useState('');
+  const licitacionesFiltradas = useMemo(() => licitaciones.filter(l => !filtroProyecto || l.proyectoId === filtroProyecto), [licitaciones, filtroProyecto]);
   const [formData, setFormData] = useState<LicitacionFormData>({
     nombre: '',
+    proyectoId: '',
     cliente: '',
     descripcion: '',
     monto: 0,
@@ -61,20 +65,20 @@ const CRM: React.FC = () => {
   const columns = useMemo(() => {
     return ESTADOS.map(est => ({
       ...est,
-      items: licitaciones.filter(l => l.estado === est.key).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+      items: licitacionesFiltradas.filter(l => l.estado === est.key).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
     }));
-  }, [licitaciones]);
+  }, [licitacionesFiltradas]);
 
-  const totalMonto = licitaciones.reduce((a, l) => a + l.monto, 0);
-  const ganadas = licitaciones.filter(l => l.estado === 'adjudicada');
-  const decididas = licitaciones.filter(l => l.estado === 'adjudicada' || l.estado === 'perdida');
+  const totalMonto = licitacionesFiltradas.reduce((a, l) => a + l.monto, 0);
+  const ganadas = licitacionesFiltradas.filter(l => l.estado === 'adjudicada');
+  const decididas = licitacionesFiltradas.filter(l => l.estado === 'adjudicada' || l.estado === 'perdida');
   const tasaConversion = decididas.length > 0
     ? Math.round((ganadas.length / decididas.length) * 100)
     : 0;
-  const pipelineActivo = licitaciones.filter(l => l.estado === 'activa').reduce((a, l) => a + l.monto * (l.probabilidad / 100), 0);
+  const pipelineActivo = licitacionesFiltradas.filter(l => l.estado === 'activa').reduce((a, l) => a + l.monto * (l.probabilidad / 100), 0);
 
   const resetForm = () => {
-    setFormData({ nombre: '', cliente: '', descripcion: '', monto: 0, probabilidad: 50, notas: '', fechaLimite: '' });
+    setFormData({ nombre: '', proyectoId: '', cliente: '', descripcion: '', monto: 0, probabilidad: 50, notas: '', fechaLimite: '' });
     setEditingId(null);
     setFormErrors({});
   };
@@ -83,6 +87,7 @@ const CRM: React.FC = () => {
     setEditingId(l.id);
     setFormData({
       nombre: l.nombre,
+      proyectoId: l.proyectoId || '',
       cliente: l.cliente,
       descripcion: '',
       monto: l.monto,
@@ -112,6 +117,7 @@ const CRM: React.FC = () => {
     const data = result.data;
     if (editingId) {
       updateLicitacion(editingId, {
+        proyectoId: data.proyectoId || '',
         nombre: data.nombre,
         cliente: data.cliente,
         monto: data.monto,
@@ -122,6 +128,7 @@ const CRM: React.FC = () => {
       toast.success('Licitación actualizada');
     } else {
       addLicitacion({
+        proyectoId: data.proyectoId || '',
         nombre: data.nombre,
         cliente: data.cliente,
         monto: data.monto,
@@ -165,19 +172,25 @@ const CRM: React.FC = () => {
 
   return (
     <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
-        <div>
-          <h1 className="text-lg sm:text-2xl font-black text-foreground flex items-center gap-2">
-            <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> CRM / Licitaciones
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Pipeline comercial y seguimiento de oportunidades</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg sm:text-2xl font-black text-foreground flex items-center gap-2">
+              <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> CRM / Licitaciones
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Pipeline comercial y seguimiento de oportunidades</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <select value={filtroProyecto} onChange={e => setFiltroProyecto(e.target.value)} className="px-2 py-1.5 rounded-lg text-xs outline-none focus:ring-2 focus:ring-ring bg-background border border-input text-foreground">
+              <option value="">Todos los proyectos</option>
+              {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+            </select>
+            <button 
+            onClick={() => { resetForm(); setShowForm(true); }}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5"
+          >
+            <Plus className="w-4 h-4" /> Nueva Licitación
+          </button>
         </div>
-        <button 
-          onClick={() => { resetForm(); setShowForm(true); }}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5"
-        >
-          <Plus className="w-4 h-4" /> Nueva Licitación
-        </button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
@@ -186,9 +199,9 @@ const CRM: React.FC = () => {
             <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
             <span className="text-[10px] sm:text-xs text-muted-foreground">Oportunidades</span>
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-foreground">{licitaciones.length}</div>
+          <div className="text-xl sm:text-2xl font-bold text-foreground">{licitacionesFiltradas.length}</div>
           <div className="text-[10px] text-muted-foreground">
-            {licitaciones.filter(l => l.estado === 'adjudicada').length} ganadas · {licitaciones.filter(l => l.estado === 'perdida').length} perdidas
+            {licitacionesFiltradas.filter(l => l.estado === 'adjudicada').length} ganadas · {licitacionesFiltradas.filter(l => l.estado === 'perdida').length} perdidas
           </div>
         </div>
         <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
@@ -324,6 +337,13 @@ const CRM: React.FC = () => {
                   className={`w-full px-3 py-2 text-sm rounded-lg border outline-none bg-background text-foreground focus:border-primary ${formErrors.nombre ? 'border-destructive bg-destructive/5' : 'border-border'}`}
                 />
                 {formErrors.nombre && <p className="text-xs text-red-500 mt-1">{formErrors.nombre}</p>}
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Proyecto</label>
+                <select value={formData.proyectoId} onChange={e => setFormData(p => ({ ...p, proyectoId: e.target.value }))} className="w-full px-3 py-2 text-sm rounded-lg border outline-none bg-background text-foreground focus:border-primary border-border">
+                  <option value="">Sin proyecto</option>
+                  {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                </select>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
