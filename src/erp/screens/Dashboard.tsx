@@ -16,15 +16,9 @@ const SAFE_STEPS = 8;
 
 const Dashboard: React.FC = () => {
   const ctx = useErp();
-  if (!ctx) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-sm text-muted-foreground">No se pudo cargar el panel. Reintente nuevamente.</p>
-      </div>
-    );
-  }
-  const { proyectos, movimientos, avances, selectedProyectoId, setView, materiales } = ctx;
   const curvaConfig = useChartConfig('area', 'cool');
+
+  const { proyectos, movimientos, avances, selectedProyectoId, setView, materiales, setSelectedProyectoId } = ctx;
 
   const activos = proyectos.filter(p => p.estado === 'ejecucion');
   const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
@@ -125,14 +119,7 @@ const Dashboard: React.FC = () => {
           <h1 className="text-sm sm:text-lg lg:text-xl font-black text-foreground leading-tight">Tablero</h1>
           <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Métricas en tiempo real</p>
         </div>
-        <select
-          value={filtroProy}
-          onChange={e => setFiltroProy(e.target.value)}
-          aria-label="Filtrar por proyecto"
-          className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-xs outline-none focus:ring-2 focus:ring-ring bg-background border border-input text-foreground flex-shrink-0">
-          <option value="">Todos</option>
-          {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre.substring(0, 15)}</option>)}
-        </select>
+        <ProyectoFilter value={selectedProyectoId ?? ''} onChange={(id) => setSelectedProyectoId(id || null)} proyectos={proyectos} />
       </div>
 
       {/* KPI Grid */}

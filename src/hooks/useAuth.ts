@@ -76,7 +76,7 @@ export function useAuth(): UseAuthReturn {
       const metadata = userData.user_metadata || {};
       
       // Intentar obtener el rol desde la tabla erp_usuarios o metadata
-      let rol: Rol = mapRol(metadata.rol || '', userData.email);
+      const rol: Rol = mapRol(metadata.rol || '', userData.email);
 
       const authUser: AuthUser = {
         id: userData.id,
