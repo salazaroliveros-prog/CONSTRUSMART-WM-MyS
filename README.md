@@ -1,3 +1,10 @@
+## Estado actual (junio 2026)
+
+- Mapa de etapas APP_STAGES definido en src/erp/types.ts.
+- Trazabilidad Presupuesto → Bodega → Dashboard activa: cantidades presupuestadas respaldan métricas plan vs real.
+- Filtro global ProyectoFilter unificado en vistas principales.
+- Suite: 569/569 tests verdes. Build: 0 warnings.
+
 # ERP CONSTRUSMART — Gestión Constructora Integral
 
 ERP web para gestión constructora con módulos de proyectos, presupuestos APU, finanzas, RRHH, bodega, seguimiento EVM, CRM, logística y más. Frontend React + TypeScript + Vite con capa de datos local y sincronización opcional a Supabase.
