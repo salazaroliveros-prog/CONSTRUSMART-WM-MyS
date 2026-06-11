@@ -9,6 +9,7 @@ import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
 import { Building2, TrendingUp, DollarSign, AlertTriangle, Activity, Calculator, ClipboardCheck, Wallet, Users, Warehouse, ArrowRight, FileText } from 'lucide-react';
 import { CARD, CARD_TITLE } from '../ui';
+import ProyectoFilter from '../components/ProyectoFilter';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
 const SAFE_STEPS = 8;
@@ -22,24 +23,40 @@ const Dashboard: React.FC = () => {
       </div>
     );
   }
-  const { proyectos, movimientos, avances, selectedProyectoId, setView } = ctx;
-  const [filtroProy, setFiltroProy] = useState('');
+  const { proyectos, movimientos, avances, selectedProyectoId, setView, materiales } = ctx;
   const curvaConfig = useChartConfig('area', 'cool');
 
-  const proyFiltrados = filtroProy
-    ? proyectos.filter(p => p.id === filtroProy)
-    : proyectos;
-  const activos = proyFiltrados.filter(p => p.estado === 'ejecucion');
+  const activos = proyectos.filter(p => p.estado === 'ejecucion');
   const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
   const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-  const presupuestoTotal = activos.reduce((a, b) => a + b.presupuestoTotal, 0);
-  const margenProm = activos.length
-    ? activos.reduce((a, b) => {
+
+  const proyectosSel = selectedProyectoId && selectedProyectoId !== 'none'
+    ? proyectos.filter(p => p.id === selectedProyectoId)
+    : proyectos;
+  const presupuestoTotal = proyectosSel.reduce((a, b) => a + b.presupuestoTotal, 0);
+  const margenProm = proyectosSel.length
+    ? proyectosSel.reduce((a, b) => {
         const m = b.montoContrato > 0 ? ((b.montoContrato - b.presupuestoTotal) / b.montoContrato) * 100 : 0;
         return a + m;
-      }, 0) / activos.length : 0;
-  const desviacion = activos.length
-    ? activos.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / activos.length : 0;
+      }, 0) / proyectosSel.length
+    : 0;
+  const desviacion = proyectosSel.length
+    ? proyectosSel.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / proyectosSel.length
+    : 0;
+
+  const materialesSel = selectedProyectoId && selectedProyectoId !== 'none'
+    ? materiales.filter(m => m.proyectoIds.includes(selectedProyectoId))
+    : materiales;
+  const planVsReal = useMemo(() => {
+    const items = materialesFiltrados.length ? materialesFiltrados : materiales;
+    const conPlan = items.filter(m => typeof m.cantidadPresupuestada === 'number' && m.cantidadPresupuestada > 0);
+    const costoPlanificado = conPlan.reduce((a, m) => a + ((m.cantidadPresupuestada ?? 0) * m.precio), 0);
+    const costoReal = conPlan.reduce((a, m) => a + (m.stock * m.precio), 0);
+    const avgDesv = conPlan.length ? conPlan.reduce((a, m) => a + ((m.stock - (m.cantidadPresupuestada ?? 0)) / Math.max(m.cantidadPresupuestada ?? 1, 1)) * 100, 0) / conPlan.length : 0;
+    const top = conPlan.length ? [...conPlan].sort((a, b) => Math.abs((b.stock - (b.cantidadPresupuestada ?? 0)) / Math.max(b.cantidadPresupuestada ?? 1, 1)) - Math.abs((a.stock - (a.cantidadPresupuestada ?? 0)) / Math.max(a.cantidadPresupuestada ?? 1, 1)))[0] : null;
+    return { conPlan: conPlan.length, costoPlanificado, costoReal, avgDesv, top };
+  }, [materiales, selectedProyectoId]);
+  const desviacionMat = materialesFiltrados.length ? materialesFiltrados.filter(m => typeof m.cantidadPresupuestada === 'number' && m.cantidadPresupuestada > 0).map(m => ({ label: m.nombre.split(' ')[0] || m.nombre, value: ((m.stock - (m.cantidadPresupuestada ?? 0)) / Math.max(m.cantidadPresupuestada ?? 1, 1)) * 100, color: '#8b5cf6' })).sort((a, b) => Math.abs(b.value) - Math.abs(a.value)).slice(0, 8) : [];
 
   const avanceData = useMemo(() => {
     const steps = 8;

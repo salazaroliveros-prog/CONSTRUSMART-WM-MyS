@@ -634,7 +634,23 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const handleUpdateMaterial = useCallback(async (id: string, patch: Partial<Material>) => { setMateriales(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateMaterial', { id, ...patch }); }, [enqueueMutation]);
   const handleDeleteMaterial = useCallback(async (id: string) => { setMateriales(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteMaterial', { id }); }, [enqueueMutation]);
   const handleAddOrden = useCallback(async (o: Omit<OrdenCompra, 'id'>) => { const n = { ...o, id: uid() }; setOrdenes(prev => [n, ...prev]); enqueueMutation('addOrden', n); }, [enqueueMutation]);
-  const handleUpdateOrden = useCallback(async (id: string, estado: OrdenCompra['estado']) => { setOrdenes(prev => prev.map(p => p.id === id ? { ...p, estado } : p)); enqueueMutation('updateOrden', { id, estado }); }, [enqueueMutation]);
+  const handleUpdateOrden = useCallback(async (id: string, estado: OrdenCompra['estado']) => {
+    const orden = ordenes.find(o => o.id === id);
+    setOrdenes(prev => prev.map(p => p.id === id ? { ...p, estado } : p));
+    if (estado === 'aprobado' || estado === 'recibida') {
+      if (orden?.items) {
+        const ids = orden.items.map(i => i.materialId).filter(Boolean);
+        if (ids.length) {
+          setMateriales(prev => prev.map(m => {
+            if (!ids.includes(m.id)) return m;
+            const linea = orden.items.find(it => it.materialId === m.id);
+            return { ...m, stock: m.stock + (linea?.cantidad ?? 0), ultimaActualizacionPresupuesto: new Date().toISOString() };
+          }));
+        }
+      }
+    }
+    enqueueMutation('updateOrden', { id, estado });
+  }, [ordenes, enqueueMutation]);
   const handleAddProveedor = useCallback(async (p: Omit<Proveedor, 'id'>) => { const n = { ...p, id: uid() }; setProveedores(prev => [n, ...prev]); enqueueMutation('addProveedor', n); }, [enqueueMutation]);
   const handleUpdateProveedor = useCallback(async (id: string, patch: Partial<Proveedor>) => { setProveedores(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateProveedor', { id, ...patch }); }, [enqueueMutation]);
   const handleDeleteProveedor = useCallback(async (id: string) => { setProveedores(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteProveedor', { id }); }, [enqueueMutation]);

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
+import ProyectoFilter from '../components/ProyectoFilter';
 import { OrdenCambio } from '../types';
 import { fmtQ, todayISO } from '../utils';
 import { GitBranch, Plus, Check, X, Clock, ChevronRight, ChevronDown } from 'lucide-react';
@@ -74,10 +75,7 @@ const OrdenesCambio: React.FC = () => {
           <GitBranch className="w-6 h-6 text-amber-500" /> Órdenes de Cambio
         </h1>
         <div className="flex flex-wrap gap-2">
-          <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)} className="text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none bg-white">
-            <option value="">Todos los proyectos</option>
-            {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-          </select>
+          <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
           <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors">
             <Plus className="w-3.5 h-3.5" /> Nueva
           </button>

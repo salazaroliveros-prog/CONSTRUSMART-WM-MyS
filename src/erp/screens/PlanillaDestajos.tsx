@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useErp } from '../store';
+import ProyectoFilter from '../components/ProyectoFilter';
 import { downloadBlob } from '../utils';
 
 export const PlanillaDestajos: React.FC = () => {
@@ -90,10 +91,7 @@ export const PlanillaDestajos: React.FC = () => {
 
       {/* Filtros */}
       <div className="flex flex-wrap gap-3 mb-4">
-        <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)} className={INPUT}>
-          <option value="">Todos los proyectos</option>
-          {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-        </select>
+        <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
         <input type="date" value={semanaFilter} onChange={e => setSemanaFilter(e.target.value)} className={INPUT} />
       </div>
 
@@ -166,7 +164,7 @@ export const PlanillaDestajos: React.FC = () => {
       {planilla.length === 0 && (
         <div className="text-center py-12">
           <p className="text-muted-foreground text-sm">No hay destajos registrados para esta semana.</p>
-          <p className="text-muted-foreground text-xs mt-1">Agrega un destajo usando el botón "+ Nuevo Destajo".</p>
+          <p className="text-muted-foreground text-xs mt-1">Agrega un destajo usando el botón &quot;+ Nuevo Destajo&quot;.</p>
         </div>
       )}
 

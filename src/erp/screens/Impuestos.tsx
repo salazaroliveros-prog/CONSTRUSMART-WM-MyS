@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useErp } from '../store';
+import ProyectoFilter from '../components/ProyectoFilter';
 import { CATEGORIA_LABEL } from '../utils';
 
 export const Impuestos: React.FC = () => {
@@ -74,11 +75,7 @@ export const Impuestos: React.FC = () => {
 
       {/* Filtros */}
       <div className="flex flex-wrap gap-3 mb-6">
-        <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)}
-          className="text-sm px-3 py-2 border rounded">
-          <option value="">Consolidado (todos)</option>
-          {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-        </select>
+        <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
         <input type="month" value={mesFilter} onChange={e => setMesFilter(e.target.value)}
           className="text-sm px-3 py-2 border rounded" />
       </div>

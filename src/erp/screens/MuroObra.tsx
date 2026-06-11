@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
+import ProyectoFilter from '../components/ProyectoFilter';
 import { todayISO } from '../utils';
 import {
   MessageSquare, Plus, Heart, MessageCircle,
@@ -79,10 +80,7 @@ const MuroObra: React.FC = () => {
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
-        <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none bg-white">
-          <option value="">Todos los proyectos</option>
-          {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-        </select>
+        <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
         {(['todos', 'avance', 'calidad', 'seguridad', 'general'] as const).map(t => (
           <button key={t} onClick={() => setFilterTipo(t)} className={`px-2.5 py-1.5 text-[10px] rounded-lg font-medium transition-colors ${filterTipo === t ? 'bg-indigo-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
             {t === 'todos' ? 'Todos' : tipoConfig[t].label}

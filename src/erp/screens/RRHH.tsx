@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,6 +9,7 @@ import { Users, Plus, Trash2 } from 'lucide-react';
 import { BarChart } from '../components/Charts';
 import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
+import ProyectoFilter from '../components/ProyectoFilter';
 
 const empleadoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -25,17 +26,30 @@ const RRHH: React.FC = () => {
   const rrhhBarConfig = useChartConfig('line', 'default');
   const { empleados, addEmpleado, updateEmpleado, deleteEmpleado, proyectos } = useErp();
   const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [filtroProyecto, setFiltroProyecto] = React.useState('');
+
+  const empleadosFiltrados = filtroProyecto ? empleados.filter(e => e.proyectoId === filtroProyecto) : empleados;
 
   const pago = (e: typeof empleados[0]) => e.salarioDiario * e.diasTrabajados;
   const pagoFSR = (e: typeof empleados[0]) => factorSalarioReal(e.salarioDiario) * e.diasTrabajados;
-  const totalPlanilla = empleados.reduce((a, e) => a + pago(e), 0);
-  const totalFSR = empleados.reduce((a, e) => a + pagoFSR(e), 0);
+  const totalPlanilla = empleadosFiltrados.reduce((a, e) => a + pago(e), 0);
+  const totalFSR = empleadosFiltrados.reduce((a, e) => a + pagoFSR(e), 0);
 
-  const porProyecto = proyectos.map((p, i) => ({
-    label: p.nombre.split(' ')[0],
-    value: empleados.filter(e => e.proyectoId === p.id).reduce((a, e) => a + pago(e), 0),
-    color: ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444'][i % 5],
-  })).filter(x => x.value > 0);
+  const porProyecto = useMemo(() => {
+    const colors = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444'];
+    const byProyecto = new Map<string, number>();
+    for (const e of empleadosFiltrados) {
+      const key = e.proyectoId || '__none__';
+      byProyecto.set(key, (byProyecto.get(key) || 0) + pago(e));
+    }
+    return proyectos
+      .map((p, i) => ({
+        label: p.nombre.split(' ')[0],
+        value: byProyecto.get(p.id) || 0,
+        color: colors[i % colors.length],
+      }))
+      .filter(x => x.value > 0);
+  }, [empleadosFiltrados, proyectos]);
 
   const {
     register,
@@ -92,9 +106,12 @@ const RRHH: React.FC = () => {
   return (
     <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2">
-          <Users className="w-5 h-5 sm:w-6 sm:h-6 text-pink-500" aria-hidden="true" /> RRHH y Planillas
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2">
+            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-pink-500" aria-hidden="true" /> RRHH y Planillas
+          </h1>
+          <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} labelAll="Todos" />
+        </div>
         <button
           onClick={() => {
             setEditingId(null);
@@ -115,7 +132,7 @@ const RRHH: React.FC = () => {
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
         <div className={`${CARD}  p-3`}>
-          <div className="text-xl sm:text-2xl font-bold text-foreground">{empleados.length}</div>
+          <div className="text-xl sm:text-2xl font-bold text-foreground">{empleadosFiltrados.length}</div>
           <div className="text-xs text-muted-foreground">Personal Activo</div>
         </div>
         <div className={`${CARD} p-3`}>
@@ -128,7 +145,7 @@ const RRHH: React.FC = () => {
         </div>
         <div className={`${CARD} p-3`}>
           <div className="text-xl sm:text-2xl font-bold text-foreground">
-            {empleados.filter(e => e.tipo === 'destajo').length}
+            {empleadosFiltrados.filter(e => e.tipo === 'destajo').length}
           </div>
           <div className="text-xs text-muted-foreground">Destajistas</div>
         </div>
@@ -152,9 +169,9 @@ const RRHH: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {empleados.length === 0 ? (
+                {empleadosFiltrados.length === 0 ? (
                   <tr><td colSpan={6} className="p-6 text-center text-xs text-muted-foreground">No hay empleados registrados.</td></tr>
-                ) : empleados.map(e => (
+                ) : empleadosFiltrados.map(e => (
                   <tr key={e.id} className="border-t border-border/50 hover:bg-muted/40 transition-colors">
                     <td className="p-2">
                       <div className="font-semibold text-foreground">{e.nombre}</div>

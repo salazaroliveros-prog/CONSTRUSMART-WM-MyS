@@ -15,7 +15,8 @@ type TableName =
   | 'erp_planos' | 'erp_rfis' | 'erp_submittals'
   | 'erp_activos_herramienta' | 'erp_cuadros_comparativos'
   | 'erp_pagos_proveedor' | 'erp_incidentes_sso'
-  | 'erp_cotizaciones_negocio';
+  | 'erp_cotizaciones_negocio'
+  | 'destajos' | 'recepciones_almacen';
 
 type ChangeType = 'INSERT' | 'UPDATE' | 'DELETE';
 
