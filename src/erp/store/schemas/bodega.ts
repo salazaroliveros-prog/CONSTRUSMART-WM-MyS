@@ -1,5 +1,20 @@
 import { z } from 'zod';
 
+export const valeSalidaItemSchema = z.object({
+  materialId: z.string(),
+  cantidad: z.number(),
+});
+
+export const valeSalidaSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  renglonId: z.string().optional(),
+  fecha: z.string(),
+  items: z.array(valeSalidaItemSchema),
+  observaciones: z.string().optional(),
+  solicitante: z.string(),
+});
+
 export const materialSchema = z.object({
   id: z.string(),
   nombre: z.string(),

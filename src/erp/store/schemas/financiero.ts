@@ -50,6 +50,21 @@ export const cuentaPagarSchema = z.object({
   facturaUrl: z.string().nullable().optional(),
 });
 
+export const ventaPaqueteSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  tipo: z.enum(['unidad','lote','paquete'] as const).default('unidad'),
+  identificador: z.string(),
+  precioVenta: z.number().default(0),
+  precioContrato: z.number().default(0),
+  estado: z.enum(['disponible','reservado','vendido','entregado'] as const).default('disponible'),
+  cliente: z.string().optional(),
+  fechaReserva: z.string().optional(),
+  fechaVenta: z.string().optional(),
+  planPago: z.string().optional(),
+  notas: z.string().optional(),
+});
+
 export const ordenCambioSchema = z.object({
   id: z.string(),
   proyectoId: z.string(),

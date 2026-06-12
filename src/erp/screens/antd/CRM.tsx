@@ -5,7 +5,7 @@ import { fmtQ, todayISO } from '../../utils';
 import {
   Row, Col, Card, Statistic, Tag, Badge, Dropdown, Button,
   Modal, Form, Input, InputNumber, Space, Typography, Progress,
-  Skeleton, theme,
+  theme,
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined,
@@ -30,17 +30,11 @@ const COLUMN_COLORS: Record<string, string> = {
 
 const AntCRM: React.FC = () => {
   const { proyectos, licitaciones, addLicitacion, updateLicitacion, deleteLicitacion } = useErp();
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filtroProyecto, setFiltroProyecto] = useState('');
   const [form] = Form.useForm();
   const { token: _token } = theme.useToken();
-
-  React.useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(t);
-  }, []);
 
   React.useEffect(() => {
     if (licitaciones.length > 0) return;
@@ -89,15 +83,6 @@ const AntCRM: React.FC = () => {
   const moveLicitacion = (id: string, nuevoEstado: string) => {
     updateLicitacion(id, { estado: nuevoEstado as any });
   };
-
-  if (loading) {
-    return (
-      <div style={{ padding: 8 }}>
-        <Skeleton active paragraph={{ rows: 1 }} />
-        <Row gutter={16}><Col span={6}><Card><Skeleton active /></Card></Col></Row>
-      </div>
-    );
-  }
 
   return (
     <div style={{ padding: 8 }}>

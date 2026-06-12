@@ -1,4 +1,4 @@
-import { RenglonPresupuesto, CotizacionCliente } from './types';
+import { RenglonPresupuesto, CotizacionCliente, Material } from './types';
 import { sanitizarTexto } from '@/lib/security';
 import { EMPRESA, fmtQ, costoDirectoUnitario, precioUnitarioVenta, TIPOLOGIA_LABEL, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD, HERRAMIENTA_MENOR, downloadBlob, sanitizeCSV } from './utils';
 import { jsPDF } from 'jspdf';
@@ -469,6 +469,94 @@ export const exportXLSX = (renglones: RenglonPresupuesto[], proyecto: string, ti
 };
 
 export { validarUrlImagen as _validarUrlImagen };
+
+export const exportStockPDF = (materiales: Material[], proyectoNombre?: string) => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 14;
+  let y = margin;
+
+  const DARK = [15, 23, 42] as const;
+  const GRAY = [100, 116, 139] as const;
+  const fecha = new Date().toLocaleDateString('es-GT', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const addFooter = () => {
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      const fy = doc.internal.pageSize.getHeight() - 10;
+      doc.setFontSize(7);
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+      const ft = `${EMPRESA.nombre} — Control de Stock | Pág. ${i} de ${pageCount} | ${fecha}`;
+      const fw = doc.getTextWidth(ft);
+      doc.text(ft, (pageWidth - fw) / 2, fy);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(margin, fy - 2, pageWidth - margin, fy - 2);
+    }
+    doc.setPage(doc.getNumberOfPages());
+  };
+
+  const checkPage = (needed: number) => {
+    const ph = doc.internal.pageSize.getHeight();
+    if (y + needed > ph - 20) {
+      addFooter();
+      doc.addPage();
+      y = margin;
+    }
+  };
+
+  doc.setFontSize(18);
+  doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+  doc.text('CONTROL DE STOCK', margin, y); y += 6;
+  doc.setFontSize(8);
+  doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+  doc.text(`${EMPRESA.nombre}`, margin, y); y += 4;
+  doc.text(`Fecha: ${fecha}`, margin, y); y += 4;
+  if (proyectoNombre) { doc.text(`Proyecto: ${sanitizarTexto(proyectoNombre)}`, margin, y); y += 4; }
+  doc.text(`Total materiales: ${materiales.length}`, margin, y); y += 6;
+
+  doc.setDrawColor(249, 115, 22);
+  doc.setLineWidth(0.8);
+  doc.line(margin, y, pageWidth - margin, y); y += 6;
+
+  const body = materiales.map((m, i) => [
+    `${i + 1}`, sanitizarTexto(m.nombre), sanitizarTexto(m.categoria),
+    m.unidad, m.stock.toString(), m.stockMinimo.toString(),
+    m.stock <= m.stockMinimo ? 'CRÍTICO' : 'OK',
+  ]);
+
+  checkPage(40);
+  autoTable(doc, {
+    startY: y,
+    head: [['#', 'Material', 'Categoría', 'Ud.', 'Stock', 'Stock Mín.', 'Estado']],
+    body,
+    theme: 'grid',
+    headStyles: { fillColor: [249, 115, 22], fontSize: 7 },
+    bodyStyles: { fontSize: 7 },
+    columnStyles: {
+      0: { cellWidth: 8, halign: 'center' },
+      1: { cellWidth: 60 },
+      2: { cellWidth: 30 },
+      3: { cellWidth: 12, halign: 'center' },
+      4: { cellWidth: 14, halign: 'center' },
+      5: { cellWidth: 16, halign: 'center' },
+      6: { cellWidth: 16, halign: 'center' },
+    },
+    margin: { left: margin, right: margin },
+  });
+
+  const criticos = materiales.filter(m => m.stock <= m.stockMinimo);
+  if (criticos.length > 0) {
+    y = (doc as any).lastAutoTable.finalY + 8;
+    checkPage(20);
+    doc.setFontSize(10);
+    doc.setTextColor(220, 38, 38);
+    doc.text(`⚠  ${criticos.length} material(es) con stock crítico`, margin, y);
+  }
+
+  addFooter();
+  doc.save(`Inventario_Bodega_${fecha.replace(/[/,]/g, '_')}.pdf`);
+};
 
 export const exportCotizacionPDF = (cotizacion: CotizacionCliente) => {
   const doc = new jsPDF();
