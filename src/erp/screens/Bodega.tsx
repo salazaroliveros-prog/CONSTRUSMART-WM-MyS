@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useErp } from '../store';
 import { fmtQ, fmtPct, todayISO } from '../utils';
-import { exportPDF } from '../export';
+import { exportStockPDF } from '../export';
 import { Progress, BarChart } from '../components/Charts';
 import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
@@ -40,7 +40,7 @@ const Bodega: React.FC = () => {
   const paretoConfig = useChartConfig('line', 'default');
   const ctx = useErp();
   const { materiales, updateMaterial, ordenes, updateOrden, addOrden, proveedores, addProveedor, updateProveedor, deleteProveedor, proyectos } = ctx;
-  const exportStockPDF = () => exportPDF([], 'Inventario Bodega', 'stock');
+  const handleExportStockPDF = () => exportStockPDF(materiales, proyectos.find(p => p.id === ctx.selectedProyectoId)?.nombre);
   const [showProveedor, setShowProveedor] = useState(false);
   const [showOrden, setShowOrden] = useState(false);
   const [editingProveedor, setEditingProveedor] = useState<string | null>(null);
@@ -190,7 +190,7 @@ const Bodega: React.FC = () => {
           <div className="p-3 border-b border-border flex items-center justify-between">
             <h3 className="font-bold text-foreground text-sm">Control de Stock</h3>
             <div className="flex items-center gap-2">
-              <button onClick={exportStockPDF} disabled={!ctx || materiales.length === 0} className="px-2 py-1 bg-primary text-primary-foreground rounded-lg text-xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">PDF</button>
+              <button onClick={handleExportStockPDF} disabled={!ctx || materiales.length === 0} className="px-2 py-1 bg-primary text-primary-foreground rounded-lg text-xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">PDF</button>
             </div>
           </div>
           <div className="overflow-x-auto">

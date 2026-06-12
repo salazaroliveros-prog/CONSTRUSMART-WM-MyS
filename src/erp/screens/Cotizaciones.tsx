@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_DANGER, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
 import { fmtQ, fmtPct, EMPRESA } from '../utils';
@@ -48,7 +47,6 @@ const ESTADOS_COTIZACION = [
 ] as const;
 
 const Cotizaciones: React.FC = () => {
-  const { t } = useTranslation();
   const { proyectos, cotizacionesNegocio: cotizaciones, addCotizacion, updateCotizacion, deleteCotizacion, presupuestos } = useErp();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);

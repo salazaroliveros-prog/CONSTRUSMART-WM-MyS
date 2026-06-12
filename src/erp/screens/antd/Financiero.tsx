@@ -3,7 +3,7 @@ import { useErp } from '../../store';
 import { fmtQ } from '../../utils';
 import {
   Row, Col, Card, Statistic, Table, Tag, Select, Space, Typography,
-  Skeleton, Progress, Button, theme,
+  Progress, Button, theme,
 } from 'antd';
 import {
   ArrowUpOutlined, ArrowDownOutlined, WalletOutlined,
@@ -17,13 +17,7 @@ const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4'
 const AntFinanciero: React.FC = () => {
   const { movimientos, deleteMovimiento, proyectos } = useErp();
   const [filtro, setFiltro] = useState<'todos' | 'ingreso' | 'gasto'>('todos');
-  const [loading, setLoading] = useState(true);
   const { token } = theme.useToken();
-
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(t);
-  }, []);
 
   const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.costoTotal || b.monto || 0), 0);
   const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.costoTotal || b.monto || 0), 0);
@@ -95,14 +89,6 @@ const AntFinanciero: React.FC = () => {
       ),
     },
   ];
-
-  if (loading) {
-    return (
-      <div style={{ padding: 8 }}>
-        <Skeleton active paragraph={{ rows: 2 }} />
-      </div>
-    );
-  }
 
   return (
     <div style={{ padding: 8 }}>

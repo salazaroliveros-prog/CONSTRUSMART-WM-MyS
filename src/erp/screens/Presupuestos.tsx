@@ -628,7 +628,7 @@ const Presupuestos: React.FC = () => {
             </select>
             <div className="mt-2 grid gap-2">
               <input value={nuevoProveedorNombre} onChange={e => setNuevoProveedorNombre(e.target.value)} placeholder={t('presupuestos.nombre_provider')} className={`${INPUT} text-xs`} />
-              <input value={nuevoProveedorContacto} onChange={e => setNuevoProveedorContacto(e.target.value)} placeholder={t('presupuestos.contacto_provider')} className={`${INPUT} text-xs`} />
+              <input value={nuevoProveedorContacto} onChange={e => setNuevoProveedorContacto(e.target.value)} placeholder={t('presupuestos.contacto_proveedor')} className={`${INPUT} text-xs`} />
               <button onClick={async () => {
                 if (!nuevoProveedorNombre) return;
                 await addProveedor({ nombre: nuevoProveedorNombre, contacto: nuevoProveedorContacto, telefono: '', email: '', categoria: 'materiales' });

@@ -9,7 +9,7 @@ import {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry, Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
   CuentaCobrar, CuentaPagar, Hito, Riesgo, PublicacionMuro, ComentarioMuro, PruebaLaboratorio, NoConformidad, LiberacionPartida,
   Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo, PagoProveedor, CotizacionCliente, VentaPaquete,
-  Destajo, RecepcionAlmacen,
+  Destajo, RecepcionAlmacen, Incidente,
 } from './types';
 
 import {
@@ -19,7 +19,7 @@ import {
   bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema, muroSchema,
   notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
   licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
-  destajoSchema, recepcionAlmacenSchema,
+  destajoSchema, recepcionAlmacenSchema, ventaPaqueteSchema, valeSalidaSchema,
 } from './store/schemas';
 
 const proyectoSchemaInline = z.object({
@@ -195,7 +195,7 @@ interface ErpState {
   cotizacionesNegocio: CotizacionCliente[]; addCotizacion: (c: Omit<CotizacionCliente, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   updateCotizacion: (id: string, patch: Partial<CotizacionCliente>) => Promise<void>;
   deleteCotizacion: (id: string) => Promise<void>;
-  ventasPaquetes: any[]; addVentaPaquete: (v: any) => Promise<void>;
+  ventasPaquetes: VentaPaquete[]; addVentaPaquete: (v: Omit<VentaPaquete, 'id'>) => Promise<void>;
   avances: AvanceObra[]; addAvance: (a: Omit<AvanceObra, 'id'>) => Promise<void>;
   deleteAvance: (id: string) => Promise<void>;
   seguimientoEVM: SeguimientoEVM[];
@@ -233,7 +233,7 @@ interface ErpState {
   pagosProveedor: PagoProveedor[]; addPagoProveedor: (p: Omit<PagoProveedor, 'id'>) => Promise<void>;
   updatePagoProveedor: (id: string, patch: Partial<PagoProveedor>) => Promise<void>;
   deletePagoProveedor: (id: string) => Promise<void>;
-  incidentes: any[]; addIncidente: (i: any) => Promise<void>; updateIncidente: (id: string, patch: any) => Promise<void>;
+  incidentes: Incidente[]; addIncidente: (i: Omit<Incidente, 'id'>) => Promise<void>; updateIncidente: (id: string, patch: Partial<Incidente>) => Promise<void>;
   deleteIncidente: (id: string) => Promise<void>;
   destajos: Destajo[]; addDestajo: (d: Omit<Destajo, 'id'>) => Promise<void>;
   updateDestajo: (id: string, patch: Partial<Destajo>) => Promise<void>;
@@ -383,13 +383,13 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [riesgos, setRiesgos] = useState<Riesgo[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_riesgos', riesgoSchema, []));
   const [licitaciones, setLicitaciones] = useState<Licitacion[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_licitaciones', licitacionSchema, []));
   const [cotizacionesNegocio, setCotizacionesNegocio] = useState<CotizacionCliente[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_cotizacionesNegocio', cotizacionSchema, []));
-  const [ventasPaquetes, setVentasPaquetes] = useState<any[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_ventasPaquetes', z.any(), []));
+  const [ventasPaquetes, setVentasPaquetes] = useState<VentaPaquete[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_ventasPaquetes', ventaPaqueteSchema, []));
   const [bitacora, setBitacora] = useState<BitacoraEntry[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_bitacora', bitacoraSchema, []));
   const [pruebas, setPruebas] = useState<PruebaLaboratorio[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_pruebas', pruebaSchema, []));
   const [ncs, setNcs] = useState<NoConformidad[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_no_conformidades', noConformidadSchema, []));
-  const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_vales_salida', avanceObraSchema, []));
+  const [valesSalida, setValesSalida] = useState<ValeSalida[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_vales_salida', valeSalidaSchema, []));
   const [seguimientoEVM, setSeguimientoEVM] = useState<SeguimientoEVM[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_seguimiento_evm', seguimientoSchema, []));
-  const [incidentes, setIncidentes] = useState<any[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_incidentes', incidenteSchema, []));
+  const [incidentes, setIncidentes] = useState<Incidente[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_incidentes', incidenteSchema, []));
   const [publicacionesMuro, setPublicacionesMuro] = useState<PublicacionMuro[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_publicaciones_muro', muroSchema, []));
   const [liberaciones, setLiberaciones] = useState<LiberacionPartida[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_liberaciones', liberacionSchema, []));
   const [planos, setPlanos] = useState<Plano[]>(() => loadWithDemo(BASE_STORAGE_KEY + '_planos', planoSchema, []));
@@ -700,8 +700,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const handleAddPagoProveedor = useCallback(async (p: Omit<PagoProveedor, 'id'>) => { const n = { ...p, id: uid() }; setPagosProveedor(prev => [n, ...prev]); enqueueMutation('addPagoProveedor', n); }, [enqueueMutation]);
   const handleUpdatePagoProveedor = useCallback(async (id: string, patch: Partial<PagoProveedor>) => { setPagosProveedor(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updatePagoProveedor', { id, ...patch }); }, [enqueueMutation]);
   const handleDeletePagoProveedor = useCallback(async (id: string) => { setPagosProveedor(prev => prev.filter(p => p.id !== id)); enqueueMutation('deletePagoProveedor', { id }); }, [enqueueMutation]);
-  const handleAddIncidente = useCallback(async (i: any) => { const n = { ...i, id: uid() }; setIncidentes(prev => [n, ...prev]); enqueueMutation('addIncidente', n); }, [enqueueMutation]);
-  const handleUpdateIncidente = useCallback(async (id: string, patch: any) => { setIncidentes(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateIncidente', { id, ...patch }); }, [enqueueMutation]);
+  const handleAddIncidente = useCallback(async (i: Omit<Incidente, 'id'>) => { const n = { ...i, id: uid() }; setIncidentes(prev => [n, ...prev]); enqueueMutation('addIncidente', n); }, [enqueueMutation]);
+  const handleUpdateIncidente = useCallback(async (id: string, patch: Partial<Incidente>) => { setIncidentes(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updateIncidente', { id, ...patch }); }, [enqueueMutation]);
   const handleDeleteIncidente = useCallback(async (id: string) => { setIncidentes(prev => prev.filter(p => p.id !== id)); enqueueMutation('deleteIncidente', { id }); }, [enqueueMutation]);
   const handleAddPrueba = useCallback(async (p: Omit<PruebaLaboratorio, 'id'>) => { const n = { ...p, id: uid() }; setPruebas(prev => [n, ...prev]); enqueueMutation('addPrueba', n); }, [enqueueMutation]);
   const handleUpdatePrueba = useCallback(async (id: string, patch: Partial<PruebaLaboratorio>) => { setPruebas(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); enqueueMutation('updatePrueba', { id, ...patch }); }, [enqueueMutation]);
