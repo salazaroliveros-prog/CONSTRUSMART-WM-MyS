@@ -20,7 +20,7 @@ const OrdenesCambio: React.FC = () => {
   const [fCosto, setFCosto] = useState(0);
   const [fPlazo, setFPlazo] = useState(0);
 
-  React.useEffect(() => { const t = setTimeout(() => setLoading(false), 200); return () => clearTimeout(t); }, []);
+
 
   const filtered = useMemo(() => {
     if (!proyectoFilter) return ordenesCambio;

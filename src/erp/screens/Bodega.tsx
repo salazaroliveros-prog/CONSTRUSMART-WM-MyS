@@ -38,24 +38,11 @@ type ProveedorOption = { id: string; nombre: string };
 const Bodega: React.FC = () => {
   const paretoConfig = useChartConfig('line', 'default');
   const ctx = useErp();
-  if (!ctx) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-sm text-muted-foreground">No se pudo cargar Bodega. Reintente nuevamente.</p>
-      </div>
-    );
-  }
   const { materiales, updateMaterial, ordenes, updateOrden, addOrden, proveedores, addProveedor, updateProveedor, deleteProveedor, proyectos } = ctx;
   const [showProveedor, setShowProveedor] = useState(false);
   const [showOrden, setShowOrden] = useState(false);
   const [editingProveedor, setEditingProveedor] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const proveedorOptions = useMemo<ProveedorOption[]>(() => proveedores.map((p) => ({ id: p.id, nombre: p.nombre })), [proveedores]);
-
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(t);
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   const criticos = materiales.filter(m => m.stock < m.stockMinimo);
   const pendientes = ordenes.filter(o => o.estado === 'pendiente');
@@ -142,8 +129,8 @@ const Bodega: React.FC = () => {
   }
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
+    <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-2">
         <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2">
           <Warehouse className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" aria-hidden="true" /> <span className="hidden sm:inline">Bodega, Compras y Proveedores</span><span className="sm:hidden">Bodega</span>
         </h1>
@@ -159,7 +146,7 @@ const Bodega: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2 mb-2">
         <div className="bg-card text-card-foreground rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
           <div className="text-xl sm:text-2xl font-bold text-foreground">{materiales.length}</div>
           <div className="text-xs text-muted-foreground">Materiales</div>
@@ -196,7 +183,7 @@ const Bodega: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-3">
         <div className="lg:col-span-2 bg-card text-card-foreground rounded-xl sm:rounded-2xl shadow-md border border-border overflow-hidden">
           <div className="p-3 border-b border-border flex items-center justify-between">
             <h3 className="font-bold text-foreground text-sm">Control de Stock</h3>
@@ -216,7 +203,9 @@ const Bodega: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {materiales.map(m => {
+                {materiales.length === 0 ? (
+                  <tr><td colSpan={5} className="px-3 py-8 text-center text-sm text-muted-foreground">Sin materiales registrados</td></tr>
+                ) : materiales.map(m => {
                   const planificado = m.cantidadPresupuestada ?? 0;
                   const desv = planificado > 0 ? ((m.stock - planificado) / Math.max(planificado, 1)) * 100 : 0;
                   const pct = (m.stock / Math.max(m.stockMinimo * 2, 1)) * 100;
@@ -262,7 +251,7 @@ const Bodega: React.FC = () => {
                 onReset={paretoConfig.reset}
               />
             </div>
-            <BarChart height={160} data={pareto} palette={paretoConfig.palette} type={paretoConfig.type} />
+            <BarChart height={160} data={pareto} palette={paretoConfig.palette} />
           </div>
 
           <div className="bg-card text-card-foreground rounded-2xl shadow-md border border-border overflow-hidden">
@@ -270,7 +259,9 @@ const Bodega: React.FC = () => {
               <h3 className="font-bold text-foreground text-sm">Órdenes por Aprobar</h3>
             </div>
             <div className="divide-y divide-border max-h-56 overflow-y-auto">
-              {ordenes.map(o => (
+              {ordenes.length === 0 ? (
+                <div className="p-4 text-center text-sm text-muted-foreground">Sin órdenes registradas</div>
+              ) : ordenes.map(o => (
                 <div key={o.id} className="p-3 text-xs">
                   <div className="flex justify-between">
                     <b className="text-foreground">{o.material}</b>
@@ -306,10 +297,12 @@ const Bodega: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border mt-4">
+      <div className="bg-card text-card-foreground rounded-2xl p-3 sm:p-4 shadow-sm border border-border mt-3">
         <h3 className="font-bold text-foreground text-sm mb-3">Proveedores</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {proveedores.map(p => (
+          {proveedores.length === 0 ? (
+            <div className="col-span-full text-center py-6 text-sm text-muted-foreground">Sin proveedores registrados</div>
+          ) : proveedores.map(p => (
             <div key={p.id} className="bg-muted rounded-xl p-3 flex items-center justify-between">
               <div>
                 <div className="font-semibold text-sm text-foreground">{p.nombre}</div>
@@ -340,8 +333,8 @@ const Bodega: React.FC = () => {
       {showProveedor && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-proveedor-title">
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmitProv(onAddProveedor)}
-            className="bg-card text-card-foreground rounded-2xl p-6 w-full max-w-md border border-border shadow-xl">
-            <div className="flex items-center justify-between mb-4">
+            className="bg-card text-card-foreground rounded-2xl p-4 w-full max-w-md border border-border shadow-xl">
+            <div className="flex items-center justify-between mb-3">
               <h2 id="modal-proveedor-title" className="font-bold text-lg text-foreground">{editingProveedor ? 'Editar' : 'Nuevo'} Proveedor</h2>
               <button type="button" onClick={() => setShowProveedor(false)} aria-label="Cerrar diálogo"
                 className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -369,8 +362,8 @@ const Bodega: React.FC = () => {
       {showOrden && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-orden-title">
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmitOrd(onAddOrden)}
-            className="bg-card text-card-foreground rounded-2xl p-6 w-full max-w-md border border-border shadow-xl">
-            <div className="flex items-center justify-between mb-4">
+            className="bg-card text-card-foreground rounded-2xl p-4 w-full max-w-md border border-border shadow-xl">
+            <div className="flex items-center justify-between mb-3">
               <h2 id="modal-orden-title" className="font-bold text-lg text-foreground">Nueva Orden de Compra</h2>
               <button type="button" onClick={() => setShowOrden(false)} aria-label="Cerrar diálogo"
                 className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">

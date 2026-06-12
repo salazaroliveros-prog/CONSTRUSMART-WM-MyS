@@ -22,7 +22,7 @@ const MuroObra: React.FC = () => {
   const [comentarioInput, setComentarioInput] = useState('');
   const [comentando, setComentando] = useState<string | null>(null);
 
-  React.useEffect(() => { const t = setTimeout(() => setLoading(false), 200); return () => clearTimeout(t); }, []);
+
 
   const publicacionesFiltradas = useMemo(() => {
     let f = publicacionesMuro;

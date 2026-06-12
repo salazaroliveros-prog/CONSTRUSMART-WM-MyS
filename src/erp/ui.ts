@@ -1,4 +1,4 @@
-export const CARD = 'bg-card rounded-lg p-5 shadow-sm border border-border/40 transition-shadow hover:shadow-md';
+export const CARD = 'bg-card rounded-lg p-3 sm:p-4 shadow-sm border border-border/40 transition-shadow hover:shadow-md';
 export const CARD_TITLE = 'font-bold text-card-foreground text-base mb-3';
 export const BADGE_SM = 'text-[10px] px-2 py-0.5 rounded-full font-medium';
 export const BADGE_ESTADO_PENDIENTE = 'bg-warning/10 text-warning';
@@ -11,8 +11,8 @@ export const BUTTON_PRIMARY = 'bg-primary hover:bg-primary/90 text-primary-foreg
 export const BUTTON_DARK = 'bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2.5 rounded-md text-sm font-semibold flex items-center gap-2 transition-all active:scale-95';
 export const BUTTON_ACCENT = 'bg-accent hover:bg-accent/90 text-accent-foreground px-4 py-2.5 rounded-md text-sm font-semibold flex items-center gap-2 transition-all active:scale-95';
 export const BUTTON_SECONDARY = 'bg-secondary hover:bg-secondary/80 text-secondary-foreground px-4 py-2.5 rounded-md text-sm font-medium flex items-center gap-2 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed';
-export const SECTION_TITLE = 'text-xl font-bold text-foreground mb-4 flex items-center gap-2';
-export const KPI_CARD = 'bg-gradient-to-br from-card to-card/80 rounded-lg p-4 shadow-sm border border-border/40';
+export const SECTION_TITLE = 'text-lg sm:text-xl font-bold text-foreground mb-3 flex items-center gap-2';
+export const KPI_CARD = 'bg-gradient-to-br from-card to-card/80 rounded-lg p-3 shadow-sm border border-border/40';
 export const BUTTON_ICON = 'text-muted-foreground hover:text-foreground p-1.5 rounded-md transition-colors hover:bg-muted';
 export const BUTTON_DANGER = 'text-destructive hover:text-destructive-foreground p-1.5 rounded-md transition-colors hover:bg-destructive/10';
 export const MODAL_OVERLAY = 'fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4';

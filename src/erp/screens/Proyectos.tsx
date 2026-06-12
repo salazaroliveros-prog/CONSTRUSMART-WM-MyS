@@ -242,8 +242,8 @@ const Proyectos: React.FC = () => {
   const wArea = watch('areaConstruccion');
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
+    <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
+      <div className="flex items-center justify-between mb-2">
         <div>
           <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground">Portafolio de Proyectos</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">{proyectos.length} proyectos registrados</p>

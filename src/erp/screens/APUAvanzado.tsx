@@ -91,11 +91,7 @@ const APUAvanzado: React.FC = () => {
     { fecha: '2026-01', cemento: 92, hierro: 285, arena: 145, block: 5.5 },
   ], []);
 
-  // Lazy load
-  React.useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 200);
-    return () => clearTimeout(t);
-  }, []);
+
 
   if (loading) {
     return (

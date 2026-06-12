@@ -54,10 +54,7 @@ const BasePrecios: React.FC = () => {
   const [nuevoRubro, setNuevoRubro] = useState('');
   const [showAgregar, setShowAgregar] = useState(false);
 
-  React.useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 200);
-    return () => clearTimeout(t);
-  }, []);
+
 
   const rubros = useMemo(() => [...new Set(insumos.map(i => i.rubro))].sort(), [insumos]);
   const unidades = useMemo(() => [...new Set(insumos.map(i => i.unidad))].sort(), [insumos]);
