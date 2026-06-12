@@ -17,10 +17,7 @@ const Financiero: React.FC = () => {
   const flowConfig = useChartConfig('line', 'default');
   const donutConfig = useChartConfig('line', 'default');
 
-  React.useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(t);
-  }, []);
+
 
   const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
   const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
@@ -66,8 +63,8 @@ const Financiero: React.FC = () => {
   }
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
-      <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2 mb-3 sm:mb-4"><Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-violet-500" aria-hidden="true" /> Control Financiero y Caja</h1>
+    <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
+      <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2 mb-2"><Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-violet-500" aria-hidden="true" /> Control Financiero y Caja</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
         <div className="bg-emerald-500 text-white rounded-xl sm:rounded-2xl p-3 sm:p-4"><TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2" aria-hidden="true" /><div className="text-xl sm:text-2xl font-bold">{fmtQ(ingresos)}</div><div className="text-xs opacity-80">Ingresos Totales</div></div>

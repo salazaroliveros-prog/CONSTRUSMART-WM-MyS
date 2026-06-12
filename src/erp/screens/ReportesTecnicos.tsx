@@ -17,10 +17,7 @@ const ReportesTecnicos: React.FC = () => {
   const [proyectoId, setProyectoId] = useState('');
   const reportRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 200);
-    return () => clearTimeout(t);
-  }, []);
+
 
   const proyecto = proyectos.find(p => p.id === proyectoId);
   const presupuesto = presupuestos.find(p => p.proyectoId === proyectoId);

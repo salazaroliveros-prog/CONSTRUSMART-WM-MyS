@@ -38,7 +38,7 @@ const Dashboard: React.FC = () => {
     ? proyectosSel.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / proyectosSel.length
     : 0;
 
-  const materialesSel = selectedProyectoId && selectedProyectoId !== 'none'
+  const materialesFiltrados = selectedProyectoId && selectedProyectoId !== 'none'
     ? materiales.filter(m => m.proyectoIds.includes(selectedProyectoId))
     : materiales;
   const planVsReal = useMemo(() => {
@@ -50,8 +50,6 @@ const Dashboard: React.FC = () => {
     const top = conPlan.length ? [...conPlan].sort((a, b) => Math.abs((b.stock - (b.cantidadPresupuestada ?? 0)) / Math.max(b.cantidadPresupuestada ?? 1, 1)) - Math.abs((a.stock - (a.cantidadPresupuestada ?? 0)) / Math.max(a.cantidadPresupuestada ?? 1, 1)))[0] : null;
     return { conPlan: conPlan.length, costoPlanificado, costoReal, avgDesv, top };
   }, [materiales, selectedProyectoId]);
-  const desviacionMat = materialesFiltrados.length ? materialesFiltrados.filter(m => typeof m.cantidadPresupuestada === 'number' && m.cantidadPresupuestada > 0).map(m => ({ label: m.nombre.split(' ')[0] || m.nombre, value: ((m.stock - (m.cantidadPresupuestada ?? 0)) / Math.max(m.cantidadPresupuestada ?? 1, 1)) * 100, color: '#8b5cf6' })).sort((a, b) => Math.abs(b.value) - Math.abs(a.value)).slice(0, 8) : [];
-
   const avanceData = useMemo(() => {
     const steps = 8;
     const data = selectedProyectoId
@@ -124,15 +122,26 @@ const Dashboard: React.FC = () => {
 
       {/* KPI Grid */}
       {loading
-        ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2 mb-2 flex-shrink-0">
+        ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2 mb-1 flex-shrink-0">
             {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
-        : <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2 mb-2 flex-shrink-0">
-            <KpiCard label="Margen Util." value={fmtPct(margenProm)} icon={<TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />} trend="Prom." trendUp accent="from-emerald-500 to-teal-500" />
-            <KpiCard label="Proyectos" value={String(activos.length)} icon={<Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />} trend={`${proyectos.length} total`} trendUp accent="from-blue-500 to-indigo-500" />
-            <KpiCard label="Presupuesto" value={fmtQ(presupuestoTotal)} icon={<DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />} accent="from-orange-500 to-amber-500" />
-            <KpiCard label="Desviación" value={fmtPct(desviacion)} icon={<AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />} trend={desviacion > 0 ? 'Riesgo' : 'Sano'} trendUp={desviacion <= 0} accent="from-red-500 to-rose-500" />
-          </div>
+        : <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2 mb-1 flex-shrink-0">
+              <KpiCard label="Margen Util." value={fmtPct(margenProm)} icon={<TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />} trend="Prom." trendUp accent="from-emerald-500 to-teal-500" />
+              <KpiCard label="Proyectos" value={String(activos.length)} icon={<Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />} trend={`${proyectos.length} total`} trendUp accent="from-blue-500 to-indigo-500" />
+              <KpiCard label="Presupuesto" value={fmtQ(presupuestoTotal)} icon={<DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />} accent="from-orange-500 to-amber-500" />
+              <KpiCard label="Desviación" value={fmtPct(desviacion)} icon={<AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />} trend={desviacion > 0 ? 'Riesgo' : 'Sano'} trendUp={desviacion <= 0} accent="from-red-500 to-rose-500" />
+            </div>
+            {planVsReal.conPlan > 0 && (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1 flex-shrink-0 text-[10px] text-muted-foreground">
+                <span>Planif. <b className="text-foreground">{planVsReal.conPlan}</b>/{materialesFiltrados.length} mats</span>
+                <span>Costo planif. <b className="text-foreground">{fmtQ(planVsReal.costoPlanificado)}</b></span>
+                <span>Real <b className="text-foreground">{fmtQ(planVsReal.costoReal)}</b></span>
+                <span>Desv. prom. <b className={Math.abs(planVsReal.avgDesv) > 15 ? 'text-destructive' : ''}>{fmtPct(planVsReal.avgDesv)}</b></span>
+                {planVsReal.top && <span>Mayor: <b className="text-foreground truncate max-w-[120px] inline-block align-bottom">{planVsReal.top.nombre}</b></span>}
+              </div>
+            )}
+          </>
       }
 
       {/* Main Grid */}

@@ -57,10 +57,7 @@ const CRM: React.FC = () => {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  React.useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(t);
-  }, []);
+
 
   const columns = useMemo(() => {
     return ESTADOS.map(est => ({
@@ -171,8 +168,8 @@ const CRM: React.FC = () => {
   }
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
+    <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-2">
           <div className="flex items-center gap-2">
             <h1 className="text-lg sm:text-2xl font-black text-foreground flex items-center gap-2">
               <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> CRM / Licitaciones

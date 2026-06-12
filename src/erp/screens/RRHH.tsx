@@ -104,8 +104,8 @@ const RRHH: React.FC = () => {
 
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
+    <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2">
             <Users className="w-5 h-5 sm:w-6 sm:h-6 text-pink-500" aria-hidden="true" /> RRHH y Planillas
