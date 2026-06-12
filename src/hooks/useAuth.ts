@@ -43,15 +43,24 @@ export interface UseAuthReturn {
   refreshSession: () => Promise<void>;
 }
 
+const DEMO_USER: AuthUser = {
+  id: 'demo-dev-user',
+  email: 'admin@construsmart.local',
+  nombre: 'Usuario Demo (Dev)',
+  rol: 'Administrador',
+};
+
+const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+
 export function useAuth(): UseAuthReturn {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<AuthUser | null>(isDev ? DEMO_USER : null);
+  const [loading, setLoading] = useState(!isDev);
   const [error, setError] = useState('');
 
-  // Recuperar metadata del usuario desde Supabase auth.user_metadata
   const buildUserFromSession = useCallback(async () => {
     if (!hasSupabase) {
       log('warn', 'useAuth', 'Supabase no configurado — modo offline/local');
+      if (!isDev) setUser(null);
       setLoading(false);
       return;
     }
@@ -61,13 +70,13 @@ export function useAuth(): UseAuthReturn {
       
       if (sessionError) {
         log('error', 'useAuth', 'Error obteniendo sesión', { error: sessionError.message });
-        setUser(null);
+        if (!isDev) setUser(null);
         setLoading(false);
         return;
       }
 
       if (!session?.user) {
-        setUser(null);
+        if (!isDev) setUser(null);
         setLoading(false);
         return;
       }
@@ -75,7 +84,6 @@ export function useAuth(): UseAuthReturn {
       const userData = session.user;
       const metadata = userData.user_metadata || {};
       
-      // Intentar obtener el rol desde la tabla erp_usuarios o metadata
       const rol: Rol = mapRol(metadata.rol || '', userData.email);
 
       const authUser: AuthUser = {
@@ -97,7 +105,8 @@ export function useAuth(): UseAuthReturn {
       log('info', 'useAuth', `Sesión activa: ${validated.email} (${validated.rol})`);
     } catch (err) {
       log('error', 'useAuth', 'Error construyendo usuario desde sesión', { error: String(err) });
-      setUser(null);
+      if (!isDev) setUser(null);
+      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -122,9 +131,7 @@ export function useAuth(): UseAuthReturn {
       }
     });
 
-    // Cargar sesión inicial
-    buildUserFromSession();
-
+    // Cargar sesión inicial (INITIAL_SESSION event lo maneja onAuthStateChange)
     const refreshInterval = setInterval(async () => {
       try {
         if (hasSupabase) await supabase.auth.refreshSession();
@@ -224,7 +231,7 @@ export function useAuth(): UseAuthReturn {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: window.location.origin,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -262,6 +269,7 @@ export function useAuth(): UseAuthReturn {
       log('error', 'useAuth', 'Excepción en logout', { error: String(err) });
       setUser(null);
     }
+    if (isDev) window.location.reload();
   }, []);
 
   const refreshSession = useCallback(async () => {

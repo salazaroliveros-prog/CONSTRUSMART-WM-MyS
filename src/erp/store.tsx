@@ -280,13 +280,13 @@ const mapRol = (rol: string, email?: string): Rol => {
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Verificar sesión directamente de Supabase al cargar
+  const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
   const getInitialView = (): string => {
+    if (isDev) return 'dashboard';
     try {
       const url = import.meta.env.VITE_SUPABASE_URL;
       const key = import.meta.env.VITE_SUPABASE_KEY;
       if (!url || !key) return 'login';
-      // Chequear si hay token de sesión en localStorage (Supabase lo guarda aquí)
       const hasSession = Object.keys(localStorage).some(k => k.startsWith('sb-') && k.includes('-auth-token'));
       if (hasSession) return 'dashboard';
     } catch {}
@@ -309,16 +309,22 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const user = auth.user as ErpState['user'] | null;
   const authError = auth.error;
 
-  // Timeout de seguridad: si initializing no resuelve en 5s, forzar false
+  // Si auth ya terminó de cargar (loading=false) pero initializing sigue true, resolverlo
   useEffect(() => {
+    if (auth.loading === false && initializing) {
+      setInitializing(false);
+    }
+  }, [auth.loading, initializing]);
+
+  // Timeout de seguridad: si initializing no resuelve en 2s, forzar false
+  useEffect(() => {
+    if (!initializing) return;
     const timer = setTimeout(() => {
-      if (initializing) {
-        console.warn('[Store] initializing timeout — forzando false');
-        setInitializing(false);
-      }
-    }, 5000);
+      console.warn('[Store] initializing timeout — forzando false');
+      setInitializing(false);
+    }, 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [initializing]);
 
   // Intentar obtener sesión directamente si no llegó por el flujo normal
   useEffect(() => {
@@ -337,31 +343,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     if (auth.user) {
-      if (view === 'login') {
-        setView('dashboard');
-        if (initializing) setInitializing(false);
-      }
+      if (view === 'login') setView('dashboard');
+      if (initializing) setInitializing(false);
       return;
     }
     if (auth.error) {
       console.warn('[Store] auth.error detectado:', auth.error);
       if (initializing) setInitializing(false);
-      return;
     }
-    if (auth.loading === false && initializing) {
-      // Si aún no hay sesión y ya terminó de cargar, fuerzo verificación directa
-      if (!hasSupabase) {
-        setInitializing(false);
-      } else {
-        supabase.auth.getSession().then(({ data }) => {
-          if (data?.session?.user) {
-            setView('dashboard');
-          }
-          setInitializing(false);
-        }).catch(() => setInitializing(false));
-      }
-    }
-  }, [auth.user, auth.error, auth.loading, initializing, view]);
+  }, [auth.user, auth.error, initializing, view]);
 
   const fetchedRef = useRef(false);
   const isOnlineRef = useRef(navigator.onLine);
