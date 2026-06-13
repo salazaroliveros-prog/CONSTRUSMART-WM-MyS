@@ -3,9 +3,10 @@ import { ErpProvider, useErp } from '@/erp/store';
 import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import Header from '@/erp/components/Header';
-import Sidebar from '@/erp/components/Sidebar';
 import Login from '@/erp/screens/Login';
+
+const Header = lazy(() => import('@/erp/components/Header'));
+const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
 import { applyThemeToDocument } from '@/lib/themes';
 
 // Simple AppContext inline (reemplaza el archivo eliminado)

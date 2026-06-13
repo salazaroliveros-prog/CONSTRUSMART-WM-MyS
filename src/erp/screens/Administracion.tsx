@@ -19,13 +19,12 @@ type CentroCostoForm = z.infer<typeof centroCostoSchema>;
 const uid = () => Date.now().toString(36).substr(2, 9);
 
 export const Administracion: React.FC = () => {
-  const { proyectos } = useErp();
+  const { proyectos, auditLog } = useErp();
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion'>('centros');
   const [showForm, setShowForm] = useState(false);
 
   const [centrosCosto, setCentrosCosto] = useState<CentroCosto[]>([]);
   const [filtroProyecto, setFiltroProyecto] = useState('');
-  const [logs] = useState<LogAuditoria[]>([]);
 
   const saveCentros = (data: CentroCosto[]) => {
     setCentrosCosto(data);
@@ -134,7 +133,7 @@ export const Administracion: React.FC = () => {
   const renderLogs = () => (
     <div>
       <h2 className="text-lg font-bold mb-4 text-foreground">📋 Logs de Auditoría</h2>
-      {logs.length === 0 ? (
+      {auditLog.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground text-sm">No hay logs de auditoría registrados.</p>
           <p className="text-muted-foreground text-xs mt-1">Las acciones del sistema se registrarán automáticamente.</p>
@@ -148,15 +147,19 @@ export const Administracion: React.FC = () => {
                 <th className="text-left p-2">Usuario</th>
                 <th className="text-left p-2">Acción</th>
                 <th className="text-left p-2">Entidad</th>
+                <th className="text-left p-2">Detalle</th>
               </tr>
             </thead>
             <tbody>
-              {logs.map(l => (
+              {auditLog.map(l => (
                 <tr key={l.id} className="border-t hover:bg-muted/50">
                   <td className="p-2 whitespace-nowrap text-muted-foreground">{new Date(l.createdAt).toLocaleString()}</td>
                   <td className="p-2">{l.usuarioNombre}</td>
                   <td className="p-2">{l.accion}</td>
                   <td className="p-2 text-muted-foreground max-w-xs truncate">{l.entidad}</td>
+                  <td className="p-2 text-muted-foreground max-w-xs truncate">
+                    {l.valoresNuevos ? Object.entries(l.valoresNuevos).map(([k, v]) => `${k}:${v}`).join(', ') : '-'}
+                  </td>
                 </tr>
               ))}
             </tbody>

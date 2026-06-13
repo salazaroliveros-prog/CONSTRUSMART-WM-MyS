@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -106,6 +106,10 @@ const Proyectos: React.FC = () => {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [pauseModal, setPauseModal] = useState<{ proyectoId: string; nombre: string } | null>(null);
+  const [pauseReason, setPauseReason] = useState('');
+  const [pauseAutorizador, setPauseAutorizador] = useState('');
+  const [pauseReanudacion, setPauseReanudacion] = useState('');
 
   const onSubmit = (data: ProyectoFormData) => {
     setSubmitting(true);
@@ -209,6 +213,24 @@ const Proyectos: React.FC = () => {
     setShow(true);
   };
 
+  const confirmarPausa = useCallback(() => {
+    if (!pauseModal) return;
+    if (!pauseReason.trim()) { toast.error('Motivo de pausa requerido'); return; }
+    if (!pauseAutorizador.trim()) { toast.error('Autorizador requerido'); return; }
+    updateProyecto(pauseModal.proyectoId, {
+      estado: 'pausado',
+      motivoPausa: pauseReason.trim(),
+      pausadoPor: pauseAutorizador.trim(),
+      fechaPausa: todayISO(),
+      fechaReanudacionEstimada: pauseReanudacion || undefined,
+    });
+    toast.warning(`Proyecto "${pauseModal.nombre}" pausado`, { description: `Motivo: ${pauseReason}` });
+    setPauseModal(null);
+    setPauseReason('');
+    setPauseAutorizador('');
+    setPauseReanudacion('');
+  }, [pauseModal, pauseReason, pauseAutorizador, pauseReanudacion, updateProyecto]);
+
   const accionRapida = (p: Proyecto, accion: string) => {
     switch (accion) {
       case 'iniciar':
@@ -216,8 +238,10 @@ const Proyectos: React.FC = () => {
         toast.success(`Proyecto "${p.nombre}" iniciado`, { description: 'Estado cambiado a Ejecución' });
         break;
       case 'pausar':
-        updateProyecto(p.id, { estado: 'pausado' });
-        toast.warning(`Proyecto "${p.nombre}" pausado`, { description: 'Estado cambiado a Pausado' });
+        setPauseModal({ proyectoId: p.id, nombre: p.nombre });
+        setPauseReason(p.motivoPausa || '');
+        setPauseAutorizador(p.pausadoPor || '');
+        setPauseReanudacion(p.fechaReanudacionEstimada || '');
         break;
       case 'reanudar':
         updateProyecto(p.id, { estado: 'ejecucion' });
@@ -311,6 +335,7 @@ const Proyectos: React.FC = () => {
                   'bg-slate-500/10 text-slate-600'
                 }`}>{estadoLabel[p.estado] || p.estado}</span>
                 {p.etapa && <span className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground">{p.etapa}</span>}
+                {p.estado === 'pausado' && p.motivoPausa && <span className="text-[10px] px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 truncate max-w-[140px]" title={p.motivoPausa}>{p.motivoPausa}</span>}
                 {p.moneda && <span className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground">{p.moneda}</span>}
               </div>
 
@@ -401,6 +426,58 @@ const Proyectos: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {pauseModal && (
+        <div className={MODAL_OVERLAY + ' animate-enter'} role="dialog" aria-modal="true" aria-labelledby="modal-pausa-title">
+          <div onClick={e => e.stopPropagation()} className={`${MODAL_PANEL.replace('max-w-lg sm:max-w-xl md:max-w-2xl', 'max-w-md')} animate-enter`}>
+            <div className={MODAL_HEADER}>
+              <h2 id="modal-pausa-title" className={MODAL_TITLE}>Pausar Proyecto</h2>
+              <button type="button" onClick={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }} className={MODAL_CLOSE} aria-label="Cerrar">
+                <X className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </div>
+            <div className="p-4 space-y-3">
+              <p className="text-sm font-medium text-foreground">Proyecto: <span className="text-primary">{pauseModal.nombre}</span></p>
+              <div>
+                <label className="text-[10px] text-muted-foreground mb-0.5 block">Motivo de Pausa *</label>
+                <textarea
+                  value={pauseReason}
+                  onChange={e => setPauseReason(e.target.value)}
+                  placeholder="Describa la razón de la pausa (ej: falta de materiales, condiciones climáticas, problemas contractuales...)"
+                  className={`${INPUT} min-h-[80px] resize-none`}
+                  rows={3}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-muted-foreground mb-0.5 block">Autorizado por *</label>
+                <input
+                  value={pauseAutorizador}
+                  onChange={e => setPauseAutorizador(e.target.value)}
+                  placeholder="Nombre de quien autoriza la pausa"
+                  className={INPUT}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-muted-foreground mb-0.5 block">Fecha estimada de reanudación</label>
+                <input
+                  type="date"
+                  value={pauseReanudacion}
+                  onChange={e => setPauseReanudacion(e.target.value)}
+                  className={INPUT}
+                />
+              </div>
+            </div>
+            <div className="px-4 pb-4 flex gap-2">
+              <button onClick={confirmarPausa} className={BUTTON_PRIMARY + ' flex-1 justify-center active:scale-[0.98]'}>
+                <Pause className="w-4 h-4" /> Confirmar Pausa
+              </button>
+              <button onClick={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }} className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground font-medium transition-all">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {show && (
         <div className={MODAL_OVERLAY + ' animate-enter'} role="dialog" aria-modal="true" aria-labelledby="modal-proyecto-title">

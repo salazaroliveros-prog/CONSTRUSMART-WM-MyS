@@ -27,10 +27,20 @@
 
 ## Tests
 - `src/__tests__/erp-operacion-integral.test.tsx`: 78 tests (ALL pass — 5 pre-existing failures fixed)
-- `src/__tests__/erp-store-operations-full.test.tsx`: 246 tests (all pass) — covers 30+ entities CRUD, calculation engine, export functions, RBAC, storage, cross-module flows, notifications, security, performance, i18n, realtime, error handling
+- `src/__tests__/erp-store-operations-full.test.tsx`: 254 tests (all pass) — covers 30+ entities CRUD, calculation engine, export functions, RBAC, storage, cross-module flows, notifications, security, performance, i18n, realtime, error handling
 - `src/lib/__tests__/auto-repair.test.ts`: 27 tests (store health, safeParse, recoverStoreState)
 - `src/erp/__tests__/integrity.test.ts`: 3 tests (Zod schema integrity)
-- Combined: **427/427 tests pass** (0 failures) — 9 test files
+- `src/erp/__tests__/store.ordenes.test.ts`: 3 tests
+- `src/erp/__tests__/store.presupuestos.test.ts`: 4 tests
+- `src/erp/__tests__/zustand-migration.test.ts`: 6 tests
+- `src/erp/__tests__/e2e-proyecto.test.ts`: 1 test
+- `src/erp/__tests__/store.test.ts`: 10 tests
+- `src/erp/__tests__/financiero.test.ts`: 35 tests
+- `src/erp/__tests__/utils.test.ts`: 21 tests
+- `src/__tests__/erp-estilos-ui.test.tsx`: 72 tests
+- `src/__tests__/erp-validacion-funcional.test.tsx`: 57 tests
+- `src/__tests__/filtro-proyecto.test.tsx`: 5 tests
+- Combined: **576/576 tests pass** (0 failures) — 14 test files
 
 ## Cambios Realizados (sesión actual)
 
@@ -129,6 +139,120 @@
 - **Margen**: valor esperado corregido 20 → 22.5
 - **Sanitize XSS**: string concatenation evita decoding de HTML entities
 - **`__proto__`**: cambiado a `constructor` para evitar interceptación del prototype
+
+### SESIÓN-09 (2026-06-12): Implementación de Quick Wins + UI/UX + Operacionales
+
+#### A-12: Compresión lz-string + Gestión de Cuota localStorage
+- `npm install lz-string`
+- `compressData`/`decompressData` en utils.ts (comprime JSON >10KB con `lz-string:compressToUTF16`)
+- `isStorageQuotaCritical` detecta uso >85% del quota estimado (5MB)
+- `safeSetItem` con fallback: elimina keys más pequeñas, comprime individualmente, reintenta
+- store.tsx: `loadWithDemo` ahora usa `decompressData`, `saveToStorage` usa `compressData` + `safeSetItem`
+- Compresión aplicada a: todas las entidades, mutationQueue, notificaciones, auditLog
+
+#### A-20: Lazy Loading Header + Sidebar
+- `AppLayout.tsx`: Header y Sidebar cambiados de import estático a `lazy(() => import(...))`
+- Consistente con las 34 screens que ya usaban lazy loading
+
+#### 1.1: i18n Dashboard
+- Dashboard.tsx: `useTranslation()` hook agregado, ~30 strings reemplazados con `t()`
+- es.json + en.json: 30+ nuevas keys en sección `dashboard` (tablero, metricas_tiempo_real, margen_util, proyectos, presupuesto, desviacion, prom, riesgo, sano, planif, costo_planif, real, desv_prom, mayor, curva_s, programado, sin_datos, ing_vs_gast, registro_rapido, modulos, cartera_titulo, panel_alertas, stock_critico, nc_pendientes, oc_pendientes, hitos_vencidos, sin_alertas, ver_todos)
+- Añadido `nav.items.cotizaciones` a ambos idiomas
+
+#### 1.3: Widget Cartera
+- Dashboard.tsx: Donut chart de proyectos agrupados por estado (planeacion, ejecucion, pausado, finalizado)
+- Colores distintivos por estado, leyenda con cantidades
+- Renderizado condicional (solo si hay datos)
+
+#### 1.4: Panel Alertas
+- `AlertasPanel.tsx` creado en `src/erp/components/`
+- Muestra top 10 alertas: stock crítico (stock=0 → alta, stock≤min → media), NC pendientes, OC en borrador/pendiente, hitos vencidos
+- Indicadores visuales por tipo (iconos + colores)
+- Integrado en Dashboard.tsx en la columna lateral
+
+#### 2.1: Optimistic Locking Extendido
+- `types.ts`: Material, OrdenCompra, Presupuesto ahora tienen `version?: number`
+- OrdenCompra: `stockActualizado?: boolean`
+- Schemas Zod actualizados (bodega.ts, presupuestos.ts)
+- zustandStore.ts: `addMaterial`/`addOrden`/`addPresupuesto` inicializan `version: 1`
+- `updateMaterial`/`updateOrden`/`updatePresupuesto` validan version y la incrementan
+
+#### Operacional: OC duplicate stock validation
+- `updateOrden`: solo incrementa stock si `!orden.stockActualizado`
+- Marca `stockActualizado: true` después de la primera deducción
+- Actualiza `version` de materiales afectados
+
+#### Operacional: Presupuesto recalcula al modificar renglones
+- `updatePresupuesto`: recalcula `totalCalculado` automáticamente cuando `patch.renglones` está presente
+- Suma de `totalPV` (o `costoMateriales + costoManoObra + costoEquipo` por renglón)
+
+#### Validación
+- Build exitoso (0 errores, solo warnings esperados de "use client")
+- Tests: **576/576** pass (14 files, +7 tests vs sesión anterior)
+- AlertasPanel: 0 errores de compilación, importado correctamente en Dashboard
+
+### SESIÓN-08 (2026-06-12): Refactorización Integral de Auditoría — Implementación Completa
+
+#### A-04: motivoPausa obligatorio
+- Añadido `motivoPausa`, `pausadoPor`, `fechaPausa`, `fechaReanudacionEstimada` a `Proyecto` (types.ts), `proyectoSchema` (store/schemas/proyectos.ts), `proyectoSchemaInline` (store.tsx)
+- Modal de pausa en `Proyectos.tsx` con motivo (textarea), autorizador, fecha estimada de reanudación
+- Display de motivoPausa en tarjetas de proyecto cuando estado === 'pausado'
+
+#### A-03: State machine con validaciones
+- `handleUpdateProyecto` valida transiciones: `planeacion→ejecucion`, `ejecucion→pausado`, `pausado→ejecucion`, `ejecucion→finalizado`
+- Requiere presupuesto aprobado + hitos para `planeacion→ejecucion`
+- Requiere `motivoPausa` para `ejecucion→pausado`
+- Requiere avance 100% para `ejecucion→finalizado`
+- Valida consistencia estado/etapa (ej. estado=planeacion no permite etapa=construccion)
+- Valida que avance > 0 no se pueda fijar en estado planeacion
+
+#### A-06: tableMap completo en forceSync
+- Añadidas entradas faltantes: `addPublicacionMuro`, `deleteOrden`, `deleteNC`
+- Eliminados duplicados que causaban warnings de compilación
+
+#### A-07: Stale closure fix
+- `mutationQueueRef` y `syncCooldownRef` para evitar closures stale
+- Efecto de auto-trigger ahora usa refs en vez de dependencias directas
+
+#### A-13..17: Campos duplicados en types.ts
+- Eliminados `proyectoId` duplicado en Hito, Riesgo, CentroCosto, Plano
+
+#### A-08/A-09: Validación estado-etapa y avance
+- Etapa se actualiza automáticamente según el estado
+- Avance restringido a 0 en proyectos en planeación
+
+#### A-23: EMPRESA configurable desde settings
+- `empresaInfo` añadido a `AppSettings`
+- `EMPRESA_DEFAULT` y `getEmpresaInfo()`/`setEmpresaInfo()` en utils.ts
+- Settings sincroniza empresaInfo al store al cargar y al actualizar
+
+#### A-24: LogAuditoría
+- Estado `auditLog` con persistencia en localStorage (últimos 200)
+- `addAuditEntry` registra usuario, acción, entidad, valores anteriores/nuevos
+- Integrado en addProyecto, updateProyecto (estado changes), deleteProyecto
+
+#### BUG-06: Fix Cotizaciones type
+- Eliminados `createdAt`/`updatedAt` de llamadas a `addCotizacion` (handler ya lo maneja)
+- Eliminado `as any` en `duplicarCotizacion`
+
+#### SEC-04: Sanitización en enqueueMutation
+- `sanitizarObjeto(payload)` antes de encolar cada mutación
+
+#### A-11: Optimistic locking
+- Campo `version` añadido a `Proyecto`
+- `handleUpdateProyecto` verifica versión antes de aplicar cambios
+- Versión se incrementa automáticamente en cada update
+
+#### A-25: Notificaciones agrupadas
+- `addNotificacion` detecta notificaciones no leídas duplicadas (mismo proyecto + título) y las fusiona con contador (+1)
+
+#### PERF-01: Auth dependencias estables
+- `useMemo` value cambió de dep `auth` completo a `auth.signIn, auth.signUp, auth.signInWithGoogle, auth.logout, auth.error`
+- Evita re-render completo del contexto en refrescos de token
+
+#### Validación
+- Build exitoso (0 errores, 0 warnings de duplicate key)
+- Tests: **569/569** pass (12 files)
 
 ### SESIÓN-07 (2026-06-10): Migración 017 + Destajos/Recepciones Store + ForceSync + Reportes + Delete Handlers
 - **Migración 017**: Columna `probabilidad` añadida a `erp_licitaciones` (ya existía, skip)

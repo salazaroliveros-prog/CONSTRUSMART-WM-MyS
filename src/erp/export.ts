@@ -11,7 +11,11 @@ const calcRow = (r: RenglonPresupuesto) => {
   return { cd, pv, total: pv * r.cantidad };
 };
 
+const _resumenCache = new WeakMap<RenglonPresupuesto[], ReturnType<typeof getResumenMateriales>>();
+
 const getResumenMateriales = (renglones: RenglonPresupuesto[]) => {
+  const cached = _resumenCache.get(renglones);
+  if (cached) return cached;
   const materiales: Record<string, { unidad: string; cantidad: number; total: number }> = {};
   renglones.forEach(r => {
     if (r.subRenglones) {
@@ -27,7 +31,9 @@ const getResumenMateriales = (renglones: RenglonPresupuesto[]) => {
       });
     }
   });
-  return Object.entries(materiales).map(([nombre, data]) => ({ nombre, ...data }));
+  const result = Object.entries(materiales).map(([nombre, data]) => ({ nombre, ...data }));
+  _resumenCache.set(renglones, result);
+  return result;
 };
 
 const getMaterialesPorRenglon = (r: RenglonPresupuesto) => {
