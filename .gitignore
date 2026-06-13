@@ -101,4 +101,5 @@ scripts/seed-comercial-bi.mjs
 scripts/seed-supabase-remote.mjs
 scripts/seed-vacio.mjs
 
-# Kilo agent system.kilo/
+# Kilo agent system
+.kilo/

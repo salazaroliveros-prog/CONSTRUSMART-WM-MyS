@@ -25,7 +25,7 @@ const Financiero: React.FC = () => {
 
   const porCategoria = useMemo(() => {
     const map: Record<string, number> = {};
-    movimientos.filter(m => m.tipo === 'gasto').forEach(m => { map[m.categoria] = (map[m.categoria] || 0) + (m.monto ?? 0); });
+    movimientos.filter(m => m.tipo === 'gasto').forEach(m => { map[m.categoria] = (map[m.categoria] || 0) + (m.monto ?? m.costoTotal ?? 0); });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([k, v], i) => ({ label: CATEGORIA_LABEL[k as keyof typeof CATEGORIA_LABEL], value: v, color: COLORS[i % COLORS.length] }));
   }, [movimientos]);
 
@@ -39,9 +39,11 @@ const Financiero: React.FC = () => {
     const monthlyIng = new Array(12).fill(0);
     const monthlyEgr = new Array(12).fill(0);
     movimientos.forEach(m => {
+      if (!m.fecha) return;
       const month = new Date(m.fecha).getMonth();
-      if (m.tipo === 'ingreso') monthlyIng[month] += (m.monto ?? 0);
-      else if (m.tipo === 'gasto') monthlyEgr[month] += (m.monto ?? 0);
+      if (Number.isNaN(month)) return;
+      if (m.tipo === 'ingreso') monthlyIng[month] += (m.monto ?? m.costoTotal ?? 0);
+      else if (m.tipo === 'gasto') monthlyEgr[month] += (m.monto ?? m.costoTotal ?? 0);
     });
     return { ingresos: monthlyIng, egresos: monthlyEgr };
   }, [movimientos]);

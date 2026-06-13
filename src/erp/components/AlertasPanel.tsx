@@ -29,7 +29,7 @@ const AlertasPanel: React.FC = () => {
       });
     });
 
-    ncs.filter(n => n.estado !== 'cerrado' && n.estado !== 'resuelto').forEach(n => {
+    ncs.filter(n => n.estado !== 'cerrado').forEach(n => {
       items.push({
         id: n.id, tipo: 'nc', gravedad: 'alta',
         label: n.descripcion?.slice(0, 60) || 'NC sin descripción',
@@ -47,7 +47,7 @@ const AlertasPanel: React.FC = () => {
 
     const hoy = new Date();
     hitos.filter(h => {
-      if (!h.fecha || h.completado) return false;
+      if (!h.fecha || h.estado === 'completado') return false;
       return new Date(h.fecha) < hoy;
     }).forEach(h => {
       items.push({

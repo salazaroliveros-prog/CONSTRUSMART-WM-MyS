@@ -44,7 +44,7 @@ export default [
       "react/prop-types": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": ["off"],
-      "no-empty": "warn",
+      "no-empty": ["warn", { "allowEmptyCatch": true }],
     },
   },
 ];

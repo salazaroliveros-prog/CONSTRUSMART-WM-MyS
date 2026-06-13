@@ -53,6 +53,7 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onCambioRef = useRef(onCambio);
   onCambioRef.current = onCambio;
+  const scheduleReconnectRef = useRef<() => void>(() => {});
 
   const subscribe = useCallback(() => {
     if (!hasSupabase || !enabled) return;
@@ -108,12 +109,12 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
 
         case 'CHANNEL_ERROR':
           log('error', 'Realtime', 'Error en canal Realtime', { canal: channelName });
-          scheduleReconnect();
+          scheduleReconnectRef.current();
           break;
 
         case 'TIMED_OUT':
           log('warn', 'Realtime', 'Timeout en canal Realtime', { canal: channelName });
-          scheduleReconnect();
+          scheduleReconnectRef.current();
           break;
 
         case 'CLOSED':
@@ -140,6 +141,9 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
       subscribe();
     }, delay);
   }, [subscribe]);
+
+  scheduleReconnectRef.current = scheduleReconnect;
+
 
   // Efecto principal: suscribir/desuscribir
   useEffect(() => {

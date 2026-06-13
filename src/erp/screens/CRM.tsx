@@ -86,7 +86,7 @@ const CRM: React.FC = () => {
       nombre: l.nombre,
       proyectoId: l.proyectoId || '',
       cliente: l.cliente,
-      descripcion: '',
+      descripcion: l.descripcion || '',
       monto: l.monto,
       probabilidad: l.probabilidad ?? 50,
       notas: l.notas || '',
