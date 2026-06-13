@@ -83,7 +83,7 @@ SELECT public._create_idx_if_col('erp_proyectos', 'idx_proyectos_fecha_inicio', 
 SELECT public._create_idx_if_col('erp_materiales', 'idx_materiales_categoria', 'categoria');
 SELECT public._create_idx_if_col('erp_materiales', 'idx_materiales_bodega', 'bodega');
 CREATE INDEX IF NOT EXISTS idx_materiales_stock_bajo ON public.erp_materiales(stock)
-  WHERE stock <= COALESCE((SELECT stock_minimo FROM public.erp_materiales m WHERE m.id = erp_materiales.id), 0);
+  WHERE stock <= stock_minimo;
 
 -- erp_ordenes_compra
 SELECT public._create_idx_if_col('erp_ordenes_compra', 'idx_oc_estado', 'estado');
