@@ -106,8 +106,8 @@ export const fetchInitialData = async () => {
       'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_ordenes_cambio',
       'erp_hitos', 'erp_riesgos', 'erp_licitaciones', 'erp_cotizaciones_negocio',
       'erp_vales_salida', 'erp_no_conformidades', 'erp_incidentes',
-      'erp_publicaciones_muro', 'erp_liberaciones', 'erp_planos',
-      'erp_rfis', 'erp_submittals', 'erp_activos', 'erp_destajos',
+      'erp_publicaciones_muro', 'erp_planos',
+      'erp_rfis', 'erp_submittals', 'erp_activos', 'destajos',
     ] as const;
 
     const results = await Promise.allSettled(TABLES.map(async (table) => {
@@ -125,9 +125,9 @@ export const fetchInitialData = async () => {
       erp_ordenes_cambio: 'ordenesCambio', erp_hitos: 'hitos', erp_riesgos: 'riesgos',
       erp_licitaciones: 'licitaciones', erp_cotizaciones_negocio: 'cotizacionesNegocio',
       erp_vales_salida: 'valesSalida', erp_no_conformidades: 'ncs', erp_incidentes: 'incidentes',
-      erp_publicaciones_muro: 'publicacionesMuro', erp_liberaciones: 'liberaciones',
+      erp_publicaciones_muro: 'publicacionesMuro',
       erp_planos: 'planos', erp_rfis: 'rfis', erp_submittals: 'submittals',
-      erp_activos: 'activos', erp_destajos: 'destajos',
+      erp_activos: 'activos', destajos: 'destajos',
     };
 
     for (const result of results) {
