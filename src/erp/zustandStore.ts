@@ -108,6 +108,8 @@ export const fetchInitialData = async () => {
       'erp_vales_salida', 'erp_no_conformidades', 'erp_incidentes',
       'erp_publicaciones_muro', 'erp_planos',
       'erp_rfis', 'erp_submittals', 'erp_activos', 'destajos',
+      'erp_eventos_calendario', 'erp_bitacora', 'erp_seguimiento',
+      'erp_liberaciones_partida', 'erp_notificaciones', 'erp_ventas_paquetes',
     ] as const;
 
     const results = await Promise.allSettled(TABLES.map(async (table) => {
@@ -128,6 +130,9 @@ export const fetchInitialData = async () => {
       erp_publicaciones_muro: 'publicacionesMuro',
       erp_planos: 'planos', erp_rfis: 'rfis', erp_submittals: 'submittals',
       erp_activos: 'activos', destajos: 'destajos',
+      erp_eventos_calendario: 'eventos', erp_bitacora: 'bitacora',
+      erp_seguimiento: 'seguimientoEVM', erp_liberaciones_partida: 'liberaciones',
+      erp_notificaciones: 'notificaciones', erp_ventas_paquetes: 'ventasPaquetes',
     };
 
     for (const result of results) {
