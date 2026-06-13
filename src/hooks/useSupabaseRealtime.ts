@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { supabase, hasSupabase } from '@/lib/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { log } from '@/lib/auto-logger';
+import type { Rol } from '@/erp/store';
 
 type TableName =
   | 'erp_proyectos' | 'erp_movimientos' | 'erp_empleados' | 'erp_materiales'
@@ -20,11 +21,43 @@ type TableName =
 
 type ChangeType = 'INSERT' | 'UPDATE' | 'DELETE';
 
+const TABLAS_POR_ROL: Record<Rol, TableName[]> = {
+  Administrador: [
+    'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
+    'erp_notificaciones', 'erp_publicaciones_muro',
+    'erp_presupuestos', 'erp_ordenes_compra', 'erp_avances', 'erp_vales_salida',
+    'erp_cotizaciones_negocio', 'erp_licitaciones', 'destajos', 'recepciones_almacen',
+    'erp_hitos', 'erp_riesgos', 'erp_ordenes_cambio',
+    'erp_cuentas_cobrar', 'erp_cuentas_pagar',
+  ],
+  Gerente: [
+    'erp_proyectos', 'erp_movimientos', 'erp_empleados',
+    'erp_notificaciones', 'erp_publicaciones_muro',
+    'erp_presupuestos', 'erp_ordenes_compra', 'erp_avances',
+    'erp_cotizaciones_negocio', 'erp_licitaciones',
+    'erp_hitos', 'erp_riesgos', 'erp_ordenes_cambio',
+    'erp_cuentas_cobrar', 'erp_cuentas_pagar',
+  ],
+  Residente: [
+    'erp_proyectos', 'erp_movimientos', 'erp_materiales',
+    'erp_avances', 'erp_vales_salida', 'erp_notificaciones',
+    'erp_hitos', 'erp_ordenes_cambio',
+  ],
+  Compras: [
+    'erp_proyectos', 'erp_materiales', 'erp_ordenes_compra',
+    'erp_notificaciones', 'erp_vales_salida', 'destajos', 'recepciones_almacen',
+  ],
+  Bodeguero: [
+    'erp_materiales', 'erp_vales_salida', 'recepciones_almacen',
+  ],
+};
+
 interface RealtimeConfig {
   tablas: TableName[];
   onCambio: (payload: { tabla: string; tipo: ChangeType; datos: unknown; id: string }) => void;
   filtro?: { columna: string; valor: string };
   enabled?: boolean;
+  rol?: Rol;
 }
 
 const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000];
@@ -40,13 +73,23 @@ const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000];
  * - Logging de eventos de conexión
  * - Manejo de errores en suscripción
  */
+export function filterByRol(tables: TableName[], rol?: Rol): TableName[] {
+  if (!rol) return tables;
+  const allowed = TABLAS_POR_ROL[rol];
+  if (!allowed) return tables;
+  return tables.filter(t => allowed.includes(t));
+}
+
 export function useSupabaseRealtime(config: RealtimeConfig) {
   const {
     tablas,
     onCambio,
     filtro,
     enabled = true,
+    rol,
   } = config;
+
+  const effectiveTablas = filterByRol(tablas, rol);
 
   const channelRef = useRef<RealtimeChannel | null>(null);
   const reconnectAttemptRef = useRef(0);
@@ -56,18 +99,18 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
   const scheduleReconnectRef = useRef<() => void>(() => {});
 
   const subscribe = useCallback(() => {
-    if (!hasSupabase || !enabled) return;
+    if (!hasSupabase || !enabled || effectiveTablas.length === 0) return;
 
     // Limpiar canal anterior si existe
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
     }
 
-    const channelName = `erp-realtime-${tablas.join('-')}-${Date.now()}`;
+    const channelName = `erp-realtime-${effectiveTablas.join('-')}-${Date.now()}`;
     const channel = supabase.channel(channelName);
 
     // Suscribirse a cada tabla
-    tablas.forEach(tabla => {
+    effectiveTablas.forEach(tabla => {
       const configFiltro: Record<string, unknown> = {
         schema: 'public',
         table: tabla,
@@ -124,7 +167,7 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
     });
 
     channelRef.current = channel;
-  }, [tablas, filtro, enabled]);
+    }, [effectiveTablas, filtro, enabled]);
 
   const scheduleReconnect = useCallback(() => {
     const attempt = reconnectAttemptRef.current;

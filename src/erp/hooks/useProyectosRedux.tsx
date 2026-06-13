@@ -1,33 +1,17 @@
-import { useSelector, useDispatch } from 'react-redux';
-import {
-  fetchProyectos,
-  addProyecto,
-  updateProyecto,
-  deleteProyecto,
-  selectActiveProyectos,
-} from '../../store';
+import { useErp } from '../store';
 
 export const useProyectosRedux = () => {
-  const dispatch = useDispatch();
-  const proyectos = useSelector(selectActiveProyectos);
-  const allProyectos = useSelector((state: any) => state.proyectos.list);
-  const status = useSelector((state: any) => state.proyectos.status);
-  const error = useSelector((state: any) => state.proyectos.error);
-
-  const load = () => dispatch(fetchProyectos());
-  const create = (proyecto: any) => dispatch(addProyecto(proyecto));
-  const update = (id: string, patch: any) => dispatch(updateProyecto({ id, ...patch }));
-  const remove = (id: string) => dispatch(deleteProyecto(id));
+  const { proyectos, addProyecto, updateProyecto, deleteProyecto } = useErp();
 
   return {
-    proyectos,
-    allProyectos,
-    status,
-    error,
-    load,
-    create,
-    update,
-    remove,
+    proyectos: proyectos.filter((p: any) => p.estado === 'ejecucion'),
+    allProyectos: proyectos,
+    status: 'succeeded' as const,
+    error: null,
+    load: () => {},
+    create: addProyecto,
+    update: (id: string, patch: any) => updateProyecto(id, patch),
+    remove: deleteProyecto,
   };
 };
 

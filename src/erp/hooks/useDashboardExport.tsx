@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { useSelector } from 'react-redux';
 import { fmtQ } from '../utils';
+import { useErp } from '../store';
 
 interface DashboardExportData {
   proyectos: any[];
@@ -38,8 +38,7 @@ export const buildDashboardExportData = (data: { proyectos: any[]; movimientos: 
 };
 
 export const useDashboardExportData = () => {
-  const { list: proyectos } = useSelector((state: any) => state.proyectos);
-  const { list: movimientos } = useSelector((state: any) => state.movimientos);
+  const { proyectos, movimientos } = useErp();
 
   const build = () => buildDashboardExportData({ proyectos, movimientos });
 

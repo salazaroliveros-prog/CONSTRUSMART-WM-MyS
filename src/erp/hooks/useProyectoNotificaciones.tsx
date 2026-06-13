@@ -1,9 +1,8 @@
-import { useSelector } from 'react-redux';
-import { fetchProyectos, addProyecto, updateProyecto, deleteProyecto } from '../../store';
+import { useErp } from '../store';
 
 export const useProyectoNotificaciones = (proyectoId?: string) => {
-  const { list: proyectos } = useSelector((state) => state.proyectos);
-  const proyecto = proyectoId ? proyectos.find((p) => p.id === proyectoId) : null;
+  const { proyectos } = useErp();
+  const proyecto = proyectoId ? proyectos.find((p: any) => p.id === proyectoId) : null;
 
   const getAlertas = () => {
     if (!proyecto) return [];

@@ -1,7 +1,6 @@
 import React from 'react';
 import { TreeSelect } from 'antd';
-import { useSelector } from 'react-redux';
-import { selectActiveProyectos } from '../selectors';
+import { useErp } from '../store';
 
 interface ProjectTreeSelectProps {
   value?: string;
@@ -11,8 +10,6 @@ interface ProjectTreeSelectProps {
   disabled?: boolean;
   allowClear?: boolean;
 }
-
-const { TreeNode } = TreeSelect;
 
 const buildTreeNodes = (projects: any[]) => {
   return projects.map(p => ({
@@ -31,8 +28,9 @@ export const ProjectTreeSelect: React.FC<ProjectTreeSelectProps> = ({
   disabled = false,
   allowClear = true,
 }) => {
-  const projects = useSelector(selectActiveProyectos);
-  const treeData = React.useMemo(() => buildTreeNodes(projects), [projects]);
+  const { proyectos } = useErp();
+  const active = proyectos.filter((p: any) => p.estado === 'ejecucion');
+  const treeData = React.useMemo(() => buildTreeNodes(active), [active]);
 
   return (
     <TreeSelect

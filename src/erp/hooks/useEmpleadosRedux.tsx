@@ -1,30 +1,16 @@
-import { useSelector, useDispatch } from 'react-redux';
-import {
-  fetchEmpleados,
-  addEmpleado,
-  updateEmpleado,
-  deleteEmpleado,
-} from '../../store';
+import { useErp } from '../store';
 
 export const useEmpleadosRedux = () => {
-  const dispatch = useDispatch();
-  const empleados = useSelector((state: any) => state.empleados.list);
-  const status = useSelector((state: any) => state.empleados.status);
-  const error = useSelector((state: any) => state.empleados.error);
-
-  const load = () => dispatch(fetchEmpleados());
-  const create = (empleado: any) => dispatch(addEmpleado(empleado));
-  const update = (id: string, patch: any) => dispatch(updateEmpleado({ id, ...patch }));
-  const remove = (id: string) => dispatch(deleteEmpleado(id));
+  const { empleados, addEmpleado, updateEmpleado, deleteEmpleado } = useErp();
 
   return {
     empleados,
-    status,
-    error,
-    load,
-    create,
-    update,
-    remove,
+    status: 'succeeded' as const,
+    error: null,
+    load: () => {},
+    create: addEmpleado,
+    update: (id: string, patch: any) => updateEmpleado(id, patch),
+    remove: deleteEmpleado,
   };
 };
 

@@ -1,76 +1,21 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useErp, Rol } from '../store';
+import { useErp } from '../store';
 import { EMPRESA } from '../utils';
-import { Building2, ArrowRight, ShieldCheck, Chrome, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { INPUT, ERROR_STATE, BUTTON_SECONDARY } from '../ui';
-
-const loginSchema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'Mínimo 6 caracteres'),
-  nombre: z.string().optional(),
-  rol: z.enum(['Administrador', 'Gerente', 'Residente', 'Compras', 'Bodeguero'] as const),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-const ROLES: Rol[] = ['Administrador', 'Gerente', 'Residente', 'Compras', 'Bodeguero'];
+import { ShieldCheck, Chrome, Loader2 } from 'lucide-react';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
-  const { signIn, signUp, signInWithGoogle, authError } = useErp();
-  const [mode, setMode] = React.useState<'in' | 'up'>('in');
+  const { signInWithGoogle, authError } = useErp();
   const [loading, setLoading] = React.useState(false);
-  const [showPassword, setShowPassword] = React.useState(false);
-  const emailRef = React.useRef<HTMLInputElement>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '', nombre: '', rol: 'Administrador' },
-  });
-
-  React.useEffect(() => {
-    emailRef.current?.focus();
-  }, [mode]);
-
-  const [registroError, setRegistroError] = React.useState<string | null>(null);
-
-  const CRM_ENDPOINT = import.meta.env.VITE_CRM_ENDPOINT as string | undefined;
-
-  const onSubmit = async (data: LoginFormData) => {
+  const handleGoogleLogin = async () => {
     setLoading(true);
-    setRegistroError(null);
-    if (mode === 'up') {
-      if (data.rol === 'Administrador') {
-        setRegistroError('El rol Administrador no está disponible para registro.');
-        setLoading(false);
-        return;
-      }
-      await signUp(data.email, data.password, data.nombre || '', data.rol);
-
-      if (CRM_ENDPOINT) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 5000);
-          await fetch(CRM_ENDPOINT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: data.email, name: data.nombre || undefined, source: 'erp-signup', tags: ['erp-user', data.rol] }),
-            signal: controller.signal,
-          });
-          clearTimeout(timeoutId);
-        } catch { /* ignore */ }
-      }
-    } else {
-      await signIn(data.email, data.password);
+    try {
+      await signInWithGoogle();
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -93,118 +38,69 @@ const Login: React.FC = () => {
           </div>
           <h1 className="text-2xl sm:text-3xl font-black leading-tight">CONSTRUCTORA<br /><span className="text-2xl sm:text-3xl">WM / M&amp;S</span></h1>
           <p className="text-primary-foreground text-base sm:text-lg italic mt-2">{EMPRESA.eslogan}</p>
-          <p className="text-primary-foreground/90 mt-6 leading-relaxed text-sm sm:text-base">{t('auth.ingrese_credenciales')}</p>
+          <p className="text-primary-foreground/90 mt-6 leading-relaxed text-sm sm:text-base">Acceso restringido solo para usuarios autorizados</p>
           <div className="flex flex-wrap gap-4 sm:gap-6 mt-8 justify-center">
-            {(t('login_hero.items', { returnObjects: true }) as string[]).map(lbl => (
-              <div key={lbl} className="text-center">
-                <ShieldCheck className="w-5 h-5 mx-auto text-primary-foreground/80" />
-                <span className="text-xs text-primary-foreground/60 mt-1 block">{lbl}</span>
-              </div>
-            ))}
+            <div className="text-center">
+              <ShieldCheck className="w-5 h-5 mx-auto text-primary-foreground/80" />
+              <span className="text-xs text-primary-foreground/60 mt-1 block">Acceso exclusivo</span>
+            </div>
+            <div className="text-center">
+              <Chrome className="w-5 h-5 mx-auto text-primary-foreground/80" />
+              <span className="text-xs text-primary-foreground/60 mt-1 block">Solo Google</span>
+            </div>
           </div>
-          <p className="text-primary-foreground/60 text-[10px] sm:text-xs mt-8">{t('login_hero.confianza')}</p>
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-background min-h-screen lg:min-h-0">
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-b from-primary to-black/60 flex items-center justify-center ring-1 ring-primary-foreground/30 shadow-[0_0_6px_hsl(var(--primary)/0.35)]">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-background">
+        <div className="w-full max-w-sm">
+          <div className="flex items-center gap-3 mb-8 lg:hidden">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-primary to-black/60 flex items-center justify-center ring-1 ring-primary-foreground/30">
               <picture>
                 <source srcSet="/logo.webp" type="image/webp" />
                 <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
               </picture>
             </div>
             <div>
-              <div className="font-bold text-foreground text-sm sm:text-base">{EMPRESA.nombre}</div>
-              <div className="text-[10px] sm:text-xs text-primary italic">{EMPRESA.eslogan}</div>
+              <div className="font-bold text-foreground text-sm">{EMPRESA.nombre}</div>
+              <div className="text-[10px] text-primary italic">{EMPRESA.eslogan}</div>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-foreground mb-1">
-            <Building2 className="w-5 h-5 text-primary" />
-            <h2 className="text-xl sm:text-2xl font-bold">{mode === 'in' ? t('auth.iniciar_sesion') : t('auth.registrarse')}</h2>
-          </div>
-          <p className="text-muted-foreground text-xs sm:text-sm mb-4 sm:mb-6">{t('auth.ingrese_credenciales')}</p>
 
-          {mode === 'up' && (
-            <>
-              <input
-                {...register('nombre')}
-                placeholder={t('common.nombre')}
-                className={`${INPUT} ${errors.nombre ? ERROR_STATE : ''}`}
-              />
-              {errors.nombre && <p className="text-xs text-destructive mb-2">{errors.nombre.message}</p>}
-              <select {...register('rol')} className={INPUT}>
-                {ROLES.map(r => (
-                  <option key={r} value={r} disabled={r === 'Administrador'}>
-                    {r}{r === 'Administrador' ? ` (${t('common.no' as any)})` : ''}
-                  </option>
-                ))}
-              </select>
-              <p className="text-[10px] text-warning mt-1">{t('auth.error_permisos')}</p>
-            </>
+          <div className="text-center mb-8">
+            <h2 className="text-xl font-bold text-foreground">Iniciar Sesión</h2>
+            <p className="text-xs text-muted-foreground mt-1">Acceso solo para administrador</p>
+          </div>
+
+          {authError && (
+            <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+              <p className="text-xs text-destructive">{authError}</p>
+            </div>
           )}
-          <input
-            ref={emailRef}
-            type="email"
-            autoComplete="email"
-            {...register('email')}
-            placeholder={t('auth.correo')}
-            className={`${INPUT} ${errors.email ? ERROR_STATE : ''}`}
-          />
-          {errors.email && <p className="text-xs text-destructive mb-2">{errors.email.message}</p>}
-          <div className="relative">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              {...register('password')}
-              placeholder={t('auth.contrasena')}
-              className={`${INPUT} pr-10 ${errors.password ? ERROR_STATE : ''}`}
-            />
-            <button
-              type="button"
-              tabIndex={-1}
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-            >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
-          </div>
-          {errors.password && <p className="text-xs text-destructive mb-2">{errors.password.message}</p>}
-
-          {authError && <p className="text-xs text-destructive mb-3">{authError}</p>}
-          {registroError && <p className="text-xs text-destructive mb-3">{registroError}</p>}
 
           <button
-            type="submit"
+            onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-primary via-primary to-primary/80 hover:from-primary/90 hover:via-orange-400 hover:to-orange-500 text-primary-foreground font-semibold py-3 sm:py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/40 hover:brightness-110 disabled:opacity-60 active:scale-[0.98] transition-all"
+            className="w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 shadow-md border border-gray-200 hover:shadow-lg transition-all disabled:opacity-60 active:scale-[0.98]"
           >
             {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
             ) : (
               <>
-                {mode === 'in' ? t('auth.iniciar_sesion') : t('auth.registrarse')} <ArrowRight className="w-4 h-4" />
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continuar con Google
               </>
             )}
           </button>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={async () => { setLoading(true); try { await signInWithGoogle(); } finally { setLoading(false); } }}
-            className={`${BUTTON_SECONDARY} w-full justify-center hover:border-primary hover:text-primary hover:shadow-md hover:shadow-primary/10`}
-          >
-            <Chrome className="w-4 h-4" /> {t('auth.google')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode(mode === 'in' ? 'up' : 'in')}
-            className="w-full text-center text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4 hover:text-primary transition-colors"
-          >
-            {mode === 'in' ? t('auth.no_cuenta') : t('auth.ya_cuenta')}
-          </button>
-        </form>
+          <p className="text-center text-[10px] text-muted-foreground mt-4">
+            Solo el correo autorizado puede acceder
+          </p>
+        </div>
       </div>
     </div>
   );

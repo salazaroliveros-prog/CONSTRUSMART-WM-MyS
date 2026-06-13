@@ -48,7 +48,7 @@
 
 | # | Item | Archivos | Esfuerzo | Status |
 |---|---|---|---|---|
-| 0.5 | **A-01**: Eliminar dead code Redux (`src/store.ts`) + migrar hooks | `src/store.ts`, 13 hooks | 3h | ❌ |
+| 0.5 | **A-01**: Eliminar dead code Redux (`src/store.ts`) + migrar hooks | `src/store.ts`, 13 hooks | 3h | ✅ |
 
 ### FASE 1 — UI/UX (Prioridad Media)
 
@@ -58,39 +58,39 @@
 | 1.2 | **A-20**: Lazy loading Header + Sidebar | `AppLayout.tsx` | 1h | ✅ |
 | 1.3 | **Widget Cartera**: Donut/counts de proyectos por estado | `Dashboard.tsx` | 3h | ✅ |
 | 1.4 | **Panel Alertas**: Stock crítico, NC, OC, hitos vencidos | `AlertasPanel.tsx` | 3h | ✅ |
-| 1.5 | **Compact Calendar**: Reemplazar calendario full-size | `Dashboard.tsx` | 2h | ❌ |
+| 1.5 | **Compact Calendar**: Reemplazar calendario full-size | `Dashboard.tsx` | 2h | ✅ |
 
 ### FASE 2 — Data Layer (Prioridad Media)
 
 | # | Item | Archivos | Esfuerzo | Status |
 |---|---|---|---|---|
-| 2.1 | **Optimistic locking**: Extender a Materiales, Órdenes, Presupuestos | `zustandStore.ts`, `types.ts` | 3h | ❌ |
-| 2.2 | **IndexedDB fallback** para localStorage lleno | `lib/persistence.ts` | 4h | ❌ |
-| 2.3 | **toSnake/toCamel automático genérico** | `utils.ts` | 2h | ⚠️ (functions exist, no auto-wired) |
+| 2.1 | **Optimistic locking**: Extender a Materiales, Órdenes, Presupuestos | `zustandStore.ts`, `types.ts` | 3h | ✅ |
+| 2.2 | **IndexedDB fallback** para localStorage lleno | `lib/persistence.ts` | 4h | ✅ |
+| 2.3 | **toSnake/toCamel automático genérico** | `utils.ts` | 2h | ✅ (auto-wired in enqueueMutation) |
 
 ### FASE 3 — Arquitectura (Prioridad Baja)
 
 | # | Item | Archivos | Esfuerzo | Status |
 |---|---|---|---|---|
-| 3.1 | **Store slices**: Separar zustandStore en dominios | `store/slices/` | 6h | ❌ |
-| 3.2 | **State machine engine**: `proyectoStateMachine.ts` formal | `engine/` | 4h | ❌ |
-| 3.3 | **Archivado automático**: Proyectos finalizados > 6 meses | `zustandStore.ts` | 2h | ❌ |
+| 3.1 | **Store slices**: Separar zustandStore en dominios | `store/slices/` | 6h | ✅ |
+| 3.2 | **State machine engine**: `proyectoStateMachine.ts` formal | `engine/` | 4h | ✅ |
+| 3.3 | **Archivado automático**: Proyectos finalizados > 6 meses | `lib/archivar.ts` | 2h | ✅ |
 
 ### FASE 4 — Seguridad y Operaciones (Prioridad Baja)
 
 | # | Item | Archivos | Esfuerzo | Status |
 |---|---|---|---|---|
-| 4.1 | **RLS consolidado**: 1 migración que reemplace las 18 actuales | `supabase/migrations/` | 4h | ❌ |
-| 4.2 | **Notificaciones push**: Service Worker + Realtime | `public/sw.js` | 6h | ❌ |
-| 4.3 | **Backup automático**: Exportación diaria programada | `lib/backup.ts` | 3h | ❌ |
+| 4.1 | **RLS consolidado**: 1 migración que reemplace las 22 actuales | `migración 023` | 4h | ✅ |
+| 4.2 | **Notificaciones push**: Service Worker + Realtime | `sw.js` + `useNotifications.ts` | 6h | ✅ |
+| 4.3 | **Backup automático**: Exportación diaria programada | `lib/backup.ts` | 3h | ✅ |
 
 ### FASE 5 — Tests (Prioridad Baja)
 
 | # | Item | Archivos | Esfuerzo | Status |
 |---|---|---|---|---|
-| 5.1 | **Tests concurrencia**: Edición simultánea mismo proyecto | `__tests__/` | 3h | ❌ |
-| 5.2 | **Tests sync offline**: Offline → reconexión → consistencia | `__tests__/` | 4h | ❌ |
-| 5.3 | **E2E Playwright**: 5 flujos críticos | `e2e/` | 8h | ❌ |
+| 5.1 | **Tests concurrencia**: Edición simultánea mismo proyecto | `concurrency.test.ts` (33 tests) | 3h | ✅ |
+| 5.2 | **Tests sync offline**: Offline → reconexión → consistencia | `erp-store-operations-full` (10 tests) | 4h | ✅ |
+| 5.3 | **E2E Playwright**: 5 flujos críticos | `e2e/erp-flujos-criticos.spec.ts` (10 tests) | 8h | ✅ |
 
 ---
 
@@ -98,8 +98,8 @@
 
 | Problema | Riesgo | Solución Propuesta |
 |---|---|---|
-| Stock double-dispatch en vales simultáneos | 🔴 Alto | RPC Supabase con `SELECT ... FOR UPDATE` |
+| Stock double-dispatch en vales simultáneos | 🔴 Alto | ✅ Migración 021: 3 RPCs con SELECT FOR UPDATE |
 | OC duplicados: suman stock sin validar | 🟡 Medio | Flag `stockActualizado` en OC + optimistic locking — ✅ |
 | Presupuesto no recalcula al modificar renglones | 🟡 Medio | Recalcular total automático en `updatePresupuesto` — ✅ |
 | Stock double-dispatch en vales simultáneos | 🔴 Alto | RPC Supabase con `SELECT ... FOR UPDATE` |
-| RLS por rol global, no por membresía proyecto | 🔴 Alto | Políticas RLS con `get_accessible_proyectos()` |
+| RLS por rol global, no por membresía proyecto | 🔴 Alto | ✅ Migración 022 + 023: tabla miembros + RLS consolidado |

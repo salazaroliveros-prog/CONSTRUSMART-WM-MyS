@@ -1,10 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import { store } from './store';
-import { Provider } from 'react-redux';
 import { initServiceWorker } from '@/lib/sw-init';
-import { scheduleHealthCheck } from '@/lib/store-health';
 import { log } from '@/lib/auto-logger';
 import './index.css';
 import '@/lib/i18n';
@@ -22,21 +19,8 @@ initServiceWorker().then(reg => {
   }
 });
 
-// Programar chequeo periódico de salud del store (cada 5 minutos)
-const cancelHealthCheck = scheduleHealthCheck(
-  () => store.getState() as unknown as Record<string, unknown>,
-  'ReduxStore'
-);
-
-// Limpiar health check al recargar página
-window.addEventListener('beforeunload', () => {
-  cancelHealthCheck();
-});
-
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <App />
   </React.StrictMode>
 );

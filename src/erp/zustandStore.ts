@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { z } from 'zod';
 import { sanitizarObjeto } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS } from './utils';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake } from './utils';
 import type {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
   Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
@@ -109,8 +109,8 @@ export const fetchInitialData = async () => {
       'erp_publicaciones_muro', 'erp_planos',
       'erp_rfis', 'erp_submittals', 'erp_activos', 'destajos',
       'erp_eventos_calendario', 'erp_bitacora', 'erp_seguimiento',
-      'erp_liberaciones_partida', 'erp_notificaciones', 'erp_ventas_paquetes',
-    ] as const;
+'erp_liberaciones_partida', 'erp_notificaciones',
+     ] as const;
 
     const results = await Promise.allSettled(TABLES.map(async (table) => {
       const { data, error } = await supabase.from(table).select('*');
@@ -132,7 +132,7 @@ export const fetchInitialData = async () => {
       erp_activos: 'activos', destajos: 'destajos',
       erp_eventos_calendario: 'eventos', erp_bitacora: 'bitacora',
       erp_seguimiento: 'seguimientoEVM', erp_liberaciones_partida: 'liberaciones',
-      erp_notificaciones: 'notificaciones', erp_ventas_paquetes: 'ventasPaquetes',
+      erp_notificaciones: 'notificaciones',
     };
 
     for (const result of results) {
@@ -210,7 +210,8 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
 
   enqueueMutation: (type, payload) => {
     if (!checkRateLimit(type)) return '';
-    const safePayload = sanitizarObjeto(payload);
+    const sanitized = sanitizarObjeto(payload);
+    const safePayload = toSnake(sanitized);
     const mutation: Mutation = { id: uid(), type, payload: safePayload, timestamp: Date.now(), retryCount: 0 };
     get().setMutationQueue(q => { const trimmed = q.length >= 100 ? q.slice(1) : q; return [...trimmed, mutation]; });
     return mutation.id;
@@ -460,12 +461,49 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().setNotificaciones(prev => prev.map(n => ({ ...n, leido: true })));
     unread.forEach(n => get().enqueueMutation('markNotificacionLeida', { id: n.id, leido: true }));
   },
-  verificarStockCritico: () => {},
-  verificarOrdenesCambioPendientes: () => {},
-  verificarChecklistRechazado: () => {},
-  notifyAvanceRegistrado: () => {},
-  notifyDesviacionRendimiento: () => {},
+  verificarStockCritico: () => {
+    const materiales = get().materiales;
+    const critico = materiales.filter(m => m.stock <= 0);
+    const bajo = materiales.filter(m => m.stock > 0 && m.stock <= (m.stockMinimo || 0));
+    critico.forEach(m => get().addNotificacion('alerta', 'Stock Crítico', `${m.nombre}: sin stock`, m.proyectoIds?.[0], m.id));
+    bajo.forEach(m => get().addNotificacion('alerta', 'Stock Bajo', `${m.nombre}: ${m.stock} unidades (mín: ${m.stockMinimo})`, m.proyectoIds?.[0], m.id));
+  },
 
-  avanceFinancieroCalculado: (proyectoId) => 0,
+  verificarOrdenesCambioPendientes: () => {
+    const ordenes = get().ordenesCambio;
+    const pendientes = ordenes.filter(o => o.estado === 'pendiente');
+    pendientes.forEach(o => {
+      const proyecto = get().proyectos.find(p => p.id === o.proyectoId);
+      get().addNotificacion('alerta', 'OC Pendiente', `Orden de cambio ${o.numero || o.id.slice(0,8)} pendiente de revisión — ${proyecto?.nombre || 'Sin proyecto'}`, o.proyectoId, o.id);
+    });
+  },
+
+  verificarChecklistRechazado: () => {
+    const ncs = get().ncs;
+    const rechazadas = ncs.filter(nc => nc.estado === 'abierta' || nc.estado === 'rechazada');
+    rechazadas.forEach(nc => {
+      get().addNotificacion('alerta', 'NC Pendiente', `No conformidad: ${nc.descripcion?.slice(0, 60) || nc.id} — ${nc.estado}`, nc.proyectoId, nc.id);
+    });
+  },
+
+  notifyAvanceRegistrado: (proyectoId: string, porcentaje: number) => {
+    const proyecto = get().proyectos.find(p => p.id === proyectoId);
+    if (proyecto) {
+      get().addNotificacion('exito', 'Avance Registrado', `${proyecto.nombre}: avance físico ${porcentaje}%`, proyectoId);
+    }
+  },
+
+  notifyDesviacionRendimiento: (proyectoId: string, tipo: string, mensaje: string) => {
+    get().addNotificacion('alerta', `Desviación: ${tipo}`, mensaje, proyectoId);
+  },
+
+  avanceFinancieroCalculado: (proyectoId) => {
+    const presupuesto = get().presupuestos.find(p => p.proyectoId === proyectoId);
+    const totalP = presupuesto?.totalPresupuestado || presupuesto?.totalCalculado || 0;
+    if (totalP <= 0) return 0;
+    const cuentasPagar = get().cuentasPagar.filter(cp => cp.proyectoId === proyectoId);
+    const totalPagado = cuentasPagar.reduce((acc, cp) => acc + (cp.monto || 0), 0);
+    return Math.min(Math.round((totalPagado / totalP) * 100), 100);
+  },
 }));
 
