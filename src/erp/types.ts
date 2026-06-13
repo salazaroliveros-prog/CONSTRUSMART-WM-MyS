@@ -223,6 +223,11 @@ export interface Proyecto {
   factorSobrecosto?: FactorSobrecosto;
   margenUtilidadObjetivo?: number;
   moneda?: 'GTQ' | 'USD';
+  motivoPausa?: string;
+  pausadoPor?: string;
+  fechaPausa?: string;
+  fechaReanudacionEstimada?: string;
+  version?: number;
 }
 
 export type Categoria = 'materiales' | 'mano_obra' | 'equipo' | 'subcontrato' | 'administracion' | 'transporte' | 'imprevistos' | 'marketing' | 'licencias' | 'seguros' | 'otros';
@@ -277,6 +282,7 @@ export interface Material {
   cantidadPresupuestada?: number;
   costoPresupuestado?: number;
   ultimaActualizacionPresupuesto?: string;
+  version?: number;
 }
 
 export interface ValeSalida {
@@ -306,6 +312,8 @@ export interface OrdenCompra {
   proveedorId?: string;
   total?: number;
   items?: { materialId: string; cantidad: number; precioUnitario: number }[];
+  stockActualizado?: boolean;
+  version?: number;
 }
 
 export interface Proveedor {
@@ -427,7 +435,6 @@ export interface Notificacion {
 
 export interface Hito {
   id: string;
-  proyectoId: string;
   proyectoId: string;
   nombre: string;
   descripcion?: string;
@@ -708,7 +715,6 @@ export interface CentroCosto {
   id: string;
   proyectoId: string;
   codigo: string;
-  proyectoId: string;
   nombre: string;
   presupuestoAsignado: number;
   gastoActual: number;
@@ -737,7 +743,6 @@ export interface LogAuditoria {
 
 export interface Riesgo {
   id: string;
-  proyectoId: string;
   proyectoId: string;
   nombre: string;
   descripcion?: string;
@@ -784,7 +789,6 @@ export interface CuentaPagar {
 
 export interface Plano {
   id: string;
-  proyectoId: string;
   proyectoId: string;
   nombre: string;
   disciplina: 'arquitectura' | 'estructura' | 'instalaciones' | 'electricas' | 'sanitarias' | 'mecanicas' | 'otra';

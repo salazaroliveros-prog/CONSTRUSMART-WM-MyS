@@ -100,3 +100,5 @@ scripts/fix-supabase-views.mjs
 scripts/seed-comercial-bi.mjs
 scripts/seed-supabase-remote.mjs
 scripts/seed-vacio.mjs
+
+# Kilo agent system.kilo/

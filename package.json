@@ -73,6 +73,7 @@
     "jspdf-autotable": "^5.0.8",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.462.0",
+    "lz-string": "^1.5.0",
     "marked": "^12.0.1",
     "next-themes": "^0.3.0",
     "pg": "^8.21.0",
@@ -93,7 +94,8 @@
     "uuid": "^11.1.0",
     "vaul": "^0.9.3",
     "web-ifc": "^0.0.77",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

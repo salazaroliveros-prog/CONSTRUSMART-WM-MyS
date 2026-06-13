@@ -28,6 +28,7 @@ export const materialSchema = z.object({
   cantidadPresupuestada: z.number().optional(),
   costoPresupuestado: z.number().optional(),
   ultimaActualizacionPresupuesto: z.string().optional(),
+  version: z.number().optional(),
 });
 
 export const ordenSchema = z.object({
@@ -46,6 +47,8 @@ export const ordenSchema = z.object({
     cantidad: z.number(),
     precioUnitario: z.number(),
   })).optional(),
+  stockActualizado: z.boolean().optional(),
+  version: z.number().optional(),
 });
 
 export const proveedorSchema = z.object({

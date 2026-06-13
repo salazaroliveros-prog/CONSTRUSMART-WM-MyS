@@ -65,6 +65,7 @@ export const presupuestoSchema = z.object({
   fechaActualizacion: z.string().default(new Date().toISOString()),
   versionPresupuesto: z.number().optional().default(1),
   notas: z.string().nullable().optional(),
+  version: z.number().optional(),
 });
 
 export const cotizacionSchema = z.object({

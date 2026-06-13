@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useErp } from '../store';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_DANGER, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
 import { fmtQ, fmtPct, EMPRESA } from '../utils';
+import { sanitizarObjeto } from '@/lib/security';
 import { exportCotizacionPDF } from '../export';
 import { Plus, X, Send, FileText, Trash2, Pencil, Eye, Copy, CheckCircle2, Clock, Archive } from 'lucide-react';
 import { toast } from 'sonner';
@@ -154,12 +155,7 @@ const Cotizaciones: React.FC = () => {
       updateCotizacion(editingId, schema.data);
       toast.success('Cotización actualizada');
     } else {
-      const now = new Date().toISOString();
-      addCotizacion({
-        ...schema.data,
-        createdAt: now,
-        updatedAt: now,
-      });
+      addCotizacion(schema.data);
       toast.success('Cotización creada');
     }
     resetForm();
@@ -179,17 +175,14 @@ const Cotizaciones: React.FC = () => {
   };
 
   const duplicarCotizacion = (c: CotizacionCliente) => {
-    const now = new Date().toISOString();
-    const nueva = {
+    const nueva = sanitizarObjeto({
       ...c,
       id: undefined,
       numero: `COT-${cotizaciones.length + 1}-${new Date().getFullYear()}`,
       fecha: new Date().toISOString().slice(0, 10),
       estado: 'borrador' as const,
-      createdAt: now,
-      updatedAt: now,
-    };
-    addCotizacion(nueva as any);
+    });
+    addCotizacion(nueva);
     toast.success('Cotización duplicada como borrador');
   };
 

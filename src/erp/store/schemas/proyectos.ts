@@ -48,6 +48,10 @@ export const proyectoSchema = z.object({
     imprevistos: z.number(),
     utilidad: z.number(),
   }).optional(),
+  motivoPausa: z.string().optional().default(''),
+  pausadoPor: z.string().optional().default(''),
+  fechaPausa: z.string().optional().default(''),
+  fechaReanudacionEstimada: z.string().optional().default(''),
 }).transform(d => ({
   ...d,
   lat: d.lat ?? d.latitud ?? 14.6349,
