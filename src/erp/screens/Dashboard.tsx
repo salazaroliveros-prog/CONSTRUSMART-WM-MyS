@@ -56,17 +56,17 @@ const Dashboard: React.FC = () => {
     ? proyectosSel.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / proyectosSel.length
     : 0;
 
-  const materialesFiltrados = selectedProyectoId && selectedProyectoId !== 'none'
-    ? materiales.filter(m => m.proyectoIds?.includes(selectedProyectoId))
-    : materiales;
   const planVsReal = useMemo(() => {
-    const items = materialesFiltrados.length ? materialesFiltrados : materiales;
+    const filtrados = selectedProyectoId && selectedProyectoId !== 'none'
+      ? materiales.filter(m => m.proyectoIds?.includes(selectedProyectoId))
+      : materiales;
+    const items = filtrados.length ? filtrados : materiales;
     const conPlan = items.filter(m => typeof m.cantidadPresupuestada === 'number' && m.cantidadPresupuestada > 0);
     const costoPlanificado = conPlan.reduce((a, m) => a + ((m.cantidadPresupuestada ?? 0) * m.precio), 0);
     const costoReal = conPlan.reduce((a, m) => a + (m.stock * m.precio), 0);
     const avgDesv = conPlan.length ? conPlan.reduce((a, m) => a + ((m.stock - (m.cantidadPresupuestada ?? 0)) / Math.max(m.cantidadPresupuestada ?? 1, 1)) * 100, 0) / conPlan.length : 0;
     const top = conPlan.length ? [...conPlan].sort((a, b) => Math.abs((b.stock - (b.cantidadPresupuestada ?? 0)) / Math.max(b.cantidadPresupuestada ?? 1, 1)) - Math.abs((a.stock - (a.cantidadPresupuestada ?? 0)) / Math.max(a.cantidadPresupuestada ?? 1, 1)))[0] : null;
-    return { conPlan: conPlan.length, costoPlanificado, costoReal, avgDesv, top };
+    return { conPlan: conPlan.length, costoPlanificado, costoReal, avgDesv, top, totalMateriales: items.length };
   }, [materiales, selectedProyectoId]);
   const avanceData = useMemo(() => {
     const steps = 8;
@@ -84,13 +84,13 @@ const Dashboard: React.FC = () => {
       return Math.round(100 / (1 + Math.exp(-8 * (t - 0.5))));
     });
     const stepSize = sorted.length / (steps - 1);
-    let acumulado = 0;
+    let lastVal = 0;
     const real = Array.from({ length: steps }, (_, i) => {
       if (i === 0) return 0;
       const endIdx = Math.min(Math.round(i * stepSize), sorted.length);
       const slice = sorted.slice(Math.round((i - 1) * stepSize), endIdx);
-      acumulado += slice.reduce((s, a) => s + a.avanceFisico, 0);
-      return Math.round(Math.min(acumulado, 100));
+      if (slice.length > 0) lastVal = slice[slice.length - 1].avanceFisico;
+      return Math.round(Math.min(lastVal, 100));
     });
     const mesesSet = new Set<string>();
     sorted.forEach(a => { if (a.fecha?.length >= 7) mesesSet.add(a.fecha.substring(0, 7)); });
@@ -152,7 +152,7 @@ const Dashboard: React.FC = () => {
             </div>
             {planVsReal.conPlan > 0 && (
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1 flex-shrink-0 text-[10px] text-muted-foreground">
-                <span>{t('dashboard.planif')} <b className="text-foreground">{planVsReal.conPlan}</b>/{materialesFiltrados.length} mats</span>
+                <span>{t('dashboard.planif')} <b className="text-foreground">{planVsReal.conPlan}</b>/{planVsReal.totalMateriales} mats</span>
                 <span>{t('dashboard.costo_planif')} <b className="text-foreground">{fmtQ(planVsReal.costoPlanificado)}</b></span>
                 <span>{t('dashboard.real')} <b className="text-foreground">{fmtQ(planVsReal.costoReal)}</b></span>
                 <span>{t('dashboard.desv_prom')} <b className={Math.abs(planVsReal.avgDesv) > 15 ? 'text-destructive' : ''}>{fmtPct(planVsReal.avgDesv)}</b></span>

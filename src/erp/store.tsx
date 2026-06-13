@@ -128,8 +128,7 @@ const Ctx = createContext<any>(null);
 export const useErp = () => {
   const ctx = useContext(Ctx);
   const zState = useErpStore();
-  if (!ctx) return zState;
-  return useMemo(() => ({ ...zState, ...ctx }), [zState, ctx]);
+  return useMemo(() => ctx ? { ...zState, ...ctx } : zState, [zState, ctx]);
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -244,7 +243,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isOnline, user: !!user,
     }), 'ErpProvider', 600000);
     return cancel;
-  }, []);
+  }, [isOnline, user]);
 
   const forceSync = useMemo(() => {
     return async () => {
@@ -295,8 +294,10 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => { unsub(); clearTimeout(timer); };
   }, []);
 
-  const RolType = { Administrador: 'Administrador', Gerente: 'Gerente', Residente: 'Residente', Compras: 'Compras', Bodeguero: 'Bodeguero' } as Record<string, Rol>;
-  const allowedViews = useMemo(() => user ? (ALLOWED[RolType[(user.rol as string) || 'Residente']] || ALLOWED['Residente']) : [], [user?.rol]);
+  const allowedViews = useMemo(() => {
+    const rt = { Administrador: 'Administrador', Gerente: 'Gerente', Residente: 'Residente', Compras: 'Compras', Bodeguero: 'Bodeguero' } as Record<string, Rol>;
+    return user ? (ALLOWED[rt[(user.rol as string) || 'Residente']] || ALLOWED['Residente']) : [];
+  }, [user]);
 
   const ctxValue = useMemo<any>(() => ({
     view, setView, user, initializing, isOnline, authError,
@@ -305,7 +306,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     signInWithGoogle: () => auth.signInWithGoogle(),
     logout: () => auth.logout(),
     allowedViews,
-  }), [view, user, initializing, isOnline, authError, allowedViews]);
+  }), [view, user, initializing, isOnline, authError, allowedViews, auth]);
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
 };

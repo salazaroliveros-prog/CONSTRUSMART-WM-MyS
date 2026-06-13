@@ -301,7 +301,7 @@ export const LogisticaCompras: React.FC = () => {
                     const errs: Record<string, string> = {};
                     result.error.errors.forEach(e => { errs[e.path[0] as string] = e.message; });
                     setFormErrors(errs);
-                    toast({ title: 'Error', description: 'Corrige los errores', variant: 'destructive' });
+                    toast.error('Corrige los errores');
                     return;
                   }
                   addActivo({
@@ -314,7 +314,7 @@ export const LogisticaCompras: React.FC = () => {
                   });
                   setShowForm(null);
                   setFormErrors({});
-                  toast({ title: 'Guardado', description: 'Activo creado', variant: 'default' });
+                  toast.success('Activo creado');
                 }} className="bg-primary text-primary-foreground py-2 rounded text-sm hover:bg-primary/90 font-medium">Guardar</button>
               </div>
             )}
@@ -331,7 +331,7 @@ export const LogisticaCompras: React.FC = () => {
                     const errs: Record<string, string> = {};
                     result.error.errors.forEach(e => { errs[e.path[0] as string] = e.message; });
                     setFormErrors(errs);
-                    toast({ title: 'Error', description: 'Corrige los errores', variant: 'destructive' });
+                    toast.error('Corrige los errores');
                     return;
                   }
                   addCuadro({
@@ -341,7 +341,7 @@ export const LogisticaCompras: React.FC = () => {
                   });
                   setShowForm(null);
                   setFormErrors({});
-                  toast({ title: 'Guardado', description: 'Solicitud creada', variant: 'default' });
+                  toast.success('Solicitud creada');
                 }} className="bg-primary text-primary-foreground py-2 rounded text-sm hover:bg-primary/90 font-medium">Crear Solicitud</button>
               </div>
             )}
@@ -373,7 +373,7 @@ export const LogisticaCompras: React.FC = () => {
                     const errs: Record<string, string> = {};
                     result.error.errors.forEach(e => { errs[e.path[0] as string] = e.message; });
                     setFormErrors(errs);
-                    toast({ title: 'Error', description: 'Corrige los errores', variant: 'destructive' });
+                    toast.error('Corrige los errores');
                     return;
                   }
                   addPagoProveedor({
@@ -386,7 +386,7 @@ export const LogisticaCompras: React.FC = () => {
                   });
                   setShowForm(null);
                   setFormErrors({});
-                  toast({ title: 'Guardado', description: 'Pago creado', variant: 'default' });
+                  toast.success('Pago creado');
                 }} className="bg-primary text-primary-foreground py-2 rounded text-sm hover:bg-primary/90 font-medium">Guardar</button>
               </div>
             )}

@@ -20,22 +20,24 @@ const generarCurvaSTeorica = (total: number, meses: number): number[] => {
 };
 
 // Genera el real acumulado mes a mes desde los avances registrados
-const generarRealDesdeAvances = (avances: { fecha: string; avanceFisico: number }[], total: number, meses: number): (number | null)[] => {
+const generarRealDesdeAvances = (avances: { fecha: string; avanceFisico: number }[], total: number, fechaInicio: Date, meses: number): (number | null)[] => {
   if (avances.length === 0) return Array(meses).fill(null);
   const sorted = [...avances].sort((a, b) => a.fecha.localeCompare(b.fecha));
   const real: (number | null)[] = [];
-  let acumulado = 0;
   for (let i = 0; i < meses; i++) {
-    // Avances de este mes (fecha contiene el mes)
     const avancesMes = sorted.filter(a => {
-      const m = parseInt(a.fecha.split('-')[1]) - 1;
-      return m === i;
+      if (!a.fecha) return false;
+      const aDate = new Date(a.fecha);
+      const diffMonths = (aDate.getFullYear() - fechaInicio.getFullYear()) * 12 + (aDate.getMonth() - fechaInicio.getMonth());
+      return diffMonths === i;
     });
     if (avancesMes.length > 0) {
-      acumulado += avancesMes.reduce((s, a) => s + a.avanceFisico, 0);
-      real.push(+(total * Math.min(acumulado, 100) / 100).toFixed(0));
+      const ultimoAvance = avancesMes[avancesMes.length - 1];
+      real.push(+(total * Math.min(ultimoAvance.avanceFisico, 100) / 100).toFixed(0));
+    } else if (real.length > 0 && real[real.length - 1] !== null) {
+      real.push(real[real.length - 1]);
     } else {
-      real.push(acumulado > 0 ? +(total * Math.min(acumulado, 100) / 100).toFixed(0) : null);
+      real.push(null);
     }
   }
   return real;
@@ -64,7 +66,7 @@ const CurvasS: React.FC = () => {
     const proyAvances = avances
       .filter(a => a.proyectoId === proyecto.id)
       .sort((a, b) => a.fecha.localeCompare(b.fecha));
-    const real = generarRealDesdeAvances(proyAvances, presupuesto, mesesTotales);
+    const real = generarRealDesdeAvances(proyAvances, presupuesto, fechaInicio, mesesTotales);
 
     return programado.map((prog, i) => ({
       mes: i + 1,
@@ -87,7 +89,9 @@ const CurvasS: React.FC = () => {
       });
     }
     movimientos.forEach(m => {
+      if (!m.fecha) return;
       const fechaMov = new Date(m.fecha);
+      if (isNaN(fechaMov.getTime())) return;
       const diffMonths = (hoy.getFullYear() - fechaMov.getFullYear()) * 12 + (hoy.getMonth() - fechaMov.getMonth());
       const idx = 11 - diffMonths;
       if (idx >= 0 && idx < 12) {

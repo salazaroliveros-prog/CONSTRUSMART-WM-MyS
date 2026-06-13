@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -30,7 +30,7 @@ const RRHH: React.FC = () => {
 
   const empleadosFiltrados = filtroProyecto ? empleados.filter(e => e.proyectoId === filtroProyecto) : empleados;
 
-  const pago = (e: typeof empleados[0]) => e.salarioDiario * e.diasTrabajados;
+  const pago = useCallback((e: typeof empleados[0]) => e.salarioDiario * e.diasTrabajados, []);
   const pagoFSR = (e: typeof empleados[0]) => factorSalarioReal(e.salarioDiario) * e.diasTrabajados;
   const totalPlanilla = empleadosFiltrados.reduce((a, e) => a + pago(e), 0);
   const totalFSR = empleadosFiltrados.reduce((a, e) => a + pagoFSR(e), 0);
@@ -49,7 +49,7 @@ const RRHH: React.FC = () => {
         color: colors[i % colors.length],
       }))
       .filter(x => x.value > 0);
-  }, [empleadosFiltrados, proyectos]);
+  }, [empleadosFiltrados, proyectos, pago]);
 
   const {
     register,
