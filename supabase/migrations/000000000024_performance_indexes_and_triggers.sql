@@ -2,154 +2,177 @@
 -- ERP CONSTRUSMART - MIGRACIÓN 24: Performance Indexes + Triggers
 -- Fecha: 2026-06-13
 --
--- 1. Agregar columnas faltantes a erp_materiales (bodega, renglonId)
--- 2. Índices de rendimiento (con verificación de columnas)
--- 3. Triggers updated_at para todas las tablas
--- 4. Estadísticas de tablas para query planner
+-- SOLO crea índices/triggers si la columna existe en la tabla.
+-- Verificación con information_schema para evitar errores 42703.
 -- ============================================================
 
--- Helper function para verificar si una columna existe
-CREATE OR REPLACE FUNCTION public._idx_col_exists(p_table text, p_col text)
-RETURNS boolean
+-- Helper: crear índice solo si la columna existe
+CREATE OR REPLACE FUNCTION public._create_idx_if_col(tbl text, idx text, col text, extra text DEFAULT '')
+RETURNS void
 LANGUAGE plpgsql
-STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  RETURN EXISTS (
+  IF EXISTS (
     SELECT 1 FROM information_schema.columns
-    WHERE table_schema = 'public' AND table_name = p_table AND column_name = p_col
-  );
+    WHERE table_schema = 'public' AND table_name = tbl AND column_name = col
+  ) THEN
+    IF extra = '' THEN
+      EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON public.%I(%I)', idx, tbl, col);
+    ELSE
+      EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON public.%I(%I) %s', idx, tbl, col, extra);
+    END IF;
+  END IF;
+END;
+$$;
+
+-- Helper: crear índice compuesto solo si ambas columnas existen
+CREATE OR REPLACE FUNCTION public._create_compound_idx_if(tbl text, idx text, col1 text, col2 text)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = tbl AND column_name = col1
+  ) AND EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = tbl AND column_name = col2
+  ) THEN
+    EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON public.%I(%I, %I)', idx, tbl, col1, col2);
+  END IF;
 END;
 $$;
 
 -- ============================================================
 -- 1. AGREGAR COLUMNAS FALTANTES A erp_materiales
 -- ============================================================
--- El flujo es: Presupuesto → Renglones → Materiales → Bodega por proyecto/renglón
--- bodega: ubicación física donde se almacena el material
--- renglon_id: vincula el material al renglón del presupuesto que lo consumió
-
+-- Flujo: Presupuesto → Renglones → Materiales → Bodega (por proyecto/renglón)
 DO $$
 BEGIN
-  IF public._idx_col_exists('erp_materiales', 'bodega') = false THEN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_materiales' AND column_name = 'bodega'
+  ) THEN
     ALTER TABLE public.erp_materiales ADD COLUMN bodega text DEFAULT 'General';
     COMMENT ON COLUMN public.erp_materiales.bodega IS 'Ubicación física en bodega del material';
   END IF;
 
-  IF public._idx_col_exists('erp_materiales', 'renglon_id') = false THEN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_materiales' AND column_name = 'renglon_id'
+  ) THEN
     ALTER TABLE public.erp_materiales ADD COLUMN renglon_id uuid;
     COMMENT ON COLUMN public.erp_materiales.renglon_id IS 'ID del renglón de presupuesto que originó la compra';
   END IF;
 END $$;
 
 -- ============================================================
--- 2. ÍNDICES DE RENDIMIENTO
---    Solo se crean si la columna existe en la tabla
+-- 2. ÍNDICES DE RENDIMIENTO (condicionales a columnas existentes)
 -- ============================================================
 
 -- erp_proyectos
-CREATE INDEX IF NOT EXISTS idx_proyectos_estado ON public.erp_proyectos(estado);
-CREATE INDEX IF NOT EXISTS idx_proyectos_created_by ON public.erp_proyectos(created_by);
-CREATE INDEX IF NOT EXISTS idx_proyectos_fecha_inicio ON public.erp_proyectos(fecha_inicio);
+SELECT public._create_idx_if_col('erp_proyectos', 'idx_proyectos_estado', 'estado');
+SELECT public._create_idx_if_col('erp_proyectos', 'idx_proyectos_created_by', 'created_by');
+SELECT public._create_idx_if_col('erp_proyectos', 'idx_proyectos_fecha_inicio', 'fecha_inicio');
 
 -- erp_materiales
-CREATE INDEX IF NOT EXISTS idx_materiales_categoria ON public.erp_materiales(categoria);
-CREATE INDEX IF NOT EXISTS idx_materiales_stock_bajo ON public.erp_materiales(stock) WHERE stock <= COALESCE(stock_minimo, 0);
-SELECT public._idx_col_exists('erp_materiales', 'bodega') AND
-  format('CREATE INDEX IF NOT EXISTS idx_materiales_bodega ON public.erp_materiales(bodega)')
-WHERE public._idx_col_exists('erp_materiales', 'bodega');
+SELECT public._create_idx_if_col('erp_materiales', 'idx_materiales_categoria', 'categoria');
+SELECT public._create_idx_if_col('erp_materiales', 'idx_materiales_bodega', 'bodega');
+CREATE INDEX IF NOT EXISTS idx_materiales_stock_bajo ON public.erp_materiales(stock)
+  WHERE stock <= COALESCE((SELECT stock_minimo FROM public.erp_materiales m WHERE m.id = erp_materiales.id), 0);
 
 -- erp_ordenes_compra
-CREATE INDEX IF NOT EXISTS idx_oc_estado ON public.erp_ordenes_compra(estado);
-CREATE INDEX IF NOT EXISTS idx_oc_proyecto_id ON public.erp_ordenes_compra(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_oc_proveedor ON public.erp_ordenes_compra(proveedor);
-CREATE INDEX IF NOT EXISTS idx_oc_estado_proyecto ON public.erp_ordenes_compra(estado, proyecto_id);
+SELECT public._create_idx_if_col('erp_ordenes_compra', 'idx_oc_estado', 'estado');
+SELECT public._create_idx_if_col('erp_ordenes_compra', 'idx_oc_proyecto_id', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_ordenes_compra', 'idx_oc_proveedor', 'proveedor');
+SELECT public._create_compound_idx_if('erp_ordenes_compra', 'idx_oc_estado_proyecto', 'estado', 'proyecto_id');
 
 -- erp_avances
-CREATE INDEX IF NOT EXISTS idx_avances_proyecto_id ON public.erp_avances(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_avances_fecha ON public.erp_avances(fecha);
-CREATE INDEX IF NOT EXISTS idx_avances_proyecto_fecha ON public.erp_avances(proyecto_id, fecha);
+SELECT public._create_idx_if_col('erp_avances', 'idx_avances_proyecto_id', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_avances', 'idx_avances_fecha', 'fecha');
+SELECT public._create_compound_idx_if('erp_avances', 'idx_avances_proyecto_fecha', 'proyecto_id', 'fecha');
 
--- erp_vales_salida
-CREATE INDEX IF NOT EXISTS idx_vales_proyecto_id ON public.erp_vales_salida(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_vales_estado ON public.erp_vales_salida(estado);
+-- erp_vales_salida (NO tiene columna estado)
+SELECT public._create_idx_if_col('erp_vales_salida', 'idx_vales_proyecto_id', 'proyecto_id');
 
 -- erp_presupuestos
-CREATE INDEX IF NOT EXISTS idx_presupuestos_proyecto_id ON public.erp_presupuestos(proyecto_id);
+SELECT public._create_idx_if_col('erp_presupuestos', 'idx_presupuestos_proyecto_id', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_presupuestos', 'idx_presupuestos_estado', 'estado');
 
 -- erp_hitos
-CREATE INDEX IF NOT EXISTS idx_hitos_proyecto_id ON public.erp_hitos(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_hitos_estado ON public.erp_hitos(estado);
+SELECT public._create_idx_if_col('erp_hitos', 'idx_hitos_proyecto_id', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_hitos', 'idx_hitos_estado', 'estado');
 
 -- erp_riesgos
-CREATE INDEX IF NOT EXISTS idx_riesgos_proyecto_id ON public.erp_riesgos(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_riesgos_nivel ON public.erp_riesgos(nivel);
+SELECT public._create_idx_if_col('erp_riesgos', 'idx_riesgos_proyecto_id', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_riesgos', 'idx_riesgos_nivel', 'nivel');
 
 -- erp_no_conformidades
-CREATE INDEX IF NOT EXISTS idx_nc_proyecto_id ON public.erp_no_conformidades(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_nc_estado ON public.erp_no_conformidades(estado);
+SELECT public._create_idx_if_col('erp_no_conformidades', 'idx_nc_proyecto_id', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_no_conformidades', 'idx_nc_estado', 'estado');
 
 -- erp_cuentas_pagar
-CREATE INDEX IF NOT EXISTS idx_cpagar_proyecto_id ON public.erp_cuentas_pagar(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_cpagar_estado ON public.erp_cuentas_pagar(estado);
+SELECT public._create_idx_if_col('erp_cuentas_pagar', 'idx_cpagar_proyecto_id', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_cuentas_pagar', 'idx_cpagar_estado', 'estado');
 
 -- erp_cuentas_cobrar
-CREATE INDEX IF NOT EXISTS idx_ccobrar_proyecto_id ON public.erp_cuentas_cobrar(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_ccobrar_estado ON public.erp_cuentas_cobrar(estado);
+SELECT public._create_idx_if_col('erp_cuentas_cobrar', 'idx_ccobrar_proyecto_id', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_cuentas_cobrar', 'idx_ccobrar_estado', 'estado');
 
 -- erp_notificaciones
-CREATE INDEX IF NOT EXISTS idx_notif_user_unread ON public.erp_notificaciones(user_id, leida) WHERE leida = false;
-CREATE INDEX IF NOT EXISTS idx_notif_created ON public.erp_notificaciones(created_at DESC);
+SELECT public._create_idx_if_col('erp_notificaciones', 'idx_notif_user_unread', 'user_id');
 
--- erp_empleados
-CREATE INDEX IF NOT EXISTS idx_empleados_cargo ON public.erp_empleados(cargo);
+-- erp_empleados (NO tiene columna estado)
+SELECT public._create_idx_if_col('erp_empleados', 'idx_empleados_cargo', 'cargo');
 
 -- erp_licitaciones
-CREATE INDEX IF NOT EXISTS idx_licitaciones_estado ON public.erp_licitaciones(estado);
-CREATE INDEX IF NOT EXISTS idx_licitaciones_probabilidad ON public.erp_licitaciones(probabilidad);
+SELECT public._create_idx_if_col('erp_licitaciones', 'idx_licitaciones_estado', 'estado');
+SELECT public._create_idx_if_col('erp_licitaciones', 'idx_licitaciones_probabilidad', 'probabilidad');
 
 -- erp_cotizaciones_negocio
-CREATE INDEX IF NOT EXISTS idx_cotizaciones_proyecto ON public.erp_cotizaciones_negocio(proyecto_id);
+SELECT public._create_idx_if_col('erp_cotizaciones_negocio', 'idx_cotizaciones_proyecto', 'proyecto_id');
 
 -- erp_ordenes_cambio
-CREATE INDEX IF NOT EXISTS idx_ocambio_proyecto ON public.erp_ordenes_cambio(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_ocambio_estado ON public.erp_ordenes_cambio(estado);
+SELECT public._create_idx_if_col('erp_ordenes_cambio', 'idx_ocambio_proyecto', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_ordenes_cambio', 'idx_ocambio_estado', 'estado');
 
 -- erp_incidentes
-CREATE INDEX IF NOT EXISTS idx_incidentes_proyecto ON public.erp_incidentes(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_incidentes_gravedad ON public.erp_incidentes(gravedad);
+SELECT public._create_idx_if_col('erp_incidentes', 'idx_incidentes_proyecto', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_incidentes', 'idx_incidentes_gravedad', 'gravedad');
 
 -- erp_activos
-CREATE INDEX IF NOT EXISTS idx_activos_proyecto ON public.erp_activos(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_activos_estado ON public.erp_activos(estado);
+SELECT public._create_idx_if_col('erp_activos', 'idx_activos_proyecto', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_activos', 'idx_activos_estado', 'estado');
 
--- erp_bitacora
-CREATE INDEX IF NOT EXISTS idx_bitacora_proyecto ON public.erp_bitacora(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_bitacora_fecha ON public.erp_bitacora(fecha);
+-- erp_bitacora (NO tiene columna estado)
+SELECT public._create_idx_if_col('erp_bitacora', 'idx_bitacora_proyecto', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_bitacora', 'idx_bitacora_fecha', 'fecha');
 
 -- erp_planos
-CREATE INDEX IF NOT EXISTS idx_planos_proyecto ON public.erp_planos(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_planos_estado ON public.erp_planos(estado);
+SELECT public._create_idx_if_col('erp_planos', 'idx_planos_proyecto', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_planos', 'idx_planos_estado', 'estado');
 
 -- erp_rfis
-CREATE INDEX IF NOT EXISTS idx_rfis_proyecto ON public.erp_rfis(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_rfis_estado ON public.erp_rfis(estado);
+SELECT public._create_idx_if_col('erp_rfis', 'idx_rfis_proyecto', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_rfis', 'idx_rfis_estado', 'estado');
 
 -- erp_submittals
-CREATE INDEX IF NOT EXISTS idx_submittals_proyecto ON public.erp_submittals(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_submittals_estado ON public.erp_submittals(estado);
+SELECT public._create_idx_if_col('erp_submittals', 'idx_submittals_proyecto', 'proyecto_id');
+SELECT public._create_idx_if_col('erp_submittals', 'idx_submittals_estado', 'estado');
 
 -- erp_proyecto_miembros
-CREATE INDEX IF NOT EXISTS idx_miembros_user ON public.erp_proyecto_miembros(user_id);
-CREATE INDEX IF NOT EXISTS idx_miembros_proyecto ON public.erp_proyecto_miembros(proyecto_id);
+SELECT public._create_idx_if_col('erp_proyecto_miembros', 'idx_miembros_user', 'user_id');
+SELECT public._create_idx_if_col('erp_proyecto_miembros', 'idx_miembros_proyecto', 'proyecto_id');
 
 -- erp_usuarios
-CREATE INDEX IF NOT EXISTS idx_usuarios_email ON public.erp_usuarios(email);
+SELECT public._create_idx_if_col('erp_usuarios', 'idx_usuarios_email', 'email');
 
 -- ============================================================
--- 3. TRIGGER updated_at PARA TODAS LAS TABLAS
+-- 3. TRIGGER updated_at (solo si columna updated_at existe)
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION public.set_updated_at()
@@ -168,25 +191,30 @@ DO $$
 DECLARE
   _table text;
   _tables text[] := ARRAY[
-    'erp_proyectos', 'erp_materiales', 'erp_ordenes_compra', 'erp_presupuestos',
-    'erp_avances', 'erp_vales_salida', 'erp_hitos', 'erp_riesgos',
-    'erp_no_conformidades', 'erp_incidentes', 'erp_activos', 'erp_planos',
-    'erp_rfis', 'erp_submittals', 'erp_bitacora', 'erp_eventos_calendario',
+    'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
+    'erp_ordenes_compra', 'erp_proveedores', 'erp_eventos_calendario',
+    'erp_bitacora', 'erp_seguimiento', 'erp_renglones', 'erp_insumos',
+    'erp_sub_renglones', 'erp_presupuestos', 'erp_vales_salida', 'erp_avances',
+    'erp_hitos', 'erp_riesgos', 'erp_no_conformidades', 'erp_incidentes',
+    'erp_activos', 'erp_planos', 'erp_rfis', 'erp_submittals',
     'erp_ordenes_cambio', 'erp_cuentas_cobrar', 'erp_cuentas_pagar',
-    'erp_licitaciones', 'erp_cotizaciones_negocio', 'erp_notificaciones',
-    'erp_empleados'
+    'erp_licitaciones', 'erp_cotizaciones_negocio', 'erp_notificaciones'
   ];
 BEGIN
   FOREACH _table IN ARRAY _tables
   LOOP
-    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = _table AND table_type = 'BASE TABLE')
-       AND EXISTS (SELECT FROM information_schema.columns WHERE table_schema = 'public' AND table_name = _table AND column_name = 'updated_at')
-       AND NOT EXISTS (
-         SELECT 1 FROM pg_trigger t
-         JOIN pg_class c ON t.tgrelid = c.oid
-         JOIN pg_namespace n ON c.relnamespace = n.oid
-         WHERE n.nspname = 'public' AND c.relname = _table AND t.tgname = 'trigger_set_updated_at'
-       ) THEN
+    IF EXISTS (
+      SELECT FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = _table AND table_type = 'BASE TABLE'
+    ) AND EXISTS (
+      SELECT FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = _table AND column_name = 'updated_at'
+    ) AND NOT EXISTS (
+      SELECT 1 FROM pg_trigger t
+      JOIN pg_class c ON t.tgrelid = c.oid
+      JOIN pg_namespace n ON c.relnamespace = n.oid
+      WHERE n.nspname = 'public' AND c.relname = _table AND t.tgname = 'trigger_set_updated_at'
+    ) THEN
       EXECUTE format(
         'CREATE TRIGGER trigger_set_updated_at BEFORE UPDATE ON public.%I
          FOR EACH ROW EXECUTE FUNCTION public.set_updated_at()',
@@ -197,7 +225,7 @@ BEGIN
 END $$;
 
 -- ============================================================
--- 4. ESTADÍSTICAS PARA QUERY PLANNER
+-- 4. ANALYZE
 -- ============================================================
 
 DO $$
@@ -211,13 +239,17 @@ DECLARE
 BEGIN
   FOREACH _table IN ARRAY _tables
   LOOP
-    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = _table AND table_type = 'BASE TABLE') THEN
+    IF EXISTS (
+      SELECT FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = _table AND table_type = 'BASE TABLE'
+    ) THEN
       EXECUTE format('ANALYZE public.%I', _table);
     END IF;
   END LOOP;
 END $$;
 
 -- ============================================================
--- 5. LIMPIEZA: eliminar función helper
+-- 5. LIMPIEZA: eliminar helpers
 -- ============================================================
-DROP FUNCTION IF EXISTS public._idx_col_exists;
+DROP FUNCTION IF EXISTS public._create_idx_if_col;
+DROP FUNCTION IF EXISTS public._create_compound_idx_if;
