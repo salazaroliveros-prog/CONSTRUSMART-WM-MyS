@@ -57,7 +57,7 @@ const Dashboard: React.FC = () => {
     : 0;
 
   const materialesFiltrados = selectedProyectoId && selectedProyectoId !== 'none'
-    ? materiales.filter(m => m.proyectoIds.includes(selectedProyectoId))
+    ? materiales.filter(m => m.proyectoIds?.includes(selectedProyectoId))
     : materiales;
   const planVsReal = useMemo(() => {
     const items = materialesFiltrados.length ? materialesFiltrados : materiales;
