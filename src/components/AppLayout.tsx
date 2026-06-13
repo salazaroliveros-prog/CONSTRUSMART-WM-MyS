@@ -139,8 +139,7 @@ const Shell: React.FC = () => {
 
   if (initializing) return <AppLoader />;
   if (view === 'login') return <Login />;
-  
-  // P4: AuthGuard - bloquear acceso a vistas no permitidas
+
   const viewName = view.split(':')[0];
   if (!user || !allowedViews.includes(viewName as any)) {
     return <Login />;

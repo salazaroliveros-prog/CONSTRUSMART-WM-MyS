@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useRef, useMemo } from 're
 import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
 import { scheduleHealthCheck } from '@/lib/store-health';
-import { isDemoDataLoaded, markDemoLoaded, getDemoData } from './demo-data';
 import { useErpStore, fetchInitialData } from './zustandStore';
 import {
   proyectoSchema, movimientoSchema, cuentaCobrarSchema, cuentaPagarSchema, ordenCambioSchema,
@@ -14,6 +13,7 @@ import {
   destajoSchema, recepcionAlmacenSchema, ventaPaqueteSchema, valeSalidaSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical } from './utils';
+import { hasSupabase, assertSupabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
 import type { AppSettings, Mutation } from './store';
 
@@ -54,34 +54,17 @@ const QUEUE_KEY = 'wm_erp_queue';
 const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
 const AUDIT_KEY = BASE_STORAGE_KEY + '_audit_log';
 
-function loadWithDemo<T>(key: string, schema: z.ZodTypeAny, demoArr: T[]): T[] {
+function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   try {
     const raw = localStorage.getItem(key);
-    if (raw) {
-      const decompressed = decompressData(raw);
-      if (decompressed === null) { safeLogger.warn(`[Storage] Decompress fail: ${key}`); }
-      const source = decompressed !== null ? decompressed : JSON.parse(raw);
-      const result = z.array(schema).safeParse(source);
-      if (result.success) return result.data;
-    }
+    if (!raw) return [];
+    const decompressed = decompressData(raw);
+    if (decompressed === null) { safeLogger.warn(`[Storage] Decompress fail: ${key}`); return []; }
+    const result = z.array(schema).safeParse(decompressed);
+    if (result.success) return result.data;
   } catch { safeLogger.warn(`[Storage] Corrupto: ${key}`); }
-  if (!isDemoDataLoaded() && demoArr.length > 0) {
-    try { markDemoLoaded(); } catch {}
-    return demoArr;
-  }
   return [];
 }
-
-const demoDataMap: Record<string, any[]> = {
-  proyectos: getDemoData('DEMO_PROYECTOS') as any[],
-  movimientos: getDemoData('DEMO_MOVIMIENTOS') as any[],
-  avances: getDemoData('DEMO_AVANCES') as any[],
-  materiales: getDemoData('DEMO_MATERIALES') as any[],
-  empleados: getDemoData('DEMO_EMPLEADOS') as any[],
-  proveedores: getDemoData('DEMO_PROVEEDORES') as any[],
-  ordenes: getDemoData('DEMO_ORDENES') as any[],
-  presupuestos: getDemoData('DEMO_PRESUPUESTOS') as any[],
-};
 
 export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones';
 export type UIMode = 'shadcn' | 'antd';
@@ -131,10 +114,47 @@ export const useErp = () => {
   return useMemo(() => ctx ? { ...zState, ...ctx } : zState, [zState, ctx]);
 };
 
+const MUTATION_TABLE_MAP: Record<string, string> = {
+  addProyecto:'erp_proyectos',updateProyecto:'erp_proyectos',deleteProyecto:'erp_proyectos',
+  addMovimiento:'erp_movimientos',updateMovimiento:'erp_movimientos',deleteMovimiento:'erp_movimientos',
+  addEmpleado:'erp_empleados',updateEmpleado:'erp_empleados',deleteEmpleado:'erp_empleados',
+  addMaterial:'erp_materiales',updateMaterial:'erp_materiales',deleteMaterial:'erp_materiales',
+  addOrden:'erp_ordenes_compra',updateOrden:'erp_ordenes_compra',deleteOrden:'erp_ordenes_compra',
+  addProveedor:'erp_proveedores',updateProveedor:'erp_proveedores',deleteProveedor:'erp_proveedores',
+  addEvento:'erp_eventos',updateEvento:'erp_eventos',deleteEvento:'erp_eventos',
+  addBitacora:'erp_bitacora',updateBitacora:'erp_bitacora',deleteBitacora:'erp_bitacora',
+  addPresupuesto:'erp_presupuestos',updatePresupuesto:'erp_presupuestos',deletePresupuesto:'erp_presupuestos',
+  addLicitacion:'erp_licitaciones',updateLicitacion:'erp_licitaciones',deleteLicitacion:'erp_licitaciones',
+  addCotizacion:'erp_cotizaciones_negocio',updateCotizacion:'erp_cotizaciones_negocio',deleteCotizacion:'erp_cotizaciones_negocio',
+  addAvance:'erp_avances',deleteAvance:'erp_avances',
+  addCuentaCobrar:'erp_cuentas_cobrar',updateCuentaCobrar:'erp_cuentas_cobrar',deleteCuentaCobrar:'erp_cuentas_cobrar',
+  addCuentaPagar:'erp_cuentas_pagar',updateCuentaPagar:'erp_cuentas_pagar',deleteCuentaPagar:'erp_cuentas_pagar',
+  addOrdenCambio:'erp_ordenes_cambio',updateOrdenCambio:'erp_ordenes_cambio',deleteOrdenCambio:'erp_ordenes_cambio',
+  addHito:'erp_hitos',updateHito:'erp_hitos',deleteHito:'erp_hitos',
+  addRiesgo:'erp_riesgos',updateRiesgo:'erp_riesgos',deleteRiesgo:'erp_riesgos',
+  addPlano:'erp_planos',updatePlano:'erp_planos',
+  addRfi:'erp_rfis',updateRfi:'erp_rfis',
+  addSubmittal:'erp_submittals',updateSubmittal:'erp_submittals',
+  addActivo:'erp_activos',updateActivo:'erp_activos',deleteActivo:'erp_activos',
+  addCuadro:'erp_cuadros',updateCuadro:'erp_cuadros',deleteCuadro:'erp_cuadros',
+  addPagoProveedor:'erp_pagos_proveedor',updatePagoProveedor:'erp_pagos_proveedor',deletePagoProveedor:'erp_pagos_proveedor',
+  addIncidente:'erp_incidentes',updateIncidente:'erp_incidentes',deleteIncidente:'erp_incidentes',
+  addDestajo:'destajos',updateDestajo:'destajos',deleteDestajo:'destajos',
+  addRecepcion:'recepciones_almacen',deleteRecepcion:'recepciones_almacen',
+  addValeSalida:'erp_vales_salida',deleteValeSalida:'erp_vales_salida',
+  addPublicacionMuro:'erp_publicaciones_muro',
+  addComentarioMuro:'erp_publicaciones_muro',
+  likePublicacionMuro:'erp_publicaciones_muro',
+  addPrueba:'erp_pruebas',updatePrueba:'erp_pruebas',
+  addNC:'erp_no_conformidades',updateNC:'erp_no_conformidades',
+  addLiberacion:'erp_liberaciones',updateLiberacion:'erp_liberaciones',
+  addNotificacion:'erp_notificaciones',markNotificacionLeida:'erp_notificaciones',
+  addSeguimiento:'erp_seguimiento_evm',updateSeguimiento:'erp_seguimiento_evm',deleteSeguimiento:'erp_seguimiento_evm',
+  addVentaPaquete:'erp_ventas_paquetes',
+};
+
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
   const getInitialView = (): string => {
-    if (isDev) return 'dashboard';
     try {
       const url = import.meta.env.VITE_SUPABASE_URL;
       const key = import.meta.env.VITE_SUPABASE_KEY;
@@ -183,39 +203,39 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (initializedRef.current) return;
     initializedRef.current = true;
     useErpStore.setState({
-      proyectos: loadWithDemo(BASE_STORAGE_KEY + '_proyectos', proyectoSchema, demoDataMap.proyectos as any),
-      movimientos: loadWithDemo(BASE_STORAGE_KEY + '_movimientos', movimientoSchema, demoDataMap.movimientos as any),
-      empleados: loadWithDemo(BASE_STORAGE_KEY + '_empleados', empleadoSchema, demoDataMap.empleados as any),
-      materiales: loadWithDemo(BASE_STORAGE_KEY + '_materiales', materialSchema, demoDataMap.materiales as any),
-      ordenes: loadWithDemo(BASE_STORAGE_KEY + '_ordenes', ordenSchema, demoDataMap.ordenes as any),
-      proveedores: loadWithDemo(BASE_STORAGE_KEY + '_proveedores', proveedorSchema, demoDataMap.proveedores as any),
-      eventos: loadWithDemo(BASE_STORAGE_KEY + '_eventos', eventoSchema, []),
-      presupuestos: loadWithDemo(BASE_STORAGE_KEY + '_presupuestos', presupuestoSchema, demoDataMap.presupuestos as any),
-      avances: loadWithDemo(BASE_STORAGE_KEY + '_avances', avanceObraSchema, demoDataMap.avances as any),
-      cuentasCobrar: loadWithDemo(BASE_STORAGE_KEY + '_cuentas_cobrar', cuentaCobrarSchema, []),
-      cuentasPagar: loadWithDemo(BASE_STORAGE_KEY + '_cuentas_pagar', cuentaPagarSchema, []),
-      ordenesCambio: loadWithDemo(BASE_STORAGE_KEY + '_ordenes_cambio', ordenCambioSchema, []),
-      hitos: loadWithDemo(BASE_STORAGE_KEY + '_hitos', hitoSchema, []),
-      riesgos: loadWithDemo(BASE_STORAGE_KEY + '_riesgos', riesgoSchema, []),
-      licitaciones: loadWithDemo(BASE_STORAGE_KEY + '_licitaciones', licitacionSchema, []),
-      cotizacionesNegocio: loadWithDemo(BASE_STORAGE_KEY + '_cotizacionesNegocio', cotizacionSchema, []),
-      ventasPaquetes: loadWithDemo(BASE_STORAGE_KEY + '_ventasPaquetes', ventaPaqueteSchema, []),
-      bitacora: loadWithDemo(BASE_STORAGE_KEY + '_bitacora', bitacoraSchema, []),
-      pruebas: loadWithDemo(BASE_STORAGE_KEY + '_pruebas', pruebaSchema, []),
-      ncs: loadWithDemo(BASE_STORAGE_KEY + '_no_conformidades', noConformidadSchema, []),
-      valesSalida: loadWithDemo(BASE_STORAGE_KEY + '_vales_salida', valeSalidaSchema, []),
-      seguimientoEVM: loadWithDemo(BASE_STORAGE_KEY + '_seguimiento_evm', seguimientoSchema, []),
-      incidentes: loadWithDemo(BASE_STORAGE_KEY + '_incidentes', incidenteSchema, []),
-      publicacionesMuro: loadWithDemo(BASE_STORAGE_KEY + '_publicaciones_muro', muroSchema, []),
-      liberaciones: loadWithDemo(BASE_STORAGE_KEY + '_liberaciones', liberacionSchema, []),
-      planos: loadWithDemo(BASE_STORAGE_KEY + '_planos', planoSchema, []),
-      rfis: loadWithDemo(BASE_STORAGE_KEY + '_rfis', rfiSchema, []),
-      submittals: loadWithDemo(BASE_STORAGE_KEY + '_submittals', submittalSchema, []),
-      activos: loadWithDemo(BASE_STORAGE_KEY + '_activos', activoSchema, []),
-      cuadros: loadWithDemo(BASE_STORAGE_KEY + '_cuadros', cuadroSchema, []),
-      pagosProveedor: loadWithDemo(BASE_STORAGE_KEY + '_pagos_proveedor', pagoProveedorSchema, []),
-      destajos: loadWithDemo(BASE_STORAGE_KEY + '_destajos', destajoSchema, []),
-      recepciones: loadWithDemo(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema, []),
+      proyectos: loadFromStorage(BASE_STORAGE_KEY + '_proyectos', proyectoSchema),
+      movimientos: loadFromStorage(BASE_STORAGE_KEY + '_movimientos', movimientoSchema),
+      empleados: loadFromStorage(BASE_STORAGE_KEY + '_empleados', empleadoSchema),
+      materiales: loadFromStorage(BASE_STORAGE_KEY + '_materiales', materialSchema),
+      ordenes: loadFromStorage(BASE_STORAGE_KEY + '_ordenes', ordenSchema),
+      proveedores: loadFromStorage(BASE_STORAGE_KEY + '_proveedores', proveedorSchema),
+      eventos: loadFromStorage(BASE_STORAGE_KEY + '_eventos', eventoSchema),
+      presupuestos: loadFromStorage(BASE_STORAGE_KEY + '_presupuestos', presupuestoSchema),
+      avances: loadFromStorage(BASE_STORAGE_KEY + '_avances', avanceObraSchema),
+      cuentasCobrar: loadFromStorage(BASE_STORAGE_KEY + '_cuentas_cobrar', cuentaCobrarSchema),
+      cuentasPagar: loadFromStorage(BASE_STORAGE_KEY + '_cuentas_pagar', cuentaPagarSchema),
+      ordenesCambio: loadFromStorage(BASE_STORAGE_KEY + '_ordenes_cambio', ordenCambioSchema),
+      hitos: loadFromStorage(BASE_STORAGE_KEY + '_hitos', hitoSchema),
+      riesgos: loadFromStorage(BASE_STORAGE_KEY + '_riesgos', riesgoSchema),
+      licitaciones: loadFromStorage(BASE_STORAGE_KEY + '_licitaciones', licitacionSchema),
+      cotizacionesNegocio: loadFromStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', cotizacionSchema),
+      ventasPaquetes: loadFromStorage(BASE_STORAGE_KEY + '_ventasPaquetes', ventaPaqueteSchema),
+      bitacora: loadFromStorage(BASE_STORAGE_KEY + '_bitacora', bitacoraSchema),
+      pruebas: loadFromStorage(BASE_STORAGE_KEY + '_pruebas', pruebaSchema),
+      ncs: loadFromStorage(BASE_STORAGE_KEY + '_no_conformidades', noConformidadSchema),
+      valesSalida: loadFromStorage(BASE_STORAGE_KEY + '_vales_salida', valeSalidaSchema),
+      seguimientoEVM: loadFromStorage(BASE_STORAGE_KEY + '_seguimiento_evm', seguimientoSchema),
+      incidentes: loadFromStorage(BASE_STORAGE_KEY + '_incidentes', incidenteSchema),
+      publicacionesMuro: loadFromStorage(BASE_STORAGE_KEY + '_publicaciones_muro', muroSchema),
+      liberaciones: loadFromStorage(BASE_STORAGE_KEY + '_liberaciones', liberacionSchema),
+      planos: loadFromStorage(BASE_STORAGE_KEY + '_planos', planoSchema),
+      rfis: loadFromStorage(BASE_STORAGE_KEY + '_rfis', rfiSchema),
+      submittals: loadFromStorage(BASE_STORAGE_KEY + '_submittals', submittalSchema),
+      activos: loadFromStorage(BASE_STORAGE_KEY + '_activos', activoSchema),
+      cuadros: loadFromStorage(BASE_STORAGE_KEY + '_cuadros', cuadroSchema),
+      pagosProveedor: loadFromStorage(BASE_STORAGE_KEY + '_pagos_proveedor', pagoProveedorSchema),
+      destajos: loadFromStorage(BASE_STORAGE_KEY + '_destajos', destajoSchema),
+      recepciones: loadFromStorage(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema),
       mutationQueue: JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]') as Mutation[],
       notificaciones: JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]') as any[],
       auditLog: JSON.parse(localStorage.getItem(AUDIT_KEY) || '[]') as any[],
@@ -249,10 +269,72 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return async () => {
       if (syncCooldownRef.current) return;
       const queue = useErpStore.getState().mutationQueue;
-      if (queue.length === 0 || !isOnlineRef.current) return;
+      if (queue.length === 0 || !isOnlineRef.current || !hasSupabase) return;
+
       syncCooldownRef.current = true;
       useErpStore.setState({ syncMessage: `Sincronizando ${queue.length} cambios...` });
-      setTimeout(() => { syncCooldownRef.current = false; useErpStore.setState({ syncMessage: '' }); }, 1000);
+
+      const supabase = assertSupabase();
+      const processed: string[] = [];
+      const failed: Mutation[] = [];
+
+      for (const mutation of queue) {
+        try {
+          const table = MUTATION_TABLE_MAP[mutation.type];
+          if (!table) { processed.push(mutation.id); continue; }
+
+          const payload = mutation.payload;
+
+          if (mutation.type.startsWith('add')) {
+            const { error } = await supabase.from(table).insert(payload);
+            if (error) throw error;
+          } else if (mutation.type.startsWith('update') || mutation.type.startsWith('mark')) {
+            const { id, ...data } = payload;
+            if (id) {
+              const { error } = await supabase.from(table).update(data).eq('id', id);
+              if (error) throw error;
+            }
+          } else if (mutation.type.startsWith('delete')) {
+            const { id } = payload;
+            if (id) {
+              const { error } = await supabase.from(table).delete().eq('id', id);
+              if (error) throw error;
+            }
+          } else if (mutation.type === 'addComentarioMuro') {
+            const { publicacionId, comentario } = payload;
+            const { error } = await supabase.rpc('append_comentario_muro', { publicacion_id: publicacionId, comentario });
+            if (error) throw error;
+          } else if (mutation.type === 'likePublicacionMuro') {
+            const { id } = payload;
+            const { error } = await supabase.rpc('increment_likes_muro', { row_id: id });
+            if (error) throw error;
+          }
+
+          processed.push(mutation.id);
+        } catch (err) {
+          safeLogger.warn(`[forceSync] Error en ${mutation.type}:`, err);
+          if (mutation.retryCount >= 3) {
+            processed.push(mutation.id);
+          } else {
+            failed.push({ ...mutation, retryCount: mutation.retryCount + 1 });
+          }
+        }
+      }
+
+      const remaining = queue.filter(m => !processed.includes(m.id));
+      failed.forEach(f => { if (!remaining.find(r => r.id === f.id)) remaining.push(f); });
+      useErpStore.getState().setMutationQueue(remaining);
+
+      syncCooldownRef.current = false;
+
+      if (processed.length > 0 || failed.length > 0) {
+        const msg = processed.length > 0
+          ? `${processed.length} cambios sincronizados en ${Object.keys(MUTATION_TABLE_MAP).length} tablas.`
+          : '';
+        const errMsg = failed.length > 0 ? ` ${failed.length} fallaron` : '';
+        useErpStore.setState({ syncMessage: msg + errMsg });
+        if (msg) setTimeout(() => useErpStore.setState({ syncMessage: '' }), 3000);
+      }
     };
   }, []);
 
@@ -305,8 +387,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     signUp: (e: string, p: string, n: string, r: Rol) => auth.signUp(e, p, n, r),
     signInWithGoogle: () => auth.signInWithGoogle(),
     logout: () => auth.logout(),
-    allowedViews,
-  }), [view, user, initializing, isOnline, authError, allowedViews, auth]);
+    allowedViews, forceSync,
+  }), [view, user, initializing, isOnline, authError, allowedViews, auth, forceSync]);
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
 };
