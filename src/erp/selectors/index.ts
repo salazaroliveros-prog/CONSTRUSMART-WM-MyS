@@ -1,27 +1,14 @@
-import { createSelector } from '@reduxjs/toolkit';
-import { projectsState } from '../store';
+export const selectProyectosByStatus = (status: string) => (proyectos: any[]) =>
+  proyectos.filter((p: any) => p.estado === status);
 
-// Optimized selector for filtered projects by status
-export const selectProyectosByStatus = (status) =>
-  createSelector(
-    (state) => state.proyectos.list,
-    (projects) => projects.filter(p => p.estado === status)
-  );
+export const selectActiveProyectos = (proyectos: any[]) =>
+  proyectos.filter((p: any) => p.estado === 'ejecucion');
 
-// Optimized selector for active projects
-export const selectActiveProyectos = createSelector(
-  (state) => state.proyectos.list,
-  (projects) => projects.filter(p => p.estado === 'ejecucion')
-);
-
-// Optimized selector for budget status
-export const selectProyectosBudgetStatus = createSelector(
-  (state) => state.proyectos.list,
-  (projects) => projects.map(p => ({
+export const selectProyectosBudgetStatus = (proyectos: any[]) =>
+  proyectos.map((p: any) => ({
     id: p.id,
     nombre: p.nombre,
     presupuestoTotal: p.presupuestoTotal,
     avanceFinanciero: p.avanceFinanciero,
     sobrePresupuesto: p.avanceFinanciero > p.presupuestoTotal,
-  }))
-);
+  }));

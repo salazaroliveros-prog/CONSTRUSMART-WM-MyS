@@ -1,61 +1,40 @@
-import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { addNotificacion } from '../../store';
+import { useErp } from '../store';
 
-const INCIDENCIA_THRESHOLD = 5; // alert if > 5 incidents per project
-
-interface IncidenciaAlerta {
-  proyectoId: string;
-  proyectoNombre: string;
-  totalIncidentes: number;
-  tasaPorProyecto: number;
-}
+const INCIDENCIA_THRESHOLD = 5;
 
 export const useIncidenciaAlertas = () => {
-  const dispatch = useDispatch();
-  const { list: incidentes } = useSelector((state: any) => state.incidentes);
-  const { list: proyectos } = useSelector((state: any) => state.proyectos);
+  const { proyectos, addNotificacion } = useErp();
 
-  const calcularAlertas = React.useCallback((): IncidenciaAlerta[] => {
-    const incidentesPorProyecto = incidentes.reduce((acc: Record<string, number>, inc: any) => {
-      if (inc.proyectoId) {
-        acc[inc.proyectoId] = (acc[inc.proyectoId] || 0) + 1;
+  const calcularAlertas = () => {
+    const counts: Record<string, number> = {};
+    proyectos.forEach((p: any) => {
+      if (p.incidentesCount && p.incidentesCount > INCIDENCIA_THRESHOLD) {
+        counts[p.id] = p.incidentesCount;
       }
-      return acc;
-    }, {});
+    });
+    return Object.entries(counts).map(([proyectoId, total]) => {
+      const proyecto = proyectos.find((p: any) => p.id === proyectoId);
+      return {
+        proyectoId,
+        proyectoNombre: proyecto?.nombre || '',
+        totalIncidentes: total,
+        tasaPorProyecto: total,
+      };
+    });
+  };
 
-    const alertas: IncidenciaAlerta[] = Object.entries(incidentesPorProyecto)
-      .map(([proyectoId, total]) => {
-        const proyecto = proyectos.find(p => p.id === proyectoId);
-        if (!proyecto) return null;
-        return {
-          proyectoId,
-          proyectoNombre: proyecto.nombre,
-          totalIncidentes: total,
-          tasaPorProyecto: total, // incidents per project (simple count)
-        };
-      })
-      .filter((a): a is IncidenciaAlerta => a !== null && a.tasaPorProyecto > INCIDENCIA_THRESHOLD);
-
-    return alertas;
-  }, [incidentes, proyectos]);
-
-  const checkAndNotify = React.useCallback(() => {
+  const checkAndNotify = () => {
     const alertas = calcularAlertas();
     alertas.forEach(alerta => {
-      dispatch(addNotificacion(
-        'incidencia_alta',
-        `Alta incidencia en: ${alerta.proyectoNombre}`,
-        `Se detectaron ${alerta.totalIncidentes} incidentes (umbral: ${INCIDENCIA_THRESHOLD})`,
-        alerta.proyectoId
-      ));
+      addNotificacion({
+        tipo: 'incidencia_alta',
+        titulo: `Alta incidencia en: ${alerta.proyectoNombre}`,
+        mensaje: `Se detectaron ${alerta.totalIncidentes} incidentes (umbral: ${INCIDENCIA_THRESHOLD})`,
+        proyectoId: alerta.proyectoId,
+        leida: false,
+      });
     });
-  }, [dispatch, calcularAlertas]);
-
-  // Run check when incidentes or proyectos change
-  useEffect(() => {
-    checkAndNotify();
-  }, [checkAndNotify]);
+  };
 
   return {
     alertas: calcularAlertas(),

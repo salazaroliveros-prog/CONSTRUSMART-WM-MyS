@@ -60,17 +60,21 @@ export const LineChart: React.FC<{
 }> = React.memo(({ series, labels, height = H }) => {
   const p = useAnimIn(800);
   const [tip, setTip] = useState<TooltipState>({ x: 0, y: 0, content: '', visible: false });
-  const all = series.flatMap(s => s.data);
+  const clean = series.map(s => ({ ...s, data: s.data.filter((v): v is number => Number.isFinite(v)).map(v => Math.max(0, Math.min(100, v))) }));
+  const all = clean.flatMap(s => s.data);
   const max = Math.max(...all, 1);
   const min = Math.min(...all, 0);
-  const n = Math.max(...series.map(s => s.data.length), 2);
+  const n = Math.max(...clean.map(s => s.data.length), 2);
   const x = (i: number) => PAD + (i * (W - PAD * 2)) / (n - 1);
-  const y = (v: number) => height - PAD - ((v - min) / (max - min || 1)) * (height - PAD * 2);
+  const y = (v: number): number => {
+    const nv = Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : 0;
+    return height - PAD - ((nv - min) / (max - min || 1)) * (height - PAD * 2);
+  };
 
   return (
     <svg viewBox={`0 0 ${W} ${height}`} className="w-full" role="img" aria-label="Gráfico de líneas">
       <defs>
-        {series.map((s, si) => (
+        {clean.map((s, si) => (
           <linearGradient key={si} id={`lg-line-${si}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={s.color} stopOpacity="0.3" />
             <stop offset="100%" stopColor={s.color} stopOpacity="0" />
@@ -84,7 +88,7 @@ export const LineChart: React.FC<{
           stroke="hsl(var(--border))" strokeWidth={0.8} strokeDasharray="3 3" />
       ))}
       {/* Area + línea animada */}
-      {series.map((s, si) => {
+      {clean.map((s, si) => {
         const pts = s.data.map((v, i) => [x(i), y(v)] as [number, number]);
         const visiblePts = pts.slice(0, Math.max(2, Math.round(pts.length * p)));
         const line = visiblePts.map(([px, py], i) => `${i === 0 ? 'M' : 'L'} ${px} ${py}`).join(' ');
@@ -328,13 +332,16 @@ export const ConfigurableLineArea: React.FC<{
 }> = React.memo(({ series: rawSeries, labels, type = 'line', palette, height = H }) => {
   const p = useAnimIn(800);
   const [tip, setTip] = useState<TooltipState>({ x: 0, y: 0, content: '', visible: false });
-  const ser = rawSeries.map((s, i) => ({ ...s, color: pickColor(i, palette, s.color) }));
-  const all = ser.flatMap(s => s.data);
+  const ser = rawSeries.map((s, i) => ({ ...s, color: pickColor(i, palette, s.color), data: s.data.filter((v): v is number => Number.isFinite(v)).map(v => Math.max(0, Math.min(100, v))) }));
+  const all = ser.flatMap(s => s.data).filter((v): v is number => Number.isFinite(v)).map(v => Math.max(0, Math.min(100, v)));
   const max = Math.max(...all, 1);
   const min = Math.min(...all, 0);
   const n = Math.max(...ser.map(s => s.data.length), 2);
   const x = (i: number) => PAD + (i * (W - PAD * 2)) / (n - 1);
-  const y = (v: number) => height - PAD - ((v - min) / (max - min || 1)) * (height - PAD * 2);
+  const y = (v: number): number => {
+    const nv = Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : 0;
+    return height - PAD - ((nv - min) / (max - min || 1)) * (height - PAD * 2);
+  };
   const isArea = type === 'area';
 
   return (

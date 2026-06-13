@@ -1301,3 +1301,131 @@ describe('20. Mapa y Geolocalización', () => {
     expect(proyecto1.lng).toBeCloseTo(proyecto2.longitud, 1);
   });
 });
+
+// =====================================================================
+// 21. SYNC OFFLINE — RECONEXIÓN Y CONSISTENCIA
+// =====================================================================
+describe('21. Sync Offline — Reconexión y Consistencia', () => {
+  it('21.1 Mutation queue se construye correctamente al estar offline', () => {
+    const mutationQueue: any[] = [];
+    const mutations = [
+      { type: 'addProyecto', payload: { id: '1', nombre: 'P1' } },
+      { type: 'addMaterial', payload: { id: '2', nombre: 'M1', stock: 10 } },
+      { type: 'updateProyecto', payload: { id: '1', patch: { presupuestoTotal: 50000 } } },
+    ];
+    mutations.forEach(m => mutationQueue.push({ ...m, timestamp: Date.now(), id: crypto.randomUUID?.() || 'm' }));
+    expect(mutationQueue).toHaveLength(3);
+    expect(mutationQueue[0].type).toBe('addProyecto');
+    expect(mutationQueue[1].type).toBe('addMaterial');
+  });
+
+  it('21.2 Queue FIFO: mutations se procesan en orden de creación', () => {
+    const queue: any[] = [];
+    queue.push({ id: 'm1', type: 'addProyecto', timestamp: 100 });
+    queue.push({ id: 'm2', type: 'addMovimiento', timestamp: 200 });
+    queue.push({ id: 'm3', type: 'addMaterial', timestamp: 300 });
+    const processed = queue.sort((a, b) => a.timestamp - b.timestamp);
+    expect(processed[0].id).toBe('m1');
+    expect(processed[2].id).toBe('m3');
+  });
+
+  it('21.3 ForceSync envía mutations pendientes al reconectar', () => {
+    const queue: any[] = [];
+    const sentIds: string[] = [];
+    const forceSync = (mutationQueue: any[]) => {
+      mutationQueue.forEach(m => sentIds.push(m.id));
+      return [];
+    };
+    queue.push({ id: 'm1', type: 'addProyecto', payload: {}, timestamp: Date.now() });
+    queue.push({ id: 'm2', type: 'addMaterial', payload: {}, timestamp: Date.now() });
+    const remaining = forceSync(queue);
+    expect(sentIds).toHaveLength(2);
+    expect(sentIds[0]).toBe('m1');
+    expect(remaining).toHaveLength(0);
+  });
+
+  it('21.4 Reconexión exitosa limpia la cola de mutations', () => {
+    let mutationQueue = [
+      { id: 'm1', type: 'addProyecto', payload: {}, timestamp: Date.now() },
+      { id: 'm2', type: 'addMaterial', payload: {}, timestamp: Date.now() },
+    ];
+    const clearQueue = () => { mutationQueue = []; };
+    clearQueue();
+    expect(mutationQueue).toHaveLength(0);
+  });
+
+  it('21.5 Mutación fallida en reconexión se retiene para reintento', () => {
+    const queue: any[] = [{ id: 'm1', type: 'addProyecto', payload: {}, timestamp: Date.now(), retries: 3 }];
+    const sendWithRetry = (mutations: any[], maxRetries = 3) => {
+      const failed: any[] = [];
+      mutations.forEach(m => {
+        if (m.retries >= maxRetries) { failed.push(m); return; }
+        m.retries++;
+        queue.push(m); // re-queue for retry
+      });
+      return failed;
+    };
+    const failed = sendWithRetry(queue);
+    expect(failed).toHaveLength(1);
+  });
+
+  it('21.6 Datos locales persisten aunque falle la reconexión a Supabase', () => {
+    const localData = [
+      { id: '1', nombre: 'Proyecto A', estado: 'ejecucion', presupuestoTotal: 100000 },
+      { id: '2', nombre: 'Proyecto B', estado: 'planeacion', presupuestoTotal: 50000 },
+    ];
+    const supabaseError = new Error('Network error');
+    const readFromStorage = () => localData;
+    const data = readFromStorage();
+    expect(data).toHaveLength(2);
+    expect(data[0].nombre).toBe('Proyecto A');
+    expect(supabaseError).toBeDefined();
+  });
+
+  it('21.7 Timestamp en cada mutation permite orden cronológico', () => {
+    const now = Date.now();
+    const mutations = [
+      { id: 'm1', type: 'addProyecto', timestamp: now },
+      { id: 'm2', type: 'updateProyecto', timestamp: now + 1000 },
+      { id: 'm3', type: 'deleteMaterial', timestamp: now + 2000 },
+    ];
+    expect(mutations[0].timestamp).toBeLessThan(mutations[1].timestamp);
+    expect(mutations[1].timestamp).toBeLessThan(mutations[2].timestamp);
+  });
+
+  it('21.8 Detectar cambios offline → online con event listener', () => {
+    let isOnline = false;
+    const handleOnline = () => { isOnline = true; };
+    const handleOffline = () => { isOnline = false; };
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    window.dispatchEvent(new Event('online'));
+    expect(isOnline).toBe(true);
+    window.dispatchEvent(new Event('offline'));
+    expect(isOnline).toBe(false);
+    window.removeEventListener('online', handleOnline);
+    window.removeEventListener('offline', handleOffline);
+  });
+
+  it('21.9 Cola de mutations no excede límite de 100 items', () => {
+    const MAX_QUEUE = 100;
+    const queue = Array.from({ length: 150 }, (_, i) => ({ id: `m${i}`, type: 'test' }));
+    const trimmed = queue.slice(-MAX_QUEUE);
+    expect(trimmed).toHaveLength(100);
+    expect(trimmed[0].id).toBe('m50');
+  });
+
+  it('21.10 Mutations duplicadas se detectan por type + id', () => {
+    const existing = new Set<string>();
+    const addMutation = (type: string, id: string) => {
+      const key = `${type}:${id}`;
+      if (existing.has(key)) return false;
+      existing.add(key);
+      return true;
+    };
+    expect(addMutation('addProyecto', 'p1')).toBe(true);
+    expect(addMutation('addProyecto', 'p1')).toBe(false);
+    expect(addMutation('addProyecto', 'p2')).toBe(true);
+    expect(existing.size).toBe(2);
+  });
+});

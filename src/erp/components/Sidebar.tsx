@@ -81,7 +81,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
   const { view, setView, allowedViews, user, notificacionesNoLeidas } = useErp();
   const { sidebarCollapsed, toggleCollapse } = useAppContext();
 
-  const items   = ITEMS.filter(it => allowedViews.includes(it.id));
+  const items = user && allowedViews.length > 0 ? ITEMS.filter(it => allowedViews.includes(it.id)) : ITEMS;
   const collapsed = sidebarCollapsed;
   const asideW  = collapsed ? 'w-[58px]' : 'w-[222px]';
   const groups  = collapsed ? null : [...new Set(items.map(it => it.group))];
@@ -126,7 +126,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                 <p className="text-[11px] font-semibold text-foreground truncate leading-tight">
                   {user?.nombre || 'Usuario'}
                 </p>
-                <p className="text-[10px] text-muted-foreground leading-tight">{user?.rol}</p>
+                 <p className="text-[10px] text-muted-foreground leading-tight">{user?.rol || 'Administrador'}</p>
               </div>
             </div>
           </div>

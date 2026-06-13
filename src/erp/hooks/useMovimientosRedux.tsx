@@ -1,30 +1,16 @@
-import { useSelector, useDispatch } from 'react-redux';
-import {
-  fetchMovimientos,
-  addMovimiento,
-  updateMovimiento,
-  deleteMovimiento,
-} from '../../store';
+import { useErp } from '../store';
 
 export const useMovimientosRedux = () => {
-  const dispatch = useDispatch();
-  const movimientos = useSelector((state: any) => state.movimientos.list);
-  const status = useSelector((state: any) => state.movimientos.status);
-  const error = useSelector((state: any) => state.movimientos.error);
-
-  const load = () => dispatch(fetchMovimientos());
-  const create = (movimiento: any) => dispatch(addMovimiento(movimiento));
-  const update = (id: string, patch: any) => dispatch(updateMovimiento({ id, ...patch }));
-  const remove = (id: string) => dispatch(deleteMovimiento(id));
+  const { movimientos, addMovimiento, updateMovimiento, deleteMovimiento } = useErp();
 
   return {
     movimientos,
-    status,
-    error,
-    load,
-    create,
-    update,
-    remove,
+    status: 'succeeded' as const,
+    error: null,
+    load: () => {},
+    create: addMovimiento,
+    update: (id: string, patch: any) => updateMovimiento(id, patch),
+    remove: deleteMovimiento,
   };
 };
 

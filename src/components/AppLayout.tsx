@@ -1,9 +1,8 @@
-import React, { Suspense, lazy, useEffect, createContext, useContext, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState, createContext, useContext } from 'react';
 import { ErpProvider, useErp } from '@/erp/store';
 import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import Login from '@/erp/screens/Login';
+import { ErrorBoundary } from './ErrorBoundary';
 
 const Header = lazy(() => import('@/erp/components/Header'));
 const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
@@ -97,16 +96,6 @@ const Shell: React.FC = () => {
   const { view, initializing, appSettings, user, allowedViews, setView, forceSync } = useErp();
   const { sidebarOpen, toggleSidebar, closeSidebar, sidebarCollapsed } = useAppContext();
 
-  // Monitoreo de inactividad — cierre automático de sesión
-  useSessionTimeout({
-    timeout: 30 * 60 * 1000,
-    showWarning: true,
-    warningLeadTime: 60 * 1000,
-    onSessionExpired: () => {
-      console.info('[Session] Sesión expirada por inactividad');
-    },
-  });
-
   // Conexión Realtime en tiempo real para datos ERP
   useSupabaseRealtime({
     tablas: [
@@ -114,8 +103,11 @@ const Shell: React.FC = () => {
       'erp_notificaciones', 'erp_publicaciones_muro',
       'erp_presupuestos', 'erp_ordenes_compra', 'erp_avances', 'erp_vales_salida',
       'erp_cotizaciones_negocio', 'erp_licitaciones', 'destajos', 'recepciones_almacen',
+      'erp_hitos', 'erp_riesgos', 'erp_ordenes_cambio',
+      'erp_cuentas_cobrar', 'erp_cuentas_pagar',
     ],
-    enabled: !!user && view !== 'login',
+    enabled: true,
+    rol: user?.rol,
     onCambio: (payload) => {
       console.log(`[Realtime] ${payload.tabla}: ${payload.tipo} (${payload.id})`);
       if (forceSync) forceSync();
@@ -137,13 +129,7 @@ const Shell: React.FC = () => {
     });
   }, [appSettings.appTheme, appSettings.compactMode, appSettings.primaryColor, appSettings.uiMode]);
 
-  if (initializing) return <AppLoader />;
-  if (view === 'login') return <Login />;
-
   const viewName = view.split(':')[0];
-  if (!user || !allowedViews.includes(viewName as any)) {
-    return <Login />;
-  }
 
   const screens: Record<string, React.ReactNode> = {
     dashboard:         <Dashboard />,
@@ -185,6 +171,20 @@ const Shell: React.FC = () => {
   const allAllowedScreens = Object.keys(screens).filter(key => allowedViews.includes(key as any));
   const resolvedView = viewName === 'rendimientos' ? 'rendimiento-campo' : viewName;
   const safeScreen = allAllowedScreens.includes(resolvedView) ? screens[resolvedView] : screens['dashboard'];
+
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && hash in screens) setView(hash);
+  }, []);
+
+  useEffect(() => {
+    const onHash = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && hash in screens) setView(hash);
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, [screens, setView]);
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">

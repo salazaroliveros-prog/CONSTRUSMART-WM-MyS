@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useEffect, useRef, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useMemo, useState } from 'react';
 import { z } from 'zod';
-import { useAuth } from '@/hooks/useAuth';
 import { scheduleHealthCheck } from '@/lib/store-health';
 import { useErpStore, fetchInitialData } from './zustandStore';
 import {
@@ -10,7 +9,7 @@ import {
   bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema, muroSchema,
   notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
   licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
-  destajoSchema, recepcionAlmacenSchema, ventaPaqueteSchema, valeSalidaSchema,
+  destajoSchema, recepcionAlmacenSchema, valeSalidaSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical } from './utils';
 import { hasSupabase, assertSupabase } from '@/lib/supabase';
@@ -150,27 +149,14 @@ const MUTATION_TABLE_MAP: Record<string, string> = {
   addLiberacion:'erp_liberaciones_partida',updateLiberacion:'erp_liberaciones_partida',
   addNotificacion:'erp_notificaciones',markNotificacionLeida:'erp_notificaciones',
   addSeguimiento:'erp_seguimiento_evm',updateSeguimiento:'erp_seguimiento_evm',deleteSeguimiento:'erp_seguimiento_evm',
-  addVentaPaquete:'erp_ventas_paquetes',
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const getInitialView = (): string => {
-    try {
-      const url = import.meta.env.VITE_SUPABASE_URL;
-      const key = import.meta.env.VITE_SUPABASE_KEY;
-      if (!url || !key) return 'login';
-      const hasSession = Object.keys(localStorage).some(k => k.startsWith('sb-') && k.includes('-auth-token'));
-      if (hasSession) return 'dashboard';
-    } catch {}
-    return 'login';
-  };
+  const [view, setView] = useState<string>('dashboard');
+  const [initializing, setInitializing] = useState(true);
+  const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
-  const [view, setView] = React.useState<string>(getInitialView);
-  const [initializing, setInitializing] = React.useState(true);
-  const [isOnline, setIsOnline] = React.useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
-  const auth = useAuth();
-  const user = auth.user as any;
-  const authError = auth.error;
+  const user = useMemo(() => ({ id: 'local', email: 'local@construsmart', nombre: 'Usuario Local', rol: 'Administrador' }), []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -181,22 +167,16 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => { window.removeEventListener('online', goOnline); window.removeEventListener('offline', goOffline); };
   }, []);
 
-  useEffect(() => { if (auth.loading === false && initializing) setInitializing(false); }, [auth.loading, initializing]);
-  useEffect(() => { if (!initializing) return; const t = setTimeout(() => setInitializing(false), 2000); return () => clearTimeout(t); }, [initializing]);
+  useEffect(() => { if (initializing) setInitializing(false); }, [initializing]);
 
   const fetchedRef = useRef(false);
   useEffect(() => {
-    if (auth.user) {
-      if (view === 'login') setView('dashboard');
-      if (initializing) setInitializing(false);
-      if (!fetchedRef.current) {
-        fetchedRef.current = true;
-        fetchInitialData();
-      }
-      return;
+    if (initializing) setInitializing(false);
+    if (!fetchedRef.current) {
+      fetchedRef.current = true;
+      fetchInitialData();
     }
-    if (auth.error) { console.warn('[Store] auth.error:', auth.error); if (initializing) setInitializing(false); }
-  }, [auth.user, auth.error, initializing, view]);
+  }, [initializing]);
 
   const initializedRef = useRef(false);
   useEffect(() => {
@@ -219,7 +199,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       riesgos: loadFromStorage(BASE_STORAGE_KEY + '_riesgos', riesgoSchema),
       licitaciones: loadFromStorage(BASE_STORAGE_KEY + '_licitaciones', licitacionSchema),
       cotizacionesNegocio: loadFromStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', cotizacionSchema),
-      ventasPaquetes: loadFromStorage(BASE_STORAGE_KEY + '_ventasPaquetes', ventaPaqueteSchema),
+
       bitacora: loadFromStorage(BASE_STORAGE_KEY + '_bitacora', bitacoraSchema),
       pruebas: loadFromStorage(BASE_STORAGE_KEY + '_pruebas', pruebaSchema),
       ncs: loadFromStorage(BASE_STORAGE_KEY + '_no_conformidades', noConformidadSchema),
@@ -353,9 +333,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             ordenes: s.ordenes, proveedores: s.proveedores, eventos: s.eventos, presupuestos: s.presupuestos,
             avances: s.avances, cuentasCobrar: s.cuentasCobrar, cuentasPagar: s.cuentasPagar,
             ordenesCambio: s.ordenesCambio, hitos: s.hitos, riesgos: s.riesgos, licitaciones: s.licitaciones,
-            cotizacionesNegocio: s.cotizacionesNegocio, ventasPaquetes: s.ventasPaquetes, bitacora: s.bitacora,
+            cotizacionesNegocio: s.cotizacionesNegocio, bitacora: s.bitacora,
             pruebas: s.pruebas, no_conformidades: s.ncs, vales_salida: s.valesSalida,
-            seguimiento_evm: s.seguimientoEVM, incidentes: s.incidentes, publicaciones_muro: s.publicacionesMuro,
+            seguimiento_evm: s.seguimientoEVM, incidentes: s.incidentes, publicacionesMuro: s.publicacionesMuro,
             liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
             activos: s.activos, cuadros: s.cuadros, pagos_proveedor: s.pagosProveedor,
             destajos: s.destajos, recepciones: s.recepciones,
@@ -381,14 +361,14 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return user ? (ALLOWED[rt[(user.rol as string) || 'Residente']] || ALLOWED['Residente']) : [];
   }, [user]);
 
+  const notificacionesNoLeidas = useErpStore(s => s.notificaciones.filter(n => !n.leida).length);
+
   const ctxValue = useMemo<any>(() => ({
-    view, setView, user, initializing, isOnline, authError,
-    signIn: (e: string, p: string) => auth.signIn(e, p),
-    signUp: (e: string, p: string, n: string, r: Rol) => auth.signUp(e, p, n, r),
-    signInWithGoogle: () => auth.signInWithGoogle(),
-    logout: () => auth.logout(),
+    view, setView, user, initializing, isOnline, notificacionesNoLeidas,
+    signInWithGoogle: () => Promise.resolve(),
+    logout: () => {},
     allowedViews, forceSync,
-  }), [view, user, initializing, isOnline, authError, allowedViews, auth, forceSync]);
+  }), [view, user, initializing, isOnline, notificacionesNoLeidas, allowedViews, forceSync]);
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
 };
