@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useState, createContext, useContext } from 'react';
+import React, { Suspense, lazy, useEffect, useState, createContext, useContext, useMemo, useRef } from 'react';
 import { ErpProvider, useErp } from '@/erp/store';
 import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
@@ -135,7 +135,9 @@ const Shell: React.FC = () => {
 
   const viewName = view.split(':')[0];
 
-  const screens: Record<string, React.ReactNode> = {
+  const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','rendimientos'] as const;
+
+  const screens = useMemo<Record<string, React.ReactNode>>(() => ({
     dashboard:         <Dashboard />,
     proyectos:         <Proyectos />,
     presupuestos:      <Presupuestos />,
@@ -169,26 +171,31 @@ const Shell: React.FC = () => {
     'cuentas-cobrar':  <CuentasCobrar />,
     'cuentas-pagar':   <CuentasPagar />,
     cotizaciones:      <Cotizaciones />,
-  };
+  }), []);
 
-  // P3: Solo renderizar screens permitidas para el rol
-  const allAllowedScreens = Object.keys(screens).filter(key => allowedViews.includes(key as any));
-  const resolvedView = viewName === 'rendimientos' ? 'rendimiento-campo' : viewName;
-  const safeScreen = allAllowedScreens.includes(resolvedView) ? screens[resolvedView] : screens['dashboard'];
+  const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter(key => allowedViews.includes(key as any)), [allowedViews]);
+
+  const setViewRef = useRef<ReturnType<typeof setView>>(setView);
+  setViewRef.current = setView;
+  const SCREEN_KEYS_STR = SCREEN_KEYS.join(',') as string;
+  const SCREEN_SET = useMemo(() => new Set<string>(SCREEN_KEYS as readonly string[]), []);
 
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
-    if (hash && hash in screens) setView(hash);
+    if (hash && SCREEN_SET.has(hash as string)) setViewRef.current(hash);
   }, []);
 
   useEffect(() => {
     const onHash = () => {
       const hash = window.location.hash.replace('#', '');
-      if (hash && hash in screens) setView(hash);
+      if (hash && SCREEN_SET.has(hash as string)) setViewRef.current(hash);
     };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
-  }, [screens, setView]);
+  }, [SCREEN_SET]);
+
+  const resolvedView = viewName === 'rendimientos' ? 'rendimiento-campo' : viewName;
+  const safeScreen = allAllowedScreens.includes(resolvedView) ? screens[resolvedView] : screens['dashboard'];
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
