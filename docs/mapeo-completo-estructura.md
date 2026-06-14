@@ -8,12 +8,16 @@
 
 ### 1.1 Dashboard (`Dashboard.tsx`) — 702 líneas
 **KPIs (4 tarjetas superiores):**
-| KPI | Fórmula | Dependencia | Valor sin datos |
-|-----|---------|-------------|-----------------|
-| Proyectos activos | `proyectos.filter(p => p.estado === 'ejecucion').length` | `proyectos[]` | `"0"` |
-| Presupuesto total | `proyectosSel.reduce((a,b) => a + b.presupuestoTotal, 0)` | `proyectos[]`, `selectedProyectoId` | `"Q0"` |
-| Margen de utilidad | `promedio((montoContrato - presupuestoTotal)/montoContrato*100)` | `proyectos[]` | `"0%"` |
-| Desviación | `promedio(avanceFinanciero - avanceFisico)` | `proyectos[]` | `"0%"` |
+| KPI | Fórmula | Dependencia | Valor sin datos (hasData=false) | Valor con datos vacíos |
+|-----|---------|-------------|--------------------------------|------------------------|
+| Proyectos | `activos.length` (concerted) | `proyectos[]` | `GaugeKpi: "Sin datos en Supabase"` | `"0"` (gauges animados) |
+| Presupuesto | `sum(presupuestoTotal)` | `proyectos[]`, `selectedProyectoId` | `GaugeKpi: "Sin datos en Supabase"` | `"Q 0"` |
+| Margen utilidad | `promedio((montoContrato - presupuestoTotal)/montoContrato*100)` | `proyectos[]`, `materiales[]` | `GaugeKpi: "Sin datos en Supabase"` | `"0.0%"` (gauges animados) |
+| Desviación | `promedio(avanceFinanciero - avanceFisico)` | `proyectos[]` | `GaugeKpi: "Sin datos en Supabase"` | `"0.0%"` (gauges animados) |
+
+**hasData**: `proyectos.length > 0 || movimientos.length > 0 || materiales.length > 0`
+
+**Componente:** `GaugeKpi.tsx` — Semicirculo animado con zonas de color, agujas animadas, sparklines, hover glow.
 
 **Gráficas:**
 | Componente | Tipo | Dependencia | Estado vacío |
