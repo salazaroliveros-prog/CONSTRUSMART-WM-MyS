@@ -2,12 +2,12 @@ import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next';
 import { useErp, type View } from '../store';
 import { fmtQ, fmtPct } from '../utils';
-import KpiCard from '../components/KpiCard';
+import GaugeKpi from '../components/GaugeKpi';
 import MovimientoForm from '../components/MovimientoForm';
 import AlertasPanel from '../components/AlertasPanel';
 import CompactCalendar from '../components/CompactCalendar';
 import { BarChart, Donut, Progress, Gauge } from '../components/Charts';
-import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, Wallet, Warehouse, ClipboardCheck, Activity, TrendingDown, Download, Zap, Repeat, Database, BarChart3 } from 'lucide-react';
+import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, Wallet, Warehouse, ClipboardCheck, Activity, TrendingDown, Download, Zap, Repeat, Database, BarChart3, Shield } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
 import { CARD, CARD_TITLE } from '../ui';
 import ProyectoFilter from '../components/ProyectoFilter';
@@ -56,7 +56,6 @@ function useOnlineStatus() {
 }
 
 const Dashboard: React.FC = () => {
-  const { t } = useTranslation();
   const ctx = useErp();
   const online = useOnlineStatus();
   const dashRef = useRef<HTMLDivElement>(null);
@@ -71,6 +70,8 @@ const Dashboard: React.FC = () => {
     mutationQueue, syncMessage, syncStatus, lastSyncedAt, syncError, isOnline,
     cotizacionesNegocio, notificacionesNoLeidas,
   } = ctx;
+
+  const hasData = proyectos.length > 0 || movimientos.length > 0 || materiales.length > 0;
 
   const s1 = useStagger(0);
   const s2 = useStagger(100);
@@ -350,24 +351,70 @@ const Dashboard: React.FC = () => {
         <ProyectoFilter value={selectedProyectoId ?? ''} onChange={(id) => setSelectedProyectoId(id || null)} proyectos={proyectos} />
       </div>
 
-      {/* KPI Row */}
-      {loading
-        ? <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-2 flex-shrink-0">
-            {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
-          </div>
-        : <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-2 flex-shrink-0">
-            {[
-              { label: t('dashboard.proyectos'), value: String(activos.length), icon: <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />, trend: `${proyectos.length} total`, accent: 'from-blue-500 to-indigo-500', spark: proyTrend, up: true },
-              { label: t('dashboard.presupuesto'), value: fmtQ(presupuestoTotal), icon: <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />, trend: `${proyectosSel.length} proy.`, accent: 'from-orange-500 to-amber-500', spark: gastoTrend, up: true },
-              { label: t('dashboard.margen_util'), value: fmtPct(margenProm), icon: <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />, trend: margenProm > 0 ? t('dashboard.sano') : t('dashboard.riesgo'), accent: 'from-emerald-500 to-teal-500', spark: undefined, up: margenProm > 0 },
-              { label: t('dashboard.desviacion'), value: fmtPct(desviacion), icon: <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />, trend: desviacion > 0 ? t('dashboard.riesgo') : t('dashboard.sano'), accent: Math.abs(desviacion) > 15 ? 'from-red-500 to-rose-500' : 'from-amber-500 to-yellow-500', spark: undefined, up: desviacion <= 0 },
-            ].map((kpi, i) => (
-              <div key={i} style={{ opacity: staggerArr[i], transform: `translateY(${(1 - staggerArr[i]) * 20}px)`, transition: 'all 0.5s ease-out' }}>
-                <KpiCard label={kpi.label} value={kpi.value} icon={kpi.icon} trend={kpi.trend} trendUp={kpi.up} accent={kpi.accent} sparkData={kpi.spark} />
-              </div>
-            ))}
-          </div>
-      }
+      {/* ─── KPI Row: Velocímetros animados ────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-2 flex-shrink-0" style={{ opacity: s1, transform: `translateY(${(1 - s1) * 12}px)`, transition: 'all 0.4s ease-out' }}>
+        <GaugeKpi
+          label={t('dashboard.proyectos')}
+          sublabel={`${activos.length} activos · ${proyectos.length} total`}
+          value={activos.length}
+          displayValue={String(activos.length)}
+          max={Math.max(proyectos.length, 1)}
+          color="from-blue-500 to-indigo-500"
+          icon={<Building2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+          hasData={hasData}
+          delay={0}
+          sparkData={proyTrend}
+          zones={[
+            { from: 0, to: Math.max(proyectos.length, 1) * 0.3, color: '#6366f1' },
+            { from: Math.max(proyectos.length, 1) * 0.3, to: Math.max(proyectos.length, 1) * 0.7, color: '#3b82f6' },
+            { from: Math.max(proyectos.length, 1) * 0.7, to: Math.max(proyectos.length, 1), color: '#10b981' },
+          ]}
+        />
+        <GaugeKpi
+          label={t('dashboard.presupuesto')}
+          sublabel={fmtQ(presupuestoTotal)}
+          value={presupuestoTotal}
+          displayValue={presupuestoTotal > 0 ? `Q ${(presupuestoTotal / 1000000).toFixed(1)}M` : 'Q 0'}
+          max={Math.max(presupuestoTotal * 1.5, 1000000)}
+          color="from-orange-500 to-amber-500"
+          icon={<DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+          hasData={hasData}
+          delay={100}
+          sparkData={gastoTrend}
+        />
+        <GaugeKpi
+          label={t('dashboard.margen_util')}
+          sublabel={margenProm > 0 ? t('dashboard.sano') : t('dashboard.riesgo')}
+          value={Math.max(0, margenProm)}
+          displayValue={fmtPct(margenProm)}
+          max={50}
+          color="from-emerald-500 to-teal-500"
+          icon={<TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+          hasData={hasData && presupuestoTotal > 0}
+          delay={200}
+          zones={[
+            { from: 0, to: 10, color: '#ef4444' },
+            { from: 10, to: 25, color: '#f59e0b' },
+            { from: 25, to: 50, color: '#10b981' },
+          ]}
+        />
+        <GaugeKpi
+          label={t('dashboard.desviacion')}
+          sublabel={Math.abs(desviacion) > 15 ? t('dashboard.riesgo') : t('dashboard.sano')}
+          value={Math.max(0, Math.min(100, 50 + desviacion * 2))}
+          displayValue={fmtPct(desviacion)}
+          max={100}
+          color={Math.abs(desviacion) > 15 ? 'from-red-500 to-rose-500' : 'from-amber-500 to-yellow-500'}
+          icon={<AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+          hasData={hasData && proyectosSel.length > 0}
+          delay={300}
+          zones={[
+            { from: 0, to: 30, color: '#10b981' },
+            { from: 30, to: 70, color: '#f59e0b' },
+            { from: 70, to: 100, color: '#ef4444' },
+          ]}
+        />
+      </div>
 
       {/* ─── ROW 2: Presupuesto + Avance + Recursos ────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-1.5 sm:gap-2 mb-2 flex-shrink-0">
