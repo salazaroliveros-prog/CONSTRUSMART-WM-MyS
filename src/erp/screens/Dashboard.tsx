@@ -324,7 +324,7 @@ const Dashboard: React.FC = () => {
     </div>
   );
 
-  const loading = proyectos.length === 0;
+  const loading = ctx.initializing || false;
   const avanceColor = avanceProm < 30 ? 'text-destructive' : avanceProm < 70 ? 'text-warning' : 'text-success';
 
   return (
