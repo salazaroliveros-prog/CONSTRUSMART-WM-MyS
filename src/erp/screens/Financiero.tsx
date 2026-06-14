@@ -120,7 +120,7 @@ const Financiero: React.FC = () => {
           <div className="flex items-center gap-3">
             <Donut size={130} data={porCategoria.length ? porCategoria : [{ label: '-', value: 1, color: '#e2e8f0' }]} />
             <div className="text-[11px] space-y-1 flex-1 max-h-32 overflow-y-auto">
-              {porCategoria.map(c => <div key={c.label} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full" style={{ background: c.color }} />{c.label}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>)}
+              {porCategoria.length > 0 ? porCategoria.map(c => <div key={c.label} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full" style={{ background: c.color }} />{c.label}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>) : <p className="text-muted-foreground text-center py-2">Sin gastos registrados</p>}
             </div>
           </div>
         </div>
@@ -145,7 +145,7 @@ const Financiero: React.FC = () => {
                 <div className="overflow-x-auto">
                 <table className="w-full text-xs min-w-[360px]">
                   <tbody>
-                    {lista.map(m => (
+                    {lista.length > 0 ? lista.map(m => (
                       <tr key={m.id} className="border-b border-border/50 hover:bg-muted/40 transition-colors">
                         <td className="p-2"><div className="font-semibold text-foreground">{m.descripcion}</div><div className="text-muted-foreground">{CATEGORIA_LABEL[m.categoria] || m.categoria} · {proyectos.find(p => p.id === m.proyectoId)?.nombre || 'Operativo'} · {m.fecha}</div></td>
                         <td className={`p-2 text-right font-bold ${m.tipo === 'ingreso' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{m.tipo === 'ingreso' ? '+' : '-'}{fmtQ(m.costoTotal ?? m.monto)}</td>
@@ -156,7 +156,7 @@ const Financiero: React.FC = () => {
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    )) : <tr><td colSpan={3} className="p-4 text-center text-muted-foreground">No hay movimientos registrados</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -168,9 +168,9 @@ const Financiero: React.FC = () => {
             <table className="w-full text-xs min-w-[320px]">
               <thead className="text-muted-foreground"><tr><th className="text-left pb-1">Proyecto</th><th className="text-right">Ingresos</th><th className="text-right">Egresos</th><th className="text-right">Margen</th></tr></thead>
               <tbody>
-                {centrosCosto.map(c => (
+                {centrosCosto.length > 0 ? centrosCosto.map(c => (
                   <tr key={c.nombre} className="border-b border-border/40"><td className="py-1.5 text-foreground">{c.nombre}</td><td className="text-right text-emerald-600 dark:text-emerald-400">{fmtQ(c.ing)}</td><td className="text-right text-red-500 dark:text-red-400">{fmtQ(c.gas)}</td><td className={`text-right font-bold ${c.margen >= 0 ? 'text-foreground' : 'text-red-600 dark:text-red-400'}`}>{fmtQ(c.margen)}</td></tr>
-                ))}
+                )) : <tr><td colSpan={4} className="p-4 text-center text-muted-foreground">Sin proyectos registrados</td></tr>}
               </tbody>
             </table>
           </div>

@@ -11,7 +11,7 @@ import {
   licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
   destajoSchema, recepcionAlmacenSchema, valeSalidaSchema,
 } from './store/schemas';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical } from './utils';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical, toSnake } from './utils';
 import { hasSupabase, assertSupabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
 import type { AppSettings, Mutation } from './store';
@@ -71,6 +71,14 @@ export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | '
 export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeguero';
 export type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
 
+export const clearAllData = () => {
+  if (typeof window !== 'undefined' && useErpStore.getState().clearAllData) {
+    useErpStore.getState().clearAllData();
+    // Recargar la página para reiniciar todos los componentes desde cero
+    window.location.reload();
+  }
+};
+
 export interface AppSettings {
   uiMode: UIMode; appTheme: AppThemeMode; primaryColor: string; language: 'es' | 'en';
   dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD'; currency: 'GTQ' | 'USD';
@@ -114,7 +122,7 @@ export const useErp = () => {
 };
 
 const MUTATION_TABLE_MAP: Record<string, string> = {
-  addProyecto:'erp_proyectos',updateProyecto:'erp_proyectos',deleteProyecto:'erp_proyectos',
+  addProyecto:'erp_proyectos',updateProyecto:'erp_proyectos',deleteProyecto:'erp_proyectos',clearProyectos:'erp_proyectos',
   addMovimiento:'erp_movimientos',updateMovimiento:'erp_movimientos',deleteMovimiento:'erp_movimientos',
   addEmpleado:'erp_empleados',updateEmpleado:'erp_empleados',deleteEmpleado:'erp_empleados',
   addMaterial:'erp_materiales',updateMaterial:'erp_materiales',deleteMaterial:'erp_materiales',
@@ -252,7 +260,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (queue.length === 0 || !isOnlineRef.current || !hasSupabase) return;
 
       syncCooldownRef.current = true;
-      useErpStore.setState({ syncMessage: `Sincronizando ${queue.length} cambios...` });
+      useErpStore.setState({ syncMessage: `Sincronizando ${queue.length} cambios...`, syncStatus: queue.length > 0 ? 'queued' : 'loading', syncError: undefined });
 
       const supabase = assertSupabase();
       const processed: string[] = [];
@@ -263,9 +271,16 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const table = MUTATION_TABLE_MAP[mutation.type];
           if (!table) { processed.push(mutation.id); continue; }
 
-          const payload = mutation.payload;
+          const rawPayload = sanitizarObjeto(mutation.payload);
+          const payload = toSnake(rawPayload);
 
-          if (mutation.type.startsWith('add')) {
+          if (mutation.type === 'clearProyectos') {
+            const ids = (payload.ids as string[] | undefined) || [];
+            if (ids.length) {
+              const { error } = await supabase.from(table).delete().in('id', ids);
+              if (error) throw error;
+            }
+          } else if (mutation.type.startsWith('add')) {
             const { error } = await supabase.from(table).insert(payload);
             if (error) throw error;
           } else if (mutation.type.startsWith('update') || mutation.type.startsWith('mark')) {
@@ -292,6 +307,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
           processed.push(mutation.id);
         } catch (err) {
+          const error = err instanceof Error ? err.message : String(err);
           safeLogger.warn(`[forceSync] Error en ${mutation.type}:`, err);
           if (mutation.retryCount >= 3) {
             processed.push(mutation.id);
@@ -312,7 +328,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           ? `${processed.length} cambios sincronizados en ${Object.keys(MUTATION_TABLE_MAP).length} tablas.`
           : '';
         const errMsg = failed.length > 0 ? ` ${failed.length} fallaron` : '';
-        useErpStore.setState({ syncMessage: msg + errMsg });
+        useErpStore.setState({ syncMessage: msg + errMsg, syncStatus: failed.length > 0 ? 'error' : 'synced', syncError: failed.length > 0 ? 'Algunos cambios fallaron' : undefined, lastSyncedAt: new Date().toISOString() });
+        if (processed.length > 0) await fetchInitialData();
         if (msg) setTimeout(() => useErpStore.setState({ syncMessage: '' }), 3000);
       }
     };

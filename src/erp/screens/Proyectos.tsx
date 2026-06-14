@@ -58,7 +58,7 @@ const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado
 
 const Proyectos: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, addProyecto, updateProyecto, deleteProyecto } = useErp();
+  const { proyectos, addProyecto, updateProyecto, deleteProyecto, clearProyectos } = useErp();
   const [show, setShow] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
@@ -265,6 +265,13 @@ const Proyectos: React.FC = () => {
   const wMoneda = watch('moneda');
   const wArea = watch('areaConstruccion');
 
+  const limpiarProyectos = () => {
+    if (!proyectos.length) return;
+    if (!window.confirm(`¿Eliminar los ${proyectos.length} proyectos y sus dependencias registradas en Supabase?\nEsta acción no se puede deshacer.`)) return;
+    clearProyectos();
+    toast.success('Proyectos eliminados', { description: 'Los cambios se sincronizarán con Supabase.' });
+  };
+
   return (
     <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-2">
@@ -272,9 +279,16 @@ const Proyectos: React.FC = () => {
           <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground">Portafolio de Proyectos</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">{proyectos.length} proyectos registrados</p>
         </div>
-        <button onClick={openCreate} className={BUTTON_PRIMARY}>
-          <Plus className="w-4 h-4" aria-hidden="true" /> Nuevo Proyecto
-        </button>
+        <div className="flex gap-2">
+          {proyectos.length > 0 && (
+            <button onClick={limpiarProyectos} className="px-3 py-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-semibold transition-colors">
+              Eliminar todos
+            </button>
+          )}
+          <button onClick={openCreate} className={BUTTON_PRIMARY}>
+            <Plus className="w-4 h-4" aria-hidden="true" /> Nuevo Proyecto
+          </button>
+        </div>
       </div>
 
       <div className="relative mb-4 isolate">
@@ -291,7 +305,15 @@ const Proyectos: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+      {proyectos.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+          <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/60" aria-hidden="true" />
+          <h2 className="text-base font-bold text-foreground mb-1">No hay proyectos registrados</h2>
+          <p className="text-sm text-muted-foreground mb-4">Crea un proyecto nuevo o sincroniza desde Supabase para alimentar tableros, KPIs y gráficas.</p>
+          <button onClick={openCreate} className={BUTTON_PRIMARY}>Crear primer proyecto</button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
         {proyectos.map((p, i) => (
           <div
             key={p.id}
@@ -425,7 +447,8 @@ const Proyectos: React.FC = () => {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {pauseModal && (
         <div className={MODAL_OVERLAY + ' animate-enter'} role="dialog" aria-modal="true" aria-labelledby="modal-pausa-title">

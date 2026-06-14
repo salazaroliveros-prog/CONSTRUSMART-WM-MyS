@@ -40,7 +40,8 @@ interface ErpData {
   activos: ActivoHerramienta[]; cuadros: CuadroComparativo[]; pagosProveedor: PagoProveedor[];
   destajos: Destajo[]; recepciones: RecepcionAlmacen[];
   mutationQueue: Mutation[]; syncMessage: string; syncCooldown: boolean; notificaciones: Notificacion[];
-  auditLog: LogAuditoria[];
+  auditLog: LogAuditoria[]; syncStatus: 'idle' | 'loading' | 'synced' | 'queued' | 'error';
+  lastSyncedAt?: string; syncError?: string;
   isOnline: boolean; selectedProyectoId: string | null; appSettings: AppSettings;
 }
 
@@ -81,6 +82,12 @@ interface ErpActions {
   setMutationQueue: (v: Mutation[] | ((prev: Mutation[]) => Mutation[])) => void;
   setSyncMessage: (v: string) => void;
   setSyncCooldown: (v: boolean) => void;
+  setSyncStatus: (v: ErpData['syncStatus']) => void;
+  setLastSyncedAt: (v?: string) => void;
+  setSyncError: (v?: string) => void;
+  deleteProyecto: (id: string) => void;
+  clearProyectos: () => void;
+  clearAllData: () => void;
   setNotificaciones: (v: Notificacion[] | ((prev: Notificacion[]) => Notificacion[])) => void;
   setIsOnline: (v: boolean) => void;
   setSelectedProyectoId: (v: string | null) => void;
@@ -113,6 +120,7 @@ function normalizarFilaSupabase(row: Record<string, any>): Record<string, any> {
 
 export const fetchInitialData = async () => {
   try {
+    useErpStore.setState({ syncStatus: 'loading', syncError: undefined });
     const { createClient } = await import('@supabase/supabase-js');
     const url = typeof window !== 'undefined' ? (window as any).__SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL : '';
     const key = typeof window !== 'undefined' ? (window as any).__SUPABASE_KEY || import.meta.env.VITE_SUPABASE_KEY : '';
@@ -170,10 +178,14 @@ export const fetchInitialData = async () => {
     }
 
     if (Object.keys(statePatch).length > 0) {
-      useErpStore.setState(statePatch);
+      useErpStore.setState({ ...statePatch, syncStatus: 'synced', lastSyncedAt: new Date().toISOString(), syncError: undefined });
       safeLogger.log(`[fetchInitialData] Cargados datos de ${Object.keys(statePatch).length} tablas desde Supabase`);
+    } else {
+      useErpStore.setState({ syncStatus: 'synced', lastSyncedAt: new Date().toISOString(), syncError: undefined });
     }
   } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    useErpStore.setState({ syncStatus: 'error', syncError: error });
     safeLogger.warn('[fetchInitialData] Error general:', err);
   }
 };
@@ -186,7 +198,8 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   seguimientoEVM: [], incidentes: [], publicacionesMuro: [], liberaciones: [], planos: [],
   rfis: [], submittals: [], activos: [], cuadros: [], pagosProveedor: [], destajos: [],
   recepciones: [],
-  mutationQueue: [], syncMessage: '', syncCooldown: false, notificaciones: [],
+  mutationQueue: [], syncMessage: '', syncCooldown: false, syncStatus: 'idle',
+  notificaciones: [],
   auditLog: [],
   isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
   selectedProyectoId: null,
@@ -228,6 +241,9 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setMutationQueue: (v) => set(typeof v === 'function' ? { mutationQueue: v(get().mutationQueue) } : { mutationQueue: v }),
   setSyncMessage: (v) => set({ syncMessage: v }),
   setSyncCooldown: (v) => set({ syncCooldown: v }),
+  setSyncStatus: (v) => set({ syncStatus: v }),
+  setLastSyncedAt: (v) => set({ lastSyncedAt: v }),
+  setSyncError: (v) => set({ syncError: v }),
   setNotificaciones: (v) => set(typeof v === 'function' ? { notificaciones: v(get().notificaciones) } : { notificaciones: v }),
   setIsOnline: (v) => set({ isOnline: v }),
   setSelectedProyectoId: (v) => set({ selectedProyectoId: v }),
@@ -297,6 +313,67 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().setProyectos(prev => prev.filter(p => p.id !== id));
     get().enqueueMutation('deleteProyecto', { id });
     if (p) get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'eliminar', entidad: 'proyecto', entidadId: id, valoresAnteriores: { nombre: p.nombre, estado: p.estado } });
+  },
+  clearProyectos: () => {
+    const ids = get().proyectos.map(p => p.id);
+    if (ids.length === 0) return;
+    const nombres = get().proyectos.map(p => p.nombre);
+    get().setProyectos([]);
+    if (ids.includes(get().selectedProyectoId || '')) get().setSelectedProyectoId(null);
+    get().enqueueMutation('clearProyectos', { ids });
+    get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'eliminar_todo', entidad: 'proyectos', valoresAnteriores: { ids, nombres } });
+  },
+  clearAllData: () => {
+    const STORAGE_PREFIX = 'wm_erp_data';
+    get().setProyectos([]);
+    get().setMovimientos([]);
+    get().setEmpleados([]);
+    get().setMateriales([]);
+    get().setOrdenes([]);
+    get().setProveedores([]);
+    get().setEventos([]);
+    get().setPresupuestos([]);
+    get().setAvances([]);
+    get().setCuentasCobrar([]);
+    get().setCuentasPagar([]);
+    get().setOrdenesCambio([]);
+    get().setHitos([]);
+    get().setRiesgos([]);
+    get().setLicitaciones([]);
+    get().setCotizacionesNegocio([]);
+    get().setVentasPaquetes([]);
+    get().setBitacora([]);
+    get().setPruebas([]);
+    get().setNcs([]);
+    get().setValesSalida([]);
+    get().setSeguimientoEVM([]);
+    get().setIncidentes([]);
+    get().setPublicacionesMuro([]);
+    get().setLiberaciones([]);
+    get().setPlanos([]);
+    get().setRfis([]);
+    get().setSubmittals([]);
+    get().setActivos([]);
+    get().setCuadros([]);
+    get().setPagosProveedor([]);
+    get().setDestajos([]);
+    get().setRecepciones([]);
+    get().setMutationQueue([]);
+    get().setNotificaciones([]);
+    get().setAuditLog([]);
+    get().setSelectedProyectoId(null);
+    get().setAppSettings(APP_SETTINGS_DEFAULTS);
+    get().setSyncMessage('');
+    get().setSyncStatus('idle');
+    get().setSyncError(undefined);
+    get().setLastSyncedAt(undefined);
+    // Limpiar localStorage
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('wm_')) keysToRemove.push(k);
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
   },
 
   addMovimiento: (m) => { const n = { ...m, id: uid() }; get().setMovimientos(prev => [n, ...prev]); get().enqueueMutation('addMovimiento', n); },

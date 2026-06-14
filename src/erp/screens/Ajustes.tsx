@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useErp, type UIMode, type AppThemeMode } from '../store';
+import { useErp, clearAllData, type UIMode, type AppThemeMode } from '../store';
 import { THEMES, type ThemeName } from '@/lib/themes';
 import {
   Layout, Card, Row, Col, Switch, Select, Button, Divider,
@@ -525,7 +525,7 @@ const Ajustes: React.FC = () => {
         title="Restablecer datos de fábrica"
         open={resetModal}
         onOk={() => {
-          message.success('Configuración restablecida');
+          clearAllData();
           setResetModal(false);
         }}
         onCancel={() => setResetModal(false)}

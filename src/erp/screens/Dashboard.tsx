@@ -7,12 +7,25 @@ import MovimientoForm from '../components/MovimientoForm';
 import AlertasPanel from '../components/AlertasPanel';
 import CompactCalendar from '../components/CompactCalendar';
 import { BarChart, Donut, Progress, Gauge } from '../components/Charts';
-import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, ArrowRight, Calculator, FileText, Wallet, Warehouse, ClipboardCheck, Activity, CircleDot, TrendingDown, Download, Shield, Zap, Repeat } from 'lucide-react';
+import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, Wallet, Warehouse, ClipboardCheck, Activity, TrendingDown, Download, Zap, Repeat, Database, BarChart3 } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
 import { CARD, CARD_TITLE } from '../ui';
 import ProyectoFilter from '../components/ProyectoFilter';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
+
+const CATEGORIA_COLORS = ['#2563eb', '#f97316', '#10b981', '#06b6d4', '#8b5cf6', '#f59e0b', '#0ea5e9', '#64748b'];
+
+const CATEGORIA_MAP = [
+  { id: 'principal', label: 'Principal', targetView: 'dashboard', modules: ['Tablero', 'Proyectos', 'CRM', 'Cotizaciones'], tables: ['erp_proyectos', 'erp_licitaciones', 'erp_cotizaciones_negocio'] },
+  { id: 'planificacion', label: 'Planificación', targetView: 'presupuestos', modules: ['Presupuestos', 'APU', 'Base Precios', 'Hitos', 'Riesgos'], tables: ['erp_presupuestos', 'erp_renglones', 'erp_insumos_base', 'erp_hitos', 'erp_riesgos'] },
+  { id: 'ejecucion', label: 'Ejecución', targetView: 'seguimiento', modules: ['Seguimiento', 'Curvas S', 'Rendimiento Campo', 'SSO', 'Muro', 'Órdenes Cambio', 'Documentos', 'BIM'], tables: ['erp_seguimiento', 'erp_avances', 'erp_rendimientos_cuadrilla', 'erp_no_conformidades', 'erp_publicaciones_muro', 'erp_ordenes_cambio', 'erp_planos', 'erp_rfis', 'erp_submittals'] },
+  { id: 'suministro', label: 'Suministro', targetView: 'bodega', modules: ['Bodega', 'Logística', 'Entradas Almacén'], tables: ['erp_materiales', 'erp_ordenes_compra', 'erp_vales_salida', 'recepciones_almacen', 'erp_proveedores'] },
+  { id: 'rrhh', label: 'RRHH', targetView: 'rrhh', modules: ['Recursos Humanos', 'Planilla Destajos'], tables: ['erp_empleados', 'destajos'] },
+  { id: 'finanzas', label: 'Finanzas', targetView: 'financiero', modules: ['Financiero', 'Comercial', 'Cuentas Cobrar', 'Cuentas Pagar', 'Impuestos'], tables: ['erp_movimientos', 'ventas_paquetes', 'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_pagos_proveedor'] },
+  { id: 'bi', label: 'Análisis BI', targetView: 'predictivo', modules: ['Dashboard BI', 'Exportación', 'Reportes Técnicos'], tables: ['erp_seguimiento', 'erp_avances', 'erp_movimientos', 'erp_presupuestos'] },
+  { id: 'sistema', label: 'Sistema', targetView: 'notificaciones', modules: ['Notificaciones', 'Administración', 'Ajustes'], tables: ['erp_notificaciones'] },
+];
 
 const STATUS_COLORS: Record<string, string> = {
   planeacion: '#3b82f6',
@@ -52,7 +65,11 @@ const Dashboard: React.FC = () => {
     proyectos, movimientos, avances, selectedProyectoId, setView,
     materiales, setSelectedProyectoId, empleados, hitos, ordenes,
     cuentasPagar, eventos, presupuestos, licitaciones, riesgos,
-    ordenesCambio, cuentasCobrar
+    ordenesCambio, cuentasCobrar, valesSalida, recepciones, destajos,
+    publicacionesMuro, planos, rfis, submittals, ventasPaquetes, pagosProveedor,
+    ncs, incidentes, seguimientoEVM, rendimientosCuadrilla,
+    mutationQueue, syncMessage, syncStatus, lastSyncedAt, syncError, isOnline,
+    cotizacionesNegocio, notificacionesNoLeidas,
   } = ctx;
 
   const s1 = useStagger(0);
@@ -249,16 +266,56 @@ const Dashboard: React.FC = () => {
     });
   }, []);
 
-  const modulos = [
-    { id: 'proyectos', label: t('nav.items.proyectos'), icon: Building2, c: 'from-blue-500 to-indigo-600' },
-    { id: 'presupuestos', label: t('nav.items.presupuestos'), icon: Calculator, c: 'from-orange-500 to-amber-500' },
-    { id: 'seguimiento', label: t('nav.items.seguimiento'), icon: ClipboardCheck, c: 'from-emerald-500 to-teal-600' },
-    { id: 'financiero', label: t('nav.items.financiero'), icon: Wallet, c: 'from-violet-500 to-purple-600' },
-    { id: 'rrhh', label: t('nav.items.rrhh'), icon: Users, c: 'from-pink-500 to-rose-600' },
-    { id: 'bodega', label: t('nav.items.bodega'), icon: Warehouse, c: 'from-cyan-500 to-sky-600' },
-    { id: 'cotizaciones', label: t('nav.items.cotizaciones') || 'Cotizaciones', icon: FileText, c: 'from-rose-500 to-pink-600' },
-    { id: 'riesgos', label: t('nav.items.riesgos'), icon: Shield, c: 'from-red-500 to-orange-600' },
-  ];
+  const categoriaResumen = useMemo(() => CATEGORIA_MAP.map((categoria, index) => {
+    const count = categoria.tables.reduce((total, table) => {
+      switch (table) {
+        case 'erp_proyectos': return total + proyectos.length;
+        case 'erp_licitaciones': return total + licitaciones.length;
+        case 'erp_cotizaciones_negocio': return total + cotizacionesNegocio.length;
+        case 'erp_presupuestos': return total + presupuestos.length;
+        case 'erp_renglones': return total;
+        case 'erp_insumos_base': return total;
+        case 'erp_hitos': return total + hitos.length;
+        case 'erp_riesgos': return total + riesgos.length;
+        case 'erp_seguimiento': return total + seguimientoEVM.length;
+        case 'erp_avances': return total + avances.length;
+        case 'erp_rendimientos_cuadrilla': return total;
+        case 'erp_no_conformidades': return total + ncs.length;
+        case 'erp_publicaciones_muro': return total + publicacionesMuro.length;
+        case 'erp_ordenes_cambio': return total + ordenesCambio.length;
+        case 'erp_planos': return total + planos.length;
+        case 'erp_rfis': return total + rfis.length;
+        case 'erp_submittals': return total + submittals.length;
+        case 'erp_materiales': return total + materiales.length;
+        case 'erp_ordenes_compra': return total + ordenes.length;
+        case 'erp_vales_salida': return total + valesSalida.length;
+        case 'recepciones_almacen': return total + recepciones.length;
+        case 'erp_proveedores': return total;
+        case 'erp_empleados': return total + empleados.length;
+        case 'destajos': return total + destajos.length;
+        case 'erp_movimientos': return total + movimientos.length;
+        case 'ventas_paquetes': return total + ventasPaquetes.length;
+        case 'erp_cuentas_cobrar': return total + cuentasCobrar.length;
+        case 'erp_cuentas_pagar': return total + cuentasPagar.length;
+        case 'erp_pagos_proveedor': return total + pagosProveedor.length;
+        case 'erp_notificaciones': return total + notificacionesNoLeidas;
+        default: return total;
+      }
+    }, 0);
+    return { ...categoria, count, color: CATEGORIA_COLORS[index % CATEGORIA_COLORS.length] };
+  }), [proyectos, licitaciones, cotizacionesNegocio, presupuestos, hitos, riesgos, seguimientoEVM, avances, ncs, publicacionesMuro, ordenesCambio, planos, rfis, submittals, materiales, ordenes, valesSalida, recepciones, empleados, destajos, movimientos, ventasPaquetes, cuentasCobrar, cuentasPagar, pagosProveedor, notificacionesNoLeidas]);
+
+  const categoriaChartData = useMemo(() => categoriaResumen.map(c => ({ label: c.label.slice(0, 3), value: c.count, color: c.color })), [categoriaResumen]);
+
+  const modulos = categoriaResumen.map((categoria, index) => ({
+    id: categoria.id,
+    label: categoria.label,
+    targetView: categoria.targetView,
+    icon: [Building2, Calculator, Activity, Warehouse, Users, Wallet, BarChart3, Database][index],
+    c: `from-[${categoria.color}] to-slate-900`,
+    count: categoria.count,
+    tables: categoria.tables,
+  }));
 
   const SkeletonCard: React.FC<{ h?: string }> = ({ h = 'h-8' }) => (
     <div className="rounded-lg sm:rounded-2xl bg-card border border-border overflow-hidden relative">
@@ -279,10 +336,13 @@ const Dashboard: React.FC = () => {
             <h1 className="text-sm sm:text-lg lg:text-xl font-black text-foreground leading-tight">{t('dashboard.tablero')}</h1>
             <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">{t('dashboard.metricas_tiempo_real')}</p>
           </div>
-          <div className="flex items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 rounded-full px-2 py-0.5">
+          <div className="flex flex-wrap items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 rounded-full px-2 py-0.5">
             <span className={`w-1.5 h-1.5 rounded-full ${online ? 'bg-success animate-pulse' : 'bg-destructive'}`} />
             {online ? t('dashboard.en_vivo') : t('dashboard.offline')}
+            <span className="text-muted-foreground/60">·</span>
+            <span className={syncStatus === 'error' ? 'text-destructive' : 'text-primary'}>{syncStatus === 'synced' ? 'Supabase conectado' : syncStatus === 'loading' ? 'Leyendo Supabase' : syncStatus === 'error' ? syncError || 'Error sync' : mutationQueue.length > 0 ? `${mutationQueue.length} pendientes` : 'Supabase activo'}</span>
           </div>
+          {lastSyncedAt && <div className="text-[9px] text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">Sync {new Date(lastSyncedAt).toLocaleTimeString()}</div>}
           <button onClick={handleExportPdf} className="text-[9px] text-primary hover:text-primary/80 font-medium flex items-center gap-0.5 bg-primary/10 rounded-full px-2 py-0.5 transition-colors" title={t('dashboard.exportar_pdf')}>
             <Download className="w-2.5 h-2.5" /> PDF
           </button>
@@ -609,20 +669,30 @@ const Dashboard: React.FC = () => {
           )}
           <CompactCalendar />
           <div>
-            <h3 className="font-bold text-foreground text-xs mb-1">{t('dashboard.modulos')}</h3>
+            <h3 className="font-bold text-foreground text-xs mb-1 flex items-center gap-1">
+              <Database className="w-2.5 h-2.5 text-primary" /> {t('dashboard.modulos')}
+              <span className="text-muted-foreground font-normal text-[9px]">8 categorías · Supabase</span>
+            </h3>
             <nav aria-label="Acceso rápido a módulos" className="grid grid-cols-4 gap-1">
               {modulos.map(m => {
                 const Icon = m.icon;
                 return (
-                  <button key={m.id} onClick={() => setView(m.id as View)}
+                  <button key={m.id} onClick={() => setView(m.targetView as View)}
                     aria-label={`Ir a ${m.label}`}
-                    className={`bg-gradient-to-br ${m.c} text-white rounded-lg sm:rounded-xl p-1.5 sm:p-2 flex flex-col items-start gap-1 hover:scale-[1.02] active:scale-[0.97] transition-all shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70`}>
+                    className={`text-white rounded-lg sm:rounded-xl p-1.5 sm:p-2 flex flex-col items-start gap-1 hover:scale-[1.02] active:scale-[0.97] transition-all shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70`}
+                    style={{ background: `linear-gradient(135deg, ${m.color}, #0f172a)` }}>
                     <Icon className="w-3 h-3 sm:w-4 sm:h-4" aria-hidden="true" />
-                    <span className="text-[8px] sm:text-[10px] font-semibold leading-tight">{m.label.length > 8 ? m.label.slice(0, 8) : m.label}</span>
+                    <span className="text-[8px] sm:text-[10px] font-semibold leading-tight">{m.label}</span>
+                    <span className="text-[7px] opacity-80">{m.count} registros</span>
                   </button>
                 );
               })}
             </nav>
+            <div className="mt-1 grid grid-cols-2 gap-1 text-[7px] text-muted-foreground">
+              {modulos.map(m => (
+                <div key={m.id} className="truncate" title={m.tables.join(', ')}>{m.label}: {m.tables.join(', ')}</div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
