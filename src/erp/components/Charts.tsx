@@ -202,7 +202,8 @@ export const BarChart: React.FC<{
       ))}
         {data.map((d, i) => {
         const c = pickColor(i, palette, d.color);
-        const fullH = (d.value / max) * (height - PAD * 2);
+        const value = Math.max(0, Number.isFinite(d.value) ? d.value : 0);
+        const fullH = (value / max) * (height - PAD * 2);
         const animH = fullH * p;
         const bx = PAD + i * bw + bw * 0.12;
         const bwInner = bw * 0.76;
@@ -216,7 +217,7 @@ export const BarChart: React.FC<{
             {p > 0.95 && (
               <text x={bx + bwInner / 2} y={height - PAD - fullH - 4}
                 fontSize={7} textAnchor="middle" fill={c} fontWeight="600">
-                {d.value}
+                {value}
               </text>
             )}
             <text x={bx + bwInner / 2} y={height - 8} fontSize={7}

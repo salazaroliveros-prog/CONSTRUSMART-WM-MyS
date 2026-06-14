@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { z } from 'zod';
 import { sanitizarObjeto } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake } from './utils';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel } from './utils';
 import type {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
   Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
@@ -92,6 +92,25 @@ interface ErpActions {
 
 export type ErpStore = ErpData & ErpActions;
 
+function normalizarFilaSupabase(row: Record<string, any>): Record<string, any> {
+  const normalized = toCamel(row) as Record<string, any>;
+  if (normalized.fotoUrl) {
+    normalized.foto = normalized.fotoUrl;
+    delete normalized.fotoUrl;
+  }
+  if (normalized.fotos === '{}' || normalized.fotos === '[]') {
+    normalized.fotos = [];
+  }
+  if (normalized.geoLocation) {
+    try {
+      const geo = JSON.parse(normalized.geoLocation);
+      if (geo?.lat) normalized.latitud = geo.lat;
+      if (geo?.lng) normalized.longitud = geo.lng;
+    } catch {}
+  }
+  return normalized;
+}
+
 export const fetchInitialData = async () => {
   try {
     const { createClient } = await import('@supabase/supabase-js');
@@ -109,16 +128,12 @@ export const fetchInitialData = async () => {
       'erp_publicaciones_muro', 'erp_planos',
       'erp_rfis', 'erp_submittals', 'erp_activos', 'destajos',
       'erp_eventos_calendario', 'erp_bitacora', 'erp_seguimiento',
-'erp_liberaciones_partida', 'erp_notificaciones',
-     ] as const;
+      'erp_liberaciones_partida', 'erp_notificaciones', 'erp_cuadros',
+      'recepciones_almacen', 'erp_pruebas_laboratorio', 'ventas_paquetes',
+      'pagos_proveedores', 'erp_renglones', 'erp_insumos', 'erp_sub_renglones',
+      'erp_insumos_base', 'erp_rendimientos_cuadrilla',
+    ] as const;
 
-    const results = await Promise.allSettled(TABLES.map(async (table) => {
-      const { data, error } = await supabase.from(table).select('*');
-      if (error) { safeLogger.warn(`[fetchInitialData] Error en ${table}: ${error.message}`); return null; }
-      return { table, data: data || [] };
-    }));
-
-    const statePatch: Record<string, any> = {};
     const TABLE_MAP: Record<string, string> = {
       erp_proyectos: 'proyectos', erp_movimientos: 'movimientos', erp_empleados: 'empleados',
       erp_materiales: 'materiales', erp_ordenes_compra: 'ordenes', erp_proveedores: 'proveedores',
@@ -132,14 +147,25 @@ export const fetchInitialData = async () => {
       erp_activos: 'activos', destajos: 'destajos',
       erp_eventos_calendario: 'eventos', erp_bitacora: 'bitacora',
       erp_seguimiento: 'seguimientoEVM', erp_liberaciones_partida: 'liberaciones',
-      erp_notificaciones: 'notificaciones',
+      erp_notificaciones: 'notificaciones', erp_cuadros: 'cuadros',
+      recepciones_almacen: 'recepciones', erp_pruebas_laboratorio: 'pruebas',
+      ventas_paquetes: 'ventasPaquetes', pagos_proveedores: 'pagosProveedor',
+      erp_renglones: 'renglones', erp_insumos: 'insumos', erp_sub_renglones: 'subRenglones',
+      erp_insumos_base: 'insumosBase', erp_rendimientos_cuadrilla: 'rendimientosCuadrilla',
     };
 
+    const results = await Promise.allSettled(TABLES.map(async (table) => {
+      const { data, error } = await supabase.from(table).select('*');
+      if (error) { safeLogger.warn(`[fetchInitialData] Error en ${table}: ${error.message}`); return null; }
+      return { table, data: (data || []).map(normalizarFilaSupabase) };
+    }));
+
+    const statePatch: Record<string, any> = {};
     for (const result of results) {
       if (result.status === 'fulfilled' && result.value) {
         const { table, data } = result.value;
         const stateKey = TABLE_MAP[table];
-        if (stateKey && data.length > 0) statePatch[stateKey] = data;
+        if (stateKey) statePatch[stateKey] = data;
       }
     }
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useErp } from '../store';
 import { fmtQ, CATEGORIA_LABEL } from '../utils';
 import { ConfigurableLineArea, Donut } from '../components/Charts';
@@ -17,6 +17,10 @@ const Financiero: React.FC = () => {
   const flowConfig = useChartConfig('line', 'default');
   const donutConfig = useChartConfig('line', 'default');
 
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 250);
+    return () => clearTimeout(timer);
+  }, []);
 
 
   const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);

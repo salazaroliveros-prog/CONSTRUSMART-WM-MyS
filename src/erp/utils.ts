@@ -203,7 +203,10 @@ function transformKeys(obj: unknown, transform: (key: string) => string, visited
 
 export const toSnake = (obj: Record<string, any>): Record<string, any> => {
   const visited = new WeakSet<object>();
-  return transformKeys(obj, (key) => key.replace(/[A-Z]/g, c => '_' + c.toLowerCase()), visited) as Record<string, any>;
+  return transformKeys(obj, (key) => key
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    .toLowerCase(), visited) as Record<string, any>;
 };
 
 export const toCamel = (obj: Record<string, any>): Record<string, any> => {

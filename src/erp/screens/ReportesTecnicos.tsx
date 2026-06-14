@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useErp } from '../store';
 import { fmtQ, todayISO } from '../utils';
 import {
@@ -17,6 +17,10 @@ const ReportesTecnicos: React.FC = () => {
   const [proyectoId, setProyectoId] = useState('');
   const reportRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 250);
+    return () => clearTimeout(timer);
+  }, []);
 
 
   const proyecto = proyectos.find(p => p.id === proyectoId);
