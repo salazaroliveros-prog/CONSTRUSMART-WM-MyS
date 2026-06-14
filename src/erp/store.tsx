@@ -148,7 +148,7 @@ const MUTATION_TABLE_MAP: Record<string, string> = {
   addNC:'erp_no_conformidades',updateNC:'erp_no_conformidades',
   addLiberacion:'erp_liberaciones_partida',updateLiberacion:'erp_liberaciones_partida',
   addNotificacion:'erp_notificaciones',markNotificacionLeida:'erp_notificaciones',
-  addSeguimiento:'erp_seguimiento_evm',updateSeguimiento:'erp_seguimiento_evm',deleteSeguimiento:'erp_seguimiento_evm',
+  addSeguimiento:'erp_seguimiento',updateSeguimiento:'erp_seguimiento',deleteSeguimiento:'erp_seguimiento',
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
