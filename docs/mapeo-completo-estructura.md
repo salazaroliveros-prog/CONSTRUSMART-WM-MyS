@@ -518,6 +518,94 @@ Componentes: `BarChart`, `Donut`, `Progress`, `Gauge`, `ConfigurableLineArea`
 - **Cobertura:** ~85 registros en 18 tablas
 - **Datos:** 5 proyectos (Q3.2M–Q15M), 10 materiales, 16 movimientos, 19 avances, 11 hitos, 5 riesgos, 6 licitaciones, 12 cuentas CxC/CxP, 10 empleados, OC, EVM, incidentes, NC, pruebas, muro
 
+## ESTADO DE IMPLEMENTACIÓN POR SECCIÓN
+
+| Sección | % Completado | Estado |
+|---------|-------------|--------|
+| **1. PRINCIPAL** | 40% | 🟡 |
+| 1.1 Dashboard | 60% | KPIs, guards NaN, fix build. Faltan: tests de integración con datos reales |
+| 1.2 Proyectos | 20% | CRUD básico. Falta: validación state machine, transiciones UI completas |
+| 1.3 CRM | 20% | Kanban funcional. Falta: pipeline ponderado, charts de conversión |
+| 1.4 Cotizaciones | 20% | CRUD básico + PDF export. Falta: vinculación con presupuestos |
+| **2. PLANIFICACIÓN** | 15% | 🔴 |
+| 2.1 Presupuestos | 25% | APU básico. Falta: renglones completos, fórmula indirectos |
+| 2.2 APU Avanzado | 10% | Placeholder. Falta: implementación completa |
+| 2.3 Base Precios | 10% | Placeholder. Falta: implementación completa |
+| 2.4 Hitos | 15% | CRUD básico. Falta: hitos por Gantt, dependencias |
+| 2.5 Riesgos | 15% | CRUD básico. Falta: matriz probabilidad/impacto |
+| **3. EJECUCIÓN** | 25% | 🟡 |
+| 3.1 Seguimiento | 35% | EVM básico + 5 tabs. Falta: carga de datos real |
+| 3.2 Curvas S | 30% | 3 tabs con charts. Falta: proyección predictiva |
+| 3.3 Rendimiento Campo | 10% | Placeholder. Falta: implementación completa |
+| 3.4 SSO Calidad | 30% | 7 tabs funcionales. Falta: integración checklist |
+| 3.5 Muro Obra | 25% | Feed funcional. Falta: fotos, notificaciones |
+| 3.6 Órdenes Cambio | 25% | CRUD + acordeón. Falta: flujo aprobación |
+| 3.7 Documentos | 15% | CRUD básico. Falta: vista previa archivos |
+| 3.8 Visor BIM | 15% | Three.js integrado. Falta: carga de modelos IFC |
+| **4. SUMINISTRO** | 25% | 🟡 |
+| 4.1 Bodega | 35% | 8 KPIs + Pareto + 3 tablas. Falta: movimientos en tiempo real |
+| 4.2 Logística | 20% | 3 tablas funcionales. Falta: cuadro comparativo completo |
+| 4.3 Entradas Almacén | 15% | Placeholder. Falta: recepciones + vales |
+| **5. RRHH** | 20% | 🟡 |
+| 5.1 RRHH | 25% | 4 KPIs + chart + planilla. Falta: FSR, IGSS |
+| 5.2 Planilla Destajos | 15% | Placeholder. Falta: implementación completa |
+| **6. FINANZAS** | 35% | 🟡 |
+| 6.1 Financiero | 50% | 3 KPIs + 2 gráficas + guards. Falta: estados financieros |
+| 6.2 Comercial/Finanzas | 20% | 3 tabs. Falta: integración contable |
+| 6.3 Cuentas x Cobrar | 20% | 4 KPIs + lista. Falta: aging report |
+| 6.4 Cuentas x Pagar | 20% | 4 KPIs + lista. Falta: programación pagos |
+| 6.5 Impuestos | 30% | 6 KPIs + cálculo ISR/IVA. Falta: libros fiscales |
+| **7. ANÁLISIS BI** | 15% | 🔴 |
+| 7.1 Dashboard BI | 10% | Placeholder. Falta: ML predictivo |
+| 7.2 Exportación | 15% | Placeholder. Falta: exportación completa |
+| 7.3 Reportes Técnicos | 25% | 3 tabs con export PNG. Falta: datos reales |
+| **8. SISTEMA** | 50% | 🟢 |
+| 8.1 Notificaciones | 30% | Lista + badges. Falta: notificaciones push |
+| 8.2 Administración | 20% | Placeholder. Falta: gestión usuarios real |
+| 8.3 Ajustes | 100% | ✅ Temas, idioma, moneda, clearAllData funcional |
+| **INFRAESTRUCTURA** | | |
+| Store (Zustand) | 70% | 32 entidades, clearAllData, forceSync, health check |
+| Persistencia | 80% | localStorage + lz-string compresión + cuota |
+| Supabase Sync | 60% | Mutation queue funcional, tabla mapeo completa |
+| Realtime | 50% | Tablas registradas, onCambio → forceSync |
+| Tests (576/576) | 100% | ✅ 14 test files, todos pasando |
+| Build | 100% | ✅ 0 errores, 6208 módulos |
+
+### 🟢 Completado al 100%
+- ✅ Ajustes (tema, idioma, moneda, clearAllData)
+- ✅ Tests (576/576 pass)
+- ✅ Build production (0 errores)
+- ✅ ClearAllData (32 entidades + localStorage)
+- ✅ Seed SQL de validación (85 registros, 18 tablas)
+- ✅ Mapeo estructural documentado
+
+### 🟡 En Progreso (30-70%)
+- 🟡 Dashboard (60%) — KPIs funcionan, falta integración datos reales
+- 🟡 Financiero (50%) — KPIs + guards, falta estados financieros
+- 🟡 Store (70%) — 32 entidades, falta optimización
+- 🟡 Persistencia (80%) — Compresión + cuota, falta recovery
+
+### 🔴 Por Implementar (>30%)
+- 🔴 APU Avanzado — Placeholder
+- 🔴 Base Precios — Placeholder
+- 🔴 Rendimiento Campo — Placeholder
+- 🔴 Dashboard BI/Predictivo — Placeholder
+- 🔴 Exportación Inteligente — Placeholder
+- 🔴 Planilla Destajos — Placeholder
+- 🔴 Administración — Placeholder
+
+### Pendientes Identificados (Sesión Actual)
+1. **Guards de arrays vacíos en Seguimiento.tsx** — Tablas sin datos no muestran mensajes
+2. **Guards en Bodega.tsx** — Tablas vacías sin mensaje "no data"
+3. **Guards en Impuestos.tsx** — Sin proyecto seleccionado muestra 0 pero no mensaje
+4. **Charts.tsx — Edge case:** ConfigurableLineArea con `visiblePts[-1]` cuando series están vacías
+5. **AlertasPanel — Retorna null** sin datos: no hay indicador visual de "sin alertas"
+6. **CompactCalendar — Sin eventos:** Se renderiza vacío sin mensaje
+7. **Reportes Técnicos — Sin proyecto:** Muestra "Seleccione un proyecto" pero skeleton se ve incompleto
+8. **Proyectos.tsx — Modificación detectada** (en staging) pero no verificada
+9. **Documentación de API endpoints Supabase** — No existe
+10. **E2E tests Playwright** — Existe archivo pero no se ha corrido
+
 ## NOTAS DE IMPLEMENTACIÓN
 
 1. **Guard contra NaN en Dashboard:** `margenProm` tiene guard `proyectosSel.length > 0 ? ... : 0`
@@ -530,3 +618,5 @@ Componentes: `BarChart`, `Donut`, `Progress`, `Gauge`, `ConfigurableLineArea`
 8. **CRM Kanban:** Columnas se renderizan vacías (0 items cada una)
 9. **AlertasPanel se oculta:** Retorna `null` si `alertas.length === 0` (no muestra placeholder)
 10. **ConfigurableLineArea:** Los arrays de 12 meses siempre existen (inicializados con `fill(0)`) — no puede producir NaN
+11. **Build:** 6208 módulos transformados en 18.38s, sin errores de compilación
+12. **Push a GitHub:** Commit `4cd312b` — 8 archivos, +958 líneas
