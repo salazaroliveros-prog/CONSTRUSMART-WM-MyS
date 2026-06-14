@@ -57,6 +57,7 @@ function useOnlineStatus() {
 
 const Dashboard: React.FC = () => {
   const ctx = useErp();
+  const { t } = useTranslation();
   const online = useOnlineStatus();
   const dashRef = useRef<HTMLDivElement>(null);
 

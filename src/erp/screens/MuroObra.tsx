@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { todayISO } from '../utils';
@@ -22,7 +22,7 @@ const MuroObra: React.FC = () => {
   const [comentarioInput, setComentarioInput] = useState('');
   const [comentando, setComentando] = useState<string | null>(null);
 
-
+  useEffect(() => { setLoading(false); }, []);
 
   const publicacionesFiltradas = useMemo(() => {
     let f = publicacionesMuro;
