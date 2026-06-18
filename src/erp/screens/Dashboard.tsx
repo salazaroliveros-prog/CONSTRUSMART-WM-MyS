@@ -122,16 +122,17 @@ const Dashboard: React.FC = () => {
   }, [proyectos, t]);
 
   const planVsReal = useMemo(() => {
-    const filtrados = selectedProyectoId && selectedProyectoId !== 'none'
-      ? materiales.filter(m => m.proyectoIds?.includes(selectedProyectoId)) : materiales;
-    const items = filtrados.length ? filtrados : materiales;
-    const conPlan = items.filter(m => typeof m.cantidadPresupuestada === 'number' && m.cantidadPresupuestada > 0);
-    const costoPlanificado = conPlan.reduce((a, m) => a + ((m.cantidadPresupuestada ?? 0) * m.precio), 0);
-    const costoReal = conPlan.reduce((a, m) => a + (m.stock * m.precio), 0);
-    const avgDesv = conPlan.length ? conPlan.reduce((a, m) => a + ((m.stock - (m.cantidadPresupuestada ?? 0)) / Math.max(m.cantidadPresupuestada ?? 1, 1)) * 100, 0) / conPlan.length : 0;
-    const top = conPlan.length ? [...conPlan].sort((a, b) => Math.abs((b.stock - (b.cantidadPresupuestada ?? 0)) / Math.max(b.cantidadPresupuestada ?? 1, 1)) - Math.abs((a.stock - (a.cantidadPresupuestada ?? 0)) / Math.max(a.cantidadPresupuestada ?? 1, 1)))[0] : null;
-    return { conPlan: conPlan.length, costoPlanificado, costoReal, avgDesv, top, totalMateriales: items.length };
-  }, [materiales, selectedProyectoId]);
+    const presupuestosActivos = (presupuestos || []).filter(p => p.estado !== 'anulado' && p.estado !== 'rechazado');
+    const costoPlanificado = presupuestosActivos.reduce((a, p) => a + (p.totalCalculado || 0), 0);
+    const movsGasto = (movimientos || []).filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto ?? m.costoTotal ?? 0), 0);
+    const movsIngreso = (movimientos || []).filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto ?? m.costoTotal ?? 0), 0);
+    const costoReal = movsGasto - movsIngreso;
+    const avgDesv = presupuestosActivos.length
+      ? presupuestosActivos.reduce((a, p) => a + ((p.avance || 0) - 100), 0) / presupuestosActivos.length
+      : 0;
+    const top = presupuestosActivos.length ? presupuestosActivos[0] : null;
+    return { conPlan: presupuestosActivos.length, costoPlanificado, costoReal, avgDesv, top, totalMateriales: presupuestosActivos.length };
+  }, [presupuestos, movimientos]);
 
   const stockData = useMemo(() => {
     const criticos = materiales.filter(m => m.stock <= (m.stockMinimo || 0));
@@ -145,11 +146,12 @@ const Dashboard: React.FC = () => {
     };
   }, [materiales]);
 
-  const rhData = useMemo(() => ({
-    disponibles: empleados.filter(e => e.estado === 'disponible').length,
-    ocupados: empleados.filter(e => e.estado === 'ocupado').length,
-    total: empleados.length,
-  }), [empleados]);
+  const rhData = useMemo(() => {
+    const datos = (empleados || []).filter((e: any) => e.estado);
+    const disponibles = datos.filter((e: any) => e.estado === 'disponible').length;
+    const ocupados = datos.filter((e: any) => e.estado === 'ocupado').length;
+    return { disponibles, ocupados, total: datos.length || empleados.length };
+  }, [empleados]);
 
   const timelineData = useMemo(() => {
     const filtrados = selectedProyectoId && selectedProyectoId !== 'none'

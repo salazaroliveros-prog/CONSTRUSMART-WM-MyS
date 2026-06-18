@@ -309,13 +309,15 @@ export const Progress: React.FC<{
 }> = React.memo(({ value, color = 'hsl(var(--primary))', bg = 'hsl(var(--border))' }) => {
   const p = useAnimIn(600);
   const animVal = value * p;
+  const safeColor = color.endsWith('cc') ? color : color.endsWith('66') ? color : `${color}cc`;
+  const safeShadow = color.endsWith('66') ? color : `${color}66`;
   return (
     <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: bg }}>
       <div className="h-full rounded-full"
         style={{
           width: `${Math.min(100, Math.max(0, animVal))}%`,
-          background: `linear-gradient(90deg, ${color}, ${color}cc)`,
-          boxShadow: `0 0 8px ${color}66`,
+          background: `linear-gradient(90deg, ${color}, ${safeColor})`,
+          boxShadow: `0 0 8px ${safeShadow}`,
           transition: 'width 0.05s',
         }} />
     </div>

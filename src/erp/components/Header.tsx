@@ -22,6 +22,13 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
     } catch { /* ignore */ }
   }, []);
 
+  useEffect(() => {
+    try {
+      const googleAvatar = localStorage.getItem('wm_google_avatar');
+      if (googleAvatar) setCustomPhoto(googleAvatar);
+    } catch { /* ignore */ }
+  }, []);
+
   const onPick = () => fileRef.current?.click();
   const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
