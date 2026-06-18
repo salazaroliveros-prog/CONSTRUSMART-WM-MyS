@@ -289,17 +289,38 @@ const Dashboard: React.FC = () => {
     let count = 0;
     for (const table of categoria.tables) {
       if (table === 'erp_proyectos') count += proyectos.length;
+      else if (table === 'erp_licitaciones') count += licitaciones.length;
+      else if (table === 'erp_cotizaciones_negocio') count += cotizacionesNegocio.length;
       else if (table === 'erp_presupuestos') count += presupuestos.length;
+      else if (table === 'erp_renglones') count += 0;
+      else if (table === 'erp_insumos_base') count += 0;
       else if (table === 'erp_hitos') count += hitos.length;
       else if (table === 'erp_riesgos') count += riesgos.length;
+      else if (table === 'erp_seguimiento') count += seguimientoEVM.length;
       else if (table === 'erp_avances') count += avances.length;
-      else if (table === 'erp_movimientos') count += movimientos.length;
-      else if (table === 'erp_empleados') count += empleados.length;
+      else if (table === 'erp_rendimientos_cuadrilla') count += rendimientosCuadrilla.length;
+      else if (table === 'erp_no_conformidades') count += ncs.length;
+      else if (table === 'erp_publicaciones_muro') count += publicacionesMuro.length;
+      else if (table === 'erp_ordenes_cambio') count += ordenesCambio.length;
+      else if (table === 'erp_planos') count += planos.length;
+      else if (table === 'erp_rfis') count += rfis.length;
+      else if (table === 'erp_submittals') count += submittals.length;
       else if (table === 'erp_materiales') count += materiales.length;
       else if (table === 'erp_ordenes_compra') count += ordenes.length;
+      else if (table === 'erp_vales_salida') count += valesSalida.length;
+      else if (table === 'recepciones_almacen') count += recepciones.length;
+      else if (table === 'erp_proveedores') count += proveedores?.length || 0;
+      else if (table === 'erp_empleados') count += empleados.length;
+      else if (table === 'destajos') count += destajos.length;
+      else if (table === 'erp_movimientos') count += movimientos.length;
+      else if (table === 'ventas_paquetes') count += ventasPaquetes?.length || 0;
+      else if (table === 'erp_cuentas_cobrar') count += cuentasCobrar.length;
+      else if (table === 'erp_cuentas_pagar') count += cuentasPagar.length;
+      else if (table === 'erp_pagos_proveedor') count += pagosProveedor.length;
+      else if (table === 'erp_notificaciones') count += notificacionesNoLeidas.length;
     }
     return { ...categoria, count, color: CATEGORIA_COLORS[index % CATEGORIA_COLORS.length] };
-  }), [proyectos, presupuestos, hitos, riesgos, avances, movimientos, empleados, materiales, ordenes]);
+  }), [proyectos, licitaciones, cotizacionesNegocio, presupuestos, hitos, riesgos, seguimientoEVM, avances, rendimientosCuadrilla, ncs, publicacionesMuro, ordenesCambio, planos, rfis, submittals, materiales, ordenes, valesSalida, recepciones, empleados, destajos, movimientos, cuentasCobrar, cuentasPagar, pagosProveedor, notificacionesNoLeidas]);
 
   const categoriaChartData = useMemo(() => categoriaResumen.map(c => ({ label: c.label.slice(0, 3), value: c.count, color: c.color })), [categoriaResumen]);
 

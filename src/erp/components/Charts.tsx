@@ -273,7 +273,7 @@ export const Donut: React.FC<{
           </path>
         );
       })}
-      <circle cx={cx} cy={cy} r={r * 0.52} fill="#f8fafc" />
+      <circle cx={cx} cy={cy} r={r * 0.52} fill="hsl(var(--card))" stroke="hsl(var(--border))" strokeWidth={1} />
       {total === 0 && (
         <text x={cx} y={cy + 3} fontSize={9} textAnchor="middle" fontWeight="600" fill="#94a3b8">
           Sin datos
@@ -292,7 +292,7 @@ Donut.displayName = 'Donut';
 
 export const Gauge: React.FC<{
   value: number; max: number; label: string; color?: string;
-}> = React.memo(({ value, max, label, color = 'hsl(var(--success))' }) => {
+}> = React.memo(({ value, max, label, color = '#10b981' }) => {
   const p = useAnimIn(1000);
   const pct = Math.max(-1, Math.min(1, value / (max || 1)));
   const angle = pct * 90 * p;
@@ -302,17 +302,17 @@ export const Gauge: React.FC<{
 
   return (
     <svg viewBox="0 0 160 100" className="w-full" role="img" aria-label={`Gauge: ${label}`}>
-      <path d="M 20 80 A 60 60 0 0 1 140 80" fill="none" stroke="hsl(var(--border))"
+      <path d="M 20 80 A 60 60 0 0 1 140 80" fill="none" stroke="#e2e8f0"
         strokeWidth={12} strokeLinecap="round" />
-      <path d="M 20 80 A 60 60 0 0 1 80 20" fill="none" stroke="hsl(var(--destructive))"
+      <path d="M 20 80 A 60 60 0 0 1 80 20" fill="none" stroke="#ef4444"
         strokeWidth={12} opacity={0.35} />
       <path d="M 80 20 A 60 60 0 0 1 140 80" fill="none" stroke={color}
         strokeWidth={12} opacity={0.35} />
       <line x1={cx} y1={cy} x2={nx} y2={ny}
-        stroke="hsl(var(--foreground))" strokeWidth={3} strokeLinecap="round"
+        stroke="#334155" strokeWidth={3} strokeLinecap="round"
         style={{ transition: 'all 0.05s' }} />
-      <circle cx={cx} cy={cy} r={5} fill="hsl(var(--foreground))" />
-      <text x={80} y={97} fontSize={9} textAnchor="middle" fill="hsl(var(--muted-foreground))">{label}</text>
+      <circle cx={cx} cy={cy} r={5} fill="#334155" />
+      <text x={80} y={97} fontSize={9} textAnchor="middle" fill="#94a3b8">{label}</text>
     </svg>
   );
 });
