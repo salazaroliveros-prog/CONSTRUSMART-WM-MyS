@@ -25,25 +25,27 @@ const Login: React.FC = () => {
     <div className="min-h-screen flex flex-col lg:flex-row">
       <div className="hidden lg:flex flex-1 bg-slate-900 relative overflow-hidden items-center justify-center p-12">
         <div
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 opacity-60"
           style={{ backgroundImage: 'url(/empresa_b.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-orange-900/40" />
-        <div className="relative z-10 text-white max-w-md">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center font-black text-xl mb-6">
-            WM
-          </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/60 via-slate-900/40 to-orange-900/30" />
+        <div className="relative z-10 text-white max-w-md text-center flex flex-col items-center">
+          <img
+            src="/logo.png"
+            alt="WM"
+            className="w-32 h-32 object-contain drop-shadow-[0_0_12px_rgba(249,115,22,0.45)] mb-6"
+          />
           <h1 className="text-4xl font-black leading-tight">{EMPRESA.nombre}</h1>
           <p className="text-orange-300 text-lg italic mt-2">{EMPRESA.eslogan}</p>
-          <p className="text-slate-300 mt-6 leading-relaxed">Acceso exclusivo solo para usuarios autorizados.</p>
+          <p className="text-slate-200 mt-6 leading-relaxed">Acceso exclusivo solo para usuarios autorizados.</p>
           <div className="flex gap-6 mt-8">
             <div className="text-center">
               <ShieldCheck className="w-5 h-5 mx-auto text-orange-400" />
-              <span className="text-xs text-slate-400 mt-1 block">{t('common.exclusive_access') || 'Acceso exclusivo'}</span>
+              <span className="text-xs text-slate-300 mt-1 block">{t('common.exclusive_access') || 'Acceso exclusivo'}</span>
             </div>
             <div className="text-center">
               <Chrome className="w-5 h-5 mx-auto text-orange-400" />
-              <span className="text-xs text-slate-400 mt-1 block">Solo Google</span>
+              <span className="text-xs text-slate-300 mt-1 block">Solo Google</span>
             </div>
           </div>
         </div>
