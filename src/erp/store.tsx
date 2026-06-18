@@ -153,7 +153,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [initializing, setInitializing] = useState(true);
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
-  const { user: authUser, signInWithGoogle: realSignInWithGoogle, logout: realLogout, loading: authLoading } = useAuth();
+  const { user: authUser, signInWithGoogle: realSignInWithGoogle, signOut: realLogout, loading: authLoading } = useAuth();
 
    const user = useMemo(() => {
      if (authUser) {
