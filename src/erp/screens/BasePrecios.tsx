@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useErp } from '../store';
 import {
   Database, Search, Check, X, RefreshCw, Upload, Download,
@@ -38,6 +38,7 @@ const BasePrecios: React.FC = () => {
   const _proyectos = useErp().proyectos;
   void _proyectos;
   const [loading, setLoading] = useState(true);
+  useEffect(() => { setLoading(false); }, []);
   const [insumos, setInsumos] = useState<InsumoBase[]>(SEED_INSUMOS_BASE);
   const [search, setSearch] = useState('');
   const [rubroFilter, setRubroFilter] = useState('');

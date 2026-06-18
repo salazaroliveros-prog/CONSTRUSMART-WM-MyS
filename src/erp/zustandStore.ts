@@ -2,13 +2,14 @@ import { create } from 'zustand';
 import { z } from 'zod';
 import { sanitizarObjeto } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
+import { supabase } from '@/lib/supabase';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel } from './utils';
 import type {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
   Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
   CuentaCobrar, CuentaPagar, Hito, Riesgo, PublicacionMuro, ComentarioMuro, PruebaLaboratorio,
   NoConformidad, LiberacionPartida, Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo,
-  PagoProveedor, CotizacionCliente, VentaPaquete, Destajo, RecepcionAlmacen, Incidente, Rol,
+  PagoProveedor, CotizacionCliente, VentaPaquete, Destajo, RecepcionAlmacen, Incidente, Rol, CentroCosto,
 } from './types';
 import type { AppSettings, Mutation, LogAuditoria } from './store';
 
@@ -38,7 +39,7 @@ interface ErpData {
   seguimientoEVM: SeguimientoEVM[]; incidentes: Incidente[]; publicacionesMuro: PublicacionMuro[];
   liberaciones: LiberacionPartida[]; planos: Plano[]; rfis: RFI[]; submittals: Submittal[];
   activos: ActivoHerramienta[]; cuadros: CuadroComparativo[]; pagosProveedor: PagoProveedor[];
-  destajos: Destajo[]; recepciones: RecepcionAlmacen[];
+  destajos: Destajo[]; recepciones: RecepcionAlmacen[]; centrosCosto: CentroCosto[];
   mutationQueue: Mutation[]; syncMessage: string; syncCooldown: boolean; notificaciones: Notificacion[];
   auditLog: LogAuditoria[]; syncStatus: 'idle' | 'loading' | 'synced' | 'queued' | 'error';
   lastSyncedAt?: string; syncError?: string;
@@ -79,6 +80,7 @@ interface ErpActions {
   setPagosProveedor: (v: PagoProveedor[] | ((prev: PagoProveedor[]) => PagoProveedor[])) => void;
   setDestajos: (v: Destajo[] | ((prev: Destajo[]) => Destajo[])) => void;
   setRecepciones: (v: RecepcionAlmacen[] | ((prev: RecepcionAlmacen[]) => RecepcionAlmacen[])) => void;
+  setCentrosCosto: (v: CentroCosto[] | ((prev: CentroCosto[]) => CentroCosto[])) => void;
   setMutationQueue: (v: Mutation[] | ((prev: Mutation[]) => Mutation[])) => void;
   setSyncMessage: (v: string) => void;
   setSyncCooldown: (v: boolean) => void;
@@ -92,6 +94,9 @@ interface ErpActions {
   setIsOnline: (v: boolean) => void;
   setSelectedProyectoId: (v: string | null) => void;
   setAppSettings: (v: AppSettings | ((prev: AppSettings) => AppSettings)) => void;
+  updateAppSettings: (patch: Partial<AppSettings>) => void;
+  deleteOrden: (id: string) => void;
+  deleteNotificacion: (id: string) => void;
   enqueueMutation: (type: string, payload: Record<string, any>) => string;
   addAuditEntry: (entry: Omit<LogAuditoria, 'id' | 'createdAt'>) => void;
   setAuditLog: (v: LogAuditoria[] | ((prev: LogAuditoria[]) => LogAuditoria[])) => void;
@@ -118,48 +123,45 @@ function normalizarFilaSupabase(row: Record<string, any>): Record<string, any> {
   return normalized;
 }
 
-export const fetchInitialData = async () => {
+export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
   try {
     useErpStore.setState({ syncStatus: 'loading', syncError: undefined });
-    const { createClient } = await import('@supabase/supabase-js');
-    const url = typeof window !== 'undefined' ? (window as any).__SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL : '';
-    const key = typeof window !== 'undefined' ? (window as any).__SUPABASE_KEY || import.meta.env.VITE_SUPABASE_KEY : '';
-    if (!url || !key) return;
-    const supabase = createClient(url, key);
+    if (!supabase) return false;
 
     const TABLES = [
-      'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
-      'erp_ordenes_compra', 'erp_proveedores', 'erp_presupuestos', 'erp_avances',
-      'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_ordenes_cambio',
-      'erp_hitos', 'erp_riesgos', 'erp_licitaciones', 'erp_cotizaciones_negocio',
-      'erp_vales_salida', 'erp_no_conformidades', 'erp_incidentes',
-      'erp_publicaciones_muro', 'erp_planos',
-      'erp_rfis', 'erp_submittals', 'erp_activos', 'destajos',
-      'erp_eventos_calendario', 'erp_bitacora', 'erp_seguimiento',
-      'erp_liberaciones_partida', 'erp_notificaciones', 'erp_cuadros',
-      'recepciones_almacen', 'erp_pruebas_laboratorio', 'ventas_paquetes',
-      'pagos_proveedores', 'erp_renglones', 'erp_insumos', 'erp_sub_renglones',
-      'erp_insumos_base', 'erp_rendimientos_cuadrilla',
+      'erp_proyectos','erp_movimientos','erp_empleados','erp_materiales',
+      'erp_ordenes_compra','erp_proveedores','erp_presupuestos','erp_avances',
+      'erp_cuentas_cobrar','erp_cuentas_pagar','erp_ordenes_cambio',
+      'erp_hitos','erp_riesgos','erp_licitaciones','erp_cotizaciones_negocio',
+      'erp_vales_salida','erp_no_conformidades','erp_incidentes',
+      'erp_publicaciones_muro','erp_planos',
+      'erp_rfis','erp_submittals','erp_activos','destajos',
+      'erp_eventos_calendario','erp_bitacora','erp_seguimiento',
+      'erp_liberaciones_partida','erp_notificaciones','erp_cuadros',
+      'recepciones_almacen','erp_pruebas_laboratorio','ventas_paquetes',
+      'pagos_proveedores','erp_renglones','erp_insumos','erp_sub_renglones',
+      'erp_insumos_base','erp_rendimientos_cuadrilla','centros_costo',
     ] as const;
 
     const TABLE_MAP: Record<string, string> = {
-      erp_proyectos: 'proyectos', erp_movimientos: 'movimientos', erp_empleados: 'empleados',
-      erp_materiales: 'materiales', erp_ordenes_compra: 'ordenes', erp_proveedores: 'proveedores',
-      erp_presupuestos: 'presupuestos', erp_avances: 'avances',
-      erp_cuentas_cobrar: 'cuentasCobrar', erp_cuentas_pagar: 'cuentasPagar',
-      erp_ordenes_cambio: 'ordenesCambio', erp_hitos: 'hitos', erp_riesgos: 'riesgos',
-      erp_licitaciones: 'licitaciones', erp_cotizaciones_negocio: 'cotizacionesNegocio',
-      erp_vales_salida: 'valesSalida', erp_no_conformidades: 'ncs', erp_incidentes: 'incidentes',
-      erp_publicaciones_muro: 'publicacionesMuro',
-      erp_planos: 'planos', erp_rfis: 'rfis', erp_submittals: 'submittals',
-      erp_activos: 'activos', destajos: 'destajos',
-      erp_eventos_calendario: 'eventos', erp_bitacora: 'bitacora',
-      erp_seguimiento: 'seguimientoEVM', erp_liberaciones_partida: 'liberaciones',
-      erp_notificaciones: 'notificaciones', erp_cuadros: 'cuadros',
-      recepciones_almacen: 'recepciones', erp_pruebas_laboratorio: 'pruebas',
-      ventas_paquetes: 'ventasPaquetes', pagos_proveedores: 'pagosProveedor',
-      erp_renglones: 'renglones', erp_insumos: 'insumos', erp_sub_renglones: 'subRenglones',
-      erp_insumos_base: 'insumosBase', erp_rendimientos_cuadrilla: 'rendimientosCuadrilla',
+      erp_proyectos:'proyectos',erp_movimientos:'movimientos',erp_empleados:'empleados',
+      erp_materiales:'materiales',erp_ordenes_compra:'ordenes',erp_proveedores:'proveedores',
+      erp_presupuestos:'presupuestos',erp_avances:'avances',
+      erp_cuentas_cobrar:'cuentasCobrar',erp_cuentas_pagar:'cuentasPagar',
+      erp_ordenes_cambio:'ordenesCambio',erp_hitos:'hitos',erp_riesgos:'riesgos',
+      erp_licitaciones:'licitaciones',erp_cotizaciones_negocio:'cotizacionesNegocio',
+      erp_vales_salida:'valesSalida',erp_no_conformidades:'ncs',erp_incidentes:'incidentes',
+      erp_publicaciones_muro:'publicacionesMuro',
+      erp_planos:'planos',erp_rfis:'rfis',erp_submittals:'submittals',
+      erp_activos:'activos',destajos:'destajos',
+      erp_eventos_calendario:'eventos',erp_bitacora:'bitacora',
+      erp_seguimiento:'seguimientoEVM',erp_liberaciones_partida:'liberaciones',
+      erp_notificaciones:'notificaciones',erp_cuadros:'cuadros',
+      recepciones_almacen:'recepciones',erp_pruebas_laboratorio:'pruebas',
+      ventas_paquetes:'ventasPaquetes',pagos_proveedores:'pagosProveedor',
+      erp_renglones:'renglones',erp_insumos:'insumos',erp_sub_renglones:'subRenglones',
+      erp_insumos_base:'insumosBase',erp_rendimientos_cuadrilla:'rendimientosCuadrilla',
+      centros_costo:'centrosCosto',
     };
 
     const results = await Promise.allSettled(TABLES.map(async (table) => {
@@ -180,13 +182,27 @@ export const fetchInitialData = async () => {
     if (Object.keys(statePatch).length > 0) {
       useErpStore.setState({ ...statePatch, syncStatus: 'synced', lastSyncedAt: new Date().toISOString(), syncError: undefined });
       safeLogger.log(`[fetchInitialData] Cargados datos de ${Object.keys(statePatch).length} tablas desde Supabase`);
-    } else {
-      useErpStore.setState({ syncStatus: 'synced', lastSyncedAt: new Date().toISOString(), syncError: undefined });
+      (window as any).__FETCH_RETRY = 0;
+      return true;
     }
+    useErpStore.setState({ syncStatus: 'synced', lastSyncedAt: new Date().toISOString(), syncError: undefined });
+    (window as any).__FETCH_RETRY = 0;
+    return true;
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     useErpStore.setState({ syncStatus: 'error', syncError: error });
     safeLogger.warn('[fetchInitialData] Error general:', err);
+    const next = (window as any).__FETCH_RETRY || 0;
+    (window as any).__FETCH_RETRY = next + 1;
+    if (attempt > 10) {
+      safeLogger.warn('[fetchInitialData] Max retries exceeded, giving up');
+      useErpStore.setState({ syncStatus: 'error', syncError: 'Error de conexión tras múltiples reintentos' });
+      return false;
+    }
+    const backoff = Math.min(1000 * Math.pow(2, Math.min(next, 5)), 30000);
+    safeLogger.warn(`[fetchInitialData] Reintento ${next + 1} en ${backoff}ms (keepAlive)`);
+    await new Promise(r => setTimeout(r, backoff));
+    return fetchInitialData(attempt + 1);
   }
 };
 
@@ -197,7 +213,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   ventasPaquetes: [], bitacora: [], pruebas: [], ncs: [], valesSalida: [],
   seguimientoEVM: [], incidentes: [], publicacionesMuro: [], liberaciones: [], planos: [],
   rfis: [], submittals: [], activos: [], cuadros: [], pagosProveedor: [], destajos: [],
-  recepciones: [],
+    recepciones: [], centrosCosto: [],
   mutationQueue: [], syncMessage: '', syncCooldown: false, syncStatus: 'idle',
   notificaciones: [],
   auditLog: [],
@@ -248,6 +264,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setIsOnline: (v) => set({ isOnline: v }),
   setSelectedProyectoId: (v) => set({ selectedProyectoId: v }),
   setAppSettings: (v) => set(typeof v === 'function' ? { appSettings: v(get().appSettings) } : { appSettings: v }),
+  updateAppSettings: (patch) => set(s => ({ appSettings: { ...s.appSettings, ...patch } })),
   setAuditLog: (v) => set(typeof v === 'function' ? { auditLog: v(get().auditLog) } : { auditLog: v }),
 
   enqueueMutation: (type, payload) => {
@@ -416,6 +433,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     }
     get().enqueueMutation('updateOrden', { id, estado, stockActualizado: true });
   },
+  deleteOrden: (id) => { get().setOrdenes(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteOrden', { id }); },
 
   addProveedor: (p) => { const n = { ...p, id: uid() }; get().setProveedores(prev => [n, ...prev]); get().enqueueMutation('addProveedor', n); },
   updateProveedor: (id, patch) => { get().setProveedores(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateProveedor', { id, ...patch }); },
@@ -498,12 +516,15 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
 
   addPlano: (p) => { const n = { ...p, id: uid() }; get().setPlanos(prev => [n, ...prev]); get().enqueueMutation('addPlano', n); },
   updatePlano: (id, patch) => { get().setPlanos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updatePlano', { id, ...patch }); },
+  deletePlano: (id) => { get().setPlanos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deletePlano', { id }); },
 
   addRfi: (r) => { const n = { ...r, id: uid() }; get().setRfis(prev => [n, ...prev]); get().enqueueMutation('addRfi', n); },
   updateRfi: (id, patch) => { get().setRfis(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateRfi', { id, ...patch }); },
+  deleteRfi: (id) => { get().setRfis(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteRfi', { id }); },
 
   addSubmittal: (s) => { const n = { ...s, id: uid() }; get().setSubmittals(prev => [n, ...prev]); get().enqueueMutation('addSubmittal', n); },
   updateSubmittal: (id, patch) => { get().setSubmittals(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateSubmittal', { id, ...patch }); },
+  deleteSubmittal: (id) => { get().setSubmittals(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteSubmittal', { id }); },
 
   addActivo: (a) => { const n = { ...a, id: uid() }; get().setActivos(prev => [n, ...prev]); get().enqueueMutation('addActivo', n); },
   updateActivo: (id, patch) => { get().setActivos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateActivo', { id, ...patch }); },
@@ -542,12 +563,15 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
 
   addPrueba: (p) => { const n = { ...p, id: uid() }; get().setPruebas(prev => [n, ...prev]); get().enqueueMutation('addPrueba', n); },
   updatePrueba: (id, patch) => { get().setPruebas(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updatePrueba', { id, ...patch }); },
+  deletePrueba: (id) => { get().setPruebas(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deletePrueba', { id }); },
 
   addNC: (n) => { const nc = { ...n, id: uid() }; get().setNcs(prev => [nc, ...prev]); get().enqueueMutation('addNC', nc); },
   updateNC: (id, patch) => { get().setNcs(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateNC', { id, ...patch }); },
+  deleteNC: (id) => { get().setNcs(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteNC', { id }); },
 
   addLiberacion: (l) => { const n = { ...l, id: uid() }; get().setLiberaciones(prev => [n, ...prev]); get().enqueueMutation('addLiberacion', n); },
   updateLiberacion: (id, patch) => { get().setLiberaciones(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateLiberacion', { id, ...patch }); },
+  deleteLiberacion: (id) => { get().setLiberaciones(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteLiberacion', { id }); },
 
   addNotificacion: (tipo, titulo, mensaje, proyectoId, referenciaId) => {
     get().setNotificaciones(prev => {
@@ -559,6 +583,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     });
   },
   markNotificacionLeida: (id) => { get().setNotificaciones(prev => prev.map(n => n.id === id ? { ...n, leido: true } : n)); get().enqueueMutation('markNotificacionLeida', { id, leido: true }); },
+  deleteNotificacion: (id) => { get().setNotificaciones(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteNotificacion', { id }); },
   marcarTodasLeidas: () => {
     const unread = get().notificaciones.filter(n => !n.leido);
     get().setNotificaciones(prev => prev.map(n => ({ ...n, leido: true })));

@@ -9,7 +9,7 @@ import {
   bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema, muroSchema,
   notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
   licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
-  destajoSchema, recepcionAlmacenSchema, valeSalidaSchema,
+  destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical, toSnake } from './utils';
 import { hasSupabase, assertSupabase } from '@/lib/supabase';
@@ -133,15 +133,16 @@ const MUTATION_TABLE_MAP: Record<string, string> = {
   addPresupuesto:'erp_presupuestos',updatePresupuesto:'erp_presupuestos',deletePresupuesto:'erp_presupuestos',
   addLicitacion:'erp_licitaciones',updateLicitacion:'erp_licitaciones',deleteLicitacion:'erp_licitaciones',
   addCotizacion:'erp_cotizaciones_negocio',updateCotizacion:'erp_cotizaciones_negocio',deleteCotizacion:'erp_cotizaciones_negocio',
+  addVentaPaquete:'ventas_paquetes',
   addAvance:'erp_avances',deleteAvance:'erp_avances',
   addCuentaCobrar:'erp_cuentas_cobrar',updateCuentaCobrar:'erp_cuentas_cobrar',deleteCuentaCobrar:'erp_cuentas_cobrar',
   addCuentaPagar:'erp_cuentas_pagar',updateCuentaPagar:'erp_cuentas_pagar',deleteCuentaPagar:'erp_cuentas_pagar',
   addOrdenCambio:'erp_ordenes_cambio',updateOrdenCambio:'erp_ordenes_cambio',deleteOrdenCambio:'erp_ordenes_cambio',
   addHito:'erp_hitos',updateHito:'erp_hitos',deleteHito:'erp_hitos',
   addRiesgo:'erp_riesgos',updateRiesgo:'erp_riesgos',deleteRiesgo:'erp_riesgos',
-  addPlano:'erp_planos',updatePlano:'erp_planos',
-  addRfi:'erp_rfis',updateRfi:'erp_rfis',
-  addSubmittal:'erp_submittals',updateSubmittal:'erp_submittals',
+  addPlano:'erp_planos',updatePlano:'erp_planos',deletePlano:'erp_planos',
+  addRfi:'erp_rfis',updateRfi:'erp_rfis',deleteRfi:'erp_rfis',
+  addSubmittal:'erp_submittals',updateSubmittal:'erp_submittals',deleteSubmittal:'erp_submittals',
   addActivo:'erp_activos',updateActivo:'erp_activos',deleteActivo:'erp_activos',
   addCuadro:'erp_cuadros',updateCuadro:'erp_cuadros',deleteCuadro:'erp_cuadros',
   addPagoProveedor:'erp_pagos_proveedor',updatePagoProveedor:'erp_pagos_proveedor',deletePagoProveedor:'erp_pagos_proveedor',
@@ -152,10 +153,10 @@ const MUTATION_TABLE_MAP: Record<string, string> = {
   addPublicacionMuro:'erp_publicaciones_muro',
   addComentarioMuro:'erp_publicaciones_muro',
   likePublicacionMuro:'erp_publicaciones_muro',
-  addPrueba:'erp_pruebas',updatePrueba:'erp_pruebas',
-  addNC:'erp_no_conformidades',updateNC:'erp_no_conformidades',
-  addLiberacion:'erp_liberaciones_partida',updateLiberacion:'erp_liberaciones_partida',
-  addNotificacion:'erp_notificaciones',markNotificacionLeida:'erp_notificaciones',
+  addPrueba:'erp_pruebas',updatePrueba:'erp_pruebas',deletePrueba:'erp_pruebas',
+  addNC:'erp_no_conformidades',updateNC:'erp_no_conformidades',deleteNC:'erp_no_conformidades',
+  addLiberacion:'erp_liberaciones_partida',updateLiberacion:'erp_liberaciones_partida',deleteLiberacion:'erp_liberaciones_partida',
+  addNotificacion:'erp_notificaciones',markNotificacionLeida:'erp_notificaciones',deleteNotificacion:'erp_notificaciones',
   addSeguimiento:'erp_seguimiento',updateSeguimiento:'erp_seguimiento',deleteSeguimiento:'erp_seguimiento',
 };
 
@@ -224,6 +225,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       pagosProveedor: loadFromStorage(BASE_STORAGE_KEY + '_pagos_proveedor', pagoProveedorSchema),
       destajos: loadFromStorage(BASE_STORAGE_KEY + '_destajos', destajoSchema),
       recepciones: loadFromStorage(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema),
+      centrosCosto: loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
       mutationQueue: JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]') as Mutation[],
       notificaciones: JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]') as any[],
       auditLog: JSON.parse(localStorage.getItem(AUDIT_KEY) || '[]') as any[],
@@ -252,6 +254,20 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }), 'ErpProvider', 600000);
     return cancel;
   }, [isOnline, user]);
+
+  const keepAliveRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => {
+    if (!isOnline) return;
+    const tick = () => {
+      const status = useErpStore.getState().syncStatus;
+      if (status === 'idle' || status === 'error') fetchInitialData(1);
+      keepAliveRef.current = setTimeout(tick, 600000);
+    };
+    keepAliveRef.current = setTimeout(tick, 600000);
+    const onVis = () => { if (document.visibilityState === 'visible') fetchInitialData(1); };
+    document.addEventListener('visibilitychange', onVis);
+    return () => { clearTimeout(keepAliveRef.current); document.removeEventListener('visibilitychange', onVis); };
+  }, [isOnline]);
 
   const forceSync = useMemo(() => {
     return async () => {
@@ -355,7 +371,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             seguimiento_evm: s.seguimientoEVM, incidentes: s.incidentes, publicacionesMuro: s.publicacionesMuro,
             liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
             activos: s.activos, cuadros: s.cuadros, pagos_proveedor: s.pagosProveedor,
-            destajos: s.destajos, recepciones: s.recepciones,
+            destajos: s.destajos, recepciones: s.recepciones, centrosCosto: s.centrosCosto,
           };
           const quotaCritical = isStorageQuotaCritical();
           Object.entries(map).forEach(([k, v]) => {

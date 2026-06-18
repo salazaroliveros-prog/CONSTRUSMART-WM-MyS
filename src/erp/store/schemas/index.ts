@@ -15,3 +15,4 @@ export { seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema } from '.
 export { muroSchema, notificacionSchema } from './social';
 export { liberacionSchema, pruebaSchema, noConformidadSchema } from './calidad';
 export { activoSchema, licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema, destajoSchema, recepcionAlmacenSchema } from './gestion';
+export { centroCostoSchema } from './admin';

@@ -204,7 +204,9 @@
     "avance_fin_vs_fis": "Avance Financiero vs Físico",
     "riesgo_alto": "Riesgo Alto",
     "riesgo_medio": "Riesgo Medio",
-    "riesgo_bajo": "Riesgo Bajo"
+    "riesgo_bajo": "Riesgo Bajo",
+    "recursos": "Recursos",
+    "cronograma": "Cronograma"
   },
   "proyectos": {
     "titulo": "Proyectos",

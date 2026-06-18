@@ -657,7 +657,7 @@ const Dashboard: React.FC = () => {
               <h3 className="font-bold text-foreground text-xs mb-1 flex items-center gap-1">
                 {t('dashboard.gastos')} <span className="text-muted-foreground font-normal text-[9px]">vs {t('dashboard.ingresos')}</span>
               </h3>
-              <div className="h-10"><BarChart data={movPorCategoria} height={40} /></div>
+              <div className="h-14"><BarChart data={movPorCategoria} height={56} /></div>
               <div className="flex items-center justify-between text-[9px] bg-muted/30 rounded-lg px-2 py-1 mt-1">
                 <span className="text-emerald-500 font-medium">{t('dashboard.ingresos')} {fmtQ(ingresos)}</span>
                 <span className="text-muted-foreground">|</span>

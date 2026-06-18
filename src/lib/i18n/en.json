@@ -203,7 +203,9 @@
     "avance_fin_vs_fis": "Financial vs Physical Progress",
     "riesgo_alto": "High Risk",
     "riesgo_medio": "Medium Risk",
-    "riesgo_bajo": "Low Risk"
+    "riesgo_bajo": "Low Risk",
+    "recursos": "Resources",
+    "cronograma": "Schedule"
   },
   "proyectos": {
     "titulo": "Projects",

@@ -203,7 +203,7 @@ export const BarChart: React.FC<{
         {data.map((d, i) => {
         const c = pickColor(i, palette, d.color);
         const value = Math.max(0, Number.isFinite(d.value) ? d.value : 0);
-        const fullH = (value / max) * (height - PAD * 2);
+        const fullH = Math.max(0, (value / max) * (height - PAD * 2));
         const animH = fullH * p;
         const bx = PAD + i * bw + bw * 0.12;
         const bwInner = bw * 0.76;
