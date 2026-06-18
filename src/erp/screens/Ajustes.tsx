@@ -501,7 +501,7 @@ const Ajustes: React.FC = () => {
 
       <Card
         style={{ ...sectionCard, borderRadius: token.borderRadiusLG, overflow: 'hidden' }}
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 } }}
       >
         <Tabs
           defaultActiveKey="apariencia"

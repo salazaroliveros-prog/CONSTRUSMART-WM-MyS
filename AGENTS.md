@@ -40,11 +40,34 @@
 - `src/__tests__/erp-estilos-ui.test.tsx`: 72 tests
 - `src/__tests__/erp-validacion-funcional.test.tsx`: 57 tests
 - `src/__tests__/filtro-proyecto.test.tsx`: 5 tests
-- Combined: **576/576 tests pass** (0 failures) — 14 test files
+- Combined: **619/619 tests pass** (0 failures) — 15 test files
 
 ## Cambios Realizados (sesión actual)
 
-### BUG-01: Mutation Keys de Cotizaciones
+### GAP A/B: Missing delete handlers (zustandStore.ts)
+- `deleteOrden` handler añadido (interfaz + implementación)
+- `deleteNotificacion` handler añadido (interfaz + implementación)
+
+### GAP C: updateAppSettings crash en Ajustes (HIGH)
+- `updateAppSettings` no existía en el store; Ajustes.tsx lo usaba → TypeError
+- Añadido a la interfaz `ErpActions` + implementación (merge parcial)
+- `useErp()` mergea zustand state en contexto, así que la screen funciona sin cambios
+
+### Screen-by-screen audit (34 screens)
+- Navegadas todas las pantallas vía sidebar: 0 errores runtime
+- Solo 2 warnings de React Router (flags de futuro, inofensivos)
+
+### Bug G: Recharts <rect> negative height
+- Removido `src/components/ui/chart.tsx` (código muerto)
+- Eliminado `recharts` de package.json
+- Clamp `fullH` en BarChart (`Math.max(0, ...)`)
+- Dashboard.tsx: BarChart height 40→56
+
+### CRUD: Delete handlers faltantes (zustandStore.ts)
+- Añadidos `deletePlano`, `deleteRfi`, `deleteSubmittal`, `deletePrueba`, `deleteNC`, `deleteLiberacion`
+
+### TableMap: Entradas faltantes (store.tsx)
+- Añadidos `addVentaPaquete`, `deletePlano`, `deleteRfi`, `deleteSubmittal`, `deletePrueba`, `deleteNC`, `deleteLiberacion`, `deleteNotificacion`
 - `addLicitacion`/`updateLicitacion`/`deleteLicitacion` → `addCotizacion`/`updateCotizacion`/`deleteCotizacion`
 - Tabla: `erp_cotizaciones_negocio`
 

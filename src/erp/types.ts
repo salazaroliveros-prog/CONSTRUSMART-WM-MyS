@@ -615,6 +615,16 @@ export interface RecepcionAlmacen {
   proveedor: string;
 }
 
+export interface CentroCosto {
+  id: string;
+  proyectoId: string;
+  codigo: string;
+  nombre: string;
+  presupuestoAsignado: number;
+  gastoActual: number;
+  tipo: 'directo' | 'indirecto' | 'administrativo';
+}
+
 export interface Destajo {
   id: string;
   proyectoId: string;

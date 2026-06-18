@@ -120,7 +120,7 @@ const Financiero: React.FC = () => {
           <div className="flex items-center gap-3">
             <Donut size={130} data={porCategoria.length ? porCategoria : [{ label: '-', value: 1, color: '#e2e8f0' }]} />
             <div className="text-[11px] space-y-1 flex-1 max-h-32 overflow-y-auto">
-              {porCategoria.length > 0 ? porCategoria.map(c => <div key={c.label} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full" style={{ background: c.color }} />{c.label}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>) : <p className="text-muted-foreground text-center py-2">Sin gastos registrados</p>}
+              {porCategoria.length > 0 ? porCategoria.map((c, i) => <div key={c.label || `cat-${i}`} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full" style={{ background: c.color }} />{c.label || 'Otros'}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>) : <p className="text-muted-foreground text-center py-2">Sin gastos registrados</p>}
             </div>
           </div>
         </div>

@@ -39,7 +39,16 @@ type ProveedorOption = { id: string; nombre: string };
 const Bodega: React.FC = () => {
   const paretoConfig = useChartConfig('line', 'default');
   const ctx = useErp();
-  const { materiales, updateMaterial, ordenes, updateOrden, addOrden, proveedores, addProveedor, updateProveedor, deleteProveedor, proyectos } = ctx;
+  const { materiales: rawMateriales, updateMaterial, ordenes, updateOrden, addOrden, proveedores, addProveedor, updateProveedor, deleteProveedor, proyectos } = ctx;
+  const materiales = useMemo(() => {
+    const seen = new Set<string>();
+    return rawMateriales.filter(m => {
+      const key = m.nombre.toLowerCase().trim();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [rawMateriales]);
   const handleExportStockPDF = () => exportStockPDF(materiales, proyectos.find(p => p.id === ctx.selectedProyectoId)?.nombre);
   const [showProveedor, setShowProveedor] = useState(false);
   const [showOrden, setShowOrden] = useState(false);

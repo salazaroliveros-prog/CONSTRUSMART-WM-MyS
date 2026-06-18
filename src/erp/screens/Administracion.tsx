@@ -16,31 +16,20 @@ const centroCostoSchema = z.object({
 });
 type CentroCostoForm = z.infer<typeof centroCostoSchema>;
 
-const uid = () => Date.now().toString(36).substr(2, 9);
-
 export const Administracion: React.FC = () => {
-  const { proyectos, auditLog } = useErp();
+  const { proyectos, auditLog, centrosCosto, setCentrosCosto } = useErp();
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion'>('centros');
   const [showForm, setShowForm] = useState(false);
-
-  const [centrosCosto, setCentrosCosto] = useState<CentroCosto[]>([]);
   const [filtroProyecto, setFiltroProyecto] = useState('');
 
-  const saveCentros = (data: CentroCosto[]) => {
-    setCentrosCosto(data);
-  };
-
-  const addCentroCosto = (data: Omit<CentroCosto, 'id'>) => {
-    saveCentros([{ ...data, id: uid() }, ...centrosCosto]);
-  };
-
+  const uid = () => Date.now().toString(36).substr(2, 9);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CentroCostoForm>({
     resolver: zodResolver(centroCostoSchema),
     defaultValues: { proyectoId: '', codigo: '', nombre: '', presupuestoAsignado: 0, tipo: 'directo' },
   });
 
   const onAddCentroCosto = (data: CentroCostoForm) => {
-    addCentroCosto({ proyectoId: data.proyectoId, codigo: data.codigo, nombre: data.nombre, presupuestoAsignado: data.presupuestoAsignado, gastoActual: 0, tipo: data.tipo });
+    setCentrosCosto(prev => [{ id: uid(), proyectoId: data.proyectoId, codigo: data.codigo, nombre: data.nombre, presupuestoAsignado: data.presupuestoAsignado, gastoActual: 0, tipo: data.tipo }, ...prev]);
     toast.success('Centro de costo creado');
     setShowForm(false);
     reset();

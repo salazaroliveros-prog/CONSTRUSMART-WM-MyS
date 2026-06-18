@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { OrdenCambio } from '../types';
@@ -12,6 +12,7 @@ type EstadoOC = OrdenCambio['estado'];
 const OrdenesCambio: React.FC = () => {
   const { proyectos, user, ordenesCambio, addOrdenCambio, updateOrdenCambio } = useErp();
   const [loading, setLoading] = useState(true);
+  useEffect(() => { setLoading(false); }, []);
   const [showForm, setShowForm] = useState(false);
   const [proyectoFilter, setProyectoFilter] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);

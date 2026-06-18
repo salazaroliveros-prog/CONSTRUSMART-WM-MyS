@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useErp } from '../store';
 import { Licitacion } from '../types';
 import { fmtQ, todayISO } from '../utils';
@@ -41,6 +41,7 @@ const ESTADO_SIGUIENTE: Record<string, string> = {
 const CRM: React.FC = () => {
   const { proyectos, licitaciones, addLicitacion, updateLicitacion, deleteLicitacion } = useErp();
   const [loading, setLoading] = useState(true);
+  useEffect(() => { setLoading(false); }, []);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filtroProyecto, setFiltroProyecto] = useState('');
