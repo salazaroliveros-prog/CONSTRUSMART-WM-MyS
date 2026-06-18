@@ -63,7 +63,7 @@ const Dashboard: React.FC = () => {
 
   const {
     proyectos, movimientos, avances, selectedProyectoId, setView,
-    materiales, setSelectedProyectoId, empleados, hitos, ordenes,
+    materiales, setSelectedProyectoId, empleados, hitos, ordenes, proveedores,
     cuentasPagar, eventos, presupuestos, licitaciones, riesgos,
     ordenesCambio, cuentasCobrar, valesSalida, recepciones, destajos,
     publicacionesMuro, planos, rfis, submittals, ventasPaquetes, pagosProveedor,
