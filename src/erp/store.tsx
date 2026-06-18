@@ -68,13 +68,15 @@ function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
 export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones';
 export type UIMode = 'shadcn' | 'antd';
 export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
-export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeguero';
 export type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
+
+export const ALL_VIEWS: View[] = [
+  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones'
+];
 
 export const clearAllData = () => {
   if (typeof window !== 'undefined' && useErpStore.getState().clearAllData) {
     useErpStore.getState().clearAllData();
-    // Recargar la página para reiniciar todos los componentes desde cero
     window.location.reload();
   }
 };
@@ -87,14 +89,6 @@ export interface AppSettings {
   empresaInfo?: { nombre: string; nit: string; telefono: string; email: string; direccion: string; ciudad: string; pais: string; };
 }
 
-export const ALLOWED: Record<Rol, View[]> = {
-  Administrador: ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones'],
-  Gerente: ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones'],
-  Residente: ['dashboard','proyectos','presupuestos','seguimiento','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','hitos','riesgos','ajustes','cotizaciones'],
-  Compras: ['dashboard','bodega','proyectos','cuentas-pagar','ajustes','cotizaciones'],
-  Bodeguero: ['dashboard','bodega','ajustes'],
-};
-
 export type LogAuditoria = {
   id: string; usuarioId?: string; usuarioNombre: string;
   accion: string; entidad: string; entidadId?: string;
@@ -102,16 +96,9 @@ export type LogAuditoria = {
   createdAt: string;
 };
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'salazaroliveros@gmail.com';
 export const uid = (): string => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => (Math.random()*16|0>>(c==='x'?0:1)).toString(16));
-};
-export const mapRol = (rol: string, email?: string): Rol => {
-  const validRoles: Rol[] = ['Administrador','Gerente','Residente','Compras','Bodeguero'];
-  if (validRoles.includes(rol as Rol)) return rol as Rol;
-  if (email === ADMIN_EMAIL) return 'Administrador';
-  return 'Residente';
 };
 
 const Ctx = createContext<any>(null);
@@ -402,10 +389,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => { unsub(); clearTimeout(timer); };
   }, []);
 
-  const allowedViews = useMemo(() => {
-    const rt = { Administrador: 'Administrador', Gerente: 'Gerente', Residente: 'Residente', Compras: 'Compras', Bodeguero: 'Bodeguero' } as Record<string, Rol>;
-    return user ? (ALLOWED[rt[(user.rol as string) || 'Residente']] || ALLOWED['Residente']) : [];
-  }, [user]);
+  const allowedViews = useMemo(() => ALL_VIEWS, []);
 
   const notificacionesNoLeidas = useErpStore(s => s.notificaciones.filter(n => !n.leida).length);
 
@@ -414,7 +398,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     signInWithGoogle: realSignInWithGoogle,
     logout: realLogout,
     allowedViews, forceSync,
-  }), [view, user, initializing, isOnline, notificacionesNoLeidas, allowedViews, forceSync, realSignInWithGoogle, realLogout]);
+  }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, realLogout, forceSync]);
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
 };
