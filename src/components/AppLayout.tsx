@@ -199,7 +199,7 @@ const Shell: React.FC = () => {
   const resolvedView = viewName === 'rendimientos' ? 'rendimiento-campo' : viewName;
 
   let safeScreen = screens['dashboard'];
-  if (!user || (user as any)?.id === 'local' || resolvedView === 'login') {
+  if (!user || (user as any)?.id === 'local') {
     safeScreen = screens['login'];
   } else if (allAllowedScreens.includes(resolvedView)) {
     safeScreen = screens[resolvedView];
@@ -232,8 +232,20 @@ const Shell: React.FC = () => {
 };
 
 const AppLayout: React.FC = () => {
-  const { user } = useErp();
+  const { user, initializing } = useErp();
   const isAuthed = user && (user as any)?.id !== 'local';
+
+  if (initializing) {
+    return (
+      <AppProvider>
+        <ErpProvider>
+          <div className="min-h-screen flex items-center justify-center bg-background">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+          </div>
+        </ErpProvider>
+      </AppProvider>
+    );
+  }
 
   if (!isAuthed) {
     return (
