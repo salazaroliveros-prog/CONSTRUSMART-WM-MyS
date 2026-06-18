@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
-import { ShieldCheck, Chrome, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
@@ -39,16 +39,6 @@ const Login: React.FC = () => {
           <h1 className="text-4xl font-black leading-tight text-white drop-shadow-md">{EMPRESA.nombre}</h1>
           <p className="text-orange-300 text-lg italic mt-2">{EMPRESA.eslogan}</p>
           <p className="text-orange-200/90 mt-6 leading-relaxed">Acceso exclusivo solo para usuarios autorizados.</p>
-          <div className="flex gap-6 mt-8">
-            <div className="text-center">
-              <ShieldCheck className="w-5 h-5 mx-auto text-orange-400" />
-              <span className="text-xs text-orange-200 mt-1 block">{t('common.exclusive_access') || 'Acceso exclusivo'}</span>
-            </div>
-            <div className="text-center">
-              <Chrome className="w-5 h-5 mx-auto text-orange-400" />
-              <span className="text-xs text-orange-200 mt-1 block">Solo Google</span>
-            </div>
-          </div>
         </div>
       </div>
 
