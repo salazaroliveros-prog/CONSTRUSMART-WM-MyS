@@ -1,31 +1,31 @@
-import { defineConfig } from "vite";
-import path from "path";
+import { defineConfig } from 'vite';
+import path from 'path';
 
 export default defineConfig(({ mode: _mode }) => ({
   esbuild: {
-    jsx: "automatic",
-    jsxImportSource: "react",
+    jsx: 'automatic',
+    jsxImportSource: 'react',
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, './src'),
     },
   },
-  base: "/",
+  base: '/',
   server: {
-    host: "0.0.0.0",
+    host: '0.0.0.0',
     port: 8080,
   },
   optimizeDeps: {
-    include: ["antd", "@ant-design/icons"],
+    include: ['antd', '@ant-design/icons'],
   },
   build: {
     chunkSizeWarningLimit: 5000,
     rollupOptions: {
       output: {
         manualChunks: {
-          three: ["three"],
-          "web-ifc": ["web-ifc"],
+          'three': ['three'],
+          'web-ifc': ['web-ifc'],
         },
       },
     },
