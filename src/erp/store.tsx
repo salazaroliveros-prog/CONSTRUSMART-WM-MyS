@@ -155,18 +155,22 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const { user: authUser, signInWithGoogle: realSignInWithGoogle, logout: realLogout, loading: authLoading } = useAuth();
 
-  const user = useMemo(() => {
-    if (authUser) {
-      return {
-        id: authUser.id,
-        email: authUser.email,
-        nombre: authUser.nombre,
-        rol: authUser.rol,
-        avatar: (authUser as any)?.avatar || (authUser as any)?.picture || null,
-      };
-    }
-    return { id: 'local', email: 'local@construsmart', nombre: 'Usuario Local', rol: 'Administrador' as Rol, avatar: null };
-  }, [authUser]);
+   const user = useMemo(() => {
+     if (authUser) {
+       const avatar = (authUser as any)?.avatar || (authUser as any)?.picture || null;
+       if (avatar && typeof window !== 'undefined') {
+         try { localStorage.setItem('wm_google_avatar', avatar); } catch {}
+       }
+       return {
+         id: authUser.id,
+         email: authUser.email,
+         nombre: authUser.nombre,
+         rol: authUser.rol,
+         avatar,
+       };
+     }
+     return { id: 'local', email: 'local@construsmart', nombre: 'Usuario Local', rol: 'Administrador' as Rol, avatar: null };
+   }, [authUser]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
