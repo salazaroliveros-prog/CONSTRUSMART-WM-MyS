@@ -423,33 +423,39 @@ const Dashboard: React.FC = () => {
 
       {/* ─── ROW 2: Presupuesto + Avance + Recursos ────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-1.5 sm:gap-2 mb-2 flex-shrink-0">
-        <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 hover:shadow-[0_0_15px_hsl(var(--primary)/0.1)] transition-all`}>
-          <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
-            <Calculator className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
-            {t('dashboard.planif')} vs {t('dashboard.real')}
-          </h3>
-          <div className="flex items-center gap-3">
-            <Donut size={110} data={[
-              { label: t('dashboard.planif'), value: planVsReal.costoPlanificado, color: '#3b82f6' },
-              { label: t('dashboard.real'), value: Math.max(planVsReal.costoReal, 0), color: '#f97316' },
-            ]} />
-            <div className="flex-1 text-[10px] space-y-1">
-              <div className="flex justify-between"><span className="text-muted-foreground">Planificado</span><b className="text-foreground">{fmtQ(planVsReal.costoPlanificado)}</b></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Real</span><b className="text-foreground">{fmtQ(Math.max(planVsReal.costoReal, 0))}</b></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Desviación</span><b className={Math.abs(planVsReal.avgDesv) > 15 ? 'text-red-500' : 'text-emerald-500'}>{fmtPct(planVsReal.avgDesv)}</b></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Mayor desviación</span><b className="text-foreground truncate max-w-[120px] inline-block align-bottom text-right">{planVsReal.top?.nombre || (planVsReal.conPlan > 0 ? '-' : 'Sin datos')}</b></div>
-              {planVsReal.conPlan > 0 && (
-                <div className="pt-1">
-                  <div className="flex justify-between text-[9px] text-muted-foreground mb-0.5"><span>Registros</span><span>{planVsReal.conPlan}/{planVsReal.totalMateriales}</span></div>
-                  <div className="flex justify-between text-[9px] text-muted-foreground">
-                    <span>Fuente</span>
-                    <span>Supabase</span>
-                  </div>
+          <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 hover:shadow-[0_0_15px_hsl(var(--primary)/0.1)] transition-all`}>
+            <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
+              <Calculator className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
+              {t('dashboard.planif')} vs {t('dashboard.real')}
+            </h3>
+            {(planVsReal.conPlan > 0 || planVsReal.costoPlanificado > 0 || planVsReal.costoReal > 0) ? (
+              <div className="flex items-center gap-3">
+                <Donut size={110} data={[
+                  { label: t('dashboard.planif'), value: planVsReal.costoPlanificado || 0, color: '#3b82f6' },
+                  { label: t('dashboard.real'), value: Math.max(planVsReal.costoReal, 0) || 0, color: '#f97316' },
+                ]} />
+                <div className="flex-1 text-[10px] space-y-1">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Planificado</span><b className="text-foreground">{fmtQ(planVsReal.costoPlanificado || 0)}</b></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Real</span><b className="text-foreground">{fmtQ(Math.max(planVsReal.costoReal, 0))}</b></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Desviación</span><b className={Math.abs(planVsReal.avgDesv) > 15 ? 'text-red-500' : 'text-emerald-500'}>{fmtPct(planVsReal.avgDesv)}</b></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Mayor desviación</span><b className="text-foreground truncate max-w-[120px] inline-block align-bottom text-right">{planVsReal.top?.nombre || (planVsReal.conPlan > 0 ? '-' : 'Sin datos')}</b></div>
+                  {planVsReal.conPlan > 0 && (
+                    <div className="pt-1">
+                      <div className="flex justify-between text-[9px] text-muted-foreground mb-0.5"><span>Registros</span><span>{planVsReal.conPlan}/{planVsReal.totalMateriales}</span></div>
+                      <div className="flex justify-between text-[9px] text-muted-foreground">
+                        <span>Fuente</span>
+                        <span>Supabase</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-24 text-[10px] text-muted-foreground">
+                Sin presupuestos cargados
+              </div>
+            )}
           </div>
-        </div>
 
         <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 hover:shadow-[0_0_15px_hsl(var(--primary)/0.1)] transition-all`}>
           <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
