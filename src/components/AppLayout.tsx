@@ -136,7 +136,6 @@ const Shell: React.FC = () => {
 
   const screens = useMemo<Record<string, React.ReactNode>>(() => ({
     dashboard:         <Dashboard />,
-    login:             <Login />,
     proyectos:         <Proyectos />,
     presupuestos:      <Presupuestos />,
     seguimiento:       <Seguimiento />,
@@ -194,9 +193,7 @@ const Shell: React.FC = () => {
   const resolvedView = viewName === 'rendimientos' ? 'rendimiento-campo' : viewName;
 
   let safeScreen = screens['dashboard'];
-  if (!user || (user as any)?.id === 'local') {
-    safeScreen = screens['login'];
-  } else if (allAllowedScreens.includes(resolvedView)) {
+  if (allAllowedScreens.includes(resolvedView)) {
     safeScreen = screens[resolvedView];
   } else {
     safeScreen = screens['dashboard'];
@@ -226,10 +223,28 @@ const Shell: React.FC = () => {
   );
 };
 
+const AppLayoutContent: React.FC = () => {
+  const { user, initializing } = useErp();
+
+  if (initializing) {
+    return <AppLoader />;
+  }
+
+  if (!user || (user as any)?.id === 'local') {
+    return (
+      <Suspense fallback={<AppLoader />}>
+        <Login />
+      </Suspense>
+    );
+  }
+
+  return <Shell />;
+};
+
 const AppLayout: React.FC = () => (
   <AppProvider>
     <ErpProvider>
-      <Shell />
+      <AppLayoutContent />
     </ErpProvider>
   </AppProvider>
 );
