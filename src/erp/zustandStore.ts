@@ -126,11 +126,22 @@ function normalizarFilaSupabase(row: Record<string, any>): Record<string, any> {
 export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
   try {
     useErpStore.setState({ syncStatus: 'loading', syncError: undefined });
-    if (!supabase) return false;
+    if (!supabase) {
+      safeLogger.warn('[fetchInitialData] Supabase no configurado - Modo offline local');
+      useErpStore.setState({ 
+        syncStatus: 'error', 
+        syncError: 'Supabase no configurado - Modo offline local. Configure VITE_SUPABASE_URL y VITE_SUPABASE_KEY para habilitar sincronización.',
+        lastSyncedAt: new Date().toISOString() 
+      });
+      return false;
+    }
 
-    const TABLES = [
+    const CRITICAL_TABLES = [
       'erp_proyectos','erp_movimientos','erp_empleados','erp_materiales',
       'erp_ordenes_compra','erp_proveedores','erp_presupuestos','erp_avances',
+    ] as const;
+
+    const SECONDARY_TABLES = [
       'erp_cuentas_cobrar','erp_cuentas_pagar','erp_ordenes_cambio',
       'erp_hitos','erp_riesgos','erp_licitaciones','erp_cotizaciones_negocio',
       'erp_vales_salida','erp_no_conformidades','erp_incidentes',
@@ -164,30 +175,68 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       centros_costo:'centrosCosto',
     };
 
-    const results = await Promise.allSettled(TABLES.map(async (table) => {
+    const fetchTable = async (table: string) => {
       const { data, error } = await supabase.from(table).select('*');
       if (error) { safeLogger.warn(`[fetchInitialData] Error en ${table}: ${error.message}`); return null; }
       return { table, data: (data || []).map(normalizarFilaSupabase) };
-    }));
+    };
 
-    const statePatch: Record<string, any> = {};
-    for (const result of results) {
-      if (result.status === 'fulfilled' && result.value) {
-        const { table, data } = result.value;
-        const stateKey = TABLE_MAP[table];
-        if (stateKey) statePatch[stateKey] = data;
+    const processResults = (results: PromiseSettledResult<{ table: string; data: any[] } | null>[]) => {
+      const statePatch: Record<string, any> = {};
+      let errorCount = 0;
+      for (const result of results) {
+        if (result.status === 'fulfilled' && result.value) {
+          const { table, data } = result.value;
+          const stateKey = TABLE_MAP[table];
+          if (stateKey) statePatch[stateKey] = data;
+        } else {
+          errorCount++;
+        }
       }
+      return { statePatch, errorCount };
+    };
+
+    const criticalResults = await Promise.allSettled(CRITICAL_TABLES.map(fetchTable));
+    const { statePatch: criticalPatch, errorCount: criticalErrors } = processResults(criticalResults);
+
+    if (Object.keys(criticalPatch).length > 0) {
+      useErpStore.setState({ 
+        ...criticalPatch, 
+        syncStatus: 'synced', 
+        lastSyncedAt: new Date().toISOString(), 
+        syncError: criticalErrors > 0 ? `${criticalErrors} tablas críticas fallaron pero otras cargaron correctamente` : undefined 
+      });
+      safeLogger.log(`[fetchInitialData] Cargados datos críticos de ${Object.keys(criticalPatch).length} tablas desde Supabase`);
     }
 
-    if (Object.keys(statePatch).length > 0) {
-      useErpStore.setState({ ...statePatch, syncStatus: 'synced', lastSyncedAt: new Date().toISOString(), syncError: undefined });
-      safeLogger.log(`[fetchInitialData] Cargados datos de ${Object.keys(statePatch).length} tablas desde Supabase`);
+    setTimeout(async () => {
+      const secondaryResults = await Promise.allSettled(SECONDARY_TABLES.map(fetchTable));
+      const { statePatch: secondaryPatch, errorCount: secondaryErrors } = processResults(secondaryResults);
+
+      if (Object.keys(secondaryPatch).length > 0) {
+        useErpStore.setState(secondaryPatch);
+        safeLogger.log(`[fetchInitialData] Cargados datos secundarios de ${Object.keys(secondaryPatch).length} tablas desde Supabase`);
+        const totalErrors = criticalErrors + secondaryErrors;
+        if (totalErrors > 0) {
+          useErpStore.setState({ 
+            syncError: `${totalErrors} tablas fallaron pero otras cargaron correctamente` 
+          });
+        }
+      }
+    }, 100);
+
+    if (Object.keys(criticalPatch).length > 0) {
       (window as any).__FETCH_RETRY = 0;
       return true;
     }
-    useErpStore.setState({ syncStatus: 'synced', lastSyncedAt: new Date().toISOString(), syncError: undefined });
+    
+    useErpStore.setState({ 
+      syncStatus: 'error', 
+      syncError: 'No se pudieron cargar datos críticos. Verifique la conexión a Supabase.',
+      lastSyncedAt: new Date().toISOString() 
+    });
     (window as any).__FETCH_RETRY = 0;
-    return true;
+    return false;
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     useErpStore.setState({ syncStatus: 'error', syncError: error });
@@ -196,7 +245,10 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
     (window as any).__FETCH_RETRY = next + 1;
     if (attempt > 10) {
       safeLogger.warn('[fetchInitialData] Max retries exceeded, giving up');
-      useErpStore.setState({ syncStatus: 'error', syncError: 'Error de conexión tras múltiples reintentos' });
+      useErpStore.setState({ 
+        syncStatus: 'error', 
+        syncError: 'Error de conexión tras múltiples reintentos. Revise su conexión o configure Supabase correctamente.' 
+      });
       return false;
     }
     const backoff = Math.min(1000 * Math.pow(2, Math.min(next, 5)), 30000);

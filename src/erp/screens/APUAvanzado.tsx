@@ -7,7 +7,6 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { FactorSobrecosto, InsumoBase, RendimientoCuadrilla } from '../types';
-import { SEED_INSUMOS_BASE, SEED_RENDIMIENTOS } from '../data';
 
 type Tab = 'insumos' | 'rendimientos' | 'sobrecosto' | 'calculo' | 'historico';
 
@@ -19,7 +18,7 @@ const FACTOR_DEFAULT: FactorSobrecosto = {
 };
 
 const APUAvanzado: React.FC = () => {
-  const { proyectos, updateProyecto } = useErp();
+  const { proyectos, updateProyecto, insumosBase, rendimientosCuadrilla } = useErp();
 
   const [tab, setTab] = useState<Tab>('insumos');
   const [loading, setLoading] = useState(false);
@@ -29,9 +28,9 @@ const APUAvanzado: React.FC = () => {
   const [factor, setFactor] = useState<FactorSobrecosto>(FACTOR_DEFAULT);
   const [editFactor, setEditFactor] = useState(false);
 
-  // Simulate insumos base
-  const [insumos] = useState<InsumoBase[]>(SEED_INSUMOS_BASE);
-  const [rendimientos] = useState<RendimientoCuadrilla[]>(SEED_RENDIMIENTOS);
+  // Usar datos reales del store
+  const insumos = insumosBase || [];
+  const rendimientos = rendimientosCuadrilla || [];
 
   const rubros = useMemo(() => [...new Set(insumos.map(i => i.rubro))], [insumos]);
   const [rubroFilter, setRubroFilter] = useState('');
@@ -82,14 +81,33 @@ const APUAvanzado: React.FC = () => {
     setEditFactor(false);
   };
 
-  // Histórico de precios simulado
-  const historial = useMemo(() => [
-    { fecha: '2025-01', cemento: 85, hierro: 270, arena: 130, block: 4.8 },
-    { fecha: '2025-04', cemento: 88, hierro: 275, arena: 138, block: 5.0 },
-    { fecha: '2025-07', cemento: 90, hierro: 280, arena: 142, block: 5.2 },
-    { fecha: '2025-10', cemento: 91, hierro: 282, arena: 144, block: 5.4 },
-    { fecha: '2026-01', cemento: 92, hierro: 285, arena: 145, block: 5.5 },
-  ], []);
+  // Histórico de precios generado desde datos reales de insumos
+  const historial = useMemo(() => {
+    if (insumos.length === 0) return [];
+    
+    // Agrupar por fecha actualización si existe
+    const fechasUnicas = [...new Set(insumos.map(i => i.fechaActualizacion).filter(Boolean))] as string[];
+    if (fechasUnicas.length === 0) return [];
+    
+    // Generar histórico basado en precios reales
+    const historialGenerado = fechasUnicas.slice(-5).map(fecha => {
+      const insumosFecha = insumos.filter(i => i.fechaActualizacion === fecha);
+      const cemento = insumosFecha.find(i => i.nombre.toLowerCase().includes('cemento'))?.precioReferencia || 0;
+      const hierro = insumosFecha.find(i => i.nombre.toLowerCase().includes('hierro') || i.nombre.toLowerCase().includes('varilla'))?.precioReferencia || 0;
+      const arena = insumosFecha.find(i => i.nombre.toLowerCase().includes('arena'))?.precioReferencia || 0;
+      const block = insumosFecha.find(i => i.nombre.toLowerCase().includes('block'))?.precioReferencia || 0;
+      
+      return {
+        fecha: fecha.slice(0, 7), // YYYY-MM
+        cemento: cemento || 0,
+        hierro: hierro || 0,
+        arena: arena || 0,
+        block: block || 0,
+      };
+    });
+    
+    return historialGenerado;
+  }, [insumos]);
 
 
 

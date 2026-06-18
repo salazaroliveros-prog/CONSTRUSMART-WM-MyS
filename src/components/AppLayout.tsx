@@ -7,6 +7,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 const Header = lazy(() => import('@/erp/components/Header'));
 const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
 const Login = lazy(() => import('@/erp/screens/Login'));
+const QuickActionsFab = lazy(() => import('@/erp/components/QuickActionsFab'));
 import { applyThemeToDocument } from '@/lib/themes';
 
 interface AppContextType {
@@ -219,6 +220,9 @@ const Shell: React.FC = () => {
           </div>
         </main>
       </div>
+      <Suspense fallback={null}>
+        <QuickActionsFab />
+      </Suspense>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import { initServiceWorker } from '@/lib/sw-init';
 import { log } from '@/lib/auto-logger';
+import { errorReporter } from '@/lib/errorReporting';
 import './index.css';
 import '@/lib/i18n';
 
@@ -18,6 +19,10 @@ initServiceWorker().then(reg => {
     });
   }
 });
+
+// Inicializar sistema de reporte de errores
+errorReporter.init();
+log('info', 'Main', 'Sistema de reporte de errores inicializado');
 
 root.render(
   <React.StrictMode>
