@@ -17,6 +17,7 @@ const userSchema = z.object({
   email: z.string().email().optional().default(''),
   nombre: z.string().default('Usuario'),
   rol: z.string().default('Residente'),
+  avatar: z.string().optional().default(''),
 });
 
 function safeParse<T extends z.ZodTypeAny>(schema: T, data: z.infer<T>, fallback: z.infer<T>, ctx?: string): z.infer<T> {
@@ -59,13 +60,17 @@ export function useAuth(): UseAuthReturn {
     }
 
     const email = session.user.email || '';
+    const userMeta = (session.user as any).user_metadata || {};
+    const nombre = userMeta.full_name || userMeta.name || email.split('@')[0] || 'Usuario';
+    const avatar = userMeta.picture || userMeta.avatar_url || '';
     const rol = mapRol(email);
 
     const validated = safeParse(userSchema, session.user as any, {
       id: session.user.id,
       email,
-      nombre: email.split('@')[0] || 'Usuario',
+      nombre,
       rol,
+      avatar,
     }, 'useAuth:buildUser');
 
     if (!validated.email || !ALLOWED_EMAILS.has(validated.email)) {

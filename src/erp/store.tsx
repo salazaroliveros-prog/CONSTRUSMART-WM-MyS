@@ -165,7 +165,20 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [initializing, setInitializing] = useState(true);
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
-  const user = useMemo(() => ({ id: 'local', email: 'local@construsmart', nombre: 'Usuario Local', rol: 'Administrador' }), []);
+  const { user: authUser, signInWithGoogle: realSignInWithGoogle, logout: realLogout, loading: authLoading } = useAuth();
+
+  const user = useMemo(() => {
+    if (authUser) {
+      return {
+        id: authUser.id,
+        email: authUser.email,
+        nombre: authUser.nombre,
+        rol: authUser.rol,
+        avatar: (authUser as any)?.avatar || (authUser as any)?.picture || null,
+      };
+    }
+    return { id: 'local', email: 'local@construsmart', nombre: 'Usuario Local', rol: 'Administrador' as Rol, avatar: null };
+  }, [authUser]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -398,10 +411,10 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const ctxValue = useMemo<any>(() => ({
     view, setView, user, initializing, isOnline, notificacionesNoLeidas,
-    signInWithGoogle: () => Promise.resolve(),
-    logout: () => {},
+    signInWithGoogle: realSignInWithGoogle,
+    logout: realLogout,
     allowedViews, forceSync,
-  }), [view, user, initializing, isOnline, notificacionesNoLeidas, allowedViews, forceSync]);
+  }), [view, user, initializing, isOnline, notificacionesNoLeidas, allowedViews, forceSync, realSignInWithGoogle, realLogout]);
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
 };
