@@ -236,39 +236,54 @@ export const Donut: React.FC<{
 }> = React.memo(({ data, size = 150 }) => {
   const p = useAnimIn(900);
   const [hovered, setHovered] = useState<number | null>(null);
-  const total = data.reduce((a, b) => a + b.value, 0) || 1;
+  const total = data.reduce((a, b) => a + b.value, 0) || 0;
+  const hasZero = data.some(d => d.value === 0);
+  const effectiveData = hasZero && total > 0
+    ? data.map(d => ({ ...d, value: d.value === 0 ? Math.max(total * 0.01, 0.5) : d.value }))
+    : data;
+  const effectiveTotal = effectiveData.reduce((a, b) => a + b.value, 0) || 1;
   const r = size / 2 - 12, cx = size / 2, cy = size / 2;
   let acc = 0;
 
   return (
     <svg viewBox={`0 0 ${size} ${size}`} className="w-full max-w-[200px] h-auto mx-auto" role="img" aria-label="Gráfico donut"
       style={{ maxWidth: Math.max(size, 60) }}>
-      {data.map((d, i) => {
-        const startAng = (acc / total) * 2 * Math.PI;
+      {effectiveData.map((d, i) => {
+        const startAng = (acc / effectiveTotal) * 2 * Math.PI;
         acc += d.value;
-        const endAng = (acc / total) * 2 * Math.PI;
-        const animEnd = startAng + (endAng - startAng) * p;
-        const large = animEnd - startAng > Math.PI ? 1 : 0;
-        const scale = hovered === i ? 1.06 : 1;
-        const x1 = cx + r * Math.sin(startAng) * scale, y1 = cy - r * Math.cos(startAng) * scale;
-        const x2 = cx + r * Math.sin(animEnd) * scale, y2 = cy - r * Math.cos(animEnd) * scale;
+        const endAng = (acc / effectiveTotal) * 2 * Math.PI;
+        const { large, scale, x1, y1, x2, y2 } = (() => {
+          const animEnd = startAng + (endAng - startAng) * p;
+          const large = animEnd - startAng > Math.PI ? 1 : 0;
+          const scale = hovered === i ? 1.06 : 1;
+          const x1 = cx + r * Math.sin(startAng) * scale, y1 = cy - r * Math.cos(startAng) * scale;
+          const x2 = cx + r * Math.sin(animEnd) * scale, y2 = cy - r * Math.cos(animEnd) * scale;
+          return { large, scale, x1, y1, x2, y2 };
+        })();
+        const isReal = data[i]?.value === 0;
         const path = `M ${cx} ${cy} L ${x1} ${y1} A ${r * scale} ${r * scale} 0 ${large} 1 ${x2} ${y2} Z`;
         return (
-          <path key={i} d={path} fill={d.color}
-            stroke="hsl(var(--card))" strokeWidth={hovered === i ? 2 : 1.5}
-            style={{ cursor: 'pointer', transition: 'all 0.2s', filter: hovered === i ? `drop-shadow(0 2px 6px ${d.color}66)` : 'none' }}
+          <path key={i} d={path} fill={isReal ? '#e2e8f0' : d.color}
+            stroke="#fff" strokeWidth={hovered === i ? 2 : 1.5}
+            style={{ cursor: 'pointer', transition: 'all 0.2s', filter: hovered === i ? `drop-shadow(0 2px 6px ${d.color}66)` : 'none', opacity: isReal ? 0.6 : 1 }}
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(null)}
           >
-            <title>{d.label}: {Math.round(d.value / total * 100)}%</title>
+            <title>{d.label}: {data[i]?.value === 0 ? '0' : Math.round(d.value / effectiveTotal * 100)}%</title>
           </path>
         );
       })}
-      <circle cx={cx} cy={cy} r={r * 0.52} fill="hsl(var(--card))" />
+      <circle cx={cx} cy={cy} r={r * 0.52} fill="#f8fafc" />
       {hovered !== null && (
         <text x={cx} y={cy + 4} fontSize={9} textAnchor="middle" fontWeight="700"
+          fill={data[hovered]?.value === 0 ? '#94a3b8' : effectiveData[hovered]?.color}>
+          {data[hovered]?.value === 0 ? '0%' : `${Math.round((effectiveData[hovered]?.value || 0) / effectiveTotal * 100)}%`}
+        </text>
+      )}
+      {hovered !== null && !fallback && (
+        <text x={cx} y={cy + 4} fontSize={9} textAnchor="middle" fontWeight="700"
           fill={data[hovered]?.color}>
-          {Math.round((data[hovered]?.value || 0) / total * 100)}%
+          {Math.round((data[hovered]?.value || 0) / effectiveTotal * 100)}%
         </text>
       )}
     </svg>
