@@ -7,7 +7,7 @@ import MovimientoForm from '../components/MovimientoForm';
 import AlertasPanel from '../components/AlertasPanel';
 import CompactCalendar from '../components/CompactCalendar';
 import { BarChart, Donut, Progress, Gauge } from '../components/Charts';
-import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, Wallet, Warehouse, ClipboardCheck, Activity, TrendingDown, Download, Zap, Repeat, BarChart3, Shield } from 'lucide-react';
+import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, Wallet, Warehouse, ClipboardCheck, Activity, TrendingDown, Download, Zap, Repeat, BarChart3, Shield, Loader2 } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
 import { CARD, CARD_TITLE } from '../ui';
 import ProyectoFilter from '../components/ProyectoFilter';
@@ -292,22 +292,29 @@ const Dashboard: React.FC = () => {
     }
   }, []);
 
-  const handleExportPdf = useCallback(() => {
+  const [exportingPdf, setExportingPdf] = useState(false);
+  const handleExportPdf = useCallback(async () => {
     const el = dashRef.current;
-    if (!el) return;
-    import('html2canvas').then(({ default: html2canvas }) => {
-      import('jspdf').then(({ default: jsPDF }) => {
-        html2canvas(el, { scale: 2, useCORS: true }).then(canvas => {
-          const imgData = canvas.toDataURL('image/png');
-          const pdf = new jsPDF('l', 'mm', 'a4');
-          const w = pdf.internal.pageSize.getWidth();
-          const h = (canvas.height * w) / canvas.width;
-          pdf.addImage(imgData, 'PNG', 0, 0, w, h);
-          pdf.save('dashboard-construsmart.pdf');
-        });
-      });
-    });
-  }, []);
+    if (!el || exportingPdf) return;
+    setExportingPdf(true);
+    try {
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
+      const canvas = await html2canvas(el, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('l', 'mm', 'a4');
+      const w = pdf.internal.pageSize.getWidth();
+      const h = (canvas.height * w) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, w, h);
+      pdf.save('dashboard-construsmart.pdf');
+    } catch (e) {
+      console.warn('Error exporting PDF:', e);
+    } finally {
+      setExportingPdf(false);
+    }
+  }, [exportingPdf]);
 
   const categoriaResumen = useMemo(() => CATEGORIA_MAP.map((categoria, index) => {
     let count = 0;
@@ -384,8 +391,9 @@ const Dashboard: React.FC = () => {
             <span className={syncStatus === 'error' ? 'text-destructive' : 'text-primary'}>{syncStatus === 'synced' ? 'Supabase conectado' : syncStatus === 'loading' ? 'Leyendo Supabase' : syncStatus === 'error' ? syncError || 'Error sync' : mutationQueue.length > 0 ? `${mutationQueue.length} pendientes` : 'Supabase activo'}</span>
           </div>
           {lastSyncedAt && <div className="text-[9px] text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">Sync {new Date(lastSyncedAt).toLocaleTimeString()}</div>}
-          <button onClick={handleExportPdf} className="text-[9px] text-primary hover:text-primary/80 font-medium flex items-center gap-0.5 bg-primary/10 rounded-full px-2 py-0.5 transition-colors" title={t('dashboard.exportar_pdf')}>
-            <Download className="w-2.5 h-2.5" /> PDF
+          <button onClick={handleExportPdf} disabled={exportingPdf} className="text-[9px] text-primary hover:text-primary/80 font-medium flex items-center gap-0.5 bg-primary/10 rounded-full px-2 py-0.5 transition-colors disabled:opacity-60" title={t('dashboard.exportar_pdf')}>
+            {exportingPdf ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Download className="w-2.5 h-2.5" />}
+            {exportingPdf ? 'Exportando...' : 'PDF'}
           </button>
         </div>
         <ProyectoFilter value={selectedProyectoId ?? ''} onChange={(id) => setSelectedProyectoId(id || null)} proyectos={proyectos} />

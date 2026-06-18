@@ -155,6 +155,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const { user: authUser, signInWithGoogle: realSignInWithGoogle, signOut: realLogout, loading: authLoading } = useAuth();
 
+   const zustandUser = useErpStore(s => (s as any).user);
    const user = useMemo(() => {
      if (authUser) {
        const avatar = (authUser as any)?.avatar || (authUser as any)?.picture || null;
@@ -169,8 +170,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
          avatar,
        };
      }
+     if (zustandUser) return zustandUser;
      return { id: 'local', email: 'local@construsmart', nombre: 'Usuario Local', rol: 'Administrador' as Rol, avatar: null };
-   }, [authUser]);
+   }, [authUser, zustandUser]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

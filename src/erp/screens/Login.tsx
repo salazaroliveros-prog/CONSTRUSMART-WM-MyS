@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
+import { hasSupabase } from '@/lib/supabase';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
-  const { signInWithGoogle, authError } = useErp();
+  const { signInWithGoogle, setView, user } = useErp();
+  const authError = '';
   const [loading, setLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -15,6 +18,30 @@ const Login: React.FC = () => {
       await signInWithGoogle();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    setGuestLoading(true);
+    try {
+      const mod = await import('../store');
+      mod.useErpStore.setState({
+        user: { id: 'guest', email: 'invitado@construsmart', nombre: 'Invitado', rol: 'Administrador', avatar: null },
+      });
+      // Ensure demo notifications exist
+      const now = new Date();
+      const demoNotifs = [
+        { id: 'demo-invitado-1', titulo: 'Bienvenido al Dashboard', tipo: 'sistema', leida: false, createdAt: new Date().toISOString() },
+        { id: 'demo-invitado-2', titulo: 'Reunión de obra mañana', tipo: 'calendario', leida: false, createdAt: new Date().toISOString(), metadata: { fecha: new Date(now.getTime() + 86400000).toISOString().slice(0,10) } },
+        { id: 'demo-invitado-3', titulo: 'Visita de supervisión en 2 días', tipo: 'calendario', leida: false, createdAt: new Date().toISOString(), metadata: { fecha: new Date(now.getTime() + 172800000).toISOString().slice(0,10) } },
+      ];
+      if (mod.useErpStore.getState().notificaciones.length === 0) {
+        mod.useErpStore.setState((prev: any) => ({ notificaciones: [...(prev.notificaciones || []), ...demoNotifs] }));
+      }
+    } catch (e) {
+      console.warn('Guest login error:', e);
+    } finally {
+      setGuestLoading(false);
     }
   };
 
@@ -78,7 +105,7 @@ const Login: React.FC = () => {
               </div>
             )}
 
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center space-y-3">
               <button type="button" onClick={handleGoogleLogin} disabled={loading} className={btn}>
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
@@ -94,6 +121,18 @@ const Login: React.FC = () => {
                   </>
                 )}
               </button>
+              {!hasSupabase && (
+                <button type="button" onClick={handleGuestLogin} disabled={guestLoading} className={btn}>
+                  {guestLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                  ) : (
+                    <>
+                      <User className="w-5 h-5 text-gray-500" />
+                      Entrar como Invitado
+                    </>
+                  )}
+                </button>
+              )}
               <p className="text-center text-[10px] text-orange-500 mt-4">
                 Solo el correo autorizado puede acceder
               </p>
