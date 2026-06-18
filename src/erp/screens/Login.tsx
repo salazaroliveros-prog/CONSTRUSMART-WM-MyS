@@ -37,8 +37,15 @@ const Login: React.FC = () => {
             className="w-32 h-32 object-contain drop-shadow-[0_0_12px_rgba(249,115,22,0.45)] mb-6"
           />
           <h1 className="text-4xl font-black leading-tight text-white drop-shadow-md">{EMPRESA.nombre}</h1>
-          <p className="text-orange-300 text-lg italic mt-2">{EMPRESA.eslogan}</p>
-          <p className="text-orange-200/90 mt-6 leading-relaxed">Acceso exclusivo solo para usuarios autorizados.</p>
+          <p className="text-amber-300 text-lg italic mt-2">{EMPRESA.eslogan}</p>
+          <p className="mt-6 text-xl font-bold text-yellow-600"
+             style={{ textShadow: '0 0 18px rgba(59,130,246,0.85), 0 0 6px rgba(59,130,246,0.7)' }}>
+            EDIFICANDO EL FUTURO
+          </p>
+          <p className="mt-3 text-sm text-gray-200"
+             style={{ textShadow: '0 0 14px rgba(59,130,246,0.75), 0 0 5px rgba(59,130,246,0.6)' }}>
+            La satisfacción de nuestros clientes es nuestra prioridad
+          </p>
         </div>
       </div>
 
