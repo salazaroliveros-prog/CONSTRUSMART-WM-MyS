@@ -147,10 +147,12 @@ const Dashboard: React.FC = () => {
   }, [materiales]);
 
   const rhData = useMemo(() => {
-    const datos = (empleados || []).filter((e: any) => e.estado);
-    const disponibles = datos.filter((e: any) => e.estado === 'disponible').length;
-    const ocupados = datos.filter((e: any) => e.estado === 'ocupado').length;
-    return { disponibles, ocupados, total: datos.length || empleados.length };
+    const datos = (empleados || []);
+    const conEstado = datos.filter((e: any) => e.estado);
+    const disponibles = conEstado.filter((e: any) => e.estado === 'disponible').length;
+    const ocupados = conEstado.filter((e: any) => e.estado === 'ocupado').length;
+    const sinEstado = Math.max(datos.length - conEstado.length, 0);
+    return { disponibles: disponibles + sinEstado, ocupados, total: datos.length };
   }, [empleados]);
 
   const timelineData = useMemo(() => {
@@ -429,17 +431,20 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center gap-3">
             <Donut size={110} data={[
               { label: t('dashboard.planif'), value: planVsReal.costoPlanificado, color: '#3b82f6' },
-              { label: t('dashboard.real'), value: planVsReal.costoReal, color: '#f97316' },
+              { label: t('dashboard.real'), value: Math.max(planVsReal.costoReal, 0), color: '#f97316' },
             ]} />
             <div className="flex-1 text-[10px] space-y-1">
-              <div className="flex justify-between"><span className="text-muted-foreground">{t('dashboard.planif')}</span><b className="text-foreground">{fmtQ(planVsReal.costoPlanificado)}</b></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">{t('dashboard.real')}</span><b className="text-foreground">{fmtQ(planVsReal.costoReal)}</b></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">{t('dashboard.desv_prom')}</span><b className={Math.abs(planVsReal.avgDesv) > 15 ? 'text-destructive' : 'text-success'}>{fmtPct(planVsReal.avgDesv)}</b></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">{t('dashboard.mayor')}</span><b className="text-foreground truncate max-w-[120px] inline-block align-bottom text-right">{planVsReal.top?.nombre || (planVsReal.conPlan > 0 ? '-' : t('dashboard.sin_datos'))}</b></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Planificado</span><b className="text-foreground">{fmtQ(planVsReal.costoPlanificado)}</b></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Real</span><b className="text-foreground">{fmtQ(Math.max(planVsReal.costoReal, 0))}</b></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Desviación</span><b className={Math.abs(planVsReal.avgDesv) > 15 ? 'text-red-500' : 'text-emerald-500'}>{fmtPct(planVsReal.avgDesv)}</b></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Mayor desviación</span><b className="text-foreground truncate max-w-[120px] inline-block align-bottom text-right">{planVsReal.top?.nombre || (planVsReal.conPlan > 0 ? '-' : 'Sin datos')}</b></div>
               {planVsReal.conPlan > 0 && (
                 <div className="pt-1">
-                  <div className="flex justify-between text-[9px] text-muted-foreground mb-0.5"><span>{t('dashboard.materiales_planificados')}</span><span>{planVsReal.conPlan}/{planVsReal.totalMateriales}</span></div>
-                  <Progress value={(planVsReal.conPlan / Math.max(planVsReal.totalMateriales, 1)) * 100} />
+                  <div className="flex justify-between text-[9px] text-muted-foreground mb-0.5"><span>Registros</span><span>{planVsReal.conPlan}/{planVsReal.totalMateriales}</span></div>
+                  <div className="flex justify-between text-[9px] text-muted-foreground">
+                    <span>Fuente</span>
+                    <span>Supabase</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -453,21 +458,19 @@ const Dashboard: React.FC = () => {
           </h3>
           <div className="flex items-center gap-3">
             <div className="w-24 flex-shrink-0">
-              <Gauge value={avanceProm} max={100} label={t('dashboard.avance_fisico')} color={
-                avanceProm < 30 ? 'hsl(var(--destructive))' : avanceProm < 70 ? 'hsl(var(--warning))' : 'hsl(var(--success))'
-              } />
+              <Gauge value={avanceProm} max={100} label={t('dashboard.avance_fisico')} color={avanceProm < 30 ? '#ef4444' : avanceProm < 70 ? '#f59e0b' : '#10b981'} />
             </div>
             <div className="flex-1 text-[10px] space-y-1">
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">{t('dashboard.avance_fisico')}</span>
                 <b className={avanceColor}>{fmtPct(avanceProm)}</b>
               </div>
-              <Progress value={avanceProm} color={avanceProm < 30 ? 'hsl(var(--destructive))' : avanceProm < 70 ? 'hsl(var(--warning))' : 'hsl(var(--success))'} />
+              <Progress value={Math.min(avanceProm, 100)} color={avanceProm < 30 ? '#ef4444' : avanceProm < 70 ? '#f59e0b' : '#10b981'} />
               <div className="flex justify-between items-center pt-0.5">
                 <span className="text-muted-foreground">{t('dashboard.avance_financiero')}</span>
-                <b className={avanceFinProm < 30 ? 'text-destructive' : avanceFinProm < 70 ? 'text-warning' : 'text-success'}>{fmtPct(avanceFinProm)}</b>
+                <b className={avanceFinProm < 30 ? 'text-red-500' : avanceFinProm < 70 ? 'text-amber-500' : 'text-emerald-500'}>{fmtPct(avanceFinProm)}</b>
               </div>
-              <Progress value={avanceFinProm} color={avanceFinProm < 30 ? 'hsl(var(--destructive))' : avanceFinProm < 70 ? 'hsl(var(--warning))' : 'hsl(var(--success))'} />
+              <Progress value={Math.min(avanceFinProm, 100)} color={avanceFinProm < 30 ? '#ef4444' : avanceFinProm < 70 ? '#f59e0b' : '#10b981'} />
               <div className="flex justify-between text-[9px] text-muted-foreground pt-0.5">
                 <span>{t('dashboard.registros_avance')}</span><span className="text-foreground font-medium">{avances.length}</span>
               </div>
@@ -738,11 +741,6 @@ const Dashboard: React.FC = () => {
                 );
               })}
             </nav>
-            <div className="mt-1 grid grid-cols-2 gap-1 text-[7px] text-muted-foreground">
-              {modulos.map(m => (
-                <div key={m.id} className="truncate" title={m.tables.join(', ')}>{m.label}: {m.tables.join(', ')}</div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
