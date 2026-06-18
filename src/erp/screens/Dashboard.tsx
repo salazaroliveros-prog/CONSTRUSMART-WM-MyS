@@ -664,7 +664,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── FOOTER ──────────────────────────────────────────────── */}
+      {/* ─── FOOTER: Compacto y funcional ─────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-1.5 sm:gap-2 mt-2 flex-shrink-0">
         <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-3 gap-1.5 sm:gap-2">
           <div className="lg:col-span-2">
@@ -674,104 +674,35 @@ const Dashboard: React.FC = () => {
           <div><AlertasPanel /></div>
         </div>
         <div className="grid grid-cols-1 gap-1.5">
-          {movPorCategoria.length > 0 ? (
-            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
-              <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
-                <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
-                {t('dashboard.gastos')} <span className="text-muted-foreground font-normal text-[9px]">vs {t('dashboard.ingresos')}</span>
-              </h3>
-              <div className="h-20 sm:h-24">
-                <BarChart data={movPorCategoria.map(d => ({ label: d.label, value: d.value, color: d.color }))} height={80} />
-              </div>
-              <div className="mt-1 space-y-1">
-                <div className="flex items-center justify-between text-[9px]">
-                  <span className="text-emerald-500 font-medium flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> {t('dashboard.ingresos')}</span>
-                  <span className="text-foreground font-medium">{fmtQ(ingresos)}</span>
-                </div>
-                <div className="flex items-center justify-between text-[9px]">
-                  <span className="text-red-500 font-medium flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" /> {t('dashboard.gastos')}</span>
-                  <span className="text-foreground font-medium">{fmtQ(gastos)}</span>
-                </div>
-                <div className="flex items-center justify-between text-[9px] pt-0.5 border-t border-border">
-                  <span className="text-muted-foreground">Saldo</span>
-                  <span className={`font-medium ${saldoNeto >= 0 ? 'text-success' : 'text-destructive'}`}>{saldoNeto >= 0 ? '+' : ''}{fmtQ(saldoNeto)}</span>
-                </div>
-              </div>
+          {/* Ingresos vs Gastos con BarChart — siempre visible aunque vacío */}
+          <div className={`${CARD} flex flex-col p-2 sm:p-3`}>
+            <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
+              <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
+              {t('dashboard.gastos')} <span className="text-muted-foreground font-normal text-[9px]">vs {t('dashboard.ingresos')}</span>
+            </h3>
+            <div className="h-16 sm:h-20">
+              <BarChart data={movPorCategoria.length > 0 ? movPorCategoria.map(d => ({ label: d.label, value: d.value, color: d.color })) : []} height={60} />
             </div>
-          ) : (
-            <div className={`${CARD} p-2 sm:p-3 text-center`}>
-              <BarChart3 className="w-5 h-5 text-muted-foreground/40 mx-auto mb-1" />
-              <p className="text-[10px] text-muted-foreground">{t('common.sin_datos')}</p>
+            <div className="mt-1 flex items-center justify-between text-[9px]">
+              <span className="text-emerald-500 font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> {t('dashboard.ingresos')}
+              </span>
+              <span className="text-foreground font-medium">{fmtQ(ingresos)}</span>
+              <span className="text-red-500 font-medium flex items-center gap-1 ml-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" /> {t('dashboard.gastos')}
+              </span>
+              <span className="text-foreground font-medium">{fmtQ(gastos)}</span>
             </div>
-          )}
-          {cuentasProximas.length > 0 ? (
-            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
-              <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
-                <Wallet className="w-2.5 h-2.5" /> {t('dashboard.proximos_pagos')}
-                <span className="text-muted-foreground font-normal text-[9px]">{cuentasProximas.length}</span>
-              </h3>
-              <div className="space-y-0.5">
-                {cuentasProximas.map(c => (
-                  <div key={c.id} className="flex justify-between text-[9px] p-1 rounded bg-muted/30">
-                    <span className="truncate text-muted-foreground max-w-[80px]">{c.proveedor || 'Proveedor'}</span>
-                    <span className="text-destructive font-medium">{fmtQ(c.monto)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className={`${CARD} p-2 sm:p-3 text-center`}>
-              <Wallet className="w-4 h-4 text-muted-foreground/40 mx-auto mb-0.5" />
-              <p className="text-[9px] text-muted-foreground">{t('common.sin_datos')}</p>
-            </div>
-          )}
-          {cobrarProximas.length > 0 ? (
-            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
-              <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
-                <DollarSign className="w-2.5 h-2.5 text-success" /> {t('dashboard.cuentas_cobrar')}
-                <span className="text-muted-foreground font-normal text-[9px]">{cobrarProximas.length}</span>
-              </h3>
-              <div className="space-y-0.5">
-                {cobrarProximas.map(c => (
-                  <div key={c.id} className="flex justify-between text-[9px] p-1 rounded bg-success/5">
-                    <span className="truncate text-muted-foreground max-w-[80px]">{c.cliente || c.descripcion || 'Cliente'}</span>
-                    <span className="text-success font-medium">{fmtQ(c.monto)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className={`${CARD} p-2 sm:p-3 text-center`}>
-              <DollarSign className="w-4 h-4 text-muted-foreground/40 mx-auto mb-0.5" />
-              <p className="text-[9px] text-muted-foreground">{t('common.sin_datos')}</p>
-            </div>
-          )}
-          {ocCambioPendientes.length > 0 ? (
-            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
-              <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
-                <Repeat className="w-2.5 h-2.5 text-orange-500" /> {t('dashboard.ordenes_cambio')}
-                <span className="text-muted-foreground font-normal text-[9px]">{ocCambioPendientes.length}</span>
-              </h3>
-              <div className="space-y-0.5">
-                {ocCambioPendientes.map((oc: any) => (
-                  <div key={oc.id} className="flex justify-between text-[9px] p-1 rounded bg-orange-500/5">
-                    <span className="truncate text-muted-foreground max-w-[80px]">{oc.descripcion || oc.numero || 'OC'}</span>
-                    <span className="text-orange-500 font-medium">{fmtQ(oc.montoAdicional || oc.monto || 0)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className={`${CARD} p-2 sm:p-3 text-center`}>
-              <Repeat className="w-4 h-4 text-muted-foreground/40 mx-auto mb-0.5" />
-              <p className="text-[9px] text-muted-foreground">{t('common.sin_datos')}</p>
-            </div>
-          )}
+          </div>
+
+          {/* Próximas actividades — con datos demo si está vacío */}
           <CompactCalendar />
+
+          {/* Módulos con conteos reales */}
           <div>
             <h3 className="font-bold text-foreground text-xs mb-1 flex items-center gap-1">
               <Database className="w-2.5 h-2.5 text-primary" /> {t('dashboard.modulos')}
-              <span className="text-muted-foreground font-normal text-[9px]">8 categorías · Supabase</span>
+              <span className="text-muted-foreground font-normal text-[9px]">{modulos.length} categorías</span>
             </h3>
             <nav aria-label="Acceso rápido a módulos" className="grid grid-cols-4 gap-1">
               {modulos.map(m => {
@@ -779,7 +710,7 @@ const Dashboard: React.FC = () => {
                 return (
                   <button key={m.id} onClick={() => setView(m.targetView as View)}
                     aria-label={`Ir a ${m.label}`}
-                    className={`text-white rounded-lg sm:rounded-xl p-1.5 sm:p-2 flex flex-col items-start gap-1 hover:scale-[1.02] active:scale-[0.97] transition-all shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70`}
+                    className="text-white rounded-lg sm:rounded-xl p-1.5 sm:p-2 flex flex-col items-start gap-1 hover:scale-[1.02] active:scale-[0.97] transition-all shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                     style={{ background: `linear-gradient(135deg, ${m.color}, #0f172a)` }}>
                     <Icon className="w-3 h-3 sm:w-4 sm:h-4" aria-hidden="true" />
                     <span className="text-[8px] sm:text-[10px] font-semibold leading-tight">{m.label}</span>

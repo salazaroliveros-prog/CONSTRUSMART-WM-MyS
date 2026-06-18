@@ -4,16 +4,41 @@ import { useErp } from '../store';
 import { CalendarClock, ChevronRight, Circle } from 'lucide-react';
 import { CARD, CARD_TITLE } from '../ui';
 
+function generateDemoActividades() {
+  const now = new Date();
+  const days = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+  const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const tipos = ['Reunión', 'Visita', 'Actividad', 'Entrega'];
+
+  return Array.from({ length: 4 }, (_, i) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() + i + 1);
+    const tipo = tipos[i % tipos.length];
+    return {
+      id: `demo-${i}`,
+      titulo: tipo === 'Reunión' ? 'Reunión de obra' :
+              tipo === 'Visita' ? 'Visita de supervisión' :
+              tipo === 'Actividad' ? 'Actividad programada' : 'Entrega de reporte',
+      fecha: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+      hora: `${(8 + i * 2).toString().padStart(2, '0')}:00`,
+      tipo,
+      proyectoId: '',
+    };
+  });
+}
+
 const CompactCalendar: React.FC = () => {
   const { t } = useTranslation();
   const { eventos, proyectos, setView } = useErp();
 
   const upcoming = useMemo(() => {
     const now = new Date();
-    return eventos
+    const real = eventos
       .filter(e => new Date(`${e.fecha}T${e.hora || '09:00'}:00`) >= now)
       .sort((a, b) => new Date(`${a.fecha}T${a.hora || '09:00'}:00`).getTime() - new Date(`${b.fecha}T${b.hora || '09:00'}:00`).getTime())
       .slice(0, 4);
+    if (real.length > 0) return real;
+    return generateDemoActividades() as any;
   }, [eventos]);
 
   const getDotColor = (tipo?: string) => {
