@@ -36,9 +36,9 @@ const Login: React.FC = () => {
             alt="WM"
             className="w-32 h-32 object-contain drop-shadow-[0_0_12px_rgba(249,115,22,0.45)] mb-6"
           />
-          <h1 className="text-4xl font-black leading-tight text-orange-300">{EMPRESA.nombre}</h1>
+          <h1 className="text-4xl font-black leading-tight text-white drop-shadow-md">{EMPRESA.nombre}</h1>
           <p className="text-orange-300 text-lg italic mt-2">{EMPRESA.eslogan}</p>
-          <p className="text-orange-200/80 mt-6 leading-relaxed">Acceso exclusivo solo para usuarios autorizados.</p>
+          <p className="text-orange-200/90 mt-6 leading-relaxed">Acceso exclusivo solo para usuarios autorizados.</p>
           <div className="flex gap-6 mt-8">
             <div className="text-center">
               <ShieldCheck className="w-5 h-5 mx-auto text-orange-400" />
@@ -52,9 +52,25 @@ const Login: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50">
-        <div className="w-full max-w-sm">
-          <div className="rounded-2xl bg-white/60 backdrop-blur-md border border-white/40 shadow-xl p-6">
+      <div
+        className="flex-1 flex items-center justify-center p-6 relative"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 20% 30%, rgba(0,0,0,0.08) 0%, transparent 45%), radial-gradient(circle at 75% 70%, rgba(255,255,255,0.35) 0%, transparent 50%), linear-gradient(160deg, #cbd5e1 0%, #e2e8f0 45%, #ffffff 100%)',
+        }}
+      >
+        <div
+          className="absolute inset-0 opacity-[0.35]"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(45deg, rgba(0,0,0,0.18) 0, rgba(0,0,0,0.18) 1px, transparent 1px, transparent 10px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 1px, transparent 1px, transparent 10px)',
+            backgroundSize: '20px 20px',
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0))',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0))',
+          }}
+        />
+        <div className="w-full max-w-sm relative z-10">
+          <div className="rounded-3xl bg-white/25 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_rgba(15,23,42,0.18)] p-6">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-slate-800">Iniciar Sesión</h2>
               <p className="text-xs text-orange-500 mt-1">Acceso solo para administrador</p>
