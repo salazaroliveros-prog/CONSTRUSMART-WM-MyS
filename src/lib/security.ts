@@ -4,11 +4,13 @@
  * Funciones:
  * - Verificación server-side de roles via Supabase RPC
  * - Sanitización XSS (escapado HTML)
+ * - Validación de inputs (longitud, tipos específicos)
  * - Jerarquía de roles autoritativa
  * - Validación de permisos para operaciones CRUD
  */
 
 import { hasSupabase, assertSupabase } from './supabase';
+import { z } from 'zod';
 
 // ============================================================
 // TIPOS COMPARTIDOS
@@ -174,4 +176,202 @@ export function sanitizarObjeto<T>(obj: T): T {
     }
   }
   return sanitized as T;
+}
+
+// ============================================================
+// VALIDACION DE INPUTS
+// ============================================================
+
+interface ValidationResult {
+  valido: boolean;
+  error?: string;
+  valorSanitizado?: string;
+}
+
+/**
+ * Valida la longitud máxima de un string
+ */
+export function validarLongitud(
+  valor: string,
+  campo: string,
+  min: number = 0,
+  max: number = 1000
+): ValidationResult {
+  if (valor.length < min) {
+    return { 
+      valido: false, 
+      error: `${campo} debe tener al menos ${min} caracteres` 
+    };
+  }
+  if (valor.length > max) {
+    return { 
+      valido: false, 
+      error: `${campo} no puede exceder ${max} caracteres` 
+    };
+  }
+  return { valido: true, valorSanitizado: sanitizarTexto(valor) };
+}
+
+/**
+ * Valida formato de email
+ */
+export function validarEmail(email: string): ValidationResult {
+  const emailSchema = z.string().email('Email inválido');
+  try {
+    const sanitizado = sanitizarTexto(email);
+    emailSchema.parse(sanitizado);
+    return { valido: true, valorSanitizado: sanitizado };
+  } catch (err) {
+    return { 
+      valido: false, 
+      error: 'Email inválido. Use formato: usuario@dominio.com' 
+    };
+  }
+}
+
+/**
+ * Valida formato de teléfono (formato GT: XXXX-XXXX o internacional)
+ */
+export function validarTelefono(telefono: string): ValidationResult {
+  const sanitizado = sanitizarTexto(telefono);
+  const telefonoSchema = z.string().regex(
+    /^(\+?\d{1,3}[- ]?)?\(?\d{3,4}\)?[- ]?\d{3,4}[- ]?\d{3,4}$/,
+    'Teléfono inválido'
+  );
+  try {
+    telefonoSchema.parse(sanitizado);
+    return { valido: true, valorSanitizado: sanitizado };
+  } catch (err) {
+    return { 
+      valido: false, 
+      error: 'Teléfono inválido. Use formato: XXXX-XXXX o +502 XXXX-XXXX' 
+    };
+  }
+}
+
+/**
+ * Valida formato de NIT guatemalteco
+ */
+export function validarNIT(nit: string): ValidationResult {
+  const sanitizado = sanitizarTexto(nit);
+  const nitSchema = z.string().regex(
+    /^\d{4,15}-\d{1}$/,
+    'NIT inválido'
+  );
+  try {
+    nitSchema.parse(sanitizado);
+    return { valido: true, valorSanitizado: sanitizado };
+  } catch (err) {
+    return { 
+      valido: false, 
+      error: 'NIT inválido. Use formato: CIF-DV (ej: 1234567-8)' 
+    };
+  }
+}
+
+/**
+ * Valida URL
+ */
+export function validarURL(url: string): ValidationResult {
+  const urlSchema = z.string().url('URL inválida');
+  try {
+    const sanitizado = sanitizarTexto(url);
+    urlSchema.parse(sanitizado);
+    return { valido: true, valorSanitizado: sanitizado };
+  } catch (err) {
+    return { 
+      valido: false, 
+      error: 'URL inválida. Use formato: https://ejemplo.com' 
+    };
+  }
+}
+
+/**
+ * Validador unificado para inputs de usuario
+ * Combina sanitización XSS + validación de tipo/longitud
+ */
+export function validarInput(
+  valor: string,
+  tipo: 'texto' | 'email' | 'telefono' | 'nit' | 'url',
+  campo: string = 'Campo',
+  opciones?: { min?: number; max?: number }
+): ValidationResult {
+  const sanitizado = sanitizarTexto(valor);
+  
+  if (opciones?.min !== undefined || opciones?.max !== undefined) {
+    const longitudValida = validarLongitud(
+      sanitizado, 
+      campo, 
+      opciones.min || 0, 
+      opciones.max || 1000
+    );
+    if (!longitudValida.valido) return longitudValida;
+  }
+
+  switch (tipo) {
+    case 'email':
+      return validarEmail(sanitizado);
+    case 'telefono':
+      return validarTelefono(sanitizado);
+    case 'nit':
+      return validarNIT(sanitizado);
+    case 'url':
+      return validarURL(sanitizado);
+    case 'texto':
+    default:
+      return { valido: true, valorSanitizado: sanitizado };
+  }
+}
+
+/**
+ * Valida un objeto completo usando reglas de validación por campo
+ */
+export interface ValidacionCampo {
+  tipo: 'texto' | 'email' | 'telefono' | 'nit' | 'url';
+  requerido?: boolean;
+  min?: number;
+  max?: number;
+  nombre?: string;
+}
+
+export function validarObjeto(
+  objeto: Record<string, string>,
+  reglas: Record<string, ValidacionCampo>
+): { valido: boolean; errores: Record<string, string>; datosSanitizados: Record<string, string> } {
+  const errores: Record<string, string> = {};
+  const datosSanitizados: Record<string, string> = {};
+
+  for (const [campo, valor] of Object.entries(objeto)) {
+    const regla = reglas[campo];
+    if (!regla) continue;
+
+    if (regla.requerido && (!valor || valor.trim() === '')) {
+      errores[campo] = `${regla.nombre || campo} es requerido`;
+      continue;
+    }
+
+    if (!valor || valor.trim() === '') {
+      datosSanitizados[campo] = '';
+      continue;
+    }
+
+    const resultado = validarInput(
+      valor,
+      regla.tipo,
+      regla.nombre || campo,
+      { min: regla.min, max: regla.max }
+    );
+
+    if (!resultado.valido) {
+      errores[campo] = resultado.error || 'Error de validación';
+    } else {
+      datosSanitizados[campo] = resultado.valorSanitizado || valor;
+    }
+  }
+
+  return {
+    valido: Object.keys(errores).length === 0,
+    errores,
+    datosSanitizados
+  };
 }

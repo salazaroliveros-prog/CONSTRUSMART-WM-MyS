@@ -28,15 +28,16 @@ const Login: React.FC = () => {
       mod.useErpStore.setState({
         user: { id: 'guest', email: 'invitado@construsmart', nombre: 'Invitado', rol: 'Administrador', avatar: null },
       });
-      // Ensure demo notifications exist
-      const now = new Date();
-      const demoNotifs = [
-        { id: 'demo-invitado-1', titulo: 'Bienvenido al Dashboard', tipo: 'sistema', leida: false, createdAt: new Date().toISOString() },
-        { id: 'demo-invitado-2', titulo: 'Reunión de obra mañana', tipo: 'calendario', leida: false, createdAt: new Date().toISOString(), metadata: { fecha: new Date(now.getTime() + 86400000).toISOString().slice(0,10) } },
-        { id: 'demo-invitado-3', titulo: 'Visita de supervisión en 2 días', tipo: 'calendario', leida: false, createdAt: new Date().toISOString(), metadata: { fecha: new Date(now.getTime() + 172800000).toISOString().slice(0,10) } },
-      ];
+      // Generar notificación de bienvenida sin datos demo
+      const bienvenidaNotif = {
+        id: `bienvenida-${Date.now()}`,
+        titulo: 'Bienvenido a CONSTRUSMART ERP',
+        tipo: 'sistema',
+        leida: false,
+        createdAt: new Date().toISOString(),
+      };
       if (mod.useErpStore.getState().notificaciones.length === 0) {
-        mod.useErpStore.setState((prev: any) => ({ notificaciones: [...(prev.notificaciones || []), ...demoNotifs] }));
+        mod.useErpStore.setState((prev: any) => ({ notificaciones: [...(prev.notificaciones || []), bienvenidaNotif] }));
       }
     } catch (e) {
       console.warn('Guest login error:', e);

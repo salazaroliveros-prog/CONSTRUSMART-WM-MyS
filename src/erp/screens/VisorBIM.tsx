@@ -8,7 +8,7 @@ import { fmtQ } from '../utils';
 type BIMTab = 'visor' | 'vincular' | 'cubicacion' | 'avance';
 
 const VisorBIM: React.FC = () => {
-  const { proyectos, presupuestos, avances } = useErp();
+  const { proyectos, presupuestos, avances, planos } = useErp();
   const [tab, setTab] = useState<BIMTab>('visor');
   const [selProyecto, setSelProyecto] = useState('');
   const [vinculos, setVinculos] = useState<Record<string, string>>({});
@@ -34,25 +34,31 @@ const VisorBIM: React.FC = () => {
     toast.success('Vinculación eliminada');
   };
 
-  // Elementos BIM simulados (en producción vendrían del modelo IFC parseado)
-  const elementosBIM = [
-    { id: 'ifc_elem_001', nombre: 'Zapata Eje A-1', tipo: 'concreto' },
-    { id: 'ifc_elem_002', nombre: 'Columna C-1', tipo: 'concreto' },
-    { id: 'ifc_elem_003', nombre: 'Viga VP-101', tipo: 'concreto' },
-    { id: 'ifc_elem_004', nombre: 'Losa Nivel +0.00', tipo: 'concreto' },
-    { id: 'ifc_elem_005', nombre: 'Muro Fachada Este', tipo: 'mamposteria' },
-    { id: 'ifc_elem_006', nombre: 'Muro Fachada Oeste', tipo: 'mamposteria' },
-  ];
+  // Elementos BIM generados desde planos reales del proyecto
+  const elementosBIM = useMemo(() => {
+    const planosProyecto = planos.filter(p => p.proyectoId === selProyecto);
+    if (planosProyecto.length === 0) return [];
+    
+    return planosProyecto.map((plano, idx) => ({
+      id: plano.id || `plano-${idx}`,
+      nombre: plano.nombre || `Plano ${idx + 1}`,
+      tipo: plano.tipo || 'documento',
+      version: plano.version || '1.0',
+      fecha: plano.fecha || new Date().toISOString().slice(0, 10),
+    }));
+  }, [planos, selProyecto]);
 
-  // Cubicación extraída del modelo IFC (simulada)
-  const cubicacionBIM = [
-    { elementoId: 'ifc_elem_001', concepto: 'Concreto en zapatas', unidad: 'm³', cantidad: 4.5 },
-    { elementoId: 'ifc_elem_002', concepto: 'Concreto en columnas', unidad: 'm³', cantidad: 3.2 },
-    { elementoId: 'ifc_elem_003', concepto: 'Concreto en vigas', unidad: 'm³', cantidad: 6.8 },
-    { elementoId: 'ifc_elem_004', concepto: 'Concreto en losas', unidad: 'm³', cantidad: 12.5 },
-    { elementoId: 'ifc_elem_005', concepto: 'Mampostería fachada', unidad: 'm²', cantidad: 85 },
-    { elementoId: 'ifc_elem_006', concepto: 'Mampostería fachada', unidad: 'm²', cantidad: 92 },
-  ];
+  // Cubicación generada desde renglones del presupuesto
+  const cubicacionBIM = useMemo(() => {
+    if (!presupuestoActual || renglones.length === 0) return [];
+    
+    return renglones.map((renglon, idx) => ({
+      elementoId: renglon.id || `renglon-${idx}`,
+      concepto: renglon.descripcion || `Renglón ${idx + 1}`,
+      unidad: renglon.unidad || 'm²',
+      cantidad: renglon.cantidad || 0,
+    }));
+  }, [presupuestoActual, renglones]);
 
   // Avance desde campo (vales + avances registrados)
   const avanceCampo = useMemo(() => {

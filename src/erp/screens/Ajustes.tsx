@@ -255,12 +255,13 @@ const Ajustes: React.FC = () => {
                   <Badge status="success" text={appSettings.appTheme === 'dark' ? 'Modo Oscuro' : 'Modo Claro'} />
                 </Space>
                 <Select
-                  defaultValue="lucy"
+                  defaultValue="compacto"
                   style={{ width: 200 }}
                   options={[
-                    { value: 'lucy', label: 'Opción demo' },
-                    { value: 'jack', label: 'Otra opción' },
+                    { value: 'compacto', label: 'Modo compacto' },
+                    { value: 'expandido', label: 'Modo expandido' },
                   ]}
+                  onChange={(value) => updateAppSettings({ compactMode: value === 'compacto' })}
                 />
               </Space>
             </Card>

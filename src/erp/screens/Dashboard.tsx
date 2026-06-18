@@ -269,28 +269,27 @@ const Dashboard: React.FC = () => {
   }, [gastos]);
 
   useEffect(() => {
-    // Si no hay notificaciones reales, generar demo basadas en hitos próximos
+    // Generar notificaciones basadas en hitos próximos SOLO si hay datos reales de proyectos
     if (typeof window === 'undefined') return;
     const store = useErpStore.getState();
     if (store.notificaciones.length > 0) return;
+    
+    // Solo generar notificaciones si hay proyectos con hitos (datos reales)
+    if (proyectos.length === 0) return;
+    
     const proximos = hitos.filter(h => h.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 3);
-    if (proximos.length === 0) {
-      // Demo activities si no hay hitos
-      const now = new Date();
-      const demoNotifs = [
-        { id: 'demo-notif-1', titulo: 'Reunión de obra mañana', tipo: 'calendario', leida: false, createdAt: new Date().toISOString(), metadata: { fecha: new Date(now.getTime() + 86400000).toISOString().slice(0,10) } },
-        { id: 'demo-notif-2', titulo: 'Visita de supervisión en 2 días', tipo: 'calendario', leida: false, createdAt: new Date().toISOString(), metadata: { fecha: new Date(now.getTime() + 172800000).toISOString().slice(0,10) } },
-        { id: 'demo-notif-3', titulo: 'Entrega de reporte semanal', tipo: 'calendario', leida: false, createdAt: new Date().toISOString(), metadata: { fecha: new Date(now.getTime() + 259200000).toISOString().slice(0,10) } },
-      ];
-      useErpStore.setState((prev: any) => ({ notificaciones: [...prev.notificaciones, ...demoNotifs] }));
-    } else {
-      const demoNotifs = proximos.map((h, i) => ({
-        id: `demo-notif-hito-${i}`, titulo: `Hito próximo: ${h.nombre}`, tipo: 'hito', leida: false,
-        createdAt: new Date().toISOString(), metadata: { proyectoId: h.proyectoId, fecha: h.fecha },
+    if (proximos.length > 0) {
+      const notificacionesHitos = proximos.map((h, i) => ({
+        id: `hito-notif-${h.id}-${Date.now()}`,
+        titulo: `Hito próximo: ${h.nombre}`,
+        tipo: 'hito',
+        leida: false,
+        createdAt: new Date().toISOString(),
+        metadata: { proyectoId: h.proyectoId, fecha: h.fecha },
       }));
-      useErpStore.setState((prev: any) => ({ notificaciones: [...prev.notificaciones, ...demoNotifs] }));
+      useErpStore.setState((prev: any) => ({ notificaciones: [...prev.notificaciones, ...notificacionesHitos] }));
     }
-  }, []);
+  }, [hitos, proyectos]);
 
   const [exportingPdf, setExportingPdf] = useState(false);
   const handleExportPdf = useCallback(async () => {
@@ -727,7 +726,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Próximas actividades — con datos demo si está vacío */}
+          {/* Próximas actividades — muestra hitos reales de proyectos */}
           <CompactCalendar />
         </div>
       </div>
