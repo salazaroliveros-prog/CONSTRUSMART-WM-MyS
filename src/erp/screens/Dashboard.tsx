@@ -188,10 +188,23 @@ const Dashboard: React.FC = () => {
   }, [hitos, selectedProyectoId, proyectos]);
 
   const movPorCategoria = useMemo(() => {
-    const map: Record<string, number> = {};
-    movimientos.filter(m => m.tipo === 'gasto').forEach(m => { map[m.categoria] = (map[m.categoria] || 0) + (m.monto ?? m.costoTotal ?? 0); });
-    return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 6)
-      .map(([k, v], i) => ({ label: k.slice(0, 4), value: v, color: COLORS[i % COLORS.length] }));
+    const mapGastos: Record<string, number> = {};
+    const mapIngresos: Record<string, number> = {};
+    movimientos.forEach(m => {
+      const val = m.monto ?? m.costoTotal ?? 0;
+      if (m.tipo === 'gasto') mapGastos[m.categoria] = (mapGastos[m.categoria] || 0) + val;
+      if (m.tipo === 'ingreso') mapIngresos[m.categoria] = (mapIngresos[m.categoria] || 0) + val;
+    });
+    const cats = new Set([...Object.keys(mapGastos), ...Object.keys(mapIngresos)]);
+    const labels = Array.from(cats).slice(0, 8);
+    const data = labels.map((k, i) => ({
+      label: k || 'Otros',
+      value: Math.max(mapGastos[k] || 0, mapIngresos[k] || 0),
+      gasto: mapGastos[k] || 0,
+      ingreso: mapIngresos[k] || 0,
+      color: CATEGORIA_COLORS[i % CATEGORIA_COLORS.length],
+    }));
+    return data;
   }, [movimientos]);
 
   const topProyectos = useMemo(() =>
@@ -273,43 +286,20 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const categoriaResumen = useMemo(() => CATEGORIA_MAP.map((categoria, index) => {
-    const count = categoria.tables.reduce((total, table) => {
-      switch (table) {
-        case 'erp_proyectos': return total + proyectos.length;
-        case 'erp_licitaciones': return total + licitaciones.length;
-        case 'erp_cotizaciones_negocio': return total + cotizacionesNegocio.length;
-        case 'erp_presupuestos': return total + presupuestos.length;
-        case 'erp_renglones': return total;
-        case 'erp_insumos_base': return total;
-        case 'erp_hitos': return total + hitos.length;
-        case 'erp_riesgos': return total + riesgos.length;
-        case 'erp_seguimiento': return total + seguimientoEVM.length;
-        case 'erp_avances': return total + avances.length;
-        case 'erp_rendimientos_cuadrilla': return total;
-        case 'erp_no_conformidades': return total + ncs.length;
-        case 'erp_publicaciones_muro': return total + publicacionesMuro.length;
-        case 'erp_ordenes_cambio': return total + ordenesCambio.length;
-        case 'erp_planos': return total + planos.length;
-        case 'erp_rfis': return total + rfis.length;
-        case 'erp_submittals': return total + submittals.length;
-        case 'erp_materiales': return total + materiales.length;
-        case 'erp_ordenes_compra': return total + ordenes.length;
-        case 'erp_vales_salida': return total + valesSalida.length;
-        case 'recepciones_almacen': return total + recepciones.length;
-        case 'erp_proveedores': return total;
-        case 'erp_empleados': return total + empleados.length;
-        case 'destajos': return total + destajos.length;
-        case 'erp_movimientos': return total + movimientos.length;
-        case 'ventas_paquetes': return total + ventasPaquetes.length;
-        case 'erp_cuentas_cobrar': return total + cuentasCobrar.length;
-        case 'erp_cuentas_pagar': return total + cuentasPagar.length;
-        case 'erp_pagos_proveedor': return total + pagosProveedor.length;
-        case 'erp_notificaciones': return total + notificacionesNoLeidas;
-        default: return total;
-      }
-    }, 0);
+    let count = 0;
+    for (const table of categoria.tables) {
+      if (table === 'erp_proyectos') count += proyectos.length;
+      else if (table === 'erp_presupuestos') count += presupuestos.length;
+      else if (table === 'erp_hitos') count += hitos.length;
+      else if (table === 'erp_riesgos') count += riesgos.length;
+      else if (table === 'erp_avances') count += avances.length;
+      else if (table === 'erp_movimientos') count += movimientos.length;
+      else if (table === 'erp_empleados') count += empleados.length;
+      else if (table === 'erp_materiales') count += materiales.length;
+      else if (table === 'erp_ordenes_compra') count += ordenes.length;
+    }
     return { ...categoria, count, color: CATEGORIA_COLORS[index % CATEGORIA_COLORS.length] };
-  }), [proyectos, licitaciones, cotizacionesNegocio, presupuestos, hitos, riesgos, seguimientoEVM, avances, ncs, publicacionesMuro, ordenesCambio, planos, rfis, submittals, materiales, ordenes, valesSalida, recepciones, empleados, destajos, movimientos, ventasPaquetes, cuentasCobrar, cuentasPagar, pagosProveedor, notificacionesNoLeidas]);
+  }), [proyectos, presupuestos, hitos, riesgos, avances, movimientos, empleados, materiales, ordenes]);
 
   const categoriaChartData = useMemo(() => categoriaResumen.map(c => ({ label: c.label.slice(0, 3), value: c.count, color: c.color })), [categoriaResumen]);
 
@@ -663,24 +653,39 @@ const Dashboard: React.FC = () => {
           <div><AlertasPanel /></div>
         </div>
         <div className="grid grid-cols-1 gap-1.5">
-          {movPorCategoria.length > 0 && (
-            <div>
-              <h3 className="font-bold text-foreground text-xs mb-1 flex items-center gap-1">
+          {movPorCategoria.length > 0 ? (
+            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+              <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
+                <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
                 {t('dashboard.gastos')} <span className="text-muted-foreground font-normal text-[9px]">vs {t('dashboard.ingresos')}</span>
               </h3>
-              <div className="h-14"><BarChart data={movPorCategoria} height={56} /></div>
-              <div className="flex items-center justify-between text-[9px] bg-muted/30 rounded-lg px-2 py-1 mt-1">
-                <span className="text-emerald-500 font-medium">{t('dashboard.ingresos')} {fmtQ(ingresos)}</span>
-                <span className="text-muted-foreground">|</span>
-                <span className="text-red-500 font-medium">{t('dashboard.gastos')} {fmtQ(gastos)}</span>
-                <span className="text-muted-foreground">|</span>
-                <span className={`font-medium ${saldoNeto >= 0 ? 'text-success' : 'text-destructive'}`}>{saldoNeto >= 0 ? '+' : ''}{fmtQ(saldoNeto)}</span>
+              <div className="h-20 sm:h-24">
+                <BarChart data={movPorCategoria.map(d => ({ label: d.label, value: d.value, color: d.color }))} height={80} />
+              </div>
+              <div className="mt-1 space-y-1">
+                <div className="flex items-center justify-between text-[9px]">
+                  <span className="text-emerald-500 font-medium flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> {t('dashboard.ingresos')}</span>
+                  <span className="text-foreground font-medium">{fmtQ(ingresos)}</span>
+                </div>
+                <div className="flex items-center justify-between text-[9px]">
+                  <span className="text-red-500 font-medium flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" /> {t('dashboard.gastos')}</span>
+                  <span className="text-foreground font-medium">{fmtQ(gastos)}</span>
+                </div>
+                <div className="flex items-center justify-between text-[9px] pt-0.5 border-t border-border">
+                  <span className="text-muted-foreground">Saldo</span>
+                  <span className={`font-medium ${saldoNeto >= 0 ? 'text-success' : 'text-destructive'}`}>{saldoNeto >= 0 ? '+' : ''}{fmtQ(saldoNeto)}</span>
+                </div>
               </div>
             </div>
+          ) : (
+            <div className={`${CARD} p-2 sm:p-3 text-center`}>
+              <BarChart3 className="w-5 h-5 text-muted-foreground/40 mx-auto mb-1" />
+              <p className="text-[10px] text-muted-foreground">{t('common.sin_datos')}</p>
+            </div>
           )}
-          {cuentasProximas.length > 0 && (
-            <div>
-              <h3 className="font-bold text-foreground text-xs mb-1 flex items-center gap-1">
+          {cuentasProximas.length > 0 ? (
+            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+              <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
                 <Wallet className="w-2.5 h-2.5" /> {t('dashboard.proximos_pagos')}
                 <span className="text-muted-foreground font-normal text-[9px]">{cuentasProximas.length}</span>
               </h3>
@@ -693,10 +698,15 @@ const Dashboard: React.FC = () => {
                 ))}
               </div>
             </div>
+          ) : (
+            <div className={`${CARD} p-2 sm:p-3 text-center`}>
+              <Wallet className="w-4 h-4 text-muted-foreground/40 mx-auto mb-0.5" />
+              <p className="text-[9px] text-muted-foreground">{t('common.sin_datos')}</p>
+            </div>
           )}
-          {cobrarProximas.length > 0 && (
-            <div>
-              <h3 className="font-bold text-foreground text-xs mb-1 flex items-center gap-1">
+          {cobrarProximas.length > 0 ? (
+            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+              <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
                 <DollarSign className="w-2.5 h-2.5 text-success" /> {t('dashboard.cuentas_cobrar')}
                 <span className="text-muted-foreground font-normal text-[9px]">{cobrarProximas.length}</span>
               </h3>
@@ -709,10 +719,15 @@ const Dashboard: React.FC = () => {
                 ))}
               </div>
             </div>
+          ) : (
+            <div className={`${CARD} p-2 sm:p-3 text-center`}>
+              <DollarSign className="w-4 h-4 text-muted-foreground/40 mx-auto mb-0.5" />
+              <p className="text-[9px] text-muted-foreground">{t('common.sin_datos')}</p>
+            </div>
           )}
-          {ocCambioPendientes.length > 0 && (
-            <div>
-              <h3 className="font-bold text-foreground text-xs mb-1 flex items-center gap-1">
+          {ocCambioPendientes.length > 0 ? (
+            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+              <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
                 <Repeat className="w-2.5 h-2.5 text-orange-500" /> {t('dashboard.ordenes_cambio')}
                 <span className="text-muted-foreground font-normal text-[9px]">{ocCambioPendientes.length}</span>
               </h3>
@@ -724,6 +739,11 @@ const Dashboard: React.FC = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          ) : (
+            <div className={`${CARD} p-2 sm:p-3 text-center`}>
+              <Repeat className="w-4 h-4 text-muted-foreground/40 mx-auto mb-0.5" />
+              <p className="text-[9px] text-muted-foreground">{t('common.sin_datos')}</p>
             </div>
           )}
           <CompactCalendar />

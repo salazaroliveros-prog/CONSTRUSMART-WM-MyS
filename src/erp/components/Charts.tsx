@@ -274,16 +274,15 @@ export const Donut: React.FC<{
         );
       })}
       <circle cx={cx} cy={cy} r={r * 0.52} fill="#f8fafc" />
-      {hovered !== null && (
+      {total === 0 && (
+        <text x={cx} y={cy + 3} fontSize={9} textAnchor="middle" fontWeight="600" fill="#94a3b8">
+          Sin datos
+        </text>
+      )}
+      {hovered !== null && total > 0 && (
         <text x={cx} y={cy + 4} fontSize={9} textAnchor="middle" fontWeight="700"
           fill={data[hovered]?.value === 0 ? '#94a3b8' : effectiveData[hovered]?.color}>
           {data[hovered]?.value === 0 ? '0%' : `${Math.round((effectiveData[hovered]?.value || 0) / effectiveTotal * 100)}%`}
-        </text>
-      )}
-      {hovered !== null && !fallback && (
-        <text x={cx} y={cy + 4} fontSize={9} textAnchor="middle" fontWeight="700"
-          fill={data[hovered]?.color}>
-          {Math.round((data[hovered]?.value || 0) / effectiveTotal * 100)}%
         </text>
       )}
     </svg>
