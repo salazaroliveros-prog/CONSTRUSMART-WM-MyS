@@ -24,12 +24,14 @@ export const materialSchema = z.object({
   precio: z.number(),
   categoria: z.string(),
   proyectoIds: z.array(z.string()).default([]),
-  critico: z.boolean().optional(),
   cantidadPresupuestada: z.number().optional(),
   costoPresupuestado: z.number().optional(),
-  ultimaActualizacionPresupuesto: z.string().optional(),
-  version: z.number().optional(),
-});
+}).transform(d => ({
+  ...d,
+  critico: (d.stock ?? 0) <= (d.stockMinimo ?? 0),
+  version: d.version ?? 1,
+  ultimaActualizacionPresupuesto: d.ultimaActualizacionPresupuesto ?? new Date().toISOString(),
+}));
 
 export const ordenSchema = z.object({
   id: z.string(),
