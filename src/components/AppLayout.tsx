@@ -6,9 +6,9 @@ import { ErrorBoundary } from './ErrorBoundary';
 
 const Header = lazy(() => import('@/erp/components/Header'));
 const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
+const Login = lazy(() => import('@/erp/screens/Login'));
 import { applyThemeToDocument } from '@/lib/themes';
 
-// Simple AppContext inline (reemplaza el archivo eliminado)
 interface AppContextType {
   sidebarOpen: boolean;
   toggleSidebar: () => void;
@@ -42,7 +42,6 @@ const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-// Lazy load all screens
 const Dashboard          = lazy(() => import('@/erp/screens/Dashboard'));
 const Proyectos          = lazy(() => import('@/erp/screens/Proyectos'));
 const Presupuestos       = lazy(() => import('@/erp/screens/Presupuestos'));
@@ -76,7 +75,6 @@ const Riesgos            = lazy(() => import('@/erp/screens/Riesgos'));
 const CuentasCobrar      = lazy(() => import('@/erp/screens/CuentasCobrar'));
 const CuentasPagar       = lazy(() => import('@/erp/screens/CuentasPagar'));
 const Cotizaciones       = lazy(() => import('@/erp/screens/Cotizaciones'));
-const Login              = lazy(() => import('@/erp/screens/Login'));
 
 const ScreenLoader: React.FC = () => (
   <div className="flex items-center justify-center h-64" role="status" aria-label="Cargando módulo">
@@ -97,7 +95,6 @@ const Shell: React.FC = () => {
   const { view, initializing, appSettings, user, allowedViews, setView, forceSync } = useErp();
   const { sidebarOpen, toggleSidebar, closeSidebar, sidebarCollapsed } = useAppContext();
 
-  // Conexión Realtime en tiempo real para datos ERP
   useSupabaseRealtime({
     tablas: [
       'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
@@ -120,7 +117,6 @@ const Shell: React.FC = () => {
   });
 
   useEffect(() => {
-    // Aplicar tema guardado al inicializar (antes del primer render)
     const savedTheme = localStorage.getItem('wm_erp_theme') || 'ant-design';
     document.documentElement.setAttribute('data-theme', savedTheme);
     const isDark = savedTheme === 'dark-pro';
@@ -136,7 +132,7 @@ const Shell: React.FC = () => {
 
   const viewName = view.split(':')[0];
 
-  const SCREEN_KEYS = ['dashboard','login','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','rendimientos'] as const;
+  const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','rendimientos'] as const;
 
   const screens = useMemo<Record<string, React.ReactNode>>(() => ({
     dashboard:         <Dashboard />,
@@ -179,7 +175,6 @@ const Shell: React.FC = () => {
 
   const setViewRef = useRef<ReturnType<typeof setView>>(setView);
   setViewRef.current = setView;
-  const SCREEN_KEYS_STR = SCREEN_KEYS.join(',') as string;
   const SCREEN_SET = useMemo(() => new Set<string>(SCREEN_KEYS as readonly string[]), []);
 
   useEffect(() => {
@@ -231,39 +226,12 @@ const Shell: React.FC = () => {
   );
 };
 
-const AppLayout: React.FC = () => {
-  const { user, initializing } = useErp();
-  const isAuthed = user && (user as any)?.id !== 'local';
-
-  if (initializing) {
-    return (
-      <AppProvider>
-        <ErpProvider>
-          <div className="min-h-screen flex items-center justify-center bg-background">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" aria-hidden="true" />
-          </div>
-        </ErpProvider>
-      </AppProvider>
-    );
-  }
-
-  if (!isAuthed) {
-    return (
-      <AppProvider>
-        <ErpProvider>
-          <Login />
-        </ErpProvider>
-      </AppProvider>
-    );
-  }
-
-  return (
-    <AppProvider>
-      <ErpProvider>
-        <Shell />
-      </ErpProvider>
-    </AppProvider>
-  );
-};
+const AppLayout: React.FC = () => (
+  <AppProvider>
+    <ErpProvider>
+      <Shell />
+    </ErpProvider>
+  </AppProvider>
+);
 
 export default AppLayout;
