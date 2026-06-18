@@ -445,9 +445,7 @@ export interface Hito {
   createdAt: string;
 }
 
-export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeguero';
-
-export interface Incidente {
+export interface CentroCosto {
   id: string;
   proyectoId: string;
   tipo: 'accidente' | 'cuasi-accidente' | 'condicion_insegura' | 'acto_inseguro';

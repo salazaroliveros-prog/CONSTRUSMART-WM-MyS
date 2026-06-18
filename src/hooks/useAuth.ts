@@ -2,21 +2,13 @@ import { useState, useCallback, useEffect } from 'react';
 import { z } from 'zod';
 import { hasSupabase } from '@/lib/supabase';
 
-export type Rol = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeguero';
-
-const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
-const ALLOWED_EMAILS = new Set([ADMIN_EMAIL]);
-
-function mapRol(email?: string): Rol {
-  if (email && ALLOWED_EMAILS.has(email)) return 'Administrador';
-  return 'Residente';
-}
+type Rol = string;
 
 const userSchema = z.object({
   id: z.string(),
   email: z.string().email().optional().default(''),
   nombre: z.string().default('Usuario'),
-  rol: z.string().default('Residente'),
+  rol: z.string().default('Administrador'),
   avatar: z.string().optional().default(''),
 });
 
@@ -63,7 +55,7 @@ export function useAuth(): UseAuthReturn {
     const userMeta = (session.user as any).user_metadata || {};
     const nombre = userMeta.full_name || userMeta.name || email.split('@')[0] || 'Usuario';
     const avatar = userMeta.picture || userMeta.avatar_url || '';
-    const rol = mapRol(email);
+    const rol = 'Administrador';
 
     const validated = safeParse(userSchema, session.user as any, {
       id: session.user.id,
@@ -73,16 +65,16 @@ export function useAuth(): UseAuthReturn {
       avatar,
     }, 'useAuth:buildUser');
 
-    if (!validated.email || !ALLOWED_EMAILS.has(validated.email)) {
-      setUser(null);
-      setError('Correo no autorizado. Solo admin@construsmart puede acceder.');
-      setLoading(false);
-      return;
-    }
-
     setUser(validated);
     setLoading(false);
     setError('');
+
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '');
+      if (!hash || hash === 'login') {
+        window.location.hash = '#dashboard';
+      }
+    }
   }, []);
 
   useEffect(() => {
