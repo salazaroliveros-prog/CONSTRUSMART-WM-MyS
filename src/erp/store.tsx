@@ -14,6 +14,7 @@ import {
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical, toSnake } from './utils';
 import { hasSupabase, assertSupabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
+import { useAuth } from '@/hooks/useAuth';
 import type { AppSettings, Mutation } from './store';
 
 const proyectoSchemaInline = z.object({
