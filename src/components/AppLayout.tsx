@@ -76,6 +76,7 @@ const Riesgos            = lazy(() => import('@/erp/screens/Riesgos'));
 const CuentasCobrar      = lazy(() => import('@/erp/screens/CuentasCobrar'));
 const CuentasPagar       = lazy(() => import('@/erp/screens/CuentasPagar'));
 const Cotizaciones       = lazy(() => import('@/erp/screens/Cotizaciones'));
+const Login              = lazy(() => import('@/erp/screens/Login'));
 
 const ScreenLoader: React.FC = () => (
   <div className="flex items-center justify-center h-64" role="status" aria-label="Cargando módulo">
@@ -135,10 +136,11 @@ const Shell: React.FC = () => {
 
   const viewName = view.split(':')[0];
 
-  const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','rendimientos'] as const;
+  const SCREEN_KEYS = ['dashboard','login','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','rendimientos'] as const;
 
   const screens = useMemo<Record<string, React.ReactNode>>(() => ({
     dashboard:         <Dashboard />,
+    login:             <Login />,
     proyectos:         <Proyectos />,
     presupuestos:      <Presupuestos />,
     seguimiento:       <Seguimiento />,
@@ -195,7 +197,15 @@ const Shell: React.FC = () => {
   }, [SCREEN_SET]);
 
   const resolvedView = viewName === 'rendimientos' ? 'rendimiento-campo' : viewName;
-  const safeScreen = allAllowedScreens.includes(resolvedView) ? screens[resolvedView] : screens['dashboard'];
+
+  let safeScreen = screens['dashboard'];
+  if (!user || (user as any)?.id === 'local' || resolvedView === 'login') {
+    safeScreen = screens['login'];
+  } else if (allAllowedScreens.includes(resolvedView)) {
+    safeScreen = screens[resolvedView];
+  } else {
+    safeScreen = screens['dashboard'];
+  }
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
