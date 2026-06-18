@@ -178,8 +178,6 @@ export interface Presupuesto {
   notas?: string;
 }
 
-export type EtapaObra = 'planificacion' | 'diseno' | 'preconstruccion' | 'construccion' | 'cierre';
-
 export interface Proyecto {
   id: string;
   proyectoId: string;
