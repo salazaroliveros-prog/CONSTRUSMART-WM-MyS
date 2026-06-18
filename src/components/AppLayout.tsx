@@ -231,12 +231,27 @@ const Shell: React.FC = () => {
   );
 };
 
-const AppLayout: React.FC = () => (
-  <AppProvider>
-    <ErpProvider>
-      <Shell />
-    </ErpProvider>
-  </AppProvider>
-);
+const AppLayout: React.FC = () => {
+  const { user } = useErp();
+  const isAuthed = user && (user as any)?.id !== 'local';
+
+  if (!isAuthed) {
+    return (
+      <AppProvider>
+        <ErpProvider>
+          <Login />
+        </ErpProvider>
+      </AppProvider>
+    );
+  }
+
+  return (
+    <AppProvider>
+      <ErpProvider>
+        <Shell />
+      </ErpProvider>
+    </AppProvider>
+  );
+};
 
 export default AppLayout;
