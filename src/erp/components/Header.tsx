@@ -22,12 +22,17 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
     } catch { /* ignore */ }
   }, []);
 
+  const avatarFromUser = user?.avatar;
   useEffect(() => {
     try {
       const googleAvatar = localStorage.getItem('wm_google_avatar');
       if (googleAvatar) setCustomPhoto(googleAvatar);
+      else if (avatarFromUser) {
+        setCustomPhoto(avatarFromUser);
+        localStorage.setItem('wm_google_avatar', avatarFromUser);
+      }
     } catch { /* ignore */ }
-  }, []);
+  }, [avatarFromUser]);
 
   const onPick = () => fileRef.current?.click();
   const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,7 +49,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
     reader.readAsDataURL(f);
   };
 
-  const avatarSrc = user?.avatar ?? customPhoto;
+  const avatarSrc = customPhoto || user?.avatar;
   const initials = (user?.nombre || 'WM').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 
   return (

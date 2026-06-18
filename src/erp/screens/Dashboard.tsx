@@ -7,7 +7,7 @@ import MovimientoForm from '../components/MovimientoForm';
 import AlertasPanel from '../components/AlertasPanel';
 import CompactCalendar from '../components/CompactCalendar';
 import { BarChart, Donut, Progress, Gauge } from '../components/Charts';
-import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, Wallet, Warehouse, ClipboardCheck, Activity, TrendingDown, Download, Zap, Repeat, Database, BarChart3, Shield } from 'lucide-react';
+import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, Wallet, Warehouse, ClipboardCheck, Activity, TrendingDown, Download, Zap, Repeat, BarChart3, Shield } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
 import { CARD, CARD_TITLE } from '../ui';
 import ProyectoFilter from '../components/ProyectoFilter';
@@ -267,6 +267,30 @@ const Dashboard: React.FC = () => {
     const step = gastos / 7;
     return Array.from({ length: 8 }, (_, i) => Math.round(step * i * 100) / 100);
   }, [gastos]);
+
+  useEffect(() => {
+    // Si no hay notificaciones reales, generar demo basadas en hitos próximos
+    if (typeof window === 'undefined') return;
+    const store = useErpStore.getState();
+    if (store.notificaciones.length > 0) return;
+    const proximos = hitos.filter(h => h.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 3);
+    if (proximos.length === 0) {
+      // Demo activities si no hay hitos
+      const now = new Date();
+      const demoNotifs = [
+        { id: 'demo-notif-1', titulo: 'Reunión de obra mañana', tipo: 'calendario', leida: false, createdAt: new Date().toISOString(), metadata: { fecha: new Date(now.getTime() + 86400000).toISOString().slice(0,10) } },
+        { id: 'demo-notif-2', titulo: 'Visita de supervisión en 2 días', tipo: 'calendario', leida: false, createdAt: new Date().toISOString(), metadata: { fecha: new Date(now.getTime() + 172800000).toISOString().slice(0,10) } },
+        { id: 'demo-notif-3', titulo: 'Entrega de reporte semanal', tipo: 'calendario', leida: false, createdAt: new Date().toISOString(), metadata: { fecha: new Date(now.getTime() + 259200000).toISOString().slice(0,10) } },
+      ];
+      useErpStore.setState((prev: any) => ({ notificaciones: [...prev.notificaciones, ...demoNotifs] }));
+    } else {
+      const demoNotifs = proximos.map((h, i) => ({
+        id: `demo-notif-hito-${i}`, titulo: `Hito próximo: ${h.nombre}`, tipo: 'hito', leida: false,
+        createdAt: new Date().toISOString(), metadata: { proyectoId: h.proyectoId, fecha: h.fecha },
+      }));
+      useErpStore.setState((prev: any) => ({ notificaciones: [...prev.notificaciones, ...demoNotifs] }));
+    }
+  }, []);
 
   const handleExportPdf = useCallback(() => {
     const el = dashRef.current;
@@ -697,29 +721,6 @@ const Dashboard: React.FC = () => {
 
           {/* Próximas actividades — con datos demo si está vacío */}
           <CompactCalendar />
-
-          {/* Módulos con conteos reales */}
-          <div>
-            <h3 className="font-bold text-foreground text-xs mb-1 flex items-center gap-1">
-              <Database className="w-2.5 h-2.5 text-primary" /> {t('dashboard.modulos')}
-              <span className="text-muted-foreground font-normal text-[9px]">{modulos.length} categorías</span>
-            </h3>
-            <nav aria-label="Acceso rápido a módulos" className="grid grid-cols-4 gap-1">
-              {modulos.map(m => {
-                const Icon = m.icon;
-                return (
-                  <button key={m.id} onClick={() => setView(m.targetView as View)}
-                    aria-label={`Ir a ${m.label}`}
-                    className="text-white rounded-lg sm:rounded-xl p-1.5 sm:p-2 flex flex-col items-start gap-1 hover:scale-[1.02] active:scale-[0.97] transition-all shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-                    style={{ background: `linear-gradient(135deg, ${m.color}, #0f172a)` }}>
-                    <Icon className="w-3 h-3 sm:w-4 sm:h-4" aria-hidden="true" />
-                    <span className="text-[8px] sm:text-[10px] font-semibold leading-tight">{m.label}</span>
-                    <span className="text-[7px] opacity-80">{m.count} registros</span>
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
         </div>
       </div>
     </div>
