@@ -13,7 +13,7 @@ Ubicación: `src/erp/store.tsx`
 El `ErpProvider` es el contenedor principal de estado que implementa:
 
 - **Persistencia localStorage**: Cada entidad se guarda automáticamente en localStorage con `saveToStorage()`
-- **Carga con validación**: `loadAndValidateFromStorage()` carga datos validados con schemas Zod
+- **Carga con validación**: `loadFromStorage()` carga datos validados con schemas Zod
 - **Mutation Queue**: Cola de mutaciones pendientes de sincronización
 - **forceSync**: Mecanismo para enviar mutaciones a Supabase
 
@@ -369,3 +369,10 @@ El sistema de métricas (`src/lib/metrics.ts`) registra:
 - Tiempo offline total
 
 Estas métricas ayudan a identificar problemas de performance en producción.
+
+---
+
+## ✅ Acta de Cierre
+
+**Verificación**: 2026-06-19 — Documento verificado y corregido (`loadAndValidateFromStorage` → `loadFromStorage`).
+**Estado**: ✅ Cerrado — Documento funcional y preciso

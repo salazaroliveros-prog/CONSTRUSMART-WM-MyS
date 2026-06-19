@@ -368,10 +368,7 @@ saveToStorage('erp_proyectos', proyectos);
 ### Carga con validación
 
 ```typescript
-const loaded = await loadAndValidateFromStorage<Proyecto[]>(
-  'erp_proyectos',
-  proyectoSchema.array()
-);
+const loaded = loadFromStorage<Proyecto[]>('erp_proyectos', proyectoSchema.array());
 ```
 
 ## Métricas
@@ -664,3 +661,10 @@ interface Presupuesto {
 ```
 
 Para tipos completos, ver `src/erp/types.ts`.
+
+---
+
+## ✅ Acta de Cierre
+
+**Verificación**: 2026-06-19 — Documento verificado y corregido (`loadAndValidateFromStorage` → `loadFromStorage`).
+**Estado**: ✅ Cerrado — Documento funcional y preciso
