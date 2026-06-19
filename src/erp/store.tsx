@@ -15,6 +15,7 @@ import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, sa
 import { hasSupabase, assertSupabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
 import { useAuth } from '@/hooks/useAuth';
+import { encryptionManager, migrateSecureStorage } from '@/lib/encryption';
 import type { AppSettings, Mutation } from './store';
 
 const proyectoSchemaInline = z.object({
@@ -245,6 +246,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       })(),
     });
     if (useErpStore.getState().appSettings.empresaInfo) setEmpresaInfo(useErpStore.getState().appSettings.empresaInfo);
+
+    migrateSecureStorage(user?.id).catch(err => safeLogger.warn('[Encryption] Migration error:', err));
   }, []);
 
   const syncCooldownRef = useRef(false);
@@ -389,6 +392,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           safeSetItem('wm_erp_queue', compressData(s.mutationQueue));
           safeSetItem(`${STORAGE_KEY}_notificaciones`, compressData(s.notificaciones));
           safeSetItem(`${STORAGE_KEY}_audit_log`, compressData(s.auditLog));
+          
+          encryptionManager.encryptItem(AUDIT_KEY, s.auditLog, user?.id || 'default')
+            .then(() => safeLogger.log('[Encryption] auditLog encrypted'))
+            .catch(err => safeLogger.warn('[Encryption] Failed to encrypt auditLog:', err));
+          
+          encryptionManager.encryptItem(BASE_STORAGE_KEY + '_settings', s.appSettings, user?.id || 'default')
+            .then(() => safeLogger.log('[Encryption] appSettings encrypted'))
+            .catch(err => safeLogger.warn('[Encryption] Failed to encrypt appSettings:', err));
+          
           if (quotaCritical) safeLogger.warn('[Storage] Cuota de localStorage casi llena — usando compresión');
         } catch (e) { safeLogger.warn('[Storage] Error al persistir:', e); }
       }, 500);

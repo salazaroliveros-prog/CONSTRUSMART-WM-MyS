@@ -4,6 +4,7 @@ import App from './App';
 import { initServiceWorker } from '@/lib/sw-init';
 import { log } from '@/lib/auto-logger';
 import { errorReporter } from '@/lib/errorReporting';
+import { initMetrics } from '@/lib/metrics';
 import './index.css';
 import '@/lib/i18n';
 
@@ -23,6 +24,10 @@ initServiceWorker().then(reg => {
 // Inicializar sistema de reporte de errores
 errorReporter.init();
 log('info', 'Main', 'Sistema de reporte de errores inicializado');
+
+// Inicializar sistema de métricas y monitoring
+initMetrics();
+log('info', 'Main', 'Sistema de métricas y monitoring inicializado');
 
 root.render(
   <React.StrictMode>
