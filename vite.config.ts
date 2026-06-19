@@ -24,14 +24,7 @@ export default defineConfig(({ mode: _mode }) => ({
 
     rollupOptions: {
       output: {
-        manualChunks(id: string) {
-          if (id.includes('node_modules/web-ifc')) {
-            return 'web-ifc';
-          }
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        },
+        inlineDynamicImports: true,
       },
     },
   },
