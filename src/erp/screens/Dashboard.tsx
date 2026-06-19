@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, type View } from '../store';
-import { useErpStore } from '../store/zustandStore';
+import { useErpStore } from '../zustandStore';
 import { fmtQ, fmtPct } from '../utils';
 import GaugeKpi from '../components/GaugeKpi';
 import MovimientoForm from '../components/MovimientoForm';
