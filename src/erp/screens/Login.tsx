@@ -12,7 +12,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
   const forceGuestLogin = import.meta.env.VITE_FORCE_GUEST_LOGIN === 'true';
-  const showGuestButton = forceGuestLogin || !hasSupabase();
+  const showGuestButton = forceGuestLogin || !hasSupabase;
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -26,7 +26,7 @@ const Login: React.FC = () => {
   const handleGuestLogin = async () => {
     setGuestLoading(true);
     try {
-      const mod = await import('../store');
+      const mod = await import('../zustandStore');
       mod.useErpStore.setState({
         user: { id: 'guest', email: 'invitado@construsmart', nombre: 'Invitado', rol: 'Administrador', avatar: null },
       });
