@@ -92,6 +92,7 @@ gh-pages/
 
 # Playwright test artifacts
 .playwright-mcp/
+test-results/
 *.png
 
 # Temp scripts (not for repo)
