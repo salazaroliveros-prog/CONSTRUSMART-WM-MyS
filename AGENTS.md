@@ -9,10 +9,10 @@
 - Context store (ErpProvider) con persistencia localStorage + forceSync
 
 ## Arquitectura del Store
-- `src/erp/store.tsx`: ErpProvider, contexto, loadFromStorage, loadAndValidateFromStorage, mutation queue con forceSync
+- `src/erp/store.tsx`: ErpProvider, contexto, loadFromStorage, mutation queue con forceSync
 - Los schemas Zod están IMPORTADOS de `src/erp/store/schemas/` — NO redefinir inline
 - `proyectoSchemaInline` en store.tsx es una excepción (versión simplificada sin `as const`)
-- Nuevas entidades de estado: usar `loadAndValidateFromStorage` con su schema canónico
+- Nuevas entidades de estado: usar `loadFromStorage` con su schema canónico
 - `forceSync` envía INSERT/UPDATE/DELETE real a Supabase cuando hay conexión
 - `fetchInitialData` carga desde Supabase en primer auth
 - `scheduleHealthCheck` monitorea estado del store cada 10 min
@@ -114,7 +114,7 @@
 
 ### P3: Store Health + Initial Data
 - `scheduleHealthCheck` en ErpProvider (10 min)
-- `loadAndValidateFromStorage` con validación Zod (14 entidades)
+- `loadFromStorage` con validación Zod (33+ entidades)
 - `fetchInitialData` desde Supabase en primer auth
 - Eliminado estado muerto `subcontratos`
 
