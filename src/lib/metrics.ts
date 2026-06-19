@@ -46,7 +46,8 @@ class MetricsManager {
       const stored = localStorage.getItem(METRICS_STORAGE_KEY);
       if (stored) {
         this.metrics = JSON.parse(stored);
-        this.counters = new Map(JSON.parse(localStorage.getItem('erp_metric_counters') || '{}'));
+        const countersData = JSON.parse(localStorage.getItem('erp_metric_counters') || '{}');
+        this.counters = new Map(Object.entries(countersData));
       }
     } catch (err) {
       console.error('[Metrics] Error loading metrics:', err);

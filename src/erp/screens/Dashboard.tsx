@@ -7,7 +7,7 @@ import MovimientoForm from '../components/MovimientoForm';
 import AlertasPanel from '../components/AlertasPanel';
 import CompactCalendar from '../components/CompactCalendar';
 import { BarChart, Donut, Progress, Gauge } from '../components/Charts';
-import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, Wallet, Warehouse, ClipboardCheck, Activity, TrendingDown, Download, Zap, Repeat, BarChart3, Shield, Loader2 } from 'lucide-react';
+import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, Wallet, Warehouse, ClipboardCheck, Activity, TrendingDown, Download, Zap, Repeat, BarChart3, Shield, Loader2, Database } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
 import { CARD, CARD_TITLE } from '../ui';
 import ProyectoFilter from '../components/ProyectoFilter';
@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
     cotizacionesNegocio, notificacionesNoLeidas,
   } = ctx;
 
-  const hasData = proyectos.length > 0 || movimientos.length > 0 || materiales.length > 0;
+  const hasData = (proyectos || []).length > 0 || (movimientos || []).length > 0 || (materiales || []).length > 0;
 
   const s1 = useStagger(0);
   const s2 = useStagger(100);
@@ -81,9 +81,9 @@ const Dashboard: React.FC = () => {
   const s4 = useStagger(300);
   const staggerArr = [s1, s2, s3, s4];
 
-  const activos = proyectos.filter(p => p.estado === 'ejecucion');
+  const activos = (proyectos || []).filter(p => p.estado === 'ejecucion');
   const proyectosSel = selectedProyectoId && selectedProyectoId !== 'none'
-    ? proyectos.filter(p => p.id === selectedProyectoId) : proyectos;
+    ? (proyectos || []).filter(p => p.id === selectedProyectoId) : (proyectos || []);
   const presupuestoTotal = proyectosSel.reduce((a, b) => a + b.presupuestoTotal, 0);
   const margenProm = proyectosSel.length
     ? proyectosSel.reduce((a, b) => {
@@ -92,13 +92,13 @@ const Dashboard: React.FC = () => {
       }, 0) / proyectosSel.length : 0;
   const desviacion = proyectosSel.length
     ? proyectosSel.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / proyectosSel.length : 0;
-  const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-  const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+  const ingresos = (movimientos || []).filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+  const gastos = (movimientos || []).filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
   const saldoNeto = ingresos - gastos;
 
   const avanceProm = useMemo(() => {
     const filtrados = selectedProyectoId && selectedProyectoId !== 'none'
-      ? proyectos.filter(p => p.id === selectedProyectoId) : proyectos;
+      ? (proyectos || []).filter(p => p.id === selectedProyectoId) : (proyectos || []);
     const totalP = filtrados.reduce((a, b) => a + b.presupuestoTotal, 0);
     return totalP > 0
       ? Math.round(filtrados.reduce((a, b) => a + (b.avanceFisico * b.presupuestoTotal), 0) / totalP)
@@ -107,7 +107,7 @@ const Dashboard: React.FC = () => {
 
   const avanceFinProm = useMemo(() => {
     const filtrados = selectedProyectoId && selectedProyectoId !== 'none'
-      ? proyectos.filter(p => p.id === selectedProyectoId) : proyectos;
+      ? (proyectos || []).filter(p => p.id === selectedProyectoId) : (proyectos || []);
     const totalP = filtrados.reduce((a, b) => a + b.presupuestoTotal, 0);
     return totalP > 0
       ? Math.round(filtrados.reduce((a, b) => a + (b.avanceFinanciero * b.presupuestoTotal), 0) / totalP)
@@ -116,7 +116,7 @@ const Dashboard: React.FC = () => {
 
   const carteraData = useMemo(() => {
     const counts: Record<string, number> = { planeacion: 0, ejecucion: 0, pausado: 0, finalizado: 0 };
-    proyectos.forEach(p => { if (counts[p.estado] !== undefined) counts[p.estado]++; });
+    (proyectos || []).forEach(p => { if (counts[p.estado] !== undefined) counts[p.estado]++; });
     return Object.entries(counts).filter(([, v]) => v > 0).map(([k, v]) => ({
       label: t(`dashboard.${k}`), value: v, color: STATUS_COLORS[k] || '#6b7280',
     }));
@@ -136,11 +136,12 @@ const Dashboard: React.FC = () => {
   }, [presupuestos, movimientos]);
 
   const stockData = useMemo(() => {
-    const criticos = materiales.filter(m => m.stock <= (m.stockMinimo || 0));
+    const mats = materiales || [];
+    const criticos = mats.filter(m => m.stock <= (m.stockMinimo || 0));
     return {
       criticos: criticos.length,
-      ok: Math.max(materiales.length - criticos.length, 0),
-      total: materiales.length,
+      ok: Math.max(mats.length - criticos.length, 0),
+      total: mats.length,
       items: criticos.slice(0, 5).map(m => ({
         nombre: m.nombre, stock: m.stock, minimo: m.stockMinimo || 0,
       })),
@@ -158,8 +159,8 @@ const Dashboard: React.FC = () => {
 
   const timelineData = useMemo(() => {
     const filtrados = selectedProyectoId && selectedProyectoId !== 'none'
-      ? hitos.filter(h => h.proyectoId === selectedProyectoId) : hitos;
-    const projMap = new Map(proyectos.map(p => [p.id, p.nombre]));
+      ? (hitos || []).filter(h => h.proyectoId === selectedProyectoId) : (hitos || []);
+    const projMap = new Map((proyectos || []).map(p => [p.id, p.nombre]));
     return [...filtrados].filter(h => h.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 8).map(h => ({
       id: h.id, nombre: h.nombre, proyecto: projMap.get(h.proyectoId) || '',
       fecha: h.fecha, estado: h.estado || 'pendiente',
@@ -168,8 +169,8 @@ const Dashboard: React.FC = () => {
 
   const ganttData = useMemo(() => {
     const filtrados = selectedProyectoId && selectedProyectoId !== 'none'
-      ? hitos.filter(h => h.proyectoId === selectedProyectoId) : hitos;
-    const projMap = new Map(proyectos.map(p => [p.id, p.nombre]));
+      ? (hitos || []).filter(h => h.proyectoId === selectedProyectoId) : (hitos || []);
+    const projMap = new Map((proyectos || []).map(p => [p.id, p.nombre]));
     return [...filtrados].filter(h => h.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 12).map(h => {
       const hoy = new Date();
       const fechaHito = new Date(h.fecha);
@@ -191,7 +192,7 @@ const Dashboard: React.FC = () => {
   const movPorCategoria = useMemo(() => {
     const mapGastos: Record<string, number> = {};
     const mapIngresos: Record<string, number> = {};
-    movimientos.forEach(m => {
+    (movimientos || []).forEach(m => {
       const val = m.monto ?? m.costoTotal ?? 0;
       if (m.tipo === 'gasto') mapGastos[m.categoria] = (mapGastos[m.categoria] || 0) + val;
       if (m.tipo === 'ingreso') mapIngresos[m.categoria] = (mapIngresos[m.categoria] || 0) + val;
@@ -209,12 +210,12 @@ const Dashboard: React.FC = () => {
   }, [movimientos]);
 
   const topProyectos = useMemo(() =>
-    [...proyectos].sort((a, b) => b.presupuestoTotal - a.presupuestoTotal).slice(0, 3)
+    [...(proyectos || [])].sort((a, b) => b.presupuestoTotal - a.presupuestoTotal).slice(0, 3)
       .map(p => ({ id: p.id, nombre: p.nombre, presupuesto: p.presupuestoTotal, avance: p.avanceFisico, estado: p.estado })),
   [proyectos]);
 
   const ocPendientes = useMemo(() =>
-    ordenes.filter(o => o.estado === 'pendiente' || o.estado === 'borrador').slice(0, 3)
+    (ordenes || []).filter(o => o.estado === 'pendiente' || o.estado === 'borrador').slice(0, 3)
       .map(o => ({ id: o.id, proveedor: o.proveedor, material: o.material, cantidad: o.cantidad, monto: (o.precioUnitario || 0) * (o.cantidad || 0) })),
   [ordenes]);
 
@@ -274,11 +275,11 @@ const Dashboard: React.FC = () => {
     if (typeof window === 'undefined') return;
     const store = useErpStore.getState();
     if (store.notificaciones.length > 0) return;
-    
+
     // Solo generar notificaciones si hay proyectos con hitos (datos reales)
-    if (proyectos.length === 0) return;
-    
-    const proximos = hitos.filter(h => h.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 3);
+    if ((proyectos || []).length === 0) return;
+
+    const proximos = (hitos || []).filter(h => h.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 3);
     if (proximos.length > 0) {
       const notificacionesHitos = proximos.map((h, i) => ({
         id: `hito-notif-${h.id}-${Date.now()}`,
