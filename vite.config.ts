@@ -21,11 +21,5 @@ export default defineConfig(({ mode: _mode }) => ({
   },
   build: {
     chunkSizeWarningLimit: 5000,
-
-    rollupOptions: {
-      output: {
-        inlineDynamicImports: true,
-      },
-    },
   },
 }));
