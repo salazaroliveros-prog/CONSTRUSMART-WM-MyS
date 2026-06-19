@@ -96,11 +96,8 @@ test-results/
 *.png
 
 # Temp scripts (not for repo)
-scripts/check-supabase-counts.mjs
-scripts/fix-supabase-views.mjs
-scripts/seed-comercial-bi.mjs
-scripts/seed-supabase-remote.mjs
-scripts/seed-vacio.mjs
+scripts/*.cjs
+scripts/*.mjs
 
 # Kilo agent system
 .kilo/
