@@ -11,6 +11,8 @@ const Login: React.FC = () => {
   const authError = '';
   const [loading, setLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
+  const forceGuestLogin = import.meta.env.VITE_FORCE_GUEST_LOGIN === 'true';
+  const showGuestButton = forceGuestLogin || !hasSupabase();
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -122,7 +124,7 @@ const Login: React.FC = () => {
                   </>
                 )}
               </button>
-              {!hasSupabase && (
+              {showGuestButton && (
                 <button type="button" onClick={handleGuestLogin} disabled={guestLoading} className={btn}>
                   {guestLoading ? (
                     <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
