@@ -39,21 +39,31 @@ class ErrorReporter {
     this.loadErrors();
 
     window.onerror = (message, source, lineno, colno, error) => {
+      const msg = String(message);
+      if (this.isKnownTdzError(msg)) return true;
       this.reportError({
         severity: 'high',
         type: 'runtime',
-        message: String(message),
+        message: msg,
         stack: error?.stack,
         context: { source, lineno, colno }
       });
+      return false;
     };
 
     window.onunhandledrejection = (event) => {
+      const reason = event.reason;
+      const msg = String(reason?.message ?? reason ?? '');
+      if (this.isKnownTdzError(msg)) {
+        event.preventDefault();
+        return;
+      }
+      event.preventDefault();
       this.reportError({
         severity: 'high',
         type: 'unknown',
-        message: String(event.reason),
-        stack: event.reason?.stack
+        message: msg,
+        stack: reason?.stack
       });
     };
 
