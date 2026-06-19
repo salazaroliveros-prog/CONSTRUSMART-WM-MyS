@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
 import { LogOut, Home, Menu, Upload, Bell } from 'lucide-react';
-import SyncIndicator from './SyncIndicator';
+import { SyncStatusBadge } from '../SyncStatusBadge';
 
 const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, title }) => {
   const { user, logout, setView, view, notificacionesNoLeidas } = useErp();
@@ -72,7 +72,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
 
       {/* Center: Sync + Clock (hidden on mobile) */}
       <div className="hidden md:flex items-center gap-3 lg:gap-4">
-        <SyncIndicator />
+        <SyncStatusBadge />
         <div className="text-center">
           <div className="font-mono text-xs lg:text-sm font-bold tabular-nums text-primary-foreground/90">
             {now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}
