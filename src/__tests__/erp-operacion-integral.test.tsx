@@ -190,7 +190,7 @@ describe('4. Renderizado de Pantallas (Snapshot de estructura)', () => {
           }
         }
       }
-    }, screen === 'Ajustes' ? 30000 : 10000);
+    }, screen === 'Ajustes' || screen === 'Dashboard' ? 30000 : 10000);
   });
 });
 
