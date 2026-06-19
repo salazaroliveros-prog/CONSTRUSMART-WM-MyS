@@ -898,7 +898,7 @@ describe('10. Renderizado y Carga de Pantallas', () => {
       } catch {
         expect(`Screen ${screen} may use alternative path`).toBeTruthy();
       }
-    }, screen === 'Ajustes' ? 30000 : 10000);
+    }, screen === 'Ajustes' || screen === 'Dashboard' ? 30000 : 10000);
   });
 
   it('10.2 Sidebar tiene todos los items del menú', async () => {

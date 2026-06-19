@@ -12,7 +12,7 @@ import {
   destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical, toSnake } from './utils';
-import { hasSupabase, assertSupabase } from '@/lib/supabase';
+import { hasSupabase, assertSupabase, supabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
 import { useAuth } from '@/hooks/useAuth';
 import { encryptionManager, migrateSecureStorage } from '@/lib/encryption';
@@ -159,7 +159,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
    const zustandUser = useErpStore(s => (s as any).user);
    const user = useMemo(() => {
      if (authUser) {
-       const avatar = (authUser as any)?.avatar || (authUser as any)?.picture || null;
+       const avatar = authUser.avatar || null;
        if (avatar && typeof window !== 'undefined') {
          try { localStorage.setItem('wm_google_avatar', avatar); } catch {}
        }
@@ -285,6 +285,13 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const queue = useErpStore.getState().mutationQueue;
       if (queue.length === 0 || !isOnlineRef.current || !hasSupabase) return;
 
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        useErpStore.getState().setMutationQueue([]);
+        useErpStore.setState({ syncMessage: '', syncStatus: 'idle', syncError: undefined });
+        return;
+      }
+
       syncCooldownRef.current = true;
       useErpStore.setState({ syncMessage: `Sincronizando ${queue.length} cambios...`, syncStatus: queue.length > 0 ? 'queued' : 'loading', syncError: undefined });
 
@@ -361,6 +368,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
+  const lastQueueLenRef = useRef(0);
+  useEffect(() => {
+    const unsub = useErpStore.subscribe((s) => {
+      const len = s.mutationQueue.length;
+      if (len > lastQueueLenRef.current && isOnlineRef.current) forceSync();
+      lastQueueLenRef.current = len;
+    });
+    return unsub;
+  }, [forceSync]);
   useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueue.length > 0) forceSync(); }, [isOnline, forceSync]);
 
   useEffect(() => {
@@ -410,7 +426,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const allowedViews = useMemo(() => ALL_VIEWS, []);
 
-  const notificacionesNoLeidas = useErpStore(s => s.notificaciones.filter(n => !n.leida).length);
+  const notificacionesNoLeidas = useErpStore(s => s.notificaciones.filter(n => !n.leido).length);
 
   const ctxValue = useMemo<any>(() => ({
     view, setView, user, initializing, isOnline, notificacionesNoLeidas,

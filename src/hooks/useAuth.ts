@@ -21,8 +21,12 @@ function safeParse<T extends z.ZodTypeAny>(schema: T, data: z.infer<T>, fallback
   }
 }
 
+export interface AuthUser {
+  id: string; email: string; nombre: string; rol: Rol; avatar?: string;
+}
+
 export interface UseAuthReturn {
-  user: { id: string; email: string; nombre: string; rol: Rol } | null;
+  user: AuthUser | null;
   loading: boolean;
   error: string;
   signInWithGoogle: () => Promise<void>;
@@ -31,7 +35,7 @@ export interface UseAuthReturn {
 }
 
 export function useAuth(): UseAuthReturn {
-  const [user, setUser] = useState<{ id: string; email: string; nombre: string; rol: Rol } | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -57,7 +61,11 @@ export function useAuth(): UseAuthReturn {
     const avatar = userMeta.picture || userMeta.avatar_url || '';
     const rol = 'Administrador';
 
-    const validated = safeParse(userSchema, session.user as any, {
+    const validated = safeParse(userSchema, {
+      ...session.user,
+      nombre,
+      avatar,
+    } as any, {
       id: session.user.id,
       email,
       nombre,

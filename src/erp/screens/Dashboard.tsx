@@ -282,15 +282,10 @@ const Dashboard: React.FC = () => {
 
     const proximos = (hitos || []).filter(h => h.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 3);
     if (proximos.length > 0) {
-      const notificacionesHitos = proximos.map((h, i) => ({
-        id: `hito-notif-${h.id}-${Date.now()}`,
-        titulo: `Hito próximo: ${h.nombre}`,
-        tipo: 'hito',
-        leida: false,
-        createdAt: new Date().toISOString(),
-        metadata: { proyectoId: h.proyectoId, fecha: h.fecha },
-      }));
-      useErpStore.setState((prev: any) => ({ notificaciones: [...prev.notificaciones, ...notificacionesHitos] }));
+      const store = useErpStore.getState();
+      proximos.forEach(h => {
+        store.addNotificacion('general', `Hito próximo: ${h.nombre}`, `Fecha: ${h.fecha}`, h.proyectoId, h.id);
+      });
     }
   }, [hitos, proyectos]);
 

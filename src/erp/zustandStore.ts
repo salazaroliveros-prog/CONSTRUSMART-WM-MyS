@@ -131,8 +131,8 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
     if (!supabase) {
       safeLogger.warn('[fetchInitialData] Supabase no configurado - Modo offline local');
       useErpStore.setState({ 
-        syncStatus: 'error', 
-        syncError: 'Supabase no configurado - Modo offline local. Configure VITE_SUPABASE_URL y VITE_SUPABASE_KEY para habilitar sincronización.',
+        syncStatus: 'idle', 
+        syncError: undefined,
         lastSyncedAt: new Date().toISOString() 
       });
       const duration = performance.now() - startTime;
@@ -649,7 +649,11 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   marcarTodasLeidas: () => {
     const unread = get().notificaciones.filter(n => !n.leido);
     get().setNotificaciones(prev => prev.map(n => ({ ...n, leido: true })));
-    unread.forEach(n => get().enqueueMutation('markNotificacionLeida', { id: n.id, leido: true }));
+    const mutations: Mutation[] = unread.map(n => ({
+      id: uid(), type: 'markNotificacionLeida', payload: toSnake(sanitizarObjeto({ id: n.id, leido: true })), timestamp: Date.now(), retryCount: 0,
+    }));
+    if (mutations.length === 0) return;
+    get().setMutationQueue(q => { const trimmed = q.length + mutations.length >= 100 ? q.slice(mutations.length) : q; return [...trimmed, ...mutations]; });
   },
   verificarStockCritico: () => {
     const materiales = get().materiales;
