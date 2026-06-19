@@ -23,10 +23,7 @@ export default defineConfig(({ mode: _mode }) => ({
     chunkSizeWarningLimit: 5000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'three': ['three'],
-          'web-ifc': ['web-ifc'],
-        },
+        manualChunks: undefined,
       },
     },
   },
