@@ -3,6 +3,7 @@ import { ErpProvider, useErp } from '@/erp/store';
 import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { ErrorBoundary } from './ErrorBoundary';
+import { PageTransition } from './Animations';
 
 const Header = lazy(() => import('@/erp/components/Header'));
 const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
@@ -211,13 +212,13 @@ const Shell: React.FC = () => {
           role="main"
           aria-label="Contenido principal"
         >
-          <div key={view} className="animate-enter">
+          <PageTransition>
             <ErrorBoundary moduleName={viewName}>
               <Suspense fallback={<ScreenLoader />}>
                 {safeScreen}
               </Suspense>
             </ErrorBoundary>
-          </div>
+          </PageTransition>
         </main>
       </div>
       <Suspense fallback={null}>
