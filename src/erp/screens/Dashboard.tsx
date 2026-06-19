@@ -11,6 +11,7 @@ import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, Calen
 import GanttChart from '../components/GanttChart';
 import { CARD, CARD_TITLE } from '../ui';
 import ProyectoFilter from '../components/ProyectoFilter';
+import { SkeletonDashboard } from '../../components/SkeletonScreens';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
 
@@ -373,6 +374,10 @@ const Dashboard: React.FC = () => {
 
   const loading = ctx.initializing || false;
   const avanceColor = avanceProm < 30 ? 'text-destructive' : avanceProm < 70 ? 'text-warning' : 'text-success';
+
+  if (syncStatus === 'loading') {
+    return <SkeletonDashboard />;
+  }
 
   return (
     <div ref={dashRef} className="h-full flex flex-col p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto overflow-hidden bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.04),transparent_50%)]">
