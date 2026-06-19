@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, View } from '../store';
 import { Plus, Search, Settings, Bell, Building2, Calculator, Warehouse, Wallet, Target, FileText, HardHat, Users, Truck, Package, LayoutDashboard, ChevronUp, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface QuickAction {
   id: string;
@@ -577,59 +578,82 @@ const QuickActionsFab: React.FC = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
-      {isOpen && !isMinimized && (
-        <div className="flex flex-col items-end gap-2 mb-2 animate-in slide-in-from-right-4 duration-300">
-          {actions.map((action, index) => {
-            const Icon = action.icon;
-            return (
-              <button
-                key={action.id}
-                onClick={() => handleActionClick(action)}
-                className="group flex items-center gap-3 px-4 py-2.5 bg-card hover:bg-muted border border-border rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 min-w-[200px] max-w-xs"
-                style={{
-                  animationDelay: `${index * 50}ms`,
-                  animation: 'slideIn 0.2s ease-out forwards',
-                }}
-              >
-                <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="text-sm font-medium text-foreground">{action.label}</div>
-                  {action.description && (
-                    <div className="text-xs text-muted-foreground">{action.description}</div>
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <AnimatePresence>
+        {isOpen && !isMinimized && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col items-end gap-2 mb-2"
+          >
+            {actions.map((action, index) => {
+              const Icon = action.icon;
+              return (
+                <motion.button
+                  key={action.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.2, delay: index * 0.05 }}
+                  onClick={() => handleActionClick(action)}
+                  className="group flex items-center gap-3 px-4 py-2.5 bg-card hover:bg-muted border border-border rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 min-w-[200px] max-w-xs"
+                >
+                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="text-sm font-medium text-foreground">{action.label}</div>
+                    {action.description && (
+                      <div className="text-xs text-muted-foreground">{action.description}</div>
+                    )}
+                  </div>
+                </motion.button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="flex items-center gap-2">
-        {isOpen && !isMinimized && (
-          <button
-            onClick={handleClose}
-            className="p-2 bg-muted hover:bg-muted/80 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Cerrar acciones rápidas"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        )}
+        <AnimatePresence>
+          {isOpen && !isMinimized && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.15 }}
+              onClick={handleClose}
+              className="p-2 bg-muted hover:bg-muted/80 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Cerrar acciones rápidas"
+            >
+              <X className="w-5 h-5" />
+            </motion.button>
+          )}
+        </AnimatePresence>
 
-        <button
+        <motion.button
           onClick={handleFabClick}
-          className="relative group flex items-center justify-center w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="relative group flex items-center justify-center w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
           aria-label={isOpen ? 'Cerrar acciones rápidas' : 'Abrir acciones rápidas'}
           aria-expanded={isOpen}
         >
-          {isMinimized ? (
-            <ChevronUp className="w-6 h-6 transition-transform duration-200" />
-          ) : isOpen ? (
-            <X className="w-6 h-6 transition-transform duration-200" />
-          ) : (
-            <Plus className="w-6 h-6 transition-transform duration-200 group-hover:rotate-90" />
-          )}
+          <motion.div
+            animate={{ rotate: isMinimized ? 0 : isOpen ? 0 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {isMinimized ? (
+              <ChevronUp className="w-6 h-6" />
+            ) : isOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <motion.div animate={{ rotate: isOpen ? 45 : 0 }} transition={{ duration: 0.2 }}>
+                <Plus className="w-6 h-6" />
+              </motion.div>
+            )}
+          </motion.div>
 
           <button
             onClick={handleMinimizeToggle}
@@ -638,21 +662,8 @@ const QuickActionsFab: React.FC = () => {
           >
             <div className="w-2 h-2 rounded-full bg-current" />
           </button>
-        </button>
+        </motion.button>
       </div>
-
-      <style jsx>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-      `}</style>
     </div>
   );
 };
