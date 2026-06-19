@@ -21,9 +21,26 @@ export default defineConfig(({ mode: _mode }) => ({
   },
   build: {
     chunkSizeWarningLimit: 5000,
+
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks(id: string) {
+          if (id.includes('node_modules/antd') || id.includes('node_modules/@ant-design')) {
+            return 'antd-vendor';
+          }
+          if (id.includes('node_modules/rc-') || id.includes('node_modules/@rc-')) {
+            return 'antd-vendor';
+          }
+          if (id.includes('node_modules/framer-motion')) {
+            return 'framer';
+          }
+          if (id.includes('node_modules/three')) {
+            return 'three';
+          }
+          if (id.includes('node_modules/web-ifc')) {
+            return 'web-ifc';
+          }
+        },
       },
     },
   },
