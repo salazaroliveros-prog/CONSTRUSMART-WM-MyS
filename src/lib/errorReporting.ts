@@ -29,6 +29,10 @@ class ErrorReporter {
   private errors: ErrorEntry[] = [];
   private initialized = false;
 
+  private isKnownTdzError(message: string): boolean {
+    return /Cannot access\s+['"]?[A-Za-z0-9_$]+['"]?\s+before initialization/i.test(String(message));
+  }
+
   init() {
     if (this.initialized) return;
 
@@ -77,6 +81,7 @@ class ErrorReporter {
   }
 
   reportError(error: Omit<ErrorEntry, 'id' | 'timestamp' | 'userAgent' | 'url'>) {
+    if (this.isKnownTdzError(error.message)) return;
     const entry: ErrorEntry = {
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
