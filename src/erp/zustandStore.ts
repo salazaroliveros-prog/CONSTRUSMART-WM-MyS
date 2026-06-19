@@ -4,6 +4,7 @@ import { sanitizarObjeto } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
 import { supabase } from '@/lib/supabase';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel } from './utils';
+import { recordSyncMetric } from '@/lib/metrics';
 import type {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
   Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
@@ -124,6 +125,7 @@ function normalizarFilaSupabase(row: Record<string, any>): Record<string, any> {
 }
 
 export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
+  const startTime = performance.now();
   try {
     useErpStore.setState({ syncStatus: 'loading', syncError: undefined });
     if (!supabase) {
@@ -133,6 +135,8 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
         syncError: 'Supabase no configurado - Modo offline local. Configure VITE_SUPABASE_URL y VITE_SUPABASE_KEY para habilitar sincronización.',
         lastSyncedAt: new Date().toISOString() 
       });
+      const duration = performance.now() - startTime;
+      recordSyncMetric(duration, false, 0);
       return false;
     }
 
@@ -226,6 +230,8 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
     }, 100);
 
     if (Object.keys(criticalPatch).length > 0) {
+      const duration = performance.now() - startTime;
+      recordSyncMetric(duration, true, CRITICAL_TABLES.length);
       (window as any).__FETCH_RETRY = 0;
       return true;
     }
@@ -235,12 +241,16 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       syncError: 'No se pudieron cargar datos críticos. Verifique la conexión a Supabase.',
       lastSyncedAt: new Date().toISOString() 
     });
+    const duration = performance.now() - startTime;
+    recordSyncMetric(duration, false, 0);
     (window as any).__FETCH_RETRY = 0;
     return false;
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     useErpStore.setState({ syncStatus: 'error', syncError: error });
     safeLogger.warn('[fetchInitialData] Error general:', err);
+    const duration = performance.now() - startTime;
+    recordSyncMetric(duration, false, 0);
     const next = (window as any).__FETCH_RETRY || 0;
     (window as any).__FETCH_RETRY = next + 1;
     if (attempt > 10) {
