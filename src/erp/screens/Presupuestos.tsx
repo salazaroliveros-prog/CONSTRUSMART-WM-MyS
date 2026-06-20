@@ -95,7 +95,7 @@ const ACTIVIDAD_POR_RENGLON: Record<string, string> = {
 
 const Presupuestos: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores, updateProyecto } = useErp();
+  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores, updateProyecto, materiales, updateMaterial } = useErp();
   const [tab, setTab] = useState<'crear' | 'guardados'>('crear');
   const [tipologia, setTipologia] = useState<Tipologia>('residencial');
   const [proyecto, setProyecto] = useState('Nuevo Presupuesto');
@@ -157,15 +157,19 @@ const Presupuestos: React.FC = () => {
     if (editingPresupuesto?.id === p.id) {
       setEditingPresupuesto({ ...editingPresupuesto, estado: 'aprobado' });
     }
-    const todo = ctx.materiales.filter(m => m.proyectoIds.includes(p.proyectoId));
+    const todo = materiales.filter(m => m.proyectoIds.includes(p.proyectoId));
     const need: Array<{ id: string; cantidadPresupuestada: number; costoPresupuestado: number }> = [];
     (p.renglones || []).forEach(r => {
-      const m = todo.find(t => t.nombre === r.nombreMaterial || t.nombre === r.nombre);
-      if (m) {
+      const renglonNombre = r.nombreMaterial || r.nombre;
+      const matching = todo.filter(m => {
+        return r.subRenglones?.some(sr => m.nombre.toLowerCase() === sr.nombreMaterial?.toLowerCase())
+          || m.nombre.toLowerCase() === renglonNombre?.toLowerCase();
+      });
+      matching.forEach(m => {
         need.push({ id: m.id, cantidadPresupuestada: r.cantidad ?? 0, costoPresupuestado: (r.cantidad ?? 0) * (r.precioUnitario ?? 0) });
-      }
+      });
     });
-    need.forEach(n => ctx.updateMaterial(n.id, { ...n, ultimaActualizacionPresupuesto: new Date().toISOString() }));
+    need.forEach(n => updateMaterial(n.id, { ...n, ultimaActualizacionPresupuesto: new Date().toISOString() }));
   };
 
   const handleRejectPresupuesto = async (p: Presupuesto) => {
@@ -315,13 +319,19 @@ const Presupuestos: React.FC = () => {
 
     try {
       const c = calc(r);
+      const itemsOC = r.subRenglones?.length
+        ? r.subRenglones.map(sr => {
+            const mat = materiales.find(m => m.nombre.toLowerCase() === sr.nombreMaterial?.toLowerCase());
+            return { materialId: mat?.id || sr.id || r.id, cantidad: sr.cantidadUnitaria * r.cantidad, precioUnitario: sr.precioUnitario || 0 };
+          })
+        : [{ materialId: r.id, cantidad: r.cantidad, precioUnitario: c.pv }];
       await addOrden({
         proyectoId: projectId,
         proveedorId: selectedProveedorId,
         fecha: new Date().toISOString().slice(0, 10),
         estado: 'pendiente',
         total: c.total,
-        items: [{ materialId: r.id, cantidad: r.cantidad, precioUnitario: c.pv }],
+        items: itemsOC,
       });
       addNotificacion('general', 'Orden de Compra creada', `OC por Q${c.total.toFixed(2)} creada desde renglón ${r.nombre}`, projectId);
     } catch (err) {
