@@ -21,5 +21,17 @@ export default defineConfig(({ mode: _mode }) => ({
   },
   build: {
     chunkSizeWarningLimit: 5000,
+    rollupOptions: {
+      onwarn(warning, warn) {
+        const msg = String(warning.message);
+        if (
+          msg.includes('Module level directives') ||
+          msg.includes('dynamically imported by')
+        ) {
+          return;
+        }
+        warn(warning);
+      },
+    },
   },
 }));

@@ -79,6 +79,10 @@ const CuentasPagar       = lazy(() => import('@/erp/screens/CuentasPagar'));
 const Cotizaciones       = lazy(() => import('@/erp/screens/Cotizaciones'));
 const PlantillasProyectos = lazy(() => import('@/erp/screens/PlantillasProyectos'));
 
+const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','rendimientos'] as const;
+
+const SCREEN_SET = new Set<string>(SCREEN_KEYS as readonly string[]);
+
 const ScreenLoader: React.FC = () => (
   <div className="flex items-center justify-center h-64" role="status" aria-label="Cargando módulo">
     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" aria-hidden="true" />
@@ -135,9 +139,7 @@ const Shell: React.FC = () => {
 
   const viewName = view.split(':')[0];
 
-  const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','rendimientos'] as const;
-
-  const screens = useMemo<Record<string, React.ReactNode>>(() => ({
+  const screens: Record<string, React.ReactNode> = useMemo(() => ({
     dashboard:         <Dashboard />,
     proyectos:         <Proyectos />,
     presupuestos:      <Presupuestos />,
@@ -172,27 +174,26 @@ const Shell: React.FC = () => {
     'cuentas-pagar':   <CuentasPagar />,
     cotizaciones:      <Cotizaciones />,
     plantillas:        <PlantillasProyectos />,
-  }), [SCREEN_KEYS]);
+  }), []);
 
-  const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter(key => allowedViews.includes(key as any)), [allowedViews, SCREEN_KEYS]);
+  const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter(key => allowedViews.includes(key as any)), [allowedViews]);
 
   const setViewRef = useRef<ReturnType<typeof setView>>(setView);
   setViewRef.current = setView;
-  const SCREEN_SET = useMemo(() => new Set<string>(SCREEN_KEYS as readonly string[]), [SCREEN_KEYS]);
 
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
-    if (hash && SCREEN_SET.has(hash as string)) setViewRef.current(hash);
-  }, [SCREEN_SET]);
+    if (hash && SCREEN_SET.has(hash)) setViewRef.current(hash);
+  }, []);
 
   useEffect(() => {
     const onHash = () => {
       const hash = window.location.hash.replace('#', '');
-      if (hash && SCREEN_SET.has(hash as string)) setViewRef.current(hash);
+      if (hash && SCREEN_SET.has(hash)) setViewRef.current(hash);
     };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
-  }, [SCREEN_SET]);
+  }, []);
 
   const resolvedView = viewName === 'rendimientos' ? 'rendimiento-campo' : viewName;
 

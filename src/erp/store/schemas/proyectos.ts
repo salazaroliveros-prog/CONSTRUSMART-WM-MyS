@@ -6,6 +6,7 @@ export const proyectoSchema = z.object({
   nombre: z.string(),
   ubicacion: z.string(),
   tipologia: z.enum(['residencial','comercial','industrial','civil','publica'] as const),
+  subtipo: z.string().optional().default(''),
   presupuestoTotal: z.number().default(0),
   montoContrato: z.number().default(0),
   cliente: z.string().default(''),

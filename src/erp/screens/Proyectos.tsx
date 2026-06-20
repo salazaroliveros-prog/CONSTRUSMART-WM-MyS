@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { Proyecto, Tipologia } from '../types';
 import { fmtQ, fmtPct, TIPOLOGIA_LABEL, todayISO } from '../utils';
+import { obtenerSubtipologias } from '../services/motorCalculo';
 import { Progress } from '../components/Charts';
 import MapPicker from '../components/MapPicker';
 import HeatMap from '../components/HeatMap';
@@ -18,6 +19,7 @@ const proyectoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
   descripcion: z.string().optional(),
   tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica'] as const),
+  subtipo: z.string().optional(),
   tipoObra: z.enum(['nueva', 'remodelacion', 'ampliacion'] as const).optional(),
   cliente: z.string().min(1, 'Cliente requerido'),
   clienteNit: z.string().optional(),
@@ -65,6 +67,7 @@ const Proyectos: React.FC = () => {
   const [sugerencias, setSugerencias] = useState<any[]>([]);
   const [templateSearch, setTemplateSearch] = useState('');
   const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
+  const [subtipologias, setSubtipologias] = useState<any[]>([]);
 
   const {
     register,
@@ -147,6 +150,13 @@ const Proyectos: React.FC = () => {
       }
     }
   }, [show, watch, sugerirPlantillas, editingId]);
+
+  useEffect(() => {
+    const tipologia = watch('tipologia');
+    if (tipologia) {
+      obtenerSubtipologias(tipologia).then(setSubtipologias).catch(() => setSubtipologias([]));
+    }
+  }, [watch]);
 
   const onSubmit = (data: ProyectoFormData) => {
     setSubmitting(true);
@@ -755,6 +765,14 @@ const Proyectos: React.FC = () => {
                   <select {...register('tipologia')} className={INPUT}>
                     {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]}</option>)}
                   </select>
+                  {subtipologias.length > 0 && (
+                    <select {...register('subtipo')} className={INPUT}>
+                      <option value="">Subtipo (opcional)</option>
+                      {subtipologias.map(s => (
+                        <option key={s.subtipo} value={s.subtipo}>{s.subtipo}</option>
+                      ))}
+                    </select>
+                  )}
                   <select {...register('tipoObra')} className={INPUT}>
                     <option value="nueva">Obra Nueva</option>
                     <option value="remodelacion">Remodelación</option>

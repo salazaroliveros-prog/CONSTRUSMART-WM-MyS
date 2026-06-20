@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { z } from 'zod';
-import { hasSupabase } from '@/lib/supabase';
+import { hasSupabase, supabase } from '@/lib/supabase';
 
 type Rol = string;
 
@@ -46,7 +46,6 @@ export function useAuth(): UseAuthReturn {
       return;
     }
 
-    const { supabase } = await import('@/lib/supabase');
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session?.user) {
@@ -89,17 +88,15 @@ export function useAuth(): UseAuthReturn {
     buildUserFromSession();
 
     if (!hasSupabase) return;
-    import('@/lib/supabase').then(({ supabase }) => {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: any) => {
-        if (session?.user) {
-          buildUserFromSession();
-        } else {
-          setUser(null);
-          setLoading(false);
-        }
-      });
-      return () => subscription.unsubscribe();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: any) => {
+      if (session?.user) {
+        buildUserFromSession();
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
     });
+    return () => subscription.unsubscribe();
   }, [buildUserFromSession]);
 
   const signInWithGoogle = useCallback(async () => {
@@ -112,7 +109,6 @@ export function useAuth(): UseAuthReturn {
     setError('');
 
     try {
-      const { supabase } = await import('@/lib/supabase');
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -141,7 +137,6 @@ export function useAuth(): UseAuthReturn {
     }
 
     try {
-      const { supabase } = await import('@/lib/supabase');
       await supabase.auth.signOut();
     } catch {}
     setUser(null);
