@@ -24,7 +24,7 @@ const CATEGORIA_MAP = [
   { id: 'ejecucion', label: 'Ejecución', targetView: 'seguimiento', modules: ['Seguimiento', 'Curvas S', 'Rendimiento Campo', 'SSO', 'Muro', 'Órdenes Cambio', 'Documentos', 'BIM'], tables: ['erp_seguimiento', 'erp_avances', 'erp_rendimientos_cuadrilla', 'erp_no_conformidades', 'erp_publicaciones_muro', 'erp_ordenes_cambio', 'erp_planos', 'erp_rfis', 'erp_submittals'] },
   { id: 'suministro', label: 'Suministro', targetView: 'bodega', modules: ['Bodega', 'Logística', 'Entradas Almacén'], tables: ['erp_materiales', 'erp_ordenes_compra', 'erp_vales_salida', 'recepciones_almacen', 'erp_proveedores'] },
   { id: 'rrhh', label: 'RRHH', targetView: 'rrhh', modules: ['Recursos Humanos', 'Planilla Destajos'], tables: ['erp_empleados', 'destajos'] },
-  { id: 'finanzas', label: 'Finanzas', targetView: 'financiero', modules: ['Financiero', 'Comercial', 'Cuentas Cobrar', 'Cuentas Pagar', 'Impuestos'], tables: ['erp_movimientos', 'ventas_paquetes', 'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_pagos_proveedor'] },
+  { id: 'finanzas', label: 'Finanzas', targetView: 'financiero', modules: ['Financiero', 'Comercial', 'Cuentas Cobrar', 'Cuentas Pagar', 'Impuestos'], tables: ['erp_movimientos', 'ventas_paquetes', 'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'pagos_proveedores'] },
   { id: 'bi', label: 'Análisis BI', targetView: 'predictivo', modules: ['Dashboard BI', 'Exportación', 'Reportes Técnicos'], tables: ['erp_seguimiento', 'erp_avances', 'erp_movimientos', 'erp_presupuestos'] },
   { id: 'sistema', label: 'Sistema', targetView: 'notificaciones', modules: ['Notificaciones', 'Administración', 'Ajustes'], tables: ['erp_notificaciones'] },
 ];
@@ -344,7 +344,7 @@ const Dashboard: React.FC = () => {
       else if (table === 'ventas_paquetes') count += (ventasPaquetes || []).length;
       else if (table === 'erp_cuentas_cobrar') count += (cuentasCobrar || []).length;
       else if (table === 'erp_cuentas_pagar') count += (cuentasPagar || []).length;
-      else if (table === 'erp_pagos_proveedor') count += (pagosProveedor || []).length;
+      else if (table === 'pagos_proveedores') count += (pagosProveedor || []).length;
       else if (table === 'erp_notificaciones') count += (notificacionesNoLeidas || []).length;
     }
     return { ...categoria, count, color: CATEGORIA_COLORS[index % CATEGORIA_COLORS.length] };
