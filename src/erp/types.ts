@@ -1137,3 +1137,22 @@ export interface ResultadoAplicacionReglas {
   }>;
   factor_total: number;
 }
+
+export type UIMode = 'shadcn' | 'antd';
+export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
+
+export interface AppSettings {
+  uiMode: UIMode; appTheme: AppThemeMode; primaryColor: string; language: 'es' | 'en';
+  dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD'; currency: 'GTQ' | 'USD';
+  sidebarCollapsed: boolean; animationsEnabled: boolean; compactMode: boolean;
+  fontSize: 'small' | 'medium' | 'large';
+  empresaInfo?: { nombre: string; nit: string; telefono: string; email: string; direccion: string; ciudad: string; pais: string; };
+}
+
+export interface Mutation {
+  id: string;
+  type: string;
+  payload: Record<string, any>;
+  timestamp: number;
+  retryCount: number;
+}
