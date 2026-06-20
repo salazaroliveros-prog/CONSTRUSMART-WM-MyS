@@ -1,7 +1,7 @@
 -- ============================================================
 -- MOTOR DE CÁLCULO AVANZADO - FASE 1: DOSIFICACIONES DE CONCRETO
 -- 35 combinaciones técnicas (resistencias × tipos × agregados × aditivos × curados)
--- Versión: 2026-06-13
+-- Versión: 2026-06-19
 -- ============================================================
 
 -- ============================================================
@@ -12,14 +12,14 @@ CREATE TABLE IF NOT EXISTS erp_dosificaciones_concreto (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   resistencia text NOT NULL CHECK (resistencia IN ('2000psi','2500psi','3000psi','3500psi','4000psi','4500psi','5000psi')),
   tipo text NOT NULL CHECK (tipo IN ('cimentacion','estructura','losa','pavimento','muro')),
-  tamaño_agregado text NOT NULL CHECK (tamaño_agregado IN ('3/4"','1"','1.5"','2"')),
+  tamaño_agregado text NOT NULL CHECK (tamaño_agregado IN ('3/8"','3/4"','1/2"','1"','1.5"','2"')),
   aditivos text NOT NULL CHECK (aditivos IN ('ninguno','acelerador','retardador','plastificante','impermeabilizante')),
   curado text NOT NULL CHECK (curado IN ('normal','acelerado','prolongado')),
   cemento_sacos_m3 numeric(5,2) NOT NULL,
   arena_m3_m3 numeric(5,3) NOT NULL,
   piedra_m3_m3 numeric(5,3) NOT NULL,
   agua_lt_m3 numeric(6,1) NOT NULL,
-  referencia_norma text, -- ASTM C-39, AGIES 42.01, COGUANOR NGO 41009
+  referencia_norma text,
   observaciones text,
   activo boolean DEFAULT true,
   created_at timestamptz DEFAULT now() NOT NULL,
@@ -55,8 +55,7 @@ INSERT INTO erp_dosificaciones_concreto (resistencia, tipo, tamaño_agregado, ad
 -- Losas
 ('2000psi', 'losa', '3/4"', 'ninguno', 'normal', 6.5, 0.45, 0.90, 180, 'ASTM C-39, AGIES 42.01', 'Losa ligera'),
 ('2000psi', 'losa', '3/4"', 'plastificante', 'normal', 6.3, 0.45, 0.90, 175, 'ASTM C-39, AGIES 42.01', 'Losa con plastificante'),
-('2000psi', 'pavimento', '3/4"', 'ninguno', 'normal', 6.0, 0.48, 0.92, 175, 'ASTM C-39, AGIES 51.01', 'Pavimento ligero'),
-ON CONFLICT DO NOTHING;
+('2000psi', 'pavimento', '3/4"', 'ninguno', 'normal', 6.0, 0.48, 0.92, 175, 'ASTM C-39, AGIES 51.01', 'Pavimento ligero');
 
 -- RESISTENCIA 2500 PSI
 INSERT INTO erp_dosificaciones_concreto (resistencia, tipo, tamaño_agregado, aditivos, curado, cemento_sacos_m3, arena_m3_m3, piedra_m3_m3, agua_lt_m3, referencia_norma, observaciones) VALUES
@@ -67,8 +66,7 @@ INSERT INTO erp_dosificaciones_concreto (resistencia, tipo, tamaño_agregado, ad
 ('2500psi', 'estructura', '1"', 'ninguno', 'normal', 6.5, 0.43, 0.88, 178, 'ASTM C-39, AGIES 42.01', 'Estructura media, agregado 1"'),
 ('2500psi', 'losa', '3/4"', 'ninguno', 'normal', 7.0, 0.44, 0.88, 182, 'ASTM C-39, AGIES 42.01', 'Losa media'),
 ('2500psi', 'pavimento', '3/4"', 'ninguno', 'normal', 6.5, 0.46, 0.90, 178, 'ASTM C-39, AGIES 51.01', 'Pavimento medio'),
-('2500psi', 'muro', '3/4"', 'ninguno', 'normal', 6.8, 0.45, 0.89, 180, 'ASTM C-39, AGIES 42.01', 'Muro de contención')
-ON CONFLICT DO NOTHING;
+('2500psi', 'muro', '3/4"', 'ninguno', 'normal', 6.8, 0.45, 0.89, 180, 'ASTM C-39, AGIES 42.01', 'Muro de contención');
 
 -- RESISTENCIA 3000 PSI
 INSERT INTO erp_dosificaciones_concreto (resistencia, tipo, tamaño_agregado, aditivos, curado, cemento_sacos_m3, arena_m3_m3, piedra_m3_m3, agua_lt_m3, referencia_norma, observaciones) VALUES
@@ -88,8 +86,7 @@ INSERT INTO erp_dosificaciones_concreto (resistencia, tipo, tamaño_agregado, ad
 -- Otros
 ('3000psi', 'pavimento', '3/4"', 'ninguno', 'normal', 7.0, 0.45, 0.90, 180, 'ASTM C-39, AGIES 51.01', 'Pavimento estándar'),
 ('3000psi', 'pavimento', '3/4"', 'retardador', 'prolongado', 7.0, 0.45, 0.90, 185, 'ASTM C-39, AGIES 51.01', 'Pavimento con retardador'),
-('3000psi', 'muro', '3/4"', 'ninguno', 'normal', 7.2, 0.44, 0.89, 182, 'ASTM C-39, AGIES 41.02', 'Muro estructural')
-ON CONFLICT DO NOTHING;
+('3000psi', 'muro', '3/4"', 'ninguno', 'normal', 7.2, 0.44, 0.89, 182, 'ASTM C-39, AGIES 41.02', 'Muro estructural');
 
 -- RESISTENCIA 3500 PSI
 INSERT INTO erp_dosificaciones_concreto (resistencia, tipo, tamaño_agregado, aditivos, curado, cemento_sacos_m3, arena_m3_m3, piedra_m3_m3, agua_lt_m3, referencia_norma, observaciones) VALUES
@@ -98,8 +95,7 @@ INSERT INTO erp_dosificaciones_concreto (resistencia, tipo, tamaño_agregado, ad
 ('3500psi', 'estructura', '1"', 'ninguno', 'normal', 7.5, 0.41, 0.83, 182, 'ASTM C-39, AGIES 41.01', 'Estructura reforzada, agregado 1"'),
 ('3500psi', 'losa', '3/4"', 'ninguno', 'normal', 8.0, 0.42, 0.86, 188, 'ASTM C-39, AGIES 42.01', 'Losa reforzada'),
 ('3500psi', 'losa', '1"', 'ninguno', 'normal', 8.0, 0.39, 0.81, 188, 'ASTM C-39, AGIES 42.01', 'Losa reforzada con agregado 1"'),
-('3500psi', 'cimentacion', '3/4"', 'impermeabilizante', 'normal', 7.8, 0.43, 0.87, 178, 'ASTM C-39, AGIES 42.01', 'Cimentación impermeabilizada')
-ON CONFLICT DO NOTHING;
+('3500psi', 'cimentacion', '3/4"', 'impermeabilizante', 'normal', 7.8, 0.43, 0.87, 178, 'ASTM C-39, AGIES 42.01', 'Cimentación impermeabilizada');
 
 -- RESISTENCIA 4000 PSI
 INSERT INTO erp_dosificaciones_concreto (resistencia, tipo, tamaño_agregado, aditivos, curado, cemento_sacos_m3, arena_m3_m3, piedra_m3_m3, agua_lt_m3, referencia_norma, observaciones) VALUES
@@ -107,24 +103,21 @@ INSERT INTO erp_dosificaciones_concreto (resistencia, tipo, tamaño_agregado, ad
 ('4000psi', 'estructura', '1"', 'plastificante', 'normal', 8.5, 0.38, 0.82, 175, 'ASTM C-39, AGIES 41.01', 'Estructura alta resistencia, agregado 1"'),
 ('4000psi', 'estructura', '3/4"', 'plastificante', 'acelerado', 8.5, 0.40, 0.85, 170, 'ASTM C-39, AGIES 41.01', 'Con acelerador para curado rápido'),
 ('4000psi', 'losa', '1"', 'ninguno', 'normal', 9.0, 0.38, 0.81, 190, 'ASTM C-39, AGIES 42.01', 'Losa alta resistencia'),
-('4000psi', 'cimentacion', '3/4"', 'impermeabilizante', 'normal', 8.8, 0.39, 0.84, 172, 'ASTM C-39, AGIES 42.01', 'Cimentación de alta resistencia')
-ON CONFLICT DO NOTHING;
+('4000psi', 'cimentacion', '3/4"', 'impermeabilizante', 'normal', 8.8, 0.39, 0.84, 172, 'ASTM C-39, AGIES 42.01', 'Cimentación de alta resistencia');
 
 -- RESISTENCIA 4500 PSI
 INSERT INTO erp_dosificaciones_concreto (resistencia, tipo, tamaño_agregado, aditivos, curado, cemento_sacos_m3, arena_m3_m3, piedra_m3_m3, agua_lt_m3, referencia_norma, observaciones) VALUES
 ('4500psi', 'estructura', '1/2"', 'plastificante', 'normal', 9.5, 0.38, 0.80, 172, 'ASTM C-39, AGIES 41.01', 'Estructura muy alta resistencia, 4500psi'),
 ('4500psi', 'estructura', '3/4"', 'plastificante', 'acelerado', 9.5, 0.40, 0.82, 168, 'ASTM C-39, AGIES 41.01', 'Con acelerador'),
 ('4500psi', 'losa', '1/2"', 'ninguno', 'normal', 10.0, 0.36, 0.79, 192, 'ASTM C-39, AGIES 42.01', 'Losa muy alta resistencia'),
-('4500psi', 'cimentacion', '1"', 'impermeabilizante', 'normal', 9.8, 0.37, 0.78, 170, 'ASTM C-39, AGIES 42.01', 'Cimentación muy alta resistencia')
-ON CONFLICT DO NOTHING;
+('4500psi', 'cimentacion', '1"', 'impermeabilizante', 'normal', 9.8, 0.37, 0.78, 170, 'ASTM C-39, AGIES 42.01', 'Cimentación muy alta resistencia');
 
 -- RESISTENCIA 5000 PSI
 INSERT INTO erp_dosificaciones_concreto (resistencia, tipo, tamaño_agregado, aditivos, curado, cemento_sacos_m3, arena_m3_m3, piedra_m3_m3, agua_lt_m3, referencia_norma, observaciones) VALUES
 ('5000psi', 'estructura', '1/2"', 'plastificante', 'acelerado', 10.0, 0.36, 0.78, 165, 'ASTM C-39, AGIES 41.01', 'Estructura ultra alta resistencia, 5000psi'),
 ('5000psi', 'estructura', '3/8"', 'plastificante', 'normal', 10.0, 0.34, 0.75, 165, 'ASTM C-39, AGIES 41.01', 'Con agregado fino 3/8"'),
 ('5000psi', 'losa', '1/2"', 'plastificante', 'normal', 10.5, 0.35, 0.77, 190, 'ASTM C-39, AGIES 42.01', 'Losa ultra alta resistencia'),
-('5000psi', 'cimentacion', '1/2"', 'impermeabilizante', 'normal', 10.5, 0.35, 0.77, 168, 'ASTM C-39, AGIES 42.01', 'Cimentación ultra alta resistencia')
-ON CONFLICT DO NOTHING;
+('5000psi', 'cimentacion', '1/2"', 'impermeabilizante', 'normal', 10.5, 0.35, 0.77, 168, 'ASTM C-39, AGIES 42.01', 'Cimentación ultra alta resistencia');
 
 -- ============================================================
 -- 4. FUNCIÓN DE CÁLCULO DE DOSIFICACIÓN
@@ -153,11 +146,10 @@ DECLARE
   v_factor_altitud numeric := 1.0;
   v_factor_temperatura numeric := 1.0;
   v_factor_curado numeric := 1.0;
-  v_precio_cemento numeric := 92; -- Q/saco (puede actualizarse)
-  v_precio_arena numeric := 145; -- Q/m³
-  v_precio_piedra numeric := 195; -- Q/m³
+  v_precio_cemento numeric := 92;
+  v_precio_arena numeric := 145;
+  v_precio_piedra numeric := 195;
 BEGIN
-  -- Obtener dosificación base
   SELECT * INTO v_dosificacion
   FROM erp_dosificaciones_concreto
   WHERE resistencia = p_resistencia
@@ -168,20 +160,17 @@ BEGIN
     AND activo = true
   LIMIT 1;
 
-  -- Factor de altitud (Guatemala: 1500msnm es referencia)
   IF p_altitud IS NOT NULL THEN
     IF p_altitud > 2000 THEN
-      v_factor_altitud := 1.05; -- Altitud alta: más cemento para curado
+      v_factor_altitud := 1.05;
     ELSIF p_altitud > 1000 AND p_altitud <= 2000 THEN
-      v_factor_altitud := 1.0; -- Altitud media: referencia
+      v_factor_altitud := 1.0;
     ELSE
-      v_factor_altitud := 0.98; -- Altitud baja: menos cemento por calor
+      v_factor_altitud := 0.98;
     END IF;
   END IF;
 
-  -- Factor de temperatura por departamento (clima afecta curado)
   IF p_departamento IS NOT NULL THEN
-    -- Guatemala: 1.0, Escuintla: 0.95 (calor), Quetzaltenango: 1.4 (frío)
     CASE p_departamento
       WHEN 'GT-01' THEN v_factor_temperatura := 1.0;
       WHEN 'GT-02' THEN v_factor_temperatura := 0.95;
@@ -193,16 +182,14 @@ BEGIN
     END CASE;
   END IF;
 
-  -- Factor por tipo de curado
   IF p_curado = 'acelerado' THEN
-    v_factor_curado := 1.2; -- Más tiempo de curado
+    v_factor_curado := 1.2;
   ELSIF p_curado = 'prolongado' THEN
-    v_factor_curado := 1.3; -- Aún más tiempo
+    v_factor_curado := 1.3;
   ELSE
     v_factor_curado := 1.0;
   END IF;
 
-  -- Retornar cálculos
   RETURN QUERY
   SELECT
     v_dosificacion.cemento_sacos_m3 * p_volumen * v_factor_altitud * v_factor_curado AS cemento_sacos,
@@ -212,7 +199,7 @@ BEGIN
     v_factor_altitud * v_factor_temperatura * v_factor_curado AS factor_ajuste,
     (v_dosificacion.cemento_sacos_m3 * v_precio_cemento +
      v_dosificacion.arena_m3_m3 * v_precio_arena +
-     v_dosificacion.piedra_m3_m3 * v_precio_piedra) * p_volumen * v_factor_ajuste AS costo_total;
+     v_dosificacion.piedra_m3_m3 * v_precio_piedra) * p_volumen * v_factor_altitud * v_factor_temperatura * v_factor_curado AS costo_total;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -229,7 +216,7 @@ RETURNS TABLE(
   cemento_sacos_m3 numeric,
   arena_m3_m3 numeric,
   piedra_m3_m3 numeric,
-  agua_lt_m3
+  agua_lt_m3 numeric
 ) AS $$
 BEGIN
   RETURN QUERY

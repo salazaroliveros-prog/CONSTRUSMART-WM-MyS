@@ -6,10 +6,12 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { FactorSobrecosto, InsumoBase, RendimientoCuadrilla, DosificacionConcreto } from '../types';
+import { FactorSobrecosto, InsumoBase, RendimientoCuadrilla, DosificacionConcreto, DesgloseAcero, MovimientoTierra, ParametrosClimaticos, Pavimento, RedInfraestructura, MuroContencion } from '../types';
 import { ServicioMotorCalculo } from '../services/motorCalculo';
+import { registrarCalculo } from '../services/motorCalculo';
+import { ServicioValidacionCalculos, mostrarValidaciones } from '../services/validacionCalculos';
 
-type Tab = 'insumos' | 'rendimientos' | 'sobrecosto' | 'calculo' | 'historico' | 'dosificacion';
+type Tab = 'insumos' | 'rendimientos' | 'sobrecosto' | 'calculo' | 'historico' | 'dosificacion' | 'acero' | 'movimientoTierra' | 'parametrosClimaticos' | 'pavimentos' | 'redesInfraestructura' | 'murosContencion';
 
 const FACTOR_DEFAULT: FactorSobrecosto = {
   indirectos: 12,
@@ -45,6 +47,64 @@ const APUAvanzado: React.FC = () => {
   const [calculando, setCalculando] = useState(false);
   const [resultadoDosificacion, setResultadoDosificacion] = useState<any>(null);
   const [departamentos, setDepartamentos] = useState<any[]>([]);
+
+  const [acero, setAcero] = useState<DesgloseAcero>({
+    elemento: 'columna',
+    grado: 40,
+    estribos: 'estribos',
+    volumenM3: 1,
+  });
+  const [resultadoAcero, setResultadoAcero] = useState<any>(null);
+  const [calculandoAcero, setCalculandoAcero] = useState(false);
+
+  const [movimientoTierra, setMovimientoTierra] = useState<MovimientoTierra>({
+    tipo: 'excavacion',
+    suelo: 'relleno',
+    profundidad: 'menos_1m',
+    acceso: 'retroexcavadora',
+    drenaje: 'seco',
+    volumenM3: 1,
+  });
+  const [resultadoMovimientoTierra, setResultadoMovimientoTierra] = useState<any>(null);
+  const [calculandoMovimientoTierra, setCalculandoMovimientoTierra] = useState(false);
+
+  const [parametrosClimaticos, setParametrosClimaticos] = useState<ParametrosClimaticos>({
+    departamentoCodigo: '',
+    mes: '',
+  });
+  const [resultadoClimaticos, setResultadoClimaticos] = useState<any>(null);
+  const [calculandoClimaticos, setCalculandoClimaticos] = useState(false);
+
+  const [pavimento, setPavimento] = useState<Pavimento>({
+    uso: 'peatonal',
+    tipo: 'adoquinado',
+    tipoBase: 'c4',
+    tipoSello: 'arena',
+    areaM2: 100,
+  });
+  const [resultadoPavimento, setResultadoPavimento] = useState<any>(null);
+  const [calculandoPavimento, setCalculandoPavimento] = useState(false);
+
+  const [redInfraestructura, setRedInfraestructura] = useState<RedInfraestructura>({
+    tipo: 'agua_potable',
+    diametroPulgadas: 1.0,
+    material: 'pvc',
+    presion: 'media',
+    longitudMl: 100,
+  });
+  const [resultadoRedInfraestructura, setResultadoRedInfraestructura] = useState<any>(null);
+  const [calculandoRedInfraestructura, setCalculandoRedInfraestructura] = useState(false);
+
+  const [muroContencion, setMuroContencion] = useState<MuroContencion>({
+    alturaM: 2.0,
+    tipo: 'gravedad',
+    tipoCimentacion: 'zapata_corrida',
+    tipoSuelo: 'arena',
+    tipoDrenaje: 'sin_drenaje',
+    longitudM: 10,
+  });
+  const [resultadoMuroContencion, setResultadoMuroContencion] = useState<any>(null);
+  const [calculandoMuroContencion, setCalculandoMuroContencion] = useState(false);
 
   // Usar datos reales del store
   const insumos = insumosBase || [];
@@ -121,6 +181,162 @@ const APUAvanzado: React.FC = () => {
     }
   };
 
+  const handleCalcularAcero = async () => {
+    setCalculandoAcero(true);
+    try {
+      const resultado = await ServicioMotorCalculo.calcularDesgloseAcero(acero);
+      setResultadoAcero(resultado);
+      toast.success('Desglose de acero calculado exitosamente');
+    } catch (error) {
+      toast.error('Error al calcular desglose de acero');
+      console.error(error);
+    } finally {
+      setCalculandoAcero(false);
+    }
+  };
+
+  const handleCalcularMovimientoTierra = async () => {
+    setCalculandoMovimientoTierra(true);
+    try {
+      const resultado = await ServicioMotorCalculo.calcularMovimientoTierra(movimientoTierra);
+      setResultadoMovimientoTierra(resultado);
+      toast.success('Movimiento de tierra calculado exitosamente');
+    } catch (error) {
+      toast.error('Error al calcular movimiento de tierra');
+      console.error(error);
+    } finally {
+      setCalculandoMovimientoTierra(false);
+    }
+  };
+
+  const handleCalcularParametrosClimaticos = async () => {
+    setCalculandoClimaticos(true);
+    try {
+      const resultado = await ServicioMotorCalculo.obtenerFactorCuradoClimatico(
+        parametrosClimaticos.departamentoCodigo || undefined,
+        parametrosClimaticos.mes || undefined
+      );
+      setResultadoClimaticos(resultado);
+      toast.success('Parámetros climáticos calculados exitosamente');
+    } catch (error) {
+      toast.error('Error al calcular parámetros climáticos');
+      console.error(error);
+    } finally {
+      setCalculandoClimaticos(false);
+    }
+  };
+
+  const handleCalcularPavimento = async () => {
+    setCalculandoPavimento(true);
+    try {
+      const resultado = await ServicioMotorCalculo.calcularPavimento(pavimento);
+      
+      // Validar resultado antes de mostrar
+      const validaciones = ServicioValidacionCalculos.validarPavimento(pavimento, resultado);
+      const esValido = mostrarValidaciones(validaciones);
+      
+      if (!esValido) {
+        toast.warning('Cálculo tiene errores de validación');
+      }
+      
+      setResultadoPavimento(resultado);
+      toast.success('Pavimento calculado exitosamente');
+      
+      // Registrar cálculo en historial (si hay proyecto seleccionado)
+      try {
+        await registrarCalculo(
+          'demo-proyecto', // TODO: usar ID de proyecto real
+          'pavimento',
+          pavimento,
+          resultado,
+          'Cálculo manual de pavimento'
+        );
+        console.log('Cálculo registrado en historial');
+      } catch (err) {
+        console.warn('No se pudo registrar cálculo en historial:', err);
+      }
+    } catch (error) {
+      toast.error('Error al calcular pavimento');
+      console.error(error);
+    } finally {
+      setCalculandoPavimento(false);
+    }
+  };
+
+  const handleCalcularRedInfraestructura = async () => {
+    setCalculandoRedInfraestructura(true);
+    try {
+      const resultado = await ServicioMotorCalculo.calcularRedInfraestructura(redInfraestructura);
+      
+      // Validar resultado
+      const validaciones = ServicioValidacionCalculos.validarRedInfraestructura(redInfraestructura, resultado);
+      const esValido = mostrarValidaciones(validaciones);
+      
+      if (!esValido) {
+        toast.warning('Cálculo tiene errores de validación');
+      }
+      
+      setResultadoRedInfraestructura(resultado);
+      toast.success('Red de infraestructura calculada exitosamente');
+      
+      // Registrar cálculo en historial
+      try {
+        await registrarCalculo(
+          'demo-proyecto',
+          'red_infraestructura',
+          redInfraestructura,
+          resultado,
+          'Cálculo manual de red de infraestructura'
+        );
+        console.log('Cálculo registrado en historial');
+      } catch (err) {
+        console.warn('No se pudo registrar cálculo en historial:', err);
+      }
+    } catch (error) {
+      toast.error('Error al calcular red de infraestructura');
+      console.error(error);
+    } finally {
+      setCalculandoRedInfraestructura(false);
+    }
+  };
+
+  const handleCalcularMuroContencion = async () => {
+    setCalculandoMuroContencion(true);
+    try {
+      const resultado = await ServicioMotorCalculo.calcularMuroContencion(muroContencion);
+      
+      // Validar resultado
+      const validaciones = ServicioValidacionCalculos.validarMuroContencion(muroContencion, resultado);
+      const esValido = mostrarValidaciones(validaciones);
+      
+      if (!esValido) {
+        toast.warning('Cálculo tiene errores de validación');
+      }
+      
+      setResultadoMuroContencion(resultado);
+      toast.success('Muro de contención calculado exitosamente');
+      
+      // Registrar cálculo en historial
+      try {
+        await registrarCalculo(
+          'demo-proyecto',
+          'muro_contencion',
+          muroContencion,
+          resultado,
+          'Cálculo manual de muro de contención'
+        );
+        console.log('Cálculo registrado en historial');
+      } catch (err) {
+        console.warn('No se pudo registrar cálculo en historial:', err);
+      }
+    } catch (error) {
+      toast.error('Error al calcular muro de contención');
+      console.error(error);
+    } finally {
+      setCalculandoMuroContencion(false);
+    }
+  };
+
   // Histórico de precios generado desde datos reales de insumos
   const historial = useMemo(() => {
     if (insumos.length === 0) return [];
@@ -166,6 +382,12 @@ const APUAvanzado: React.FC = () => {
     { id: 'rendimientos', label: 'Rendimientos', icon: Users },
     { id: 'sobrecosto', label: 'Sobrecosto', icon: Settings },
     { id: 'dosificacion', label: 'Dosificación Concreto', icon: Calculator },
+    { id: 'acero', label: 'Desglose Acero', icon: Wrench },
+    { id: 'movimientoTierra', label: 'Movimiento Tierra', icon: Wrench },
+    { id: 'parametrosClimaticos', label: 'Parámetros Climáticos', icon: Calculator },
+    { id: 'pavimentos', label: 'Pavimentos', icon: Calculator },
+    { id: 'redesInfraestructura', label: 'Redes Infraestructura', icon: Calculator },
+    { id: 'murosContencion', label: 'Muros Contención', icon: Calculator },
     { id: 'calculo', label: 'Cálculo APU', icon: DollarSign },
     { id: 'historico', label: 'Histórico Precios', icon: BarChart3 },
   ];
@@ -728,6 +950,759 @@ const APUAvanzado: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {tab === 'acero' && (
+          <div>
+            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Desglose de Acero</h2>
+            <p className="text-xs text-slate-400 mb-4">
+              Cálculo paramétrico de acero por diámetro basado en elemento, grado y tipo de estribo
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Elemento</label>
+                <select
+                  value={acero.elemento}
+                  onChange={e => setAcero(d => ({ ...d, elemento: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="columna">Columna</option>
+                  <option value="viga">Viga</option>
+                  <option value="losa">Losa</option>
+                  <option value="muro">Muro</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Grado</label>
+                <select
+                  value={acero.grado}
+                  onChange={e => setAcero(d => ({ ...d, grado: parseInt(e.target.value) as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="40">Grado 40</option>
+                  <option value="60">Grado 60</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Estribos</label>
+                <select
+                  value={acero.estribos}
+                  onChange={e => setAcero(d => ({ ...d, estribos: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="estribos">Estribos</option>
+                  <option value="espiral">Espiral</option>
+                  <option value="malla">Malla Electrosoldada</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Volumen (m³)</label>
+                <input
+                  type="number"
+                  value={acero.volumenM3}
+                  onChange={e => setAcero(d => ({ ...d, volumenM3: Math.max(0.1, parseFloat(e.target.value) || 1) }))}
+                  min={0.1}
+                  step={0.1}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                />
+              </div>
+
+              <div className="sm:col-span-2 md:col-span-3">
+                <button
+                  onClick={handleCalcularAcero}
+                  disabled={calculandoAcero}
+                  className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Calculator className="w-4 h-4" />
+                  {calculandoAcero ? 'Calculando...' : 'Calcular Desglose de Acero'}
+                </button>
+              </div>
+            </div>
+
+            {resultadoAcero && (
+              <div className="mt-4 space-y-3">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                  <h3 className="font-bold text-slate-700 text-xs mb-3">Desglose por Diámetro</h3>
+                  <div className="space-y-2">
+                    {resultadoAcero.desglose?.map((item: any, index: number) => (
+                      <div key={index} className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] text-blue-600">Diámetro {item.diametro}</span>
+                          <span className="text-lg font-bold text-blue-700">{item.cantidadKg.toFixed(2)} kg</span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 mt-1">
+                          Costo: Q{item.costoTotal.toFixed(2)} | Precio: Q{item.precioUnitarioKg.toFixed(2)}/kg
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-white/80">Costo Total</span>
+                      <div className="text-2xl font-bold text-white">Q{resultadoAcero.costoTotal?.toFixed(2) || '0.00'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'movimientoTierra' && (
+          <div>
+            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Movimientos de Tierra</h2>
+            <p className="text-xs text-slate-400 mb-4">
+              Cálculo paramétrico de costos y tiempos basado en tipo, suelo, profundidad y condiciones
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Tipo</label>
+                <select
+                  value={movimientoTierra.tipo}
+                  onChange={e => setMovimientoTierra(d => ({ ...d, tipo: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="excavacion">Excavación</option>
+                  <option value="relleno">Relleno</option>
+                  <option value="compactacion">Compactación</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Suelo</label>
+                <select
+                  value={movimientoTierra.suelo}
+                  onChange={e => setMovimientoTierra(d => ({ ...d, suelo: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="relleno">Relleno</option>
+                  <option value="arcilla">Arcilla</option>
+                  <option value="arena">Arena</option>
+                  <option value="roca_blanda">Roca Blanda</option>
+                  <option value="roca_dura">Roca Dura</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Profundidad</label>
+                <select
+                  value={movimientoTierra.profundidad}
+                  onChange={e => setMovimientoTierra(d => ({ ...d, profundidad: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="menos_1m">Menos de 1m</option>
+                  <option value="1_2m">1-2m</option>
+                  <option value="2_3m">2-3m</option>
+                  <option value="mas_3m">Más de 3m</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Acceso</label>
+                <select
+                  value={movimientoTierra.acceso}
+                  onChange={e => setMovimientoTierra(d => ({ ...d, acceso: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="retroexcavadora">Retroexcavadora</option>
+                  <option value="cargador">Cargador Frontal</option>
+                  <option value="manual">Manual</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Drenaje</label>
+                <select
+                  value={movimientoTierra.drenaje}
+                  onChange={e => setMovimientoTierra(d => ({ ...d, drenaje: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="seco">Seco</option>
+                  <option value="agua">Con Agua</option>
+                  <option value="lodos">Con Lodos</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Volumen (m³)</label>
+                <input
+                  type="number"
+                  value={movimientoTierra.volumenM3}
+                  onChange={e => setMovimientoTierra(d => ({ ...d, volumenM3: Math.max(0.1, parseFloat(e.target.value) || 1) }))}
+                  min={0.1}
+                  step={0.1}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                />
+              </div>
+
+              <div className="sm:col-span-2 md:col-span-3">
+                <button
+                  onClick={handleCalcularMovimientoTierra}
+                  disabled={calculandoMovimientoTierra}
+                  className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Calculator className="w-4 h-4" />
+                  {calculandoMovimientoTierra ? 'Calculando...' : 'Calcular Movimiento de Tierra'}
+                </button>
+              </div>
+            </div>
+
+            {resultadoMovimientoTierra && (
+              <div className="mt-4 space-y-3">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                  <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                      <div className="text-[10px] text-blue-600 mb-1">Costo Unitario</div>
+                      <div className="text-lg font-bold text-blue-700">Q{resultadoMovimientoTierra.costoUnitario?.toFixed(2) || '0.00'}/m³</div>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
+                      <div className="text-[10px] text-amber-600 mb-1">Costo Total</div>
+                      <div className="text-lg font-bold text-amber-700">Q{resultadoMovimientoTierra.costoTotal?.toFixed(2) || '0.00'}</div>
+                    </div>
+                    <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
+                      <div className="text-[10px] text-stone-600 mb-1">Tiempo Estimado</div>
+                      <div className="text-lg font-bold text-stone-700">{resultadoMovimientoTierra.tiempoEstimadoDias?.toFixed(1) || '0'} días</div>
+                    </div>
+                    <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
+                      <div className="text-[10px] text-cyan-600 mb-1">Factor Ajuste</div>
+                      <div className="text-lg font-bold text-cyan-700">x{resultadoMovimientoTierra.factorAjusteTotal?.toFixed(2) || '1.00'}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                  <h3 className="font-bold text-slate-700 text-xs mb-2">Equipo Requerido</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {resultadoMovimientoTierra.equipoRequerido?.map((eq: string, idx: number) => (
+                      <span key={idx} className="text-[10px] px-2 py-1 bg-slate-200 rounded-full">{eq}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'parametrosClimaticos' && (
+          <div>
+            <h2 className="font-bold text-slate-700 text-sm mb-3">Parámetros Climáticos por Departamento</h2>
+            <p className="text-xs text-slate-400 mb-4">
+              Factores de ajuste por clima para curado de concreto y rendimiento de mano de obra
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Departamento</label>
+                <select
+                  value={parametrosClimaticos.departamentoCodigo}
+                  onChange={e => setParametrosClimaticos(d => ({ ...d, departamentoCodigo: e.target.value }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="">Seleccione departamento</option>
+                  {departamentos.map(dep => (
+                    <option key={dep.codigo} value={dep.codigo}>{dep.nombre}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Mes (opcional)</label>
+                <select
+                  value={parametrosClimaticos.mes}
+                  onChange={e => setParametrosClimaticos(d => ({ ...d, mes: e.target.value }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="">Sin estacionalidad</option>
+                  <option value="enero">Enero</option>
+                  <option value="febrero">Febrero</option>
+                  <option value="marzo">Marzo</option>
+                  <option value="abril">Abril</option>
+                  <option value="mayo">Mayo</option>
+                  <option value="junio">Junio</option>
+                  <option value="julio">Julio</option>
+                  <option value="agosto">Agosto</option>
+                  <option value="septiembre">Septiembre</option>
+                  <option value="octubre">Octubre</option>
+                  <option value="noviembre">Noviembre</option>
+                  <option value="diciembre">Diciembre</option>
+                </select>
+              </div>
+
+              <div className="sm:col-span-2">
+                <button
+                  onClick={handleCalcularParametrosClimaticos}
+                  disabled={calculandoClimaticos}
+                  className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Calculator className="w-4 h-4" />
+                  {calculandoClimaticos ? 'Calculando...' : 'Calcular Parámetros Climáticos'}
+                </button>
+              </div>
+            </div>
+
+            {resultadoClimaticos && (
+              <div className="mt-4 space-y-3">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                  <h3 className="font-bold text-slate-700 text-xs mb-3">Factores Climáticos</h3>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                      <div className="text-[10px] text-blue-600 mb-1">Factor Curado</div>
+                      <div className="text-lg font-bold text-blue-700">x{resultadoClimaticos.factorCurado?.toFixed(2) || '1.00'}</div>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
+                      <div className="text-[10px] text-amber-600 mb-1">Factor Rendimiento</div>
+                      <div className="text-lg font-bold text-amber-700">x{resultadoClimaticos.factorRendimiento?.toFixed(2) || '1.00'}</div>
+                    </div>
+                    <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
+                      <div className="text-[10px] text-stone-600 mb-1">Factor Protección</div>
+                      <div className="text-lg font-bold text-stone-700">x{resultadoClimaticos.factorProteccion?.toFixed(2) || '1.00'}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-white/80">Ajuste Estacional</span>
+                      <div className="text-2xl font-bold text-white">x{resultadoClimaticos.factorAjusteEstacional?.toFixed(2) || '1.00'}</div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-white/80">Observaciones</span>
+                      <div className="text-sm font-bold text-white">{resultadoClimaticos.observaciones || ''}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'pavimentos' && (
+          <div>
+            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Pavimentos</h2>
+            <p className="text-xs text-slate-400 mb-4">
+              Cálculo paramétrico de pavimentos basado en uso, tipo, base y sello
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Uso</label>
+                <select
+                  value={pavimento.uso}
+                  onChange={e => setPavimento(d => ({ ...d, uso: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="peatonal">Peatonal</option>
+                  <option value="vehicular_liviano">Vehicular Liviano</option>
+                  <option value="vehicular_medio">Vehicular Medio</option>
+                  <option value="vehicular_pesado">Vehicular Pesado</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Tipo</label>
+                <select
+                  value={pavimento.tipo}
+                  onChange={e => setPavimento(d => ({ ...d, tipo: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="adoquinado">Adoquinado</option>
+                  <option value="concreto">Concreto</option>
+                  <option value="asfaltico">Asfaltico</option>
+                  <option value="interlock">Interlock</option>
+                  <option value="ceramico">Cerámico</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Tipo Base</label>
+                <select
+                  value={pavimento.tipoBase}
+                  onChange={e => setPavimento(d => ({ ...d, tipoBase: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="c4">C4</option>
+                  <option value="piedra_picada">Piedra Picada</option>
+                  <option value="grava">Grava</option>
+                  <option value="arena">Arena</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Tipo Sello</label>
+                <select
+                  value={pavimento.tipoSello}
+                  onChange={e => setPavimento(d => ({ ...d, tipoSello: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="arena">Arena</option>
+                  <option value="cemento">Cemento</option>
+                  <option value="ninguno">Ninguno</option>
+                  <option value="asfalto">Asfalto</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Área (m²)</label>
+                <input
+                  type="number"
+                  value={pavimento.areaM2}
+                  onChange={e => setPavimento(d => ({ ...d, areaM2: Math.max(1, parseFloat(e.target.value) || 1) }))}
+                  min={1}
+                  step={1}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                />
+              </div>
+
+              <div className="sm:col-span-2 md:col-span-3">
+                <button
+                  onClick={handleCalcularPavimento}
+                  disabled={calculandoPavimento}
+                  className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Calculator className="w-4 h-4" />
+                  {calculandoPavimento ? 'Calculando...' : 'Calcular Pavimento'}
+                </button>
+              </div>
+            </div>
+
+            {resultadoPavimento && (
+              <div className="mt-4 space-y-3">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                  <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                      <div className="text-[10px] text-blue-600 mb-1">Espesor</div>
+                      <div className="text-lg font-bold text-blue-700">{resultadoPavimento.espesorCm?.toFixed(1) || '0'} cm</div>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
+                      <div className="text-[10px] text-amber-600 mb-1">Costo Total/m²</div>
+                      <div className="text-lg font-bold text-amber-700">Q{resultadoPavimento.costoTotalM2?.toFixed(2) || '0.00'}</div>
+                    </div>
+                    <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
+                      <div className="text-[10px] text-stone-600 mb-1">Costo Total</div>
+                      <div className="text-lg font-bold text-stone-700">Q{resultadoPavimento.costoTotal?.toFixed(2) || '0.00'}</div>
+                    </div>
+                    <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
+                      <div className="text-[10px] text-cyan-600 mb-1">Volumen Base</div>
+                      <div className="text-lg font-bold text-cyan-700">{resultadoPavimento.volumenBaseM3?.toFixed(2) || '0'} m³</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                  <h3 className="font-bold text-slate-700 text-xs mb-2">Desglose de Costos</h3>
+                  <div className="grid grid-cols-3 gap-2 text-[10px]">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Superficie:</span>
+                      <span className="font-medium text-slate-700">Q{resultadoPavimento.costoSuperficieM2?.toFixed(2) || '0.00'}/m²</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Base:</span>
+                      <span className="font-medium text-slate-700">Q{resultadoPavimento.costoBaseM3?.toFixed(2) || '0.00'}/m³</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Sello:</span>
+                      <span className="font-medium text-slate-700">Q{resultadoPavimento.costoSelloM2?.toFixed(2) || '0.00'}/m²</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-white/80">Referencia Normativa</span>
+                      <div className="text-lg font-bold text-white">{resultadoPavimento.referenciaNorma || ''}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'redesInfraestructura' && (
+          <div>
+            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Redes de Infraestructura</h2>
+            <p className="text-xs text-slate-400 mb-4">
+              Cálculo paramétrico de redes basado en tipo, diámetro, material y presión
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Tipo</label>
+                <select
+                  value={redInfraestructura.tipo}
+                  onChange={e => setRedInfraestructura(d => ({ ...d, tipo: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="agua_potable">Agua Potable</option>
+                  <option value="alcantarillado_sanitario">Alcantarillado Sanitario</option>
+                  <option value="alcantarillado_pluvial">Alcantarillado Pluvial</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Diámetro (pulgadas)</label>
+                <select
+                  value={redInfraestructura.diametroPulgadas}
+                  onChange={e => setRedInfraestructura(d => ({ ...d, diametroPulgadas: parseFloat(e.target.value) }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="0.5">0.5"</option>
+                  <option value="1.0">1.0"</option>
+                  <option value="2.0">2.0"</option>
+                  <option value="3.0">3.0"</option>
+                  <option value="4.0">4.0"</option>
+                  <option value="6.0">6.0"</option>
+                  <option value="8.0">8.0"</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Material</label>
+                <select
+                  value={redInfraestructura.material}
+                  onChange={e => setRedInfraestructura(d => ({ ...d, material: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="pvc">PVC</option>
+                  <option value="cpvc">CPVC</option>
+                  <option value="cobre">Cobre</option>
+                  <option value="hdpe">HDPE</option>
+                  <option value="concreto">Concreto</option>
+                  <option value="fierro_fundido">Fierro Fundido</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Presión</label>
+                <select
+                  value={redInfraestructura.presion}
+                  onChange={e => setRedInfraestructura(d => ({ ...d, presion: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="baja">Baja</option>
+                  <option value="media">Media</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Longitud (ml)</label>
+                <input
+                  type="number"
+                  value={redInfraestructura.longitudMl}
+                  onChange={e => setRedInfraestructura(d => ({ ...d, longitudMl: Math.max(1, parseFloat(e.target.value) || 1) }))}
+                  min={1}
+                  step={1}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                />
+              </div>
+
+              <div className="sm:col-span-2 md:col-span-3">
+                <button
+                  onClick={handleCalcularRedInfraestructura}
+                  disabled={calculandoRedInfraestructura}
+                  className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Calculator className="w-4 h-4" />
+                  {calculandoRedInfraestructura ? 'Calculando...' : 'Calcular Red de Infraestructura'}
+                </button>
+              </div>
+            </div>
+
+            {resultadoRedInfraestructura && (
+              <div className="mt-4 space-y-3">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                  <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                      <div className="text-[10px] text-blue-600 mb-1">Costo Unitario</div>
+                      <div className="text-lg font-bold text-blue-700">Q{resultadoRedInfraestructura.costoUnitarioMl?.toFixed(2) || '0.00'}/ml</div>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
+                      <div className="text-[10px] text-amber-600 mb-1">Costo Total</div>
+                      <div className="text-lg font-bold text-amber-700">Q{resultadoRedInfraestructura.costoTotal?.toFixed(2) || '0.00'}</div>
+                    </div>
+                    <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
+                      <div className="text-[10px] text-stone-600 mb-1">Factor Material</div>
+                      <div className="text-lg font-bold text-stone-700">x{resultadoRedInfraestructura.factorAjusteMaterial?.toFixed(2) || '1.00'}</div>
+                    </div>
+                    <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
+                      <div className="text-[10px] text-cyan-600 mb-1">Normativa</div>
+                      <div className="text-sm font-bold text-cyan-700">{resultadoRedInfraestructura.referenciaNorma || ''}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-white/80">Costo Total Instalado</span>
+                      <div className="text-2xl font-bold text-white">Q{resultadoRedInfraestructura.costoTotal?.toFixed(2) || '0.00'}</div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-white/80">Incluye factor material</span>
+                      <div className="text-lg font-bold text-white">x{resultadoRedInfraestructura.factorAjusteMaterial?.toFixed(2) || '1.00'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'murosContencion' && (
+          <div>
+            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Muros de Contención</h2>
+            <p className="text-xs text-slate-400 mb-4">
+              Cálculo paramétrico de muros basado en altura, tipo, cimentación, suelo y drenaje
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Altura (m)</label>
+                <input
+                  type="number"
+                  value={muroContencion.alturaM}
+                  onChange={e => setMuroContencion(d => ({ ...d, alturaM: Math.max(1, parseFloat(e.target.value) || 1) }))}
+                  min={1}
+                  max={10}
+                  step={0.5}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Tipo de Muro</label>
+                <select
+                  value={muroContencion.tipo}
+                  onChange={e => setMuroContencion(d => ({ ...d, tipo: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="gravedad">Gravedad</option>
+                  <option value="cantiliver">Cantilever</option>
+                  <option value="atirantado">Atirantado</option>
+                  <option value="tipo celular">Tipo Celular</option>
+                  <option value="pantalla">Pantalla</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Cimentación</label>
+                <select
+                  value={muroContencion.tipoCimentacion}
+                  onChange={e => setMuroContencion(d => ({ ...d, tipoCimentacion: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="zapata_corrida">Zapata Corrida</option>
+                  <option value="pilotes">Pilotes</option>
+                  <option value="losa">Losa</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Tipo de Suelo</label>
+                <select
+                  value={muroContencion.tipoSuelo}
+                  onChange={e => setMuroContencion(d => ({ ...d, tipoSuelo: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="arcilla">Arcilla</option>
+                  <option value="arena">Arena</option>
+                  <option value="roca">Roca</option>
+                  <option value="relleno_compactado">Relleno Compactado</option>
+                  <option value="granular">Granular</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Drenaje</label>
+                <select
+                  value={muroContencion.tipoDrenaje}
+                  onChange={e => setMuroContencion(d => ({ ...d, tipoDrenaje: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="sin_drenaje">Sin Drenaje</option>
+                  <option value="drenaje_superficial">Drenaje Superficial</option>
+                  <option value="drenaje_interno">Drenaje Interno</option>
+                  <option value="drenaje_completo">Drenaje Completo</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Longitud (m)</label>
+                <input
+                  type="number"
+                  value={muroContencion.longitudM}
+                  onChange={e => setMuroContencion(d => ({ ...d, longitudM: Math.max(1, parseFloat(e.target.value) || 1) }))}
+                  min={1}
+                  step={1}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                />
+              </div>
+
+              <div className="sm:col-span-2 md:col-span-3">
+                <button
+                  onClick={handleCalcularMuroContencion}
+                  disabled={calculandoMuroContencion}
+                  className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Calculator className="w-4 h-4" />
+                  {calculandoMuroContencion ? 'Calculando...' : 'Calcular Muro de Contención'}
+                </button>
+              </div>
+            </div>
+
+            {resultadoMuroContencion && (
+              <div className="mt-4 space-y-3">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                  <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                      <div className="text-[10px] text-blue-600 mb-1">Costo Unitario</div>
+                      <div className="text-lg font-bold text-blue-700">Q{resultadoMuroContencion.costoUnitarioM2?.toFixed(2) || '0.00'}/m²</div>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
+                      <div className="text-[10px] text-amber-600 mb-1">Costo Total</div>
+                      <div className="text-lg font-bold text-amber-700">Q{resultadoMuroContencion.costoTotal?.toFixed(2) || '0.00'}</div>
+                    </div>
+                    <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
+                      <div className="text-[10px] text-stone-600 mb-1">Factor Ajuste</div>
+                      <div className="text-lg font-bold text-stone-700">x{resultadoMuroContencion.factorAjusteTotal?.toFixed(2) || '1.00'}</div>
+                    </div>
+                    <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
+                      <div className="text-[10px] text-cyan-600 mb-1">Volumen Concreto</div>
+                      <div className="text-lg font-bold text-cyan-700">{resultadoMuroContencion.volumenConcretoM3?.toFixed(2) || '0'} m³</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-white/80">Costo Total Instalado</span>
+                      <div className="text-2xl font-bold text-white">Q{resultadoMuroContencion.costoTotal?.toFixed(2) || '0.00'}</div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-white/80">Referencia Normativa</span>
+                      <div className="text-sm font-bold text-white">{resultadoMuroContencion.referenciaNorma || ''}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

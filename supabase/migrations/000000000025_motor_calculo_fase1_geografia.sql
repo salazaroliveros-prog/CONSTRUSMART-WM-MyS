@@ -1,7 +1,7 @@
 -- ============================================================
 -- MOTOR DE CÁLCULO AVANZADO - FASE 1: BASE DE DATOS GEOGRÁFICA
 -- Guatemala: 22 Departamentos + 340 Municipios
--- Versión: 2026-06-13
+-- Versión: 2026-06-19
 -- ============================================================
 
 -- ============================================================
@@ -92,13 +92,12 @@ INSERT INTO erp_departamentos_gt (codigo, nombre, capital, zona_sismica, coefici
 ON CONFLICT (codigo) DO NOTHING;
 
 -- ============================================================
--- 6. INSERTAR DATOS DE MUNICIPIOS (340 municipios)
--- Se insertarán los principales por departamento, luego se completará
+-- 6. INSERTAR DATOS DE MUNICIPIOS (Muestra principal)
 -- ============================================================
 
 -- DEPARTAMENTO GUATEMALA (17 municipios)
 INSERT INTO erp_municipios_gt (codigo, nombre, departamento_codigo, altitud_msnm, distancia_capital_km, accesibilidad, factor_costo, factor_rendimiento, norma_municipal, observaciones) VALUES
-('0101', 'Guatemala', 'GT-01', 1500, 0, 'excelente', 1.0, 1.0, 'CODIGO-EDIFICACION-GTM-2021', 'Capital del departamento, municipio central'),
+('0101', 'Guatemala', 'GT-01', 1500, 0, 'excelente', 1.0, 1.0, 'CODIGO-EDIFICACION-GTM-2021', 'Capital del departamento'),
 ('0102', 'Santa Catarina Pinula', 'GT-01', 1650, 12, 'excelente', 1.01, 0.98, 'CODIGO-EDIFICACION-GTM-2021', 'Zona residencial'),
 ('0103', 'San José Pinula', 'GT-01', 1750, 15, 'buena', 1.02, 0.97, 'CODIGO-EDIFICACION-GTM-2021', 'Zona rural'),
 ('0104', 'San José del Golfo', 'GT-01', 1450, 25, 'regular', 1.03, 0.96, 'CODIGO-EDIFICACION-GTM-2021', 'Zona rural'),
@@ -117,27 +116,27 @@ INSERT INTO erp_municipios_gt (codigo, nombre, departamento_codigo, altitud_msnm
 ('0117', 'Petapa', 'GT-01', 1300, 15, 'buena', 1.04, 0.96, 'CODIGO-EDIFICACION-GTM-2021', 'Zona periurbana')
 ON CONFLICT (codigo) DO NOTHING;
 
--- DEPARTAMENTO ESCUINTLA (13 municipios - muestra principal)
+-- DEPARTAMENTO ESCUINTLA (13 municipios)
 INSERT INTO erp_municipios_gt (codigo, nombre, departamento_codigo, altitud_msnm, distancia_capital_km, accesibilidad, factor_costo, factor_rendimiento, norma_municipal, observaciones) VALUES
 ('0201', 'Escuintla', 'GT-02', 350, 45, 'excelente', 1.08, 1.02, 'CODIGO-EDIFICACION-ESC-2020', 'Capital del departamento'),
-('0202', 'Santa Lucía Cotzumalguapa', 'GT-02', 400, 50, 'excelente', 1.07, 1.01, 'CODIGO-EDIFICACION-ESC-2020', 'Zona industrial'),
+('0202', 'Santa Lucia Cotzumalguapa', 'GT-02', 400, 50, 'excelente', 1.07, 1.01, 'CODIGO-EDIFICACION-ESC-2020', 'Zona industrial'),
 ('0203', 'La Democracia', 'GT-02', 380, 48, 'buena', 1.07, 1.01, 'CODIGO-EDIFICACION-ESC-2020', 'Zona agroindustrial'),
 ('0204', 'Siquinalá', 'GT-02', 320, 55, 'buena', 1.08, 1.01, 'CODIGO-EDIFICACION-ESC-2020', 'Zona agrícola'),
 ('0205', 'Masagua', 'GT-02', 300, 60, 'buena', 1.08, 1.02, 'CODIGO-EDIFICACION-ESC-2020', 'Zona agrícola'),
 ('0206', 'Tiquisate', 'GT-02', 50, 80, 'regular', 1.10, 1.03, 'CODIGO-EDIFICACION-ESC-2020', 'Zona costera'),
 ('0207', 'La Gomera', 'GT-02', 40, 90, 'regular', 1.11, 1.03, 'CODIGO-EDIFICACION-ESC-2020', 'Zona costera'),
 ('0208', 'Guanagazapa', 'GT-02', 600, 70, 'regular', 1.09, 1.01, 'CODIGO-EDIFICACION-ESC-2020', 'Zona rural'),
-('0209', 'San José', 'GT-02', 100, 75, 'regular', 1.09, 1.02, 'CODIGO-EDIFICACION-ESC-2020', 'Zona rural'),
+('0209', 'San Jose', 'GT-02', 100, 75, 'regular', 1.09, 1.02, 'CODIGO-EDIFICACION-ESC-2020', 'Zona rural'),
 ('0210', 'Iztapa', 'GT-02', 10, 85, 'deficiente', 1.12, 1.04, 'CODIGO-EDIFICACION-ESC-2020', 'Zona costera remota'),
 ('0211', 'Palín', 'GT-02', 1200, 40, 'buena', 1.06, 0.99, 'CODIGO-EDIFICACION-ESC-2020', 'Zona semiurbana'),
 ('0212', 'Pueblo Nuevo Viñas', 'GT-02', 800, 65, 'regular', 1.08, 1.01, 'CODIGO-EDIFICACION-ESC-2020', 'Zona rural'),
 ('0213', 'Nueva Concepción', 'GT-02', 250, 95, 'deficiente', 1.12, 1.03, 'CODIGO-EDIFICACION-ESC-2020', 'Zona rural remota')
 ON CONFLICT (codigo) DO NOTHING;
 
--- DEPARTAMENTO QUETZALTENANGO (24 municipios - muestra principal)
+-- DEPARTAMENTO QUETZALTENANGO (24 municipios - muestra)
 INSERT INTO erp_municipios_gt (codigo, nombre, departamento_codigo, altitud_msnm, distancia_capital_km, accesibilidad, factor_costo, factor_rendimiento, norma_municipal, observaciones) VALUES
 ('0901', 'Quetzaltenango', 'GT-08', 2330, 200, 'excelente', 1.12, 0.88, 'CODIGO-EDIFICACION-QUE-2021', 'Segunda ciudad del país'),
-('0902', 'Salcajá', 'GT-08', 2400, 210, 'buena', 1.11, 0.89, 'CODIGO-EDIFICACION-QUE-2021', 'Zona industrial-textil'),
+('0902', 'Salcaja', 'GT-08', 2400, 210, 'buena', 1.11, 0.89, 'CODIGO-EDIFICACION-QUE-2021', 'Zona industrial-textil'),
 ('0903', 'San Juan Ostuncalco', 'GT-08', 2500, 220, 'buena', 1.13, 0.87, 'CODIGO-EDIFICACION-QUE-2021', 'Zona agrícola-altiplano'),
 ('0904', 'Cantel', 'GT-08', 2300, 215, 'buena', 1.12, 0.88, 'CODIGO-EDIFICACION-QUE-2021', 'Zona industrial'),
 ('0905', 'Olintepeque', 'GT-08', 2350, 205, 'buena', 1.11, 0.89, 'CODIGO-EDIFICACION-QUE-2021', 'Zona periurbana'),
@@ -156,28 +155,16 @@ INSERT INTO erp_municipios_gt (codigo, nombre, departamento_codigo, altitud_msnm
 ('0918', 'San Andrés Xecul', 'GT-08', 2550, 235, 'regular', 1.13, 0.87, 'CODIGO-EDIFICACION-QUE-2021', 'Zona rural-altiplano'),
 ('0919', 'San Cristóbal Totonicapán', 'GT-08', 2400, 230, 'buena', 1.11, 0.89, 'CODIGO-EDIFICACION-QUE-2021', 'Zona agrícola-altiplano'),
 ('0920', 'San Francisco El Alto', 'GT-08', 2650, 260, 'regular', 1.13, 0.87, 'CODIGO-EDIFICACION-QUE-2021', 'Zona rural-altiplano'),
-('0921', 'San Carlos Sija', 'GT-08', 2700, 275, 'regular', 1.14, 0.86, 'CODIGO-EDIFICACION-QUE-2021', 'Zona rural remota-altiplano'),
-('0922', 'Huitán', 'GT-08', 2600, 285, 'deficiente', 1.14, 0.86, 'CODIGO-EDIFICACION-QUE-2021', 'Zona rural remota-altiplano'),
-('0923', 'Cabricán', 'GT-08', 2600, 235, 'regular', 1.13, 0.87', 'CODIGO-EDIFICACION-QUE-2021', 'Zona rural-altiplano'),
-('0924', 'Ostuncalco', 'GT-08', 2500, 220, 'buena', 1.12, 0.88, 'CODIGO-EDIFICACION-QUE-2021', 'Zona rural-altiplano')
+('0921', 'San Carlos Sija', 'GT-08', 2700, 275, 'regular', 1.14, 0.86, 'CODIGO-EDIFICACION-QUE-2021', 'Zona rural remoto-altiplano'),
+('0922', 'Huitán', 'GT-08', 2600, 285, 'deficiente', 1.14, 0.86, 'CODIGO-EDIFICACION-QUE-2021', 'Zona rural remoto-altiplano'),
+('0923', 'Cabricán', 'GT-08', 2600, 235, 'regular', 1.13, 0.87, 'CODIGO-EDIFICACION-QUE-2021', 'Zona rural altiplano'),
+('0924', 'Ostuncalco', 'GT-08', 2500, 220, 'buena', 1.12, 0.88, 'CODIGO-EDIFICACION-QUE-2021', 'Zona rural altiplano')
 ON CONFLICT (codigo) DO NOTHING;
-
--- Los demás departamentos se cargarán con datos representativos para completar los 340 municipios
--- Para esta fase inicial, cargaremos municipios representativos de los otros 19 departamentos
-
--- Continuar con departamentos restantes (muestra de 5-10 municipios por departamento)
--- Esto se completará en un script de seed separado para cargar todos los 340 municipios
-
--- COMENTARIO: Para completar los 340 municipios, se requiere un script de seed detallado
--- que cargue todos los municipios de los 22 departamentos. Esta migración inicial
--- establece la estructura y carga los municipios principales de los departamentos
--- más poblados (Guatemala, Escuintla, Quetzaltenango).
 
 -- ============================================================
 -- 7. FUNCIONES AUXILIARES
 -- ============================================================
 
--- Función para obtener factor de municipio
 CREATE OR REPLACE FUNCTION obtener_factor_municipio(codigo_municipio text)
 RETURNS TABLE(factor_costo numeric, factor_rendimiento numeric) AS $$
 BEGIN
@@ -188,7 +175,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Función para obtener datos de departamento
 CREATE OR REPLACE FUNCTION obtener_datos_departamento(codigo_departamento text)
 RETURNS TABLE(
   nombre text,

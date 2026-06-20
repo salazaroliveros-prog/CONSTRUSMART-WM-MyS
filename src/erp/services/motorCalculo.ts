@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { DosificacionConcreto, ResultadoDosificacion, DepartamentoGT, MunicipioGT, Subtipologia } from '@/erp/types';
+import { DosificacionConcreto, ResultadoDosificacion, DepartamentoGT, MunicipioGT, Subtipologia, MovimientoTierra, ResultadoMovimientoTierra, ParametrosClimaticosExtendido, FactorClimatico, Pavimento, ResultadoPavimento, RedInfraestructura, ResultadoRedInfraestructura, MuroContencion, ResultadoMuroContencion, CalculoProyecto, ComparacionCalculos } from '@/erp/types';
 
 // Precios referenciales (Q)
 const PRECIOS_REFERENCIALES = {
@@ -248,6 +248,142 @@ export class ServicioMotorCalculo {
   }
 
   // ============================================================
+  // SERVICIO DE PARÁMETROS CLIMÁTICOS
+  // ============================================================
+
+  static async obtenerParametrosClimaticos(departamentoCodigo: string): Promise<ParametrosClimaticosExtendido | null> {
+    try {
+      const { data, error } = await supabase.rpc('obtener_parametros_climaticos', {
+        p_departamento_codigo: departamentoCodigo,
+      });
+
+      if (error) throw error;
+      if (!data || data.length === 0) return null;
+
+      return {
+        departamentoCodigo,
+        zonaClimatica: data[0].zona_climatica,
+        altitudMinMsnm: data[0].altitud_min_msnm,
+        altitudMaxMsnm: data[0].altitud_max_msnm,
+        temperaturaMinC: data[0].temperatura_min_c,
+        temperaturaMaxC: data[0].temperatura_max_c,
+        humedadRelativaPromedioPct: data[0].humedad_relativa_promedio_pct,
+        precipitacionPromedioMmMes: data[0].precipitacion_promedio_mm_mes,
+        vientoPromedioKmh: data[0].viento_promedio_kmh,
+        factorCuradoConcreto: data[0].factor_curado_concreto,
+        factorRendimientoMO: data[0].factor_rendimiento_mo,
+        factorProteccionEncofrados: data[0].factor_proteccion_encofrados,
+        estacionCritica: data[0].estacion_critica,
+        mesesCriticos: data[0].meses_criticos,
+      };
+    } catch (error) {
+      console.error('Error al obtener parámetros climáticos:', error);
+      throw error;
+    }
+  }
+
+  static async obtenerFactorClimatico(departamentoCodigo: string, mes?: string): Promise<FactorClimatico> {
+    try {
+      const { data, error } = await supabase.rpc('obtener_factor_curado_climatico', {
+        p_departamento_codigo: departamentoCodigo,
+        p_mes: mes || null,
+      });
+
+      if (error) throw error;
+
+      return {
+        factorCurado: data[0].factor_curado,
+        factorRendimiento: data[0].factor_rendimiento,
+        factorProteccion: data[0].factor_proteccion,
+        factorAjusteEstacional: data[0].factor_ajuste_estacional,
+        observaciones: data[0].observaciones,
+      };
+    } catch (error) {
+      console.error('Error al obtener factor climático:', error);
+      throw error;
+    }
+  }
+
+  static async obtenerFactorTemperaturaDepartamento(departamentoCodigo: string): Promise<number> {
+    try {
+      const { data, error } = await supabase.rpc('obtener_factor_temperatura_departamento', {
+        p_departamento_codigo: departamentoCodigo,
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al obtener factor temperatura:', error);
+      return 1.0;
+    }
+  }
+
+  static async obtenerFactorHumedadDepartamento(departamentoCodigo: string): Promise<number> {
+    try {
+      const { data, error } = await supabase.rpc('obtener_factor_humedad_departamento', {
+        p_departamento_codigo: departamentoCodigo,
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al obtener factor humedad:', error);
+      return 1.0;
+    }
+  }
+
+  // ============================================================
+  // SERVICIO DE MOVIMIENTO DE TIERRA
+  // ============================================================
+
+  static async calcularMovimientoTierra(mt: MovimientoTierra): Promise<ResultadoMovimientoTierra> {
+    try {
+      const { data, error } = await supabase.rpc('calcular_movimiento_tierra', {
+        p_tipo: mt.tipo,
+        p_suelo: mt.suelo,
+        p_profundidad: mt.profundidad,
+        p_acceso: mt.acceso,
+        p_drenaje: mt.drenaje,
+        p_volumen: mt.volumen,
+      });
+
+      if (error) throw error;
+
+      return {
+        costoUnitario: data[0].costo_unitario,
+        costoTotal: data[0].costo_total,
+        tiempoEstimadoDias: data[0].tiempo_estimado_dias,
+        equipoRequerido: data[0].equipo_requerido,
+        factorAjusteTotal: data[0].factor_ajuste_total,
+      };
+    } catch (error) {
+      console.error('Error al calcular movimiento de tierra:', error);
+      throw error;
+    }
+  }
+
+  static async obtenerParametrosMovimientoTierra(suelo?: string) {
+    try {
+      let query = supabase
+        .from('erp_parametros_movimiento_tierra')
+        .select('*')
+        .eq('activo', true);
+
+      if (suelo) {
+        query = query.eq('suelo', suelo);
+      }
+
+      const { data, error } = await query.order('tipo', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al obtener parámetros de movimiento de tierra:', error);
+      throw error;
+    }
+  }
+
+  // ============================================================
   // SERVICIO DE SUBTIPOLOGÍAS
   // ============================================================
 
@@ -298,6 +434,265 @@ export class ServicioMotorCalculo {
       throw error;
     }
   }
+
+  /**
+   * Calcular pavimento
+   */
+  static async calcularPavimento(pavimento: Pavimento): Promise<ResultadoPavimento> {
+    try {
+      const { data, error } = await supabase.rpc('calcular_pavimento', {
+        p_uso: pavimento.uso,
+        p_tipo: pavimento.tipo,
+        p_tipo_base: pavimento.tipoBase,
+        p_tipo_sello: pavimento.tipoSello,
+        p_area_m2: pavimento.areaM2
+      });
+
+      if (error) throw error;
+
+      // Adaptar resultado al interfaz TypeScript
+      return {
+        espesorCm: data[0].espesor_cm,
+        costoSuperficieM2: data[0].costo_superficie_m2,
+        costoBaseM3: data[0].costo_base_m3,
+        costoSelloM2: data[0].costo_sello_m2,
+        costoTotalM2: data[0].costo_total_m2,
+        costoTotal: data[0].costo_total,
+        volumenBaseM3: data[0].volumen_base_m3,
+        referenciaNorma: data[0].referencia_norma
+      };
+    } catch (error) {
+      console.error('Error al calcular pavimento:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener parámetros de pavimentos
+   */
+  static async obtenerParametrosPavimentos(uso?: string, tipo?: string) {
+    try {
+      let query = supabase
+        .from('erp_parametros_pavimentos')
+        .select('*')
+        .eq('activo', true);
+
+      if (uso) {
+        query = query.eq('uso', uso);
+      }
+
+      if (tipo) {
+        query = query.eq('tipo', tipo);
+      }
+
+      const { data, error } = await query.order('costo_base_m2', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al obtener parámetros de pavimentos:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Calcular red de infraestructura
+   */
+  static async calcularRedInfraestructura(red: RedInfraestructura): Promise<ResultadoRedInfraestructura> {
+    try {
+      const { data, error } = await supabase.rpc('calcular_red_infraestructura', {
+        p_tipo: red.tipo,
+        p_diametro_pulgadas: red.diametroPulgadas,
+        p_material: red.material,
+        p_presion: red.presion,
+        p_longitud_ml: red.longitudMl
+      });
+
+      if (error) throw error;
+
+      // Adaptar resultado al interfaz TypeScript
+      return {
+        costoUnitarioMl: data[0].costo_unitario_ml,
+        costoTotal: data[0].costo_total,
+        factorAjusteMaterial: data[0].factor_ajuste_material,
+        referenciaNorma: data[0].referencia_norma
+      };
+    } catch (error) {
+      console.error('Error al calcular red de infraestructura:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener parámetros de redes de infraestructura
+   */
+  static async obtenerParametrosRedesInfraestructura(tipo?: string, material?: string) {
+    try {
+      let query = supabase
+        .from('erp_parametros_redes_infraestructura')
+        .select('*')
+        .eq('activo', true);
+
+      if (tipo) {
+        query = query.eq('tipo', tipo);
+      }
+
+      if (material) {
+        query = query.eq('material', material);
+      }
+
+      const { data, error } = await query.order('costo_base_ml', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al obtener parámetros de redes de infraestructura:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Calcular muro de contención
+   */
+  static async calcularMuroContencion(muro: MuroContencion): Promise<ResultadoMuroContencion> {
+    try {
+      const { data, error } = await supabase.rpc('calcular_muro_contencion', {
+        p_altura_m: muro.alturaM,
+        p_tipo: muro.tipo,
+        p_tipo_cimentacion: muro.tipoCimentacion,
+        p_tipo_suelo: muro.tipoSuelo,
+        p_tipo_drenaje: muro.tipoDrenaje,
+        p_longitud_m: muro.longitudM
+      });
+
+      if (error) throw error;
+
+      // Adaptar resultado al interfaz TypeScript
+      return {
+        costoUnitarioM2: data[0].costo_unitario_m2,
+        costoTotal: data[0].costo_total,
+        factorAjusteTotal: data[0].factor_ajuste_total,
+        volumenConcretoM3: data[0].volumen_concreto_m3,
+        referenciaNorma: data[0].referencia_norma
+      };
+    } catch (error) {
+      console.error('Error al calcular muro de contención:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener parámetros de muros de contención
+   */
+  static async obtenerParametrosMurosContencion(tipo?: string, altura?: number) {
+    try {
+      let query = supabase
+        .from('erp_parametros_muros_contencion')
+        .select('*')
+        .eq('activo', true);
+
+      if (tipo) {
+        query = query.eq('tipo', tipo);
+      }
+
+      if (altura) {
+        query = query.gte('altura_m', altura);
+      }
+
+      const { data, error } = await query.order('altura_m', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al obtener parámetros de muros de contención:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Registrar cálculo en historial
+   */
+  static async registrarCalculo(
+    proyectoId: string,
+    tipoCalcululo: string,
+    parametros: Record<string, any>,
+    resultados: Record<string, any>,
+    observaciones?: string
+  ): Promise<string> {
+    try {
+      const { data, error } = await supabase.rpc('registrar_calculo', {
+        p_proyecto_id: proyectoId,
+        p_tipo_calculo: tipoCalcululo,
+        p_parametros: parametros,
+        p_resultados: resultados,
+        p_observaciones: observaciones || null
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al registrar cálculo:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener historial de cálculos de un proyecto
+   */
+  static async obtenerHistorialCalculos(proyectoId: string, tipoCalcululo?: string) {
+    try {
+      const { data, error } = await supabase.rpc('obtener_historial_calculos', {
+        p_proyecto_id: proyectoId,
+        p_tipo_calculo: tipoCalcululo || null
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al obtener historial de cálculos:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Comparar dos cálculos
+   */
+  static async compararCalculos(calculoId1: string, calculoId2: string) {
+    try {
+      const { data, error } = await supabase.rpc('comparar_calculos', {
+        p_calculo_id_1: calculoId1,
+        p_calculo_id_2: calculoId2
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al comparar cálculos:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Validar cálculo
+   */
+  static async validarCalculo(calculoId: string, notasValidacion?: string, aprobado: boolean = true) {
+    try {
+      const { error } = await supabase
+        .from('erp_calculos_proyecto')
+        .update({
+          validado: aprobado,
+          notas_validacion: notasValidacion,
+          fecha_validacion: new Date().toISOString()
+        })
+        .eq('id', calculoId);
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error al validar cálculo:', error);
+      throw error;
+    }
+  }
 }
 
 // Exportar funciones de conveniencia
@@ -309,3 +704,19 @@ export const obtenerFactorCostoMunicipio = ServicioMotorCalculo.obtenerFactorCos
 export const obtenerFactorRendimientoMunicipio = ServicioMotorCalculo.obtenerFactorRendimientoMunicipio;
 export const obtenerSubtipologias = ServicioMotorCalculo.obtenerSubtipologias;
 export const obtenerSubtipologia = ServicioMotorCalculo.obtenerSubtipologia;
+export const calcularMovimientoTierra = ServicioMotorCalculo.calcularMovimientoTierra;
+export const obtenerParametrosMovimientoTierra = ServicioMotorCalculo.obtenerParametrosMovimientoTierra;
+export const obtenerParametrosClimaticos = ServicioMotorCalculo.obtenerParametrosClimaticos;
+export const obtenerFactorClimatico = ServicioMotorCalculo.obtenerFactorClimatico;
+export const obtenerFactorTemperaturaDepartamento = ServicioMotorCalculo.obtenerFactorTemperaturaDepartamento;
+export const obtenerFactorHumedadDepartamento = ServicioMotorCalculo.obtenerFactorHumedadDepartamento;
+export const calcularPavimento = ServicioMotorCalculo.calcularPavimento;
+export const obtenerParametrosPavimentos = ServicioMotorCalculo.obtenerParametrosPavimentos;
+export const calcularRedInfraestructura = ServicioMotorCalculo.calcularRedInfraestructura;
+export const obtenerParametrosRedesInfraestructura = ServicioMotorCalculo.obtenerParametrosRedesInfraestructura;
+export const calcularMuroContencion = ServicioMotorCalculo.calcularMuroContencion;
+export const obtenerParametrosMurosContencion = ServicioMotorCalculo.obtenerParametrosMurosContencion;
+export const registrarCalculo = ServicioMotorCalculo.registrarCalculo;
+export const obtenerHistorialCalculos = ServicioMotorCalculo.obtenerHistorialCalculos;
+export const compararCalculos = ServicioMotorCalculo.compararCalculos;
+export const validarCalculo = ServicioMotorCalculo.validarCalculo;
