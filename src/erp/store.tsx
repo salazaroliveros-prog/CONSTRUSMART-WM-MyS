@@ -9,7 +9,7 @@ import {
   bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema, muroSchema,
   notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
   licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
-  destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema,
+  destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical, toSnake } from './utils';
 import { hasSupabase, assertSupabase, supabase } from '@/lib/supabase';
@@ -54,6 +54,7 @@ const BASE_STORAGE_KEY = 'wm_erp_data';
 const QUEUE_KEY = 'wm_erp_queue';
 const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
 const AUDIT_KEY = BASE_STORAGE_KEY + '_audit_log';
+const PLANTILLA_KEY = BASE_STORAGE_KEY + '_plantillas';
 
 function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   try {
@@ -67,13 +68,13 @@ function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   return [];
 }
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas';
 export type UIMode = 'shadcn' | 'antd';
 export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
 export type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
 
 export const ALL_VIEWS: View[] = [
-  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones'
+  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas'
 ];
 
 export const clearAllData = () => {
@@ -147,6 +148,7 @@ const MUTATION_TABLE_MAP: Record<string, string> = {
   addLiberacion:'erp_liberaciones_partida',updateLiberacion:'erp_liberaciones_partida',deleteLiberacion:'erp_liberaciones_partida',
   addNotificacion:'erp_notificaciones',markNotificacionLeida:'erp_notificaciones',deleteNotificacion:'erp_notificaciones',
   addSeguimiento:'erp_seguimiento',updateSeguimiento:'erp_seguimiento',deleteSeguimiento:'erp_seguimiento',
+  addPlantilla:'erp_plantillas_proyectos',updatePlantilla:'erp_plantillas_proyectos',deletePlantilla:'erp_plantillas_proyectos',clonarPlantilla:'erp_plantillas_proyectos',exportarPlantilla:'erp_plantillas_proyectos',importarPlantilla:'erp_plantillas_proyectos',sugerirPlantillas:'erp_plantillas_proyectos',crearNuevaVersionPlantilla:'erp_plantillas_proyectos',restaurarVersionPlantilla:'erp_plantillas_proyectos',toggleFavoritoPlantilla:'erp_plantillas_proyectos',
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -234,6 +236,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       destajos: loadFromStorage(BASE_STORAGE_KEY + '_destajos', destajoSchema),
       recepciones: loadFromStorage(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema),
       centrosCosto: loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
+      plantillas: loadFromStorage(PLANTILLA_KEY, plantillaSchema),
       mutationQueue: JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]') as Mutation[],
       notificaciones: JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]') as any[],
       auditLog: JSON.parse(localStorage.getItem(AUDIT_KEY) || '[]') as any[],
@@ -398,6 +401,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
             activos: s.activos, cuadros: s.cuadros, pagos_proveedor: s.pagosProveedor,
             destajos: s.destajos, recepciones: s.recepciones, centrosCosto: s.centrosCosto,
+            plantillas: s.plantillas,
           };
           const quotaCritical = isStorageQuotaCritical();
           Object.entries(map).forEach(([k, v]) => {

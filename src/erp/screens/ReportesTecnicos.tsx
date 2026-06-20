@@ -100,7 +100,7 @@ const ReportesTecnicos: React.FC = () => {
             ))}
           </select>
           <button onClick={handleExportar} disabled={!proyectoId} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-violet-500 text-white hover:bg-violet-600 transition-colors disabled:opacity-50">
-            <Download className="w-3.5 h-3.5" /> Exportar
+            <Download className="w-3.5 h-3.5" aria-hidden="true" /> Exportar
           </button>
         </div>
       </div>

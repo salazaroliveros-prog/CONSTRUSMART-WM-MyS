@@ -78,7 +78,7 @@ const OrdenesCambio: React.FC = () => {
         <div className="flex flex-wrap gap-2">
           <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
           <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors">
-            <Plus className="w-3.5 h-3.5" /> Nueva
+            <Plus className="w-3.5 h-3.5" aria-hidden="true" /> Nueva
           </button>
         </div>
       </div>
@@ -161,10 +161,10 @@ const OrdenesCambio: React.FC = () => {
                   {(oc.estado === 'solicitud' || oc.estado === 'revision') && (user?.rol === 'Administrador' || user?.rol === 'Gerente') && (
                     <div className="flex gap-2 mt-2">
                       <button onClick={() => handleAprobar(oc.id)} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600">
-                        <Check className="w-3 h-3" /> Aprobar
+                        <Check className="w-3 h-3" aria-hidden="true" /> Aprobar
                       </button>
                       <button onClick={() => handleRechazar(oc.id)} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600">
-                        <X className="w-3 h-3" /> Rechazar
+                        <X className="w-3 h-3" aria-hidden="true" /> Rechazar
                       </button>
                     </div>
                   )}

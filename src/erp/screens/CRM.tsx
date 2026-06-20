@@ -184,7 +184,7 @@ const CRM: React.FC = () => {
             </select>
             <button 
             onClick={() => { resetForm(); setShowForm(true); }}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Plus className="w-4 h-4" /> Nueva Licitación
           </button>
@@ -256,15 +256,20 @@ const CRM: React.FC = () => {
                   <span className="text-xs">Sin oportunidades</span>
                 </div>
               ) : col.items.map(l => (
-                <div key={l.id} className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-all group">
+                <div key={l.id} className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-all group focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="button" aria-label={`Licitación ${l.nombre}`} onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openEdit(l);
+                  }
+                }}>
                   <div className="flex justify-between items-start mb-1">
                     <h4 className="font-semibold text-sm text-foreground truncate flex-1">{l.nombre}</h4>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1">
                       <button onClick={() => openEdit(l)} className="p-1 text-slate-400 hover:text-purple-500 hover:bg-purple-50 rounded" aria-label="Editar licitación">
-                        <Pencil className="w-3 h-3" />
+                        <Pencil className="w-3 h-3" aria-hidden="true" />
                       </button>
                       <button onClick={() => { deleteLicitacion(l.id); toast.success('Licitación eliminada'); }} className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded" aria-label="Eliminar licitación">
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </div>
                   </div>
@@ -398,7 +403,7 @@ const CRM: React.FC = () => {
                 />
               </div>
             </div>
-            <button type="submit" className="mt-4 w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2.5 rounded-lg font-semibold transition-colors">
+            <button type="submit" className="mt-4 w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2.5 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               {editingId ? 'Guardar Cambios' : 'Crear Oportunidad'}
             </button>
           </form>

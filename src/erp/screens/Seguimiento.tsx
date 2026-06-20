@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useErp } from '../store';
 import type { AvanceObra, BitacoraEntry, Hito } from '../types';
 import { fmtPct, fmtQ, todayISO } from '../utils';
@@ -8,6 +8,7 @@ import { useChartConfig } from '../hooks/useChartConfig';
 import { CARD, CARD_TITLE, INPUT } from '../ui';
 import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X, CalendarClock } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type SeguimientoTab = 'resumen' | 'evm' | 'bitacora' | 'avances' | 'cronograma';
 
@@ -27,6 +28,8 @@ const Seguimiento: React.FC = () => {
   const [editingProject, setEditingProject] = useState<string | null>(null);
   const [pendingProgress, setPendingProgress] = useState<Record<string, string>>({});
   const [editingBit, setEditingBit] = useState<BitacoraEntry | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { setLoading(false); }, []);
 
   const proyData = useMemo(() => proyectos.map(p => {
     const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + safeNum(b.monto ?? b.costoTotal), 0);
@@ -319,7 +322,7 @@ const Seguimiento: React.FC = () => {
           </div>
           {editingBit && (
             <button type="button" onClick={cancelEditBitacora} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
-              <X className="w-3.5 h-3.5" /> Cancelar
+              <X className="w-3.5 h-3.5" aria-hidden="true" /> Cancelar
             </button>
           )}
         </div>
@@ -415,6 +418,21 @@ const Seguimiento: React.FC = () => {
       )}
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-56" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
