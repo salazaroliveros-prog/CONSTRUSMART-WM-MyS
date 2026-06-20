@@ -14,8 +14,7 @@ const VisorBIM: React.FC = () => {
   const [vinculos, setVinculos] = useState<Record<string, string>>({});
   const [elementoSeleccionado, setElementoSeleccionado] = useState<string | null>(null);
   const presupuestoActual = presupuestos.find(p => p.proyectoId === selProyecto);
-
-  const renglones = presupuestoActual?.renglones || [];
+  const renglones = useMemo(() => presupuestoActual?.renglones || [], [presupuestoActual]);
 
   const saveVinculos = (v: Record<string, string>) => {
     setVinculos(v);
@@ -50,7 +49,7 @@ const VisorBIM: React.FC = () => {
 
   // Cubicación generada desde renglones del presupuesto
   const cubicacionBIM = useMemo(() => {
-    if (!presupuestoActual || renglones.length === 0) return [];
+    if (renglones.length === 0) return [];
     
     return renglones.map((renglon, idx) => ({
       elementoId: renglon.id || `renglon-${idx}`,
@@ -58,7 +57,7 @@ const VisorBIM: React.FC = () => {
       unidad: renglon.unidad || 'm²',
       cantidad: renglon.cantidad || 0,
     }));
-  }, [presupuestoActual, renglones]);
+  }, [renglones]);
 
   // Avance desde campo (vales + avances registrados)
   const avanceCampo = useMemo(() => {

@@ -106,14 +106,14 @@ const APUAvanzado: React.FC = () => {
   const [resultadoMuroContencion, setResultadoMuroContencion] = useState<any>(null);
   const [calculandoMuroContencion, setCalculandoMuroContencion] = useState(false);
 
-  // Usar datos reales del store
-  const insumos = insumosBase || [];
-  const rendimientos = rendimientosCuadrilla || [];
-
-  const rubros = useMemo(() => [...new Set(insumos.map(i => i.rubro))], [insumos]);
+  const rubros = useMemo(() => {
+    const insumos = insumosBase || [];
+    return [...new Set(insumos.map(i => i.rubro))];
+  }, [insumosBase]);
   const [rubroFilter, setRubroFilter] = useState('');
 
   const filteredInsumos = useMemo(() => {
+    const insumos = insumosBase || [];
     let f = insumos;
     if (searchInsumo) {
       const q = searchInsumo.toLowerCase();
@@ -121,15 +121,16 @@ const APUAvanzado: React.FC = () => {
     }
     if (rubroFilter) f = f.filter(i => i.rubro === rubroFilter);
     return f;
-  }, [insumos, searchInsumo, rubroFilter]);
+  }, [insumosBase, searchInsumo, rubroFilter]);
 
   const filteredRendimientos = useMemo(() => {
+    const rendimientos = rendimientosCuadrilla || [];
     if (!searchRend) return rendimientos;
     const q = searchRend.toLowerCase();
     return rendimientos.filter(r =>
       r.actividad.toLowerCase().includes(q) || r.cuadrilla.toLowerCase().includes(q)
     );
-  }, [rendimientos, searchRend]);
+  }, [rendimientosCuadrilla, searchRend]);
 
   const proyecto = proyectos.find(p => p.id === proyectoId);
 
@@ -1459,13 +1460,13 @@ const APUAvanzado: React.FC = () => {
                   onChange={e => setRedInfraestructura(d => ({ ...d, diametroPulgadas: parseFloat(e.target.value) }))}
                   className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
                 >
-                  <option value="0.5">0.5"</option>
-                  <option value="1.0">1.0"</option>
-                  <option value="2.0">2.0"</option>
-                  <option value="3.0">3.0"</option>
-                  <option value="4.0">4.0"</option>
-                  <option value="6.0">6.0"</option>
-                  <option value="8.0">8.0"</option>
+                  <option value="0.5">0.5&quot;</option>
+                  <option value="1.0">1.0&quot;</option>
+                  <option value="2.0">2.0&quot;</option>
+                  <option value="3.0">3.0&quot;</option>
+                  <option value="4.0">4.0&quot;</option>
+                  <option value="6.0">6.0&quot;</option>
+                  <option value="8.0">8.0&quot;</option>
                 </select>
               </div>
 

@@ -426,7 +426,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }, 500);
     });
     return () => { unsub(); clearTimeout(timer); };
-  }, []);
+  }, [user?.id]);
 
   const allowedViews = useMemo(() => ALL_VIEWS, []);
 
@@ -437,7 +437,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     signInWithGoogle: realSignInWithGoogle,
     logout: realLogout,
     allowedViews, forceSync,
-  }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, realLogout, forceSync]);
+  }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, realLogout, allowedViews, forceSync]);
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
 };
