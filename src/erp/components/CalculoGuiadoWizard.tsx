@@ -200,7 +200,7 @@ const CalculoGuiadoWizard: React.FC<CalculoGuiadoWizardProps> = ({ onComplete, o
                 </p>
                 <div className="bg-muted/30 p-4 rounded-lg">
                   <p className="text-sm text-foreground">
-                    🔧 El formulario técnico específico para "{motorSeleccionado}" aparecerá aquí.
+                    🔧 El formulario técnico específico para &quot;{motorSeleccionado}&quot; aparecerá aquí.
                   </p>
                 </div>
               </div>
