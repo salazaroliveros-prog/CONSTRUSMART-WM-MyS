@@ -251,7 +251,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (useErpStore.getState().appSettings.empresaInfo) setEmpresaInfo(useErpStore.getState().appSettings.empresaInfo);
 
     migrateSecureStorage(user?.id).catch(err => safeLogger.warn('[Encryption] Migration error:', err));
-  }, []);
+  }, [user?.id]);
 
   const syncCooldownRef = useRef(false);
   const isOnlineRef = useRef(isOnline);

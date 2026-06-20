@@ -172,18 +172,18 @@ const Shell: React.FC = () => {
     'cuentas-pagar':   <CuentasPagar />,
     cotizaciones:      <Cotizaciones />,
     plantillas:        <PlantillasProyectos />,
-  }), []);
+  }), [SCREEN_KEYS]);
 
-  const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter(key => allowedViews.includes(key as any)), [allowedViews]);
+  const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter(key => allowedViews.includes(key as any)), [allowedViews, SCREEN_KEYS]);
 
   const setViewRef = useRef<ReturnType<typeof setView>>(setView);
   setViewRef.current = setView;
-  const SCREEN_SET = useMemo(() => new Set<string>(SCREEN_KEYS as readonly string[]), []);
+  const SCREEN_SET = useMemo(() => new Set<string>(SCREEN_KEYS as readonly string[]), [SCREEN_KEYS]);
 
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
     if (hash && SCREEN_SET.has(hash as string)) setViewRef.current(hash);
-  }, []);
+  }, [SCREEN_SET]);
 
   useEffect(() => {
     const onHash = () => {

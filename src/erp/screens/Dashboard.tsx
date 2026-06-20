@@ -348,7 +348,7 @@ const Dashboard: React.FC = () => {
       else if (table === 'erp_notificaciones') count += (notificacionesNoLeidas || []).length;
     }
     return { ...categoria, count, color: CATEGORIA_COLORS[index % CATEGORIA_COLORS.length] };
-  }), [proyectos, licitaciones, cotizacionesNegocio, presupuestos, hitos, riesgos, seguimientoEVM, avances, rendimientosCuadrilla, ncs, publicacionesMuro, ordenesCambio, planos, rfis, submittals, materiales, ordenes, valesSalida, recepciones, empleados, destajos, movimientos, cuentasCobrar, cuentasPagar, pagosProveedor, notificacionesNoLeidas]);
+  }), [proyectos, licitaciones, cotizacionesNegocio, presupuestos, hitos, riesgos, seguimientoEVM, avances, rendimientosCuadrilla, ncs, publicacionesMuro, ordenesCambio, planos, rfis, submittals, materiales, ordenes, valesSalida, recepciones, empleados, destajos, movimientos, cuentasCobrar, cuentasPagar, pagosProveedor, notificacionesNoLeidas, proveedores, ventasPaquetes]);
 
   const categoriaChartData = useMemo(() => categoriaResumen.map(c => ({ label: c.label.slice(0, 3), value: c.count, color: c.color })), [categoriaResumen]);
 
