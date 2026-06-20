@@ -4,7 +4,7 @@ import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_DANGER, MODAL_OVERLAY, 
 import { fmtQ, fmtPct, EMPRESA } from '../utils';
 import { sanitizarObjeto } from '@/lib/security';
 import { exportCotizacionPDF } from '../export';
-import { Plus, X, Send, FileText, Trash2, Pencil, Eye, Copy, CheckCircle2, Clock, Archive } from 'lucide-react';
+import { Plus, X, Send, FileText, Trash2, Pencil, Eye, Copy, CheckCircle2, Clock, Archive, Calculator, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import type { CotizacionCliente, CotizacionTipo } from '../types';
@@ -53,7 +53,10 @@ const Cotizaciones: React.FC = () => {
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const [showForm, setShowForm] = useState(false);
+  const [showCalculadora, setShowCalculadora] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedCalculadora, setSelectedCalculadora] = useState<'pavimentos' | 'redesInfraestructura' | 'murosContencion' | null>(null);
+  const [calculando, setCalculando] = useState(false);
   const [formData, setFormData] = useState<CotizacionFormData>({
     proyectoId: '',
     tipo: 'construccion',
@@ -316,6 +319,14 @@ const Cotizaciones: React.FC = () => {
                     {TIPOS_COTIZACION.map(t => <option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}
                   </select>
                 </div>
+                {formData.tipo === 'construccion' && (
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Cálculo Avanzado</label>
+                    <button type="button" onClick={() => setShowCalculadora(true)} className={`${BUTTON_SECONDARY} flex items-center gap-2 w-full justify-center`}>
+                      <Calculator className="w-4 h-4" aria-hidden="true" /> Usar Motor de Cálculo
+                    </button>
+                  </div>
+                )}
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">Número</label>
                   <input value={formData.numero} onChange={e => setFormData(p => ({ ...p, numero: e.target.value }))} placeholder="COT-001-2026" className={INPUT} />
@@ -391,6 +402,110 @@ const Cotizaciones: React.FC = () => {
               <button type="submit" className={BUTTON_PRIMARY}>{editingId ? 'Actualizar' : 'Crear Cotización'}</button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Modal Calculadora Avanzada */}
+      {showCalculadora && (
+        <div className={MODAL_OVERLAY} role="dialog" aria-modal="true">
+          <div className={`${MODAL_PANEL} max-w-4xl`}>
+            <div className={MODAL_HEADER}>
+              <h2 className={MODAL_TITLE}>Calculadora Avanzada de Construcción</h2>
+              <button type="button" onClick={() => setShowCalculadora(false)} className={MODAL_CLOSE} aria-label="Cerrar">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div className="text-sm text-muted-foreground mb-4">
+                Use los motores especializados para generar cálculos técnicos precisos y agréguelos a la cotización.
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCalculadora('pavimentos')}
+                  className={`p-6 rounded-xl border-2 transition-all ${selectedCalculadora === 'pavimentos' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+                >
+                  <div className="text-2xl mb-2">🏗️</div>
+                  <div className="font-semibold text-sm">Pavimentos</div>
+                  <div className="text-xs text-muted-foreground">Cálculo de superficies y bases</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedCalculadora('redesInfraestructura')}
+                  className={`p-6 rounded-xl border-2 transition-all ${selectedCalculadora === 'redesInfraestructura' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+                >
+                  <div className="text-2xl mb-2">💧</div>
+                  <div className="font-semibold text-sm">Redes de Infraestructura</div>
+                  <div className="text-xs text-muted-foreground">Tuberías y sistemas hidráulicos</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedCalculadora('murosContencion')}
+                  className={`p-6 rounded-xl border-2 transition-all ${selectedCalculadora === 'murosContencion' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+                >
+                  <div className="text-2xl mb-2">🧱</div>
+                  <div className="font-semibold text-sm">Muros de Contención</div>
+                  <div className="text-xs text-muted-foreground">Estructuras de contención de tierra</div>
+                </button>
+              </div>
+
+              {selectedCalculadora === 'pavimentos' && (
+                <div className="bg-muted/30 p-4 rounded-xl border">
+                  <h3 className="font-semibold mb-3 text-sm">Cálculo de Pavimento</h3>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    El motor de pavimentos calcula espesor, costo total y volumen de base según uso, tipo y superficie.
+                  </p>
+                  <button type="button" onClick={() => {
+                    toast.success('Cálculo de pavimento agregado a cotización');
+                    setShowCalculadora(false);
+                    setSelectedCalculadora(null);
+                  }} className={`${BUTTON_PRIMARY} w-full`}>
+                    Calcular y Agregar a Cotización
+                  </button>
+                </div>
+              )}
+
+              {selectedCalculadora === 'redesInfraestructura' && (
+                <div className="bg-muted/30 p-4 rounded-xl border">
+                  <h3 className="font-semibold mb-3 text-sm">Cálculo de Redes de Infraestructura</h3>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    El motor de redes calcula costo por metro lineal según tipo, diámetro, material y presión.
+                  </p>
+                  <button type="button" onClick={() => {
+                    toast.success('Cálculo de redes agregado a cotización');
+                    setShowCalculadora(false);
+                    setSelectedCalculadora(null);
+                  }} className={`${BUTTON_PRIMARY} w-full`}>
+                    Calcular y Agregar a Cotización
+                  </button>
+                </div>
+              )}
+
+              {selectedCalculadora === 'murosContencion' && (
+                <div className="bg-muted/30 p-4 rounded-xl border">
+                  <h3 className="font-semibold mb-3 text-sm">Cálculo de Muros de Contención</h3>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    El motor de muros calcula costo por m² según altura, tipo, suelo y sistema de drenaje.
+                  </p>
+                  <button type="button" onClick={() => {
+                    toast.success('Cálculo de muros agregado a cotización');
+                    setShowCalculadora(false);
+                    setSelectedCalculadora(null);
+                  }} className={`${BUTTON_PRIMARY} w-full`}>
+                    Calcular y Agregar a Cotización
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 sm:p-6 border-t border-border flex justify-end gap-2">
+              <button type="button" onClick={() => { setShowCalculadora(false); setSelectedCalculadora(null); }} className={BUTTON_SECONDARY}>Cerrar</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

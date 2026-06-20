@@ -930,3 +930,164 @@ export interface Subtipologia {
   normasEspeciales: string[];
   requisitosEspeciales: string[];
 }
+
+export interface MovimientoTierra {
+  tipo: 'excavacion' | 'relleno' | 'compactacion';
+  suelo: 'relleno' | 'arcilla' | 'arena' | 'roca_blanda' | 'roca_dura';
+  profundidad: 'menos_1m' | '1_2m' | '2_3m' | 'mas_3m';
+  acceso: 'retroexcavadora' | 'cargador' | 'manual';
+  drenaje: 'seco' | 'agua' | 'lodos';
+  volumen: number;
+}
+
+export interface ResultadoMovimientoTierra {
+  costoUnitario: number;
+  costoTotal: number;
+  tiempoEstimadoDias: number;
+  equipoRequerido: string[];
+  factorAjusteTotal: number;
+}
+
+export interface ParametrosClimaticosExtendido {
+  departamentoCodigo: string;
+  zonaClimatica: string;
+  altitudMinMsnm: number;
+  altitudMaxMsnm: number;
+  temperaturaMinC: number;
+  temperaturaMaxC: number;
+  humedadRelativaPromedioPct: number;
+  precipitacionPromedioMmMes: number;
+  vientoPromedioKmh: number;
+  factorCuradoConcreto: number;
+  factorRendimientoMO: number;
+  factorProteccionEncofrados: number;
+  estacionCritica: 'lluviosa' | 'seca' | 'ninguna';
+  mesesCriticos: string[];
+}
+
+export interface FactorClimatico {
+  factorCurado: number;
+  factorRendimiento: number;
+  factorProteccion: number;
+  factorAjusteEstacional: number;
+  observaciones: string;
+}
+
+export interface Pavimento {
+  uso: 'peatonal' | 'vehicular_liviano' | 'vehicular_medio' | 'vehicular_pesado';
+  tipo: 'adoquinado' | 'concreto' | 'asfaltico' | 'interlock' | 'ceramico';
+  tipoBase: 'c4' | 'piedra_picada' | 'grava' | 'arena';
+  tipoSello: 'arena' | 'cemento' | 'ninguno' | 'asfalto';
+  areaM2: number;
+}
+
+export interface ResultadoPavimento {
+  espesorCm: number;
+  costoSuperficieM2: number;
+  costoBaseM3: number;
+  costoSelloM2: number;
+  costoTotalM2: number;
+  costoTotal: number;
+  volumenBaseM3: number;
+  referenciaNorma: string;
+}
+
+export interface RedInfraestructura {
+  tipo: 'agua_potable' | 'alcantarillado_sanitario' | 'alcantarillado_pluvial';
+  diametroPulgadas: number;
+  material: 'pvc' | 'cpvc' | 'cobre' | 'hdpe' | 'concreto' | 'fierro_fundido';
+  presion: 'baja' | 'media' | 'alta';
+  longitudMl: number;
+}
+
+export interface ResultadoRedInfraestructura {
+  costoUnitarioMl: number;
+  costoTotal: number;
+  factorAjusteMaterial: number;
+  referenciaNorma: string;
+}
+
+export interface MuroContencion {
+  alturaM: number;
+  tipo: 'gravedad' | 'cantiliver' | 'atirantado' | 'tipo celular' | 'pantalla';
+  tipoCimentacion: 'zapata_corrida' | 'pilotes' | 'losa';
+  tipoSuelo: 'arcilla' | 'arena' | 'roca' | 'relleno_compactado' | 'granular';
+  tipoDrenaje: 'sin_drenaje' | 'drenaje_superficial' | 'drenaje_interno' | 'drenaje_completo';
+  longitudM: number;
+}
+
+export interface ResultadoMuroContencion {
+  costoUnitarioM2: number;
+  costoTotal: number;
+  factorAjusteTotal: number;
+  volumenConcretoM3: number;
+  referenciaNorma: string;
+}
+
+export interface CalculoProyecto {
+  id?: string;
+  proyectoId: string;
+  tipoCalcululo: 'apu' | 'dosificacion' | 'acero' | 'movimiento_tierra' | 'pavimento' | 'red_infraestructura' | 'muro_contencion' | 'climaticos';
+  fechaCalcululo?: Date;
+  usuarioId?: string;
+  parametros: Record<string, any>;
+  resultados: Record<string, any>;
+  versionCalculculo?: number;
+  origenCalcululo?: 'manual' | 'automatico' | 'importado';
+  observaciones?: string;
+  validado?: boolean;
+  validadoPor?: string;
+  fechaValidacion?: Date;
+  notasValidacion?: string;
+}
+
+export interface ComparacionCalculos {
+  id?: string;
+  calculoBaseId: string;
+  calculoComparadoId: string;
+  fechaComparacion?: Date;
+  diferencias: Record<string, any>;
+  tipoCambio?: string;
+  magnitudCambio?: number;
+  porcentajeCambio?: number;
+  aceptado?: boolean;
+  motivoRechazo?: string;
+}
+
+export interface NormativaDepartamental {
+  id?: string;
+  departamentoCodigo: 'GT-01' | 'GT-02' | 'GT-03' | 'GT-04' | 'GT-05' | 'GT-06' | 'GT-07' | 'GT-08' | 'GT-09' | 'GT-10' | 'GT-11' | 'GT-12' | 'GT-13' | 'GT-14' | 'GT-15' | 'GT-16' | 'GT-17' | 'GT-18' | 'GT-19' | 'GT-20' | 'GT-21' | 'GT-22';
+  tipoNorma: 'estructural' | 'urbanistica' | 'ambiental' | 'sismica' | 'electrica' | 'sanitaria';
+  codigoNorma: string;
+  nombreNorma: string;
+  descripcion?: string;
+  anoUltimaRevision?: number;
+  organismoEmisor?: string;
+  requisitosEspecificos: Record<string, any>;
+  aplicacion?: string;
+  activo?: boolean;
+}
+
+export interface EscalaProduccion {
+  id?: string;
+  tipoProyecto: string;
+  rangoTamano: string;
+  tamanoMinimo?: number;
+  tamanoMaximo?: number;
+  factorEconomia: number;
+  factorAdministracion: number;
+  factorImprevistos: number;
+  descripcion?: string;
+  activo?: boolean;
+}
+
+export interface Estacionalidad {
+  id?: string;
+  departamentoCodigo: string;
+  mes: number;
+  factorDisponibilidad: number;
+  factorCosto: number;
+  factorProductividad: number;
+  condicionesEspeciales?: string;
+  activo?: boolean;
+}

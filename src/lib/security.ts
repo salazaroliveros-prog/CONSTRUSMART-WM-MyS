@@ -25,7 +25,7 @@ export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'segui
   'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' |
   'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' |
   'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' |
-  'plantillas';
+  'plantillas' | 'analisis-costos';
 
 // ============================================================
 // JERARQUIA DE ROLES
@@ -97,7 +97,7 @@ export function getViewsByRole(rol: RolSistema): View[] {
     'rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos',
     'impuestos','entradas-almacen','ajustes',
     'hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones',
-    'plantillas'
+    'plantillas','analisis-costos'
   ];
 
   switch (rol) {

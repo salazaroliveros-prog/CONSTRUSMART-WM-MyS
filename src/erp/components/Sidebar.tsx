@@ -56,9 +56,10 @@ const ITEMS: NavItem[] = [
   { id: 'impuestos',         label: 'Impuestos',          icon: Percent,         group: 'Finanzas'     },
 
   // ── 7. ANÁLISIS / BI ──────────────────────────────────────────────────────
-  { id: 'predictivo',        label: 'Dashboard BI',       icon: PieChart,        group: 'Análisis BI'  },
+  { id: 'analisis-costos',    label: 'Análisis Costos',    icon: PieChart,        group: 'Análisis BI'  },
+  { id: 'predictivo',        label: 'Dashboard BI',       icon: BarChart3,       group: 'Análisis BI'  },
   { id: 'exportacion',       label: 'Exportación',        icon: Download,        group: 'Análisis BI'  },
-  { id: 'reportes',          label: 'Reportes Técnicos',  icon: BarChart3,       group: 'Análisis BI'  },
+  { id: 'reportes',          label: 'Reportes Técnicos',  icon: FileText,         group: 'Análisis BI'  },
 
   // ── 8. SISTEMA ────────────────────────────────────────────────────────────
   { id: 'notificaciones',    label: 'Notificaciones',     icon: Bell,            group: 'Sistema'      },
