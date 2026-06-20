@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { sanitizarObjeto } from '@/lib/security';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS } from '../utils';
-import type { AppSettings, Mutation } from '../store';
+import type { AppSettings, Mutation } from '../types';
 
 const RATE_LIMIT_MS = 100;
 const lastMutationCall: Record<string, number> = {};

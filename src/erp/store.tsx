@@ -16,8 +16,6 @@ import { hasSupabase, assertSupabase, supabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
 import { useAuth } from '@/hooks/useAuth';
 import { encryptionManager, migrateSecureStorage } from '@/lib/encryption';
-import type { AppSettings, Mutation } from './store';
-
 const proyectoSchemaInline = z.object({
   id: z.string(), nombre: z.string(), ubicacion: z.string(),
   tipologia: z.enum(['residencial','comercial','industrial','civil','publica']),

@@ -13,7 +13,7 @@ import type {
   PagoProveedor, CotizacionCliente, VentaPaquete, Destajo, RecepcionAlmacen, Incidente, Rol, CentroCosto,
 } from './types';
 import type { Plantilla } from './store/schemas/plantillas';
-import type { AppSettings, Mutation, LogAuditoria } from './store';
+import type { AppSettings, Mutation, LogAuditoria } from './types';
 
 const RATE_LIMIT_MS = 100;
 const lastMutationCall: Record<string, number> = {};
