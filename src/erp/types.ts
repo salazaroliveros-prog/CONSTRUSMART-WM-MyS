@@ -1091,3 +1091,49 @@ export interface Estacionalidad {
   condicionesEspeciales?: string;
   activo?: boolean;
 }
+
+export interface ReglaFactor {
+  id?: string;
+  nombre: string;
+  descripcion?: string;
+  tipo_factor: 'zona' | 'tipologia' | 'escalas' | 'estacional' | 'climatico' | 'normativa' | 'sobrecosto';
+  prioridad: number;
+  condicion: Record<string, any>;
+  factor_aplicacion: number;
+  operador: 'multiplicar' | 'sumar' | 'restar' | 'porcentaje';
+  ambito: 'global' | 'departamento' | 'municipio' | 'proyecto' | 'renglon';
+  departamento_id?: string;
+  municipio_id?: string;
+  tipologia?: string;
+  activo?: boolean;
+  fecha_inicio?: string;
+  fecha_fin?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface HistorialAplicacionRegla {
+  id?: string;
+  proyecto_id?: string;
+  renglon_id?: string;
+  regla_id: string;
+  valor_original: number;
+  valor_aplicado: number;
+  factor_aplicado: number;
+  contexto_aplicacion: Record<string, any>;
+  usuario_id?: string;
+  fecha_aplicacion?: string;
+  created_at?: string;
+}
+
+export interface ResultadoAplicacionReglas {
+  valor_final: number;
+  reglas_aplicadas: Array<{
+    regla_id: string;
+    nombre: string;
+    factor: number;
+    operador: string;
+    prioridad: number;
+  }>;
+  factor_total: number;
+}
