@@ -338,24 +338,22 @@ const APUAvanzado: React.FC = () => {
     }
   };
 
-  // Histórico de precios generado desde datos reales de insumos
   const historial = useMemo(() => {
-    if (insumos.length === 0) return [];
+    const base = insumosBase || [];
+    if (base.length === 0) return [];
     
-    // Agrupar por fecha actualización si existe
-    const fechasUnicas = [...new Set(insumos.map(i => i.fechaActualizacion).filter(Boolean))] as string[];
+    const fechasUnicas = [...new Set(base.map(i => i.fechaActualizacion).filter(Boolean))] as string[];
     if (fechasUnicas.length === 0) return [];
     
-    // Generar histórico basado en precios reales
     const historialGenerado = fechasUnicas.slice(-5).map(fecha => {
-      const insumosFecha = insumos.filter(i => i.fechaActualizacion === fecha);
+      const insumosFecha = base.filter(i => i.fechaActualizacion === fecha);
       const cemento = insumosFecha.find(i => i.nombre.toLowerCase().includes('cemento'))?.precioReferencia || 0;
       const hierro = insumosFecha.find(i => i.nombre.toLowerCase().includes('hierro') || i.nombre.toLowerCase().includes('varilla'))?.precioReferencia || 0;
       const arena = insumosFecha.find(i => i.nombre.toLowerCase().includes('arena'))?.precioReferencia || 0;
       const block = insumosFecha.find(i => i.nombre.toLowerCase().includes('block'))?.precioReferencia || 0;
       
       return {
-        fecha: fecha.slice(0, 7), // YYYY-MM
+        fecha: fecha.slice(0, 7),
         cemento: cemento || 0,
         hierro: hierro || 0,
         arena: arena || 0,
@@ -364,7 +362,7 @@ const APUAvanzado: React.FC = () => {
     });
     
     return historialGenerado;
-  }, [insumos]);
+  }, [insumosBase]);
 
 
 
