@@ -60,7 +60,7 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}): {
 
     // Registrar cierre por inactividad
     try {
-      await supabase.from('audit_log').insert({
+      await supabase.from('logs_sistema').insert({
         accion: 'sesion_expirada_inactividad',
         entidad: 'auth',
         entidad_id: (await supabase.auth.getUser()).data.user?.id,

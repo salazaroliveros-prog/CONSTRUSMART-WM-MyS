@@ -135,15 +135,15 @@ const MUTATION_TABLE_MAP: Record<string, string> = {
   addSubmittal:'erp_submittals',updateSubmittal:'erp_submittals',deleteSubmittal:'erp_submittals',
   addActivo:'erp_activos',updateActivo:'erp_activos',deleteActivo:'erp_activos',
   addCuadro:'erp_cuadros',updateCuadro:'erp_cuadros',deleteCuadro:'erp_cuadros',
-  addPagoProveedor:'erp_pagos_proveedor',updatePagoProveedor:'erp_pagos_proveedor',deletePagoProveedor:'erp_pagos_proveedor',
+  addPagoProveedor:'pagos_proveedores',updatePagoProveedor:'pagos_proveedores',deletePagoProveedor:'pagos_proveedores',
   addIncidente:'erp_incidentes',updateIncidente:'erp_incidentes',deleteIncidente:'erp_incidentes',
   addDestajo:'destajos',updateDestajo:'destajos',deleteDestajo:'destajos',
   addRecepcion:'recepciones_almacen',deleteRecepcion:'recepciones_almacen',
   addValeSalida:'erp_vales_salida',deleteValeSalida:'erp_vales_salida',
-  addPublicacionMuro:'erp_publicaciones_muro',
-  addComentarioMuro:'erp_publicaciones_muro',
-  likePublicacionMuro:'erp_publicaciones_muro',
-  addPrueba:'erp_pruebas',updatePrueba:'erp_pruebas',deletePrueba:'erp_pruebas',
+  addPublicacionMuro:'erp_muro',
+  addComentarioMuro:'erp_muro',
+  likePublicacionMuro:'erp_muro',
+  addPrueba:'erp_pruebas_laboratorio',updatePrueba:'erp_pruebas_laboratorio',deletePrueba:'erp_pruebas_laboratorio',
   addNC:'erp_no_conformidades',updateNC:'erp_no_conformidades',deleteNC:'erp_no_conformidades',
   addLiberacion:'erp_liberaciones_partida',updateLiberacion:'erp_liberaciones_partida',deleteLiberacion:'erp_liberaciones_partida',
   addNotificacion:'erp_notificaciones',markNotificacionLeida:'erp_notificaciones',deleteNotificacion:'erp_notificaciones',
@@ -310,7 +310,15 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const rawPayload = sanitizarObjeto(mutation.payload);
           const payload = toSnake(rawPayload);
 
-          if (mutation.type === 'clearProyectos') {
+          if (mutation.type === 'addComentarioMuro') {
+            const { publicacion_id, comentario } = payload;
+            const { error } = await supabase.rpc('append_comentario_muro', { pub_id: publicacion_id, comentario });
+            if (error) throw error;
+          } else if (mutation.type === 'likePublicacionMuro') {
+            const { id } = payload;
+            const { error } = await supabase.rpc('increment_likes_muro', { pub_id: id });
+            if (error) throw error;
+          } else if (mutation.type === 'clearProyectos') {
             const ids = (payload.ids as string[] | undefined) || [];
             if (ids.length) {
               const { error } = await supabase.from(table).delete().in('id', ids);
@@ -331,14 +339,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               const { error } = await supabase.from(table).delete().eq('id', id);
               if (error) throw error;
             }
-          } else if (mutation.type === 'addComentarioMuro') {
-            const { publicacionId, comentario } = payload;
-            const { error } = await supabase.rpc('append_comentario_muro', { publicacion_id: publicacionId, comentario });
-            if (error) throw error;
-          } else if (mutation.type === 'likePublicacionMuro') {
-            const { id } = payload;
-            const { error } = await supabase.rpc('increment_likes_muro', { row_id: id });
-            if (error) throw error;
           }
 
           processed.push(mutation.id);
