@@ -23,7 +23,9 @@ export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'segui
   'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' |
   'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' |
   'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' |
-  'planilla-destajos' | 'impuestos' | 'entradas-almacen';
+  'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' |
+  'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' |
+  'plantillas';
 
 // ============================================================
 // JERARQUIA DE ROLES
@@ -93,7 +95,9 @@ export function getViewsByRole(rol: RolSistema): View[] {
     'reportes','muro','ordenes-cambio','notificaciones','sso-calidad',
     'documentos','visor-bim','predictivo','exportacion','logistica',
     'rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos',
-    'impuestos','entradas-almacen'
+    'impuestos','entradas-almacen','ajustes',
+    'hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones',
+    'plantillas'
   ];
 
   switch (rol) {

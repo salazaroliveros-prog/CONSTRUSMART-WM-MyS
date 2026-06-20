@@ -1,14 +1,15 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useErp } from '../store';
 import {
   Receipt, Search, DollarSign, Users, Wrench, Save, Edit3,
-  BarChart3, Table as TableIcon, Settings, RefreshCw,
+  BarChart3, Table as TableIcon, Settings, RefreshCw, Calculator,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { FactorSobrecosto, InsumoBase, RendimientoCuadrilla } from '../types';
+import { FactorSobrecosto, InsumoBase, RendimientoCuadrilla, DosificacionConcreto } from '../types';
+import { ServicioMotorCalculo } from '../services/motorCalculo';
 
-type Tab = 'insumos' | 'rendimientos' | 'sobrecosto' | 'calculo' | 'historico';
+type Tab = 'insumos' | 'rendimientos' | 'sobrecosto' | 'calculo' | 'historico' | 'dosificacion';
 
 const FACTOR_DEFAULT: FactorSobrecosto = {
   indirectos: 12,
@@ -27,6 +28,23 @@ const APUAvanzado: React.FC = () => {
   const [proyectoId, setProyectoId] = useState('');
   const [factor, setFactor] = useState<FactorSobrecosto>(FACTOR_DEFAULT);
   const [editFactor, setEditFactor] = useState(false);
+
+  const [dosificacion, setDosificacion] = useState<DosificacionConcreto>({
+    resistencia: '3000psi',
+    tipo: 'estructura',
+    tamañoAgregado: '3/4"',
+    aditivos: 'ninguno',
+    curado: 'normal',
+    cementoSacosM3: 0,
+    arenaM3M3: 0,
+    piedraM3M3: 0,
+    aguaLtM3: 0,
+  });
+  const [volumen, setVolumen] = useState(1);
+  const [departamento, setDepartamento] = useState('');
+  const [calculando, setCalculando] = useState(false);
+  const [resultadoDosificacion, setResultadoDosificacion] = useState<any>(null);
+  const [departamentos, setDepartamentos] = useState<any[]>([]);
 
   // Usar datos reales del store
   const insumos = insumosBase || [];
@@ -81,6 +99,28 @@ const APUAvanzado: React.FC = () => {
     setEditFactor(false);
   };
 
+  useEffect(() => {
+    ServicioMotorCalculo.obtenerDepartamentos().then(setDepartamentos);
+  }, []);
+
+  const handleCalcularDosificacion = async () => {
+    setCalculando(true);
+    try {
+      const resultado = await ServicioMotorCalculo.calcularDosificacion(
+        dosificacion,
+        volumen,
+        departamento || undefined
+      );
+      setResultadoDosificacion(resultado);
+      toast.success('Dosificación calculada exitosamente');
+    } catch (error) {
+      toast.error('Error al calcular dosificación');
+      console.error(error);
+    } finally {
+      setCalculando(false);
+    }
+  };
+
   // Histórico de precios generado desde datos reales de insumos
   const historial = useMemo(() => {
     if (insumos.length === 0) return [];
@@ -125,6 +165,7 @@ const APUAvanzado: React.FC = () => {
     { id: 'insumos', label: 'Insumos Base', icon: TableIcon },
     { id: 'rendimientos', label: 'Rendimientos', icon: Users },
     { id: 'sobrecosto', label: 'Sobrecosto', icon: Settings },
+    { id: 'dosificacion', label: 'Dosificación Concreto', icon: Calculator },
     { id: 'calculo', label: 'Cálculo APU', icon: DollarSign },
     { id: 'historico', label: 'Histórico Precios', icon: BarChart3 },
   ];
@@ -351,6 +392,185 @@ const APUAvanzado: React.FC = () => {
                 )}
               </div>
             </div>
+          </div>
+        )}
+
+        {tab === 'dosificacion' && (
+          <div>
+            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Dosificación de Concreto</h2>
+            <p className="text-xs text-slate-400 mb-4">
+              Cálculo paramétrico de materiales basado en resistencia, tipo y condiciones ambientales
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Resistencia</label>
+                <select
+                  value={dosificacion.resistencia}
+                  onChange={e => setDosificacion(d => ({ ...d, resistencia: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="2000psi">2000 psi</option>
+                  <option value="2500psi">2500 psi</option>
+                  <option value="3000psi">3000 psi</option>
+                  <option value="3500psi">3500 psi</option>
+                  <option value="4000psi">4000 psi</option>
+                  <option value="4500psi">4500 psi</option>
+                  <option value="5000psi">5000 psi</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Tipo de Elemento</label>
+                <select
+                  value={dosificacion.tipo}
+                  onChange={e => setDosificacion(d => ({ ...d, tipo: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="cimentacion">Cimentación</option>
+                  <option value="estructura">Estructura</option>
+                  <option value="losa">Losa</option>
+                  <option value="pavimento">Pavimento</option>
+                  <option value="muro">Muro</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Tamaño de Agregado</label>
+                <select
+                  value={dosificacion.tamañoAgregado}
+                  onChange={e => setDosificacion(d => ({ ...d, tamañoAgregado: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="3/4&quot;">3/4&quot;</option>
+                  <option value="1&quot;">1&quot;</option>
+                  <option value="1.5&quot;">1.5&quot;</option>
+                  <option value="2&quot;">2&quot;</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Aditivos</label>
+                <select
+                  value={dosificacion.aditivos}
+                  onChange={e => setDosificacion(d => ({ ...d, aditivos: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="ninguno">Ninguno</option>
+                  <option value="acelerador">Acelerador</option>
+                  <option value="retardador">Retardador</option>
+                  <option value="plastificante">Plastificante</option>
+                  <option value="impermeabilizante">Impermeabilizante</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Tipo de Curado</label>
+                <select
+                  value={dosificacion.curado}
+                  onChange={e => setDosificacion(d => ({ ...d, curado: e.target.value as any }))}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="normal">Normal</option>
+                  <option value="acelerado">Acelerado</option>
+                  <option value="prolongado">Prolongado</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Volumen (m³)</label>
+                <input
+                  type="number"
+                  value={volumen}
+                  onChange={e => setVolumen(Math.max(0.1, parseFloat(e.target.value) || 1))}
+                  min={0.1}
+                  step={0.1}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-500 mb-1 block">Departamento (opcional)</label>
+                <select
+                  value={departamento}
+                  onChange={e => setDepartamento(e.target.value)}
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                >
+                  <option value="">Sin ajuste regional</option>
+                  {departamentos.map(dep => (
+                    <option key={dep.codigo} value={dep.codigo}>{dep.nombre}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="sm:col-span-2 md:col-span-3">
+                <button
+                  onClick={handleCalcularDosificacion}
+                  disabled={calculando}
+                  className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Calculator className="w-4 h-4" />
+                  {calculando ? 'Calculando...' : 'Calcular Dosificación'}
+                </button>
+              </div>
+            </div>
+
+            {resultadoDosificacion && (
+              <div className="mt-4 space-y-3">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                  <h3 className="font-bold text-slate-700 text-xs mb-3">Cantidades Calculadas</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                      <div className="text-[10px] text-blue-600 mb-1">Cemento</div>
+                      <div className="text-lg font-bold text-blue-700">{resultadoDosificacion.cementoSacos.toFixed(1)} sacos</div>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
+                      <div className="text-[10px] text-amber-600 mb-1">Arena</div>
+                      <div className="text-lg font-bold text-amber-700">{resultadoDosificacion.arenaM3.toFixed(2)} m³</div>
+                    </div>
+                    <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
+                      <div className="text-[10px] text-stone-600 mb-1">Piedra</div>
+                      <div className="text-lg font-bold text-stone-700">{resultadoDosificacion.piedraM3.toFixed(2)} m³</div>
+                    </div>
+                    <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
+                      <div className="text-[10px] text-cyan-600 mb-1">Agua</div>
+                      <div className="text-lg font-bold text-cyan-700">{resultadoDosificacion.aguaLt.toFixed(0)} lt</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-white/80">Costo Total</span>
+                      <div className="text-2xl font-bold text-white">Q{resultadoDosificacion.costoTotal.toFixed(2)}</div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-white/80">Factor Ajuste</span>
+                      <div className="text-lg font-bold text-white">x{resultadoDosificacion.factorAjuste.toFixed(2)}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                  <h3 className="font-bold text-slate-700 text-xs mb-2">Desglose de Costos</h3>
+                  <div className="grid grid-cols-3 gap-2 text-[10px]">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Cemento:</span>
+                      <span className="font-medium text-slate-700">Q{resultadoDosificacion.desgloseCostos.cemento.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Arena:</span>
+                      <span className="font-medium text-slate-700">Q{resultadoDosificacion.desgloseCostos.arena.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Piedra:</span>
+                      <span className="font-medium text-slate-700">Q{resultadoDosificacion.desgloseCostos.piedra.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

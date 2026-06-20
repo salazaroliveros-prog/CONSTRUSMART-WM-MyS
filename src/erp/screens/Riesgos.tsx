@@ -6,6 +6,11 @@ import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { todayISO } from '../utils';
 
+type RProb = Riesgo['probabilidad'];
+type RImp = Riesgo['impacto'];
+type RTipo = Riesgo['tipo'];
+type REstado = Riesgo['estado'];
+
 const calcularNivel = (prob: number, imp: number): Riesgo['nivel'] => {
   const score = prob * imp;
   if (score >= 15) return 'critico';
@@ -21,9 +26,9 @@ const Riesgos: React.FC = () => {
     proyectoId: '',
     nombre: '',
     descripcion: '',
-    tipo: 'tecnico' as Riesgo['tipo'],
-    probabilidad: 2 as 1|2|3|4|5,
-    impacto: 2 as 1|2|3|4|5,
+    tipo: 'tecnico' as RTipo,
+    probabilidad: 2 as RProb,
+    impacto: 2 as RImp,
     planMitigacion: '',
     responsable: '',
     costoSoporte: 0,
@@ -216,7 +221,7 @@ const Riesgos: React.FC = () => {
             </select>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as any }))} className={INPUT}>
+            <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as RTipo }))} className={INPUT}>
               <option value="tecnico">Técnico</option>
               <option value="financiero">Financiero</option>
               <option value="cronograma">Cronograma</option>
@@ -227,11 +232,11 @@ const Riesgos: React.FC = () => {
             </select>
             <div className="flex items-center gap-2">
               <label className="text-[10px] text-slate-500">Probabilidad (1-5)</label>
-              <input type="number" min={1} max={5} value={form.probabilidad} onChange={e => setForm(p => ({ ...p, probabilidad: Math.min(5, Math.max(1, +e.target.value)) as any }))} className={INPUT} />
+              <input type="number" min={1} max={5} value={form.probabilidad} onChange={e => setForm(p => ({ ...p, probabilidad: Math.min(5, Math.max(1, +e.target.value)) as RProb }))} className={INPUT} />
             </div>
             <div className="flex items-center gap-2">
               <label className="text-[10px] text-slate-500">Impacto (1-5)</label>
-              <input type="number" min={1} max={5} value={form.impacto} onChange={e => setForm(p => ({ ...p, impacto: Math.min(5, Math.max(1, +e.target.value)) as any }))} className={INPUT} />
+              <input type="number" min={1} max={5} value={form.impacto} onChange={e => setForm(p => ({ ...p, impacto: Math.min(5, Math.max(1, +e.target.value)) as RImp }))} className={INPUT} />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -275,7 +280,7 @@ const Riesgos: React.FC = () => {
                 {r.planMitigacion && <div className="mt-1 text-[10px] text-slate-500 italic">🛡️ {r.planMitigacion}</div>}
               </div>
               <div className="flex gap-1 shrink-0 ml-2">
-                <select value={r.estado} onChange={e => actualizarEstado(r.id, e.target.value as any)}
+                <select value={r.estado} onChange={e => actualizarEstado(r.id, e.target.value as REstado)}
                   className={`text-[10px] px-1.5 py-1 rounded-lg border ${r.estado === 'mitigado' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : r.estado === 'materializado' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
                   <option value="identificado">Identificado</option>
                   <option value="en_mitigacion">En mitigación</option>

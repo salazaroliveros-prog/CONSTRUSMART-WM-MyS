@@ -352,16 +352,6 @@ const Dashboard: React.FC = () => {
 
   const categoriaChartData = useMemo(() => categoriaResumen.map(c => ({ label: c.label.slice(0, 3), value: c.count, color: c.color })), [categoriaResumen]);
 
-  const modulos = categoriaResumen.map((categoria, index) => ({
-    id: categoria.id,
-    label: categoria.label,
-    targetView: categoria.targetView,
-    icon: [Building2, Calculator, Activity, Warehouse, Users, Wallet, BarChart3, Database][index],
-    c: `from-[${categoria.color}] to-slate-900`,
-    count: categoria.count,
-    tables: categoria.tables,
-  }));
-
   const SkeletonCard: React.FC<{ h?: string }> = ({ h = 'h-8' }) => (
     <div className="rounded-lg sm:rounded-2xl bg-card border border-border overflow-hidden relative">
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />

@@ -184,6 +184,7 @@ export interface Proyecto {
   nombre: string;
   descripcion?: string;
   tipologia: Tipologia;
+  subtipo?: string;
   tipoObra?: 'nueva' | 'remodelacion' | 'ampliacion';
   cliente?: string;
   clienteNit?: string;
@@ -844,4 +845,88 @@ export interface CapturaRendimiento {
   rendimientoReal: number;
   eficiencia: number;
   observaciones?: string;
+}
+
+// ============================================================
+// MOTOR DE CÁLCULO AVANZADO - NUEVAS INTERFACES
+// ============================================================
+
+export interface DosificacionConcreto {
+  resistencia: '2000psi' | '2500psi' | '3000psi' | '3500psi' | '4000psi' | '4500psi' | '5000psi';
+  tipo: 'cimentacion' | 'estructura' | 'losa' | 'pavimento' | 'muro';
+  tamañoAgregado: '3/4"' | '1"' | '1.5"' | '2"';
+  aditivos: 'ninguno' | 'acelerador' | 'retardador' | 'plastificante' | 'impermeabilizante';
+  curado: 'normal' | 'acelerado' | 'prolongado';
+  cementoSacosM3: number;
+  arenaM3M3: number;
+  piedraM3M3: number;
+  aguaLtM3: number;
+}
+
+export interface ResultadoDosificacion {
+  cementoSacos: number;
+  arenaM3: number;
+  piedraM3: number;
+  aguaLt: number;
+  factorAjuste: number;
+  costoTotal: number;
+  desgloseCostos: {
+    cemento: number;
+    arena: number;
+    piedra: number;
+  };
+}
+
+export interface DepartamentoGT {
+  codigo: string;
+  nombre: string;
+  capital: string;
+  zonaSismica: '1' | '2' | '3' | '4';
+  coeficienteSismico: number;
+  cargaVivaMinimaKgM2: number;
+  altitudPromedioMsnm: number;
+  zonaClimatica: string;
+  temperaturaPromedioC: number;
+  precipitacionAnualMm: number;
+  factorCostoBase: number;
+}
+
+export interface MunicipioGT {
+  codigo: string;
+  nombre: string;
+  departamentoCodigo: string;
+  altitudMsnm: number;
+  distanciaCapitalKm: number;
+  accesibilidad: 'excelente' | 'buena' | 'regular' | 'deficiente';
+  factorCosto: number;
+  factorRendimiento: number;
+  normaMunicipal: string;
+}
+
+export interface ParametrosClimaticos {
+  departamentoCodigo: string;
+  zonaClimatica: string;
+  altitudMinMsnm: number;
+  altitudMaxMsnm: number;
+  temperaturaMinC: number;
+  temperaturaMaxC: number;
+  humedadRelativaPromedioPct: number;
+  precipitacionPromedioMmMes: number;
+  vientoPromedioKmh: number;
+  factorCuradoConcreto: number;
+  factorRendimientoMO: number;
+  factorProteccionEncofrados: number;
+  estacionCritica: 'lluviosa' | 'seca' | 'ninguna';
+  mesesCriticos: string[];
+}
+
+export interface Subtipologia {
+  tipologia: 'residencial' | 'comercial' | 'industrial' | 'civil' | 'publica';
+  subtipo: string;
+  descripcion: string;
+  factorCosto: number;
+  factorRendimiento: number;
+  caracteristicas: string[];
+  normasEspeciales: string[];
+  requisitosEspeciales: string[];
 }
