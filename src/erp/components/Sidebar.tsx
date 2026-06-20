@@ -8,7 +8,7 @@ import {
   HardHat, DollarSign, Settings, Flag,
   CreditCard, Landmark, Percent, TriangleAlert,
    ClipboardList, PieChart, Cpu, Truck, FileCog, Package,
-   FileText, FileDown,
+   FileText, FileDown, Copy,
 } from 'lucide-react';
 
 interface NavItem { id: View; label: string; icon: React.ElementType; group: string }
@@ -27,6 +27,7 @@ const ITEMS: NavItem[] = [
   { id: 'baseprecios',       label: 'Base de Precios',    icon: BookOpen,        group: 'Planificación'},
   { id: 'hitos',             label: 'Hitos',              icon: Flag,            group: 'Planificación'},
   { id: 'riesgos',           label: 'Riesgos',            icon: TriangleAlert,   group: 'Planificación'},
+  { id: 'plantillas',       label: 'Plantillas',         icon: Copy,            group: 'Planificación'},
 
   // ── 3. EJECUCIÓN / CAMPO ──────────────────────────────────────────────────
   { id: 'seguimiento',       label: 'Seguimiento EVM',    icon: ClipboardCheck,  group: 'Ejecución'    },

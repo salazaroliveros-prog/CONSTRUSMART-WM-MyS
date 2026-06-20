@@ -212,16 +212,16 @@ const BasePrecios: React.FC = () => {
             ))}
           </select>
           <button onClick={handleImportarCSV} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-colors">
-            <Upload className="w-3.5 h-3.5" /> Importar CSV
+            <Upload className="w-3.5 h-3.5" aria-hidden="true" /> Importar CSV
           </button>
           <button onClick={handleExportarCSV} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors">
-            <Download className="w-3.5 h-3.5" /> Exportar CSV
+            <Download className="w-3.5 h-3.5" aria-hidden="true" /> Exportar CSV
           </button>
           <button onClick={() => setShowConvertir(!showConvertir)} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors">
-            <ArrowUpDown className="w-3.5 h-3.5" /> Convertir
+            <ArrowUpDown className="w-3.5 h-3.5" aria-hidden="true" /> Convertir
           </button>
           <button onClick={() => { setShowAgregar(true); setNuevoNombre(''); setNuevoPrecio(0); setNuevoUnidad(''); setNuevoRubro(''); }} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">
-            <Plus className="w-3.5 h-3.5" /> Nuevo
+            <Plus className="w-3.5 h-3.5" aria-hidden="true" /> Nuevo
           </button>
         </div>
       </div>
@@ -371,14 +371,14 @@ const BasePrecios: React.FC = () => {
                     <td className="py-2 px-2 text-center">
                       {editando === ins.id ? (
                         <div className="flex justify-center gap-1">
-                          <button onClick={() => handleGuardarEdicion(ins.id)} className="p-1 text-emerald-500 hover:text-emerald-600"><Check className="w-3 h-3" /></button>
-                          <button onClick={() => setEditando(null)} className="p-1 text-slate-400 hover:text-slate-600"><X className="w-3 h-3" /></button>
+                          <button onClick={() => handleGuardarEdicion(ins.id)} className="p-1 text-emerald-500 hover:text-emerald-600" aria-label="Guardar cambios"><Check className="w-3 h-3" aria-hidden="true" /></button>
+                          <button onClick={() => setEditando(null)} className="p-1 text-slate-400 hover:text-slate-600" aria-label="Cancelar edición"><X className="w-3 h-3" aria-hidden="true" /></button>
                         </div>
                       ) : (
                         <div className="flex justify-center gap-1">
-<button onClick={() => { setEditando(ins.id); setNuevoNombre(ins.nombre); setNuevoPrecio(ins.precioReferencia); setNuevoUnidad(ins.unidad); setNuevoRubro(ins.rubro); }} className="p-1 text-slate-400 hover:text-teal-500" aria-label="Editar insumo"><Edit3 className="w-3 h-3" /></button>
-                          <button onClick={() => handleActivarDesactivar(ins.id)} className={`p-1 ${inactivo ? 'text-emerald-400' : 'text-red-400 hover:text-red-500'}`}>
-                            {inactivo ? <RefreshCw className="w-3 h-3" /> : <Trash2 className="w-3 h-3" />}
+<button onClick={() => { setEditando(ins.id); setNuevoNombre(ins.nombre); setNuevoPrecio(ins.precioReferencia); setNuevoUnidad(ins.unidad); setNuevoRubro(ins.rubro); }} className="p-1 text-slate-400 hover:text-teal-500" aria-label="Editar insumo"><Edit3 className="w-3 h-3" aria-hidden="true" /></button>
+                          <button onClick={() => handleActivarDesactivar(ins.id)} className={`p-1 ${inactivo ? 'text-emerald-400' : 'text-red-400 hover:text-red-500'}`} aria-label={inactivo ? 'Activar insumo' : 'Eliminar insumo'}>
+                            {inactivo ? <RefreshCw className="w-3 h-3" aria-hidden="true" /> : <Trash2 className="w-3 h-3" aria-hidden="true" />}
                           </button>
                         </div>
                       )}

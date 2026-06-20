@@ -77,6 +77,7 @@ const Riesgos            = lazy(() => import('@/erp/screens/Riesgos'));
 const CuentasCobrar      = lazy(() => import('@/erp/screens/CuentasCobrar'));
 const CuentasPagar       = lazy(() => import('@/erp/screens/CuentasPagar'));
 const Cotizaciones       = lazy(() => import('@/erp/screens/Cotizaciones'));
+const PlantillasProyectos = lazy(() => import('@/erp/screens/PlantillasProyectos'));
 
 const ScreenLoader: React.FC = () => (
   <div className="flex items-center justify-center h-64" role="status" aria-label="Cargando módulo">
@@ -134,7 +135,7 @@ const Shell: React.FC = () => {
 
   const viewName = view.split(':')[0];
 
-  const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','rendimientos'] as const;
+  const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','rendimientos'] as const;
 
   const screens = useMemo<Record<string, React.ReactNode>>(() => ({
     dashboard:         <Dashboard />,
@@ -170,6 +171,7 @@ const Shell: React.FC = () => {
     'cuentas-cobrar':  <CuentasCobrar />,
     'cuentas-pagar':   <CuentasPagar />,
     cotizaciones:      <Cotizaciones />,
+    plantillas:        <PlantillasProyectos />,
   }), []);
 
   const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter(key => allowedViews.includes(key as any)), [allowedViews]);

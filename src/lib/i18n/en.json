@@ -46,7 +46,8 @@
       "visor-bim": "BIM Viewer",
       "exportacion": "Smart Export",
       "ajustes": "Settings",
-      "cotizaciones": "Quotes"
+      "cotizaciones": "Quotes",
+      "plantillas": "Project Templates"
     }
   },
   "common": {

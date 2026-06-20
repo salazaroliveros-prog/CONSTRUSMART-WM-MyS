@@ -16,3 +16,5 @@ export { muroSchema, notificacionSchema } from './social';
 export { liberacionSchema, pruebaSchema, noConformidadSchema } from './calidad';
 export { activoSchema, licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema, destajoSchema, recepcionAlmacenSchema } from './gestion';
 export { centroCostoSchema } from './admin';
+export { plantillaSchema } from './plantillas';
+export type { Plantilla, PlantillaStore } from './plantillas';

@@ -12,6 +12,7 @@ import type {
   NoConformidad, LiberacionPartida, Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo,
   PagoProveedor, CotizacionCliente, VentaPaquete, Destajo, RecepcionAlmacen, Incidente, Rol, CentroCosto,
 } from './types';
+import type { Plantilla } from './store/schemas/plantillas';
 import type { AppSettings, Mutation, LogAuditoria } from './store';
 
 const RATE_LIMIT_MS = 100;
@@ -41,6 +42,7 @@ interface ErpData {
   liberaciones: LiberacionPartida[]; planos: Plano[]; rfis: RFI[]; submittals: Submittal[];
   activos: ActivoHerramienta[]; cuadros: CuadroComparativo[]; pagosProveedor: PagoProveedor[];
   destajos: Destajo[]; recepciones: RecepcionAlmacen[]; centrosCosto: CentroCosto[];
+  plantillas: Plantilla[];
   mutationQueue: Mutation[]; syncMessage: string; syncCooldown: boolean; notificaciones: Notificacion[];
   auditLog: LogAuditoria[]; syncStatus: 'idle' | 'loading' | 'synced' | 'queued' | 'error';
   lastSyncedAt?: string; syncError?: string;
@@ -82,6 +84,7 @@ interface ErpActions {
   setDestajos: (v: Destajo[] | ((prev: Destajo[]) => Destajo[])) => void;
   setRecepciones: (v: RecepcionAlmacen[] | ((prev: RecepcionAlmacen[]) => RecepcionAlmacen[])) => void;
   setCentrosCosto: (v: CentroCosto[] | ((prev: CentroCosto[]) => CentroCosto[])) => void;
+  setPlantillas: (v: Plantilla[] | ((prev: Plantilla[]) => Plantilla[])) => void;
   setMutationQueue: (v: Mutation[] | ((prev: Mutation[]) => Mutation[])) => void;
   setSyncMessage: (v: string) => void;
   setSyncCooldown: (v: boolean) => void;
@@ -98,6 +101,20 @@ interface ErpActions {
   updateAppSettings: (patch: Partial<AppSettings>) => void;
   deleteOrden: (id: string) => void;
   deleteNotificacion: (id: string) => void;
+  addPlantilla: (p: Omit<Plantilla, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updatePlantilla: (id: string, patch: Partial<Plantilla>) => void;
+  deletePlantilla: (id: string) => void;
+  clonarPlantilla: (plantillaId: string, nuevoNombre: string) => void;
+  exportarPlantilla: (plantillaId: string) => string;
+  importarPlantilla: (plantillaJson: string) => void;
+  sugerirPlantillas: (caracteristicas: { tipologia?: string; cliente?: string; tipoObra?: string }) => Plantilla[];
+  crearNuevaVersionPlantilla: (plantillaId: string, cambios: string, usuario?: string) => void;
+  restaurarVersionPlantilla: (plantillaId: string, version: number) => void;
+  crearProyectoDesdePlantilla: (plantillaId: string, proyectoData: Partial<Proyecto>) => void;
+  actualizarMetricasPlantilla: (plantillaId: string) => void;
+  actualizarMetricasTodasPlantillas: () => void;
+  validarIntegridadPlantilla: (plantillaId: string) => { valido: boolean; errores: string[] };
+  toggleFavoritoPlantilla: (plantillaId: string) => void;
   enqueueMutation: (type: string, payload: Record<string, any>) => string;
   addAuditEntry: (entry: Omit<LogAuditoria, 'id' | 'createdAt'>) => void;
   setAuditLog: (v: LogAuditoria[] | ((prev: LogAuditoria[]) => LogAuditoria[])) => void;
@@ -156,6 +173,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'recepciones_almacen','erp_pruebas_laboratorio','ventas_paquetes',
       'pagos_proveedores','erp_renglones','erp_insumos','erp_sub_renglones',
       'erp_insumos_base','erp_rendimientos_cuadrilla','centros_costo',
+      'erp_plantillas_proyectos',
     ] as const;
 
     const TABLE_MAP: Record<string, string> = {
@@ -176,7 +194,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       ventas_paquetes:'ventasPaquetes',pagos_proveedores:'pagosProveedor',
       erp_renglones:'renglones',erp_insumos:'insumos',erp_sub_renglones:'subRenglones',
       erp_insumos_base:'insumosBase',erp_rendimientos_cuadrilla:'rendimientosCuadrilla',
-      centros_costo:'centrosCosto',
+      centros_costo:'centrosCosto',erp_plantillas_proyectos:'plantillas',
     };
 
     const fetchTable = async (table: string) => {
@@ -275,7 +293,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   ventasPaquetes: [], bitacora: [], pruebas: [], ncs: [], valesSalida: [],
   seguimientoEVM: [], incidentes: [], publicacionesMuro: [], liberaciones: [], planos: [],
   rfis: [], submittals: [], activos: [], cuadros: [], pagosProveedor: [], destajos: [],
-    recepciones: [], centrosCosto: [],
+    recepciones: [], centrosCosto: [], plantillas: [],
   mutationQueue: [], syncMessage: '', syncCooldown: false, syncStatus: 'idle',
   notificaciones: [],
   auditLog: [],
@@ -316,6 +334,8 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setPagosProveedor: (v) => set(typeof v === 'function' ? { pagosProveedor: v(get().pagosProveedor) } : { pagosProveedor: v }),
   setDestajos: (v) => set(typeof v === 'function' ? { destajos: v(get().destajos) } : { destajos: v }),
   setRecepciones: (v) => set(typeof v === 'function' ? { recepciones: v(get().recepciones) } : { recepciones: v }),
+  setCentrosCosto: (v) => set(typeof v === 'function' ? { centrosCosto: v(get().centrosCosto) } : { centrosCosto: v }),
+  setPlantillas: (v) => set(typeof v === 'function' ? { plantillas: v(get().plantillas) } : { plantillas: v }),
   setMutationQueue: (v) => set(typeof v === 'function' ? { mutationQueue: v(get().mutationQueue) } : { mutationQueue: v }),
   setSyncMessage: (v) => set({ syncMessage: v }),
   setSyncCooldown: (v) => set({ syncCooldown: v }),
@@ -680,6 +700,147 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     });
   },
 
+  actualizarMetricasPlantilla: (plantillaId: string) => {
+    const plantilla = get().plantillas.find(p => p.id === plantillaId);
+    if (!plantilla || !plantilla.metricas) return;
+
+    const proyectoIds = plantilla.metricas.proyectoIds || [];
+    const proyectos = get().proyectos.filter(p => proyectoIds.includes(p.id));
+
+    const proyectosCompletados = proyectos.filter(p => p.estado === 'finalizado').length;
+    const proyectosActivos = proyectos.filter(p => p.estado === 'ejecucion').length;
+    const proyectosPausados = proyectos.filter(p => p.estado === 'pausado').length;
+
+    const avgAvance = proyectos.length > 0 ? proyectos.reduce((sum, p) => sum + (p.avanceFisico || 0), 0) / proyectos.length : 0;
+
+    const proyectosConMargen = proyectos.filter(p => p.margenUtilidadObjetivo !== undefined);
+    const avgMargen = proyectosConMargen.length > 0 ? proyectosConMargen.reduce((sum, p) => sum + (p.margenUtilidadObjetivo || 0), 0) / proyectosConMargen.length : 0;
+
+    const exitoPromedio = proyectoIds.length > 0 ? ((proyectosCompletados / proyectoIds.length) * 100) : 50;
+
+    const updatedMetricas = {
+      ...plantilla.metricas,
+      proyectosCompletados,
+      proyectosActivos,
+      proyectosPausados,
+      avgAvanceProyectos: avgAvance,
+      avgMargenProyectos: avgMargen,
+      exitoPromedio,
+    };
+
+    get().updatePlantilla(plantillaId, { metricas: updatedMetricas });
+  },
+
+  actualizarMetricasTodasPlantillas: () => {
+    const plantillas = get().plantillas;
+    plantillas.forEach(p => {
+      if (p.metricas && p.metricas.proyectoIds && p.metricas.proyectoIds.length > 0) {
+        get().actualizarMetricasPlantilla(p.id);
+      }
+    });
+  },
+
+  validarIntegridadPlantilla: (plantillaId) => {
+    const plantilla = get().plantillas.find(p => p.id === plantillaId);
+    if (!plantilla) {
+      return { valido: false, errores: ['Plantilla no encontrada'] };
+    }
+
+    const errores: string[] = [];
+
+    if (!plantilla.nombre || plantilla.nombre.trim() === '') {
+      errores.push('Nombre de plantilla es requerido');
+    }
+
+    if (!plantilla.categoria) {
+      errores.push('Categoría de plantilla es requerida');
+    }
+
+    if (!plantilla.configuracion) {
+      errores.push('Configuración de plantilla es requerida');
+    } else {
+      if (!plantilla.configuracion.tipologia) {
+        errores.push('Tipología en configuración es requerida');
+      }
+      if (!plantilla.configuracion.tipoObra) {
+        errores.push('Tipo de obra en configuración es requerido');
+      }
+      if (!plantilla.configuracion.moneda) {
+        errores.push('Moneda en configuración es requerida');
+      }
+    }
+
+    if (plantilla.estructuraPresupuesto && plantilla.estructuraPresupuesto.length > 0) {
+      plantilla.estructuraPresupuesto.forEach((renglon, idx) => {
+        if (!renglon.nombre || renglon.nombre.trim() === '') {
+          errores.push(`Renglón ${idx + 1}: nombre es requerido`);
+        }
+        if (!renglon.unidad || renglon.unidad.trim() === '') {
+          errores.push(`Renglón ${idx + 1}: unidad es requerida`);
+        }
+        if (renglon.cantidad < 0) {
+          errores.push(`Renglón ${idx + 1}: cantidad no puede ser negativa`);
+        }
+      });
+    }
+
+    if (plantilla.hitosTemplate && plantilla.hitosTemplate.length > 0) {
+      plantilla.hitosTemplate.forEach((hito, idx) => {
+        if (!hito.nombre || hito.nombre.trim() === '') {
+          errores.push(`Hito ${idx + 1}: nombre es requerido`);
+        }
+        if (hito.diasDesdeInicio < 0) {
+          errores.push(`Hito ${idx + 1}: días desde inicio no puede ser negativo`);
+        }
+      });
+    }
+
+    if (plantilla.riesgosTemplate && plantilla.riesgosTemplate.length > 0) {
+      plantilla.riesgosTemplate.forEach((riesgo, idx) => {
+        if (!riesgo.categoria || riesgo.categoria.trim() === '') {
+          errores.push(`Riesgo ${idx + 1}: categoría es requerida`);
+        }
+        if (!riesgo.descripcion || riesgo.descripcion.trim() === '') {
+          errores.push(`Riesgo ${idx + 1}: descripción es requerida`);
+        }
+      });
+    }
+
+    if (plantilla.checklistCalidad && plantilla.checklistCalidad.length > 0) {
+      plantilla.checklistCalidad.forEach((item, idx) => {
+        if (!item.categoria || item.categoria.trim() === '') {
+          errores.push(`Checklist item ${idx + 1}: categoría es requerida`);
+        }
+        if (!item.item || item.item.trim() === '') {
+          errores.push(`Checklist item ${idx + 1}: item es requerido`);
+        }
+      });
+    }
+
+    return {
+      valido: errores.length === 0,
+      errores,
+    };
+  },
+
+  toggleFavoritoPlantilla: (plantillaId) => {
+    const plantilla = get().plantillas.find(p => p.id === plantillaId);
+    if (!plantilla) { console.warn(`[toggleFavoritoPlantilla] Plantilla ${plantillaId} no encontrada`); return; }
+
+    get().updatePlantilla(plantillaId, {
+      favorita: !plantilla.favorita,
+      updatedAt: new Date().toISOString(),
+    });
+
+    get().addAuditEntry({
+      usuarioNombre: 'sistema',
+      accion: plantilla.favorita ? 'quitar_favorito' : 'marcar_favorito',
+      entidad: 'plantilla',
+      entidadId: plantillaId,
+      valoresNuevos: { favorita: !plantilla.favorita }
+    });
+  },
+
   notifyAvanceRegistrado: (proyectoId: string, porcentaje: number) => {
     const proyecto = get().proyectos.find(p => p.id === proyectoId);
     if (proyecto) {
@@ -698,6 +859,379 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     const cuentasPagar = get().cuentasPagar.filter(cp => cp.proyectoId === proyectoId);
     const totalPagado = cuentasPagar.reduce((acc, cp) => acc + (cp.monto || 0), 0);
     return Math.min(Math.round((totalPagado / totalP) * 100), 100);
+  },
+
+  addPlantilla: (p) => {
+    const n = { ...p, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: 1, usosCount: 0 } as Plantilla;
+    get().setPlantillas(prev => [n, ...prev]);
+    get().enqueueMutation('addPlantilla', n);
+    get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'crear', entidad: 'plantilla', entidadId: n.id, valoresNuevos: { nombre: n.nombre, categoria: n.categoria } });
+  },
+  updatePlantilla: (id, patch) => {
+    const existing = get().plantillas.find(p => p.id === id);
+    if (!existing) return;
+    const updated = { ...patch, updatedAt: new Date().toISOString() };
+    get().setPlantillas(prev => prev.map(p => p.id === id ? { ...p, ...updated } : p));
+    get().enqueueMutation('updatePlantilla', { id, ...updated });
+    get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'actualizar', entidad: 'plantilla', entidadId: id, valoresAnteriores: { nombre: existing.nombre }, valoresNuevos: { ...patch } });
+  },
+  deletePlantilla: (id) => {
+    const p = get().plantillas.find(x => x.id === id);
+    get().setPlantillas(prev => prev.filter(p => p.id !== id));
+    get().enqueueMutation('deletePlantilla', { id });
+    if (p) get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'eliminar', entidad: 'plantilla', entidadId: id, valoresAnteriores: { nombre: p.nombre } });
+  },
+  clonarPlantilla: (plantillaId, nuevoNombre) => {
+    const plantilla = get().plantillas.find(p => p.id === plantillaId);
+    if (!plantilla) { console.warn(`[clonarPlantilla] Plantilla ${plantillaId} no encontrada`); return; }
+
+    const clon: Plantilla = {
+      ...plantilla,
+      id: uid(),
+      nombre: nuevoNombre || `${plantilla.nombre} (Copia)`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      version: 1,
+      usosCount: 0,
+      metricas: {
+        proyectoIds: [],
+        proyectosCompletados: 0,
+        proyectosActivos: 0,
+        proyectosPausados: 0,
+        avgAvanceProyectos: 0,
+        avgMargenProyectos: 0,
+        exitoPromedio: 50,
+      },
+      proyectoOrigenId: plantillaId,
+    };
+
+    get().setPlantillas(prev => [clon, ...prev]);
+    get().enqueueMutation('addPlantilla', clon);
+    get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'clonar', entidad: 'plantilla', entidadId: clon.id, valoresNuevos: { nombre: clon.nombre, plantillaOrigen: plantilla.nombre } });
+  },
+  exportarPlantilla: (plantillaId) => {
+    const plantilla = get().plantillas.find(p => p.id === plantillaId);
+    if (!plantilla) { console.warn(`[exportarPlantilla] Plantilla ${plantillaId} no encontrada`); return ''; }
+
+    const exportData = {
+      version: '1.0',
+      exportadoEn: new Date().toISOString(),
+      plantilla: plantilla,
+    };
+
+    return JSON.stringify(exportData, null, 2);
+  },
+  importarPlantilla: (plantillaJson) => {
+    try {
+      const importData = JSON.parse(plantillaJson);
+      if (!importData.plantilla) {
+        console.warn('[importarPlantilla] Formato JSON inválido: falta campo plantilla');
+        return;
+      }
+
+      const plantillaImportada = importData.plantilla;
+      const nuevaPlantilla: Plantilla = {
+        ...plantillaImportada,
+        id: uid(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        version: 1,
+        usosCount: 0,
+        metricas: {
+          proyectoIds: [],
+          proyectosCompletados: 0,
+          proyectosActivos: 0,
+          proyectosPausados: 0,
+          avgAvanceProyectos: 0,
+          avgMargenProyectos: 0,
+          exitoPromedio: 50,
+        },
+        proyectoOrigenId: plantillaImportada.id,
+      };
+
+      get().setPlantillas(prev => [nuevaPlantilla, ...prev]);
+      get().enqueueMutation('addPlantilla', nuevaPlantilla);
+      get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'importar', entidad: 'plantilla', entidadId: nuevaPlantilla.id, valoresNuevos: { nombre: nuevaPlantilla.nombre, origen: plantillaImportada.nombre } });
+    } catch (error) {
+      console.error('[importarPlantilla] Error al parsear JSON:', error);
+    }
+  },
+  sugerirPlantillas: (caracteristicas) => {
+    const plantillas = get().plantillas.filter(p => p.activa);
+    if (!plantillas.length) return [];
+
+    const scored = plantillas.map(plantilla => {
+      let score = 0;
+
+      if (caracteristicas.tipologia && plantilla.categoria === caracteristicas.tipologia) {
+        score += 30;
+      }
+
+      if (caracteristicas.cliente && plantilla.clienteNombre === caracteristicas.cliente) {
+        score += 25;
+      }
+
+      if (caracteristicas.tipoObra && plantilla.configuracion?.tipoObra === caracteristicas.tipoObra) {
+        score += 15;
+      }
+
+      if (plantilla.metricas?.exitoPromedio) {
+        score += plantilla.metricas.exitoPromedio * 0.2;
+      }
+
+      if (plantilla.usosCount > 0) {
+        score += Math.min(plantilla.usosCount * 2, 20);
+      }
+
+      if (plantilla.metricas?.ultimaUso) {
+        const daysSinceUse = (Date.now() - new Date(plantilla.metricas.ultimaUso).getTime()) / (1000 * 60 * 60 * 24);
+        if (daysSinceUse < 30) score += 10;
+        else if (daysSinceUse < 90) score += 5;
+      }
+
+      if (plantilla.estructuraPresupuesto?.length > 0) score += 5;
+      if (plantilla.hitosTemplate?.length > 0) score += 5;
+      if (plantilla.riesgosTemplate?.length > 0) score += 3;
+
+      return { plantilla, score };
+    });
+
+    return scored
+      .sort((a, b) => b.score - a.score)
+      .filter(item => item.score > 10)
+      .slice(0, 5)
+      .map(item => item.plantilla);
+  },
+  crearNuevaVersionPlantilla: (plantillaId, cambios, usuario = 'sistema') => {
+    const plantilla = get().plantillas.find(p => p.id === plantillaId);
+    if (!plantilla) { console.warn(`[crearNuevaVersionPlantilla] Plantilla ${plantillaId} no encontrada`); return; }
+
+    const nuevaVersion = plantilla.version + 1;
+    const snapshot = {
+      nombre: plantilla.nombre,
+      descripcion: plantilla.descripcion,
+      categoria: plantilla.categoria,
+      configuracion: plantilla.configuracion,
+      estructuraPresupuesto: plantilla.estructuraPresupuesto,
+      hitosTemplate: plantilla.hitosTemplate,
+      riesgosTemplate: plantilla.riesgosTemplate,
+      checklistCalidad: plantilla.checklistCalidad,
+    };
+
+    const nuevoHistorial = (plantilla.versionHistorial || []).concat({
+      version: nuevaVersion,
+      fecha: new Date().toISOString(),
+      usuario,
+      cambios,
+      snapshot,
+    });
+
+    get().updatePlantilla(plantillaId, {
+      version: nuevaVersion,
+      versionHistorial: nuevoHistorial,
+      updatedAt: new Date().toISOString(),
+    });
+
+    get().addAuditEntry({
+      usuarioNombre: usuario,
+      accion: 'crear_version',
+      entidad: 'plantilla',
+      entidadId: plantillaId,
+      valoresNuevos: { version: nuevaVersion, cambios }
+    });
+  },
+  restaurarVersionPlantilla: (plantillaId, version) => {
+    const plantilla = get().plantillas.find(p => p.id === plantillaId);
+    if (!plantilla) { console.warn(`[restaurarVersionPlantilla] Plantilla ${plantillaId} no encontrada`); return; }
+
+    const versionInfo = plantilla.versionHistorial?.find(h => h.version === version);
+    if (!versionInfo || !versionInfo.snapshot) {
+      console.warn(`[restaurarVersionPlantilla] Versión ${version} no encontrada o sin snapshot`);
+      return;
+    }
+
+    const snapshot = versionInfo.snapshot as any;
+    const nuevaVersion = plantilla.version + 1;
+    const nuevoHistorial = (plantilla.versionHistorial || []).concat({
+      version: nuevaVersion,
+      fecha: new Date().toISOString(),
+      usuario: 'sistema',
+      cambios: `Restaurado desde versión ${version}`,
+      snapshot: {
+        nombre: plantilla.nombre,
+        descripcion: plantilla.descripcion,
+        categoria: plantilla.categoria,
+        configuracion: plantilla.configuracion,
+        estructuraPresupuesto: plantilla.estructuraPresupuesto,
+        hitosTemplate: plantilla.hitosTemplate,
+        riesgosTemplate: plantilla.riesgosTemplate,
+        checklistCalidad: plantilla.checklistCalidad,
+      },
+    });
+
+    get().updatePlantilla(plantillaId, {
+      nombre: snapshot.nombre,
+      descripcion: snapshot.descripcion,
+      categoria: snapshot.categoria,
+      configuracion: snapshot.configuracion,
+      estructuraPresupuesto: snapshot.estructuraPresupuesto,
+      hitosTemplate: snapshot.hitosTemplate,
+      riesgosTemplate: snapshot.riesgosTemplate,
+      checklistCalidad: snapshot.checklistCalidad,
+      version: nuevaVersion,
+      versionHistorial: nuevoHistorial,
+      updatedAt: new Date().toISOString(),
+    });
+
+    get().addAuditEntry({
+      usuarioNombre: 'sistema',
+      accion: 'restaurar_version',
+      entidad: 'plantilla',
+      entidadId: plantillaId,
+      valoresNuevos: { versionRestaurada: version, nuevaVersion }
+    });
+  },
+  crearProyectoDesdePlantilla: (plantillaId, proyectoData) => {
+    const plantilla = get().plantillas.find(p => p.id === plantillaId);
+    if (!plantilla) { console.warn(`[crearProyectoDesdePlantilla] Plantilla ${plantillaId} no encontrada`); return; }
+
+    const validacion = get().validarIntegridadPlantilla(plantillaId);
+    if (!validacion.valido) {
+      console.warn(`[crearProyectoDesdePlantilla] Validación fallida: ${validacion.errores.join(', ')}`);
+      return;
+    }
+
+    const nuevoProyectoId = uid();
+    const config = plantilla.configuracion || {};
+
+    const proyectoBase: Proyecto = {
+      id: nuevoProyectoId,
+      nombre: proyectoData.nombre || `Proyecto basado en ${plantilla.nombre}`,
+      ubicacion: proyectoData.ubicacion || '',
+      tipologia: config.tipologia || proyectoData.tipologia || 'residencial',
+      tipoObra: config.tipoObra || proyectoData.tipoObra || 'nueva',
+      presupuestoTotal: 0,
+      montoContrato: proyectoData.montoContrato || 0,
+      cliente: proyectoData.cliente || '',
+      presupuestoActualId: null,
+      fechaInicio: proyectoData.fechaInicio || '',
+      fechaFin: proyectoData.fechaFin || '',
+      fechaInicioReal: proyectoData.fechaInicioReal,
+      fechaFinEstimada: proyectoData.fechaFinEstimada,
+      avanceFisico: 0,
+      avanceFinanciero: 0,
+      estado: 'planeacion',
+      descripcion: proyectoData.descripcion || plantilla.descripcion || '',
+      clienteNit: proyectoData.clienteNit,
+      clienteTelefono: proyectoData.clienteTelefono,
+      clienteEmail: proyectoData.clienteEmail,
+      direccion: proyectoData.direccion,
+      ciudad: proyectoData.ciudad,
+      departamento: proyectoData.departamento,
+      codigoPostal: proyectoData.codigoPostal,
+      pais: proyectoData.pais || 'Guatemala',
+      areaConstruccion: proyectoData.areaConstruccion,
+      numPisos: proyectoData.numPisos,
+      plazoSemanas: proyectoData.plazoSemanas,
+      ingenieroResidente: proyectoData.ingenieroResidente,
+      supervisor: proyectoData.supervisor,
+      arquitecto: proyectoData.arquitecto,
+      numeroExpediente: proyectoData.numeroExpediente,
+      numeroLicencia: proyectoData.numeroLicencia,
+      margenUtilidadObjetivo: proyectoData.margenUtilidadObjetivo,
+      moneda: config.moneda || proyectoData.moneda || 'GTQ',
+      etapa: proyectoData.etapa || 'planificacion',
+      lat: proyectoData.lat,
+      lng: proyectoData.lng,
+      latitud: proyectoData.latitud,
+      longitud: proyectoData.longitud,
+      factorSobrecosto: config.factorSobrecosto || proyectoData.factorSobrecosto,
+      version: 1,
+    };
+
+    get().addProyecto(proyectoBase);
+
+    if (plantilla.estructuraPresupuesto && plantilla.estructuraPresupuesto.length > 0) {
+      const presupuestoId = uid();
+      const renglones = plantilla.estructuraPresupuesto.map(r => ({
+        id: uid(),
+        codigo: r.codigo,
+        nombre: r.nombre,
+        unidad: r.unidad,
+        cantidad: r.cantidad,
+        costoMateriales: r.costoMateriales,
+        costoManoObra: r.costoManoObra,
+        costoEquipo: r.costoEquipo,
+        costoSubcontrato: r.costoSubcontrato,
+        descripcion: r.descripcion,
+      }));
+
+      const totalCalculado = renglones.reduce((sum, r) => sum + ((r.costoMateriales + r.costoManoObra + r.costoEquipo + r.costoSubcontrato) * r.cantidad), 0);
+
+      const nuevoPresupuesto: Presupuesto = {
+        id: presupuestoId,
+        proyectoId: nuevoProyectoId,
+        nombre: `Presupuesto base - ${plantilla.nombre}`,
+        estado: 'borrador',
+        version: 1,
+        totalCalculado,
+        renglones,
+        fechaCreacion: new Date().toISOString(),
+        moneda: config.moneda || 'GTQ',
+      };
+
+      get().addPresupuesto(nuevoPresupuesto);
+      get().updateProyecto(nuevoProyectoId, { presupuestoActualId: presupuestoId });
+    }
+
+    if (plantilla.hitosTemplate && plantilla.hitosTemplate.length > 0) {
+      const fechaInicio = proyectoData.fechaInicio ? new Date(proyectoData.fechaInicio) : new Date();
+      const nuevosHitos = plantilla.hitosTemplate.map(h => {
+        const fechaHito = new Date(fechaInicio.getTime() + (h.diasDesdeInicio * 24 * 60 * 60 * 1000));
+        return {
+          id: uid(),
+          proyectoId: nuevoProyectoId,
+          nombre: h.nombre,
+          descripcion: h.descripcion,
+          fecha: fechaHito.toISOString().slice(0, 10),
+          estado: h.estado,
+        };
+      });
+
+      nuevosHitos.forEach(h => get().addHito(h));
+    }
+
+    if (plantilla.riesgosTemplate && plantilla.riesgosTemplate.length > 0) {
+      const nuevosRiesgos = plantilla.riesgosTemplate.map(r => ({
+        id: uid(),
+        proyectoId: nuevoProyectoId,
+        categoria: r.categoria,
+        descripcion: r.descripcion,
+        nivel: r.nivel,
+        estado: 'abierto',
+        mitigation: r.mitigation,
+      }));
+
+      nuevosRiesgos.forEach(r => get().addRiesgo(r));
+    }
+
+    const currentMetricas = plantilla.metricas || { proyectoIds: [], proyectosCompletados: 0, proyectosActivos: 0, proyectosPausados: 0, avgAvanceProyectos: 0, avgMargenProyectos: 0, exitoPromedio: 50 };
+    const updatedMetricas = {
+      proyectoIds: [...(currentMetricas.proyectoIds || []), nuevoProyectoId],
+      proyectosCompletados: currentMetricas.proyectosCompletados,
+      proyectosActivos: currentMetricas.proyectosActivos + 1,
+      proyectosPausados: currentMetricas.proyectosPausados,
+      avgAvanceProyectos: 0,
+      avgMargenProyectos: currentMetricas.avgMargenProyectos,
+      ultimaUso: new Date().toISOString(),
+      exitoPromedio: currentMetricas.exitoPromedio,
+    };
+
+    get().updatePlantilla(plantillaId, { 
+      usosCount: (plantilla.usosCount || 0) + 1,
+      metricas: updatedMetricas
+    });
+    get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'crear_proyecto_desde_plantilla', entidad: 'proyecto', entidadId: nuevoProyectoId, valoresNuevos: { plantillaId: plantillaId, nombre: proyectoBase.nombre } });
   },
 }));
 

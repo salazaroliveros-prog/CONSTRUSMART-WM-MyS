@@ -75,7 +75,7 @@ const MuroObra: React.FC = () => {
           <MessageSquare className="w-6 h-6 text-indigo-500" /> Muro de Obra
         </h1>
         <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors">
-          <Plus className="w-3.5 h-3.5" /> Nueva Publicación
+          <Plus className="w-3.5 h-3.5" aria-hidden="true" /> Nueva Publicación
         </button>
       </div>
 
@@ -102,7 +102,7 @@ const MuroObra: React.FC = () => {
                 const cfg = tipoConfig[t];
                 return (
                   <button key={t} onClick={() => setNuevoTipo(t)} className={`flex items-center gap-1 px-2 py-1 text-[10px] rounded-full font-medium transition-colors ${nuevoTipo === t ? `${cfg.bg} ${cfg.color}` : 'bg-white text-slate-400 border border-slate-200'}`}>
-                    <cfg.icon className="w-3 h-3" /> {cfg.label}
+                    <cfg.icon className="w-3 h-3" aria-hidden="true" /> {cfg.label}
                   </button>
                 );
               })}
@@ -141,11 +141,11 @@ const MuroObra: React.FC = () => {
               <p className="text-sm text-slate-600 mb-3 leading-relaxed">{pub.contenido}</p>
 
               <div className="flex items-center gap-3 text-[10px] text-slate-400">
-                <button onClick={() => likePublicacionMuro(pub.id)} className="flex items-center gap-1 hover:text-red-500 transition-colors">
-                  <Heart className="w-3.5 h-3.5" /> {pub.likes}
+                <button onClick={() => likePublicacionMuro(pub.id)} className="flex items-center gap-1 hover:text-red-500 transition-colors" aria-label={`Me gusta ${pub.likes}`}>
+                  <Heart className="w-3.5 h-3.5" aria-hidden="true" /> {pub.likes}
                 </button>
-                <button onClick={() => setComentando(comentando === pub.id ? null : pub.id)} className="flex items-center gap-1 hover:text-indigo-500 transition-colors">
-                  <MessageCircle className="w-3.5 h-3.5" /> {pub.comentarios.length}
+                <button onClick={() => setComentando(comentando === pub.id ? null : pub.id)} className="flex items-center gap-1 hover:text-indigo-500 transition-colors" aria-label={`Comentarios ${pub.comentarios.length}`}>
+                  <MessageCircle className="w-3.5 h-3.5" aria-hidden="true" /> {pub.comentarios.length}
                 </button>
               </div>
 

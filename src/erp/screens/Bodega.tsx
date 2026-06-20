@@ -203,14 +203,14 @@ const Bodega: React.FC = () => {
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" role="table" aria-label="Control de stock de materiales">
               <thead>
                 <tr className="text-left text-xs text-muted-foreground border-b border-border">
-                  <th className="px-3 py-2">Material</th>
-                  <th className="px-3 py-2 text-right">Stock</th>
-                  <th className="px-3 py-2 text-right">Mínimo</th>
-                  <th className="px-3 py-2 text-right">Planificado</th>
-                  <th className="px-3 py-2 text-right">Desviación %</th>
+                  <th className="px-3 py-2" scope="col">Material</th>
+                  <th className="px-3 py-2 text-right" scope="col">Stock</th>
+                  <th className="px-3 py-2 text-right" scope="col">Mínimo</th>
+                  <th className="px-3 py-2 text-right" scope="col">Planificado</th>
+                  <th className="px-3 py-2 text-right" scope="col">Desviación %</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -222,7 +222,7 @@ const Bodega: React.FC = () => {
                   const pct = (m.stock / Math.max(m.stockMinimo * 2, 1)) * 100;
                   const claseDesv = Math.abs(desv) > 15 ? 'text-red-600 dark:text-red-400' : Math.abs(desv) > 5 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400';
                   return (
-                    <tr key={m.id} className="hover:bg-muted/50">
+                    <tr key={m.id} className="hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="row">
                       <td className="px-3 py-2">
                         <div className="flex items-center gap-2">
                           <span className="truncate max-w-[180px]">{m.nombre}</span>

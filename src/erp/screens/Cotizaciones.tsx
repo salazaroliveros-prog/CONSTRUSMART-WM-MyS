@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useErp } from '../store';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_DANGER, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
 import { fmtQ, fmtPct, EMPRESA } from '../utils';
@@ -8,6 +8,7 @@ import { Plus, X, Send, FileText, Trash2, Pencil, Eye, Copy, CheckCircle2, Clock
 import { toast } from 'sonner';
 import { z } from 'zod';
 import type { CotizacionCliente, CotizacionTipo } from '../types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const cotizacionFormSchema = z.object({
   proyectoId: z.string().optional().default(''),
@@ -49,6 +50,8 @@ const ESTADOS_COTIZACION = [
 
 const Cotizaciones: React.FC = () => {
   const { proyectos, cotizacionesNegocio: cotizaciones, addCotizacion, updateCotizacion, deleteCotizacion, presupuestos } = useErp();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { setLoading(false); }, []);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<CotizacionFormData>({
@@ -191,6 +194,20 @@ const Cotizaciones: React.FC = () => {
     toast.success('Copiado al portapapeles');
   };
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -198,7 +215,7 @@ const Cotizaciones: React.FC = () => {
           <h1 className="text-2xl font-bold text-foreground">Cotizaciones</h1>
           <p className="text-sm text-muted-foreground">Gestione cotizaciones para clientes nuevos y proyectos</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90">
+        <button onClick={openCreate} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <Plus className="w-4 h-4" /> Nueva Cotización
         </button>
       </div>
@@ -256,20 +273,20 @@ const Cotizaciones: React.FC = () => {
                     <div className="flex flex-col gap-1">
                       {c.estado === 'borrador' && (
                         <button onClick={() => handleEnviar(c)} className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 flex items-center gap-1">
-                          <Send className="w-3 h-3" /> Enviar
+                          <Send className="w-3 h-3" aria-hidden="true" /> Enviar
                         </button>
                       )}
                       <button onClick={() => { exportCotizacionPDF(c); }} className="text-xs bg-emerald-500 text-white px-2 py-1 rounded hover:bg-emerald-600 flex items-center gap-1">
-                        <FileText className="w-3 h-3" /> PDF
+                        <FileText className="w-3 h-3" aria-hidden="true" /> PDF
                       </button>
                       <button onClick={() => openEdit(c)} className="text-xs bg-muted text-foreground px-2 py-1 rounded hover:bg-muted/80 flex items-center gap-1">
-                        <Pencil className="w-3 h-3" /> Editar
+                        <Pencil className="w-3 h-3" aria-hidden="true" /> Editar
                       </button>
                       <button onClick={() => duplicarCotizacion(c)} className="text-xs bg-muted text-foreground px-2 py-1 rounded hover:bg-muted/80 flex items-center gap-1">
-                        <Copy className="w-3 h-3" /> Copiar
+                        <Copy className="w-3 h-3" aria-hidden="true" /> Copiar
                       </button>
                       <button onClick={() => handleDelete(c.id)} className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 flex items-center gap-1">
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </div>
                   </div>

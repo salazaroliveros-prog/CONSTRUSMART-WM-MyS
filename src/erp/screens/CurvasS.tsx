@@ -212,7 +212,7 @@ const CurvasS: React.FC = () => {
             ))}
           </select>
           <button onClick={handleExportImage} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors">
-            <Download className="w-3.5 h-3.5" /> Exportar
+            <Download className="w-3.5 h-3.5" aria-hidden="true" /> Exportar
           </button>
         </div>
       </div>
