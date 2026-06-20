@@ -573,7 +573,20 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   updateSeguimiento: (id, patch) => { get().setSeguimientoEVM(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateSeguimiento', { id, ...patch }); },
   deleteSeguimiento: (id) => { get().setSeguimientoEVM(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteSeguimiento', { id }); },
 
-  addValeSalida: (v) => { const n = { ...v, id: uid() }; get().setValesSalida(prev => [n, ...prev]); get().enqueueMutation('addValeSalida', n); },
+  addValeSalida: (v) => {
+    const n = { ...v, id: uid() };
+    const ids = (n.items || []).filter(i => i.materialId).map(i => i.materialId);
+    if (ids.length) {
+      get().setMateriales(prev => prev.map(m => {
+        if (!ids.includes(m.id)) return m;
+        const linea = n.items.find(i => i.materialId === m.id);
+        const cantidad = linea?.cantidad ?? 0;
+        return { ...m, stock: Math.max(0, m.stock - cantidad), version: (m.version || 1) + 1 };
+      }));
+    }
+    get().setValesSalida(prev => [n, ...prev]);
+    get().enqueueMutation('addValeSalida', n);
+  },
   deleteValeSalida: (id) => { get().setValesSalida(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteValeSalida', { id }); },
 
   addCuentaCobrar: (c) => { const n = { ...c, id: uid() }; get().setCuentasCobrar(prev => [n, ...prev]); get().enqueueMutation('addCuentaCobrar', n); },
