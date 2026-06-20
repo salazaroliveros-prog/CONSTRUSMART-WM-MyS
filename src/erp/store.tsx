@@ -237,13 +237,13 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       recepciones: loadFromStorage(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema),
       centrosCosto: loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
       plantillas: loadFromStorage(PLANTILLA_KEY, plantillaSchema),
-      mutationQueue: JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]') as Mutation[],
-      notificaciones: JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]') as any[],
-      auditLog: JSON.parse(localStorage.getItem(AUDIT_KEY) || '[]') as any[],
+      mutationQueue: (() => { try { const r = localStorage.getItem(QUEUE_KEY); if (!r) return []; const d = decompressData(r); return Array.isArray(d) ? d as Mutation[] : []; } catch { return []; } })(),
+      notificaciones: (() => { try { const r = localStorage.getItem(NOTIF_KEY); if (!r) return []; const d = decompressData(r); return Array.isArray(d) ? d as any[] : []; } catch { return []; } })(),
+      auditLog: (() => { try { const r = localStorage.getItem(AUDIT_KEY); if (!r) return []; const d = decompressData(r); return Array.isArray(d) ? d as any[] : []; } catch { return []; } })(),
       appSettings: (() => {
         try {
           const raw = localStorage.getItem(BASE_STORAGE_KEY + '_settings');
-          if (raw) return JSON.parse(raw) as AppSettings;
+          if (raw) { const d = decompressData(raw); if (d && typeof d === 'object') return d as AppSettings; }
         } catch {}
         return APP_SETTINGS_DEFAULTS;
       })(),
