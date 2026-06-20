@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
-import { DosificacionConcreto, ResultadoDosificacion, DepartamentoGT, MunicipioGT, Subtipologia, MovimientoTierra, ResultadoMovimientoTierra, ParametrosClimaticosExtendido, FactorClimatico, Pavimento, ResultadoPavimento, RedInfraestructura, ResultadoRedInfraestructura, MuroContencion, ResultadoMuroContencion, CalculoProyecto, ComparacionCalculos } from '@/erp/types';
+import { DosificacionConcreto, ResultadoDosificacion, DepartamentoGT, MunicipioGT, Subtipologia, MovimientoTierra, ResultadoMovimientoTierra, ParametrosClimaticosExtendido, FactorClimatico, Pavimento, ResultadoPavimento, RedInfraestructura, ResultadoRedInfraestructura, MuroContencion, ResultadoMuroContencion, CalculoProyecto, ComparacionCalculos, ReglaFactor, ResultadoAplicacionReglas } from '@/erp/types';
+import { motorReglasFactores } from './reglasFactores';
 
 // Precios referenciales (Q)
 const PRECIOS_REFERENCIALES = {
@@ -615,23 +616,96 @@ export class ServicioMotorCalculo {
   static async registrarCalculo(
     proyectoId: string,
     tipoCalcululo: string,
-    parametros: Record<string, any>,
-    resultados: Record<string, any>,
-    observaciones?: string
+    parametrosEntrada: Record<string, any>,
+    resultadoCalculado: Record<string, any>,
+    opciones?: {
+      renglonId?: string;
+      costoTotal?: number;
+      costoUnitario?: number;
+      usuarioId?: string;
+      observaciones?: string;
+    }
   ): Promise<string> {
     try {
       const { data, error } = await supabase.rpc('registrar_calculo', {
         p_proyecto_id: proyectoId,
+        p_renglon_id: opciones?.renglonId,
         p_tipo_calculo: tipoCalcululo,
-        p_parametros: parametros,
-        p_resultados: resultados,
-        p_observaciones: observaciones || null
+        p_parametros_entrada: parametrosEntrada,
+        p_resultado_calculado: resultadoCalculado,
+        p_costo_total: opciones?.costoTotal,
+        p_costo_unitario: opciones?.costoUnitario,
+        p_usuario_id: opciones?.usuarioId,
+        p_observaciones: opciones?.observaciones
       });
 
       if (error) throw error;
       return data;
     } catch (error) {
       console.error('Error al registrar cálculo:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crear snapshot de estado durante cálculo
+   */
+  static async crearSnapshotEstado(
+    calculoId: string,
+    tipoSnapshot: 'antes' | 'despues' | 'intermedio' | 'final',
+    estadoCompleto: Record<string, any>,
+    descripcion?: string
+  ) {
+    try {
+      const { data, error } = await supabase.rpc('crear_snapshot_estado', {
+        p_calculo_id: calculoId,
+        p_tipo_snapshot: tipoSnapshot,
+        p_estado_completo: estadoCompleto,
+        p_descripcion: descripcion
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al crear snapshot:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener snapshots de un cálculo
+   */
+  static async obtenerSnapshotsCalculo(calculoId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('erp_snapshots_estado_calculo')
+        .select('*')
+        .eq('calculo_id', calculoId)
+        .order('timestamp_snapshot', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al obtener snapshots:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener comparaciones de un cálculo
+   */
+  static async obtenerComparacionesCalculo(calculoId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('erp_comparaciones_calculos')
+        .select('*')
+        .or(`calculo_base_id.eq.${calculoId},calculo_comparado_id.eq.${calculoId}`)
+        .order('fecha_comparacion', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al obtener comparaciones:', error);
       throw error;
     }
   }
@@ -693,6 +767,127 @@ export class ServicioMotorCalculo {
       throw error;
     }
   }
+
+  // ============================================================
+  // INTEGRACIÓN CON MOTOR DE REGLAS DE FACTORES
+  // ============================================================
+
+  /**
+   * Aplicar reglas de factores a un valor de costo
+   */
+  static async aplicarReglasFactores(
+    valor: number,
+    tipoFactor: ReglaFactor['tipo_factor'],
+    contexto: Record<string, any> = {}
+  ): Promise<ResultadoAplicacionReglas> {
+    try {
+      return await motorReglasFactores.aplicarReglasViaRPC(valor, tipoFactor, contexto);
+    } catch (error) {
+      console.error('Error aplicando reglas de factores:', error);
+      // Fallback a cálculo local si RPC falla
+      return await motorReglasFactores.aplicarReglas(valor, tipoFactor, contexto);
+    }
+  }
+
+  /**
+   * Calcular costo con aplicación de reglas jerárquicas
+   */
+  static async calcularCostoConReglas(
+    costoBase: number,
+    proyectoId: string,
+    renglonId?: string
+  ): Promise<{
+    costoFinal: number;
+    desgloseFactores: {
+      zona: ResultadoAplicacionReglas;
+      tipologia: ResultadoAplicacionReglas;
+      sobrecosto: ResultadoAplicacionReglas;
+      climatico: ResultadoAplicacionReglas;
+    };
+  }> {
+    try {
+      // Aplicar reglas en orden jerárquico
+      const zonaFactor = await this.aplicarReglasFactores(costoBase, 'zona', {
+        proyecto_id: proyectoId,
+        renglon_id: renglonId,
+      });
+
+      const tipologiaFactor = await this.aplicarReglasFactores(zonaFactor.valor_final, 'tipologia', {
+        proyecto_id: proyectoId,
+        renglon_id: renglonId,
+      });
+
+      const climaticoFactor = await this.aplicarReglasFactores(tipologiaFactor.valor_final, 'climatico', {
+        proyecto_id: proyectoId,
+        renglon_id: renglonId,
+      });
+
+      const sobrecostoFactor = await this.aplicarReglasFactores(climaticoFactor.valor_final, 'sobrecosto', {
+        proyecto_id: proyectoId,
+        renglon_id: renglonId,
+      });
+
+      return {
+        costoFinal: sobrecostoFactor.valor_final,
+        desgloseFactores: {
+          zona: zonaFactor,
+          tipologia: tipologiaFactor,
+          sobrecosto: sobrecostoFactor,
+          climatico: climaticoFactor,
+        },
+      };
+    } catch (error) {
+      console.error('Error calculando costo con reglas:', error);
+      return {
+        costoFinal: costoBase,
+        desgloseFactores: {
+          zona: { valor_final: costoBase, reglas_aplicadas: [], factor_total: 1.0 },
+          tipologia: { valor_final: costoBase, reglas_aplicadas: [], factor_total: 1.0 },
+          sobrecosto: { valor_final: costoBase, reglas_aplicadas: [], factor_total: 1.0 },
+          climatico: { valor_final: costoBase, reglas_aplicadas: [], factor_total: 1.0 },
+        },
+      };
+    }
+  }
+
+  /**
+   * Obtener reglas activas por tipo
+   */
+  static async obtenerReglasActivas(tipoFactor?: ReglaFactor['tipo_factor']) {
+    return await motorReglasFactores.obtenerReglasActivas(tipoFactor);
+  }
+
+  /**
+   * Crear nueva regla de factor
+   */
+  static async crearReglaFactor(regla: Partial<ReglaFactor>): Promise<ReglaFactor> {
+    return await motorReglasFactores.crearRegla(regla);
+  }
+
+  /**
+   * Actualizar regla de factor existente
+   */
+  static async actualizarReglaFactor(id: string, regla: Partial<ReglaFactor>): Promise<ReglaFactor> {
+    return await motorReglasFactores.actualizarRegla(id, regla);
+  }
+
+  /**
+   * Eliminar regla de factor
+   */
+  static async eliminarReglaFactor(id: string): Promise<void> {
+    await motorReglasFactores.eliminarRegla(id);
+  }
+
+  /**
+   * Obtener historial de aplicación de reglas
+   */
+  static async obtenerHistorialReglas(
+    proyectoId?: string,
+    renglonId?: string,
+    reglaId?: string
+  ) {
+    return await motorReglasFactores.obtenerHistorial(proyectoId, renglonId, reglaId);
+  }
 }
 
 // Exportar funciones de conveniencia
@@ -716,7 +911,17 @@ export const calcularRedInfraestructura = ServicioMotorCalculo.calcularRedInfrae
 export const obtenerParametrosRedesInfraestructura = ServicioMotorCalculo.obtenerParametrosRedesInfraestructura;
 export const calcularMuroContencion = ServicioMotorCalculo.calcularMuroContencion;
 export const obtenerParametrosMurosContencion = ServicioMotorCalculo.obtenerParametrosMurosContencion;
+export const aplicarReglasFactores = ServicioMotorCalculo.aplicarReglasFactores;
+export const calcularCostoConReglas = ServicioMotorCalculo.calcularCostoConReglas;
+export const obtenerReglasActivas = ServicioMotorCalculo.obtenerReglasActivas;
+export const crearReglaFactor = ServicioMotorCalculo.crearReglaFactor;
+export const actualizarReglaFactor = ServicioMotorCalculo.actualizarReglaFactor;
+export const eliminarReglaFactor = ServicioMotorCalculo.eliminarReglaFactor;
+export const obtenerHistorialReglas = ServicioMotorCalculo.obtenerHistorialReglas;
 export const registrarCalculo = ServicioMotorCalculo.registrarCalculo;
 export const obtenerHistorialCalculos = ServicioMotorCalculo.obtenerHistorialCalculos;
 export const compararCalculos = ServicioMotorCalculo.compararCalculos;
 export const validarCalculo = ServicioMotorCalculo.validarCalculo;
+export const crearSnapshotEstado = ServicioMotorCalculo.crearSnapshotEstado;
+export const obtenerSnapshotsCalculo = ServicioMotorCalculo.obtenerSnapshotsCalculo;
+export const obtenerComparacionesCalculo = ServicioMotorCalculo.obtenerComparacionesCalculo;
