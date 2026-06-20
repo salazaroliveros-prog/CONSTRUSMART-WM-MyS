@@ -310,7 +310,7 @@ export interface OrdenCompra {
   estado: 'borrador' | 'pendiente' | 'aprobado' | 'recibida' | 'rechazado' | 'cancelada';
   proveedorId?: string;
   total?: number;
-  items?: { materialId: string; cantidad: number; precioUnitario: number }[];
+  items?: { materialId: string; cantidad: number; precioUnitario: number; renglonId?: string }[];
   stockActualizado?: boolean;
   version?: number;
 }

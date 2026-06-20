@@ -322,9 +322,9 @@ const Presupuestos: React.FC = () => {
       const itemsOC = r.subRenglones?.length
         ? r.subRenglones.map(sr => {
             const mat = materiales.find(m => m.nombre.toLowerCase() === sr.nombreMaterial?.toLowerCase());
-            return { materialId: mat?.id || sr.id || r.id, cantidad: sr.cantidadUnitaria * r.cantidad, precioUnitario: sr.precioUnitario || 0 };
+            return { materialId: mat?.id || sr.id || r.id, cantidad: sr.cantidadUnitaria * r.cantidad, precioUnitario: sr.precioUnitario || 0, renglonId: r.id };
           })
-        : [{ materialId: r.id, cantidad: r.cantidad, precioUnitario: c.pv }];
+        : [{ materialId: r.id, cantidad: r.cantidad, precioUnitario: c.pv, renglonId: r.id }];
       await addOrden({
         proyectoId: projectId,
         proveedorId: selectedProveedorId,
