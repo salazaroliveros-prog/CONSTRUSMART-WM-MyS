@@ -60,7 +60,7 @@ const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado
 
 const Proyectos: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, addProyecto, updateProyecto, deleteProyecto, clearProyectos, plantillas, crearProyectoDesdePlantilla, sugerirPlantillas } = useErp();
+  const { proyectos, addProyecto, updateProyecto, deleteProyecto, clearProyectos, plantillas, crearProyectoDesdePlantilla, sugerirPlantillas, setSelectedProyectoId, setView } = useErp();
   const [show, setShow] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
@@ -275,6 +275,11 @@ const Proyectos: React.FC = () => {
       etapa: p.etapa || 'planificacion',
     });
     setShow(true);
+  };
+
+  const openDetail = (p: Proyecto) => {
+    setSelectedProyectoId(p.id);
+    setView('presupuestos');
   };
 
   const confirmarPausa = useCallback(() => {
@@ -511,7 +516,7 @@ const Proyectos: React.FC = () => {
                   </button>
                 )}
                 <button
-                  onClick={() => openEdit(p)}
+                  onClick={() => openDetail(p)}
                   className="text-[11px] px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground font-medium flex items-center justify-center gap-1 transition-all active:scale-95"
                 >
                   <ChevronRight className="w-3 h-3" /> Detalle

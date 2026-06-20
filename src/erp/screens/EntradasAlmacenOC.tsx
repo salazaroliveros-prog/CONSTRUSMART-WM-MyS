@@ -20,21 +20,6 @@ export const EntradasAlmacenOC: React.FC = () => {
 
     if (formCantidad <= 0) return;
 
-    const materialNombre = orden.material?.toLowerCase() || '';
-    const material =
-      materiales.find(m => m.nombre.toLowerCase() === materialNombre) ||
-      materiales.find(m => m.id === materialNombre || m.codigo === materialNombre) ||
-      materiales.find(m =>
-        m.nombre.toLowerCase().includes(materialNombre) ||
-        materialNombre.includes(m.nombre.toLowerCase().split(' ')[0].toLowerCase())
-      );
-
-    if (material) {
-      updateMaterial(material.id, {
-        stock: material.stock + formCantidad
-      });
-    }
-
     updateOrden(ocId, 'recibida');
 
     const recibidoTotal = formCantidad;

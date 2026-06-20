@@ -102,7 +102,9 @@ const Bodega: React.FC = () => {
   };
 
   const onAddOrden = (data: OrdenFormData) => {
-    addOrden({ ...data, estado: 'borrador', fecha: todayISO() });
+    const mat = materiales.find(m => m.nombre.toLowerCase() === (data.material || '').toLowerCase());
+    const items = mat ? [{ materialId: mat.id, cantidad: data.cantidad || 0, precioUnitario: (data.monto || 0) / (data.cantidad || 1) }] : undefined;
+    addOrden({ ...data, estado: 'borrador', fecha: todayISO(), items });
     resetOrd();
     setShowOrden(false);
   };
