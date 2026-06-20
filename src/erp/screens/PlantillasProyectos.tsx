@@ -67,7 +67,7 @@ const PlantillasProyectos: React.FC = () => {
   useEffect(() => { setLoading(false); }, []);
 
   const plantillasFiltradas = useMemo(() => {
-    let filtradas = plantillas.filter(p =>
+    const filtradas = plantillas.filter(p =>
       p.activa &&
       (filtroCategoria === '' || p.categoria === filtroCategoria) &&
       (filtroCliente === '' || p.clienteId === filtroCliente || (!p.clienteId && filtroCliente === 'general')) &&
