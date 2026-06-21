@@ -161,7 +161,11 @@ const APUAvanzado: React.FC = () => {
   };
 
   useEffect(() => {
-    ServicioMotorCalculo.obtenerDepartamentos().then(setDepartamentos);
+    let cancelled = false;
+    ServicioMotorCalculo.obtenerDepartamentos().then(data => {
+      if (!cancelled) setDepartamentos(data);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   const handleCalcularDosificacion = async () => {
@@ -246,13 +250,12 @@ const APUAvanzado: React.FC = () => {
       // Registrar cálculo en historial (si hay proyecto seleccionado)
       try {
         await registrarCalculo(
-          'demo-proyecto', // TODO: usar ID de proyecto real
+          proyectoId || proyectos[0]?.id || '',
           'pavimento',
           pavimento,
           resultado,
           'Cálculo manual de pavimento'
         );
-        console.log('Cálculo registrado en historial');
       } catch (err) {
         console.warn('No se pudo registrar cálculo en historial:', err);
       }
@@ -283,13 +286,12 @@ const APUAvanzado: React.FC = () => {
       // Registrar cálculo en historial
       try {
         await registrarCalculo(
-          'demo-proyecto',
+          proyectoId || proyectos[0]?.id || '',
           'red_infraestructura',
           redInfraestructura,
           resultado,
           'Cálculo manual de red de infraestructura'
         );
-        console.log('Cálculo registrado en historial');
       } catch (err) {
         console.warn('No se pudo registrar cálculo en historial:', err);
       }
@@ -320,13 +322,12 @@ const APUAvanzado: React.FC = () => {
       // Registrar cálculo en historial
       try {
         await registrarCalculo(
-          'demo-proyecto',
+          proyectoId || proyectos[0]?.id || '',
           'muro_contencion',
           muroContencion,
           resultado,
           'Cálculo manual de muro de contención'
         );
-        console.log('Cálculo registrado en historial');
       } catch (err) {
         console.warn('No se pudo registrar cálculo en historial:', err);
       }
@@ -806,14 +807,14 @@ const APUAvanzado: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
               <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <Wrench className="w-3.5 h-3.5 text-blue-500" />
+                  <Wrench className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
                   <span className="text-xs font-medium text-blue-600">Materiales</span>
                 </div>
                 <div className="text-xl font-bold text-blue-700">Q{calculos.cd.materiales.toFixed(2)}</div>
               </div>
               <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <Users className="w-3.5 h-3.5 text-emerald-500" />
+                  <Users className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                   <span className="text-xs font-medium text-emerald-600">Mano de Obra</span>
                 </div>
                 <div className="text-xl font-bold text-emerald-700">Q{calculos.cd.manoObra.toFixed(2)}</div>
@@ -924,28 +925,28 @@ const APUAvanzado: React.FC = () => {
                 <div className="text-[10px] text-slate-500">Cemento</div>
                 <div className="text-sm font-bold text-orange-600">
                   Q{historial[historial.length-1].cemento.toFixed(0)}
-                  <span className="text-[10px] ml-1 text-red-500">↑ {((historial[historial.length-1].cemento - historial[0].cemento) / historial[0].cemento * 100).toFixed(1)}%</span>
+                  <span className="text-[10px] ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].cemento - historial[0].cemento) / historial[0].cemento * 100).toFixed(1)}%</span>
                 </div>
               </div>
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                 <div className="text-[10px] text-slate-500">Hierro 3/8&quot;</div>
                 <div className="text-sm font-bold text-blue-600">
                   Q{historial[historial.length-1].hierro.toFixed(0)}
-                  <span className="text-[10px] ml-1 text-red-500">↑ {((historial[historial.length-1].hierro - historial[0].hierro) / historial[0].hierro * 100).toFixed(1)}%</span>
+                  <span className="text-[10px] ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].hierro - historial[0].hierro) / historial[0].hierro * 100).toFixed(1)}%</span>
                 </div>
               </div>
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                 <div className="text-[10px] text-slate-500">Arena</div>
                 <div className="text-sm font-bold text-emerald-600">
                   Q{historial[historial.length-1].arena.toFixed(0)}
-                  <span className="text-[10px] ml-1 text-red-500">↑ {((historial[historial.length-1].arena - historial[0].arena) / historial[0].arena * 100).toFixed(1)}%</span>
+                  <span className="text-[10px] ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].arena - historial[0].arena) / historial[0].arena * 100).toFixed(1)}%</span>
                 </div>
               </div>
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                 <div className="text-[10px] text-slate-500">Block</div>
                 <div className="text-sm font-bold text-purple-600">
                   Q{historial[historial.length-1].block.toFixed(0)}
-                  <span className="text-[10px] ml-1 text-red-500">↑ {((historial[historial.length-1].block - historial[0].block) / historial[0].block * 100).toFixed(1)}%</span>
+                  <span className="text-[10px] ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].block - historial[0].block) / historial[0].block * 100).toFixed(1)}%</span>
                 </div>
               </div>
             </div>

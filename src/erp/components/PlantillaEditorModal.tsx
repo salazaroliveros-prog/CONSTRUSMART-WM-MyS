@@ -1,26 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, Package, Clock, AlertCircle, Settings } from 'lucide-react';
+import type { Plantilla } from '../store/schemas/plantillas';
 
 interface PlantillaEditorModalProps {
-  plantilla: any;
-  onSave: (data: any) => void;
+  plantilla: Plantilla;
+  onSave: (data: Partial<Plantilla>) => void;
   onClose: () => void;
+}
+
+interface RenglonTemplate {
+  nombre: string;
+  unidad: string;
+  cantidad: number;
+  costoMateriales: number;
+  costoManoObra: number;
+  costoEquipo: number;
+  descripcion: string;
+  tempId?: number;
+}
+
+interface HitoTemplate {
+  nombre: string;
+  descripcion: string;
+  diasDesdeInicio: number;
+  estado: 'pendiente' | 'en_proceso' | 'completado' | 'retrasado';
+  tempId?: number;
+}
+
+interface RiesgoTemplate {
+  categoria: string;
+  descripcion: string;
+  nivel: 'bajo' | 'medio' | 'alto';
+  mitigation: string;
+  tempId?: number;
+}
+
+interface ChecklistItem {
+  categoria: string;
+  item: string;
+  requerido: boolean;
+  tempId?: number;
 }
 
 const PlantillaEditorModal: React.FC<PlantillaEditorModalProps> = ({ plantilla, onSave, onClose }) => {
   const [activeTab, setActiveTab] = useState<'presupuesto' | 'hitos' | 'riesgos' | 'checklist'>('presupuesto');
-  
-  const [estructuraPresupuesto, setEstructuraPresupuesto] = useState(
-    plantilla.estructuraPresupuesto?.map((r: any, i: number) => ({ ...r, tempId: i })) || []
+
+  const [estructuraPresupuesto, setEstructuraPresupuesto] = useState<RenglonTemplate[]>(
+    plantilla.estructuraPresupuesto?.map((r, i: number) => ({ ...r, tempId: i })) || []
   );
-  const [hitosTemplate, setHitosTemplate] = useState(
-    plantilla.hitosTemplate?.map((h: any, i: number) => ({ ...h, tempId: i })) || []
+  const [hitosTemplate, setHitosTemplate] = useState<HitoTemplate[]>(
+    plantilla.hitosTemplate?.map((h, i: number) => ({ ...h, tempId: i })) || []
   );
-  const [riesgosTemplate, setRiesgosTemplate] = useState(
-    plantilla.riesgosTemplate?.map((r: any, i: number) => ({ ...r, tempId: i })) || []
+  const [riesgosTemplate, setRiesgosTemplate] = useState<RiesgoTemplate[]>(
+    plantilla.riesgosTemplate?.map((r, i: number) => ({ ...r, tempId: i })) || []
   );
-  const [checklistCalidad, setChecklistCalidad] = useState(
-    plantilla.checklistCalidad?.map((c: any, i: number) => ({ ...c, tempId: i })) || []
+  const [checklistCalidad, setChecklistCalidad] = useState<ChecklistItem[]>(
+    plantilla.checklistCalidad?.map((c, i: number) => ({ ...c, tempId: i })) || []
   );
 
   const [newRenglon, setNewRenglon] = useState({ nombre: '', unidad: '', cantidad: 0, costoMateriales: 0, costoManoObra: 0, costoEquipo: 0, descripcion: '' });

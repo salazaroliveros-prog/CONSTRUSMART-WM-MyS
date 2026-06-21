@@ -9,6 +9,15 @@ interface WizardStep {
   description: string;
 }
 
+interface WizardDatos {
+  motor?: 'pavimentos' | 'redesInfraestructura' | 'murosContencion';
+  departamento?: string;
+  municipio?: string;
+  parametrosTecnicos?: Record<string, unknown>;
+  optimizaciones?: Record<string, unknown>;
+  resultados?: Record<string, unknown>;
+}
+
 const WIZARD_STEPS: WizardStep[] = [
   {
     id: 'seleccionar-motor',
@@ -49,13 +58,13 @@ const WIZARD_STEPS: WizardStep[] = [
 ];
 
 interface CalculoGuiadoWizardProps {
-  onComplete: (datos: any) => void;
+  onComplete: (datos: WizardDatos) => void;
   onCancel: () => void;
 }
 
 const CalculoGuiadoWizard: React.FC<CalculoGuiadoWizardProps> = ({ onComplete, onCancel }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [wizardData, setWizardData] = useState<Record<string, any>>({});
+  const [wizardData, setWizardData] = useState<WizardDatos>({});
   const [motorSeleccionado, setMotorSeleccionado] = useState<'pavimentos' | 'redesInfraestructura' | 'murosContencion' | null>(null);
   const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState<string>('');
 

@@ -1,9 +1,9 @@
 # CONSTRUSMART ERP — ROADMAP DE IMPLEMENTACIÓN
 
 ## Estado Actual
-- **Store**: Zustand (`zustandStore.ts` 435 líneas) + Context (`store.tsx` 306 líneas)
-- **Tests**: ~569 unitarios pasando (0 fallos)
-- **Entidades**: 33 en store, 30+ schemas Zod canónicos
+- **Store**: Zustand + Context (offline-first con cola de mutaciones)
+- **Tests**: 619 unitarios pasando (0 fallos, 15 archivos)
+- **Entidades**: 33+ en store, 30+ schemas Zod canónicos
 - **Build**: 0 errores, 0 warnings
 - **Compresión**: lz-string integrado en persistencia localStorage
 - **Alertas**: Panel de alertas con stock crítico, NC, OC, hitos vencidos

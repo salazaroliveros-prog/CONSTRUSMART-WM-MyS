@@ -28,7 +28,7 @@ type LicitacionFormData = z.infer<typeof licitacionFormSchema>;
 const ESTADOS = [
   { key: 'activa' as const, label: 'Activa', color: 'bg-blue-50 border-blue-300', icon: Clock, textColor: 'text-blue-600' },
   { key: 'adjudicada' as const, label: 'Adjudicada 🏆', color: 'bg-emerald-50 border-emerald-300', icon: CheckCircle, textColor: 'text-emerald-600' },
-  { key: 'perdida' as const, label: 'Perdida', color: 'bg-red-50 border-red-300', icon: Archive, textColor: 'text-red-500' },
+  { key: 'perdida' as const, label: 'Perdida', color: 'bg-red-50 border-red-300', icon: Archive, textColor: 'text-red-500 dark:text-red-400' },
   { key: 'cerrada' as const, label: 'Cerrada', color: 'bg-slate-100 border-slate-300', icon: Archive, textColor: 'text-slate-500' },
 ] as const;
 

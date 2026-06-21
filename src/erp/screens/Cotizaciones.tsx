@@ -218,7 +218,7 @@ const Cotizaciones: React.FC = () => {
           <h1 className="text-2xl font-bold text-foreground">Cotizaciones</h1>
           <p className="text-sm text-muted-foreground">Gestione cotizaciones para clientes nuevos y proyectos</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <button onClick={openCreate} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Nueva cotización">
           <Plus className="w-4 h-4" /> Nueva Cotización
         </button>
       </div>

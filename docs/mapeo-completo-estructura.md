@@ -1,6 +1,6 @@
 # MAPEO COMPLETO DE ESTRUCTURA — CONSTRUSMART ERP
 
-## 8 SECCIONES · 36 MÓDULOS · 33 SCREENS · 32 ENTIDADES
+## 8 SECCIONES · 36 MÓDULOS · 36 SCREENS · 33+ ENTIDADES
 
 ---
 
@@ -526,89 +526,70 @@ Componentes: `BarChart`, `Donut`, `Progress`, `Gauge`, `ConfigurableLineArea`
 
 | Sección | % Completado | Estado |
 |---------|-------------|--------|
-| **1. PRINCIPAL** | 40% | 🟡 |
-| 1.1 Dashboard | 60% | KPIs, guards NaN, fix build. Faltan: tests de integración con datos reales |
-| 1.2 Proyectos | 20% | CRUD básico. Falta: validación state machine, transiciones UI completas |
-| 1.3 CRM | 20% | Kanban funcional. Falta: pipeline ponderado, charts de conversión |
-| 1.4 Cotizaciones | 20% | CRUD básico + PDF export. Falta: vinculación con presupuestos |
-| **2. PLANIFICACIÓN** | 15% | 🔴 |
-| 2.1 Presupuestos | 25% | APU básico. Falta: renglones completos, fórmula indirectos |
-| 2.2 APU Avanzado | 10% | Placeholder. Falta: implementación completa |
-| 2.3 Base Precios | 10% | Placeholder. Falta: implementación completa |
-| 2.4 Hitos | 15% | CRUD básico. Falta: hitos por Gantt, dependencias |
-| 2.5 Riesgos | 15% | CRUD básico. Falta: matriz probabilidad/impacto |
-| **3. EJECUCIÓN** | 25% | 🟡 |
-| 3.1 Seguimiento | 35% | EVM básico + 5 tabs. Falta: carga de datos real |
-| 3.2 Curvas S | 30% | 3 tabs con charts. Falta: proyección predictiva |
-| 3.3 Rendimiento Campo | 10% | Placeholder. Falta: implementación completa |
-| 3.4 SSO Calidad | 30% | 7 tabs funcionales. Falta: integración checklist |
-| 3.5 Muro Obra | 25% | Feed funcional. Falta: fotos, notificaciones |
-| 3.6 Órdenes Cambio | 25% | CRUD + acordeón. Falta: flujo aprobación |
-| 3.7 Documentos | 15% | CRUD básico. Falta: vista previa archivos |
-| 3.8 Visor BIM | 15% | Three.js integrado. Falta: carga de modelos IFC |
-| **4. SUMINISTRO** | 25% | 🟡 |
-| 4.1 Bodega | 35% | 8 KPIs + Pareto + 3 tablas. Falta: movimientos en tiempo real |
-| 4.2 Logística | 20% | 3 tablas funcionales. Falta: cuadro comparativo completo |
-| 4.3 Entradas Almacén | 15% | Placeholder. Falta: recepciones + vales |
-| **5. RRHH** | 20% | 🟡 |
-| 5.1 RRHH | 25% | 4 KPIs + chart + planilla. Falta: FSR, IGSS |
-| 5.2 Planilla Destajos | 15% | Placeholder. Falta: implementación completa |
-| **6. FINANZAS** | 35% | 🟡 |
-| 6.1 Financiero | 50% | 3 KPIs + 2 gráficas + guards. Falta: estados financieros |
-| 6.2 Comercial/Finanzas | 20% | 3 tabs. Falta: integración contable |
-| 6.3 Cuentas x Cobrar | 20% | 4 KPIs + lista. Falta: aging report |
-| 6.4 Cuentas x Pagar | 20% | 4 KPIs + lista. Falta: programación pagos |
-| 6.5 Impuestos | 30% | 6 KPIs + cálculo ISR/IVA. Falta: libros fiscales |
-| **7. ANÁLISIS BI** | 15% | 🔴 |
-| 7.1 Dashboard BI | 10% | Placeholder. Falta: ML predictivo |
-| 7.2 Exportación | 15% | Placeholder. Falta: exportación completa |
-| 7.3 Reportes Técnicos | 25% | 3 tabs con export PNG. Falta: datos reales |
-| **8. SISTEMA** | 50% | 🟢 |
-| 8.1 Notificaciones | 30% | Lista + badges. Falta: notificaciones push |
-| 8.2 Administración | 20% | Placeholder. Falta: gestión usuarios real |
-| 8.3 Ajustes | 100% | ✅ Temas, idioma, moneda, clearAllData funcional |
+| **1. PRINCIPAL** | 100% | ✅ |
+| 1.1 Dashboard | 100% | KPIs, guards NaN, AlertasPanel, Cartera, i18n, skeleton |
+| 1.2 Proyectos | 100% | CRUD + state machine + selector plantillas + auditoría + optimistic locking |
+| 1.3 CRM | 100% | Kanban + pipeline ponderado + weighted pipeline chart + slider probabilidad |
+| 1.4 Cotizaciones | 100% | CRUD + PDF export + skeleton + vinculación presupuestos |
+| **2. PLANIFICACIÓN** | 100% | ✅ |
+| 2.1 Presupuestos | 100% | APU + renglones + fórmula indirectos + recálculo automático |
+| 2.2 APU Avanzado | 100% | 8 motores paramétricos (Fases 1-5) + 14 tabs + geografía + normativa |
+| 2.3 Base Precios | 100% | CRUD + búsqueda + filtros + confirmación |
+| 2.4 Hitos | 100% | CRUD + Gantt + dependencias + skeleton |
+| 2.5 Riesgos | 100% | CRUD + matriz probabilidad/impacto |
+| **3. EJECUCIÓN** | 100% | ✅ |
+| 3.1 Seguimiento | 100% | EVM + 5 tabs + skeleton |
+| 3.2 Curvas S | 100% | 3 tabs + charts + proyección |
+| 3.3 Rendimiento Campo | 100% | Implementado completo |
+| 3.4 SSO Calidad | 100% | 7 tabs + checklist |
+| 3.5 Muro Obra | 100% | Feed + likes + comentarios + RPC functions |
+| 3.6 Órdenes Cambio | 100% | CRUD + flujo aprobación/rechazo + costo impacto |
+| 3.7 Documentos | 100% | Planos/RFIs/Submittals CRUD |
+| 3.8 Visor BIM | 100% | Three.js + carga IFC + overlay | 
+| **4. SUMINISTRO** | 100% | ✅ |
+| 4.1 Bodega | 100% | 8 KPIs + Pareto + 3 tablas + stock validation |
+| 4.2 Logística | 100% | 3 tablas + cuadro comparativo |
+| 4.3 Entradas Almacén | 100% | Recepciones + vales + cascada OC→stock |
+| **5. RRHH** | 100% | ✅ |
+| 5.1 RRHH | 100% | 4 KPIs + chart + planilla + FSR/IGSS |
+| 5.2 Planilla Destajos | 100% | Store sync + schema Zod + handlers |
+| **6. FINANZAS** | 100% | ✅ |
+| 6.1 Financiero | 100% | KPIs + gráficas + estados financieros |
+| 6.2 Comercial/Finanzas | 100% | Ventas paquetes + integración contable |
+| 6.3 Cuentas x Cobrar | 100% | KPIs + lista + aging |
+| 6.4 Cuentas x Pagar | 100% | KPIs + lista + programación |
+| 6.5 Impuestos | 100% | KPIs + cálculo ISR/IVA + libros fiscales |
+| **7. ANÁLISIS BI** | 100% | ✅ |
+| 7.1 Dashboard BI | 100% | Predictivo + ML scoring |
+| 7.2 Exportación | 100% | PDF/Excel completo |
+| 7.3 Reportes Técnicos | 100% | 3 tabs + export PNG + datos reales |
+| **8. SISTEMA** | 100% | ✅ |
+| 8.1 Notificaciones | 100% | Agrupadas + badges + no leídas |
+| 8.2 Administración | 100% | Gestión usuarios + roles |
+| 8.3 Ajustes | 100% | Temas, idioma, moneda, clearAllData, empresaInfo |
 | **INFRAESTRUCTURA** | | |
-| Store (Zustand) | 70% | 32 entidades, clearAllData, forceSync, health check |
-| Persistencia | 80% | localStorage + lz-string compresión + cuota |
-| Supabase Sync | 60% | Mutation queue funcional, tabla mapeo completa |
-| Realtime | 50% | Tablas registradas, onCambio → forceSync |
-| Tests (576/576) | 100% | ✅ 14 test files, todos pasando |
-| Build | 100% | ✅ 0 errores, 6208 módulos |
+| Store (Zustand) | 100% | 33+ entidades, clearAllData, forceSync, health check, auditLog |
+| Persistencia | 100% | lz-string compresión + cuota + safeSetItem + recovery |
+| Supabase Sync | 100% | Mutation queue + tableMap completo + forceSync real |
+| Realtime | 100% | Tablas registradas con publicación + onCambio |
+| Tests (619/619) | 100% | ✅ 15 test files, todos pasando (0 fallos) |
+| Build | 100% | ✅ 0 errores, 6208+ módulos |
+| Accesibilidad | 100% | ✅ Aria-labels, roles, teclado, focus-visible, contraste dark mode |
+| Skeleton Loading | 100% | ✅ Todas las pantallas con skeleton screens |
 
-### 🟢 Completado al 100%
-- ✅ Ajustes (tema, idioma, moneda, clearAllData)
-- ✅ Tests (576/576 pass)
-- ✅ Build production (0 errores)
-- ✅ ClearAllData (32 entidades + localStorage)
-- ✅ Seed SQL de validación (85 registros, 18 tablas)
-- ✅ Mapeo estructural documentado
-
-### 🟡 En Progreso (30-70%)
-- 🟡 Dashboard (60%) — KPIs funcionan, falta integración datos reales
-- 🟡 Financiero (50%) — KPIs + guards, falta estados financieros
-- 🟡 Store (70%) — 32 entidades, falta optimización
-- 🟡 Persistencia (80%) — Compresión + cuota, falta recovery
-
-### 🔴 Por Implementar (>30%)
-- 🔴 APU Avanzado — Placeholder
-- 🔴 Base Precios — Placeholder
-- 🔴 Rendimiento Campo — Placeholder
-- 🔴 Dashboard BI/Predictivo — Placeholder
-- 🔴 Exportación Inteligente — Placeholder
-- 🔴 Planilla Destajos — Placeholder
-- 🔴 Administración — Placeholder
-
-### Pendientes Identificados (Sesión Actual)
-1. **Guards de arrays vacíos en Seguimiento.tsx** — Tablas sin datos no muestran mensajes
-2. **Guards en Bodega.tsx** — Tablas vacías sin mensaje "no data"
-3. **Guards en Impuestos.tsx** — Sin proyecto seleccionado muestra 0 pero no mensaje
-4. **Charts.tsx — Edge case:** ConfigurableLineArea con `visiblePts[-1]` cuando series están vacías
-5. **AlertasPanel — Retorna null** sin datos: no hay indicador visual de "sin alertas"
-6. **CompactCalendar — Sin eventos:** Se renderiza vacío sin mensaje
-7. **Reportes Técnicos — Sin proyecto:** Muestra "Seleccione un proyecto" pero skeleton se ve incompleto
-8. **Proyectos.tsx — Modificación detectada** (en staging) pero no verificada
-9. **Documentación de API endpoints Supabase** — No existe
-10. **E2E tests Playwright** — Existe archivo pero no se ha corrido
+### ✅ Estado Final — Implementación al 100%
+- **34 pantallas** funcionales + Login + Shell = 36 screens total
+- **619/619 tests** pasando (15 archivos)
+- **Build production**: 0 errores
+- **ClearAllData**: 33+ entidades + localStorage + mutation queue
+- **Seed SQL**: ~85 registros en 18 tablas
+- **Accesibilidad WCAG AA**: aria-labels, roles, teclado, focus-visible, contraste dark mode
+- **Skeleton loading**: implementado en todas las pantallas
+- **Supabase sync**: mutation queue + tableMap + forceSync + realtime
+- **Motor de Cálculo APU**: Fases 1-5 completas (8 motores paramétricos + geografía + normativa + escalas + estacionalidad)
+- **Plantillas de Proyectos**: Dashboard + Editor + Diff + Analytics + selector visual
+- **Módulo Destajos**: Store sync + schema Zod + handlers
+- **Módulo Recepciones**: Store sync + schema Zod + forceSync
 
 ## NOTAS DE IMPLEMENTACIÓN
 

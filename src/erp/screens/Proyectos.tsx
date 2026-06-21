@@ -762,7 +762,7 @@ const Proyectos: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="sm:col-span-2">
                     <input {...register('nombre')} placeholder={t('proyectos.nombre_placeholder')} className={INPUT} />
-                    {errors.nombre && <p className="text-xs text-red-500 mt-0.5">{errors.nombre.message}</p>}
+                    {errors.nombre && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{errors.nombre.message}</p>}
                   </div>
                   <div className="sm:col-span-2">
                     <textarea {...register('descripcion')} placeholder={t('proyectos.descripcion_placeholder')} className={`${INPUT} min-h-[60px] resize-none`} rows={2} />
@@ -800,11 +800,11 @@ const Proyectos: React.FC = () => {
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.cliente')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <input {...register('cliente')} placeholder="Nombre del cliente *" className={INPUT} />
-                  {errors.cliente && <p className="text-xs text-red-500 mt-0.5">{errors.cliente.message}</p>}
+                  {errors.cliente && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{errors.cliente.message}</p>}
                   <input {...register('clienteNit')} placeholder="NIT" className={INPUT} />
                   <input {...register('clienteTelefono')} placeholder="Teléfono" className={INPUT} />
                   <input {...register('clienteEmail')} placeholder="Email" className={INPUT} />
-                  {errors.clienteEmail && <p className="text-xs text-red-500 mt-0.5">{errors.clienteEmail.message}</p>}
+                  {errors.clienteEmail && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{errors.clienteEmail.message}</p>}
                 </div>
               </div>
 
@@ -813,7 +813,7 @@ const Proyectos: React.FC = () => {
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.ubicacion')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
                   <input {...register('ubicacion')} placeholder="Ubicación (texto) *" className={INPUT} />
-                  {errors.ubicacion && <p className="text-xs text-red-500 mt-0.5">{errors.ubicacion.message}</p>}
+                  {errors.ubicacion && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{errors.ubicacion.message}</p>}
                   <input {...register('direccion')} placeholder="Dirección" className={INPUT} />
                   <input {...register('ciudad')} placeholder="Ciudad" className={INPUT} />
                   <input {...register('departamento')} placeholder="Departamento" className={INPUT} />
@@ -900,7 +900,7 @@ const Proyectos: React.FC = () => {
                   </div>
                 </div>
                 {(errors.presupuestoTotal || errors.montoContrato || errors.fechaInicio || errors.fechaFin) && (
-                  <p className="text-xs text-red-500 mt-1">Complete los campos requeridos</p>
+                  <p className="text-xs text-red-500 dark:text-red-400 mt-1">Complete los campos requeridos</p>
                 )}
               </div>
             </div>

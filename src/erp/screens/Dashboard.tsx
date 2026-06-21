@@ -13,6 +13,7 @@ import GanttChart from '../components/GanttChart';
 import { CARD, CARD_TITLE } from '../ui';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { SkeletonDashboard } from '../../components/SkeletonScreens';
+import type { ActivoHerramienta, Empleado, Licitacion, Riesgo, OrdenCompra } from '../types';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
 
@@ -86,11 +87,12 @@ const Dashboard: React.FC = () => {
   const proyectosSel = selectedProyectoId && selectedProyectoId !== 'none'
     ? (proyectos || []).filter(p => p.id === selectedProyectoId) : (proyectos || []);
   const presupuestoTotal = proyectosSel.reduce((a, b) => a + b.presupuestoTotal, 0);
-  const margenProm = proyectosSel.length
+  const margenProm = proyectosSel.length > 0
     ? proyectosSel.reduce((a, b) => {
         const m = b.montoContrato > 0 ? ((b.montoContrato - b.presupuestoTotal) / b.montoContrato) * 100 : 0;
         return a + m;
-      }, 0) / proyectosSel.length : 0;
+      }, 0) / proyectosSel.length 
+    : 0;
   const desviacion = proyectosSel.length
     ? proyectosSel.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / proyectosSel.length : 0;
   const ingresos = (movimientos || []).filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
@@ -151,9 +153,9 @@ const Dashboard: React.FC = () => {
 
   const rhData = useMemo(() => {
     const datos = (empleados || []);
-    const conEstado = datos.filter((e: any) => e.estado);
-    const disponibles = conEstado.filter((e: any) => e.estado === 'disponible').length;
-    const ocupados = conEstado.filter((e: any) => e.estado === 'ocupado').length;
+    const conEstado = datos.filter((e: Empleado) => e.estado);
+    const disponibles = conEstado.filter((e: Empleado) => e.estado === 'disponible').length;
+    const ocupados = conEstado.filter((e: Empleado) => e.estado === 'ocupado').length;
     const sinEstado = Math.max(datos.length - conEstado.length, 0);
     return { disponibles: disponibles + sinEstado, ocupados, total: datos.length };
   }, [empleados]);
@@ -238,18 +240,18 @@ const Dashboard: React.FC = () => {
 
   const licitacionesData = useMemo(() => {
     const licits = licitaciones || [];
-    const abiertas = licits.filter((l: any) => l.estado === 'abierta' || l.estado === 'en_proceso').length;
-    const ganadas = licits.filter((l: any) => l.estado === 'ganada').length;
-    const totalMonto = licits.reduce((a: number, l: any) => a + (l.montoEstimado || l.monto || 0), 0);
-    const top = [...licits].sort((a: any, b: any) => (b.probabilidad || 0) - (a.probabilidad || 0)).slice(0, 3);
+    const abiertas = licits.filter((l: Licitacion) => l.estado === 'abierta' || l.estado === 'en_proceso').length;
+    const ganadas = licits.filter((l: Licitacion) => l.estado === 'ganada').length;
+    const totalMonto = licits.reduce((a: number, l: Licitacion) => a + (l.montoEstimado || l.monto || 0), 0);
+    const top = [...licits].sort((a: Licitacion, b: Licitacion) => (b.probabilidad || 0) - (a.probabilidad || 0)).slice(0, 3);
     return { abiertas, ganadas, totalMonto, count: licits.length, top };
   }, [licitaciones]);
 
   const riesgosActivos = useMemo(() => {
     const rs = riesgos || [];
-    const activos = rs.filter((r: any) => r.estado === 'abierto' || r.estado === 'en_seguimiento');
-    const alto = activos.filter((r: any) => (r.nivel || '').toLowerCase().includes('alto') || (r.nivel || '').toLowerCase().includes('high')).length;
-    const medio = activos.filter((r: any) => (r.nivel || '').toLowerCase().includes('medio') || (r.nivel || '').toLowerCase().includes('medium')).length;
+    const activos = rs.filter((r: Riesgo) => r.estado === 'abierto' || r.estado === 'en_seguimiento');
+    const alto = activos.filter((r: Riesgo) => (r.nivel || '').toLowerCase().includes('alto') || (r.nivel || '').toLowerCase().includes('high')).length;
+    const medio = activos.filter((r: Riesgo) => (r.nivel || '').toLowerCase().includes('medio') || (r.nivel || '').toLowerCase().includes('medium')).length;
     const bajo = activos.length - alto - medio;
     const top = activos.slice(0, 3);
     return { total: activos.length, alto, medio, bajo: Math.max(bajo, 0), top };
@@ -257,7 +259,7 @@ const Dashboard: React.FC = () => {
 
   const ocCambioPendientes = useMemo(() => {
     const ocs = ordenesCambio || [];
-    return ocs.filter((o: any) => o.estado === 'pendiente' || o.estado === 'pendiente_aprobacion').slice(0, 3);
+    return ocs.filter((o: OrdenCompra) => o.estado === 'pendiente' || o.estado === 'pendiente_aprobacion').slice(0, 3);
   }, [ordenesCambio]);
 
   const proyTrend = useMemo(() => {
@@ -471,7 +473,7 @@ const Dashboard: React.FC = () => {
                 <div className="flex-1 text-[10px] space-y-1">
                   <div className="flex justify-between"><span className="text-muted-foreground">Planificado</span><b className="text-foreground">{fmtQ(planVsReal.costoPlanificado || 0)}</b></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">Real</span><b className="text-foreground">{fmtQ(Math.max(planVsReal.costoReal, 0))}</b></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Desviación</span><b className={Math.abs(planVsReal.avgDesv) > 15 ? 'text-red-500' : 'text-emerald-500'}>{fmtPct(planVsReal.avgDesv)}</b></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Desviación</span><b className={Math.abs(planVsReal.avgDesv) > 15 ? 'text-red-500 dark:text-red-400' : 'text-emerald-500 dark:text-emerald-400'}>{fmtPct(planVsReal.avgDesv)}</b></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">Mayor desviación</span><b className="text-foreground truncate max-w-[120px] inline-block align-bottom text-right">{planVsReal.top?.nombre || (planVsReal.conPlan > 0 ? '-' : 'Sin datos')}</b></div>
                   {planVsReal.conPlan > 0 && (
                     <div className="pt-1">
@@ -508,7 +510,7 @@ const Dashboard: React.FC = () => {
               <Progress value={Math.min(avanceProm, 100)} color={avanceProm < 30 ? '#ef4444' : avanceProm < 70 ? '#f59e0b' : '#10b981'} />
               <div className="flex justify-between items-center pt-0.5">
                 <span className="text-muted-foreground">{t('dashboard.avance_financiero')}</span>
-                <b className={avanceFinProm < 30 ? 'text-red-500' : avanceFinProm < 70 ? 'text-amber-500' : 'text-emerald-500'}>{fmtPct(avanceFinProm)}</b>
+                <b className={avanceFinProm < 30 ? 'text-red-500 dark:text-red-400' : avanceFinProm < 70 ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-500 dark:text-emerald-400'}>{fmtPct(avanceFinProm)}</b>
               </div>
               <Progress value={Math.min(avanceFinProm, 100)} color={avanceFinProm < 30 ? '#ef4444' : avanceFinProm < 70 ? '#f59e0b' : '#10b981'} />
               <div className="flex justify-between text-[9px] text-muted-foreground pt-0.5">
@@ -599,7 +601,7 @@ const Dashboard: React.FC = () => {
                   <div key={p.id} className="group cursor-pointer" onClick={() => setSelectedProyectoId(p.id)}>
                     <div className="flex items-center justify-between text-[9px] mb-0.5">
                       <span className="flex items-center gap-1 truncate">
-                        <Icono className={`w-2.5 h-2.5 ${i === 0 ? 'text-amber-500' : i === 1 ? 'text-blue-500' : 'text-slate-500'}`} />
+                        <Icono className={`w-2.5 h-2.5 ${i === 0 ? 'text-amber-500 dark:text-amber-400' : i === 1 ? 'text-blue-500 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`} />
                         <span className="text-foreground font-medium truncate max-w-[90px]">{p.nombre}</span>
                       </span>
                       <span className="flex items-center gap-1 text-muted-foreground">
@@ -634,7 +636,7 @@ const Dashboard: React.FC = () => {
               </div>
               {licitacionesData.top.length > 0 && (
                 <div className="space-y-0.5 border-t border-border pt-1">
-                  {licitacionesData.top.map((l: any, i: number) => (
+                  {licitacionesData.top.map((l: Licitacion, i: number) => (
                     <div key={l.id || i} className="flex justify-between text-[9px]">
                       <span className="truncate text-muted-foreground max-w-[100px]">{l.nombre || l.cliente || `Licitación ${i + 1}`}</span>
                       <span className="text-primary font-medium">{l.probabilidad || 0}%</span>

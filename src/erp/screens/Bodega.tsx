@@ -334,7 +334,7 @@ const Bodega: React.FC = () => {
                 </button>
                 <button onClick={() => deleteProveedor(p.id)}
                   aria-label={`Eliminar proveedor ${p.nombre}`}
-                  className="p-1 rounded text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+                  className="p-1 rounded text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:text-red-400 dark:hover:text-red-300">
                   <Trash2 className="w-3 h-3" aria-hidden="true" />
                 </button>
               </div>
@@ -356,11 +356,11 @@ const Bodega: React.FC = () => {
             </div>
             <div className="space-y-3">
               <input {...registerProv('nombre')} placeholder="Nombre" className={`${inp} ${errorsProv.nombre ? 'border-red-400' : ''}`} />
-              {errorsProv.nombre && <p className="text-xs text-red-500">{errorsProv.nombre.message}</p>}
+              {errorsProv.nombre && <p className="text-xs text-red-500 dark:text-red-400">{errorsProv.nombre.message}</p>}
               <input {...registerProv('contacto')} placeholder="Contacto" className={`${inp} ${errorsProv.contacto ? 'border-red-400' : ''}`} />
-              {errorsProv.contacto && <p className="text-xs text-red-500">{errorsProv.contacto.message}</p>}
+              {errorsProv.contacto && <p className="text-xs text-red-500 dark:text-red-400">{errorsProv.contacto.message}</p>}
               <input {...registerProv('rubro')} placeholder="Rubro" className={`${inp} ${errorsProv.rubro ? 'border-red-400' : ''}`} />
-              {errorsProv.rubro && <p className="text-xs text-red-500">{errorsProv.rubro.message}</p>}
+              {errorsProv.rubro && <p className="text-xs text-red-500 dark:text-red-400">{errorsProv.rubro.message}</p>}
               <select {...registerProv('calificacion', { valueAsNumber: true })} className={inp}>
                 {[0, 1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n} estrellas</option>)}
               </select>

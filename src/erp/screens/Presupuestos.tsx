@@ -767,7 +767,7 @@ const Presupuestos: React.FC = () => {
                                    className="w-16 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
                                  />
                                  <span className="text-slate-600 font-semibold w-20 text-right">{fmtQ(subTotal)}</span>
-                                 <button onClick={() => delSubRenglon(r.id, sub.id)} className="text-slate-300 hover:text-red-500">
+                                 <button onClick={() => delSubRenglon(r.id, sub.id)} className="text-slate-300 hover:text-red-500 dark:text-red-400">
                                    <X className="w-3 h-3" />
                                  </button>
                                </div>
