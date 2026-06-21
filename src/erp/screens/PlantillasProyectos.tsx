@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
+import type { Plantilla } from '../store/schemas/plantillas';
+import type { Proyecto } from '../types';
 import {
   Plus, X, Copy, Building2, Home, Factory, Building,
   Landmark, Edit, Trash2, Eye, Clock, TrendingUp, Settings,
@@ -25,6 +27,19 @@ const plantillaFormSchema = z.object({
 
 type PlantillaFormData = z.infer<typeof plantillaFormSchema>;
 
+interface VersionComparacion {
+  anterior: Plantilla;
+  actual: Plantilla;
+}
+
+interface VersionHistorialItem {
+  version: number;
+  fecha: string;
+  usuario: string;
+  cambios: string;
+  snapshot?: any;
+}
+
 const CATEGORIAS = [
   { key: 'residencial' as const, label: 'Residencial', icon: Home, color: 'bg-blue-50 border-blue-300', textColor: 'text-blue-600' },
   { key: 'comercial' as const, label: 'Comercial', icon: Building2, color: 'bg-emerald-50 border-emerald-300', textColor: 'text-emerald-600' },
@@ -42,10 +57,10 @@ const PlantillasProyectos: React.FC = () => {
   const [showGlobalDashboard, setShowGlobalDashboard] = useState(false);
   const [showHistorial, setShowHistorial] = useState(false);
   const [showEditorModal, setShowEditorModal] = useState(false);
-  const [editingPlantilla, setEditingPlantilla] = useState<any>(null);
-  const [versionesComparar, setVersionesComparar] = useState<{ anterior: any; actual: any } | null>(null);
+  const [editingPlantilla, setEditingPlantilla] = useState<Plantilla | null>(null);
+  const [versionesComparar, setVersionesComparar] = useState<VersionComparacion | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [previewPlantilla, setPreviewPlantilla] = useState<any>(null);
+  const [previewPlantilla, setPreviewPlantilla] = useState<Plantilla | null>(null);
   const [filtroCategoria, setFiltroCategoria] = useState('');
   const [filtroCliente, setFiltroCliente] = useState('');
   const [filtroFavoritas, setFiltroFavoritas] = useState(false);
@@ -129,7 +144,7 @@ const PlantillasProyectos: React.FC = () => {
     }
   };
 
-  const handleEdit = (plantilla: any) => {
+  const handleEdit = (plantilla: Plantilla) => {
     setEditingId(plantilla.id);
     setFormData({
       nombre: plantilla.nombre,
@@ -142,12 +157,12 @@ const PlantillasProyectos: React.FC = () => {
     setShowForm(true);
   };
 
-  const handleEditStructure = (plantilla: any) => {
+  const handleEditStructure = (plantilla: Plantilla) => {
     setEditingPlantilla(plantilla);
     setShowEditorModal(true);
   };
 
-  const handleSaveStructure = (estructuraData: any) => {
+  const handleSaveStructure = (estructuraData: Partial<Plantilla>) => {
     if (editingPlantilla) {
       updatePlantilla(editingPlantilla.id, estructuraData);
       toast.success('Estructura de plantilla actualizada');
@@ -219,7 +234,7 @@ const PlantillasProyectos: React.FC = () => {
     }
   };
 
-  const handleClone = (plantilla: any) => {
+  const handleClone = (plantilla: Plantilla) => {
     const nuevoNombre = prompt('Nombre para la plantilla clonada:', `${plantilla.nombre} (Copia)`);
     if (nuevoNombre && nuevoNombre.trim()) {
       clonarPlantilla(plantilla.id, nuevoNombre.trim());
@@ -227,7 +242,7 @@ const PlantillasProyectos: React.FC = () => {
     }
   };
 
-  const handleExport = (plantilla: any) => {
+  const handleExport = (plantilla: Plantilla) => {
     try {
       const json = exportarPlantilla(plantilla.id);
       if (!json) {
@@ -272,7 +287,7 @@ const PlantillasProyectos: React.FC = () => {
     e.target.value = '';
   };
 
-  const handleCrearNuevaVersion = (plantilla: any) => {
+  const handleCrearNuevaVersion = (plantilla: Plantilla) => {
     const cambios = prompt('Describe los cambios de esta nueva versión:');
     if (cambios && cambios.trim()) {
       crearNuevaVersionPlantilla(plantilla.id, cambios.trim());
@@ -280,7 +295,7 @@ const PlantillasProyectos: React.FC = () => {
     }
   };
 
-  const handleVerHistorial = (plantilla: any) => {
+  const handleVerHistorial = (plantilla: Plantilla) => {
     setPreviewPlantilla(plantilla);
     setShowHistorial(true);
   };
@@ -293,7 +308,7 @@ const PlantillasProyectos: React.FC = () => {
     }
   };
 
-  const handlePreview = (plantilla: any) => {
+  const handlePreview = (plantilla: Plantilla) => {
     setPreviewPlantilla(plantilla);
     setShowPreview(true);
   };
@@ -310,7 +325,7 @@ const PlantillasProyectos: React.FC = () => {
       return;
     }
 
-    const proyectoData: any = {
+    const proyectoData: Partial<Proyecto> = {
       nombre: `Nuevo proyecto - ${plantilla.nombre}`,
       tipologia: plantilla.configuracion?.tipologia || 'residencial',
       tipoObra: plantilla.configuracion?.tipoObra || 'nueva',
@@ -326,7 +341,7 @@ const PlantillasProyectos: React.FC = () => {
     const proyecto = proyectos.find(p => p.id === proyectoId);
     if (!proyecto) return;
 
-    const nuevaPlantilla: any = {
+    const nuevaPlantilla: Partial<Plantilla> = {
       nombre: `Plantilla - ${proyecto.nombre}`,
       descripcion: `Creada desde proyecto: ${proyecto.nombre}`,
       categoria: proyecto.tipologia,
@@ -1074,7 +1089,7 @@ const PlantillasProyectos: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {[...previewPlantilla.versionHistorial].reverse().map((historial: any) => (
+                  {[...previewPlantilla.versionHistorial].reverse().map((historial: VersionHistorialItem) => (
                     <div key={historial.version} className="border rounded p-3 hover:bg-muted/50 transition-colors">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">

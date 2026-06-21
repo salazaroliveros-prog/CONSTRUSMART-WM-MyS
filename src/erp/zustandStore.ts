@@ -21,7 +21,7 @@ const lastMutationCall: Record<string, number> = {};
 function checkRateLimit(type: string): boolean {
   const now = Date.now();
   const last = lastMutationCall[type];
-  if (last && now - last < RATE_LIMIT_MS) { console.warn(`[RateLimit] ${type} bloqueada`); return false; }
+  if (last && now - last < RATE_LIMIT_MS) { safeLogger.warn(`[RateLimit] ${type} bloqueada`); return false; }
   lastMutationCall[type] = now;
   return true;
 }

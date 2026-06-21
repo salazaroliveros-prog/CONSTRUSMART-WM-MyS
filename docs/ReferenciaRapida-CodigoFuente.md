@@ -1,5 +1,5 @@
 # 🗂️ REFERENCIA RÁPIDA — CONSTRUSMART ERP
-## Última actualización: 2026-06-09 | Hora: 17:15
+## Última actualización: 2026-06-21 | Hora: 09:00
 
 ---
 
@@ -44,11 +44,11 @@
 
 | Módulo | Estado | Acción (store) | Target/side effect |
 | --- | --- | --- | --- |
-| Bodega | `ordenes` | `updateOrden(id, estado)` | Cambia estado de OC (`aprobado`/`rechazado`). No hay `addOrden` expuesto en contexto por handler ausente. |
+| Bodega | `ordenes` | `addOrden`, `updateOrden`, `deleteOrden` | CRUD completo de OC. `updateOrden` cambia estado y cascada a stock. |
 | Bodega | `proveedores` | `addProveedor` | Alta de proveedor |
 | Bodega | `proveedores` | `updateProveedor` | Edición de proveedor |
 | Bodega | `proveedores` | `deleteProveedor` | Baja de proveedor |
-| Bodega | `materiales` | `updateMaterial` | Edita campos como `stock` (no hay `addMaterial` expuesto) |
+| Bodega | `materiales` | `addMaterial`, `updateMaterial`, `deleteMaterial` | CRUD completo. `updateMaterial` con optimistic locking por version. |
 | Muro de Obra | `publicacionesMuro` | `addPublicacionMuro` | Crea publicación |
 | Muro de Obra | `publicacionesMuro` | `addComentarioMuro` | Crea comentario |
 | Muro de Obra | `publicacionesMuro` | `likePublicacionMuro` | Like |
@@ -61,7 +61,7 @@
 | Documentos | `submittals` | `addSubmittal` | Crea submittal |
 | Documentos | `submittals` | `updateSubmittal` | Edita submittal |
 | Documentos | `submittals` | `deleteSubmittal` | Elimina submittal |
-| Comercial/Finanzas | `ventasPaquetes` | No expuesto `addVentaPaquete` en contexto (declarado en interface pero no asignado en value). |
+| Comercial/Finanzas | `ventasPaquetes` | `addVentaPaquete` | Crea paquete de venta (expuesto + tableMap activo). |
 | Finanzas | `cuentasCobrar` | `addCuentaCobrar` | Crea cuenta por cobrar |
 | Finanzas | `cuentasCobrar` | `updateCuentaCobrar` | Edita |
 | Finanzas | `cuentasCobrar` | `deleteCuentaCobrar` | Elimina |
@@ -186,7 +186,7 @@
 ---
 
 ## 7. Tests
-- 427/427 tests pasan
+- 619/619 tests pasan (15 archivos)
 - Suite: Vitest
 - Módulos: src/__tests__ + src/erp/__tests__ + src/lib/__tests__
 
@@ -210,7 +210,7 @@
 
 ---
 
-## 10. Estado actual de validación E2E (2026-06-09 17:15)
+## 10. Estado actual de validación E2E (2026-06-21 09:00)
 
 ### ✅ Módulos validados (con datos o funcionales)
 - **Tablero** - Dashboard con KPIs

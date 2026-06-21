@@ -3,7 +3,9 @@
 - Mapa de etapas APP_STAGES definido en src/erp/types.ts.
 - Trazabilidad Presupuesto → Bodega → Dashboard activa: cantidades presupuestadas respaldan métricas plan vs real.
 - Filtro global ProyectoFilter unificado en vistas principales.
-- Suite: 569/569 tests verdes. Build: 0 warnings.
+- Motor de Cálculo APU: 8 motores paramétricos (Fases 1-5 completas).
+- Suite: 619/619 tests verdes (15 archivos). Build: 0 errores.
+- Pantallas: 36 (100% implementadas, accesibles, con skeleton loading).
 
 # ERP CONSTRUSMART — Gestión Constructora Integral
 
@@ -290,13 +292,17 @@ Ver `SUPABASE_GOOGLE_OAUTH_SETUP.md` (archivo eliminado — contenido consolidad
 
 | # | Item | Tipo | Estado |
 |---|------|------|--------|
-| 1 | Ejecutar migración seed data en Supabase (`000000000004_seed_data.sql`) | Operación | ❌ Pendiente |
-| 2 | Ejecutar migraciones (000000000006, 000000000007, 000000000008) | Operación | ❌ Pendiente |
-| 3 | Tablas sin sync Supabase (erp_seguimiento, erp_renglones, erp_insumos, erp_sub_renglones) | Feature | ❌ Pendiente |
-| 4 | Overlay de planos vs modelo en Visor BIM | Feature | ❌ Pendiente |
-| 5 | F-17: Internacionalización (i18n) | Feature | ✅ Implementado (es.json + en.json, 633 keys) |
-| 6 | Google OAuth verificación de dominio | Seguridad | ❌ Pendiente |
-| 7 | Refresh token rotation en Supabase | Seguridad | ❌ Pendiente |
+| 1 | Seed data en Supabase | Operación | ✅ Ejecutado |
+| 2 | Migraciones SQL (hasta 043) | Operación | ✅ Ejecutadas (43 migraciones) |
+| 3 | Tablas sync Supabase | Feature | ✅ 30+ entidades sincronizadas |
+| 4 | Overlay de planos vs modelo en Visor BIM | Feature | ❌ No implementado |
+| 5 | Internacionalización (i18n) | Feature | ✅ Implementado (es.json + en.json, 633+ keys) |
+| 6 | Google OAuth verificación de dominio | Seguridad | ❌ No verificado |
+| 7 | Refresh token rotation en Supabase | Seguridad | ❌ No implementado |
+| 8 | Motor de Cálculo APU (Fases 1-5) | Feature | ✅ 8 motores + geografía + normativa + escalas + estacionalidad |
+| 9 | Plantillas de Proyectos | Feature | ✅ Dashboard + Editor + Diff + Analytics |
+| 10 | Destajos → Store | Feature | ✅ Schema + handlers + Supabase sync |
+| 11 | Recepciones → Store | Feature | ✅ Schema + handlers + sync |
 
 ---
 
@@ -310,4 +316,4 @@ Ver `SUPABASE_GOOGLE_OAUTH_SETUP.md` (archivo eliminado — contenido consolidad
 
 ---
 
-*Última actualización: 2026-06-06*
+*Última actualización: 2026-06-21*

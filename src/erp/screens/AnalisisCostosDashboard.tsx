@@ -6,14 +6,40 @@ import { listarNormativas } from '../services/normativaDepartamental';
 import { listarEscalasProduccion } from '../services/escalasProduccion';
 import { listarEstacionalidad } from '../services/estacionalidad';
 
+interface CalculoRegistro {
+  tipoCalcululo: string;
+  resultados?: { costo_total?: number };
+}
+
+interface NormativaRegistro {
+  departamentoCodigo: string;
+}
+
+interface EscalaRegistro {
+  rangoTamano: string;
+  tipoProyecto: string;
+  factorEconomia: number;
+}
+
+interface EstacionalidadRegistro {
+  mes: string;
+  factor: number;
+}
+
+interface EscalaFolded {
+  tipoProyecto: string;
+  rango: string;
+  valor: number;
+}
+
 const AnalisisCostosDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<'30d' | '90d' | '180d'>('30d');
 
-  const [calculos, setCalculos] = useState<any[]>([]);
-  const [normativas, setNormativas] = useState<any[]>([]);
-  const [escalas, setEscalas] = useState<any[]>([]);
-  const [estacionalidad, setEstacionalidad] = useState<any[]>([]);
+  const [calculos, setCalculos] = useState<CalculoRegistro[]>([]);
+  const [normativas, setNormativas] = useState<NormativaRegistro[]>([]);
+  const [escalas, setEscalas] = useState<EscalaRegistro[]>([]);
+  const [estacionalidad, setEstacionalidad] = useState<EstacionalidadRegistro[]>([]);
 
   const costosPorTipo = useMemo(() => {
     const tipos: Record<string, number> = {};
@@ -32,7 +58,7 @@ const AnalisisCostosDashboard: React.FC = () => {
   }, [normativas]);
 
   const escalasData = useMemo(() => {
-    const escalasFolded: any[] = [];
+    const escalasFolded: EscalaFolded[] = [];
     escalas.forEach(e => {
       if (e.rangoTamano === 'pequeno') escalasFolded.push({ tipoProyecto: e.tipoProyecto, rango: 'Pequeño', valor: e.factorEconomia });
       if (e.rangoTamano === 'mediano') escalasFolded.push({ tipoProyecto: e.tipoProyecto, rango: 'Mediano', valor: e.factorEconomia });
