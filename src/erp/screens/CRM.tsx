@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useErp } from '../store';
 import { Licitacion } from '../types';
-import { fmtQ, todayISO } from '../utils';
+import { fmtQ } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import LicitacionesDashboard from '../components/LicitacionesDashboard';
 import { 
-  Plus, X, Target, TrendingUp, DollarSign, PieChart, 
-  Briefcase, CheckCircle, Clock, AlertCircle, Send, Archive,
+  Plus, X, Target, TrendingUp, DollarSign, 
+  Briefcase, CheckCircle, Clock, Archive,
   Pencil, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';

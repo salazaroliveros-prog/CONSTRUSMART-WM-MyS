@@ -151,7 +151,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                 return (
                   <button
                     key={it.id}
-                    onClick={() => { setView(it.id); onClose(); }}
+                    onClick={() => { setView(it.id); window.location.hash = it.id; onClose(); }}
                     title={it.label}
                     aria-label={it.label}
                     aria-current={active ? 'page' : undefined}
@@ -196,7 +196,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                         return (
                           <button
                             key={it.id}
-                            onClick={() => { setView(it.id); onClose(); }}
+                            onClick={() => { setView(it.id); window.location.hash = it.id; onClose(); }}
                             aria-current={active ? 'page' : undefined}
                             className={`relative w-full flex items-center gap-2.5 px-2.5 py-[7px] rounded-xl
                               text-xs font-medium transition-all duration-150 active:scale-[0.97]

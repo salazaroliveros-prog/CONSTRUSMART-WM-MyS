@@ -668,7 +668,7 @@ export class ValidacionCalculos {
   async marcarAlertaRevisada(alertaId: string, estado: 'revisada' | 'corregida' | 'ignorada', notas?: string): Promise<void> {
     // Esto requeriría una tabla de alertas separada para un seguimiento detallado
     // Por ahora, actualizamos el estado en el cálculo
-    console.log(`Alerta ${alertaId} marcada como ${estado}`, notas);
+  
   }
 }
 

@@ -19,7 +19,6 @@ export const ComercialFinanzas: React.FC = () => {
   const ventas = (ventasPaquetes ?? []) as VentaPaquete[];
   const setVentas = (updater: React.SetStateAction<VentaPaquete[]>) => {
     const next = typeof updater === 'function' ? (updater as (v: VentaPaquete[]) => VentaPaquete[])(ventas) : updater;
-    console.warn('ComercialFinanzas: setVentas no persistirá en backend');
   };
 
   const addVenta = (data: Omit<VentaPaquete, 'id'>) => {

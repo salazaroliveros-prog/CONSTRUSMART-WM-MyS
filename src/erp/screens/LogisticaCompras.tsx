@@ -3,8 +3,6 @@ import { useErp, uid } from '../store';
 import type { ActivoHerramienta, PagoProveedor } from '../types';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import KitsMateriales from '../components/KitsMateriales';
-
 const activoSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido').max(100, 'Máximo 100 caracteres'),
   codigoInventario: z.string().min(1, 'Código requerido').max(50, 'Máximo 50 caracteres'),
@@ -27,12 +25,12 @@ export const LogisticaCompras: React.FC = () => {
   const { activos, addActivo, updateActivo, deleteActivo, cuadros, addCuadro, updateCuadro, pagosProveedor, addPagoProveedor, updatePagoProveedor } = useErp();
   const [tab, setTab] = useState<'activos' | 'cuadros' | 'pagos'>('activos');
   const [showForm, setShowForm] = useState<string | null>(null);
-  const [form, setForm] = useState<Record<string, any>>({});
+  const [form, setForm] = useState<Record<string, string | number>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const clearError = (field: string) => setFormErrors(prev => ({ ...prev, [field]: '' }));
-  const updateForm = (field: string, value: any) => {
-    setForm((prev: Record<string, any>) => ({ ...prev, [field]: value }));
+  const updateForm = (field: string, value: string | number) => {
+    setForm(prev => ({ ...prev, [field]: value }));
     clearError(field);
   };
 

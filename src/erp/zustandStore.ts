@@ -18,6 +18,8 @@ import type { AppSettings, Mutation, LogAuditoria } from './types';
 const RATE_LIMIT_MS = 100;
 const lastMutationCall: Record<string, number> = {};
 
+export const resetRateLimit = () => { for (const k in lastMutationCall) delete lastMutationCall[k]; };
+
 function checkRateLimit(type: string): boolean {
   const now = Date.now();
   const last = lastMutationCall[type];
@@ -171,8 +173,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_eventos_calendario','erp_bitacora','erp_seguimiento',
       'erp_liberaciones_partida','erp_notificaciones','erp_cuadros',
       'recepciones_almacen','erp_pruebas_laboratorio','ventas_paquetes',
-      'pagos_proveedores','erp_renglones','erp_insumos','erp_sub_renglones',
-      'erp_insumos_base','erp_rendimientos_cuadrilla','centros_costo',
+      'pagos_proveedores','centros_costo',
       'erp_plantillas_proyectos',
     ] as const;
 
@@ -192,8 +193,6 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       erp_notificaciones:'notificaciones',erp_cuadros:'cuadros',
       recepciones_almacen:'recepciones',erp_pruebas_laboratorio:'pruebas',
       ventas_paquetes:'ventasPaquetes',pagos_proveedores:'pagosProveedor',
-      erp_renglones:'renglones',erp_insumos:'insumos',erp_sub_renglones:'subRenglones',
-      erp_insumos_base:'insumosBase',erp_rendimientos_cuadrilla:'rendimientosCuadrilla',
       centros_costo:'centrosCosto',erp_plantillas_proyectos:'plantillas',
     };
 
@@ -381,25 +380,25 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     if (!proyecto) return;
     const oldEstado = proyecto.estado; const newEstado = patch.estado || oldEstado;
     const transicionesValidas: Record<string, string[]> = { planeacion: ['ejecucion'], ejecucion: ['pausado','finalizado'], pausado: ['ejecucion'], finalizado: [] };
-    if (oldEstado !== newEstado && !transicionesValidas[oldEstado]?.includes(newEstado)) { console.warn(`[StateMachine] Transición inválida: ${oldEstado} → ${newEstado}`); return; }
+    if (oldEstado !== newEstado && !transicionesValidas[oldEstado]?.includes(newEstado)) { return; }
     if (newEstado === 'ejecucion' && oldEstado === 'planeacion') {
       const tienePresupuesto = get().presupuestos.some(p => p.proyectoId === id && p.estado === 'aprobado');
       const tieneHitos = get().hitos.some(h => h.proyectoId === id);
-      if (!tienePresupuesto) { console.warn('[StateMachine] Requiere presupuesto aprobado'); return; }
-      if (!tieneHitos) { console.warn('[StateMachine] Requiere al menos un hito definido'); return; }
+      if (!tienePresupuesto) { return; }
+      if (!tieneHitos) { return; }
     }
-    if (newEstado === 'pausado' && !patch.motivoPausa) { console.warn('[StateMachine] motivoPausa es requerido para pausar'); return; }
+    if (newEstado === 'pausado' && !patch.motivoPausa) { return; }
     if (newEstado === 'finalizado' && oldEstado === 'ejecucion') {
       const current = get().proyectos.find(p => p.id === id);
-      if (current && (current.avanceFisico < 100 || current.avanceFinanciero < 100)) { console.warn('[StateMachine] Requiere avance 100% para finalizar'); return; }
+      if (current && (current.avanceFisico < 100 || current.avanceFinanciero < 100)) { return; }
     }
     const etapaValida: Record<string, string[]> = { planeacion: ['planificacion','diseno','preconstruccion'], ejecucion: ['construccion'], pausado: ['planificacion','diseno','preconstruccion','construccion','cierre'], finalizado: ['cierre'] };
-    if (newEstado && patch.etapa && !etapaValida[newEstado]?.includes(patch.etapa)) { console.warn(`[StateMachine] Inconsistencia: estado=${newEstado} no permite etapa=${patch.etapa}`); return; }
-    if (oldEstado === 'planeacion' && (patch.avanceFisico && patch.avanceFisico > 0)) { console.warn('[StateMachine] Proyecto en planeación no puede tener avance físico > 0'); return; }
-    if (oldEstado === 'planeacion' && (patch.avanceFinanciero && patch.avanceFinanciero > 0)) { console.warn('[StateMachine] Proyecto en planeación no puede tener avance financiero > 0'); return; }
+    if (newEstado && patch.etapa && !etapaValida[newEstado]?.includes(patch.etapa)) { return; }
+    if (oldEstado === 'planeacion' && (patch.avanceFisico && patch.avanceFisico > 0)) { return; }
+    if (oldEstado === 'planeacion' && (patch.avanceFinanciero && patch.avanceFinanciero > 0)) { return; }
     if (newEstado === 'finalizado') patch = { ...patch, avanceFisico: 100, avanceFinanciero: 100 };
     const expectedVersion = proyecto.version || 1;
-    if (patch.version !== undefined && patch.version < expectedVersion) { console.warn(`[OptimisticLock] Proyecto ${id}: versión esperada ${expectedVersion}, recibida ${patch.version}`); return; }
+    if (patch.version !== undefined && patch.version < expectedVersion) { return; }
     patch.version = expectedVersion + 1;
     get().setProyectos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
     get().enqueueMutation('updateProyecto', { id, ...patch });
@@ -457,6 +456,8 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().setPagosProveedor([]);
     get().setDestajos([]);
     get().setRecepciones([]);
+    get().setCentrosCosto([]);
+    get().setPlantillas([]);
     get().setMutationQueue([]);
     get().setNotificaciones([]);
     get().setAuditLog([]);
@@ -488,7 +489,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     const existing = get().materiales.find(m => m.id === id);
     if (existing) {
       const expectedVersion = existing.version || 1;
-      if (patch.version !== undefined && patch.version < expectedVersion) { console.warn(`[OptimisticLock] Material ${id}: versión esperada ${expectedVersion}, recibida ${patch.version}`); return; }
+      if (patch.version !== undefined && patch.version < expectedVersion) { return; }
       patch.version = expectedVersion + 1;
     }
     get().setMateriales(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateMaterial', { id, ...patch });
@@ -534,7 +535,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     const existing = get().presupuestos.find(p => p.id === id);
     if (!existing) return;
     const expectedVersion = existing.version || 1;
-    if (patch.version !== undefined && patch.version < expectedVersion) { console.warn(`[OptimisticLock] Presupuesto ${id}: versión esperada ${expectedVersion}, recibida ${patch.version}`); return; }
+    if (patch.version !== undefined && patch.version < expectedVersion) { return; }
     let totalCalc = patch.totalCalculado;
     if (patch.renglones) {
       totalCalc = patch.renglones.reduce((acc, r) => acc + (r.totalPV ?? (r.costoMateriales + r.costoManoObra + r.costoEquipo || 0)), 0);
@@ -672,7 +673,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().setNotificaciones(prev => {
       const existing = proyectoId ? prev.find(n => n.proyectoId === proyectoId && n.titulo === titulo && !n.leido) : undefined;
       if (existing) return prev.map(n => n.id === existing.id ? { ...n, mensaje: `${n.mensaje} (+1)`, createdAt: new Date().toISOString(), referenciaId: referenciaId || n.referenciaId } : n);
-      const nueva: Notificacion = { id: uid(), tipo: tipo as any, titulo, mensaje, proyectoId, referenciaId, leido: false, createdAt: new Date().toISOString() };
+      const nueva: Notificacion = { id: uid(), tipo, titulo, mensaje, proyectoId, referenciaId, leido: false, createdAt: new Date().toISOString() };
       get().enqueueMutation('addNotificacion', nueva);
       return [nueva, ...prev];
     });
@@ -838,7 +839,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
 
   toggleFavoritoPlantilla: (plantillaId) => {
     const plantilla = get().plantillas.find(p => p.id === plantillaId);
-    if (!plantilla) { console.warn(`[toggleFavoritoPlantilla] Plantilla ${plantillaId} no encontrada`); return; }
+    if (!plantilla) { return; }
 
     get().updatePlantilla(plantillaId, {
       favorita: !plantilla.favorita,
@@ -896,7 +897,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   },
   clonarPlantilla: (plantillaId, nuevoNombre) => {
     const plantilla = get().plantillas.find(p => p.id === plantillaId);
-    if (!plantilla) { console.warn(`[clonarPlantilla] Plantilla ${plantillaId} no encontrada`); return; }
+    if (!plantilla) { return; }
 
     const clon: Plantilla = {
       ...plantilla,
@@ -924,7 +925,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   },
   exportarPlantilla: (plantillaId) => {
     const plantilla = get().plantillas.find(p => p.id === plantillaId);
-    if (!plantilla) { console.warn(`[exportarPlantilla] Plantilla ${plantillaId} no encontrada`); return ''; }
+    if (!plantilla) { return ''; }
 
     const exportData = {
       version: '1.0',
@@ -938,7 +939,6 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     try {
       const importData = JSON.parse(plantillaJson);
       if (!importData.plantilla) {
-        console.warn('[importarPlantilla] Formato JSON inválido: falta campo plantilla');
         return;
       }
 
@@ -1017,7 +1017,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   },
   crearNuevaVersionPlantilla: (plantillaId, cambios, usuario = 'sistema') => {
     const plantilla = get().plantillas.find(p => p.id === plantillaId);
-    if (!plantilla) { console.warn(`[crearNuevaVersionPlantilla] Plantilla ${plantillaId} no encontrada`); return; }
+    if (!plantilla) { return; }
 
     const nuevaVersion = plantilla.version + 1;
     const snapshot = {
@@ -1055,11 +1055,10 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   },
   restaurarVersionPlantilla: (plantillaId, version) => {
     const plantilla = get().plantillas.find(p => p.id === plantillaId);
-    if (!plantilla) { console.warn(`[restaurarVersionPlantilla] Plantilla ${plantillaId} no encontrada`); return; }
+    if (!plantilla) { return; }
 
     const versionInfo = plantilla.versionHistorial?.find(h => h.version === version);
     if (!versionInfo || !versionInfo.snapshot) {
-      console.warn(`[restaurarVersionPlantilla] Versión ${version} no encontrada o sin snapshot`);
       return;
     }
 
@@ -1106,11 +1105,10 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   },
   crearProyectoDesdePlantilla: (plantillaId, proyectoData) => {
     const plantilla = get().plantillas.find(p => p.id === plantillaId);
-    if (!plantilla) { console.warn(`[crearProyectoDesdePlantilla] Plantilla ${plantillaId} no encontrada`); return; }
+    if (!plantilla) { return; }
 
     const validacion = get().validarIntegridadPlantilla(plantillaId);
     if (!validacion.valido) {
-      console.warn(`[crearProyectoDesdePlantilla] Validación fallida: ${validacion.errores.join(', ')}`);
       return;
     }
 

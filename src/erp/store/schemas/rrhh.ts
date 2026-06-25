@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const empleadoSchema = z.object({
   id: z.string(),
+  proyectoId: z.string().default(''),
   nombre: z.string(),
   puesto: z.string(),
   salarioDiario: z.number(),
@@ -10,6 +11,7 @@ export const empleadoSchema = z.object({
   proyectoIds: z.array(z.string()).default([]),
   telefono: z.string().nullable().optional(),
   diasTrabajados: z.number().nullable().optional(),
+  fechaAsignacion: z.string().optional().default(''),
 });
 
 export const incidenteSchema = z.object({

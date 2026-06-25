@@ -6,13 +6,18 @@ export const activoSchema = z.object({
   nombre: z.string().default(''),
   codigoInventario: z.string().default(''),
   tipo: z.enum(['herramienta','equipo','vehiculo','accesorio'] as const).default('herramienta'),
-  estado: z.enum(['disponible','asignado','mantenimiento','dado_baja'] as const).default('disponible'),
+  estado: z.enum(['disponible','asignado','mantenimiento','baja','dado_baja'] as const).default('disponible'),
   valorAdquisicion: z.number().default(0),
   fechaAdquisicion: z.string().default(new Date().toISOString().split('T')[0]),
   proveedorId: z.string().nullable().optional(),
   proveedorNombre: z.string().default(''),
   asignadoA: z.string().default(''),
   observaciones: z.string().default(''),
+  marca: z.string().optional().default(''),
+  modelo: z.string().optional().default(''),
+  numeroSerie: z.string().optional().default(''),
+  ubicacion: z.string().optional().default(''),
+  fechaAsignacion: z.string().optional().default(''),
 });
 
 export const licitacionSchema = z.object({
@@ -29,7 +34,27 @@ export const licitacionSchema = z.object({
   createdAt: z.string().default(''),
 });
 
-export const cuadroSchema = z.object({
+const cotizacionItemSchema = z.object({
+  id: z.string(),
+  cuadroId: z.string().default(''),
+  proveedorId: z.string().default(''),
+  proveedorNombre: z.string().default(''),
+  montoTotal: z.number().default(0),
+  plazoEntrega: z.number().nullable().optional(),
+  condicionesPago: z.string().nullable().optional(),
+  validezOferta: z.string().nullable().optional(),
+  seleccionada: z.boolean().default(false),
+});
+
+export const cuadroSchema = z.preprocess(raw => {
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    const d = raw as Record<string, unknown>;
+    if (d.cotizacionesNegocio && Array.isArray(d.cotizacionesNegocio) && (!d.cotizaciones || (Array.isArray(d.cotizaciones) && d.cotizaciones.length === 0))) {
+      d.cotizaciones = d.cotizacionesNegocio;
+    }
+  }
+  return raw;
+}, z.object({
   id: z.string(),
   proyectoId: z.string().optional(),
   solicitud: z.string().default(''),
@@ -38,29 +63,8 @@ export const cuadroSchema = z.object({
   estado: z.enum(['abierto','cerrado','adjudicado'] as const).default('abierto'),
   adjudicadoA: z.string().nullable().optional(),
   observaciones: z.string().nullable().optional(),
-  cotizacionesNegocio: z.array(z.object({
-    id: z.string(),
-    proyectoId: z.string().optional().default(''),
-    tipo: z.enum(['construccion','planos_registro','estudio_planificacion','diseno_urbanistico','anteproyecto_residencial'] as const),
-    numero: z.string().default(''),
-    fecha: z.string().default(''),
-    fechaVencimiento: z.string().optional().default(''),
-    clienteNombre: z.string().default(''),
-    clienteNit: z.string().optional().default(''),
-    clienteTelefono: z.string().optional().default(''),
-    clienteEmail: z.string().optional().default(''),
-    clienteDireccion: z.string().optional().default(''),
-    descripcion: z.string().default(''),
-    alcance: z.string().default(''),
-    renglones: z.array(z.any()).default([]),
-    costoDirectoTotal: z.number().default(0),
-    precioVentaTotal: z.number().default(0),
-    estado: z.enum(['borrador','enviada','aprobada','rechazada','vencida'] as const).default('borrador'),
-    notas: z.string().optional().default(''),
-    createdAt: z.string().default(''),
-    updatedAt: z.string().default(''),
-  })).default([]),
-});
+  cotizaciones: z.array(cotizacionItemSchema).default([]),
+}));
 
 export const pagoProveedorSchema = z.object({
   id: z.string(),
@@ -82,7 +86,8 @@ export const planoSchema = z.object({
   nombre: z.string().default(''),
   disciplina: z.enum(['arquitectura','estructura','instalaciones','electricas','sanitarias','mecanicas','otra'] as const).default('arquitectura'),
   version: z.string().default('1.0'),
-  estado: z.enum(['borrador','vigente','obsoleto'] as const).default('borrador'),
+  estado: z.enum(['vigente','obsoleto','en_revision','borrador'] as const).default('vigente'),
+  descripcion: z.string().optional().default(''),
   archivoUrl: z.string().default(''),
   subidoPor: z.string().default(''),
   fechaSubida: z.string().default(new Date().toISOString().split('T')[0]),
@@ -132,6 +137,7 @@ export const submittalSchema = z.object({
   id: z.string(),
   proyectoId: z.string(),
   titulo: z.string().default(''),
+  descripcion: z.string().optional().default(''),
   categoria: z.enum(['material','equipo','especificacion','otro'] as const).default('otro'),
   proveedor: z.string().default(''),
   fechaEnvio: z.string().default(new Date().toISOString().split('T')[0]),

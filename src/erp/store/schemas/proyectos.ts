@@ -39,6 +39,8 @@ export const proyectoSchema = z.object({
   margenUtilidadObjetivo: z.number().optional(),
   moneda: z.enum(['GTQ','USD'] as const).optional().default('GTQ'),
   etapa: z.enum(['planificacion','diseno','preconstruccion','construccion','cierre'] as const).optional().default('planificacion'),
+  etapaAnterior: z.string().optional().default(''),
+  fechaCambioEtapa: z.string().optional().default(''),
   lat: z.number().nullable().optional(),
   lng: z.number().nullable().optional(),
   latitud: z.number().nullable().optional(),
@@ -53,6 +55,7 @@ export const proyectoSchema = z.object({
   pausadoPor: z.string().optional().default(''),
   fechaPausa: z.string().optional().default(''),
   fechaReanudacionEstimada: z.string().optional().default(''),
+  version: z.number().optional(),
 }).transform(d => ({
   ...d,
   lat: d.lat ?? d.latitud ?? 14.6349,

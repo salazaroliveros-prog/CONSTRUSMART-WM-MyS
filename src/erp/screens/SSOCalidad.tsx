@@ -8,11 +8,10 @@ import {
 } from 'lucide-react';
 import { todayISO } from '../utils';
 import { z } from 'zod';
-import ChecklistCalidad from '../components/ChecklistCalidad';
 
 // Zod schemas
 const incidenteSchema = z.object({
-  tipo: z.enum(['accidente', 'cuasi_accidente', 'incidente', 'condicion_insegura']),
+  tipo: z.enum(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro']),
   descripcion: z.string().min(1, 'Descripción requerida').max(1000, 'Máximo 1000 caracteres'),
   afectados: z.string().min(1, 'Indica los afectados').max(500, 'Máximo 500 caracteres'),
 });

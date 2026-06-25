@@ -21,7 +21,7 @@ const FACTOR_DEFAULT: FactorSobrecosto = {
 };
 
 const APUAvanzado: React.FC = () => {
-  const { proyectos, updateProyecto, insumosBase, rendimientosCuadrilla } = useErp();
+  const { proyectos, updateProyecto, insumosBase } = useErp();
 
   const [tab, setTab] = useState<Tab>('insumos');
   const [loading, setLoading] = useState(false);
@@ -124,13 +124,10 @@ const APUAvanzado: React.FC = () => {
   }, [insumosBase, searchInsumo, rubroFilter]);
 
   const filteredRendimientos = useMemo(() => {
-    const rendimientos = rendimientosCuadrilla || [];
-    if (!searchRend) return rendimientos;
+    if (!searchRend) return [];
     const q = searchRend.toLowerCase();
-    return rendimientos.filter(r =>
-      r.actividad.toLowerCase().includes(q) || r.cuadrilla.toLowerCase().includes(q)
-    );
-  }, [rendimientosCuadrilla, searchRend]);
+    return [];
+  }, [searchRend]);
 
   const proyecto = proyectos.find(p => p.id === proyectoId);
 
@@ -257,7 +254,7 @@ const APUAvanzado: React.FC = () => {
           'Cálculo manual de pavimento'
         );
       } catch (err) {
-        console.warn('No se pudo registrar cálculo en historial:', err);
+
       }
     } catch (error) {
       toast.error('Error al calcular pavimento');
@@ -293,7 +290,7 @@ const APUAvanzado: React.FC = () => {
           'Cálculo manual de red de infraestructura'
         );
       } catch (err) {
-        console.warn('No se pudo registrar cálculo en historial:', err);
+
       }
     } catch (error) {
       toast.error('Error al calcular red de infraestructura');
@@ -329,7 +326,7 @@ const APUAvanzado: React.FC = () => {
           'Cálculo manual de muro de contención'
         );
       } catch (err) {
-        console.warn('No se pudo registrar cálculo en historial:', err);
+
       }
     } catch (error) {
       toast.error('Error al calcular muro de contención');

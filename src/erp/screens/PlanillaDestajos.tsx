@@ -161,7 +161,52 @@ export const PlanillaDestajos: React.FC = () => {
         </table>
       </div>
 
-      {planilla.length === 0 && (
+      {/* Detalle de Destajos Individuales */}
+      {destajosSemana.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-sm font-semibold text-foreground mb-3">📋 Detalle de Destajos Individuales</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="p-2 text-left">Cuadrilla</th>
+                  <th className="p-2 text-left">Renglón</th>
+                  <th className="p-2 text-left">Proyecto</th>
+                  <th className="p-2 text-right">Cantidad</th>
+                  <th className="p-2 text-right">Unidad</th>
+                  <th className="p-2 text-center">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {destajosSemana.map(d => (
+                  <tr key={d.id} className="border-t hover:bg-muted/50">
+                    <td className="p-2 font-medium text-foreground">{d.cuadrilla}</td>
+                    <td className="p-2 text-muted-foreground">{d.renglonCodigo}</td>
+                    <td className="p-2 text-muted-foreground">{proyectos.find(p => p.id === d.proyectoId)?.nombre || '—'}</td>
+                    <td className="p-2 text-right font-mono">{d.cantidadEjecutada.toFixed(2)}</td>
+                    <td className="p-2 text-right text-xs">{d.unidad}</td>
+                    <td className="p-2 text-center">
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`¿Eliminar destajo de "${d.cuadrilla}" (${d.renglonCodigo})?`)) {
+                            deleteDestajo(d.id);
+                          }
+                        }}
+                        className="text-destructive hover:text-destructive/80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-2 py-1"
+                        aria-label={`Eliminar destajo de ${d.cuadrilla}`}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {planilla.length === 0 && destajosSemana.length === 0 && (
         <div className="text-center py-12">
           <p className="text-muted-foreground text-sm">No hay destajos registrados para esta semana.</p>
           <p className="text-muted-foreground text-xs mt-1">Agrega un destajo usando el botón &quot;+ Nuevo Destajo&quot;.</p>

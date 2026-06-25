@@ -15,7 +15,6 @@ type TableName =
   | 'erp_no_conformidades' | 'erp_incidentes' | 'erp_liberaciones_partida'
   | 'erp_planos' | 'erp_rfis' | 'erp_submittals'
   | 'erp_activos' | 'erp_cuadros' | 'ventas_paquetes' | 'pagos_proveedores'
-  | 'erp_renglones' | 'erp_insumos' | 'erp_sub_renglones' | 'erp_insumos_base' | 'erp_rendimientos_cuadrilla'
   | 'erp_cotizaciones_negocio'
   | 'destajos' | 'recepciones_almacen';
 
@@ -31,8 +30,7 @@ const TABLAS_POR_ROL: Record<Rol, TableName[]> = {
     'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_no_conformidades',
     'erp_incidentes', 'erp_pruebas_laboratorio', 'erp_liberaciones_partida',
     'erp_planos', 'erp_rfis', 'erp_submittals', 'erp_activos', 'erp_cuadros',
-    'erp_renglones', 'erp_insumos', 'erp_sub_renglones', 'erp_insumos_base',
-    'erp_rendimientos_cuadrilla', 'ventas_paquetes', 'pagos_proveedores',
+    'ventas_paquetes', 'pagos_proveedores',
   ],
   Gerente: [
     'erp_proyectos', 'erp_movimientos', 'erp_empleados',
@@ -43,16 +41,13 @@ const TABLAS_POR_ROL: Record<Rol, TableName[]> = {
     'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_no_conformidades',
     'erp_incidentes', 'erp_pruebas_laboratorio', 'erp_liberaciones_partida',
     'erp_planos', 'erp_rfis', 'erp_submittals', 'erp_activos', 'erp_cuadros',
-    'erp_renglones', 'erp_insumos', 'erp_sub_renglones', 'erp_insumos_base',
-    'erp_rendimientos_cuadrilla', 'ventas_paquetes', 'pagos_proveedores',
+    'ventas_paquetes', 'pagos_proveedores',
   ],
   Residente: [
     'erp_proyectos', 'erp_movimientos', 'erp_materiales',
     'erp_avances', 'erp_vales_salida', 'erp_notificaciones',
     'erp_hitos', 'erp_ordenes_cambio', 'erp_no_conformidades',
     'erp_incidentes', 'erp_pruebas_laboratorio', 'erp_liberaciones_partida',
-    'erp_renglones', 'erp_insumos', 'erp_sub_renglones', 'erp_insumos_base',
-    'erp_rendimientos_cuadrilla',
   ],
   Compras: [
     'erp_proyectos', 'erp_materiales', 'erp_ordenes_compra',

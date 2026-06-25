@@ -42,6 +42,7 @@ export const hitoSchema = z.object({
   responsable: z.string().default(''),
   dependeDe: z.array(z.string()).optional().default([]),
   completadoEn: z.string().nullable().optional(),
+  createdAt: z.string().default(new Date().toISOString()),
 });
 
 export const riesgoSchema = z.object({

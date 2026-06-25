@@ -9,12 +9,12 @@ export { empleadoSchema, incidenteSchema } from './rrhh';
 
 export { materialSchema, ordenSchema, proveedorSchema, valeSalidaSchema } from './bodega';
 
-export { eventoCalendarioSchema, eventoSchema, bitacoraEntrySchema, bitacoraSchema } from './calendario';
+export { eventoSchema, bitacoraSchema } from './calendario';
 
 export { seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema } from './seguimiento';
 export { muroSchema, notificacionSchema } from './social';
 export { liberacionSchema, pruebaSchema, noConformidadSchema } from './calidad';
 export { activoSchema, licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema, destajoSchema, recepcionAlmacenSchema } from './gestion';
-export { centroCostoSchema } from './admin';
+export { centroCostoSchema, auditLogSchema, appSettingsSchema } from './admin';
 export { plantillaSchema } from './plantillas';
 export type { Plantilla, PlantillaStore } from './plantillas';

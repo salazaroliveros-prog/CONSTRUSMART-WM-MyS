@@ -70,7 +70,7 @@ const Dashboard: React.FC = () => {
     cuentasPagar, eventos, presupuestos, licitaciones, riesgos,
     ordenesCambio, cuentasCobrar, valesSalida, recepciones, destajos,
     publicacionesMuro, planos, rfis, submittals, ventasPaquetes, pagosProveedor,
-    ncs, incidentes, seguimientoEVM, rendimientosCuadrilla,
+    ncs, incidentes, seguimientoEVM,
     mutationQueue, syncMessage, syncStatus, lastSyncedAt, syncError, isOnline,
     cotizacionesNegocio, notificacionesNoLeidas,
   } = ctx;
@@ -308,8 +308,7 @@ const Dashboard: React.FC = () => {
       const h = (canvas.height * w) / canvas.width;
       pdf.addImage(imgData, 'PNG', 0, 0, w, h);
       pdf.save('dashboard-construsmart.pdf');
-    } catch (e) {
-      console.warn('Error exporting PDF:', e);
+    } catch {
     } finally {
       setExportingPdf(false);
     }
@@ -322,13 +321,10 @@ const Dashboard: React.FC = () => {
       else if (table === 'erp_licitaciones') count += (licitaciones || []).length;
       else if (table === 'erp_cotizaciones_negocio') count += (cotizacionesNegocio || []).length;
       else if (table === 'erp_presupuestos') count += (presupuestos || []).length;
-      else if (table === 'erp_renglones') count += 0;
-      else if (table === 'erp_insumos_base') count += 0;
       else if (table === 'erp_hitos') count += (hitos || []).length;
       else if (table === 'erp_riesgos') count += (riesgos || []).length;
       else if (table === 'erp_seguimiento') count += (seguimientoEVM || []).length;
       else if (table === 'erp_avances') count += (avances || []).length;
-      else if (table === 'erp_rendimientos_cuadrilla') count += (rendimientosCuadrilla || []).length;
       else if (table === 'erp_no_conformidades') count += (ncs || []).length;
       else if (table === 'erp_publicaciones_muro') count += (publicacionesMuro || []).length;
       else if (table === 'erp_ordenes_cambio') count += (ordenesCambio || []).length;
@@ -350,7 +346,7 @@ const Dashboard: React.FC = () => {
       else if (table === 'erp_notificaciones') count += (notificacionesNoLeidas || []).length;
     }
     return { ...categoria, count, color: CATEGORIA_COLORS[index % CATEGORIA_COLORS.length] };
-  }), [proyectos, licitaciones, cotizacionesNegocio, presupuestos, hitos, riesgos, seguimientoEVM, avances, rendimientosCuadrilla, ncs, publicacionesMuro, ordenesCambio, planos, rfis, submittals, materiales, ordenes, valesSalida, recepciones, empleados, destajos, movimientos, cuentasCobrar, cuentasPagar, pagosProveedor, notificacionesNoLeidas, proveedores, ventasPaquetes]);
+  }), [proyectos, licitaciones, cotizacionesNegocio, presupuestos, hitos, riesgos, seguimientoEVM, avances, ncs, publicacionesMuro, ordenesCambio, planos, rfis, submittals, materiales, ordenes, valesSalida, recepciones, empleados, destajos, movimientos, cuentasCobrar, cuentasPagar, pagosProveedor, notificacionesNoLeidas, proveedores, ventasPaquetes]);
 
   const categoriaChartData = useMemo(() => categoriaResumen.map(c => ({ label: c.label.slice(0, 3), value: c.count, color: c.color })), [categoriaResumen]);
 

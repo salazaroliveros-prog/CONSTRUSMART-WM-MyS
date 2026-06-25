@@ -35,8 +35,6 @@ const CONVERSIONES: Record<string, { de: string; a: string; factor: number }[]> 
 };
 
 const BasePrecios: React.FC = () => {
-  const _proyectos = useErp().proyectos;
-  void _proyectos;
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const [insumos, setInsumos] = useState<InsumoBase[]>(SEED_INSUMOS_BASE);

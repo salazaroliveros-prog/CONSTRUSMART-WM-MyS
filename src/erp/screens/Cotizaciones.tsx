@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useErp } from '../store';
-import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_DANGER, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
-import { fmtQ, fmtPct, EMPRESA } from '../utils';
+import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
+import { fmtQ } from '../utils';
 import { sanitizarObjeto } from '@/lib/security';
 import { exportCotizacionPDF } from '../export';
-import { Plus, X, Send, FileText, Trash2, Pencil, Eye, Copy, CheckCircle2, Clock, Archive, Calculator, ChevronDown } from 'lucide-react';
+import { Plus, X, Send, FileText, Trash2, Pencil, Copy, CheckCircle2, Clock, Calculator } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import type { CotizacionCliente, CotizacionTipo } from '../types';
@@ -49,7 +49,7 @@ const ESTADOS_COTIZACION = [
 ] as const;
 
 const Cotizaciones: React.FC = () => {
-  const { proyectos, cotizacionesNegocio: cotizaciones, addCotizacion, updateCotizacion, deleteCotizacion, presupuestos } = useErp();
+  const { proyectos, cotizacionesNegocio: cotizaciones, addCotizacion, updateCotizacion, deleteCotizacion } = useErp();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const [showForm, setShowForm] = useState(false);
