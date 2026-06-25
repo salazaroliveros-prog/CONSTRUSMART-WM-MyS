@@ -258,9 +258,10 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     migrateSecureStorage(user?.id).catch(err => safeLogger.warn('[Encryption] Migration error:', err));
   }, [user?.id]);
 
-  const syncCooldownRef = useRef(false);
-  const isOnlineRef = useRef(isOnline);
-  isOnlineRef.current = isOnline;
+const syncCooldownRef = useRef(false);
+const isOnlineRef = useRef(isOnline);
+const supabaseSubscriptionsRef = useRef(false);
+isOnlineRef.current = isOnline;
 
   useEffect(() => {
     const cancel = scheduleHealthCheck(() => ({
@@ -287,93 +288,120 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => { clearTimeout(keepAliveRef.current); document.removeEventListener('visibilitychange', onVis); };
   }, [isOnline]);
 
-  const forceSync = useMemo(() => {
-    return async () => {
-      if (syncCooldownRef.current) return;
-      const queue = useErpStore.getState().mutationQueue;
-      if (queue.length === 0 || !isOnlineRef.current || !hasSupabase) return;
+const forceSync = useMemo(() => {
+        return async () => {
+          if (syncCooldownRef.current) return;
+          const queue = useErpStore.getState().mutationQueue;
+          
+          // Only proceed if we have mutations, are online, and have Supabase configured
+          if (queue.length === 0) return;
+          if (!isOnlineRef.current) {
+            useErpStore.setState({ syncStatus: 'queued' });
+            return;
+          }
+          if (!hasSupabase) {
+            useErpStore.setState({ syncStatus: 'queued' });
+            return;
+          }
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        useErpStore.setState({ syncMessage: 'Sesión expirada. Inicia sesión para sincronizar.', syncStatus: 'error', syncError: 'Sesión expirada' });
-        return;
-      }
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session) {
+            useErpStore.setState({ syncMessage: 'Sesión expirada. Inicia sesión para sincronizar.', syncStatus: 'error', syncError: 'Sesión expirada' });
+            return;
+          }
 
-      syncCooldownRef.current = true;
-      useErpStore.setState({ syncMessage: `Sincronizando ${queue.length} cambios...`, syncStatus: queue.length > 0 ? 'queued' : 'loading', syncError: undefined });
+          syncCooldownRef.current = true;
+          useErpStore.setState({ syncMessage: `Sincronizando ${queue.length} cambios...`, syncStatus: 'loading', syncError: undefined });
 
-      const supabase = assertSupabase();
-      const processed: string[] = [];
-      const failed: Mutation[] = [];
+          const client = assertSupabase();
+          const processed: string[] = [];
+          const failed: Mutation[] = [];
 
-      for (const mutation of queue) {
-        try {
-          const table = MUTATION_TABLE_MAP[mutation.type];
-          if (!table) { processed.push(mutation.id); continue; }
+          const batches = queue.reduce((acc, m) => {
+            const tbl = MUTATION_TABLE_MAP[m.type];
+            if (!tbl) { processed.push(m.id); return acc; }
+            acc[tbl] = acc[tbl] || { INSERT: [], UPDATE: [], DELETE: [], SPECIAL: [] };
+            if (m.type === 'addComentarioMuro' || m.type === 'likePublicacionMuro') acc[tbl].SPECIAL.push(m);
+            else if (m.type === 'clearProyectos') acc[tbl].DELETE.push(m);
+            else if (m.type.startsWith('add')) acc[tbl].INSERT.push(m);
+            else if (m.type.startsWith('update') || m.type.startsWith('mark')) acc[tbl].UPDATE.push(m);
+            else if (m.type.startsWith('delete')) acc[tbl].DELETE.push(m);
+            return acc;
+          }, {} as Record<string, { INSERT: Mutation[]; UPDATE: Mutation[]; DELETE: Mutation[]; SPECIAL: Mutation[] }>);
 
-          const rawPayload = sanitizarObjeto(mutation.payload);
-          const payload = toSnake(rawPayload);
-
-          if (mutation.type === 'addComentarioMuro') {
-            const { publicacion_id, comentario } = payload;
-            const { error } = await supabase.rpc('append_comentario_muro', { pub_id: publicacion_id, comentario });
-            if (error) throw error;
-          } else if (mutation.type === 'likePublicacionMuro') {
-            const { id } = payload;
-            const { error } = await supabase.rpc('increment_likes_muro', { pub_id: id });
-            if (error) throw error;
-          } else if (mutation.type === 'clearProyectos') {
-            const ids = (payload.ids as string[] | undefined) || [];
-            if (ids.length) {
-              const { error } = await supabase.from(table).delete().in('id', ids);
-              if (error) throw error;
-            }
-          } else if (mutation.type.startsWith('add')) {
-            const { error } = await supabase.from(table).insert(payload);
-            if (error) throw error;
-          } else if (mutation.type.startsWith('update') || mutation.type.startsWith('mark')) {
-            const { id, ...data } = payload;
-            if (id) {
-              const { error } = await supabase.from(table).update(data).eq('id', id);
-              if (error) throw error;
-            }
-          } else if (mutation.type.startsWith('delete')) {
-            const { id } = payload;
-            if (id) {
-              const { error } = await supabase.from(table).delete().eq('id', id);
-              if (error) throw error;
+          for (const table of Object.keys(batches)) {
+            const ops = batches[table];
+            try {
+              if (ops.SPECIAL.length) {
+                for (const m of ops.SPECIAL) {
+                  const payload = toSnake(sanitizarObjeto(m.payload));
+                  if (m.type === 'addComentarioMuro') {
+                    const { publicacion_id, comentario } = payload;
+                    const { error } = await client.rpc('append_comentario_muro', { pub_id: publicacion_id, comentario });
+                    if (error) throw error;
+                  } else if (m.type === 'likePublicacionMuro') {
+                    const { id } = payload;
+                    const { error } = await client.rpc('increment_likes_muro', { pub_id: id });
+                    if (error) throw error;
+                  }
+                  processed.push(m.id);
+                }
+              }
+              if (ops.INSERT.length) {
+                const payload = ops.INSERT.map(m => toSnake(sanitizarObjeto(m.payload)));
+                const { error } = await client.from(table).insert(payload);
+                if (error) throw error;
+                processed.push(...ops.INSERT.map(m => m.id));
+              }
+              if (ops.UPDATE.length) {
+                const payload = ops.UPDATE.map(m => {
+                  const p = toSnake(sanitizarObjeto(m.payload));
+                  return { ...p, id: p.id };
+                });
+                const { error } = await client.from(table).update(payload);
+                if (error) throw error;
+                processed.push(...payload.map(p => p.id));
+              }
+              if (ops.DELETE.length) {
+                const ids = ops.DELETE.map(m => m.payload.id).filter(Boolean);
+                if (ids.length) {
+                  const { error } = await client.from(table).delete().in('id', ids);
+                  if (error) throw error;
+                }
+                processed.push(...ops.DELETE.map(m => m.id));
+              }
+            } catch (err) {
+              const error = err instanceof Error ? err.message : String(err);
+              safeLogger.warn(`[forceSync] Batch ${table} failed:`, error);
+              ops.INSERT.forEach(m => {
+                if (m.retryCount >= 3) processed.push(m.id);
+                else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 });
+              });
+              ops.UPDATE.forEach(m => {
+                if (m.retryCount >= 3) processed.push(m.id);
+                else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 });
+              });
+              ops.DELETE.forEach(m => {
+                if (m.retryCount >= 3) processed.push(m.id);
+                else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 });
+              });
             }
           }
 
-          processed.push(mutation.id);
-        } catch (err) {
-          const error = err instanceof Error ? err.message : String(err);
-          safeLogger.warn(`[forceSync] Error en ${mutation.type}:`, err);
-          if (mutation.retryCount >= 3) {
-            processed.push(mutation.id);
-          } else {
-            failed.push({ ...mutation, retryCount: mutation.retryCount + 1 });
+          const remaining = queue.filter(m => !processed.includes(m.id));
+          failed.forEach(f => { if (!remaining.find(r => r.id === f.id)) remaining.push(f); });
+          useErpStore.getState().setMutationQueue(remaining);
+
+          syncCooldownRef.current = false;
+
+          if (processed.length > 0 || failed.length > 0) {
+            const msg = processed.length > 0 ? `${processed.length} cambios sincronizados.` : '';
+            const errMsg = failed.length > 0 ? ` ${failed.length} fallaron` : '';
+            useErpStore.setState({ syncMessage: msg + errMsg, syncStatus: failed.length > 0 ? 'error' : 'synced', syncError: failed.length > 0 ? 'Algunos cambios fallaron' : undefined, lastSyncedAt: new Date().toISOString() });
+            if (msg) { setTimeout(() => useErpStore.setState({ syncMessage: '' }), 3000); await fetchInitialData(); }
           }
-        }
-      }
-
-      const remaining = queue.filter(m => !processed.includes(m.id));
-      failed.forEach(f => { if (!remaining.find(r => r.id === f.id)) remaining.push(f); });
-      useErpStore.getState().setMutationQueue(remaining);
-
-      syncCooldownRef.current = false;
-
-      if (processed.length > 0 || failed.length > 0) {
-        const msg = processed.length > 0
-          ? `${processed.length} cambios sincronizados en ${Object.keys(MUTATION_TABLE_MAP).length} tablas.`
-          : '';
-        const errMsg = failed.length > 0 ? ` ${failed.length} fallaron` : '';
-        useErpStore.setState({ syncMessage: msg + errMsg, syncStatus: failed.length > 0 ? 'error' : 'synced', syncError: failed.length > 0 ? 'Algunos cambios fallaron' : undefined, lastSyncedAt: new Date().toISOString() });
-        if (processed.length > 0) await fetchInitialData();
-        if (msg) setTimeout(() => useErpStore.setState({ syncMessage: '' }), 3000);
-      }
-    };
-  }, []);
+        };
+      }, []);
 
   const lastQueueLenRef = useRef(0);
   useEffect(() => {
@@ -384,9 +412,21 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
     return unsub;
   }, [forceSync]);
-  useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueue.length > 0) forceSync(); }, [isOnline, forceSync]);
+useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueue.length > 0) forceSync(); }, [isOnline, forceSync]);
 
-  useEffect(() => {
+   // Listen for browser online/offline events to trigger sync when connection returns
+   useEffect(() => {
+     const handleOnline = () => {
+       if (useErpStore.getState().mutationQueue.length > 0) {
+         forceSync();
+       }
+     };
+     
+     window.addEventListener('online', handleOnline);
+     return () => window.removeEventListener('online', handleOnline);
+   }, [forceSync]);
+
+   useEffect(() => {
     const STORAGE_KEY = 'wm_erp_data';
     let timer: ReturnType<typeof setTimeout>;
     const unsub = useErpStore.subscribe(() => {
@@ -436,12 +476,135 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const notificacionesNoLeidas = useErpStore(s => s.notificaciones.filter(n => !n.leido).length);
 
-  const ctxValue = useMemo<any>(() => ({
-    view, setView, user, initializing, isOnline, notificacionesNoLeidas,
-    signInWithGoogle: realSignInWithGoogle,
-    logout: realLogout,
-    allowedViews, forceSync,
-  }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, realLogout, allowedViews, forceSync]);
+const ctxValue = useMemo<any>(() => ({
+     view, setView, user, initializing, isOnline, notificacionesNoLeidas,
+     signInWithGoogle: realSignInWithGoogle,
+     logout: realLogout,
+     allowedViews, forceSync,
+   }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, realLogout, allowedViews, forceSync]);
+
+// Initialize realtime subscriptions -Cuando recibimos cambios de otros clientes
+    useEffect(() => {
+      if (!isOnline) return;
+      
+      const subscribeToRealtime = async () => {
+        // No repetir si ya nos registramos
+        if (supabaseSubscriptionsRef.current) return;
+        
+        const client = assertSupabase(); // Get Supabase client
+        
+        const subs: Set<string> = new Set([
+          'public:erp_proyectos',
+          'public:erp_movimientos', 
+          'public:erp_empleados',
+          'public:erp_materiales',
+          'public:erp_ordenes_compra',
+          'public:erp_proveedores',
+          'public:erp_cuentas_cobrar',
+          'public:erp_cuentas_pagar',
+          'public:erp_hitos',
+          'public:erp_riesgos',
+          'public:erp_licitaciones',
+          'public:erp_cotizaciones_negocio',
+          'public:erp_vales_salida',
+          'public:erp_no_conformidades',
+          'public:erp_incidentes',
+          'public:erp_publicaciones_muro',
+          'public:erp_planos',
+          'public:erp_rfis',
+          'public:erp_submittals',
+          'public:erp_activos',
+          'public:erp_cuadros',
+          'public:erp_pagos_proveedor',
+          'public:erp_destajos',
+          'public:erp_recepciones',
+          'public:erp_centros_costo',
+          'public:erp_seguimiento',
+          'public:erp_bitacora',
+          'public:erp_pruebas',
+          'public:erp_liberaciones',
+          'public:erp_plantillas_proyectos',
+          'public:erp_presupuestos',
+          'public:erp_avances',
+          'public:erp_muro',
+        ]);
+        
+        // Suscribirse a cada canal público
+        const channels: Array<Promise<void>> = Array.from(subs).map(table => {
+          return new Promise((resolve, reject) => {
+            const channel = client.channel(table);
+            channel
+              .on(
+                { event: '*', schema: 'public', table },
+                payload => {
+                  // Manejar eventos de inserción, actualización y eliminación
+                  const newRecord = payload.new as any;
+                  const oldRecord = payload.old as any;
+                  
+                  if (payload.eventType === 'INSERT') {
+                    // Nueva inserción - añadir al store
+                    const storeKey = table.replace(/^erp_/, '');
+                    useErpStore.setState(prev => {
+                      const updated = [...(prev[storeKey] ?? [])];
+                      // Evitar duplicados basado en ID si existe
+                      const existsIdx = updated.findIndex(item => item.id === newRecord.id);
+                      if (existsIdx === -1) {
+                        updated.push(newRecord);
+                      }
+                      return {
+                        ...prev,
+                        [storeKey]: updated
+                      };
+                    });
+                  } 
+                  else if (payload.eventType === 'UPDATE') {
+                    // Actualización - modificar en el store
+                    const storeKey = table.replace(/^erp_/, '');
+                    useErpStore.setState(prev => {
+                      const updated = [...(prev[storeKey] ?? [])];
+                      const idx = updated.findIndex(item => item.id === newRecord.id);
+                      if (idx !== -1) {
+                        updated[idx] = newRecord;
+                      }
+                      return {
+                        ...prev,
+                        [storeKey]: updated
+                      };
+                    });
+                  }
+                  else if (payload.eventType === 'DELETE') {
+                    // Eliminación - eliminar del store
+                    const storeKey = table.replace(/^erp_/, '');
+                    useErpStore.setState(prev => {
+                      const updated = [...(prev[storeKey] ?? [])];
+                      const filtered = updated.filter(item => item.id !== oldRecord.id);
+                      return {
+                        ...prev,
+                        [storeKey]: filtered
+                      };
+                    });
+                  }
+                }
+              )
+              .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                  resolve();
+                } else if (status === 'CHANNEL_ERROR') {
+                  reject(new Error(`Failed to subscribe to ${table}`));
+                }
+              });
+          });
+        });
+        
+        // Esperar a todos los canales
+        await Promise.all(channels);
+        
+        // Registramos las suscripciones para evitar volver a suscribirnos
+        supabaseSubscriptionsRef.current = true;
+      };
+      
+      subscribeToRealtime();
+    }, [isOnline]);
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
 };
