@@ -10,8 +10,6 @@ import { fmtQ, TIPOLOGIA_LABEL, costoDirectoUnitario, precioUnitarioVenta, preci
 import { exportCSV, exportPDF, exportXLSX } from '../export';
 import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X } from 'lucide-react';
 import PresupuestosList from '../components/PresupuestosList';
-import HistorialPresupuestosModal from '../components/HistorialPresupuestosModal';
-import CriticalRenglonAlert from '../components/CriticalRenglonAlert';
 
 // Catálogo de materiales comunes por actividad de construcción
 const MATERIALES_POR_ACTIVIDAD: Record<string, { nombre: string; unidad: string; precioRef: number }[]> = {
@@ -149,7 +147,9 @@ const Presupuestos: React.FC = () => {
     }
   }, [selectedProyectoId, presupuestos, proyectos]);
 
-  const openHistorial = () => { /* historial UI manejado inline */ };
+  const openHistorial = () => {
+    setTab('guardados');
+  };
 
   const handleApprovePresupuesto = async (p: Presupuesto) => {
     await updatePresupuesto(p.id, { estado: 'aprobado' });
@@ -305,8 +305,8 @@ const Presupuestos: React.FC = () => {
         fecha: new Date().toISOString().slice(0, 10),
       });
       addNotificacion('general', 'Gasto registrado', `Se registró gasto Q${c.total.toFixed(2)} para renglón ${r.nombre}`, projectId);
-    } catch (err) {
-      console.error('Error registrando gasto por renglón:', err);
+    } catch {
+      toast.error('Error registrando gasto por renglón');
     }
   };
 
@@ -334,8 +334,8 @@ const Presupuestos: React.FC = () => {
         items: itemsOC,
       });
       addNotificacion('general', 'Orden de Compra creada', `OC por Q${c.total.toFixed(2)} creada desde renglón ${r.nombre}`, projectId);
-    } catch (err) {
-      console.error('Error creando OC desde renglón:', err);
+    } catch {
+      toast.error('Error creando OC desde renglón');
     }
   };
 
@@ -436,8 +436,7 @@ const Presupuestos: React.FC = () => {
           toast.error('Error al guardar localmente'); 
         }
       }
-    } catch (err) {
-      console.error('Error guardando presupuesto:', err);
+    } catch {
       toast.error('Error al guardar presupuesto', { description: 'Inténtalo de nuevo' });
       return;
     }
@@ -446,16 +445,13 @@ const Presupuestos: React.FC = () => {
     if (projectId && totalCalc > 0) {
       const proyectoActual = proyectos.find(p => p.id === projectId);
       if (proyectoActual) {
-        const patch: Record<string, any> = {};
-        // Only update if project's presupuestoTotal is 0 or less (first budget)
+        const patch: Partial<Pick<Proyecto, 'presupuestoTotal' | 'montoContrato' | 'margenUtilidadObjetivo'>> = {};
         if (!proyectoActual.presupuestoTotal || proyectoActual.presupuestoTotal <= 0) {
           patch.presupuestoTotal = Math.round(totalCalc * 100) / 100;
         }
-        // Auto-fill montoContrato if empty
         if (!proyectoActual.montoContrato || proyectoActual.montoContrato <= 0) {
           patch.montoContrato = Math.round(totalCalc * 100) / 100;
         }
-        // Auto-fill margenUtilidadObjetivo if empty
         if (!proyectoActual.margenUtilidadObjetivo) {
           patch.margenUtilidadObjetivo = Math.round(UTILIDAD * 100);
         }
@@ -483,8 +479,8 @@ const Presupuestos: React.FC = () => {
         fecha: new Date().toISOString().slice(0, 10),
       });
       addNotificacion('general', 'Gasto registrado', `Se registró un gasto Q${granTotal.toFixed(2)} para el proyecto.`, projectId);
-    } catch (err) {
-      console.error('Error registrando gasto desde presupuesto:', err);
+    } catch {
+      toast.error('Error registrando gasto desde presupuesto');
     }
   };
 

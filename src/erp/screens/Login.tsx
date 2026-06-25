@@ -41,8 +41,7 @@ const Login: React.FC = () => {
       if (mod.useErpStore.getState().notificaciones.length === 0) {
         mod.useErpStore.setState((prev: any) => ({ notificaciones: [...(prev.notificaciones || []), bienvenidaNotif] }));
       }
-    } catch (e) {
-      console.warn('Guest login error:', e);
+    } catch {
     } finally {
       setGuestLoading(false);
     }

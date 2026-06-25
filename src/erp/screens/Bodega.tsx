@@ -11,8 +11,6 @@ import { useChartConfig } from '../hooks/useChartConfig';
 import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT_COMPACT } from '../ui';
-import ValeSalidaModal from '../components/ValeSalidaModal';
-import ConteoCiclico from '../components/ConteoCiclico';
 
 const proveedorSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -84,6 +82,7 @@ const Bodega: React.FC = () => {
     register: registerOrd,
     handleSubmit: handleSubmitOrd,
     reset: resetOrd,
+    watch: watchOrd,
     formState: { errors: errorsOrd },
   } = useForm<OrdenFormData>({
     resolver: zodResolver(ordenSchema),
@@ -386,13 +385,13 @@ const Bodega: React.FC = () => {
             <div className="space-y-3">
               <select {...registerOrd('proveedor')} className={`${inp} ${errorsOrd.proveedor ? 'border-red-400' : ''}`}>
                 <option value="">— Seleccionar proveedor —</option>
-                {proveedorOptions.map((p) => (
+                {proveedores.map((p) => (
                   <option key={p.id} value={p.nombre}>
                     {p.nombre}
                   </option>
                 ))}
               </select>
-              <input type="hidden" {...registerOrd('proveedorId')} value={registerOrd('proveedor').value || ''} />
+              <input type="hidden" {...registerOrd('proveedorId')} value={watchOrd('proveedor') || ''} />
               <select {...registerOrd('proyectoId')} className={`${inp} ${errorsOrd.proyectoId ? 'border-red-400' : ''}`}>
                 <option value="">— Seleccionar proyecto —</option>
                 {proyectos.map((p) => (

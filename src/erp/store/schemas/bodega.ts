@@ -17,6 +17,7 @@ export const valeSalidaSchema = z.object({
 
 export const materialSchema = z.object({
   id: z.string(),
+  proyectoId: z.string().optional().default(''),
   nombre: z.string(),
   unidad: z.string(),
   stock: z.number(),
@@ -26,11 +27,12 @@ export const materialSchema = z.object({
   proyectoIds: z.array(z.string()).default([]),
   cantidadPresupuestada: z.number().optional(),
   costoPresupuestado: z.number().optional(),
+  version: z.number().optional(),
+  ultimaActualizacionPresupuesto: z.string().optional(),
 }).transform(d => ({
   ...d,
-  critico: (d.stock ?? 0) <= (d.stockMinimo ?? 0),
   version: d.version ?? 1,
-  ultimaActualizacionPresupuesto: d.ultimaActualizacionPresupuesto ?? new Date().toISOString(),
+  critico: (d.stock ?? 0) <= (d.stockMinimo ?? 0),
 }));
 
 export const ordenSchema = z.object({
@@ -41,7 +43,7 @@ export const ordenSchema = z.object({
   cantidad: z.number().default(0),
   monto: z.number().default(0),
   fecha: z.string(),
-  estado: z.enum(['borrador', 'pendiente', 'aprobado', 'recibida', 'rechazada', 'cancelada'] as const).default('pendiente'),
+  estado: z.enum(['borrador', 'pendiente', 'aprobado', 'recibida', 'rechazada', 'rechazado', 'cancelada'] as const).default('pendiente'),
   proveedorId: z.string().nullable().optional(),
   total: z.number().optional(),
   items: z.array(z.object({
@@ -55,17 +57,20 @@ export const ordenSchema = z.object({
 
 export const proveedorSchema = z.object({
   id: z.string(),
+  proyectoId: z.string().optional().default(''),
   nombre: z.string(),
   contacto: z.string().nullable().optional().default(''),
   rubro: z.string().nullable().optional(),
   calificacion: z.number().nullable().optional(),
   telefono: z.string().optional().default(''),
   email: z.string().optional().default(''),
-  categoria: z.string().optional().default('materiales'),
+  categoria: z.preprocess(v => {
+    if (typeof v === 'string' && !['materiales','mano_obra','equipo','subcontrato','administracion','transporte','imprevistos','marketing','licencias','seguros','otros'].includes(v)) return 'otros';
+    return v;
+  }, z.enum(['materiales','mano_obra','equipo','subcontrato','administracion','transporte','imprevistos','marketing','licencias','seguros','otros'] as const)).default('materiales'),
 }).transform(d => ({
   ...d,
   contacto: d.contacto ?? '',
   telefono: d.telefono ?? '',
   email: d.email ?? '',
-  categoria: (d.categoria ?? 'materiales') as import('@/erp/types').Categoria,
 }));

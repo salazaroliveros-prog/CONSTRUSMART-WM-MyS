@@ -12,7 +12,6 @@ import MapPicker from '../components/MapPicker';
 import HeatMap from '../components/HeatMap';
 import { INPUT, BUTTON_PRIMARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER } from '../ui';
 import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, AlertCircle, ChevronRight, Copy, Layout, Sparkles, Star, Search } from 'lucide-react';
-import { message } from 'antd';
 import { toast } from 'sonner';
 
 const proyectoSchema = z.object({

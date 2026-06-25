@@ -423,7 +423,7 @@ export interface OrdenCambio {
 
 export interface Notificacion {
   id: string;
-  tipo: 'checklist_rechazado' | 'orden_cambio_pendiente' | 'stock_critico' | 'desviacion_rendimiento' | 'avance_registrado' | 'general';
+  tipo: 'checklist_rechazado' | 'orden_cambio_pendiente' | 'stock_critico' | 'desviacion_rendimiento' | 'avance_registrado' | 'alerta' | 'exito' | 'general';
   titulo: string;
   mensaje: string;
   proyectoId?: string;
@@ -446,7 +446,7 @@ export interface Hito {
   createdAt: string;
 }
 
-export interface CentroCosto {
+export interface Incidente {
   id: string;
   proyectoId: string;
   tipo: 'accidente' | 'cuasi-accidente' | 'condicion_insegura' | 'acto_inseguro';
@@ -459,7 +459,6 @@ export interface CentroCosto {
   reportadoPor: string;
   latitud?: number;
   longitud?: number;
-  /** Alias para compatibilidad con mapas */
   lat?: number;
   lng?: number;
   fotos: string[];
@@ -520,7 +519,7 @@ export interface ActivoHerramienta {
   modelo?: string;
   numeroSerie?: string;
   valorAdquisicion: number;
-  estado: 'disponible' | 'asignado' | 'mantenimiento' | 'baja';
+  estado: 'disponible' | 'asignado' | 'mantenimiento' | 'baja' | 'dado_baja';
   ubicacion?: string;
   asignadoA?: string;
   proyectoId?: string;
@@ -718,16 +717,6 @@ export interface PagoProveedor {
   facturaUrl?: string;
 }
 
-export interface CentroCosto {
-  id: string;
-  proyectoId: string;
-  codigo: string;
-  nombre: string;
-  presupuestoAsignado: number;
-  gastoActual: number;
-  tipo: 'directo' | 'indirecto' | 'administrativo';
-}
-
 // ============================================================
 // NUEVAS INTERFACES FASE 4 - Seguridad
 // ============================================================
@@ -802,7 +791,7 @@ export interface Plano {
   version: string;
   fechaSubida: string;
   descripcion?: string;
-  estado: 'vigente' | 'obsoleto' | 'en_revision';
+  estado: 'vigente' | 'obsoleto' | 'en_revision' | 'borrador';
   subidoPor: string;
 }
 

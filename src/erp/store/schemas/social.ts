@@ -22,7 +22,7 @@ export const muroSchema = z.object({
 
 export const notificacionSchema = z.object({
   id: z.string(),
-  tipo: z.enum(['checklist_rechazado','orden_cambio_pendiente','stock_critico','desviacion_rendimiento','avance_registrado','general'] as const).default('general'),
+  tipo: z.enum(['checklist_rechazado','orden_cambio_pendiente','stock_critico','desviacion_rendimiento','avance_registrado','alerta','exito','general'] as const).default('general').catch('general'),
   titulo: z.string().default(''),
   mensaje: z.string().default(''),
   proyectoId: z.string().nullable().optional(),

@@ -3,14 +3,14 @@ import { z } from 'zod';
 export const liberacionSchema = z.object({
   id: z.string(),
   proyectoId: z.string(),
-  renglonId: z.string().nullable().optional(),
+  renglonId: z.preprocess(v => v === null ? '' : v, z.string()).default(''),
   renglonNombre: z.string().default(''),
   fechaSolicitud: z.string().default(new Date().toISOString().split('T')[0]),
   fechaLiberacion: z.string().nullable().optional(),
   solicitante: z.string().default(''),
   supervisor: z.string().default(''),
-  checklistAprobado: z.boolean().nullable().optional(),
-  observaciones: z.string().default(''),
+  checklistAprobado: z.preprocess(v => v === null ? false : v, z.boolean()).default(false),
+  observaciones: z.string().optional().default(''),
   estado: z.enum(['pendiente','liberado','rechazado'] as const).default('pendiente'),
 });
 

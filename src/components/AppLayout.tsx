@@ -80,7 +80,7 @@ const Cotizaciones       = lazy(() => import('@/erp/screens/Cotizaciones'));
 const PlantillasProyectos = lazy(() => import('@/erp/screens/PlantillasProyectos'));
 const AnalisisCostosDashboard = lazy(() => import('@/erp/screens/AnalisisCostosDashboard'));
 
-const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','rendimientos','analisis-costos'] as const;
+const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','analisis-costos'] as const;
 
 const SCREEN_SET = new Set<string>(SCREEN_KEYS as readonly string[]);
 
@@ -113,8 +113,7 @@ const Shell: React.FC = () => {
       'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_no_conformidades',
       'erp_incidentes', 'erp_pruebas_laboratorio', 'erp_liberaciones_partida',
       'erp_planos', 'erp_rfis', 'erp_submittals', 'erp_activos', 'erp_cuadros',
-      'erp_renglones', 'erp_insumos', 'erp_sub_renglones', 'erp_insumos_base',
-      'erp_rendimientos_cuadrilla', 'ventas_paquetes', 'pagos_proveedores',
+      'ventas_paquetes', 'pagos_proveedores',
     ],
     enabled: true,
     rol: user?.rol,

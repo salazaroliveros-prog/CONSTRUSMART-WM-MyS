@@ -5,11 +5,12 @@ import { useErpStore, fetchInitialData } from './zustandStore';
 import {
   proyectoSchema, movimientoSchema, cuentaCobrarSchema, cuentaPagarSchema, ordenCambioSchema,
   presupuestoSchema, cotizacionSchema, empleadoSchema, incidenteSchema, materialSchema,
-  ordenSchema, proveedorSchema, eventoCalendarioSchema, eventoSchema, bitacoraEntrySchema,
+  ordenSchema, proveedorSchema, eventoSchema,
   bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema, muroSchema,
   notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
   licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
   destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema,
+  auditLogSchema, appSettingsSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical, toSnake } from './utils';
 import { hasSupabase, assertSupabase, supabase } from '@/lib/supabase';
@@ -66,13 +67,25 @@ function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   return [];
 }
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas';
+function loadObjectFromStorage<T>(key: string, schema: z.ZodTypeAny, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const decompressed = decompressData(raw);
+    if (decompressed === null) { safeLogger.warn(`[Storage] Decompress fail: ${key}`); return fallback; }
+    const result = schema.safeParse(decompressed);
+    if (result.success) return result.data;
+  } catch { safeLogger.warn(`[Storage] Corrupto: ${key}`); }
+  return fallback;
+}
+
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'analisis-costos';
 export type UIMode = 'shadcn' | 'antd';
 export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
 export type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
 
 export const ALL_VIEWS: View[] = [
-  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas'
+  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','analisis-costos'
 ];
 
 export const clearAllData = () => {
@@ -109,7 +122,7 @@ export const useErp = () => {
   return useMemo(() => ctx ? { ...zState, ...ctx } : zState, [zState, ctx]);
 };
 
-const MUTATION_TABLE_MAP: Record<string, string> = {
+export const MUTATION_TABLE_MAP: Record<string, string> = {
   addProyecto:'erp_proyectos',updateProyecto:'erp_proyectos',deleteProyecto:'erp_proyectos',clearProyectos:'erp_proyectos',
   addMovimiento:'erp_movimientos',updateMovimiento:'erp_movimientos',deleteMovimiento:'erp_movimientos',
   addEmpleado:'erp_empleados',updateEmpleado:'erp_empleados',deleteEmpleado:'erp_empleados',
@@ -236,15 +249,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       centrosCosto: loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
       plantillas: loadFromStorage(PLANTILLA_KEY, plantillaSchema),
       mutationQueue: (() => { try { const r = localStorage.getItem(QUEUE_KEY); if (!r) return []; const d = decompressData(r); return Array.isArray(d) ? d as Mutation[] : []; } catch { return []; } })(),
-      notificaciones: (() => { try { const r = localStorage.getItem(NOTIF_KEY); if (!r) return []; const d = decompressData(r); return Array.isArray(d) ? d as any[] : []; } catch { return []; } })(),
-      auditLog: (() => { try { const r = localStorage.getItem(AUDIT_KEY); if (!r) return []; const d = decompressData(r); return Array.isArray(d) ? d as any[] : []; } catch { return []; } })(),
-      appSettings: (() => {
-        try {
-          const raw = localStorage.getItem(BASE_STORAGE_KEY + '_settings');
-          if (raw) { const d = decompressData(raw); if (d && typeof d === 'object') return d as AppSettings; }
-        } catch {}
-        return APP_SETTINGS_DEFAULTS;
-      })(),
+      notificaciones: loadFromStorage(NOTIF_KEY, notificacionSchema),
+      auditLog: loadFromStorage(AUDIT_KEY, auditLogSchema),
+      appSettings: loadObjectFromStorage(BASE_STORAGE_KEY + '_settings', appSettingsSchema, APP_SETTINGS_DEFAULTS),
     });
     if (useErpStore.getState().appSettings.empresaInfo) setEmpresaInfo(useErpStore.getState().appSettings.empresaInfo);
 
@@ -288,8 +295,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        useErpStore.getState().setMutationQueue([]);
-        useErpStore.setState({ syncMessage: '', syncStatus: 'idle', syncError: undefined });
+        useErpStore.setState({ syncMessage: 'Sesión expirada. Inicia sesión para sincronizar.', syncStatus: 'error', syncError: 'Sesión expirada' });
         return;
       }
 

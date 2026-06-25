@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const insumoZ = z.object({
   id: z.string(),
+  proyectoId: z.string().default(''),
   nombre: z.string(),
   nombreMaterial: z.string().optional(),
   unidad: z.string(),
@@ -34,6 +35,7 @@ export const factorSobrecostoZ = z.object({
 
 export const renglonPresupuestoZ = z.object({
   id: z.string(),
+  proyectoId: z.string().default(''),
   codigo: z.string(),
   nombre: z.string(),
   unidad: z.string(),

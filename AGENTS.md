@@ -21,9 +21,17 @@
 - Sin comentarios en código (`//` o `/* */`)
 - `z.enum([...] as const)` en schemas canónicos
 - Vistas: `View` type en store.tsx, lazy import en AppLayout.tsx, `ALLOWED` por rol
-- `rendimientos` fue eliminado como view — usar `rendimiento-campo` con alias en Shell
+- `rendimientos` eliminado de SCREEN_KEYS — usar `rendimiento-campo`
 - `cotizaciones` view existe y está en Sidebar + ALLOWED
 - i18n: `t()` con formato interpolación `{{key}}` (no `{key}`)
+
+## Schema Alignment (Regla Crítica)
+- **Todo schema Zod debe alinearse 1:1 con su interfaz TypeScript** en tipos, campos, y valores enum
+- `loadFromStorage` y `loadObjectFromStorage` usan el schema para validar datos de localStorage — NO parseo inline sin Zod
+- `TABLE_MAP` en zustandStore.ts solo mapea tablas Supabase que tienen estado ErpData correspondiente
+- Schema de nested objects = lightweight references; datos completos viven en su propio state array (ej: `cuadroSchema.cotizaciones` usa `CotizacionItem`, no `CotizacionCliente`)
+- Schemas duplicados prohibidos — mantener solo `eventoSchema` y `bitacoraSchema`
+- El `CuadroComparativo` almacena referencias ligeras (`proveedorId + montoTotal`); la resolución a datos CRM completos se hace por join en render con `cotizacionesNegocio`
 
 ## Tests
 - `src/__tests__/erp-operacion-integral.test.tsx`: 78 tests (ALL pass — 5 pre-existing failures fixed)
