@@ -362,7 +362,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     if (!checkRateLimit(type)) return '';
     const sanitized = sanitizarObjeto(payload);
     const now = new Date().toISOString();
-    let enhancedPayload = { ...sanitized };
+    const enhancedPayload = { ...sanitized };
     if (type.startsWith('add')) {
       if (!enhancedPayload.created_at) enhancedPayload.created_at = now;
       if (!enhancedPayload.updated_at) enhancedPayload.updated_at = now;
