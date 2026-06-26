@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import { z } from 'zod';
 import { scheduleHealthCheck } from '@/lib/store-health';
 import { useErpStore, fetchInitialData } from './zustandStore';
@@ -12,9 +12,11 @@ import {
   destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema,
   auditLogSchema, appSettingsSchema,
 } from './store/schemas';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical, toSnake } from './utils';
-import { hasSupabase, assertSupabase, supabase } from '@/lib/supabase';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { hasSupabase, assertSupabase, supabase, hasServiceRole, getServiceClient } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
+import { sanitizarObjeto } from '@/lib/security';
 import { useAuth } from '@/hooks/useAuth';
 import { encryptionManager, migrateSecureStorage } from '@/lib/encryption';
 const proyectoSchemaInline = z.object({
@@ -120,6 +122,29 @@ export const useErp = () => {
   const ctx = useContext(Ctx);
   const zState = useErpStore();
   return useMemo(() => ctx ? { ...zState, ...ctx } : zState, [zState, ctx]);
+};
+
+// Store key mapping: Supabase table name → zustand store key
+const STORE_KEY_MAP: Record<string, string> = {
+  erp_proyectos:'proyectos',erp_movimientos:'movimientos',erp_empleados:'empleados',
+  erp_materiales:'materiales',erp_ordenes_compra:'ordenes',erp_proveedores:'proveedores',
+  erp_cuentas_cobrar:'cuentasCobrar',erp_cuentas_pagar:'cuentasPagar',erp_hitos:'hitos',
+  erp_riesgos:'riesgos',erp_licitaciones:'licitaciones',
+  erp_cotizaciones_negocio:'cotizacionesNegocio',erp_vales_salida:'valesSalida',
+  erp_no_conformidades:'ncs',erp_incidentes:'incidentes',
+  erp_publicaciones_muro:'publicacionesMuro',erp_planos:'planos',erp_rfis:'rfis',
+  erp_submittals:'submittals',erp_activos:'activos',erp_cuadros:'cuadros',
+  erp_pagos_proveedor:'pagosProveedor',erp_destajos:'destajos',
+  erp_recepciones:'recepciones',erp_centros_costo:'centrosCosto',
+  erp_seguimiento:'seguimientoEVM',erp_bitacora:'bitacora',erp_pruebas:'pruebas',
+  erp_liberaciones:'liberaciones',erp_plantillas_proyectos:'plantillas',
+  erp_presupuestos:'presupuestos',erp_avances:'avances',erp_muro:'publicacionesMuro',
+  erp_eventos_calendario:'eventos',ventas_paquetes:'ventasPaquetes',
+  pagos_proveedores:'pagosProveedor',centros_costo:'centrosCosto',
+  destajos:'destajos',recepciones_almacen:'recepciones',
+  erp_notificaciones:'notificaciones',erp_ordenes_cambio:'ordenesCambio',
+  erp_pruebas_laboratorio:'pruebas',
+  erp_liberaciones_partida:'liberaciones',
 };
 
 export const MUTATION_TABLE_MAP: Record<string, string> = {
@@ -304,8 +329,14 @@ const forceSync = useMemo(() => {
             return;
           }
 
+          // Try authenticated session first, fall back to service-role client if configured
+          let client: SupabaseClient;
           const { data: { session } } = await supabase.auth.getSession();
-          if (!session) {
+          if (session) {
+            client = assertSupabase();
+          } else if (hasServiceRole) {
+            client = getServiceClient();
+          } else {
             useErpStore.setState({ syncMessage: 'Sesión expirada. Inicia sesión para sincronizar.', syncStatus: 'error', syncError: 'Sesión expirada' });
             return;
           }
@@ -313,7 +344,7 @@ const forceSync = useMemo(() => {
           syncCooldownRef.current = true;
           useErpStore.setState({ syncMessage: `Sincronizando ${queue.length} cambios...`, syncStatus: 'loading', syncError: undefined });
 
-          const client = assertSupabase();
+          // already set above
           const processed: string[] = [];
           const failed: Mutation[] = [];
 
@@ -541,47 +572,45 @@ const ctxValue = useMemo<any>(() => ({
                   const newRecord = payload.new as any;
                   const oldRecord = payload.old as any;
                   
+                  // Map Supabase table → zustand store key (handles special cases like erp_muro→publicacionesMuro, erp_no_conformidades→ncs)
+                  const tableName = table.startsWith('public:') ? table.slice(7) : table;
+                  const storeKey = STORE_KEY_MAP[tableName] || tableName;
+                  
+                  // Convert incoming snake_case rows to camelCase for the store
+                  const toStoreRecord = (raw: any) => raw ? toCamel(raw) : raw;
+                  
                   if (payload.eventType === 'INSERT') {
-                    // Nueva inserción - añadir al store
-                    const storeKey = table.replace(/^erp_/, '');
                     useErpStore.setState(prev => {
-                      const updated = [...(prev[storeKey] ?? [])];
-                      // Evitar duplicados basado en ID si existe
-                      const existsIdx = updated.findIndex(item => item.id === newRecord.id);
-                      if (existsIdx === -1) {
-                        updated.push(newRecord);
+                      const arr: any[] = (prev as any)[storeKey] ?? [];
+                      const normalized = toStoreRecord(newRecord);
+                      if (Array.isArray(arr) && normalized?.id && !arr.some((item: any) => item.id === normalized.id)) {
+                        return { ...prev, [storeKey]: [normalized, ...arr] } as any;
                       }
-                      return {
-                        ...prev,
-                        [storeKey]: updated
-                      };
+                      return prev;
                     });
                   } 
                   else if (payload.eventType === 'UPDATE') {
-                    // Actualización - modificar en el store
-                    const storeKey = table.replace(/^erp_/, '');
                     useErpStore.setState(prev => {
-                      const updated = [...(prev[storeKey] ?? [])];
-                      const idx = updated.findIndex(item => item.id === newRecord.id);
-                      if (idx !== -1) {
-                        updated[idx] = newRecord;
+                      const arr: any[] = (prev as any)[storeKey] ?? [];
+                      const normalized = toStoreRecord(newRecord);
+                      if (Array.isArray(arr) && normalized?.id) {
+                        const idx = arr.findIndex((item: any) => item.id === normalized.id);
+                        if (idx !== -1) {
+                          const updated = [...arr];
+                          updated[idx] = normalized;
+                          return { ...prev, [storeKey]: updated } as any;
+                        }
                       }
-                      return {
-                        ...prev,
-                        [storeKey]: updated
-                      };
+                      return prev;
                     });
                   }
                   else if (payload.eventType === 'DELETE') {
-                    // Eliminación - eliminar del store
-                    const storeKey = table.replace(/^erp_/, '');
                     useErpStore.setState(prev => {
-                      const updated = [...(prev[storeKey] ?? [])];
-                      const filtered = updated.filter(item => item.id !== oldRecord.id);
-                      return {
-                        ...prev,
-                        [storeKey]: filtered
-                      };
+                      const arr: any[] = (prev as any)[storeKey] ?? [];
+                      if (Array.isArray(arr) && oldRecord?.id) {
+                        return { ...prev, [storeKey]: arr.filter((item: any) => item.id !== oldRecord.id) } as any;
+                      }
+                      return prev;
                     });
                   }
                 }
