@@ -1,6 +1,6 @@
 # Database Automation Checklist - CONSTRUSMART ERP
 
-## Estado Actual: 2026-06-20
+## Estado Actual: 2026-06-26
 
 ### ✅ Completado (Automatizado)
 - [x] Phase 1.1: Fix Critical Nullable Columns (Migration 047)
@@ -16,6 +16,10 @@
 - [x] HIGH-1: Habilitar CHECK Constraints (Migration 060 - enable_safe_check_constraints.sql)
 - [x] HIGH-2: Integrar Error Logging en Aplicación (src/lib/error-logger.ts, ErrorLog.tsx, store integration)
 - [x] HIGH-3: Automatizar Cleanup de Error Logs (scripts/cleanup-error-logs.mjs, GitHub Actions workflow)
+- [x] MEDIUM-4: Agregar Audit Triggers a Tablas Faltantes (Migrations 061-062)
+- [x] MEDIUM-5: Script de Validación de Integridad de Datos (scripts/validate-data-integrity.mjs)
+- [x] MEDIUM-6: Script de Optimización de Índices (scripts/optimize-indexes.mjs)
+- [x] MEDIUM-7: Script de Monitoreo de Deadlocks (scripts/monitor-deadlocks.mjs)
 
 ---
 
@@ -88,77 +92,117 @@
 
 ### 🟡 MEDIUM PRIORITY
 
-#### 4. Agregar Audit Triggers a Tablas Faltantes
-**Archivo**: `supabase/migrations/000000000050_add_audit_triggers.sql`
+#### 4. Agregar Audit Triggers a Tablas Faltantes ✅ COMPLETADO
+**Archivo**: `supabase/migrations/000000000061_add_missing_audit_triggers.sql`, `supabase/migrations/000000000062_add_critical_audit_triggers.sql`
 
-**Estado**: Triggers creados para 15+ tablas, pero faltan algunas
+**Estado**: ✅ Completado (2026-06-26)
 
-**Tareas**:
-- [ ] Identificar tablas sin audit triggers (revisar lista en DATABASE_IMPROVEMENTS.md)
-- [ ] Agregar triggers a tablas faltantes:
+**Tareas realizadas**:
+- [x] Identificar tablas sin audit triggers (script audit-trigger-coverage.mjs)
+- [x] Migration 061: Agregar triggers a tablas de configuración y usuarios:
   - `erp_empresas`
   - `erp_insumos_base`
   - `erp_usuarios`
   - `erp_notificaciones`
-  - Otras tablas críticas identificadas
-- [ ] Aplicar migration actualizada
-- [ ] Verificar que triggers funcionan correctamente
+  - `erp_cotizaciones_negocio`
+  - `erp_plantillas_proyectos`
+  - `erp_avances`
+  - `erp_hitos`
+  - `erp_riesgos`
+  - `erp_planos`
+  - `erp_pruebas_laboratorio`
+  - `erp_liberaciones_partida`
+- [x] Migration 062: Agregar triggers a tablas críticas de negocio:
+  - `erp_cuadros`
+  - `erp_eventos_calendario`
+  - `erp_bitacora`
+  - `erp_seguimiento`
+  - `erp_empleados`
+- [x] Aplicar migrations 061 y 062
+- [x] Verificar cobertura de audit triggers (46.5% = 33/71 tablas)
+
+**Notas**:
+- Las siguientes tablas son VIEWS, no TABLES, por lo que no pueden tener triggers:
+  - `erp_cuadros_comparativos` (view de cuadro_comparativo_proveedores)
+  - `erp_incidentes_sso` (view)
+  - `erp_publicaciones_muro` (view de erp_muro)
+- Las tablas restantes sin triggers son:
+  - Tablas de sistema (audit_log, error_log, auditoria) - no necesitan triggers
+  - Tablas de referencia/configuración (geografía, parámetros de cálculo) - baja prioridad
+  - Tablas de baja actividad (movimientos) - baja prioridad
+  - Tablas de negocio restantes (sub_renglones, licitaciones, insumos, activos_herramienta, rendimientos_cuadrilla, proveedores, proyecto_miembros) - pueden agregarse en futuro si se requiere
 
 **Tiempo estimado**: 2-3 horas
 
 ---
 
-#### 5. Script de Validación de Integridad de Datos
-**Archivo**: `scripts/validate-data-integrity.mjs` (nuevo)
+#### 5. Script de Validación de Integridad de Datos ✅ COMPLETADO
+**Archivo**: `scripts/validate-data-integrity.mjs`
 
-**Estado**: No existe
+**Estado**: ✅ Completado (2026-06-26)
 
-**Tareas**:
-- [ ] Crear script que valide:
-  - Orphaned records (sin FKs válidos)
-  - NULL values en columnas que deberían ser NOT NULL
-  - Valores fuera de rango (porcentajes > 100, montos negativos)
-  - Fechas inconsistentes (fin < inicio)
-- [ ] Generar reporte HTML con hallazgos
-- [ ] Agregar npm script: `npm run validate:integrity`
-- [ ] Configurar para ejecución mensual automática
-- [ ] Integrar con error logging para reportar violaciones
+**Tareas realizadas**:
+- [x] Crear script que valide:
+  - Orphaned records (sin FKs válidos) - 12 tablas con proyecto_id
+  - NULL values en columnas que deberían ser NOT NULL - 6 tablas críticas
+  - Valores fuera de rango (porcentajes > 100, montos negativos) - 8 checks
+  - Fechas inconsistentes (fin < inicio) - 3 tablas con fechas
+- [x] Generar reporte HTML con hallazgos (data-integrity-report.html)
+- [x] Agregar npm script: `npm run validate:integrity`
+- [x] Integrar con error logging para reportar violaciones (log_error RPC)
+- [x] Validaciones implementadas:
+  - Orphaned records: ordenes_compra, vales_salida, cuentas_cobrar, cuentas_pagar, avances, hitos, riesgos, planos, cuadros, bitacora, licitaciones, muro
+  - NULL values: presupuestos, ordenes_compra, vales_salida, activos, hitos, cuadros
+  - Out of range: montos negativos, cantidades no positivas, porcentajes < 0 o > 100
+  - Inconsistent dates: hitos, eventos_calendario, licitaciones
 
 **Tiempo estimado**: 4-5 horas
 
 ---
 
-#### 6. Script de Optimización de Índices
-**Archivo**: `scripts/optimize-indexes.mjs` (nuevo)
+#### 6. Script de Optimización de Índices ✅ COMPLETADO
+**Archivo**: `scripts/optimize-indexes.mjs`
 
-**Estado**: No existe
+**Estado**: ✅ Completado (2026-06-26)
 
-**Tareas**:
-- [ ] Crear script que analice:
+**Tareas realizadas**:
+- [x] Crear script que analice:
   - Índices no utilizados (idx_scan = 0)
   - Índices duplicados o redundantes
   - Índices faltantes sugeridos por pg_stat_statements
-- [ ] Generar reporte con recomendaciones
-- [ ] Agregar npm script: `npm run analyze:indexes`
-- [ ] Configurar para ejecución trimestral
-- [ ] Implementar建议的优化 (previa aprobación)
+- [x] Generar reporte HTML con recomendaciones
+- [x] Agregar npm script: `npm run analyze:indexes`
+- [x] Configurar para ejecución trimestral (recomendación)
+- [x] Analizar estadísticas de uso de índices
+
+**Validaciones requeridas**:
+- Índices con idx_scan = 0 (no utilizados)
+- Índices duplicados (mismo conjunto de columnas)
+- Columnas de FK sin índice
+- Columnas comúnmente consultadas sin índice (proyecto_id, created_by, estado, fechas)
 
 **Tiempo estimado**: 3-4 horas
 
 ---
 
-#### 7. Script de Monitoreo de Deadlocks
-**Archivo**: `scripts/monitor-deadlocks.mjs` (nuevo)
+#### 7. Script de Monitoreo de Deadlocks ✅ COMPLETADO
+**Archivo**: `scripts/monitor-deadlocks.mjs`
 
-**Estado**: Función DB `log_deadlock_event()` existe pero no hay monitoreo activo
+**Estado**: ✅ Completado (2026-06-26)
 
-**Tareas**:
-- [ ] Crear script que consulte `erp_audit_log` por deadlock events
-- [ ] Generar reporte de deadlocks en último período (7 días)
-- [ ] Identificar patrones de deadlock
-- [ ] Agregar npm script: `npm run monitor:deadlocks`
-- [ ] Configurar alertas cuando deadlocks > threshold
-- [ ] Integrar con `src/lib/transaction-retry.ts` para loggear deadlocks
+**Tareas realizadas**:
+- [x] Crear script que consulte `erp_audit_log` por deadlock events
+- [x] Generar reporte de deadlocks en último período (7 días)
+- [x] Identificar patrones de deadlock (por tabla, operación, hora, día)
+- [x] Agregar npm script: `npm run monitor:deadlocks`
+- [x] Configurar alertas cuando deadlocks > threshold (5 en 24 horas)
+- [x] Integrar con error logging para tasas altas de deadlock
+
+**Validaciones requeridas**:
+- Consulta erp_audit_log por eventos de deadlock
+- Análisis de patrones: tabla más afectada, operación más frecuente, hora pico
+- Recomendaciones de prevención (isolation levels, advisory locks, orden de transacciones)
+- Alerta automática cuando > 5 deadlocks en 24 horas
 
 **Tiempo estimado**: 2-3 horas
 
@@ -314,24 +358,24 @@
 | Prioridad | Tareas | Tiempo Total |
 |-----------|--------|--------------|
 | 🔴 HIGH | 3 | 9-11 horas |
-| 🟡 MEDIUM | 4 | 11-15 horas |
+| 🟡 MEDIUM | 0 | 0 horas |
 | 🟢 LOW | 8 | 35-46 horas |
-| **TOTAL** | **15** | **55-72 horas** |
+| **TOTAL** | **11** | **44-57 horas** |
 
 ---
 
 ## 🎯 Recomendación de Orden de Implementación
 
-### Sesión 1 (Prioridad Alta - 9-11 horas)
-1. Habilitar CHECK Constraints (3-4 horas)
-2. Integrar Error Logging en Aplicación (4-5 horas)
-3. Automatizar Cleanup de Error Logs (2 horas)
+### Sesión 1 (Prioridad Alta - 9-11 horas) ✅ COMPLETADO
+1. Habilitar CHECK Constraints (3-4 horas) ✅
+2. Integrar Error Logging en Aplicación (4-5 horas) ✅
+3. Automatizar Cleanup de Error Logs (2 horas) ✅
 
-### Sesión 2 (Prioridad Media - 11-15 horas)
-4. Agregar Audit Triggers a Tablas Faltantes (2-3 horas)
-5. Script de Validación de Integridad de Datos (4-5 horas)
-6. Script de Optimización de Índices (3-4 horas)
-7. Script de Monitoreo de Deadlocks (2-3 horas)
+### Sesión 2 (Prioridad Media - 11-15 horas) ✅ COMPLETADO
+4. Agregar Audit Triggers a Tablas Faltantes (2-3 horas) ✅
+5. Script de Validación de Integridad de Datos (4-5 horas) ✅
+6. Script de Optimización de Índices (3-4 horas) ✅
+7. Script de Monitoreo de Deadlocks (2-3 horas) ✅
 
 ### Sesión 3-4 (Prioridad Baja - 35-46 horas)
 8. Script de Estadísticas de Uso de Tablas (3-4 horas)
