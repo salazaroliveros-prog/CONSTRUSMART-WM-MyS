@@ -176,11 +176,11 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_hitos','erp_riesgos','erp_licitaciones','erp_cotizaciones_negocio',
       'erp_vales_salida','erp_no_conformidades','erp_incidentes',
       'erp_publicaciones_muro','erp_planos',
-      'erp_rfis','erp_submittals','erp_activos','destajos',
+      'erp_rfis','erp_submittals','erp_activos','erp_destajos',
       'erp_eventos_calendario','erp_bitacora','erp_seguimiento',
       'erp_liberaciones_partida','erp_notificaciones','erp_cuadros',
-      'recepciones_almacen','erp_pruebas_laboratorio','ventas_paquetes',
-      'pagos_proveedores','centros_costo',
+      'erp_recepciones','erp_pruebas_laboratorio','ventas_paquetes',
+      'erp_pagos_proveedor','erp_centros_costo',
       'erp_plantillas_proyectos',
     ] as const;
 
@@ -194,13 +194,13 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       erp_vales_salida:'valesSalida',erp_no_conformidades:'ncs',erp_incidentes:'incidentes',
       erp_publicaciones_muro:'publicacionesMuro',
       erp_planos:'planos',erp_rfis:'rfis',erp_submittals:'submittals',
-      erp_activos:'activos',destajos:'destajos',
+      erp_activos:'activos',erp_destajos:'destajos',
       erp_eventos_calendario:'eventos',erp_bitacora:'bitacora',
       erp_seguimiento:'seguimientoEVM',erp_liberaciones_partida:'liberaciones',
       erp_notificaciones:'notificaciones',erp_cuadros:'cuadros',
-      recepciones_almacen:'recepciones',erp_pruebas_laboratorio:'pruebas',
-      ventas_paquetes:'ventasPaquetes',pagos_proveedores:'pagosProveedor',
-      centros_costo:'centrosCosto',erp_plantillas_proyectos:'plantillas',
+      erp_recepciones:'recepciones',erp_pruebas_laboratorio:'pruebas',
+      ventas_paquetes:'ventasPaquetes',erp_pagos_proveedor:'pagosProveedor',
+      erp_centros_costo:'centrosCosto',erp_plantillas_proyectos:'plantillas',
     };
 
     const fetchTable = async (table: string) => {
