@@ -81,7 +81,22 @@ describe('Stage 1: Individual Entity Deletion', () => {
   });
 
   it('1.4 deleteMovimiento elimina del estado', () => {
-    useErpStore.getState().addMovimiento({ proyectoId: 'p1', tipo: 'ingreso', categoria: 'materiales', monto: 1000, descripcion: 'Test', fecha: '2026-01-01' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addMovimiento({ proyectoId, tipo: 'ingreso', categoria: 'materiales', monto: 1000, descripcion: 'Test', fecha: '2026-01-01' } as any);
     const id = useErpStore.getState().movimientos[0].id;
     useErpStore.getState().deleteMovimiento(id);
     expect(useErpStore.getState().movimientos).toHaveLength(0);
@@ -102,7 +117,22 @@ describe('Stage 1: Individual Entity Deletion', () => {
   });
 
   it('1.7 deleteOrden elimina del estado', () => {
-    useErpStore.getState().addOrden({ proveedor: 'Prov A', material: 'Cemento', cantidad: 50, monto: 5000, fecha: '2026-01-01', estado: 'borrador' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addOrden({ proyectoId, proveedor: 'Prov A', material: 'Cemento', cantidad: 50, monto: 5000, fecha: '2026-01-01', estado: 'borrador' } as any);
     const id = useErpStore.getState().ordenes[0].id;
     useErpStore.getState().deleteOrden(id);
     expect(useErpStore.getState().ordenes).toHaveLength(0);
@@ -116,21 +146,66 @@ describe('Stage 1: Individual Entity Deletion', () => {
   });
 
   it('1.9 deleteEvento elimina del estado', () => {
-    useErpStore.getState().addEvento({ proyectoId: 'p1', titulo: 'Reunión', fecha: '2026-01-01', hora: '10:00', tipo: 'reunion', participantes: [] } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addEvento({ proyectoId, titulo: 'Reunión', fecha: '2026-01-01', hora: '10:00', tipo: 'reunion', participantes: [] } as any);
     const id = useErpStore.getState().eventos[0].id;
     useErpStore.getState().deleteEvento(id);
     expect(useErpStore.getState().eventos).toHaveLength(0);
   });
 
   it('1.10 deleteBitacora elimina del estado', () => {
-    useErpStore.getState().addBitacora({ proyectoId: 'p1', fecha: '2026-01-01', clima: 'soleado', personalPresente: 5, maquinaria: '', tareasRealizadas: '', observaciones: '', fotos: [] } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addBitacora({ proyectoId, fecha: '2026-01-01', clima: 'soleado', personalPresente: 5, maquinaria: '', tareasRealizadas: '', observaciones: '', fotos: [] } as any);
     const id = useErpStore.getState().bitacora[0].id;
     useErpStore.getState().deleteBitacora(id);
     expect(useErpStore.getState().bitacora).toHaveLength(0);
   });
 
   it('1.11 deletePresupuesto elimina del estado', () => {
-    useErpStore.getState().addPresupuesto({ proyectoId: 'p1', tipologia: 'residencial', renglones: [], estado: 'borrador', totalCalculado: 0, costoDirectoTotal: 0, fechaCreacion: '2026-01-01', fechaActualizacion: '2026-01-01' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addPresupuesto({ proyectoId, tipologia: 'residencial', renglones: [], estado: 'borrador', totalCalculado: 0, costoDirectoTotal: 0, fechaCreacion: '2026-01-01', fechaActualizacion: '2026-01-01' } as any);
     const id = useErpStore.getState().presupuestos[0].id;
     useErpStore.getState().deletePresupuesto(id);
     expect(useErpStore.getState().presupuestos).toHaveLength(0);
@@ -172,56 +247,176 @@ describe('Stage 1: Individual Entity Deletion', () => {
   });
 
   it('1.17 deleteCuentaCobrar elimina del estado', () => {
-    useErpStore.getState().addCuentaCobrar({ proyectoId: 'p1', cliente: 'Cliente', concepto: 'Pago', monto: 10000, saldoPendiente: 10000, fechaEmision: '2026-01-01', fechaVencimiento: '2026-02-01', estado: 'pendiente' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addCuentaCobrar({ proyectoId, cliente: 'Cliente', concepto: 'Pago', monto: 10000, saldoPendiente: 10000, fechaEmision: '2026-01-01', fechaVencimiento: '2026-02-01', estado: 'pendiente' } as any);
     const id = useErpStore.getState().cuentasCobrar[0].id;
     useErpStore.getState().deleteCuentaCobrar(id);
     expect(useErpStore.getState().cuentasCobrar).toHaveLength(0);
   });
 
   it('1.18 deleteCuentaPagar elimina del estado', () => {
-    useErpStore.getState().addCuentaPagar({ proyectoId: 'p1', proveedor: 'Prov A', concepto: 'Factura', monto: 5000, saldoPendiente: 5000, fechaEmision: '2026-01-01', fechaVencimiento: '2026-02-01', estado: 'pendiente' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addCuentaPagar({ proyectoId, proveedor: 'Prov A', concepto: 'Factura', monto: 5000, saldoPendiente: 5000, fechaEmision: '2026-01-01', fechaVencimiento: '2026-02-01', estado: 'pendiente' } as any);
     const id = useErpStore.getState().cuentasPagar[0].id;
     useErpStore.getState().deleteCuentaPagar(id);
     expect(useErpStore.getState().cuentasPagar).toHaveLength(0);
   });
 
   it('1.19 deleteOrdenCambio elimina del estado', () => {
-    useErpStore.getState().addOrdenCambio({ proyectoId: 'p1', titulo: 'OC1', descripcion: 'Test', impactoCosto: 10000, impactoPlazo: 5, estado: 'solicitud', solicitante: 'Juan', solicitanteRol: 'Residente', createdAt: '2026-01-01' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addOrdenCambio({ proyectoId, titulo: 'OC1', descripcion: 'Test', impactoCosto: 10000, impactoPlazo: 5, estado: 'solicitud', solicitante: 'Juan', solicitanteRol: 'Residente', createdAt: '2026-01-01' } as any);
     const id = useErpStore.getState().ordenesCambio[0].id;
     useErpStore.getState().deleteOrdenCambio(id);
     expect(useErpStore.getState().ordenesCambio).toHaveLength(0);
   });
 
   it('1.20 deleteHito elimina del estado', () => {
-    useErpStore.getState().addHito({ proyectoId: 'p1', nombre: 'Inicio', fecha: '2026-01-01', tipo: 'inicio', estado: 'pendiente', createdAt: '2026-01-01' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addHito({ proyectoId, nombre: 'Inicio', fecha: '2026-01-01', tipo: 'inicio', estado: 'pendiente', createdAt: '2026-01-01' } as any);
     const id = useErpStore.getState().hitos[0].id;
     useErpStore.getState().deleteHito(id);
     expect(useErpStore.getState().hitos).toHaveLength(0);
   });
 
   it('1.21 deleteRiesgo elimina del estado', () => {
-    useErpStore.getState().addRiesgo({ proyectoId: 'p1', nombre: 'R1', tipo: 'tecnico', probabilidad: 3, impacto: 4, nivel: 'alto', fechaIdentificacion: '2026-01-01', estado: 'identificado', createdAt: '2026-01-01' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addRiesgo({ proyectoId, nombre: 'R1', tipo: 'tecnico', probabilidad: 3, impacto: 4, nivel: 'alto', fechaIdentificacion: '2026-01-01', estado: 'identificado', createdAt: '2026-01-01' } as any);
     const id = useErpStore.getState().riesgos[0].id;
     useErpStore.getState().deleteRiesgo(id);
     expect(useErpStore.getState().riesgos).toHaveLength(0);
   });
 
   it('1.22 deletePlano elimina del estado', () => {
-    useErpStore.getState().addPlano({ proyectoId: 'p1', nombre: 'Plano A', disciplina: 'arquitectura', version: '1.0', fechaSubida: '2026-01-01', estado: 'vigente', subidoPor: 'Juan' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addPlano({ proyectoId, nombre: 'Plano A', disciplina: 'arquitectura', version: '1.0', fechaSubida: '2026-01-01', estado: 'vigente', subidoPor: 'Juan' } as any);
     const id = useErpStore.getState().planos[0].id;
     useErpStore.getState().deletePlano(id);
     expect(useErpStore.getState().planos).toHaveLength(0);
   });
 
   it('1.23 deleteRfi elimina del estado', () => {
-    useErpStore.getState().addRfi({ proyectoId: 'p1', numero: 'RFI-001', titulo: 'Consulta', descripcion: 'Test', solicitante: 'Juan', destino: 'Arq', estado: 'abierto', fechaSolicitud: '2026-01-01' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addRfi({ proyectoId, numero: 'RFI-001', titulo: 'Consulta', descripcion: 'Test', solicitante: 'Juan', destino: 'Arq', estado: 'abierto', fechaSolicitud: '2026-01-01' } as any);
     const id = useErpStore.getState().rfis[0].id;
     useErpStore.getState().deleteRfi(id);
     expect(useErpStore.getState().rfis).toHaveLength(0);
   });
 
   it('1.24 deleteSubmittal elimina del estado', () => {
-    useErpStore.getState().addSubmittal({ proyectoId: 'p1', titulo: 'S-001', categoria: 'material', proveedor: 'Prov A', fechaEnvio: '2026-01-01', estado: 'pendiente' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addSubmittal({ proyectoId, titulo: 'S-001', categoria: 'material', proveedor: 'Prov A', fechaEnvio: '2026-01-01', estado: 'pendiente' } as any);
     const id = useErpStore.getState().submittals[0].id;
     useErpStore.getState().deleteSubmittal(id);
     expect(useErpStore.getState().submittals).toHaveLength(0);
@@ -249,14 +444,44 @@ describe('Stage 1: Individual Entity Deletion', () => {
   });
 
   it('1.28 deleteIncidente elimina del estado', () => {
-    useErpStore.getState().addIncidente({ proyectoId: 'p1', tipo: 'accidente', fecha: '2026-01-01', hora: '10:00', descripcion: 'Test', afectados: 'Ninguno', reportadoPor: 'Juan', fotos: [], estado: 'abierto' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addIncidente({ proyectoId, tipo: 'accidente', fecha: '2026-01-01', hora: '10:00', descripcion: 'Test', afectados: 'Ninguno', reportadoPor: 'Juan', fotos: [], estado: 'abierto' } as any);
     const id = useErpStore.getState().incidentes[0].id;
     useErpStore.getState().deleteIncidente(id);
     expect(useErpStore.getState().incidentes).toHaveLength(0);
   });
 
   it('1.29 deleteDestajo elimina del estado', () => {
-    useErpStore.getState().addDestajo({ proyectoId: 'p1', renglonCodigo: 'EXC-001', cuadrilla: 'Albañil', fecha: '2026-06-01', cantidadEjecutada: 10, unidad: 'm³', horasTrabajadas: 8, rendimientoReal: 1.25, rendimientoTeorico: 1.5 } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addDestajo({ proyectoId, renglonCodigo: 'EXC-001', cuadrilla: 'Albañil', fecha: '2026-06-01', cantidadEjecutada: 10, unidad: 'm³', horasTrabajadas: 8, rendimientoReal: 1.25, rendimientoTeorico: 1.5 } as any);
     const id = useErpStore.getState().destajos[0].id;
     useErpStore.getState().deleteDestajo(id);
     expect(useErpStore.getState().destajos).toHaveLength(0);
@@ -270,21 +495,66 @@ describe('Stage 1: Individual Entity Deletion', () => {
   });
 
   it('1.31 deletePrueba elimina del estado', () => {
-    useErpStore.getState().addPrueba({ proyectoId: 'p1', tipo: 'concreto', descripcion: 'Prueba', fechaMuestra: '2026-01-01', resultado: 'pendiente', responsable: 'Juan' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addPrueba({ proyectoId, tipo: 'concreto', descripcion: 'Prueba', fechaMuestra: '2026-01-01', resultado: 'pendiente', responsable: 'Juan' } as any);
     const id = useErpStore.getState().pruebas[0].id;
     useErpStore.getState().deletePrueba(id);
     expect(useErpStore.getState().pruebas).toHaveLength(0);
   });
 
   it('1.32 deleteNC elimina del estado', () => {
-    useErpStore.getState().addNC({ proyectoId: 'p1', codigo: 'NC-001', descripcion: 'Test', categoria: 'material', fechaDeteccion: '2026-01-01', detectadoPor: 'Juan', estado: 'detectado' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addNC({ proyectoId, codigo: 'NC-001', descripcion: 'Test', categoria: 'material', fechaDeteccion: '2026-01-01', detectadoPor: 'Juan', estado: 'detectado' } as any);
     const id = useErpStore.getState().ncs[0].id;
     useErpStore.getState().deleteNC(id);
     expect(useErpStore.getState().ncs).toHaveLength(0);
   });
 
   it('1.33 deleteLiberacion elimina del estado', () => {
-    useErpStore.getState().addLiberacion({ proyectoId: 'p1', renglonId: 'r1', renglonNombre: 'R1', fechaSolicitud: '2026-01-01', solicitante: 'Juan', supervisor: 'Pedro', checklistAprobado: false, estado: 'pendiente' } as any);
+    useErpStore.getState().addProyecto({
+      nombre: 'Dummy Project', ubicacion: 'GT', tipologia: 'residencial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: '',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: undefined,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '',
+    } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
+    useErpStore.getState().addLiberacion({ proyectoId, renglonId: 'r1', renglonNombre: 'R1', fechaSolicitud: '2026-01-01', solicitante: 'Juan', supervisor: 'Pedro', checklistAprobado: false, estado: 'pendiente' } as any);
     const id = useErpStore.getState().liberaciones[0].id;
     useErpStore.getState().deleteLiberacion(id);
     expect(useErpStore.getState().liberaciones).toHaveLength(0);
@@ -314,8 +584,10 @@ describe('Stage 1: Individual Entity Deletion', () => {
   });
 
   it('1.36 muestra de delete handlers (3 entidades) — smoke test de wiring', () => {
+    useErpStore.getState().addProyecto({ nombre: 'Test', ubicacion: 'Test', tipologia: 'residencial', presupuestoTotal: 100000, montoContrato: 100000, cliente: 'Test', fechaInicio: '2026-01-01', fechaFin: '2026-12-31', estado: 'planificacion' } as any);
+    const proyectoId = useErpStore.getState().proyectos[0].id;
     const pairs: { add: () => string; delete: (id: string) => void; stateKey: string }[] = [
-      { add: () => { useErpStore.getState().addMovimiento({ proyectoId: 'p1', tipo: 'ingreso', categoria: 'materiales', monto: 1000, descripcion: 'T', fecha: '2026-01-01' } as any); return useErpStore.getState().movimientos[0].id; }, delete: (id) => useErpStore.getState().deleteMovimiento(id), stateKey: 'movimientos' },
+      { add: () => { useErpStore.getState().addMovimiento({ proyectoId, tipo: 'ingreso', categoria: 'materiales', monto: 1000, descripcion: 'T', fecha: '2026-01-01' } as any); return useErpStore.getState().movimientos[0].id; }, delete: (id) => useErpStore.getState().deleteMovimiento(id), stateKey: 'movimientos' },
       { add: () => { useErpStore.getState().addEmpleado({ nombre: 'J', puesto: 'A', salarioDiario: 150, tipo: 'planilla', activo: true, proyectoIds: [] } as any); return useErpStore.getState().empleados[0].id; }, delete: (id) => useErpStore.getState().deleteEmpleado(id), stateKey: 'empleados' },
       { add: () => { useErpStore.getState().addMaterial({ nombre: 'C', unidad: 'b', stock: 100, stockMinimo: 10, precio: 85, categoria: 'materiales', proyectoIds: [] } as any); return useErpStore.getState().materiales[0].id; }, delete: (id) => useErpStore.getState().deleteMaterial(id), stateKey: 'materiales' },
     ];

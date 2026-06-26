@@ -46,7 +46,7 @@ const RecepcionMateriales: React.FC = () => {
         }
       }
     });
-    updateOrden(ocSeleccionada.id, 'recibida');
+    updateOrden(ocSeleccionada.id, { estado: 'recibida' });
     toast.success(`OC recibida: ${ocSeleccionada.items?.length} materiales actualizados`);
     setSelectedOC(null);
     setRecepcionItems({});

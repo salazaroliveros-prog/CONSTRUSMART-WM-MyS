@@ -290,12 +290,12 @@ const Bodega: React.FC = () => {
                   <div className="text-muted-foreground mt-0.5">{o.proveedor} · {o.cantidad} u · {fmtQ(o.monto)}</div>
                   {o.estado === 'pendiente' && (
                     <div className="flex gap-1 mt-1.5">
-                      <button onClick={() => { if (window.confirm('¿Aprobar orden?')) updateOrden(o.id, 'aprobado'); }}
+                      <button onClick={() => { if (window.confirm('¿Aprobar orden?')) updateOrden(o.id, { estado: 'aprobado' }); }}
                         aria-label={`Aprobar orden de ${o.material}`}
                         className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
                         <Check className="w-3 h-3" aria-hidden="true" /> Aprobar
                       </button>
-                      <button onClick={() => updateOrden(o.id, 'rechazado')}
+                      <button onClick={() => updateOrden(o.id, { estado: 'rechazado' })}
                         aria-label={`Rechazar orden de ${o.material}`}
                         className="flex-1 bg-red-500 hover:bg-red-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
                         <X className="w-3 h-3" aria-hidden="true" /> Rechazar

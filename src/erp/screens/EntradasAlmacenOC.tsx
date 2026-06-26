@@ -20,7 +20,7 @@ export const EntradasAlmacenOC: React.FC = () => {
 
     if (formCantidad <= 0) return;
 
-    updateOrden(ocId, 'recibida');
+    updateOrden(ocId, { estado: 'recibida' });
 
     const recibidoTotal = formCantidad;
     const diferencia = orden.cantidad - recibidoTotal;
