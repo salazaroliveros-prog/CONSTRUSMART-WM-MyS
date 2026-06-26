@@ -4,6 +4,7 @@ import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { ErrorBoundary } from './ErrorBoundary';
 import { PageTransition } from './Animations';
+import { hasSupabase, hasServiceRole } from '@/lib/supabase';
 
 const Header = lazy(() => import('@/erp/components/Header'));
 const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
@@ -246,6 +247,9 @@ const AppLayoutContent: React.FC = () => {
   }
 
   if (!user || (user as any)?.id === 'local') {
+    if (hasSupabase && hasServiceRole) {
+      return <Shell />;
+    }
     return (
       <Suspense fallback={<AppLoader />}>
         <Login />

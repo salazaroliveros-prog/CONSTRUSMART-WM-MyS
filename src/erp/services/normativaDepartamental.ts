@@ -54,9 +54,7 @@ export class NormativaDepartamental {
       const { data, error } = await supabase
         .from('erp_normativa_departamental')
         .select('*')
-        .eq('activo', true)
-        .order('obligatoria', { ascending: false })
-        .order('ano_ultima_revision', { ascending: false, nullsFirst: false });
+        .eq('activo', true);
 
       if (error) throw error;
       return data || [];

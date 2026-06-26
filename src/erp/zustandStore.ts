@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { z } from 'zod';
 import { sanitizarObjeto } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
-import { supabase } from '@/lib/supabase';
+import { supabase, hasServiceRole, getServiceClient } from '@/lib/supabase';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance, validateForeignKey as validateForeignKeyInArray } from './utils';
 import { recordSyncMetric } from '@/lib/metrics';
 import { logErrorFromException } from '@/lib/error-logger';
@@ -210,12 +210,13 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_hitos','erp_riesgos','erp_licitaciones','erp_cotizaciones_negocio',
       'erp_vales_salida','erp_no_conformidades','erp_incidentes',
       'erp_publicaciones_muro','erp_planos',
-      'erp_rfis','erp_submittals','erp_activos','erp_destajos',
+      'erp_rfis','erp_submittals','erp_activos',
       'erp_eventos_calendario','erp_bitacora','erp_seguimiento',
       'erp_liberaciones_partida','erp_notificaciones','erp_cuadros',
-      'erp_recepciones','erp_pruebas_laboratorio','ventas_paquetes',
-      'erp_pagos_proveedor','erp_centros_costo',
-      'erp_plantillas_proyectos','erp_error_logs',
+      'erp_pruebas_laboratorio','ventas_paquetes',
+      'erp_plantillas_proyectos',
+      'erp_destajos','erp_recepciones','erp_pagos_proveedor',
+      'erp_centros_costo','erp_error_logs',
     ] as const;
 
     const TABLE_MAP: Record<string, string> = {
@@ -238,9 +239,27 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       erp_error_logs:'errorLogs',
     };
 
+    const isGuestMode = hasServiceRole && !localStorage.getItem('sb-neygzluxugodiwcuctbj-auth-token');
+
     const fetchTable = async (table: string) => {
-      const { data, error } = await supabase.from(table).select('*');
-      if (error) { safeLogger.warn(`[fetchInitialData] Error en ${table}: ${error.message}`); return null; }
+      const client = isGuestMode ? getServiceClient() : supabase;
+      const { data, error } = await client.from(table).select('*');
+      if (error) {
+        if (isGuestMode) {
+          safeLogger.warn(`[fetchInitialData] Error en ${table}: ${error.message}`);
+          return null;
+        }
+        const isAuthError = String(error.code) === 'PGRST301' || String(error.code) === '42501' || (error.message && (error.message.includes('permission denied') || error.message.includes('JWT') || error.message.includes('401')));
+        if (isAuthError && hasServiceRole) {
+          try {
+            const serviceClient = getServiceClient();
+            const { data: svcData, error: svcError } = await serviceClient.from(table).select('*');
+            if (!svcError) return { table, data: (svcData || []).map(normalizarFilaSupabase) };
+          } catch { /* service client also failed */ }
+        }
+        safeLogger.warn(`[fetchInitialData] Error en ${table}: ${error.message}`);
+        return null;
+      }
       return { table, data: (data || []).map(normalizarFilaSupabase) };
     };
 

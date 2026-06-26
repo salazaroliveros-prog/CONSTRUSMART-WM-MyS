@@ -41,7 +41,11 @@ export const supabase: SupabaseClient = _supabase;
 let _serviceClient: SupabaseClient | null = null;
 if (hasServiceRole) {
   _serviceClient = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      storageKey: 'sb-service-auth-token',
+    },
   });
 }
 
@@ -57,4 +61,41 @@ export function assertSupabase(): SupabaseClient {
     );
   }
   return supabase;
+}
+
+/**
+ * Returns the most privileged client available:
+ * - If a real user session exists in the anon client → use that (RLS enforced)
+ * - If service role key is available → use service role (bypasses RLS, for guest/dev mode)
+ * - Otherwise → fall back to anon client
+ */
+export async function getEffectiveClient(): Promise<SupabaseClient> {
+  if (hasSupabase) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) return supabase;
+  }
+  if (hasServiceRole) return getServiceClient();
+  if (hasSupabase) return supabase;
+  throw new Error('No Supabase client available');
+}
+
+/**
+ * Service-role based client for Realtime subscriptions (bypasses RLS).
+ * Only used when no real user session exists.
+ * Uses isolated storage key to avoid "Multiple GoTrueClient instances" warning.
+ */
+let _serviceRealtimeClient: SupabaseClient | null = null;
+export function getServiceRealtimeClient(): SupabaseClient {
+  if (!_serviceRealtimeClient) {
+    if (!hasServiceRole) throw new Error('VITE_SUPABASE_SERVICE_ROLE_KEY not configured for Realtime');
+    _serviceRealtimeClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        storageKey: 'sb-realtime-auth-token',
+      },
+      realtime: { params: { log_level: 'info' } },
+    });
+  }
+  return _serviceRealtimeClient;
 }

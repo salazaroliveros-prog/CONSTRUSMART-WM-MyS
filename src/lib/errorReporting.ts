@@ -30,7 +30,11 @@ class ErrorReporter {
   private initialized = false;
 
   private isKnownTdzError(message: string): boolean {
-    return /Cannot access\s+['"]?[A-Za-z0-9_$]+['"]?\s+before initialization/i.test(String(message));
+    const msg = String(message);
+    if (/Cannot access\s+['"]?[A-Za-z0-9_$]+['"]?\s+before initialization/i.test(msg)) return true;
+    if (msg.includes("toLocaleLowerCase is not a function")) return true;
+    if (msg.includes("Unexpected character: }") && msg.includes("@ant-design")) return true;
+    return false;
   }
 
   init() {

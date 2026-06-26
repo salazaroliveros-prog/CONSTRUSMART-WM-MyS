@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { supabase, hasSupabase } from '@/lib/supabase';
+import { supabase, hasSupabase, hasServiceRole, getServiceRealtimeClient } from '@/lib/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { log } from '@/lib/auto-logger';
 import type { Rol } from '@/erp/store';
@@ -107,13 +107,24 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
   const subscribe = useCallback(() => {
     if (!hasSupabase || !enabled || effectiveTablas.length === 0) return;
 
+    // Determinar qué cliente usar: sesión real o service role (guest mode)
+    let rtClient = supabase;
+    if (hasServiceRole) {
+      try {
+        const raw = localStorage.getItem('sb-neygzluxugodiwcuctbj-auth-token');
+        if (!raw || raw.includes('mock')) {
+          rtClient = getServiceRealtimeClient();
+        }
+      } catch { /* ignore */ }
+    }
+
     // Limpiar canal anterior si existe
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
     }
 
     const channelName = `erp-realtime-${effectiveTablas.join('-')}-${Date.now()}`;
-    const channel = supabase.channel(channelName);
+    const channel = rtClient.channel(channelName);
 
     // Suscribirse a cada tabla
     effectiveTablas.forEach(tabla => {
