@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const movimientoSchema = z.object({
   id: z.string(),
-  proyectoId: z.preprocess(v => v === null ? '' : v, z.string()).default(''),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   tipo: z.enum(['ingreso','gasto','egreso'] as const).default('gasto'),
   categoria: z.preprocess(v => {
     if (typeof v === 'string' && !['materiales','mano_obra','equipo','subcontrato','administracion','transporte','imprevistos','marketing','licencias','seguros','otros'].includes(v)) return 'otros';

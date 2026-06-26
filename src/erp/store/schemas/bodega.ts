@@ -37,7 +37,7 @@ export const materialSchema = z.object({
 
 export const ordenSchema = z.object({
   id: z.string(),
-  proyectoId: z.string().nullable().optional(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   proveedor: z.string().default(''),
   material: z.string().default(''),
   cantidad: z.number().default(0),

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const insumoZ = z.object({
   id: z.string(),
-  proyectoId: z.string().default(''),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   nombre: z.string(),
   nombreMaterial: z.string().optional(),
   unidad: z.string(),
@@ -35,7 +35,7 @@ export const factorSobrecostoZ = z.object({
 
 export const renglonPresupuestoZ = z.object({
   id: z.string(),
-  proyectoId: z.string().default(''),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   codigo: z.string(),
   nombre: z.string(),
   unidad: z.string(),
@@ -72,7 +72,7 @@ export const presupuestoSchema = z.object({
 
 export const cotizacionSchema = z.object({
   id: z.string(),
-  proyectoId: z.string().nullable().optional().default(''),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   tipo: z.enum(['construccion','planos_registro','estudio_planificacion','diseno_urbanistico','anteproyecto_residencial'] as const),
   numero: z.string().default(''),
   fecha: z.string().default(''),
