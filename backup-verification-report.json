@@ -1,0 +1,103 @@
+{
+  "timestamp": "2026-06-26T14:23:58.356Z",
+  "summary": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0,
+    "warnings": 4
+  },
+  "details": [
+    {
+      "step": "connection",
+      "success": true
+    },
+    {
+      "step": "backup_settings",
+      "success": true
+    },
+    {
+      "step": "tables",
+      "success": true,
+      "details": [
+        {
+          "success": true,
+          "table": "erp_proyectos",
+          "count": 1,
+          "hasMinimum": true
+        },
+        {
+          "success": true,
+          "table": "erp_empresas",
+          "count": 1,
+          "hasMinimum": true
+        },
+        {
+          "success": true,
+          "table": "erp_usuarios",
+          "count": 0,
+          "hasMinimum": false
+        },
+        {
+          "success": true,
+          "table": "erp_presupuestos",
+          "count": 0,
+          "hasMinimum": true
+        },
+        {
+          "success": true,
+          "table": "erp_ordenes_compra",
+          "count": 0,
+          "hasMinimum": true
+        },
+        {
+          "success": true,
+          "table": "erp_cuadros",
+          "count": 0,
+          "hasMinimum": true
+        },
+        {
+          "success": true,
+          "table": "erp_avances",
+          "count": 0,
+          "hasMinimum": true
+        },
+        {
+          "success": true,
+          "table": "erp_materials",
+          "count": null,
+          "hasMinimum": true
+        },
+        {
+          "success": true,
+          "table": "erp_clientes",
+          "count": null,
+          "hasMinimum": true
+        },
+        {
+          "success": true,
+          "table": "erp_proveedores",
+          "count": 0,
+          "hasMinimum": true
+        }
+      ]
+    },
+    {
+      "step": "foreign_keys",
+      "success": true,
+      "details": [
+        {
+          "table": "erp_presupuestos",
+          "status": "ok"
+        },
+        {
+          "table": "erp_ordenes_compra",
+          "status": "skipped"
+        },
+        {
+          "table": "erp_avances",
+          "status": "ok"
+        }
+      ]
+    }
+  ]
+}
