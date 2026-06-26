@@ -65,7 +65,12 @@ function initialize(): void {
 
     window.addEventListener('unhandledrejection', (event) => {
       const reason = event.reason
-      log('error', 'UnhandledPromise', reason?.message || String(reason), {
+      const msg = reason?.message || String(reason)
+      if (msg.includes('toLocaleLowerCase is not a function') || msg.includes('Unexpected character: }')) {
+        event.preventDefault()
+        return
+      }
+      log('error', 'UnhandledPromise', msg, {
         stack: reason?.stack,
       })
     })

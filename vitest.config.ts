@@ -6,6 +6,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     include: ['src/erp/__tests__/**/*.test.ts', 'src/lib/__tests__/**/*.test.ts', 'src/__tests__/**/*.test.tsx', 'tests/e2e/**/*.spec.ts'],
+    env: { NODE_ENV: 'development' },
   },
   resolve: {
     alias: {

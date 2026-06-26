@@ -5,6 +5,7 @@ import { obtenerHistorialCalculos } from '../services/motorCalculo';
 import { listarNormativas } from '../services/normativaDepartamental';
 import { listarEscalasProduccion } from '../services/escalasProduccion';
 import { listarEstacionalidad } from '../services/estacionalidad';
+import { useErpStore } from '@/erp/zustandStore';
 
 interface CalculoRegistro {
   tipoCalcululo: string;
@@ -67,13 +68,17 @@ const AnalisisCostosDashboard: React.FC = () => {
     return escalasFolded;
   }, [escalas]);
 
+  const proyectos = useErpStore(s => s.proyectos);
+
   React.useEffect(() => {
     async function cargarDatos() {
       try {
         setLoading(true);
-        
+
+        const proyectoId = proyectos.length > 0 ? proyectos[0].id : 'default';
+
         const [calcData, normData, escData, estData] = await Promise.allSettled([
-          obtenerHistorialCalculos('demo-proyecto'),
+          obtenerHistorialCalculos(proyectoId),
           listarNormativas(),
           listarEscalasProduccion(),
           listarEstacionalidad()
@@ -91,6 +96,7 @@ const AnalisisCostosDashboard: React.FC = () => {
     }
 
     cargarDatos();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {

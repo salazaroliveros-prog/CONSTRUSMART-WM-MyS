@@ -161,6 +161,16 @@ const STORE_KEY_MAP: Record<string, string> = {
   erp_liberaciones_partida:'liberaciones',erp_error_logs:'errorLogs',
 };
 
+const APP_ONLY_FIELDS = new Set(['version', 'stockActualizado', 'selectedProyectoId']);
+
+function stripAppOnlyFields<T extends Record<string, unknown>>(obj: T): T {
+  const result = { ...obj };
+  for (const key of APP_ONLY_FIELDS) {
+    delete result[key as keyof T];
+  }
+  return result;
+}
+
 export const MUTATION_TABLE_MAP: Record<string, string> = {
   addProyecto:'erp_proyectos',updateProyecto:'erp_proyectos',deleteProyecto:'erp_proyectos',clearProyectos:'erp_proyectos',
   addMovimiento:'erp_movimientos',updateMovimiento:'erp_movimientos',deleteMovimiento:'erp_movimientos',
@@ -396,14 +406,14 @@ const forceSync = useMemo(() => {
                 }
               }
               if (ops.INSERT.length) {
-                const payload = ops.INSERT.map(m => toSnake(sanitizarObjeto(m.payload)));
+                const payload = ops.INSERT.map(m => toSnake(stripAppOnlyFields(sanitizarObjeto(m.payload) as Record<string, unknown>)));
                 const { error } = await client.from(table).insert(payload);
                 if (error) throw error;
                 processed.push(...ops.INSERT.map(m => m.id));
               }
               if (ops.UPDATE.length) {
                 const payload = ops.UPDATE.map(m => {
-                  const p = toSnake(sanitizarObjeto(m.payload));
+                  const p = toSnake(stripAppOnlyFields(sanitizarObjeto(m.payload) as Record<string, unknown>));
                   return { ...p, id: p.id };
                 });
                 const { error } = await client.from(table).update(payload);
