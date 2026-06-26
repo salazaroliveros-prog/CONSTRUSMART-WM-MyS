@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS erp_parametros_redes_infraestructura (
   updated_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE INDEX idx_parametros_redes_combo ON erp_parametros_redes_infraestructura(tipo, diametro_pulgadas, material, presion);
-CREATE INDEX idx_parametros_redes_activas ON erp_parametros_redes_infraestructura(activo);
+CREATE INDEX IF NOT EXISTS idx_parametros_redes_combo ON erp_parametros_redes_infraestructura(tipo, diametro_pulgadas, material, presion);
+CREATE INDEX IF NOT EXISTS idx_parametros_redes_activas ON erp_parametros_redes_infraestructura(activo);
 
 -- ============================================================
 -- 2. HABILITAR RLS

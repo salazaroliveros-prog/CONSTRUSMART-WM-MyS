@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS erp_parametros_muros_contencion (
   updated_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE INDEX idx_parametros_muros_combo ON erp_parametros_muros_contencion(altura_m, tipo, tipo_cimentacion, tipo_suelo, tipo_drenaje);
-CREATE INDEX idx_parametros_muros_activas ON erp_parametros_muros_contencion(activo);
+CREATE INDEX IF NOT EXISTS idx_parametros_muros_combo ON erp_parametros_muros_contencion(altura_m, tipo, tipo_cimentacion, tipo_suelo, tipo_drenaje);
+CREATE INDEX IF NOT EXISTS idx_parametros_muros_activas ON erp_parametros_muros_contencion(activo);
 
 -- ============================================================
 -- 2. HABILITAR RLS

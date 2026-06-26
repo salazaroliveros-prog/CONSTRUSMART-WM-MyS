@@ -98,6 +98,11 @@ test-results/
 # Temp scripts (not for repo)
 scripts/*.cjs
 
+# Generated reports
+data-integrity-report.html
+index-optimization-report.html
+deadlock-monitoring-report.html
+
 # Kilo agent system
 .kilo/
 .vercel
