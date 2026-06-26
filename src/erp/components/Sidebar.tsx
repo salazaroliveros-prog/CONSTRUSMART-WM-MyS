@@ -65,6 +65,7 @@ const ITEMS: NavItem[] = [
   // ── 8. SISTEMA ────────────────────────────────────────────────────────────
   { id: 'notificaciones',    label: 'Notificaciones',     icon: Bell,            group: 'Sistema'      },
   { id: 'error-log',         label: 'Error Log',          icon: TriangleAlert,    group: 'Sistema'      },
+  { id: 'auditoria',         label: 'Auditoría',          icon: FileCog,         group: 'Sistema'      },
   { id: 'admin-sistema',     label: 'Administración',     icon: FileCog,         group: 'Sistema'      },
   { id: 'ajustes',           label: 'Ajustes',            icon: Settings,        group: 'Sistema'      },
 ];
@@ -82,10 +83,11 @@ const GROUP_DOT: Record<string, string> = {
 };
 
 const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
-  const { view, setView, allowedViews, user, notificacionesNoLeidas } = useErp();
+  const { view, setView, allowedViews, user, notificacionesNoLeidas, errorLogs } = useErp();
   const { sidebarCollapsed, toggleCollapse } = useAppContext();
 
   const items = user && allowedViews.length > 0 ? ITEMS.filter(it => allowedViews.includes(it.id)) : ITEMS;
+  const unresolvedErrors = errorLogs.filter(e => !e.resolved).length;
   const collapsed = sidebarCollapsed;
   const asideW  = collapsed ? 'w-[58px]' : 'w-[222px]';
   const groups  = collapsed ? null : [...new Set(items.map(it => it.group))];
@@ -150,6 +152,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                 const Icon  = it.icon;
                 const active = view === it.id;
                 const badge  = it.id === 'notificaciones' && notificacionesNoLeidas > 0;
+                const errBadge = it.id === 'error-log' && unresolvedErrors > 0;
                 return (
                   <button
                     key={it.id}
@@ -166,6 +169,9 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                     <Icon className="w-[17px] h-[17px] shrink-0" aria-hidden="true" />
                     {badge && (
                       <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full border border-background" />
+                    )}
+                    {errBadge && (
+                      <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-background animate-pulse" />
                     )}
                   </button>
                 );
@@ -195,6 +201,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                         const Icon   = it.icon;
                         const active = view === it.id;
                         const badge  = it.id === 'notificaciones' && notificacionesNoLeidas > 0;
+                        const errBadge = it.id === 'error-log' && unresolvedErrors > 0;
                         return (
                           <button
                             key={it.id}
@@ -214,6 +221,13 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                                 bg-destructive text-destructive-foreground rounded-full
                                 flex items-center justify-center px-1">
                                 {notificacionesNoLeidas > 9 ? '9+' : notificacionesNoLeidas}
+                              </span>
+                            )}
+                            {errBadge && (
+                              <span className="ml-auto shrink-0 min-w-[16px] h-4 text-[9px] font-bold
+                                bg-red-500 text-white rounded-full
+                                flex items-center justify-center px-1">
+                                {unresolvedErrors > 9 ? '9+' : unresolvedErrors}
                               </span>
                             )}
                           </button>

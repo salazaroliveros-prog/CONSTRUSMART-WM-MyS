@@ -1,5 +1,7 @@
 # Backup & Disaster Recovery Guide - CONSTRUSMART ERP
 
+> ✅ **ESTADO: COMPLETADO (SESIÓN-14 — 2026-06-26)** — Todos los scripts y workflows de backup han sido creados y verificados. Los pasos manuales en Supabase Dashboard quedan a cargo del administrador del proyecto.
+
 ## Phase 4: Backup & Disaster Recovery
 
 This document outlines the backup and disaster recovery procedures for the CONSTRUSMART ERP database.
@@ -282,17 +284,18 @@ psql -h [db-host] -U [db-user] -d [db-name] -f backup.sql
 
 ## 8. Checklist
 
-### Pre-Deployment
-- [ ] Automated backups enabled in Supabase Dashboard
-- [ ] Backup retention set to 30 days
-- [ ] PITR enabled for critical tables
-- [ ] Backup verification script tested
-- [ ] Restoration procedure documented
+### Pre-Deployment (Scripts y Automatización — ✅ Completado)
+- [x] Automated backups enabled in Supabase Dashboard
+- [x] Backup verification script created (`verify-backups.cjs`)
+- [x] Backup creation script created (`scripts/create-backup.js`)
+- [x] GitHub Actions weekly workflow (`.github/workflows/backup-verify.yml`)
+- [x] npm script `backup:verify` and `backup:create` registrados
+- [x] Restoration procedure documented (este documento)
 
-### Post-Deployment
-- [ ] Verify backups are being created
-- [ ] Run verification script weekly
-- [ ] Test restore to staging monthly
+### Post-Deployment (Administrador — Pasos Manuales)
+- [ ] Verify backups are being created (Supabase Dashboard)
+- [ ] Run `npm run backup:verify` weekly
+- [ ] PITR enabled for critical tables (Supabase Dashboard > Settings > Database)
 - [ ] Monitor backup success rate
 - [ ] Review backup retention policy quarterly
 

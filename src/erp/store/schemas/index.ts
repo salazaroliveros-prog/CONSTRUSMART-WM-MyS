@@ -20,3 +20,5 @@ export { plantillaSchema } from './plantillas';
 export type { Plantilla, PlantillaStore } from './plantillas';
 export { weatherDataSchema, proyectoWeatherSchema } from './weather';
 export type { WeatherData, WeatherImpact, ProyectoWeather, ProyectoWeatherStore } from './weather';
+export { errorLogSchema } from './errorLog';
+export type { ErrorLogEntry } from './errorLog';

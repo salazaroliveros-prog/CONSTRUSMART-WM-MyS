@@ -1,5 +1,7 @@
 # Diseño de UI: Pantalla de Log de Errores
 
+> ✅ **ESTADO: COMPLETADO (SESIÓN-13/14 — 2026-06-26)** — Pantalla implementada en `src/erp/screens/ErrorLog.tsx` con todos los features descritos. 18 tests unitarios pasando.
+
 ## Visión General
 
 Nueva pantalla `ErrorLog` para visualizar y gestionar errores centralizados en la tabla `erp_error_log`. Esta pantalla permitirá a administradores del sistema monitorear, investigar y resolver errores de la aplicación de manera eficiente.

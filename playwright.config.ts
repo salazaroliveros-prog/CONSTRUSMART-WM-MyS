@@ -12,7 +12,6 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     headless: true,
     chromiumSandbox: false,
-    executablePath: 'C:\\Users\\wilso\\AppData\\Local\\ms-playwright\\chromium-1228\\chrome-win64\\chrome.exe',
   },
   webServer: {
     command: 'npm run dev -- --port 8080',

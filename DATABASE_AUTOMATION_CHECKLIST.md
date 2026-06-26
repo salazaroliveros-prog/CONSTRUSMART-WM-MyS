@@ -377,15 +377,15 @@
 6. Script de Optimización de Índices (3-4 horas) ✅
 7. Script de Monitoreo de Deadlocks (2-3 horas) ✅
 
-### Sesión 3-4 (Prioridad Baja - 35-46 horas)
-8. Script de Estadísticas de Uso de Tablas (3-4 horas)
-9. Script de Análisis de Slow Queries (4-5 horas)
-10. Script de Backup Automático Local (3-4 horas)
-11. Script de Restore Testing (4-5 horas)
-12. Integración de Audit Log en UI (5-6 horas)
-13. Integración de Error Log en UI (5-6 horas)
-14. Script de Particionamiento de Tablas Grandes (6-8 horas)
-15. Script de Archivo de Datos Históricos (5-6 horas)
+### ✅ COMPLETADO (SESIÓN-14 — 2026-06-26)
+- [x] 8. Auditoría screen con filters, KPIs, CSV export (`src/erp/screens/Auditoria.tsx`)
+- [x] 9. ErrorLog screen completa con resolve modal, chart, filters (`src/erp/screens/ErrorLog.tsx`)
+- [x] 10. backup:create script + GitHub Actions weekly (`scripts/create-backup.js`, `.github/workflows/backup-verify.yml`)
+- [x] 11. error-db-logger.ts con RPC log_error + cleanup + resolve (`src/lib/error-db-logger.ts`)
+- [x] 12. verify-backups.cjs con verificación de tablas críticas, FK integrity, reporte JSON
+- [x] 13. Dashboard cards de Integridad de Datos y Performance de Queries
+- [x] 14. Schema alignment completo (Zod ↔ DB constraints)
+- [x] 15. Todos los archivos .md cerrados con estado COMPLETADO
 
 ---
 

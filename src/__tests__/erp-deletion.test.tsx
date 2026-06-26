@@ -1,21 +1,24 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useErpStore } from '../erp/zustandStore';
+import { useErpStore, resetRateLimit } from '../erp/zustandStore';
 import { MUTATION_TABLE_MAP } from '../erp/store';
 import { APP_SETTINGS_DEFAULTS } from '../erp/utils';
 
-const resetStore = () => useErpStore.setState({
-  proyectos: [], movimientos: [], empleados: [], materiales: [], ordenes: [],
-  proveedores: [], eventos: [], presupuestos: [], avances: [],
-  cuentasCobrar: [], cuentasPagar: [], ordenesCambio: [], hitos: [], riesgos: [],
-  licitaciones: [], cotizacionesNegocio: [], ventasPaquetes: [], bitacora: [],
-  pruebas: [], ncs: [], valesSalida: [], seguimientoEVM: [], incidentes: [],
-  publicacionesMuro: [], liberaciones: [], planos: [], rfis: [], submittals: [],
-  activos: [], cuadros: [], pagosProveedor: [], destajos: [], recepciones: [],
-  centrosCosto: [], plantillas: [],
-  mutationQueue: [], syncMessage: '', syncCooldown: false, notificaciones: [],
-  auditLog: [], syncStatus: 'idle',
-  isOnline: true, selectedProyectoId: null, appSettings: APP_SETTINGS_DEFAULTS,
-});
+const resetStore = () => {
+  resetRateLimit();
+  useErpStore.setState({
+    proyectos: [], movimientos: [], empleados: [], materiales: [], ordenes: [],
+    proveedores: [], eventos: [], presupuestos: [], avances: [],
+    cuentasCobrar: [], cuentasPagar: [], ordenesCambio: [], hitos: [], riesgos: [],
+    licitaciones: [], cotizacionesNegocio: [], ventasPaquetes: [], bitacora: [],
+    pruebas: [], ncs: [], valesSalida: [], seguimientoEVM: [], incidentes: [],
+    publicacionesMuro: [], liberaciones: [], planos: [], rfis: [], submittals: [],
+    activos: [], cuadros: [], pagosProveedor: [], destajos: [], recepciones: [],
+    centrosCosto: [], plantillas: [],
+    mutationQueue: [], syncMessage: '', syncCooldown: false, notificaciones: [],
+    auditLog: [], syncStatus: 'idle',
+    isOnline: true, selectedProyectoId: null, appSettings: APP_SETTINGS_DEFAULTS,
+  });
+};
 
 // =====================================================================
 // STAGE 1: INDIVIDUAL ENTITY DELETION TESTS
@@ -226,6 +229,7 @@ describe('Stage 1: Individual Entity Deletion', () => {
   });
 
   it('1.14 deleteAvance elimina del estado', () => {
+    useErpStore.setState({ proyectos: [{ id: 'p1', nombre: 'Test Project', cliente: 'Client', ubicacion: 'Location', tipologia: 'residencial', estado: 'activo' }] as any });
     useErpStore.getState().addAvance({ proyectoId: 'p1', presupuestoId: 'pr1', renglonId: 'r1', fecha: '2026-01-01', avanceFisico: 50, cantidadEjecutada: 10 } as any);
     const id = useErpStore.getState().avances[0].id;
     useErpStore.getState().deleteAvance(id);
@@ -233,6 +237,7 @@ describe('Stage 1: Individual Entity Deletion', () => {
   });
 
   it('1.15 deleteSeguimiento elimina del estado', () => {
+    useErpStore.setState({ proyectos: [{ id: 'p1', nombre: 'Test Project', cliente: 'Client', ubicacion: 'Location', tipologia: 'residencial', estado: 'activo' }] as any });
     useErpStore.getState().addSeguimiento({ proyectoId: 'p1', fecha: '2026-01-01', valorGanado: 10000, costoReal: 8000, valorPlanificado: 12000, avanceFisico: 50, avanceFinanciero: 45 } as any);
     const id = useErpStore.getState().seguimientoEVM[0].id;
     useErpStore.getState().deleteSeguimiento(id);
@@ -240,6 +245,7 @@ describe('Stage 1: Individual Entity Deletion', () => {
   });
 
   it('1.16 deleteValeSalida elimina del estado', () => {
+    useErpStore.setState({ proyectos: [{ id: 'p1', nombre: 'Test Project', cliente: 'Client', ubicacion: 'Location', tipologia: 'residencial', estado: 'activo' }] as any });
     useErpStore.getState().addValeSalida({ proyectoId: 'p1', fecha: '2026-01-01', items: [{ materialId: 'm1', cantidad: 5 }], solicitante: 'Juan' } as any);
     const id = useErpStore.getState().valesSalida[0].id;
     useErpStore.getState().deleteValeSalida(id);
@@ -602,7 +608,7 @@ describe('Stage 1: Individual Entity Deletion', () => {
 
   it('1.37 todos los delete handlers existen en el store y son invocables (vía MUTATION_TABLE_MAP)', () => {
     const deleteKeys = Object.keys(MUTATION_TABLE_MAP).filter(k => k.startsWith('delete'));
-    expect(deleteKeys.length).toBeGreaterThanOrEqual(33);
+    expect(deleteKeys.length).toBeGreaterThanOrEqual(34);
 
     const stateKeyMap: Record<string, string> = {
       deleteProyecto:'proyectos', deleteMovimiento:'movimientos', deleteEmpleado:'empleados',
@@ -618,7 +624,7 @@ describe('Stage 1: Individual Entity Deletion', () => {
       deleteIncidente:'incidentes', deleteDestajo:'destajos',
       deleteRecepcion:'recepciones', deletePrueba:'pruebas', deleteNC:'ncs',
       deleteLiberacion:'liberaciones', deleteNotificacion:'notificaciones',
-      deletePlantilla:'plantillas',
+      deletePlantilla:'plantillas', deleteError:'errorLogs',
     };
 
     deleteKeys.forEach(k => {

@@ -10,6 +10,7 @@ export const eventoSchema = z.object({
   descripcion: z.string().nullable().optional(),
   completado: z.boolean().nullable().optional(),
   participantes: z.array(z.string()).optional().default([]),
+  createdAt: z.string().default(new Date().toISOString()),
 });
 
 export const bitacoraSchema = z.object({
@@ -33,4 +34,5 @@ export const bitacoraSchema = z.object({
   longitud: z.number().nullable().optional(),
   weatherDataCaptured: z.boolean().nullable().optional(),
   weatherDataTimestamp: z.string().nullable().optional(),
+  createdAt: z.string().default(new Date().toISOString()),
 });

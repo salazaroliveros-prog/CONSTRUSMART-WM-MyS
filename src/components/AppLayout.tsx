@@ -81,8 +81,9 @@ const PlantillasProyectos = lazy(() => import('@/erp/screens/PlantillasProyectos
 const AnalisisCostosDashboard = lazy(() => import('@/erp/screens/AnalisisCostosDashboard'));
 const ProveedorAnalytics = lazy(() => import('@/erp/screens/ProveedorAnalytics'));
 const ErrorLog            = lazy(() => import('@/erp/screens/ErrorLog'));
+const Auditoria            = lazy(() => import('@/erp/screens/Auditoria'));
 
-const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','analisis-costos','proveedor-analytics','error-log'] as const;
+const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','analisis-costos','proveedor-analytics','error-log','auditoria'] as const;
 
 const SCREEN_SET = new Set<string>(SCREEN_KEYS as readonly string[]);
 
@@ -179,6 +180,7 @@ const Shell: React.FC = () => {
     'analisis-costos':  <AnalisisCostosDashboard />,
     'proveedor-analytics': <ProveedorAnalytics />,
     'error-log':       <ErrorLog />,
+    auditoria:         <Auditoria />,
   }), []);
 
   const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter(key => allowedViews.includes(key as any)), [allowedViews]);

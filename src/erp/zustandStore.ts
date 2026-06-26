@@ -14,6 +14,7 @@ import type {
   PagoProveedor, CotizacionCliente, VentaPaquete, Destajo, RecepcionAlmacen, Incidente, Rol, CentroCosto,
 } from './types';
 import type { Plantilla } from './store/schemas/plantillas';
+import type { ErrorLogEntry } from './store/schemas/errorLog';
 import type { AppSettings, Mutation, LogAuditoria } from './types';
 import type { ProyectoWeather } from './store/schemas/weather';
 
@@ -79,6 +80,7 @@ interface ErpData {
   lastSyncedAt?: string; syncError?: string;
   isOnline: boolean; selectedProyectoId: string | null; appSettings: AppSettings;
   proyectoWeather: ProyectoWeather[];
+  errorLogs: ErrorLogEntry[];
 }
 
 interface ErpActions {
@@ -118,6 +120,10 @@ interface ErpActions {
   setCentrosCosto: (v: CentroCosto[] | ((prev: CentroCosto[]) => CentroCosto[])) => void;
   setPlantillas: (v: Plantilla[] | ((prev: Plantilla[]) => Plantilla[])) => void;
   setProyectoWeather: (v: ProyectoWeather[] | ((prev: ProyectoWeather[]) => ProyectoWeather[])) => void;
+  setErrorLogs: (v: ErrorLogEntry[] | ((prev: ErrorLogEntry[]) => ErrorLogEntry[])) => void;
+  resolveError: (id: string, notes?: string) => void;
+  deleteError: (id: string) => void;
+  cleanupOldErrors: (daysOld?: number) => void;
   setMutationQueue: (v: Mutation[] | ((prev: Mutation[]) => Mutation[])) => void;
   setSyncMessage: (v: string) => void;
   setSyncCooldown: (v: boolean) => void;
@@ -209,7 +215,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_liberaciones_partida','erp_notificaciones','erp_cuadros',
       'erp_recepciones','erp_pruebas_laboratorio','ventas_paquetes',
       'erp_pagos_proveedor','erp_centros_costo',
-      'erp_plantillas_proyectos',
+      'erp_plantillas_proyectos','erp_error_logs',
     ] as const;
 
     const TABLE_MAP: Record<string, string> = {
@@ -229,6 +235,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       erp_recepciones:'recepciones',erp_pruebas_laboratorio:'pruebas',
       ventas_paquetes:'ventasPaquetes',erp_pagos_proveedor:'pagosProveedor',
       erp_centros_costo:'centrosCosto',erp_plantillas_proyectos:'plantillas',
+      erp_error_logs:'errorLogs',
     };
 
     const fetchTable = async (table: string) => {
@@ -335,6 +342,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   selectedProyectoId: null,
   appSettings: APP_SETTINGS_DEFAULTS,
   proyectoWeather: [],
+  errorLogs: [],
 
   setProyectos: (v) => set(typeof v === 'function' ? { proyectos: v(get().proyectos) } : { proyectos: v }),
   setMovimientos: (v) => set(typeof v === 'function' ? { movimientos: v(get().movimientos) } : { movimientos: v }),
@@ -372,6 +380,29 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setCentrosCosto: (v) => set(typeof v === 'function' ? { centrosCosto: v(get().centrosCosto) } : { centrosCosto: v }),
   setPlantillas: (v) => set(typeof v === 'function' ? { plantillas: v(get().plantillas) } : { plantillas: v }),
   setProyectoWeather: (v) => set(typeof v === 'function' ? { proyectoWeather: v(get().proyectoWeather) } : { proyectoWeather: v }),
+  setErrorLogs: (v) => set(typeof v === 'function' ? { errorLogs: v(get().errorLogs) } : { errorLogs: v }),
+  resolveError: (id, notes) => {
+    set(s => ({
+      errorLogs: s.errorLogs.map(e =>
+        e.id === id
+          ? { ...e, resolved: true, resolvedAt: new Date().toISOString(), resolutionNotes: notes || e.resolutionNotes }
+          : e
+      )
+    }));
+    get().enqueueMutation('resolveError', { id, resolutionNotes: notes });
+  },
+  deleteError: (id) => {
+    set(s => ({ errorLogs: s.errorLogs.filter(e => e.id !== id) }));
+    get().enqueueMutation('deleteError', { id });
+  },
+  cleanupOldErrors: (daysOld = 30) => {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - daysOld);
+    set(s => ({
+      errorLogs: s.errorLogs.filter(e => new Date(e.createdAt) > cutoff)
+    }));
+    get().enqueueMutation('cleanupOldErrors', { daysOld });
+  },
   setMutationQueue: (v) => set(typeof v === 'function' ? { mutationQueue: v(get().mutationQueue) } : { mutationQueue: v }),
   setSyncMessage: (v) => set({ syncMessage: v }),
   setSyncCooldown: (v) => set({ syncCooldown: v }),
@@ -413,7 +444,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   },
 
   addProyecto: (p) => {
-    const n = { ...p, id: uid(), version: 1 } as Proyecto;
+    const n = { ...p, id: uid(), version: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } as Proyecto;
     get().setProyectos(prev => [n, ...prev]);
     get().enqueueMutation('addProyecto', n);
     get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'crear', entidad: 'proyecto', entidadId: n.id, valoresNuevos: { nombre: n.nombre, estado: n.estado, presupuestoTotal: n.presupuestoTotal } });
