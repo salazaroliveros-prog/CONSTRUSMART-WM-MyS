@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const eventoSchema = z.object({
   id: z.string(),
-  proyectoId: z.string().nullable().optional().default(''),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   titulo: z.string().default(''),
   fecha: z.string(),
   hora: z.string().nullable().optional().default(''),

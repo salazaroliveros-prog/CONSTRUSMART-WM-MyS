@@ -372,6 +372,11 @@ export function getSupplierRecommendations(
   }));
 }
 
+export function validateForeignKey(foreignKeyId: string | null | undefined, entityArray: Array<{ id: string }>, entityName: string): boolean {
+  if (!foreignKeyId) return false;
+  return entityArray.some(e => e.id === foreignKeyId);
+}
+
 export function identifySupplierRisks(metrics: SupplierPerformanceMetrics[]): Array<{ proveedor: string; riesgo: string; nivel: 'alto' | 'medio' | 'bajo' }> {
   return metrics
     .filter(m => m.puntajeGeneral < 60 || m.puntajeEntrega < 50)

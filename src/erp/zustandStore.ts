@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { sanitizarObjeto } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
 import { supabase } from '@/lib/supabase';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance } from './utils';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance, validateForeignKey } from './utils';
 import { recordSyncMetric } from '@/lib/metrics';
 import { logErrorFromException } from '@/lib/error-logger';
 import type {
@@ -361,7 +361,15 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   enqueueMutation: (type, payload) => {
     if (!checkRateLimit(type)) return '';
     const sanitized = sanitizarObjeto(payload);
-    const safePayload = toSnake(sanitized);
+    const now = new Date().toISOString();
+    let enhancedPayload = { ...sanitized };
+    if (type.startsWith('add')) {
+      if (!enhancedPayload.created_at) enhancedPayload.created_at = now;
+      if (!enhancedPayload.updated_at) enhancedPayload.updated_at = now;
+    } else if (type.startsWith('update')) {
+      if (!enhancedPayload.updated_at) enhancedPayload.updated_at = now;
+    }
+    const safePayload = toSnake(enhancedPayload);
     const mutation: Mutation = { id: uid(), type, payload: safePayload, timestamp: Date.now(), retryCount: 0 };
     get().setMutationQueue(q => { const trimmed = q.length >= 100 ? q.slice(1) : q; return [...trimmed, mutation]; });
     return mutation.id;
@@ -498,7 +506,23 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     keysToRemove.forEach(k => localStorage.removeItem(k));
   },
 
-  addMovimiento: (m) => { const n = { ...m, id: uid() }; get().setMovimientos(prev => [n, ...prev]); get().enqueueMutation('addMovimiento', n); },
+  addMovimiento: (m) => {
+    if (!validateForeignKey(m.proyectoId, get().proyectos, 'proyecto')) {
+      safeLogger.error('[FK Validation] proyectoId inválido en addMovimiento');
+      logErrorFromException(new Error('proyectoId inválido en addMovimiento'), {
+        component: 'zustandStore',
+        function_name: 'addMovimiento',
+        error_type: 'validation',
+        severity: 'warning',
+        proyecto_id: m.proyectoId,
+        additional_context: { movimiento: m }
+      });
+      return;
+    }
+    const n = { ...m, id: uid() };
+    get().setMovimientos(prev => [n, ...prev]);
+    get().enqueueMutation('addMovimiento', n);
+  },
   updateMovimiento: (id, patch) => { get().setMovimientos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateMovimiento', { id, ...patch }); },
   deleteMovimiento: (id) => { get().setMovimientos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteMovimiento', { id }); },
 
@@ -518,7 +542,23 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   },
   deleteMaterial: (id) => { get().setMateriales(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteMaterial', { id }); },
 
-  addOrden: (o) => { const n = { ...o, id: uid(), version: 1 } as OrdenCompra; get().setOrdenes(prev => [n, ...prev]); get().enqueueMutation('addOrden', n); },
+  addOrden: (o) => {
+    if (!validateForeignKey(o.proyectoId, get().proyectos, 'proyecto')) {
+      safeLogger.error('[FK Validation] proyectoId inválido en addOrden');
+      logErrorFromException(new Error('proyectoId inválido en addOrden'), {
+        component: 'zustandStore',
+        function_name: 'addOrden',
+        error_type: 'validation',
+        severity: 'warning',
+        proyecto_id: o.proyectoId,
+        additional_context: { orden: o }
+      });
+      return;
+    }
+    const n = { ...o, id: uid(), version: 1 } as OrdenCompra;
+    get().setOrdenes(prev => [n, ...prev]);
+    get().enqueueMutation('addOrden', n);
+  },
   updateOrden: (id, estado) => {
     try {
       const orden = get().ordenes.find(o => o.id === id);
@@ -555,7 +595,23 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   updateProveedor: (id, patch) => { get().setProveedores(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateProveedor', { id, ...patch }); },
   deleteProveedor: (id) => { get().setProveedores(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteProveedor', { id }); },
 
-  addEvento: (e) => { const n = { ...e, id: uid() }; get().setEventos(prev => [n, ...prev]); get().enqueueMutation('addEvento', n); },
+  addEvento: (e) => {
+    if (!validateForeignKey(e.proyectoId, get().proyectos, 'proyecto')) {
+      safeLogger.error('[FK Validation] proyectoId inválido en addEvento');
+      logErrorFromException(new Error('proyectoId inválido en addEvento'), {
+        component: 'zustandStore',
+        function_name: 'addEvento',
+        error_type: 'validation',
+        severity: 'warning',
+        proyecto_id: e.proyectoId,
+        additional_context: { evento: e }
+      });
+      return;
+    }
+    const n = { ...e, id: uid() };
+    get().setEventos(prev => [n, ...prev]);
+    get().enqueueMutation('addEvento', n);
+  },
   updateEvento: (id, patch) => { get().setEventos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateEvento', { id, ...patch }); },
   deleteEvento: (id) => { get().setEventos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteEvento', { id }); },
 
@@ -563,7 +619,23 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   updateBitacora: (id, patch) => { get().setBitacora(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateBitacora', { id, ...patch }); },
   deleteBitacora: (id) => { get().setBitacora(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteBitacora', { id }); },
 
-  addPresupuesto: (p) => { const n = { ...p, id: uid(), version: 1 } as Presupuesto; get().setPresupuestos(prev => [n, ...prev]); get().enqueueMutation('addPresupuesto', n); },
+  addPresupuesto: (p) => {
+    if (!validateForeignKey(p.proyectoId, get().proyectos, 'proyecto')) {
+      safeLogger.error('[FK Validation] proyectoId inválido en addPresupuesto');
+      logErrorFromException(new Error('proyectoId inválido en addPresupuesto'), {
+        component: 'zustandStore',
+        function_name: 'addPresupuesto',
+        error_type: 'validation',
+        severity: 'warning',
+        proyecto_id: p.proyectoId,
+        additional_context: { presupuesto: p }
+      });
+      return;
+    }
+    const n = { ...p, id: uid(), version: 1 } as Presupuesto;
+    get().setPresupuestos(prev => [n, ...prev]);
+    get().enqueueMutation('addPresupuesto', n);
+  },
   updatePresupuesto: (id, patch) => {
     const existing = get().presupuestos.find(p => p.id === id);
     if (!existing) return;
@@ -586,6 +658,18 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   deleteLicitacion: (id) => { get().setLicitaciones(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteLicitacion', { id }); },
 
   addCotizacion: (c) => {
+    if (c.proyectoId && !validateForeignKey(c.proyectoId, get().proyectos, 'proyecto')) {
+      safeLogger.error('[FK Validation] proyectoId inválido en addCotizacion');
+      logErrorFromException(new Error('proyectoId inválido en addCotizacion'), {
+        component: 'zustandStore',
+        function_name: 'addCotizacion',
+        error_type: 'validation',
+        severity: 'warning',
+        proyecto_id: c.proyectoId,
+        additional_context: { cotizacion: c }
+      });
+      return;
+    }
     const n = { ...c, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     get().setCotizacionesNegocio(prev => [n, ...prev]);
     const { proyectoId: _, ...payload } = n;
@@ -703,6 +787,18 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   deleteLiberacion: (id) => { get().setLiberaciones(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteLiberacion', { id }); },
 
   addNotificacion: (tipo, titulo, mensaje, proyectoId, referenciaId) => {
+    if (proyectoId && !validateForeignKey(proyectoId, get().proyectos, 'proyecto')) {
+      safeLogger.error('[FK Validation] proyectoId inválido en addNotificacion');
+      logErrorFromException(new Error('proyectoId inválido en addNotificacion'), {
+        component: 'zustandStore',
+        function_name: 'addNotificacion',
+        error_type: 'validation',
+        severity: 'warning',
+        proyecto_id: proyectoId,
+        additional_context: { tipo, titulo, mensaje }
+      });
+      return;
+    }
     get().setNotificaciones(prev => {
       const existing = proyectoId ? prev.find(n => n.proyectoId === proyectoId && n.titulo === titulo && !n.leido) : undefined;
       if (existing) return prev.map(n => n.id === existing.id ? { ...n, mensaje: `${n.mensaje} (+1)`, createdAt: new Date().toISOString(), referenciaId: referenciaId || n.referenciaId } : n);
