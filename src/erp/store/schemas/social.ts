@@ -25,7 +25,7 @@ export const notificacionSchema = z.object({
   tipo: z.enum(['checklist_rechazado','orden_cambio_pendiente','stock_critico','desviacion_rendimiento','avance_registrado','alerta','exito','general'] as const).default('general').catch('general'),
   titulo: z.string().default(''),
   mensaje: z.string().default(''),
-  proyectoId: z.string().nullable().optional(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   referenciaId: z.string().nullable().optional(),
   leido: z.boolean().default(false),
   createdAt: z.string().default(new Date().toISOString()),

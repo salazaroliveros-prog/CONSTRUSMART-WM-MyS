@@ -56,6 +56,8 @@ export const proyectoSchema = z.object({
   fechaPausa: z.string().optional().default(''),
   fechaReanudacionEstimada: z.string().optional().default(''),
   version: z.number().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 }).transform(d => ({
   ...d,
   lat: d.lat ?? d.latitud ?? 14.6349,

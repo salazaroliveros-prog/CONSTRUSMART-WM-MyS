@@ -17,7 +17,7 @@ export const valeSalidaSchema = z.object({
 
 export const materialSchema = z.object({
   id: z.string(),
-  proyectoId: z.string().optional().default(''),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   nombre: z.string(),
   unidad: z.string(),
   stock: z.number(),
@@ -57,7 +57,7 @@ export const ordenSchema = z.object({
 
 export const proveedorSchema = z.object({
   id: z.string(),
-  proyectoId: z.string().optional().default(''),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   nombre: z.string(),
   contacto: z.string().nullable().optional().default(''),
   rubro: z.string().nullable().optional(),
@@ -68,6 +68,8 @@ export const proveedorSchema = z.object({
     if (typeof v === 'string' && !['materiales','mano_obra','equipo','subcontrato','administracion','transporte','imprevistos','marketing','licencias','seguros','otros'].includes(v)) return 'otros';
     return v;
   }, z.enum(['materiales','mano_obra','equipo','subcontrato','administracion','transporte','imprevistos','marketing','licencias','seguros','otros'] as const)).default('materiales'),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 }).transform(d => ({
   ...d,
   contacto: d.contacto ?? '',

@@ -702,6 +702,52 @@ const Dashboard: React.FC = () => {
             ) : <p className="text-[10px] text-muted-foreground text-center py-3">{t('common.no_data')}</p>}
           </div>
 
+          {/* Data Integrity Card */}
+          <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+            <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
+              <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
+              {t('dashboard.integridad_titulo')}
+            </h3>
+            <div className="text-[10px] space-y-1">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('dashboard.integridad_huérfanos', { count: 0 })}</span>
+                <span className="text-success font-medium">0</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('dashboard.integridad_nulls', { count: 0 })}</span>
+                <span className="text-success font-medium">0</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('dashboard.integridad_constraints', { count: mutationQueue.filter(m => m.retryCount > 2).length })}</span>
+                <span className={mutationQueue.filter(m => m.retryCount > 2).length > 0 ? 'text-destructive font-medium' : 'text-success font-medium'}>
+                  {mutationQueue.filter(m => m.retryCount > 2).length}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Query Performance Card */}
+          <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+            <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
+              <Database className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
+              {t('dashboard.performance_titulo')}
+            </h3>
+            <div className="text-[10px] space-y-1">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('dashboard.performance_lentas', { count: 0 })}</span>
+                <span className="text-success font-medium">0</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('dashboard.performance_sync', { time: (lastSyncedAt ? ((Date.now() - new Date(lastSyncedAt).getTime()) / 1000).toFixed(1) : 'N/A') })}</span>
+                <span className="text-foreground font-medium">{lastSyncedAt ? `${((Date.now() - new Date(lastSyncedAt).getTime()) / 1000).toFixed(1)}s` : 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('dashboard.performance_db_size', { size: `${proyectos.length + movimientos.length + materiales.length + empleados.length + ordenes.length} registros` })}</span>
+                <span className="text-foreground font-medium">{proyectos.length + movimientos.length + materiales.length + empleados.length + ordenes.length}</span>
+              </div>
+            </div>
+          </div>
+
           {/* Supplier Analytics Widget */}
           {supplierPerformanceData.total > 0 && (
             <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>

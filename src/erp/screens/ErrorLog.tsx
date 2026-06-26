@@ -1,400 +1,566 @@
 import React from 'react';
-import { supabase } from '@/lib/supabase';
-import { AlertTriangle, CheckCircle, XCircle, Info, Bug, Database, Network, Shield, Filter, Download, Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useErp } from '../store';
+import ProyectoFilter from '../components/ProyectoFilter';
+import { Table, Tag, Badge, Button, Space, Modal, Descriptions, Alert, Input, Select, DatePicker, Tooltip, Skeleton } from 'antd';
+import { SearchOutlined, CheckOutlined, DeleteOutlined, DownloadOutlined, ClearOutlined, EyeOutlined, ExclamationCircleOutlined, CheckCircleOutlined, WarningOutlined, DatabaseOutlined } from '@ant-design/icons';
+import type { ColumnsType } from 'antd/es/table';
+import type { ErrorLogEntry } from '../store/schemas/errorLog';
 
-interface ErrorLogEntry {
-  id: string;
-  error_code?: string;
-  error_message: string;
-  error_stack?: string;
-  error_type: 'client' | 'server' | 'database' | 'network' | 'validation' | 'auth' | 'permission' | 'other';
-  severity: 'debug' | 'info' | 'warning' | 'error' | 'critical';
-  component?: string;
-  function_name?: string;
-  line_number?: number;
-  proyecto_id?: string;
-  proyecto_nombre?: string;
-  user_id?: string;
-  user_email?: string;
-  request_path?: string;
-  resolved: boolean;
-  resolved_at?: string;
-  resolution_notes?: string;
-  created_at: string;
-}
-
-const SEVERITY_ICONS: Record<string, React.ReactNode> = {
-  debug: <Bug className="w-5 h-5 text-gray-500" />,
-  info: <Info className="w-5 h-5 text-blue-500" />,
-  warning: <AlertTriangle className="w-5 h-5 text-amber-500" />,
-  error: <XCircle className="w-5 h-5 text-red-500" />,
-  critical: <AlertTriangle className="w-5 h-5 text-red-600" />,
-};
+const { RangePicker } = DatePicker;
 
 const SEVERITY_COLORS: Record<string, string> = {
-  debug: 'bg-gray-50 border-gray-200',
-  info: 'bg-blue-50 border-blue-200',
-  warning: 'bg-amber-50 border-amber-200',
-  error: 'bg-red-50 border-red-200',
-  critical: 'bg-red-100 border-red-300',
+  critical: 'red',
+  error: 'red',
+  warning: 'orange',
+  info: 'blue',
+  debug: 'default',
 };
 
-const ERROR_TYPE_ICONS: Record<string, React.ReactNode> = {
-  client: <Bug className="w-4 h-4 text-purple-500" />,
-  server: <Database className="w-4 h-4 text-indigo-500" />,
-  database: <Database className="w-4 h-4 text-blue-500" />,
-  network: <Network className="w-4 h-4 text-green-500" />,
-  validation: <Shield className="w-4 h-4 text-amber-500" />,
-  auth: <Shield className="w-4 h-4 text-red-500" />,
-  permission: <Shield className="w-4 h-4 text-orange-500" />,
-  other: <AlertTriangle className="w-4 h-4 text-gray-500" />,
-};
+function severityLabel(t: (k: string) => string, sev: string): string {
+  const map: Record<string, string> = {
+    critical: t('error_log.severidad_critico'),
+    error: t('error_log.severidad_error'),
+    warning: t('error_log.severidad_advertencia'),
+    info: t('error_log.severidad_info'),
+    debug: t('error_log.severidad_debug'),
+  };
+  return map[sev] || sev;
+}
+
+function fmtDate(iso?: string): string {
+  if (!iso) return '';
+  return new Date(iso).toLocaleString('es-ES', {
+    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+}
 
 export default function ErrorLog() {
-  const [errors, setErrors] = React.useState<ErrorLogEntry[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [filtroSeveridad, setFiltroSeveridad] = React.useState<string | null>(null);
-  const [filtroTipo, setFiltroTipo] = React.useState<string | null>(null);
-  const [filtroResuelto, setFiltroResuelto] = React.useState<boolean | null>(null);
-  const [busqueda, setBusqueda] = React.useState('');
-  const [errorSeleccionado, setErrorSeleccionado] = React.useState<ErrorLogEntry | null>(null);
-  const [showModal, setShowModal] = React.useState(false);
+  const { t } = useTranslation();
+  const { errorLogs, resolveError, deleteError, cleanupOldErrors, proyectos, user } = useErp();
+  const [search, setSearch] = React.useState('');
+  const [filterSeverity, setFilterSeverity] = React.useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = React.useState<string | null>(null);
+  const [filterProyecto, setFilterProyecto] = React.useState('');
+  const [dateRange, setDateRange] = React.useState<[string | null, string | null] | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = React.useState(false);
+  const [selectedError, setSelectedError] = React.useState<ErrorLogEntry | null>(null);
+  const [resolveModalOpen, setResolveModalOpen] = React.useState(false);
+  const [resolveNotes, setResolveNotes] = React.useState('');
+  const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]);
+  const [loading, setLoading] = React.useState(false);
 
-  const fetchErrors = React.useCallback(async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('erp_error_log_recent')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100);
+  const errorTypeStats = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    errorLogs.forEach(e => {
+      const t = e.errorType || 'unknown';
+      counts[t] = (counts[t] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  }, [errorLogs]);
 
-      if (error) throw error;
-      setErrors(data || []);
-    } catch (err) {
-      console.error('Error fetching error logs:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const filtradas = errorLogs
+    .filter(e => !filterSeverity || e.severity === filterSeverity)
+    .filter(e => {
+      if (filterStatus === 'open') return !e.resolved;
+      if (filterStatus === 'resolved') return e.resolved;
+      return true;
+    })
+    .filter(e => !filterProyecto || e.proyectoId === filterProyecto)
+    .filter(e => !search ||
+      e.errorMessage.toLowerCase().includes(search.toLowerCase()) ||
+      e.errorCode?.toLowerCase().includes(search.toLowerCase()) ||
+      e.component?.toLowerCase().includes(search.toLowerCase()) ||
+      e.functionName?.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter(e => {
+      if (!dateRange || (!dateRange[0] && !dateRange[1])) return true;
+      const d = new Date(e.createdAt).getTime();
+      const from = dateRange[0] ? new Date(dateRange[0]).getTime() : 0;
+      const to = dateRange[1] ? new Date(dateRange[1]).getTime() : Infinity;
+      return d >= from && d <= to;
+    });
 
-  React.useEffect(() => {
-    fetchErrors();
-  }, [fetchErrors]);
-
-  const handleResolve = async (errorId: string, notes?: string) => {
-    try {
-      const { error } = await supabase.rpc('resolve_error', {
-        p_error_id: errorId,
-        p_resolution_notes: notes || null
-      });
-
-      if (error) throw error;
-      await fetchErrors();
-      setShowModal(false);
-      setErrorSeleccionado(null);
-    } catch (err) {
-      console.error('Error resolving error:', err);
-    }
+  const stats = {
+    total: errorLogs.length,
+    open: errorLogs.filter(e => !e.resolved).length,
+    resolved: errorLogs.filter(e => e.resolved).length,
+    critical: errorLogs.filter(e => e.severity === 'critical' && !e.resolved).length,
   };
 
-  const errorsFiltrados = errors
-    .filter(e => !filtroSeveridad || e.severity === filtroSeveridad)
-    .filter(e => !filtroTipo || e.error_type === filtroTipo)
-    .filter(e => filtroResuelto === null || e.resolved === filtroResuelto)
-    .filter(e => !busqueda || 
-      e.error_message.toLowerCase().includes(busqueda.toLowerCase()) ||
-      e.component?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      e.function_name?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      e.error_code?.toLowerCase().includes(busqueda.toLowerCase())
-    );
-
-  const severidades = [...new Set(errors.map(e => e.severity))];
-  const tipos = [...new Set(errors.map(e => e.error_type))];
-  const noResueltos = errors.filter(e => !e.resolved).length;
-
-  const formatDate = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('es-GT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const getProyectoNombre = (pid?: string | null) => {
+    if (!pid) return '';
+    const p = proyectos.find(pr => pr.id === pid);
+    return p?.nombre || '';
   };
 
-  const exportToCSV = () => {
-    const headers = ['ID', 'Error Code', 'Message', 'Type', 'Severity', 'Component', 'Function', 'Project', 'User', 'Resolved', 'Created At'];
-    const rows = errorsFiltrados.map(e => [
-      e.id,
-      e.error_code || '',
-      `"${e.error_message.replace(/"/g, '""')}"`,
-      e.error_type,
-      e.severity,
+  const handleResolve = (id: string, notes?: string) => {
+    resolveError(id, notes || undefined);
+  };
+
+  const openResolveModal = (id: string) => {
+    setResolveNotes('');
+    setSelectedError(errorLogs.find(e => e.id === id) || null);
+    setResolveModalOpen(true);
+  };
+
+  const confirmResolve = () => {
+    if (!selectedError) return;
+    handleResolve(selectedError.id, resolveNotes);
+    setResolveModalOpen(false);
+    setSelectedError(null);
+  };
+
+  const handleBulkResolve = () => {
+    selectedRowKeys.forEach(id => resolveError(id as string));
+    setSelectedRowKeys([]);
+  };
+
+  const handleBulkDelete = () => {
+    selectedRowKeys.forEach(id => deleteError(id as string));
+    setSelectedRowKeys([]);
+  };
+
+  const handleCleanup = () => {
+    const dias = prompt(t('error_log.eliminar_dias'), '30');
+    if (dias) cleanupOldErrors(parseInt(dias, 10));
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['ID', t('error_log.columna_tipo'), t('error_log.columna_severidad'), t('error_log.columna_mensaje'), t('error_log.columna_componente'), t('error_log.columna_estado'), t('error_log.columna_fecha')];
+    const rows = filtradas.map(e => [
+      e.id.slice(0, 8),
+      e.errorType || '',
+      severityLabel(t, e.severity),
+      `"${e.errorMessage.replace(/"/g, '""')}"`,
       e.component || '',
-      e.function_name || '',
-      e.proyecto_nombre || '',
-      e.user_email || '',
-      e.resolved ? 'Yes' : 'No',
-      e.created_at
+      e.resolved ? t('error_log.resuelto') : t('error_log.abierto'),
+      e.createdAt,
     ]);
-
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `error-log-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `error-log-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
+  const showDetail = (record: ErrorLogEntry) => {
+    setSelectedError(record);
+    setDetailModalOpen(true);
+  };
+
   if (loading) {
     return (
-      <div className="p-4 max-w-6xl mx-auto">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3" />
-          <div className="h-64 bg-gray-200 rounded" />
+      <div className="p-4 max-w-6xl mx-auto space-y-4">
+        <Skeleton active paragraph={{ rows: 1 }} />
+        <div className="grid grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} active paragraph={{ rows: 2 }} />)}
         </div>
+        <Skeleton active paragraph={{ rows: 8 }} />
       </div>
     );
   }
 
+  const columns: ColumnsType<ErrorLogEntry> = [
+    {
+      title: t('error_log.columna_id'),
+      dataIndex: 'id',
+      key: 'id',
+      width: 100,
+      render: (id: string) => <code className="text-xs">{id.slice(0, 8)}</code>,
+      sorter: (a, b) => a.id.localeCompare(b.id),
+    },
+    {
+      title: t('error_log.columna_tipo'),
+      dataIndex: 'errorType',
+      key: 'errorType',
+      width: 110,
+      render: (type: string | undefined) => type ? <Tag>{type}</Tag> : null,
+      filters: [...new Set(errorLogs.map(e => e.errorType).filter(Boolean))].map(t => ({ text: t, value: t })),
+      onFilter: (value, record) => record.errorType === value,
+    },
+    {
+      title: t('error_log.columna_severidad'),
+      dataIndex: 'severity',
+      key: 'severity',
+      width: 110,
+      render: (sev: string) => (
+        <Tag color={SEVERITY_COLORS[sev] || 'default'}>
+          {severityLabel(t, sev)}
+        </Tag>
+      ),
+      filters: [
+        { text: t('error_log.severidad_critico'), value: 'critical' },
+        { text: t('error_log.severidad_error'), value: 'error' },
+        { text: t('error_log.severidad_advertencia'), value: 'warning' },
+        { text: t('error_log.severidad_info'), value: 'info' },
+      ],
+      onFilter: (value, record) => record.severity === value,
+    },
+    {
+      title: t('error_log.columna_estado'),
+      dataIndex: 'resolved',
+      key: 'resolved',
+      width: 110,
+      render: (resolved: boolean) => (
+        <Badge status={resolved ? 'success' : 'error'} text={resolved ? t('error_log.resuelto') : t('error_log.abierto')} />
+      ),
+      filters: [
+        { text: t('error_log.abierto'), value: false },
+        { text: t('error_log.resuelto'), value: true },
+      ],
+      onFilter: (value, record) => record.resolved === value,
+    },
+    {
+      title: t('error_log.columna_mensaje'),
+      dataIndex: 'errorMessage',
+      key: 'errorMessage',
+      ellipsis: true,
+      render: (msg: string) => (
+        <Tooltip title={msg}><span>{msg}</span></Tooltip>
+      ),
+    },
+    {
+      title: t('error_log.columna_componente'),
+      dataIndex: 'component',
+      key: 'component',
+      width: 130,
+      render: (comp: string | undefined) => comp ? (
+        <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{comp}</code>
+      ) : null,
+    },
+    {
+      title: t('error_log.columna_proyecto'),
+      dataIndex: 'proyectoId',
+      key: 'proyectoId',
+      width: 130,
+      render: (pid: string | undefined | null) => getProyectoNombre(pid) || '-',
+    },
+    {
+      title: t('error_log.columna_fecha'),
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 160,
+      render: (date: string) => fmtDate(date),
+      sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      defaultSortOrder: 'descend',
+    },
+    {
+      title: t('error_log.columna_acciones'),
+      key: 'actions',
+      width: 140,
+      render: (_, record) => (
+        <Space>
+          <Button
+            type="link"
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => showDetail(record)}
+            aria-label={t('error_log.ver') + ' ' + t('error_log.detalle_titulo').replace('{{id}}', '')}
+          >
+            {t('error_log.ver')}
+          </Button>
+          {!record.resolved && (
+              <Button
+                type="link"
+                size="small"
+                icon={<CheckOutlined />}
+                onClick={() => openResolveModal(record.id)}
+                aria-label={t('error_log.marcar_resuelto')}
+              >
+                {t('error_log.resolver')}
+              </Button>
+          )}
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <div className="p-4 max-w-6xl mx-auto space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <AlertTriangle className="w-6 h-6 text-red-500" />
-            Error Log
-          </h1>
+          <h1 className="text-2xl font-bold">{t('error_log.titulo')}</h1>
           <p className="text-sm text-gray-500">
-            {noResueltos} sin resolver · {errors.length} total
+            {t('error_log.subtitulo', { total: stats.total, open: stats.open, resolved: stats.resolved, critical: stats.critical })}
           </p>
         </div>
-        <button
-          onClick={exportToCSV}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          Exportar CSV
-        </button>
       </div>
 
-      <div className="flex flex-wrap gap-3 items-center">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar por mensaje, componente, función..."
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-            className="pl-9 pr-4 py-2 border rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        <select
-          value={filtroSeveridad || ''}
-          onChange={e => setFiltroSeveridad(e.target.value || null)}
-          className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="">Todas las severidades</option>
-          {severidades.map(s => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-
-        <select
-          value={filtroTipo || ''}
-          onChange={e => setFiltroTipo(e.target.value || null)}
-          className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="">Todos los tipos</option>
-          {tipos.map(t => (
-            <option key={t} value={t}>{t}</option>
-          ))}
-        </select>
-
-        <select
-          value={filtroResuelto === null ? '' : filtroResuelto ? 'true' : 'false'}
-          onChange={e => setFiltroResuelto(e.target.value === '' ? null : e.target.value === 'true')}
-          className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="">Todos los estados</option>
-          <option value="false">Sin resolver</option>
-          <option value="true">Resueltos</option>
-        </select>
-
-        <button
-          onClick={() => { setFiltroSeveridad(null); setFiltroTipo(null); setFiltroResuelto(null); setBusqueda(''); }}
-          className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-        >
-          Limpiar filtros
-        </button>
-      </div>
-
-      <div className="space-y-2">
-        {errorsFiltrados.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <AlertTriangle className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-            <p>No se encontraron errores</p>
+      <div className="grid grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2 mb-1">
+            <DatabaseOutlined className="text-blue-500" />
+            <span className="text-sm text-gray-500">{t('error_log.total_errores')}</span>
           </div>
-        ) : (
-          errorsFiltrados.map(error => (
-            <div
-              key={error.id}
-              className={`p-4 rounded-lg border cursor-pointer hover:shadow-md transition-shadow ${SEVERITY_COLORS[error.severity]}`}
-              onClick={() => { setErrorSeleccionado(error); setShowModal(true); }}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-3 flex-1">
-                  <div className="mt-0.5">
-                    {SEVERITY_ICONS[error.severity]}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium px-2 py-0.5 rounded bg-white/50 capitalize">
-                        {error.severity}
-                      </span>
-                      {ERROR_TYPE_ICONS[error.error_type]}
-                      <span className="text-xs text-gray-600 capitalize">{error.error_type}</span>
-                      {error.resolved && (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      )}
-                    </div>
-                    <p className="font-medium text-sm truncate">{error.error_message}</p>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
-                      {error.component && <span>{error.component}</span>}
-                      {error.function_name && <span>· {error.function_name}</span>}
-                      {error.proyecto_nombre && <span>· {error.proyecto_nombre}</span>}
-                      <span>· {formatDate(error.created_at)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
+          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2 mb-1">
+            <ExclamationCircleOutlined className="text-orange-500" />
+            <span className="text-sm text-gray-500">{t('error_log.abiertos')}</span>
+          </div>
+          <div className="text-2xl font-bold text-orange-600">{stats.open}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2 mb-1">
+            <CheckCircleOutlined className="text-green-500" />
+            <span className="text-sm text-gray-500">{t('error_log.resueltos')}</span>
+          </div>
+          <div className="text-2xl font-bold text-green-600">{stats.resolved}</div>
+        </div>
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2 mb-1">
+            <WarningOutlined className="text-red-500" />
+            <span className="text-sm text-gray-500">{t('error_log.criticos')}</span>
+          </div>
+          <div className="text-2xl font-bold text-red-600">{stats.critical}</div>
+        </div>
       </div>
 
-      {showModal && errorSeleccionado && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="p-4 border-b flex items-center justify-between">
-              <h2 className="text-lg font-bold">Detalle del Error</h2>
-              <button
-                onClick={() => { setShowModal(false); setErrorSeleccionado(null); }}
-                className="p-1 hover:bg-gray-100 rounded"
-              >
-                <XCircle className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-4 overflow-y-auto flex-1 space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="font-medium">ID:</span>
-                  <p className="text-gray-600 font-mono text-xs">{errorSeleccionado.id}</p>
-                </div>
-                <div>
-                  <span className="font-medium">Severidad:</span>
-                  <p className="capitalize">{errorSeleccionado.severity}</p>
-                </div>
-                <div>
-                  <span className="font-medium">Tipo:</span>
-                  <p className="capitalize">{errorSeleccionado.error_type}</p>
-                </div>
-                <div>
-                  <span className="font-medium">Estado:</span>
-                  <p className={errorSeleccionado.resolved ? 'text-green-600' : 'text-red-600'}>
-                    {errorSeleccionado.resolved ? 'Resuelto' : 'Sin resolver'}
-                  </p>
-                </div>
-                {errorSeleccionado.error_code && (
-                  <div>
-                    <span className="font-medium">Código:</span>
-                    <p className="font-mono text-xs">{errorSeleccionado.error_code}</p>
-                  </div>
-                )}
-                {errorSeleccionado.component && (
-                  <div>
-                    <span className="font-medium">Componente:</span>
-                    <p>{errorSeleccionado.component}</p>
-                  </div>
-                )}
-                {errorSeleccionado.function_name && (
-                  <div>
-                    <span className="font-medium">Función:</span>
-                    <p>{errorSeleccionado.function_name}</p>
-                  </div>
-                )}
-                {errorSeleccionado.line_number && (
-                  <div>
-                    <span className="font-medium">Línea:</span>
-                    <p>{errorSeleccionado.line_number}</p>
-                  </div>
-                )}
-                {errorSeleccionado.proyecto_nombre && (
-                  <div>
-                    <span className="font-medium">Proyecto:</span>
-                    <p>{errorSeleccionado.proyecto_nombre}</p>
-                  </div>
-                )}
-                {errorSeleccionado.user_email && (
-                  <div>
-                    <span className="font-medium">Usuario:</span>
-                    <p>{errorSeleccionado.user_email}</p>
-                  </div>
-                )}
-                <div>
-                  <span className="font-medium">Creado:</span>
-                  <p>{formatDate(errorSeleccionado.created_at)}</p>
-                </div>
-                {errorSeleccionado.resolved_at && (
-                  <div>
-                    <span className="font-medium">Resuelto:</span>
-                    <p>{formatDate(errorSeleccionado.resolved_at)}</p>
-                  </div>
-                )}
-              </div>
+      <div className="flex flex-wrap gap-2 items-center">
+        <Input
+          placeholder={t('error_log.buscar_placeholder')}
+          prefix={<SearchOutlined />}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ width: 240 }}
+          aria-label="Buscar errores"
+        />
+        <Select
+          placeholder={t('error_log.filtro_severidad')}
+          value={filterSeverity}
+          onChange={v => setFilterSeverity(v)}
+          allowClear
+          style={{ width: 140 }}
+          aria-label="Filtrar por severidad"
+          options={['critical', 'error', 'warning', 'info', 'debug'].map(s => ({
+            value: s,
+            label: severityLabel(t, s),
+          }))}
+        />
+        <Select
+          placeholder={t('error_log.filtro_estado')}
+          value={filterStatus}
+          onChange={v => setFilterStatus(v)}
+          allowClear
+          style={{ width: 140 }}
+          aria-label="Filtrar por estado"
+          options={[
+            { value: 'open', label: t('error_log.abierto') },
+            { value: 'resolved', label: t('error_log.resuelto') },
+          ]}
+        />
+        <ProyectoFilter
+          proyectos={proyectos}
+          selectedProyectoId={filterProyecto}
+          onChange={setFilterProyecto}
+        />
+        <RangePicker
+          onChange={(_, dateStrings) => setDateRange(dateStrings as [string, string] || null)}
+          aria-label="Filtrar por rango de fecha"
+        />
+      </div>
 
-              <div>
-                <span className="font-medium text-sm">Mensaje:</span>
-                <p className="text-sm text-gray-700 mt-1">{errorSeleccionado.error_message}</p>
-              </div>
+      <Table<ErrorLogEntry>
+        rowKey="id"
+        columns={columns}
+        dataSource={filtradas}
+        pagination={{
+          showSizeChanger: true,
+          showTotal: (total) => t('error_log.total_paginacion', { total }),
+          pageSize: 20,
+        }}
+        loading={loading}
+        scroll={{ x: 1000 }}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: (keys) => setSelectedRowKeys(keys),
+        }}
+        locale={{
+          emptyText: t('error_log.sin_resultados'),
+        }}
+        rowClassName={(record) => record.resolved ? 'opacity-60' : ''}
+      />
 
-              {errorSeleccionado.error_stack && (
-                <div>
-                  <span className="font-medium text-sm">Stack Trace:</span>
-                  <pre className="text-xs bg-gray-100 p-3 rounded mt-1 overflow-x-auto">
-                    {errorSeleccionado.error_stack}
-                  </pre>
+      {errorTypeStats.length > 0 && (
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <h3 className="text-sm font-semibold mb-3">{t('error_log.grafico_errores_titulo')}</h3>
+          <div className="space-y-2">
+            {errorTypeStats.map(([type, count]) => {
+              const maxCount = errorTypeStats[0]?.[1] || 1;
+              const pct = (count / maxCount) * 100;
+              return (
+                <div key={type} className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500 w-20 truncate text-right">{type}</span>
+                  <div className="flex-1 h-5 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
+                    <div
+                      className="h-full bg-blue-500 rounded transition-all duration-500"
+                      style={{ width: `${Math.max(pct, count > 0 ? 5 : 0)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-medium w-8 text-right">{count}</span>
                 </div>
-              )}
-
-              {errorSeleccionado.resolution_notes && (
-                <div>
-                  <span className="font-medium text-sm">Notas de Resolución:</span>
-                  <p className="text-sm text-gray-700 mt-1">{errorSeleccionado.resolution_notes}</p>
-                </div>
-              )}
-            </div>
-            {!errorSeleccionado.resolved && (
-              <div className="p-4 border-t flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Notas de resolución (opcional)"
-                  className="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  id="resolution-notes"
-                />
-                <button
-                  onClick={() => {
-                    const notes = (document.getElementById('resolution-notes') as HTMLInputElement)?.value;
-                    handleResolve(errorSeleccionado.id, notes);
-                  }}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                >
-                  Marcar como Resuelto
-                </button>
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
       )}
+
+      <Space className="mt-4">
+        <Button
+          icon={<CheckOutlined />}
+          disabled={selectedRowKeys.length === 0}
+          onClick={handleBulkResolve}
+          aria-label={t('error_log.resolver_seleccionados').replace('{{count}}', String(selectedRowKeys.length))}
+        >
+          {t('error_log.resolver_seleccionados', { count: selectedRowKeys.length })}
+        </Button>
+        <Button
+          icon={<DeleteOutlined />}
+          danger
+          disabled={selectedRowKeys.length === 0}
+          onClick={handleBulkDelete}
+          aria-label={t('error_log.eliminar_seleccionados').replace('{{count}}', String(selectedRowKeys.length))}
+        >
+          {t('error_log.eliminar_seleccionados', { count: selectedRowKeys.length })}
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          onClick={handleExportCSV}
+          aria-label={t('error_log.exportar_csv')}
+        >
+          {t('error_log.exportar_csv')}
+        </Button>
+        <Button
+          icon={<ClearOutlined />}
+          onClick={handleCleanup}
+          aria-label={t('error_log.limpiar_antiguos').replace('{{dias}}', '30')}
+        >
+          {t('error_log.limpiar_antiguos', { dias: '30' })}
+        </Button>
+      </Space>
+
+      <Modal
+        title={t('error_log.resolver_modal_titulo')}
+        open={resolveModalOpen}
+        onCancel={() => setResolveModalOpen(false)}
+        onOk={confirmResolve}
+        okText={t('error_log.resolver_modal_confirmar')}
+        cancelText={t('error_log.resolver_modal_cancelar')}
+      >
+        <div className="space-y-3">
+          <p className="text-sm text-gray-500">
+            {selectedError?.errorMessage}
+          </p>
+          <div>
+            <label className="text-sm font-medium mb-1 block">
+              {t('error_log.resolver_modal_notas_label')}
+            </label>
+            <Input.TextArea
+              value={resolveNotes}
+              onChange={e => setResolveNotes(e.target.value)}
+              placeholder={t('error_log.resolver_modal_notas_placeholder')}
+              rows={3}
+            />
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        title={t('error_log.detalle_titulo', { id: selectedError?.id?.slice(0, 8) || '' })}
+        open={detailModalOpen}
+        onCancel={() => setDetailModalOpen(false)}
+        footer={[
+          <Button key="close" onClick={() => setDetailModalOpen(false)}>
+            {t('error_log.cerrar')}
+          </Button>,
+          !selectedError?.resolved && (
+            <Button
+              key="resolve"
+              type="primary"
+              icon={<CheckOutlined />}
+              onClick={() => {
+                if (selectedError) {
+                  openResolveModal(selectedError.id);
+                  setDetailModalOpen(false);
+                }
+              }}
+            >
+              {t('error_log.marcar_resuelto')}
+            </Button>
+          ),
+        ]}
+        width={800}
+      >
+        {selectedError && (
+          <Descriptions bordered column={2} size="small">
+            <Descriptions.Item label={t('error_log.detalle_id')} span={2}>
+              <code>{selectedError.id}</code>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('error_log.detalle_tipo')}>
+              <Tag>{selectedError.errorType || 'N/A'}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('error_log.detalle_severidad')}>
+              <Tag color={SEVERITY_COLORS[selectedError.severity] || 'default'}>
+                {severityLabel(t, selectedError.severity)}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('error_log.detalle_estado')}>
+              <Badge status={selectedError.resolved ? 'success' : 'error'} text={selectedError.resolved ? t('error_log.resuelto') : t('error_log.abierto')} />
+            </Descriptions.Item>
+            <Descriptions.Item label={t('error_log.detalle_fecha')}>
+              {fmtDate(selectedError.createdAt)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('error_log.detalle_componente')} span={2}>
+              <code>{selectedError.component || 'N/A'}</code>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('error_log.detalle_funcion')} span={2}>
+              <code>{selectedError.functionName || 'N/A'}</code>
+            </Descriptions.Item>
+            {selectedError.proyectoId && (
+              <Descriptions.Item label={t('error_log.detalle_proyecto')} span={2}>
+                {getProyectoNombre(selectedError.proyectoId) || selectedError.proyectoId}
+              </Descriptions.Item>
+            )}
+            <Descriptions.Item label={t('error_log.detalle_mensaje')} span={2}>
+              <Alert message={selectedError.errorMessage} type="error" showIcon />
+            </Descriptions.Item>
+            {selectedError.context && (
+              <Descriptions.Item label={t('error_log.detalle_contexto')} span={2}>
+                <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded text-xs overflow-auto max-h-32">
+                  {JSON.stringify(selectedError.context, null, 2)}
+                </pre>
+              </Descriptions.Item>
+            )}
+            {selectedError.errorStack && (
+              <Descriptions.Item label={t('error_log.detalle_stack')} span={2}>
+                <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded text-xs overflow-auto max-h-64">
+                  {selectedError.errorStack}
+                </pre>
+              </Descriptions.Item>
+            )}
+            {selectedError.resolved && (
+              <>
+                <Descriptions.Item label={t('error_log.detalle_resuelto_por')}>
+                  {selectedError.resolvedBy || 'Sistema'}
+                </Descriptions.Item>
+                <Descriptions.Item label={t('error_log.detalle_fecha_resolucion')}>
+                  {fmtDate(selectedError.resolvedAt)}
+                </Descriptions.Item>
+                {selectedError.resolutionNotes && (
+                  <Descriptions.Item label={t('error_log.detalle_notas')} span={2}>
+                    {selectedError.resolutionNotes}
+                  </Descriptions.Item>
+                )}
+              </>
+            )}
+          </Descriptions>
+        )}
+      </Modal>
     </div>
   );
 }

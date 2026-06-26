@@ -20,6 +20,7 @@
     "security:audit": "npm audit --audit-level=high",
     "security:check": "npx better-npm-audit audit",
     "backup:verify": "node verify-backups.cjs",
+    "backup:create": "node scripts/create-backup.js",
     "monitor:table-growth": "node monitor-table-growth.mjs",
     "cleanup:error-logs": "node scripts/cleanup-error-logs.mjs",
     "audit:identify-missing": "node identify-missing-audit-triggers.mjs",
@@ -109,6 +110,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@playwright/test": "^1.60.0",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",

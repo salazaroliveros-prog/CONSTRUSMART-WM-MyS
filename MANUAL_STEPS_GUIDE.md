@@ -1,5 +1,7 @@
 # Guía de Pasos Manuales - Mejoras de Base de Datos CONSTRUSMART ERP
 
+> ✅ **ESTADO: COMPLETADO (SESIÓN-14 — 2026-06-26)** — Toda la automatización disponible está implementada. Los pasos manuales descritos aquí son configuración de Supabase Dashboard que debe realizar el administrador del proyecto.
+
 Este documento proporciona instrucciones detalladas paso a paso para completar las configuraciones manuales restantes en el Dashboard de Supabase.
 
 ---

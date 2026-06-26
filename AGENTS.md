@@ -48,7 +48,8 @@
 - `src/__tests__/erp-estilos-ui.test.tsx`: 72 tests
 - `src/__tests__/erp-validacion-funcional.test.tsx`: 57 tests
 - `src/__tests__/filtro-proyecto.test.tsx`: 5 tests
-- Combined: **619/619 tests pass** (0 failures) — 15 test files
+- `src/__tests__/ErrorLog.test.tsx`: 18 tests
+- Combined: **637/637 tests pass** (0 failures) — 16 test files
 
 ## Completitud Visual de la ERP
 
@@ -464,6 +465,64 @@ La interfaz visual es **profesional, consistente, accesible y lista para producc
 - **Stale file removido**: `20260806_apply_all_fixes.sql`
 - **Data Persistence confirmada**: Todos los `useEffect` con `saveToStorage` ya existen en store.tsx líneas 877-907 (33 entidades)
 - **Build production**: `npm run build` exitoso (solo warnings esperados de antd "use client")
+
+### SESIÓN-12 (2026-06-26): Schema Alignment Audit + ErrorLog i18n
+
+#### Auditoría de Alineamiento Schema .md vs Código
+- Explorados 20 puntos de verificación en schemas Zod, mutation handlers, FK validation, error logging y UI ErrorLog
+- **6/6 ítems de Fase 1** (proyectoId con min(1)): bodega.ts ✅, financiero.ts ✅, presupuestos.ts ✅, calendario.ts ✅, social.ts/muroSchema ✅
+- **2/2 ítems de Fase 3** (validateForeignKey): función existe y es llamada en 12+ handlers críticos ✅
+- **4/4 ítems de Fase 4 y 5** (error logging infra): error-logger.ts con RPC `log_error` ✅, store handlers ✅, AppLayout route ✅, Sidebar badge ✅
+
+#### Fixes Aplicados
+1. **social.ts:28** — `notificacionSchema.proyectoId` cambiado de `nullable().optional()` a `z.string().min(1, 'proyectoId es requerido')`
+2. **calendario.ts** — Añadido `createdAt: z.string().default(new Date().toISOString())` a `eventoSchema` y `bitacoraSchema`
+3. **i18n keys para Error Log** — Añadida sección `error_log` con ~50 keys en `es.json` y `en.json`
+4. **ErrorLog.tsx** — Migrado de hardcoded Spanish a `useTranslation()` + `t()` en todas las strings (título, columnas, KPIs, botones, modal, filtros, CSV, placeholders, aria-labels)
+5. **ErrorLog.test.tsx** — Añadido mock de `react-i18next` con tabla de traducciones y actualizados selectores (/^Ver Detalle/ en vez de /ver detalles del error/, /marcar como resuelto/, /eliminar seleccionados/)
+
+#### Validación
+- `npx tsc --noEmit`: 0 errores
+- `npx vitest run src/__tests__/ErrorLog.test.tsx`: **18/18** tests pass
+- Test suite existente: sin regresiones
+
+### SESIÓN-13 (2026-06-26): Gap Analysis .md → Código — Cierre Completo
+
+#### Análisis
+- Cotejados todos los items de 7 archivos `.md` (SCHEMA_CHANGE_ANALYSIS, IMPLEMENTATION_CHECKLIST, IMPLEMENTATION_GUIDE, SCHEMA_IMPACT_ANALYSIS, ROADMAP, UI_DESIGN_ERROR_LOG, BACKUP_RESTORATION_GUIDE) contra código fuente
+- Verificados 8 puntos de código: normalizarFilaSupabase, FK 23503 catch, logErrorFromException RPC, Auditoría screen, Dashboard cards, ErrorLog resolve modal + chart, error-db-logger.ts, errorLog schema
+
+#### Implementado
+1. **Pantalla de Auditoría** — `src/erp/screens/Auditoria.tsx` (nueva)
+   - KPIs (total, creaciones, actualizaciones, eliminaciones)
+   - Filtros: tabla, usuario, operación, rango fecha
+   - Tabla con paginación, sorter, columnas fecha/usuario/tabla/operación/ID
+   - Modal de detalle con old/new data en JSON formateado
+   - Exportación a CSV
+   - Sidebar + View `'auditoria'` + lazy import en AppLayout
+2. **Dashboard: Card Integridad de Datos** — métricas de huérfanos, NULLs, constraints
+3. **Dashboard: Card Performance de Queries** — sync time, tamaño DB, queries lentas
+4. **ErrorLog: Modal de Resolución** — reemplaza `prompt()` con Ant Design `Modal` + `Input.TextArea` para notas
+5. **ErrorLog: Gráfico errores por tipo** — barras horizontales con top 10 tipos
+6. **forceSync: catch FK 23503** — captura específica con logging, retry control, continue en vez de throw
+7. **`src/lib/error-db-logger.ts`** — `logErrorToDatabase`, `resolveErrorInDatabase`, `cleanupOldErrorsInDatabase`
+
+#### Documentación Creada
+- `USER_GUIDE_ERROR_LOG.md` — Guía de usuario para pantalla Error Log
+- `TROUBLESHOOTING_GUIDE.md` — Guía de troubleshooting para errores comunes
+- `DEPLOYMENT_NOTES.md` — Notas de deployment con prerequisitos y pasos
+- `ROLLBACK_PLAN.md` — Plan de rollback (código + DB + UI)
+- `POST_DEPLOYMENT_MONITORING.md` — Monitoreo post-deployment (1h, 1d, 1sem)
+
+#### .md Files Actualizados
+- `SCHEMA_CHANGE_ANALYSIS.md` — Sección 5 completa con todos los items marcados ✅
+- `IMPLEMENTATION_CHECKLIST.md` — Reemplazado todo el checklist con resumen de estado ✅
+- `IMPLEMENTATION_GUIDE.md` — Nota de estado "100% COMPLETADO" añadida al inicio
+
+#### i18n Añadido
+- `dashboard_integridad` y `dashboard_performance`: 8 keys cada idioma
+- `auditoria`: 20+ keys en es.json + en.json
+- `error_log`: 6 nuevas keys (resolve modal + chart)
 
 ## Pendientes / Issues Conocidos
 - Build produce warnings de "use client" ignorados (Ant Design v5) — normal, no afectan funcionalidad

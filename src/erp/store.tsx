@@ -10,7 +10,7 @@ import {
   notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
   licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
   destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema,
-  auditLogSchema, appSettingsSchema, proyectoWeatherSchema,
+  auditLogSchema, appSettingsSchema, proyectoWeatherSchema, errorLogSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -58,6 +58,7 @@ const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
 const AUDIT_KEY = BASE_STORAGE_KEY + '_audit_log';
 const PLANTILLA_KEY = BASE_STORAGE_KEY + '_plantillas';
 const WEATHER_KEY = BASE_STORAGE_KEY + '_weather';
+const ERROR_LOG_KEY = BASE_STORAGE_KEY + '_error_logs';
 
 function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   try {
@@ -83,13 +84,13 @@ function loadObjectFromStorage<T>(key: string, schema: z.ZodTypeAny, fallback: T
   return fallback;
 }
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'analisis-costos' | 'proveedor-analytics' | 'error-log';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'analisis-costos' | 'proveedor-analytics' | 'error-log' | 'auditoria';
 export type UIMode = 'shadcn' | 'antd';
 export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
 export type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
 
 export const ALL_VIEWS: View[] = [
-  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','analisis-costos','proveedor-analytics','error-log'
+  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','analisis-costos','proveedor-analytics','error-log','auditoria'
 ];
 
 export const clearAllData = () => {
@@ -119,11 +120,24 @@ export const uid = (): string => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => (Math.random()*16|0>>(c==='x'?0:1)).toString(16));
 };
 
-const Ctx = createContext<any>(null);
+interface ErpContextValue {
+  view: string;
+  setView: (v: string) => void;
+  user: Record<string, any> | null;
+  initializing: boolean;
+  isOnline: boolean;
+  notificacionesNoLeidas: number;
+  signInWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
+  allowedViews: readonly string[];
+  forceSync: () => Promise<void>;
+}
+
+const Ctx = createContext<ErpContextValue>(null!);
 export const useErp = () => {
   const ctx = useContext(Ctx);
   const zState = useErpStore();
-  return useMemo(() => ctx ? { ...zState, ...ctx } : zState, [zState, ctx]);
+  return useMemo(() => ({ ...zState, ...ctx }), [zState, ctx]);
 };
 
 // Store key mapping: Supabase table name → zustand store key
@@ -144,7 +158,7 @@ const STORE_KEY_MAP: Record<string, string> = {
   erp_eventos_calendario:'eventos',ventas_paquetes:'ventasPaquetes',
   erp_notificaciones:'notificaciones',erp_ordenes_cambio:'ordenesCambio',
   erp_pruebas_laboratorio:'pruebas',
-  erp_liberaciones_partida:'liberaciones',
+  erp_liberaciones_partida:'liberaciones',erp_error_logs:'errorLogs',
 };
 
 export const MUTATION_TABLE_MAP: Record<string, string> = {
@@ -185,6 +199,7 @@ export const MUTATION_TABLE_MAP: Record<string, string> = {
   addNotificacion:'erp_notificaciones',markNotificacionLeida:'erp_notificaciones',deleteNotificacion:'erp_notificaciones',
   addSeguimiento:'erp_seguimiento',updateSeguimiento:'erp_seguimiento',deleteSeguimiento:'erp_seguimiento',
   addPlantilla:'erp_plantillas_proyectos',updatePlantilla:'erp_plantillas_proyectos',deletePlantilla:'erp_plantillas_proyectos',clonarPlantilla:'erp_plantillas_proyectos',exportarPlantilla:'erp_plantillas_proyectos',importarPlantilla:'erp_plantillas_proyectos',sugerirPlantillas:'erp_plantillas_proyectos',crearNuevaVersionPlantilla:'erp_plantillas_proyectos',restaurarVersionPlantilla:'erp_plantillas_proyectos',toggleFavoritoPlantilla:'erp_plantillas_proyectos',
+  addErrorLog:'erp_error_logs',resolveError:'erp_error_logs',deleteError:'erp_error_logs',cleanupOldErrors:'erp_error_logs',
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -274,6 +289,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       centrosCosto: loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
       plantillas: loadFromStorage(PLANTILLA_KEY, plantillaSchema),
       proyectoWeather: loadFromStorage(WEATHER_KEY, proyectoWeatherSchema),
+      errorLogs: loadFromStorage(ERROR_LOG_KEY, errorLogSchema),
       mutationQueue: (() => { try { const r = localStorage.getItem(QUEUE_KEY); if (!r) return []; const d = decompressData(r); return Array.isArray(d) ? d as Mutation[] : []; } catch { return []; } })(),
       notificaciones: loadFromStorage(NOTIF_KEY, notificacionSchema),
       auditLog: loadFromStorage(AUDIT_KEY, auditLogSchema),
@@ -404,6 +420,21 @@ const forceSync = useMemo(() => {
               }
             } catch (err) {
               const error = err instanceof Error ? err.message : String(err);
+              const errObj = err as any;
+              if (errObj?.code === '23503') {
+                safeLogger.warn(`[forceSync] FK violation on ${table}:`, errObj.details || errObj.message);
+                logErrorFromException(err instanceof Error ? err : new Error(error), {
+                  component: 'ErpProvider',
+                  function_name: 'forceSync',
+                  error_type: 'database',
+                  severity: 'error',
+                  additional_context: { table, operation: 'fk_violation_23503', details: errObj.details, mutationCount: ops.INSERT.length + ops.UPDATE.length + ops.DELETE.length }
+                });
+                ops.INSERT.forEach(m => { if (m.retryCount >= 3) processed.push(m.id); else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
+                ops.UPDATE.forEach(m => { if (m.retryCount >= 3) processed.push(m.id); else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
+                ops.DELETE.forEach(m => { if (m.retryCount >= 3) processed.push(m.id); else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
+                continue;
+              }
               safeLogger.warn(`[forceSync] Batch ${table} failed:`, error);
               logErrorFromException(err instanceof Error ? err : new Error(error), {
                 component: 'ErpProvider',
@@ -486,6 +517,7 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
             destajos: s.destajos, recepciones: s.recepciones, centrosCosto: s.centrosCosto,
             plantillas: s.plantillas,
             proyectoWeather: s.proyectoWeather,
+            errorLogs: s.errorLogs,
           };
           const quotaCritical = isStorageQuotaCritical();
           Object.entries(map).forEach(([k, v]) => {
@@ -516,7 +548,7 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
 
   const notificacionesNoLeidas = useErpStore(s => s.notificaciones.filter(n => !n.leido).length);
 
-const ctxValue = useMemo<any>(() => ({
+const ctxValue = useMemo(() => ({
      view, setView, user, initializing, isOnline, notificacionesNoLeidas,
      signInWithGoogle: realSignInWithGoogle,
      logout: realLogout,

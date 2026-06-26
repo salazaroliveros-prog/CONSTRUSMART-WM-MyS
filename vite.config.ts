@@ -22,6 +22,16 @@ export default defineConfig(({ mode: _mode }) => ({
   build: {
     chunkSizeWarningLimit: 5000,
     rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom', 'react-i18next'],
+          antd: ['antd'],
+          icons: ['@ant-design/icons'],
+          xlsx: ['xlsx'],
+          pdf: ['jspdf', 'html2canvas'],
+          three: ['three', 'web-ifc'],
+        },
+      },
       onwarn(warning, warn) {
         const msg = String(warning.message);
         if (

@@ -98,6 +98,24 @@ export async function logErrorFromException(
   });
 }
 
+export async function cleanupOldErrorsInDatabase(daysOld = 90): Promise<number> {
+  try {
+    const { data, error } = await supabase.rpc('cleanup_old_error_logs', {
+      days_to_keep: daysOld,
+    });
+
+    if (error) {
+      console.error('[ErrorLogger] Failed to cleanup errors:', error);
+      return 0;
+    }
+
+    return (data as number) || 0;
+  } catch (e) {
+    console.error('[ErrorLogger] Exception in cleanupOldErrorsInDatabase:', e);
+    return 0;
+  }
+}
+
 export function getErrorContext(): {
   user_agent?: string;
   request_path?: string;

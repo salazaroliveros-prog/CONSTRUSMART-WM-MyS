@@ -106,3 +106,4 @@ deadlock-monitoring-report.html
 # Kilo agent system
 .kilo/
 .vercel
+check-constraints-violations.json

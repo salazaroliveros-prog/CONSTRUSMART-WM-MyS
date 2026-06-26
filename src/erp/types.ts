@@ -227,6 +227,8 @@ export interface Proyecto {
   fechaPausa?: string;
   fechaReanudacionEstimada?: string;
   version?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type Categoria = 'materiales' | 'mano_obra' | 'equipo' | 'subcontrato' | 'administracion' | 'transporte' | 'imprevistos' | 'marketing' | 'licencias' | 'seguros' | 'otros';
@@ -325,6 +327,8 @@ export interface Proveedor {
   categoria: Categoria;
   rubro?: string;
   calificacion?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface EventoCalendario {
