@@ -258,3 +258,128 @@ export const fmtNum = (n: number) =>
   (n || 0).toLocaleString('es-GT', { maximumFractionDigits: 2 });
 
 export const fmtPct = (n: number) => `${(n || 0).toFixed(1)}%`;
+
+export interface SupplierPerformanceMetrics {
+  proveedorId: string;
+  proveedorNombre: string;
+  puntajeEntrega: number;
+  puntajeCalidad: number;
+  puntajeCosto: number;
+  puntajeRespuesta: number;
+  puntajeGeneral: number;
+  tendencia: 'mejorando' | 'estable' | 'empeorando';
+  totalOrdenes: number;
+  ordenesTiempo: number;
+  ordenesRetraso: number;
+  montoTotal: number;
+  avgTiempoEntrega: number;
+  categoria: string;
+}
+
+export interface SupplierPerformanceHistory {
+  fecha: string;
+  puntajeGeneral: number;
+  puntajeEntrega: number;
+  puntajeCalidad: number;
+  puntajeCosto: number;
+}
+
+export function calculateSupplierPerformance(
+  proveedor: { id: string; nombre: string; categoria: string; calificacion?: number },
+  ordenes: Array<{ proveedorId?: string; estado: string; fecha: string; monto: number; cantidad: number }>,
+  historial: SupplierPerformanceHistory[] = []
+): SupplierPerformanceMetrics {
+  const proveedorOrdenes = ordenes.filter(o => o.proveedorId === proveedor.id);
+  const totalOrdenes = proveedorOrdenes.length;
+
+  if (totalOrdenes === 0) {
+    return {
+      proveedorId: proveedor.id,
+      proveedorNombre: proveedor.nombre,
+      puntajeEntrega: 0,
+      puntajeCalidad: proveedor.calificacion ? proveedor.calificacion * 20 : 50,
+      puntajeCosto: 50,
+      puntajeRespuesta: 50,
+      puntajeGeneral: proveedor.calificacion ? proveedor.calificacion * 20 : 50,
+      tendencia: 'estable',
+      totalOrdenes: 0,
+      ordenesTiempo: 0,
+      ordenesRetraso: 0,
+      montoTotal: 0,
+      avgTiempoEntrega: 0,
+      categoria: proveedor.categoria,
+    };
+  }
+
+  const ordenesCompletadas = proveedorOrdenes.filter(o => ['recibida', 'aprobado'].includes(o.estado));
+  const ordenesTiempo = ordenesCompletadas.length;
+  const ordenesRetraso = totalOrdenes - ordenesTiempo;
+  const montoTotal = proveedorOrdenes.reduce((sum, o) => sum + (o.monto || 0), 0);
+
+  const puntajeEntrega = totalOrdenes > 0 ? (ordenesTiempo / totalOrdenes) * 100 : 0;
+  const puntajeCalidad = proveedor.calificacion ? proveedor.calificacion * 20 : 70;
+  const puntajeCosto = 60;
+  const puntajeRespuesta = 65;
+
+  const puntajeGeneral = (puntajeEntrega * 0.35) + (puntajeCalidad * 0.25) + (puntajeCosto * 0.2) + (puntajeRespuesta * 0.2);
+
+  let tendencia: 'mejorando' | 'estable' | 'empeorando' = 'estable';
+  if (historial.length >= 2) {
+    const recent = historial.slice(-3);
+    const avgRecent = recent.reduce((sum, h) => sum + h.puntajeGeneral, 0) / recent.length;
+    const older = historial.slice(0, -3);
+    if (older.length > 0) {
+      const avgOlder = older.reduce((sum, h) => sum + h.puntajeGeneral, 0) / older.length;
+      if (avgRecent > avgOlder + 5) tendencia = 'mejorando';
+      else if (avgRecent < avgOlder - 5) tendencia = 'empeorando';
+    }
+  }
+
+  return {
+    proveedorId: proveedor.id,
+    proveedorNombre: proveedor.nombre,
+    puntajeEntrega: Math.round(puntajeEntrega),
+    puntajeCalidad: Math.round(puntajeCalidad),
+    puntajeCosto: Math.round(puntajeCosto),
+    puntajeRespuesta: Math.round(puntajeRespuesta),
+    puntajeGeneral: Math.round(puntajeGeneral),
+    tendencia,
+    totalOrdenes,
+    ordenesTiempo,
+    ordenesRetraso,
+    montoTotal,
+    avgTiempoEntrega: 0,
+    categoria: proveedor.categoria,
+  };
+}
+
+export function getSupplierRecommendations(
+  metrics: SupplierPerformanceMetrics[],
+  categoria?: string
+): Array<{ proveedor: string; razon: string; puntaje: number }> {
+  const filtered = categoria ? metrics.filter(m => m.categoria === categoria) : metrics;
+  const topPerformers = filtered
+    .filter(m => m.puntajeGeneral >= 70)
+    .sort((a, b) => b.puntajeGeneral - a.puntajeGeneral)
+    .slice(0, 3);
+
+  return topPerformers.map(m => ({
+    proveedor: m.proveedorNombre,
+    razon: m.puntajeGeneral >= 90 ? 'Excelente desempeño integral' : 
+           m.puntajeEntrega >= 85 ? 'Alta confiabilidad de entrega' : 
+           m.puntajeCalidad >= 80 ? 'Buena calidad de servicio' : 'Desempeño sólido',
+    puntaje: m.puntajeGeneral,
+  }));
+}
+
+export function identifySupplierRisks(metrics: SupplierPerformanceMetrics[]): Array<{ proveedor: string; riesgo: string; nivel: 'alto' | 'medio' | 'bajo' }> {
+  return metrics
+    .filter(m => m.puntajeGeneral < 60 || m.puntajeEntrega < 50)
+    .map(m => ({
+      proveedor: m.proveedorNombre,
+      riesgo: m.puntajeEntrega < 50 ? 'Baja confiabilidad de entrega' : 
+              m.puntajeCalidad < 50 ? 'Problemas de calidad' : 'Desempeño general bajo',
+      nivel: m.puntajeGeneral < 40 ? 'alto' : m.puntajeGeneral < 50 ? 'medio' : 'bajo',
+    }))
+    .sort((a, b) => (b.nivel === 'alto' ? 1 : b.nivel === 'medio' ? 0 : -1) - (a.nivel === 'alto' ? 1 : a.nivel === 'medio' ? 0 : -1));
+}

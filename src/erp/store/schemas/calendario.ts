@@ -17,6 +17,10 @@ export const bitacoraSchema = z.object({
   proyectoId: z.string(),
   fecha: z.string(),
   clima: z.string().nullable().optional().default('soleado'),
+  temperatura: z.number().nullable().optional(),
+  humedad: z.number().nullable().optional(),
+  vientoVelocidad: z.number().nullable().optional(),
+  condicionClimatica: z.string().nullable().optional(),
   personal: z.number().nullable().optional().default(0),
   personalPresente: z.number().optional().default(0),
   maquinaria: z.string().nullable().optional().default(''),
@@ -27,4 +31,6 @@ export const bitacoraSchema = z.object({
   firma: z.string().nullable().optional(),
   latitud: z.number().nullable().optional(),
   longitud: z.number().nullable().optional(),
+  weatherDataCaptured: z.boolean().nullable().optional(),
+  weatherDataTimestamp: z.string().nullable().optional(),
 });
