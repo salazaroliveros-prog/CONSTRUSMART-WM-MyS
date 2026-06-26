@@ -3,10 +3,10 @@ import { useErp } from '../store';
 import { Licitacion } from '../types';
 import { fmtQ } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  Plus, X, Target, TrendingUp, DollarSign, 
+import {
+  Plus, X, Target, TrendingUp, DollarSign,
   Briefcase, CheckCircle, Clock, Archive,
-  Pencil, Trash2
+  Pencil, Trash2, PieChart
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';

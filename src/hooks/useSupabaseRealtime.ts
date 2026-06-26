@@ -173,7 +173,7 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
     });
 
     channelRef.current = channel;
-    }, [tablas, rol, filtro, enabled]);
+    }, [effectiveTablas, tablas, filtro, enabled]);
 
   const scheduleReconnect = useCallback(() => {
     const attempt = reconnectAttemptRef.current;

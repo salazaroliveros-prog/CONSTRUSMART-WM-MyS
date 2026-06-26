@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Cloud, Sun, CloudRain, Wind, Thermometer, Droplets, AlertTriangle, Calendar, RefreshCw, Settings, ChevronDown, ChevronUp } from 'lucide-react';
@@ -21,25 +21,19 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ proyectoId, compact = fal
   const proyecto = proyectoId ? proyectos.find(p => p.id === proyectoId) : proyectos.find(p => p.id === proyectos[0]?.id);
   const weather = proyecto ? proyectoWeather.find(w => w.proyectoId === proyecto.id) : undefined;
 
-  useEffect(() => {
-    if (proyecto && weather?.weatherData && isWeatherDataStale(weather.weatherData, 60)) {
-      refreshWeather();
-    }
-  }, [proyecto, weather]);
-
-  const refreshWeather = async () => {
+  const refreshWeather = useCallback(async () => {
     if (!proyecto || !(proyecto.latitud && proyecto.longitud)) return;
-    
+
     setLoading(true);
     try {
       const { getCompleteWeatherData, calculateWeatherImpact, calculateConstructionMetrics, calculateSchedulingWindows } = await import('../services/weatherService');
-      
+
       const weatherData = await getCompleteWeatherData(proyecto.latitud, proyecto.longitud, proyecto.ubicacion);
       if (weatherData) {
         const impact = calculateWeatherImpact(weatherData);
         const constructionMetrics = calculateConstructionMetrics(weatherData);
         const schedulingWindows = calculateSchedulingWindows(weatherData, 7);
-        
+
         updateProyectoWeather(proyecto.id, weatherData, {
           ...impact,
           constructionMetrics,
@@ -52,7 +46,13 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ proyectoId, compact = fal
     } finally {
       setLoading(false);
     }
-  };
+  }, [proyecto, updateProyectoWeather]);
+
+  useEffect(() => {
+    if (proyecto && weather?.weatherData && isWeatherDataStale(weather.weatherData, 60)) {
+      refreshWeather();
+    }
+  }, [proyecto, weather, refreshWeather]);
 
   if (!proyecto) return null;
 
