@@ -18,7 +18,10 @@
     "seed:supabase": "tsx src/erp/scripts/seed-datos-reales.ts",
     "preview": "vite preview",
     "security:audit": "npm audit --audit-level=high",
-    "security:check": "npx better-npm-audit audit"
+    "security:check": "npx better-npm-audit audit",
+    "backup:verify": "node verify-backups.cjs",
+    "monitor:table-growth": "node monitor-table-growth.mjs",
+    "cleanup:error-logs": "node scripts/cleanup-error-logs.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.5",
@@ -64,6 +67,7 @@
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.21",
     "dompurify": "^3.2.4",
+    "dotenv": "^17.4.2",
     "embla-carousel-react": "^8.3.0",
     "framer-motion": "^12.40.0",
     "highlight.js": "^11.9.0",

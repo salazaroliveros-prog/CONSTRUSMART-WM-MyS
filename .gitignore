@@ -97,7 +97,6 @@ test-results/
 
 # Temp scripts (not for repo)
 scripts/*.cjs
-scripts/*.mjs
 
 # Kilo agent system
 .kilo/

@@ -19,6 +19,7 @@ import { safeLogger } from '@/lib/safeLogger';
 import { sanitizarObjeto } from '@/lib/security';
 import { useAuth } from '@/hooks/useAuth';
 import { encryptionManager, migrateSecureStorage } from '@/lib/encryption';
+import { logErrorFromException, getErrorContext } from '@/lib/error-logger';
 const proyectoSchemaInline = z.object({
   id: z.string(), nombre: z.string(), ubicacion: z.string(),
   tipologia: z.enum(['residencial','comercial','industrial','civil','publica']),
@@ -82,13 +83,13 @@ function loadObjectFromStorage<T>(key: string, schema: z.ZodTypeAny, fallback: T
   return fallback;
 }
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'analisis-costos' | 'proveedor-analytics';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'analisis-costos' | 'proveedor-analytics' | 'error-log';
 export type UIMode = 'shadcn' | 'antd';
 export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
 export type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
 
 export const ALL_VIEWS: View[] = [
-  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','analisis-costos','proveedor-analytics'
+  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','analisis-costos','proveedor-analytics','error-log'
 ];
 
 export const clearAllData = () => {
@@ -404,6 +405,13 @@ const forceSync = useMemo(() => {
             } catch (err) {
               const error = err instanceof Error ? err.message : String(err);
               safeLogger.warn(`[forceSync] Batch ${table} failed:`, error);
+              logErrorFromException(err instanceof Error ? err : new Error(error), {
+                component: 'ErpProvider',
+                function_name: 'forceSync',
+                error_type: 'database',
+                severity: 'error',
+                additional_context: { table, operation: 'batch_sync', mutationCount: ops.INSERT.length + ops.UPDATE.length + ops.DELETE.length }
+              });
               ops.INSERT.forEach(m => {
                 if (m.retryCount >= 3) processed.push(m.id);
                 else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 });

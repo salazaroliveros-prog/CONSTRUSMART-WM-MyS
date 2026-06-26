@@ -64,6 +64,7 @@ const ITEMS: NavItem[] = [
 
   // ── 8. SISTEMA ────────────────────────────────────────────────────────────
   { id: 'notificaciones',    label: 'Notificaciones',     icon: Bell,            group: 'Sistema'      },
+  { id: 'error-log',         label: 'Error Log',          icon: TriangleAlert,    group: 'Sistema'      },
   { id: 'admin-sistema',     label: 'Administración',     icon: FileCog,         group: 'Sistema'      },
   { id: 'ajustes',           label: 'Ajustes',            icon: Settings,        group: 'Sistema'      },
 ];

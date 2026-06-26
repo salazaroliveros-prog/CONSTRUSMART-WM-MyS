@@ -1,0 +1,113 @@
+import { supabase } from './supabase';
+
+export interface ErrorLogInput {
+  error_message: string;
+  error_code?: string;
+  error_stack?: string;
+  error_type?: 'client' | 'server' | 'database' | 'network' | 'validation' | 'auth' | 'permission' | 'other';
+  severity?: 'debug' | 'info' | 'warning' | 'error' | 'critical';
+  component?: string;
+  function_name?: string;
+  line_number?: number;
+  proyecto_id?: string;
+  request_id?: string;
+  request_method?: string;
+  request_path?: string;
+  request_params?: Record<string, unknown>;
+  request_headers?: Record<string, unknown>;
+  context?: Record<string, unknown>;
+}
+
+export interface ErrorResolveInput {
+  error_id: string;
+  resolution_notes?: string;
+}
+
+export async function logError(input: ErrorLogInput): Promise<string | null> {
+  try {
+    const { data, error } = await supabase.rpc('log_error', {
+      p_error_message: input.error_message,
+      p_error_code: input.error_code || null,
+      p_error_stack: input.error_stack || null,
+      p_error_type: input.error_type || 'other',
+      p_severity: input.severity || 'error',
+      p_component: input.component || null,
+      p_function_name: input.function_name || null,
+      p_line_number: input.line_number || null,
+      p_proyecto_id: input.proyecto_id || null,
+      p_request_id: input.request_id || null,
+      p_request_method: input.request_method || null,
+      p_request_path: input.request_path || null,
+      p_request_params: input.request_params || null,
+      p_request_headers: input.request_headers || null,
+      p_context: input.context || null
+    });
+
+    if (error) {
+      console.error('Failed to log error to database:', error);
+      return null;
+    }
+
+    return data as string;
+  } catch (e) {
+    console.error('Exception in logError:', e);
+    return null;
+  }
+}
+
+export async function resolveError(input: ErrorResolveInput): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.rpc('resolve_error', {
+      p_error_id: input.error_id,
+      p_resolution_notes: input.resolution_notes || null
+    });
+
+    if (error) {
+      console.error('Failed to resolve error:', error);
+      return false;
+    }
+
+    return data as boolean;
+  } catch (e) {
+    console.error('Exception in resolveError:', e);
+    return false;
+  }
+}
+
+export async function logErrorFromException(
+  error: Error,
+  context?: {
+    component?: string;
+    function_name?: string;
+    proyecto_id?: string;
+    severity?: 'debug' | 'info' | 'warning' | 'error' | 'critical';
+    error_type?: 'client' | 'server' | 'database' | 'network' | 'validation' | 'auth' | 'permission' | 'other';
+    additional_context?: Record<string, unknown>;
+  }
+): Promise<string | null> {
+  return logError({
+    error_message: error.message,
+    error_stack: error.stack,
+    error_code: (error as any).code,
+    error_type: context?.error_type || 'other',
+    severity: context?.severity || 'error',
+    component: context?.component,
+    function_name: context?.function_name,
+    proyecto_id: context?.proyecto_id,
+    context: context?.additional_context
+  });
+}
+
+export function getErrorContext(): {
+  user_agent?: string;
+  request_path?: string;
+} {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
+  return {
+    user_agent: navigator.userAgent,
+    request_path: window.location.pathname
+  };
+}
