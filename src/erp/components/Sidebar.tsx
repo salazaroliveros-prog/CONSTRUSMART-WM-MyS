@@ -8,7 +8,7 @@ import {
   HardHat, DollarSign, Settings, Flag,
   CreditCard, Landmark, Percent, TriangleAlert,
    ClipboardList, PieChart, Cpu, Truck, FileCog, Package,
-   FileText, FileDown, Copy,
+   FileText, FileDown, Copy, Award,
 } from 'lucide-react';
 
 interface NavItem { id: View; label: string; icon: React.ElementType; group: string }
@@ -43,6 +43,7 @@ const ITEMS: NavItem[] = [
   { id: 'bodega',            label: 'Bodega',             icon: Warehouse,       group: 'Suministro'   },
   { id: 'logistica',         label: 'Logística/Compras',  icon: Truck,           group: 'Suministro'   },
   { id: 'entradas-almacen',  label: 'Entradas Almacén',   icon: Package,         group: 'Suministro'   },
+  { id: 'proveedor-analytics', label: 'Analytics Proveedores', icon: Award,        group: 'Suministro'   },
 
   // ── 5. RRHH / NÓMINA ──────────────────────────────────────────────────────
   { id: 'rrhh',              label: 'RRHH',               icon: Users,           group: 'RRHH'         },

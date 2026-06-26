@@ -344,6 +344,10 @@ export interface BitacoraEntry {
   proyectoId: string;
   fecha: string;
   clima: 'soleado' | 'nublado' | 'lluvia';
+  temperatura?: number;
+  humedad?: number;
+  vientoVelocidad?: number;
+  condicionClimatica?: string;
   personalPresente: number;
   maquinaria: string;
   tareasRealizadas: string;
@@ -352,6 +356,8 @@ export interface BitacoraEntry {
   firma?: string;
   latitud?: number;
   longitud?: number;
+  weatherDataCaptured?: boolean;
+  weatherDataTimestamp?: string;
 }
 
 export interface AvanceObra {

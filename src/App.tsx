@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import LoaderSpinner from "@/components/LoaderSpinner";
 import { AntdProvider } from "@/lib/antd-config";
 import type { ThemeMode } from "@/lib/antd-config";
 

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { sanitizarObjeto } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
 import { supabase } from '@/lib/supabase';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel } from './utils';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance } from './utils';
 import { recordSyncMetric } from '@/lib/metrics';
 import type {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
@@ -14,6 +14,7 @@ import type {
 } from './types';
 import type { Plantilla } from './store/schemas/plantillas';
 import type { AppSettings, Mutation, LogAuditoria } from './types';
+import type { ProyectoWeather } from './store/schemas/weather';
 
 const RATE_LIMIT_MS = 100;
 const lastMutationCall: Record<string, number> = {};
@@ -49,6 +50,7 @@ interface ErpData {
   auditLog: LogAuditoria[]; syncStatus: 'idle' | 'loading' | 'synced' | 'queued' | 'error';
   lastSyncedAt?: string; syncError?: string;
   isOnline: boolean; selectedProyectoId: string | null; appSettings: AppSettings;
+  proyectoWeather: ProyectoWeather[];
 }
 
 interface ErpActions {
@@ -87,6 +89,7 @@ interface ErpActions {
   setRecepciones: (v: RecepcionAlmacen[] | ((prev: RecepcionAlmacen[]) => RecepcionAlmacen[])) => void;
   setCentrosCosto: (v: CentroCosto[] | ((prev: CentroCosto[]) => CentroCosto[])) => void;
   setPlantillas: (v: Plantilla[] | ((prev: Plantilla[]) => Plantilla[])) => void;
+  setProyectoWeather: (v: ProyectoWeather[] | ((prev: ProyectoWeather[]) => ProyectoWeather[])) => void;
   setMutationQueue: (v: Mutation[] | ((prev: Mutation[]) => Mutation[])) => void;
   setSyncMessage: (v: string) => void;
   setSyncCooldown: (v: boolean) => void;
@@ -117,9 +120,13 @@ interface ErpActions {
   actualizarMetricasTodasPlantillas: () => void;
   validarIntegridadPlantilla: (plantillaId: string) => { valido: boolean; errores: string[] };
   toggleFavoritoPlantilla: (plantillaId: string) => void;
+  updateProyectoWeather: (proyectoId: string, weatherData: any, impact: any) => void;
+  getProyectoWeather: (proyectoId: string) => ProyectoWeather | undefined;
   enqueueMutation: (type: string, payload: Record<string, any>) => string;
   addAuditEntry: (entry: Omit<LogAuditoria, 'id' | 'createdAt'>) => void;
   setAuditLog: (v: LogAuditoria[] | ((prev: LogAuditoria[]) => LogAuditoria[])) => void;
+  getSupplierPerformance: (proveedorId: string) => any;
+  getAllSupplierPerformance: (filtroProyectoId?: string) => any[];
 }
 
 export type ErpStore = ErpData & ErpActions;
@@ -299,6 +306,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
   selectedProyectoId: null,
   appSettings: APP_SETTINGS_DEFAULTS,
+  proyectoWeather: [],
 
   setProyectos: (v) => set(typeof v === 'function' ? { proyectos: v(get().proyectos) } : { proyectos: v }),
   setMovimientos: (v) => set(typeof v === 'function' ? { movimientos: v(get().movimientos) } : { movimientos: v }),
@@ -335,6 +343,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setRecepciones: (v) => set(typeof v === 'function' ? { recepciones: v(get().recepciones) } : { recepciones: v }),
   setCentrosCosto: (v) => set(typeof v === 'function' ? { centrosCosto: v(get().centrosCosto) } : { centrosCosto: v }),
   setPlantillas: (v) => set(typeof v === 'function' ? { plantillas: v(get().plantillas) } : { plantillas: v }),
+  setProyectoWeather: (v) => set(typeof v === 'function' ? { proyectoWeather: v(get().proyectoWeather) } : { proyectoWeather: v }),
   setMutationQueue: (v) => set(typeof v === 'function' ? { mutationQueue: v(get().mutationQueue) } : { mutationQueue: v }),
   setSyncMessage: (v) => set({ syncMessage: v }),
   setSyncCooldown: (v) => set({ syncCooldown: v }),
@@ -1243,6 +1252,46 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
       metricas: updatedMetricas
     });
     get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'crear_proyecto_desde_plantilla', entidad: 'proyecto', entidadId: nuevoProyectoId, valoresNuevos: { plantillaId: plantillaId, nombre: proyectoBase.nombre } });
+  },
+
+  updateProyectoWeather: (proyectoId, weatherData, impact) => {
+    const existing = get().proyectoWeather.find(pw => pw.proyectoId === proyectoId);
+    const updated: ProyectoWeather = {
+      proyectoId,
+      weatherData,
+      impact,
+      lastUpdated: new Date().toISOString(),
+      enabled: true,
+    };
+
+    if (existing) {
+      get().setProyectoWeather(prev => prev.map(pw => pw.proyectoId === proyectoId ? updated : pw));
+    } else {
+      get().setProyectoWeather(prev => [...prev, updated]);
+    }
+  },
+
+  getProyectoWeather: (proyectoId) => {
+    return get().proyectoWeather.find(pw => pw.proyectoId === proyectoId);
+  },
+
+  getSupplierPerformance: (proveedorId) => {
+    const { proveedores, ordenes } = get();
+    const proveedor = proveedores.find(p => p.id === proveedorId);
+    if (!proveedor) return null;
+    
+    return calculateSupplierPerformance(proveedor, ordenes);
+  },
+
+  getAllSupplierPerformance: (filtroProyectoId) => {
+    const { proveedores, ordenes } = get();
+    const ordenesFiltradas = filtroProyectoId 
+      ? ordenes.filter(o => o.proyectoId === filtroProyectoId)
+      : ordenes;
+    
+    return proveedores.map(prov => 
+      calculateSupplierPerformance(prov, ordenesFiltradas)
+    );
   },
 }));
 

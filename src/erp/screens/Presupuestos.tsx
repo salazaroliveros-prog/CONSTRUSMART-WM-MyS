@@ -93,7 +93,7 @@ const ACTIVIDAD_POR_RENGLON: Record<string, string> = {
 
 const Presupuestos: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores, updateProyecto, materiales, updateMaterial } = useErp();
+  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores, updateProyecto, materiales, updateMaterial, addMaterial } = useErp();
   const [tab, setTab] = useState<'crear' | 'guardados'>('crear');
   const [tipologia, setTipologia] = useState<Tipologia>('residencial');
   const [proyecto, setProyecto] = useState('Nuevo Presupuesto');
@@ -157,19 +157,82 @@ const Presupuestos: React.FC = () => {
     if (editingPresupuesto?.id === p.id) {
       setEditingPresupuesto({ ...editingPresupuesto, estado: 'aprobado' });
     }
-    const todo = materiales.filter(m => m.proyectoIds.includes(p.proyectoId));
-    const need: Array<{ id: string; cantidadPresupuestada: number; costoPresupuestado: number }> = [];
+    
+    const materialesProyecto = materiales.filter(m => m.proyectoIds.includes(p.proyectoId));
+    const materialesMap = new Map(materialesProyecto.map(m => [m.nombre.toLowerCase(), m]));
+    
+    const materialesNecesarios: Array<{ nombre: string; unidad: string; cantidad: number; precio: number; renglonId: string }> = [];
+    
     (p.renglones || []).forEach(r => {
-      const renglonNombre = r.nombreMaterial || r.nombre;
-      const matching = todo.filter(m => {
-        return r.subRenglones?.some(sr => m.nombre.toLowerCase() === sr.nombreMaterial?.toLowerCase())
-          || m.nombre.toLowerCase() === renglonNombre?.toLowerCase();
-      });
-      matching.forEach(m => {
-        need.push({ id: m.id, cantidadPresupuestada: r.cantidad ?? 0, costoPresupuestado: (r.cantidad ?? 0) * (r.precioUnitario ?? 0) });
+      if (r.subRenglones && r.subRenglones.length > 0) {
+        r.subRenglones.forEach(sr => {
+          const nombreMaterial = sr.nombreMaterial || sr.nombre;
+          if (nombreMaterial) {
+            const cantidadTotal = (sr.cantidadUnitaria || 0) * (r.cantidad || 0);
+            materialesNecesarios.push({
+              nombre: nombreMaterial,
+              unidad: sr.unidad,
+              cantidad: cantidadTotal,
+              precio: sr.precioUnitario || 0,
+              renglonId: r.id,
+            });
+          }
+        });
+      } else {
+        const renglonNombre = r.nombreMaterial || r.nombre;
+        if (renglonNombre) {
+          materialesNecesarios.push({
+            nombre: renglonNombre,
+            unidad: r.unidad,
+            cantidad: r.cantidad || 0,
+            precio: r.precioUnitario || 0,
+            renglonId: r.id,
+          });
+        }
+      }
+    });
+    
+    const materialesUnicos = new Map<string, { cantidad: number; costo: number }>();
+    materialesNecesarios.forEach(m => {
+      const key = m.nombre.toLowerCase();
+      const existing = materialesUnicos.get(key) || { cantidad: 0, costo: 0 };
+      materialesUnicos.set(key, {
+        cantidad: existing.cantidad + m.cantidad,
+        costo: existing.costo + (m.cantidad * m.precio),
       });
     });
-    need.forEach(n => updateMaterial(n.id, { ...n, ultimaActualizacionPresupuesto: new Date().toISOString() }));
+    
+    materialesUnicos.forEach((data, nombreLower) => {
+      const materialExistente = materialesMap.get(nombreLower);
+      if (materialExistente) {
+        if (!materialExistente.proyectoIds.includes(p.proyectoId)) {
+          updateMaterial(materialExistente.id, {
+            proyectoIds: [...materialExistente.proyectoIds, p.proyectoId],
+          });
+        }
+        updateMaterial(materialExistente.id, {
+          cantidadPresupuestada: data.cantidad,
+          costoPresupuestado: data.costo,
+          ultimaActualizacionPresupuesto: new Date().toISOString(),
+        });
+      } else {
+        const primerMaterial = materialesNecesarios.find(m => m.nombre.toLowerCase() === nombreLower);
+        if (primerMaterial) {
+          addMaterial({
+            nombre: primerMaterial.nombre,
+            unidad: primerMaterial.unidad,
+            stock: 0,
+            stockMinimo: Math.max(1, Math.ceil(primerMaterial.cantidad * 0.2)),
+            precio: primerMaterial.precio,
+            categoria: 'materiales',
+            proyectoIds: [p.proyectoId],
+            cantidadPresupuestada: data.cantidad,
+            costoPresupuestado: data.costo,
+            ultimaActualizacionPresupuesto: new Date().toISOString(),
+          });
+        }
+      }
+    });
   };
 
   const handleRejectPresupuesto = async (p: Presupuesto) => {

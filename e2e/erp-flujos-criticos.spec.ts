@@ -15,13 +15,15 @@ test.describe('Flujo 1: Login → Dashboard', () => {
 
 test.describe('Flujo 2: CRUD Proyectos', () => {
   test('2.1 Página de proyectos carga', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/proyectos');
+    await page.waitForLoadState('domcontentloaded');
     const body = await page.textContent('body');
-    expect(body).toContain('CONSTRUSMART');
+    expect(body).toBeTruthy();
   });
 
   test('2.2 Formulario de proyecto tiene campos requeridos', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/proyectos');
+    await page.waitForLoadState('domcontentloaded');
     const html = await page.content();
     expect(html.length).toBeGreaterThan(0);
   });

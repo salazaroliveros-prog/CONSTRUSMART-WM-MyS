@@ -2,13 +2,13 @@ import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next';
 import { useErp, type View } from '../store';
 import { useErpStore } from '../zustandStore';
-import { fmtQ, fmtPct } from '../utils';
+import { fmtQ, fmtPct, calculateSupplierPerformance } from '../utils';
 import GaugeKpi from '../components/GaugeKpi';
 import MovimientoForm from '../components/MovimientoForm';
 import AlertasPanel from '../components/AlertasPanel';
 import CompactCalendar from '../components/CompactCalendar';
 import { BarChart, Donut, Progress, Gauge } from '../components/Charts';
-import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, Wallet, Warehouse, ClipboardCheck, Activity, TrendingDown, Download, Zap, Repeat, BarChart3, Shield, Loader2, Database } from 'lucide-react';
+import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, Wallet, Warehouse, ClipboardCheck, Activity, TrendingDown, Download, Zap, Repeat, BarChart3, Shield, Loader2, Database, Award, ArrowRight } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
 import { CARD, CARD_TITLE } from '../ui';
 import ProyectoFilter from '../components/ProyectoFilter';
@@ -256,6 +256,25 @@ const Dashboard: React.FC = () => {
     const top = activos.slice(0, 3);
     return { total: activos.length, alto, medio, bajo: Math.max(bajo, 0), top };
   }, [riesgos]);
+
+  const supplierPerformanceData = useMemo(() => {
+    const allPerformance = (proveedores || []).map(proveedor => {
+      const metrics = calculateSupplierPerformance(proveedor, ordenes || []);
+      return {
+        id: proveedor.id,
+        nombre: proveedor.nombre,
+        ...metrics,
+      };
+    });
+    const topPerformers = [...allPerformance]
+      .sort((a, b) => b.puntajeGeneral - a.puntajeGeneral)
+      .slice(0, 3);
+    const atRisk = allPerformance
+      .filter(s => s.puntajeGeneral < 60)
+      .sort((a, b) => a.puntajeGeneral - b.puntajeGeneral)
+      .slice(0, 3);
+    return { total: allPerformance.length, topPerformers, atRisk };
+  }, [proveedores, ordenes]);
 
   const ocCambioPendientes = useMemo(() => {
     const ocs = ordenesCambio || [];
@@ -682,6 +701,48 @@ const Dashboard: React.FC = () => {
               </div>
             ) : <p className="text-[10px] text-muted-foreground text-center py-3">{t('common.no_data')}</p>}
           </div>
+
+          {/* Supplier Analytics Widget */}
+          {supplierPerformanceData.total > 0 && (
+            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+              <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
+                <Award className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
+                Analytics Proveedores
+                <span className="text-[8px] font-normal text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">{supplierPerformanceData.total}</span>
+              </h3>
+              <div className="space-y-1.5">
+                {supplierPerformanceData.topPerformers.length > 0 && (
+                  <div>
+                    <span className="text-[9px] text-emerald-500 dark:text-emerald-400 font-medium">Top Desempeño</span>
+                    {supplierPerformanceData.topPerformers.slice(0, 2).map((s, i) => (
+                      <div key={s.id} className="flex justify-between items-center text-[9px] mt-0.5">
+                        <span className="truncate text-muted-foreground max-w-[100px]">{s.nombre}</span>
+                        <span className="text-emerald-500 dark:text-emerald-400 font-medium">{fmtPct(s.puntajeGeneral)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {supplierPerformanceData.atRisk.length > 0 && (
+                  <div className="border-t border-border pt-1">
+                    <span className="text-[9px] text-destructive font-medium">En Riesgo</span>
+                    {supplierPerformanceData.atRisk.slice(0, 2).map((s, i) => (
+                      <div key={s.id} className="flex justify-between items-center text-[9px] mt-0.5">
+                        <span className="truncate text-muted-foreground max-w-[100px]">{s.nombre}</span>
+                        <span className="text-destructive font-medium">{fmtPct(s.puntajeGeneral)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <button
+                  onClick={() => setView('proveedor-analytics' as View)}
+                  className="w-full mt-1 flex items-center justify-center gap-1 text-[9px] text-primary hover:text-primary/80 bg-primary/10 rounded-lg py-1 transition-colors"
+                >
+                  Ver Analytics Completo
+                  <ArrowRight className="w-2.5 h-2.5" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
