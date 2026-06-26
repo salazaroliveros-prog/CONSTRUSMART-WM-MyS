@@ -2,17 +2,13 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
-import { Loader2, User } from 'lucide-react';
-import { hasSupabase } from '@/lib/supabase';
+import { Loader2 } from 'lucide-react';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
   const { signInWithGoogle, setView, user } = useErp();
   const authError = '';
   const [loading, setLoading] = useState(false);
-  const [guestLoading, setGuestLoading] = useState(false);
-  const forceGuestLogin = import.meta.env.VITE_FORCE_GUEST_LOGIN === 'true';
-  const showGuestButton = forceGuestLogin || !hasSupabase;
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -20,30 +16,6 @@ const Login: React.FC = () => {
       await signInWithGoogle();
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleGuestLogin = async () => {
-    setGuestLoading(true);
-    try {
-      const mod = await import('../zustandStore');
-      mod.useErpStore.setState({
-        user: { id: 'guest', email: 'invitado@construsmart', nombre: 'Invitado', rol: 'Administrador', avatar: null },
-      });
-      // Generar notificación de bienvenida sin datos demo
-      const bienvenidaNotif = {
-        id: `bienvenida-${Date.now()}`,
-        titulo: 'Bienvenido a CONSTRUSMART ERP',
-        tipo: 'sistema',
-        leida: false,
-        createdAt: new Date().toISOString(),
-      };
-      if (mod.useErpStore.getState().notificaciones.length === 0) {
-        mod.useErpStore.setState((prev: any) => ({ notificaciones: [...(prev.notificaciones || []), bienvenidaNotif] }));
-      }
-    } catch {
-    } finally {
-      setGuestLoading(false);
     }
   };
 
@@ -123,18 +95,6 @@ const Login: React.FC = () => {
                   </>
                 )}
               </button>
-              {showGuestButton && (
-                <button type="button" onClick={handleGuestLogin} disabled={guestLoading} className={btn}>
-                  {guestLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
-                  ) : (
-                    <>
-                      <User className="w-5 h-5 text-gray-500" />
-                      Entrar como Invitado
-                    </>
-                  )}
-                </button>
-              )}
               <p className="text-center text-[10px] text-orange-500 mt-4">
                 Solo el correo autorizado puede acceder
               </p>
