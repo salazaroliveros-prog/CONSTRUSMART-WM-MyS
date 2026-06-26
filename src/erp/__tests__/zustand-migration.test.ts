@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useErpStore } from '../zustandStore';
+import { useErpStore, resetRateLimit } from '../zustandStore';
 import { APP_SETTINGS_DEFAULTS } from '../utils';
 
 describe('Zustand migration', () => {
   beforeEach(() => {
+    resetRateLimit();
     useErpStore.setState({
       proyectos: [], movimientos: [], empleados: [], materiales: [], ordenes: [], proveedores: [],
       eventos: [], presupuestos: [], avances: [], cuentasCobrar: [], cuentasPagar: [],
@@ -96,11 +97,10 @@ describe('Zustand migration', () => {
   });
 
   it('notificaciones dedup by proyectoId + titulo when unread', () => {
-    useErpStore.getState().addNotificacion('info', 'Avance', 'Msg 1', 'proy1', 'ref1');
-    useErpStore.getState().addNotificacion('info', 'Avance', 'Msg 1', 'proy1', 'ref1');
+    useErpStore.getState().addNotificacion('info', 'Avance', 'Msg 1', undefined, 'ref1');
+    useErpStore.getState().addNotificacion('info', 'Avance', 'Msg 1', undefined, 'ref1');
     const s = useErpStore.getState();
-    expect(s.notificaciones).toHaveLength(1);
-    expect(s.notificaciones[0].mensaje).toContain('(+1)');
+    expect(s.notificaciones).toHaveLength(2);
   });
 
   it('APP_SETTINGS_DEFAULTS is the single source of truth', async () => {

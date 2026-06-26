@@ -559,13 +559,14 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().setOrdenes(prev => [n, ...prev]);
     get().enqueueMutation('addOrden', n);
   },
-  updateOrden: (id, estado) => {
+  updateOrden: (id, patch) => {
     try {
       const orden = get().ordenes.find(o => o.id === id);
       if (!orden) return;
       const expectedVersion = orden.version || 1;
-      get().setOrdenes(prev => prev.map(p => p.id === id ? { ...p, estado, version: expectedVersion + 1 } : p));
-      if ((estado === 'aprobado' || estado === 'recibida') && orden?.items && !orden.stockActualizado) {
+      get().setOrdenes(prev => prev.map(p => p.id === id ? { ...p, ...patch, version: expectedVersion + 1 } : p));
+      const newEstado = patch.estado || orden.estado;
+      if ((newEstado === 'aprobado' || newEstado === 'recibida') && orden?.items && !orden.stockActualizado) {
         const ids = orden.items.map(i => i.materialId).filter(Boolean);
         if (ids.length) {
           get().setMateriales(prev => prev.map(m => {
@@ -577,7 +578,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
           get().setOrdenes(prev => prev.map(p => p.id === id ? { ...p, stockActualizado: true } : p));
         }
       }
-      get().enqueueMutation('updateOrden', { id, estado, stockActualizado: true });
+      get().enqueueMutation('updateOrden', { id, ...patch, stockActualizado: true });
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       logErrorFromException(error, {
@@ -585,7 +586,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
         function_name: 'updateOrden',
         error_type: 'validation',
         severity: 'error',
-        additional_context: { ordenId: id, estado }
+        additional_context: { ordenId: id, patch }
       });
     }
   },
