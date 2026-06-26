@@ -57,7 +57,7 @@ export const renglonPresupuestoZ = z.object({
 
 export const presupuestoSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica'] as const),
   renglones: z.array(renglonPresupuestoZ).default([]),
   estado: z.enum(['borrador','aprobado','revisado','rechazado'] as const).default('borrador'),

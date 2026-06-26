@@ -27,7 +27,7 @@ export const movimientoSchema = z.object({
 
 export const cuentaCobrarSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   cliente: z.string().default(''),
   concepto: z.string().default(''),
   monto: z.number().default(0),
@@ -41,7 +41,7 @@ export const cuentaCobrarSchema = z.object({
 
 export const cuentaPagarSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   proveedor: z.string().default(''),
   concepto: z.string().default(''),
   monto: z.number().default(0),
@@ -55,7 +55,7 @@ export const cuentaPagarSchema = z.object({
 
 export const ventaPaqueteSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   tipo: z.enum(['unidad','lote','paquete'] as const).default('unidad'),
   identificador: z.string(),
   precioVenta: z.number().default(0),
@@ -70,7 +70,7 @@ export const ventaPaqueteSchema = z.object({
 
 export const ordenCambioSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   titulo: z.string().default(''),
   descripcion: z.string().default(''),
   impactoCosto: z.number().default(0),

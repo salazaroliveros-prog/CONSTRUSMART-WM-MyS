@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const muroSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   autor: z.string().default(''),
   autorAvatar: z.string().nullable().optional(),
   contenido: z.string().default(''),

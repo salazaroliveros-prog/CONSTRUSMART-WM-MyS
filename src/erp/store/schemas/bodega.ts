@@ -7,7 +7,7 @@ export const valeSalidaItemSchema = z.object({
 
 export const valeSalidaSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   renglonId: z.string().optional(),
   fecha: z.string(),
   items: z.array(valeSalidaItemSchema),

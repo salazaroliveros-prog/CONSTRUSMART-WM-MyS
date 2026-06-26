@@ -14,7 +14,7 @@ export const eventoSchema = z.object({
 
 export const bitacoraSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   fecha: z.string(),
   clima: z.string().nullable().optional().default('soleado'),
   temperatura: z.number().nullable().optional(),
