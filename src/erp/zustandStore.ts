@@ -361,15 +361,13 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   enqueueMutation: (type, payload) => {
     if (!checkRateLimit(type)) return '';
     const sanitized = sanitizarObjeto(payload);
-    const now = new Date().toISOString();
-    const enhancedPayload = { ...sanitized };
-    if (type.startsWith('add')) {
-      if (!enhancedPayload.created_at) enhancedPayload.created_at = now;
-      if (!enhancedPayload.updated_at) enhancedPayload.updated_at = now;
-    } else if (type.startsWith('update')) {
-      if (!enhancedPayload.updated_at) enhancedPayload.updated_at = now;
+    const safePayload = toSnake(sanitized);
+    if (!safePayload.created_at && (type.startsWith('add') || type === 'clonarPlantilla')) {
+      safePayload.created_at = new Date().toISOString();
     }
-    const safePayload = toSnake(enhancedPayload);
+    if (!safePayload.updated_at && (type.startsWith('update') || type.startsWith('add'))) {
+      safePayload.updated_at = new Date().toISOString();
+    }
     const mutation: Mutation = { id: uid(), type, payload: safePayload, timestamp: Date.now(), retryCount: 0 };
     get().setMutationQueue(q => { const trimmed = q.length >= 100 ? q.slice(1) : q; return [...trimmed, mutation]; });
     return mutation.id;
@@ -519,18 +517,18 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
       });
       return;
     }
-    const n = { ...m, id: uid() };
+    const n = { ...m, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     get().setMovimientos(prev => [n, ...prev]);
     get().enqueueMutation('addMovimiento', n);
   },
   updateMovimiento: (id, patch) => { get().setMovimientos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateMovimiento', { id, ...patch }); },
   deleteMovimiento: (id) => { get().setMovimientos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteMovimiento', { id }); },
 
-  addEmpleado: (e) => { const n = { ...e, id: uid() }; get().setEmpleados(prev => [n, ...prev]); get().enqueueMutation('addEmpleado', n); },
+  addEmpleado: (e) => { const n = { ...e, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }; get().setEmpleados(prev => [n, ...prev]); get().enqueueMutation('addEmpleado', n); },
   updateEmpleado: (id, patch) => { get().setEmpleados(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateEmpleado', { id, ...patch }); },
   deleteEmpleado: (id) => { get().setEmpleados(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteEmpleado', { id }); },
 
-  addMaterial: (m) => { const n = { ...m, id: uid(), version: 1 } as Material; get().setMateriales(prev => [n, ...prev]); get().enqueueMutation('addMaterial', n); },
+  addMaterial: (m) => { const n = { ...m, id: uid(), version: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } as Material; get().setMateriales(prev => [n, ...prev]); get().enqueueMutation('addMaterial', n); },
   updateMaterial: (id, patch) => {
     const existing = get().materiales.find(m => m.id === id);
     if (existing) {
@@ -555,7 +553,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
       });
       return;
     }
-    const n = { ...o, id: uid(), version: 1 } as OrdenCompra;
+    const n = { ...o, id: uid(), version: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } as OrdenCompra;
     get().setOrdenes(prev => [n, ...prev]);
     get().enqueueMutation('addOrden', n);
   },
@@ -592,7 +590,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   },
   deleteOrden: (id) => { get().setOrdenes(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteOrden', { id }); },
 
-  addProveedor: (p) => { const n = { ...p, id: uid() }; get().setProveedores(prev => [n, ...prev]); get().enqueueMutation('addProveedor', n); },
+  addProveedor: (p) => { const n = { ...p, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }; get().setProveedores(prev => [n, ...prev]); get().enqueueMutation('addProveedor', n); },
   updateProveedor: (id, patch) => { get().setProveedores(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateProveedor', { id, ...patch }); },
   deleteProveedor: (id) => { get().setProveedores(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteProveedor', { id }); },
 
@@ -616,7 +614,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   updateEvento: (id, patch) => { get().setEventos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateEvento', { id, ...patch }); },
   deleteEvento: (id) => { get().setEventos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteEvento', { id }); },
 
-  addBitacora: (b) => { const n = { ...b, id: uid() }; get().setBitacora(prev => [n, ...prev]); get().enqueueMutation('addBitacora', n); },
+  addBitacora: (b) => { const n = { ...b, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }; get().setBitacora(prev => [n, ...prev]); get().enqueueMutation('addBitacora', n); },
   updateBitacora: (id, patch) => { get().setBitacora(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateBitacora', { id, ...patch }); },
   deleteBitacora: (id) => { get().setBitacora(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteBitacora', { id }); },
 
@@ -633,7 +631,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
       });
       return;
     }
-    const n = { ...p, id: uid(), version: 1 } as Presupuesto;
+    const n = { ...p, id: uid(), version: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } as Presupuesto;
     get().setPresupuestos(prev => [n, ...prev]);
     get().enqueueMutation('addPresupuesto', n);
   },
@@ -685,7 +683,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
 
   addVentaPaquete: (v) => { const n = { ...v, id: uid() }; get().setVentasPaquetes(prev => [n, ...prev]); get().enqueueMutation('addVentaPaquete', n); },
 
-  addAvance: (a) => { const n = { ...a, id: uid() }; get().setAvances(prev => [n, ...prev]); get().enqueueMutation('addAvance', n); },
+  addAvance: (a) => { const n = { ...a, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }; get().setAvances(prev => [n, ...prev]); get().enqueueMutation('addAvance', n); },
   deleteAvance: (id) => { get().setAvances(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteAvance', { id }); },
 
   addSeguimiento: (s) => { const n = { ...s, id: uid() }; get().setSeguimientoEVM(prev => [n, ...prev]); get().enqueueMutation('addSeguimiento', n); },
@@ -716,15 +714,15 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   updateCuentaPagar: (id, patch) => { get().setCuentasPagar(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateCuentaPagar', { id, ...patch }); },
   deleteCuentaPagar: (id) => { get().setCuentasPagar(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteCuentaPagar', { id }); },
 
-  addOrdenCambio: (o) => { const n = { ...o, id: uid() }; get().setOrdenesCambio(prev => [n, ...prev]); get().enqueueMutation('addOrdenCambio', n); },
+  addOrdenCambio: (o) => { const n = { ...o, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }; get().setOrdenesCambio(prev => [n, ...prev]); get().enqueueMutation('addOrdenCambio', n); },
   updateOrdenCambio: (id, patch) => { get().setOrdenesCambio(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateOrdenCambio', { id, ...patch }); },
   deleteOrdenCambio: (id) => { get().setOrdenesCambio(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteOrdenCambio', { id }); },
 
-  addHito: (h) => { const n = { ...h, id: uid() }; get().setHitos(prev => [n, ...prev]); get().enqueueMutation('addHito', n); },
+  addHito: (h) => { const n = { ...h, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }; get().setHitos(prev => [n, ...prev]); get().enqueueMutation('addHito', n); },
   updateHito: (id, patch) => { get().setHitos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateHito', { id, ...patch }); },
   deleteHito: (id) => { get().setHitos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteHito', { id }); },
 
-  addRiesgo: (r) => { const n = { ...r, id: uid() }; get().setRiesgos(prev => [n, ...prev]); get().enqueueMutation('addRiesgo', n); },
+  addRiesgo: (r) => { const n = { ...r, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }; get().setRiesgos(prev => [n, ...prev]); get().enqueueMutation('addRiesgo', n); },
   updateRiesgo: (id, patch) => { get().setRiesgos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateRiesgo', { id, ...patch }); },
   deleteRiesgo: (id) => { get().setRiesgos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteRiesgo', { id }); },
 
@@ -764,7 +762,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   deleteRecepcion: (id) => { get().setRecepciones(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteRecepcion', { id }); },
 
   addPublicacionMuro: (p) => {
-    const n = { ...p, id: uid(), createdAt: new Date().toISOString(), likes: 0, comentarios: [] };
+    const n = { ...p, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), likes: 0, comentarios: [] };
     get().setPublicacionesMuro(prev => [n, ...prev]);
     get().enqueueMutation('addPublicacionMuro', n);
   },
