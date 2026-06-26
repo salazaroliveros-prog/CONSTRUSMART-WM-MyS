@@ -5,6 +5,7 @@ import { safeLogger } from '@/lib/safeLogger';
 import { supabase } from '@/lib/supabase';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance } from './utils';
 import { recordSyncMetric } from '@/lib/metrics';
+import { logErrorFromException } from '@/lib/error-logger';
 import type {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
   Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
@@ -385,34 +386,46 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'crear', entidad: 'proyecto', entidadId: n.id, valoresNuevos: { nombre: n.nombre, estado: n.estado, presupuestoTotal: n.presupuestoTotal } });
   },
   updateProyecto: (id, patch) => {
-    const proyecto = get().proyectos.find(p => p.id === id);
-    if (!proyecto) return;
-    const oldEstado = proyecto.estado; const newEstado = patch.estado || oldEstado;
-    const transicionesValidas: Record<string, string[]> = { planeacion: ['ejecucion'], ejecucion: ['pausado','finalizado'], pausado: ['ejecucion'], finalizado: [] };
-    if (oldEstado !== newEstado && !transicionesValidas[oldEstado]?.includes(newEstado)) { return; }
-    if (newEstado === 'ejecucion' && oldEstado === 'planeacion') {
-      const tienePresupuesto = get().presupuestos.some(p => p.proyectoId === id && p.estado === 'aprobado');
-      const tieneHitos = get().hitos.some(h => h.proyectoId === id);
-      if (!tienePresupuesto) { return; }
-      if (!tieneHitos) { return; }
-    }
-    if (newEstado === 'pausado' && !patch.motivoPausa) { return; }
-    if (newEstado === 'finalizado' && oldEstado === 'ejecucion') {
-      const current = get().proyectos.find(p => p.id === id);
-      if (current && (current.avanceFisico < 100 || current.avanceFinanciero < 100)) { return; }
-    }
-    const etapaValida: Record<string, string[]> = { planeacion: ['planificacion','diseno','preconstruccion'], ejecucion: ['construccion'], pausado: ['planificacion','diseno','preconstruccion','construccion','cierre'], finalizado: ['cierre'] };
-    if (newEstado && patch.etapa && !etapaValida[newEstado]?.includes(patch.etapa)) { return; }
-    if (oldEstado === 'planeacion' && (patch.avanceFisico && patch.avanceFisico > 0)) { return; }
-    if (oldEstado === 'planeacion' && (patch.avanceFinanciero && patch.avanceFinanciero > 0)) { return; }
-    if (newEstado === 'finalizado') patch = { ...patch, avanceFisico: 100, avanceFinanciero: 100 };
-    const expectedVersion = proyecto.version || 1;
-    if (patch.version !== undefined && patch.version < expectedVersion) { return; }
-    patch.version = expectedVersion + 1;
-    get().setProyectos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
-    get().enqueueMutation('updateProyecto', { id, ...patch });
-    if (oldEstado !== newEstado) {
-      get().addAuditEntry({ usuarioNombre: 'sistema', accion: `cambio_estado: ${oldEstado} → ${newEstado}`, entidad: 'proyecto', entidadId: id, valoresAnteriores: { estado: oldEstado, avanceFisico: proyecto.avanceFisico }, valoresNuevos: { estado: newEstado, ...(patch.motivoPausa ? { motivoPausa: patch.motivoPausa } : {}) } });
+    try {
+      const proyecto = get().proyectos.find(p => p.id === id);
+      if (!proyecto) return;
+      const oldEstado = proyecto.estado; const newEstado = patch.estado || oldEstado;
+      const transicionesValidas: Record<string, string[]> = { planeacion: ['ejecucion'], ejecucion: ['pausado','finalizado'], pausado: ['ejecucion'], finalizado: [] };
+      if (oldEstado !== newEstado && !transicionesValidas[oldEstado]?.includes(newEstado)) { return; }
+      if (newEstado === 'ejecucion' && oldEstado === 'planeacion') {
+        const tienePresupuesto = get().presupuestos.some(p => p.proyectoId === id && p.estado === 'aprobado');
+        const tieneHitos = get().hitos.some(h => h.proyectoId === id);
+        if (!tienePresupuesto) { return; }
+        if (!tieneHitos) { return; }
+      }
+      if (newEstado === 'pausado' && !patch.motivoPausa) { return; }
+      if (newEstado === 'finalizado' && oldEstado === 'ejecucion') {
+        const current = get().proyectos.find(p => p.id === id);
+        if (current && (current.avanceFisico < 100 || current.avanceFinanciero < 100)) { return; }
+      }
+      const etapaValida: Record<string, string[]> = { planeacion: ['planificacion','diseno','preconstruccion'], ejecucion: ['construccion'], pausado: ['planificacion','diseno','preconstruccion','construccion','cierre'], finalizado: ['cierre'] };
+      if (newEstado && patch.etapa && !etapaValida[newEstado]?.includes(patch.etapa)) { return; }
+      if (oldEstado === 'planeacion' && (patch.avanceFisico && patch.avanceFisico > 0)) { return; }
+      if (oldEstado === 'planeacion' && (patch.avanceFinanciero && patch.avanceFinanciero > 0)) { return; }
+      if (newEstado === 'finalizado') patch = { ...patch, avanceFisico: 100, avanceFinanciero: 100 };
+      const expectedVersion = proyecto.version || 1;
+      if (patch.version !== undefined && patch.version < expectedVersion) { return; }
+      patch.version = expectedVersion + 1;
+      get().setProyectos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+      get().enqueueMutation('updateProyecto', { id, ...patch });
+      if (oldEstado !== newEstado) {
+        get().addAuditEntry({ usuarioNombre: 'sistema', accion: `cambio_estado: ${oldEstado} → ${newEstado}`, entidad: 'proyecto', entidadId: id, valoresAnteriores: { estado: oldEstado, avanceFisico: proyecto.avanceFisico }, valoresNuevos: { estado: newEstado, ...(patch.motivoPausa ? { motivoPausa: patch.motivoPausa } : {}) } });
+      }
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      logErrorFromException(error, {
+        component: 'zustandStore',
+        function_name: 'updateProyecto',
+        error_type: 'validation',
+        severity: 'warning',
+        proyecto_id: id,
+        additional_context: { patch }
+      });
     }
   },
   deleteProyecto: (id) => {
@@ -507,23 +520,34 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
 
   addOrden: (o) => { const n = { ...o, id: uid(), version: 1 } as OrdenCompra; get().setOrdenes(prev => [n, ...prev]); get().enqueueMutation('addOrden', n); },
   updateOrden: (id, estado) => {
-    const orden = get().ordenes.find(o => o.id === id);
-    if (!orden) return;
-    const expectedVersion = orden.version || 1;
-    get().setOrdenes(prev => prev.map(p => p.id === id ? { ...p, estado, version: expectedVersion + 1 } : p));
-    if ((estado === 'aprobado' || estado === 'recibida') && orden?.items && !orden.stockActualizado) {
-      const ids = orden.items.map(i => i.materialId).filter(Boolean);
-      if (ids.length) {
-        get().setMateriales(prev => prev.map(m => {
-          if (!ids.includes(m.id)) return m;
-          const linea = orden.items.find(it => it.materialId === m.id);
-          const newStock = m.stock + (linea?.cantidad ?? 0);
-          return { ...m, stock: newStock, ultimaActualizacionPresupuesto: new Date().toISOString(), version: (m.version || 1) + 1 };
-        }));
-        get().setOrdenes(prev => prev.map(p => p.id === id ? { ...p, stockActualizado: true } : p));
+    try {
+      const orden = get().ordenes.find(o => o.id === id);
+      if (!orden) return;
+      const expectedVersion = orden.version || 1;
+      get().setOrdenes(prev => prev.map(p => p.id === id ? { ...p, estado, version: expectedVersion + 1 } : p));
+      if ((estado === 'aprobado' || estado === 'recibida') && orden?.items && !orden.stockActualizado) {
+        const ids = orden.items.map(i => i.materialId).filter(Boolean);
+        if (ids.length) {
+          get().setMateriales(prev => prev.map(m => {
+            if (!ids.includes(m.id)) return m;
+            const linea = orden.items.find(it => it.materialId === m.id);
+            const newStock = m.stock + (linea?.cantidad ?? 0);
+            return { ...m, stock: newStock, ultimaActualizacionPresupuesto: new Date().toISOString(), version: (m.version || 1) + 1 };
+          }));
+          get().setOrdenes(prev => prev.map(p => p.id === id ? { ...p, stockActualizado: true } : p));
+        }
       }
+      get().enqueueMutation('updateOrden', { id, estado, stockActualizado: true });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      logErrorFromException(error, {
+        component: 'zustandStore',
+        function_name: 'updateOrden',
+        error_type: 'validation',
+        severity: 'error',
+        additional_context: { ordenId: id, estado }
+      });
     }
-    get().enqueueMutation('updateOrden', { id, estado, stockActualizado: true });
   },
   deleteOrden: (id) => { get().setOrdenes(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteOrden', { id }); },
 
