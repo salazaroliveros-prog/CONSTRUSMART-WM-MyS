@@ -7,7 +7,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 
 export default [
   {
-    ignores: ["dist/**", "node_modules/**", "assets/**", "docs/assets/**", "src/functions/**", "CONSTRUSMART-DEVELOP/**", "app_ejemplo/**", ".kilo/**", "eslint.config.js", "postcss.config.js", "tailwind.config.ts", "vitest.config.ts", "vitest.setup.ts", "public/sw.js", "*.cjs", "scripts/*.cjs"],
+    ignores: ["dist/**", "node_modules/**", "assets/**", "docs/assets/**", "src/functions/**", "CONSTRUSMART-DEVELOP/**", "app_ejemplo/**", ".kilo/**", "eslint.config.js", "postcss.config.js", "tailwind.config.ts", "vitest.config.ts", "vitest.setup.ts", "public/sw.js", "*.cjs", "scripts/*.cjs", "scripts/*.mjs"],
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
