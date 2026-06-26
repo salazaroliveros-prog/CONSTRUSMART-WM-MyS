@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS erp_parametros_pavimentos (
   updated_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE INDEX idx_parametros_pavimentos_combo ON erp_parametros_pavimentos(uso, tipo, tipo_base, tipo_sello);
-CREATE INDEX idx_parametros_pavimentos_activas ON erp_parametros_pavimentos(activo);
+CREATE INDEX IF NOT EXISTS idx_parametros_pavimentos_combo ON erp_parametros_pavimentos(uso, tipo, tipo_base, tipo_sello);
+CREATE INDEX IF NOT EXISTS idx_parametros_pavimentos_activas ON erp_parametros_pavimentos(activo);
 
 -- ============================================================
 -- 2. HABILITAR RLS

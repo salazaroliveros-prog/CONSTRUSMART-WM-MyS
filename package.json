@@ -21,7 +21,11 @@
     "security:check": "npx better-npm-audit audit",
     "backup:verify": "node verify-backups.cjs",
     "monitor:table-growth": "node monitor-table-growth.mjs",
-    "cleanup:error-logs": "node scripts/cleanup-error-logs.mjs"
+    "cleanup:error-logs": "node scripts/cleanup-error-logs.mjs",
+    "audit:identify-missing": "node identify-missing-audit-triggers.mjs",
+    "validate:integrity": "node scripts/validate-data-integrity.mjs",
+    "analyze:indexes": "node scripts/optimize-indexes.mjs",
+    "monitor:deadlocks": "node scripts/monitor-deadlocks.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.5",
