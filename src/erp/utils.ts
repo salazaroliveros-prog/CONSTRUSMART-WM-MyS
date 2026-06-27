@@ -65,47 +65,47 @@ export const ESTADO_COLORS = {
   anulado: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
   
   // Estados de órdenes
-  pendiente: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
-  aprobada: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
-  recibida: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
-  rechazada: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  orden_pendiente: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
+  orden_aprobada: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  orden_recibida: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  orden_rechazada: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
   
   // Estados de cotizaciones
-  borrador: { bg: 'bg-slate-50 dark:bg-slate-900/40', border: 'border-slate-300 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: 'text-slate-500' },
-  enviada: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
-  aprobada: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
-  rechazada: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
-  vencida: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  cotizacion_borrador: { bg: 'bg-slate-50 dark:bg-slate-900/40', border: 'border-slate-300 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: 'text-slate-500' },
+  cotizacion_enviada: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  cotizacion_aprobada: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  cotizacion_rechazada: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  cotizacion_vencida: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
   
   // Estados de licitaciones
-  activa: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
-  adjudicada: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
-  perdida: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
-  cerrada: { bg: 'bg-slate-50 dark:bg-slate-900/40', border: 'border-slate-300 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: 'text-slate-500' },
+  licitacion_activa: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  licitacion_adjudicada: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  licitacion_perdida: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  licitacion_cerrada: { bg: 'bg-slate-50 dark:bg-slate-900/40', border: 'border-slate-300 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: 'text-slate-500' },
   
   // Estados de activos
-  disponible: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
-  asignado: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
-  mantenimiento: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
-  baja: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
-  dado_baja: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  activo_disponible: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  activo_asignado: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  activo_mantenimiento: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
+  activo_baja: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  activo_dado_baja: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
   
   // Estados de cuadros comparativos
-  abierto: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
-  cerrado: { bg: 'bg-slate-50 dark:bg-slate-900/40', border: 'border-slate-300 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: 'text-slate-500' },
-  adjudicado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  cuadro_abierto: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  cuadro_cerrado: { bg: 'bg-slate-50 dark:bg-slate-900/40', border: 'border-slate-300 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: 'text-slate-500' },
+  cuadro_adjudicado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
   
   // Estados de riesgos
-  identificado: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
-  en_proceso: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
-  mitigado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
-  materializado: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  riesgo_identificado: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
+  riesgo_en_proceso: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  riesgo_mitigado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  riesgo_materializado: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
   
   // Estados de hitos
-  pendiente: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
-  en_proceso: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
-  completado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
-  retrasado: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  hito_pendiente: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
+  hito_en_proceso: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  hito_completado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  hito_retrasado: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
 };
 
 export const getEstadoColor = (estado: string) => {
