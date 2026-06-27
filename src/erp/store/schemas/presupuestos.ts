@@ -60,14 +60,13 @@ export const presupuestoSchema = z.object({
   proyectoId: z.string().min(1, 'proyectoId es requerido'),
   tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica'] as const),
   renglones: z.array(renglonPresupuestoZ).default([]),
-  estado: z.enum(['borrador','aprobado','revisado','rechazado'] as const).default('borrador'),
+  estado: z.enum(['borrador','aprobado','revisado','rechazado','anulado'] as const).default('borrador'),
   totalCalculado: z.number().default(0),
   costoDirectoTotal: z.number().default(0),
   fechaCreacion: z.string().default(new Date().toISOString()),
   fechaActualizacion: z.string().default(new Date().toISOString()),
   versionPresupuesto: z.number().optional().default(1),
   notas: z.string().nullable().optional(),
-  version: z.number().optional(),
 });
 
 export const cotizacionSchema = z.object({
