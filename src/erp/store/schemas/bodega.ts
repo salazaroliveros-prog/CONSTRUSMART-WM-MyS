@@ -43,7 +43,7 @@ export const ordenSchema = z.object({
   cantidad: z.number().default(0),
   monto: z.number().default(0),
   fecha: z.string(),
-  estado: z.enum(['borrador', 'pendiente', 'aprobado', 'recibida', 'rechazada', 'rechazado', 'cancelada'] as const).default('pendiente'),
+  estado: z.enum(['borrador', 'pendiente', 'aprobado', 'recibida', 'rechazado', 'cancelada'] as const).default('pendiente'),
   proveedorId: z.string().nullable().optional(),
   total: z.number().optional(),
   items: z.array(z.object({

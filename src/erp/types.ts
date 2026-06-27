@@ -169,7 +169,7 @@ export interface Presupuesto {
   proyectoId: string;
   tipologia: Tipologia;
   renglones: RenglonPresupuesto[];
-  estado: 'borrador' | 'aprobado' | 'revisado' | 'rechazado';
+  estado: 'borrador' | 'aprobado' | 'revisado' | 'rechazado' | 'anulado';
   totalCalculado: number;
   costoDirectoTotal: number;
   fechaCreacion: string;
