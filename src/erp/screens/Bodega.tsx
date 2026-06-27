@@ -54,19 +54,29 @@ const Bodega: React.FC = () => {
   const [editingProveedor, setEditingProveedor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const criticos = materiales.filter(m => m.stock < m.stockMinimo);
-  const pendientes = ordenes.filter(o => o.estado === 'pendiente');
-  const conPlan = materiales.filter(m => typeof m.cantidadPresupuestada === 'number' && m.cantidadPresupuestada > 0);
+  const criticos = useMemo(() => materiales.filter(m => m.stock < m.stockMinimo), [materiales]);
+  const pendientes = useMemo(() => ordenes.filter(o => o.estado === 'pendiente'), [ordenes]);
+  const conPlan = useMemo(() => materiales.filter(m => typeof m.cantidadPresupuestada === 'number' && m.cantidadPresupuestada > 0), [materiales]);
 
-  const coverage = conPlan.length
-    ? conPlan.reduce((a, m) => a + (m.cantidadPresupuestada ?? 0), 0)
-    : 0;
-  const avgDesv = conPlan.length
-    ? conPlan.reduce((a, m) => a + ((m.stock - (m.cantidadPresupuestada ?? 0)) / Math.max(m.cantidadPresupuestada ?? 1, 1)) * 100, 0) / conPlan.length
-    : 0;
-  const maxDesvMat = conPlan.length
-    ? [...conPlan].sort((a, b) => Math.abs((b.stock - (b.cantidadPresupuestada ?? 0)) / Math.max(b.cantidadPresupuestada ?? 1, 1) * 100) - Math.abs((a.stock - (a.cantidadPresupuestada ?? 0)) / Math.max(a.cantidadPresupuestada ?? 1, 1) * 100))[0]
-    : null;
+  const coverage = useMemo(() => {
+    if (conPlan.length === 0) return 0;
+    return conPlan.reduce((a, m) => a + (m.cantidadPresupuestada ?? 0), 0);
+  }, [conPlan]);
+
+  const avgDesv = useMemo(() => {
+    if (conPlan.length === 0) return 0;
+    const total = conPlan.reduce((a, m) => a + ((m.stock - (m.cantidadPresupuestada ?? 0)) / Math.max(m.cantidadPresupuestada ?? 1, 1)) * 100, 0);
+    return total / conPlan.length;
+  }, [conPlan]);
+
+  const maxDesvMat = useMemo(() => {
+    if (conPlan.length === 0) return null;
+    return [...conPlan].sort((a, b) => {
+      const desvA = Math.abs((a.stock - (a.cantidadPresupuestada ?? 0)) / Math.max(a.cantidadPresupuestada ?? 1, 1) * 100);
+      const desvB = Math.abs((b.stock - (b.cantidadPresupuestada ?? 0)) / Math.max(b.cantidadPresupuestada ?? 1, 1) * 100);
+      return desvB - desvA;
+    })[0];
+  }, [conPlan]);
 
   const {
     register: registerProv,

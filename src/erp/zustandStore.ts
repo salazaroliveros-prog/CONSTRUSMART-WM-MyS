@@ -6,6 +6,7 @@ import { supabase, hasServiceRole, getServiceClient } from '@/lib/supabase';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance, validateForeignKey as validateForeignKeyInArray } from './utils';
 import { recordSyncMetric } from '@/lib/metrics';
 import { logErrorFromException } from '@/lib/error-logger';
+import { TABLE_MAP } from './constants/table-mappings';
 import type {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
   Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
@@ -231,26 +232,6 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_destajos','erp_recepciones','erp_pagos_proveedor',
       'erp_centros_costo','erp_error_logs',
     ] as const;
-
-    const TABLE_MAP: Record<string, string> = {
-      erp_proyectos:'proyectos',erp_movimientos:'movimientos',erp_empleados:'empleados',
-      erp_materiales:'materiales',erp_ordenes_compra:'ordenes',erp_proveedores:'proveedores',
-      erp_presupuestos:'presupuestos',erp_avances:'avances',
-      erp_cuentas_cobrar:'cuentasCobrar',erp_cuentas_pagar:'cuentasPagar',
-      erp_ordenes_cambio:'ordenesCambio',erp_hitos:'hitos',erp_riesgos:'riesgos',
-      erp_licitaciones:'licitaciones',erp_cotizaciones_negocio:'cotizacionesNegocio',
-      erp_vales_salida:'valesSalida',erp_no_conformidades:'ncs',erp_incidentes:'incidentes',
-      erp_publicaciones_muro:'publicacionesMuro',
-      erp_planos:'planos',erp_rfis:'rfis',erp_submittals:'submittals',
-      erp_activos:'activos',erp_destajos:'destajos',
-      erp_eventos_calendario:'eventos',erp_bitacora:'bitacora',
-      erp_seguimiento:'seguimientoEVM',erp_liberaciones_partida:'liberaciones',
-      erp_notificaciones:'notificaciones',erp_cuadros:'cuadros',
-      erp_recepciones:'recepciones',erp_pruebas_laboratorio:'pruebas',
-      ventas_paquetes:'ventasPaquetes',erp_pagos_proveedor:'pagosProveedor',
-      erp_centros_costo:'centrosCosto',erp_plantillas_proyectos:'plantillas',
-      erp_error_logs:'errorLogs',
-    };
 
     const isGuestMode = hasServiceRole && !localStorage.getItem('sb-neygzluxugodiwcuctbj-auth-token');
 
