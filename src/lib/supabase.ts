@@ -19,7 +19,9 @@ if (!supabaseUrl || !supabaseKey) {
 
 // Create the primary Supabase client with anon key (RLS-enforced, session-based)
 let _supabase: SupabaseClient;
-if (typeof window !== 'undefined') {
+if (!supabaseUrl) {
+  console.warn('[supabase] VITE_SUPABASE_URL not configured. Offline mode (no client).');
+} else if (typeof window !== 'undefined') {
   _supabase = createClient(supabaseUrl, supabaseKey, {
     auth: {
       flowType: 'pkce',
