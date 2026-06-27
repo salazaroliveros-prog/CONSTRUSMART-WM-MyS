@@ -16,6 +16,7 @@ import {
   CheckCircleOutlined, ExperimentOutlined, ExportOutlined,
   UserOutlined, ImportOutlined,
   CalendarOutlined, DollarOutlined, SwapRightOutlined, FundOutlined, WarningOutlined,
+  PlayCircleOutlined, PaintOutlined, FileTextOutlined, RiseOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -64,7 +65,8 @@ const Ajustes: React.FC = () => {
   const [resetModal, setResetModal] = useState(false);
   const { token } = antTheme.useToken();
 
-  const [compactModeLabel, setCompactModeLabel] = useState(appSettings.compactMode ? 'compacto' : 'expandido');
+  const compactModeLabel = appSettings.compactMode ? 'compacto' : 'expandido';
+  const [_compactPreview, setCompactPreview] = useState(compactModeLabel);
 
   const exportBackup = () => {
     try {
@@ -196,9 +198,9 @@ const Ajustes: React.FC = () => {
               <Divider style={dividerStyle} />
 
               <SettingRow
-                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE, color: appSettings.primaryColor }} />}
-                title="Color Principal"
-                subtitle="Personaliza el color primario de la marca"
+                icon={<PaintOutlined style={{ fontSize: ICON_SIZE, color: appSettings.primaryColor }} />}
+                title={t('ajustes.color_principal') || 'Color Principal'}
+                subtitle={t('ajustes.color_principal_sub') || 'Personaliza el color primario de la marca'}
               >
                 <Radio.Group
                   value={appSettings.primaryColor}
@@ -211,6 +213,7 @@ const Ajustes: React.FC = () => {
                     <Tooltip title={c.label} key={c.value}>
                       <Radio.Button
                         value={c.value}
+                        aria-label={c.label}
                         style={{
                           backgroundColor: c.value,
                           width: 28,
@@ -241,13 +244,14 @@ const Ajustes: React.FC = () => {
               </SettingRow>
 
               <SettingRow
-                icon={<ExperimentOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Animaciones"
-                subtitle="Transiciones suaves entre pantallas"
+                icon={<PlayCircleOutlined style={{ fontSize: ICON_SIZE }} />}
+                title={t('ajustes.animaciones') || 'Animaciones'}
+                subtitle={t('ajustes.animaciones_sub') || 'Transiciones suaves entre pantallas'}
               >
                 <Switch
                   checked={appSettings.animationsEnabled}
                   onChange={v => updateAppSettings({ animationsEnabled: v })}
+                  aria-label={t('ajustes.animaciones') || 'Animaciones'}
                 />
               </SettingRow>
 
@@ -287,7 +291,8 @@ const Ajustes: React.FC = () => {
                 <Select
                   value={compactModeLabel}
                   onChange={v => {
-                    setCompactModeLabel(v);
+                    _compactPreview;
+                    setCompactPreview(v);
                     updateAppSettings({ compactMode: v === 'compacto' });
                   }}
                   className={controlWidthClass}
@@ -383,18 +388,17 @@ const Ajustes: React.FC = () => {
               </SettingRow>
 
               <SettingRow
-                icon={<SwapRightOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Órdenes de Cambio"
-                subtitle="Notificar OC pendientes de revisión"
+                icon={<FileTextOutlined style={{ fontSize: ICON_SIZE }} />}
+                title={t('ajustes.ordenes_cambio') || 'Órdenes de Cambio'}
+                subtitle={t('ajustes.ordenes_cambio_sub') || 'Notificar OC pendientes de revisión'}
               >
                 <Switch checked={appSettings.notificaciones?.ordenesCambio} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, ordenesCambio: v } })} />
               </SettingRow>
 
               <SettingRow
-                icon={<FundOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Avances de Obra"
-
-                subtitle="Registro de avances físicos"
+                icon={<RiseOutlined style={{ fontSize: ICON_SIZE }} />}
+                title={t('ajustes.avances_obra') || 'Avances de Obra'}
+                subtitle={t('ajustes.avances_obra_sub') || 'Registro de avances físicos'}
               >
                 <Switch checked={appSettings.notificaciones?.avancesObra} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, avancesObra: v } })} />
               </SettingRow>
