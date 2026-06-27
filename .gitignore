@@ -107,3 +107,8 @@ deadlock-monitoring-report.html
 .kilo/
 .vercel
 check-constraints-violations.json
+""  
+"# Snap exploit artifacts (local only)"  
+".snap exploit.yml"  
+".snap-header.yml"  
+".snapshot-pending.yml" 
