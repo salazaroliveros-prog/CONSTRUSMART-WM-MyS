@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
 import { Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
@@ -68,10 +69,11 @@ const Login: React.FC = () => {
         />
         <div className="w-full max-w-sm relative z-10">
           <div className="rounded-3xl bg-white/25 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_rgba(15,23,42,0.18)] p-6">
-            <div className="text-center mb-6">
+            {loading && (<div className="space-y-3 mb-6"><Skeleton className="h-8 w-40 mx-auto" /><Skeleton className="h-4 w-56 mx-auto" /></div>)}
+            {!loading && (<div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-slate-800">Iniciar Sesión</h2>
               <p className="text-xs text-orange-500 mt-1">Acceso solo para administrador</p>
-            </div>
+            </div>)}
 
             {authError && (
               <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
