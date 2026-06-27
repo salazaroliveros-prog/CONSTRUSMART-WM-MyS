@@ -245,7 +245,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
        };
      }
      if (zustandUser) return zustandUser;
-     return { id: 'local', email: 'local@construsmart', nombre: 'Usuario Local', rol: 'Administrador' as Rol, avatar: null };
+     return null;
    }, [authUser, zustandUser]);
 
   useEffect(() => {

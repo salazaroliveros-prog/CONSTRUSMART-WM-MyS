@@ -247,9 +247,6 @@ const AppLayoutContent: React.FC = () => {
   }
 
   if (!user || (user as any)?.id === 'local') {
-    if (hasSupabase && hasServiceRole) {
-      return <Shell />;
-    }
     return (
       <Suspense fallback={<AppLoader />}>
         <Login />
