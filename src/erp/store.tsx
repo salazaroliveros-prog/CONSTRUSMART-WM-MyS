@@ -319,10 +319,21 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     migrateSecureStorage(user?.id).catch(err => safeLogger.warn('[Encryption] Migration error:', err));
   }, [user?.id]);
 
-const syncCooldownRef = useRef(false);
+const tokenBucketRef = useRef({ tokens: 5, lastRefill: Date.now(), maxTokens: 10, refillRate: 5 });
 const isOnlineRef = useRef(isOnline);
 const supabaseSubscriptionsRef = useRef(false);
 isOnlineRef.current = isOnline;
+
+function checkTokenBucket(): boolean {
+  const bucket = tokenBucketRef.current;
+  const now = Date.now();
+  const elapsed = (now - bucket.lastRefill) / 1000;
+  bucket.tokens = Math.min(bucket.maxTokens, bucket.tokens + elapsed * bucket.refillRate);
+  bucket.lastRefill = now;
+  if (bucket.tokens < 1) return false;
+  bucket.tokens -= 1;
+  return true;
+}
 
   useEffect(() => {
     const cancel = scheduleHealthCheck(() => ({
@@ -351,7 +362,7 @@ isOnlineRef.current = isOnline;
 
 const forceSync = useMemo(() => {
         return async () => {
-          if (syncCooldownRef.current) return;
+          if (!checkTokenBucket()) return;
           const queue = useErpStore.getState().mutationQueue;
           
           // Only proceed if we have mutations, are online, and have Supabase configured
@@ -377,10 +388,7 @@ const forceSync = useMemo(() => {
             return;
           }
 
-          syncCooldownRef.current = true;
           useErpStore.setState({ syncMessage: `Sincronizando ${queue.length} cambios...`, syncStatus: 'loading', syncError: undefined });
-
-          // already set above
           const processed: string[] = [];
           const failed: Mutation[] = [];
 
@@ -480,8 +488,6 @@ const forceSync = useMemo(() => {
           const remaining = queue.filter(m => !processed.includes(m.id));
           failed.forEach(f => { if (!remaining.find(r => r.id === f.id)) remaining.push(f); });
           useErpStore.getState().setMutationQueue(remaining);
-
-          syncCooldownRef.current = false;
 
           if (processed.length > 0 || failed.length > 0) {
             const msg = processed.length > 0 ? `${processed.length} cambios sincronizados.` : '';

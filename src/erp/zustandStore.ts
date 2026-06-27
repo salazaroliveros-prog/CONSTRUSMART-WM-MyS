@@ -781,8 +781,15 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     }
     patch.version = expectedVersion + 1;
     patch.totalCalculado = totalCalc ?? existing.totalCalculado;
+    const cambios: Record<string, { anterior: unknown; nuevo: unknown }> = {};
+    if (patch.totalCalculado !== undefined && patch.totalCalculado !== existing.totalCalculado) cambios.totalCalculado = { anterior: existing.totalCalculado, nuevo: patch.totalCalculado };
+    if (patch.estado !== undefined && patch.estado !== existing.estado) cambios.estado = { anterior: existing.estado, nuevo: patch.estado };
+    if (patch.renglones && patch.renglones.length !== (existing.renglones?.length || 0)) cambios.renglones = { anterior: (existing.renglones?.length || 0), nuevo: patch.renglones.length };
     get().setPresupuestos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
     get().enqueueMutation('updatePresupuesto', { id, ...patch });
+    if (Object.keys(cambios).length > 0) {
+      get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'actualizar_presupuesto', entidad: 'presupuesto', entidadId: id, valoresAnteriores: Object.fromEntries(Object.entries(cambios).map(([k, v]) => [k, v.anterior])), valoresNuevos: Object.fromEntries(Object.entries(cambios).map(([k, v]) => [k, v.nuevo])) });
+    }
   },
   deletePresupuesto: (id) => { get().setPresupuestos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deletePresupuesto', { id }); },
   getPresupuestoByProyecto: (proyectoId) => get().presupuestos.find(p => p.proyectoId === proyectoId),
