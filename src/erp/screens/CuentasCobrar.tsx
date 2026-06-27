@@ -6,6 +6,7 @@ import ProyectoFilter from '../components/ProyectoFilter';
 import { DollarSign, Plus, X, TrendingUp, CalendarDays, AlertTriangle } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
+import { Modal } from 'antd';
 import { todayISO, fmtQ } from '../utils';
 
 const CuentasCobrarScreen: React.FC = () => {
@@ -33,7 +34,10 @@ const CuentasCobrarScreen: React.FC = () => {
     toast.success('Cobro registrado');
   };
 
-  const eliminar = (id: string) => { if (confirm('¿Eliminar?')) deleteCuentaCobrar(id); };
+  const eliminar = async (id: string) => {
+  await Modal.confirm({ title: 'Confirmar eliminación', content: '¿Eliminar esta cuenta por cobrar?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
+  deleteCuentaCobrar(id);
+};
 
   const filtradas = filtroProyecto ? cuentasCobrar.filter(c => c.proyectoId === filtroProyecto) : cuentasCobrar;
   const pendientes = filtradas.filter(c => c.estado === 'pendiente' || c.estado === 'parcial' || c.estado === 'vencido');

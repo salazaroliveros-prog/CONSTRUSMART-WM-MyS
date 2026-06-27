@@ -5,6 +5,7 @@ import { Riesgo } from '../types';
 import { AlertTriangle, Shield, Plus, X, TrendingUp, TrendingDown, Filter } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
+import { Modal } from 'antd';
 import { todayISO } from '../utils';
 
 type RProb = Riesgo['probabilidad'];
@@ -88,11 +89,12 @@ const Riesgos: React.FC = () => {
     }
   };
 
-  const eliminar = (id: string) => {
-    if (!confirm('¿Eliminar este riesgo?')) return;
-    deleteRiesgo(id);
-  };
+  const eliminar = async (id: string) => {
+  await Modal.confirm({ title: 'Confirmar eliminación', content: '¿Eliminar este riesgo?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
+  deleteRiesgo(id);
+};
 
+  const nivelColor = (n: Riesgo['nivel']) => {
   const nivelColor = (n: Riesgo['nivel']) => {
     const map = { bajo: 'bg-emerald-50 text-emerald-600', medio: 'bg-amber-50 text-amber-600', alto: 'bg-orange-50 text-orange-600', critico: 'bg-red-50 text-red-600' };
     return map[n];

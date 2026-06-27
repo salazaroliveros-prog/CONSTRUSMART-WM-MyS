@@ -1,4 +1,5 @@
 import React from 'react';
+import { Modal } from 'antd';
 import { Presupuesto } from '../types';
 import { fmtQ, fmtPct, TIPOLOGIA_LABEL } from '../utils';
 import { Edit, Trash2, Copy, Download, Check } from 'lucide-react';
@@ -124,8 +125,11 @@ export const PresupuestosList: React.FC<PresupuestosListProps> = ({
                 )}
                 {onDelete && (
                   <button
-                    onClick={() => {
-                      if (confirm('¿Eliminar este presupuesto?')) onDelete(p.id);
+                    onClick={async () => {
+                      try {
+                        await Modal.confirm({ title: 'Eliminar presupuesto', content: '¿Está seguro de eliminar este presupuesto?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
+                      } catch {}
+                      onDelete?.(p.id);
                     }}
                     className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                     title="Eliminar"
@@ -143,3 +147,5 @@ export const PresupuestosList: React.FC<PresupuestosListProps> = ({
 };
 
 export default PresupuestosList;
+
+

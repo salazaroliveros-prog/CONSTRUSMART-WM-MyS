@@ -4,6 +4,7 @@ import { Hito } from '../types';
 import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
+import { Modal } from 'antd';
 import { todayISO } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -82,11 +83,12 @@ const HitosScreen: React.FC = () => {
     toast.success(retrasado ? '⚠️ Hito completado con retraso' : '✅ Hito completado');
   };
 
-  const eliminar = (id: string) => {
-    if (!confirm('¿Eliminar este hito?')) return;
-    deleteHito(id);
-  };
+  const eliminar = async (id: string) => {
+  await Modal.confirm({ title: 'Confirmar eliminación', content: '¿Eliminar este hito?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
+  deleteHito(id);
+};
 
+  const hoy = todayISO();
   const hoy = todayISO();
   const hitosFiltrados = useMemo(() => {
     let filtrados = hitos;
