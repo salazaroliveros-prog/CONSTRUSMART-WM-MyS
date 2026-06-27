@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState } from 'react';
 import { useErp } from '../store';
 import type { CentroCosto, LogAuditoria } from '../types';
@@ -20,6 +21,9 @@ export const Administracion: React.FC = () => {
   const { proyectos, auditLog, centrosCosto, setCentrosCosto } = useErp();
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion'>('centros');
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
   const [filtroProyecto, setFiltroProyecto] = useState('');
 
   const uid = () => Date.now().toString(36).substr(2, 9);
@@ -182,6 +186,20 @@ export const Administracion: React.FC = () => {
     </div>
   );
 
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-4 sm:p-6 max-w-[1400px] mx-auto">
       <h1 className="text-2xl font-black text-foreground mb-4">🔧 Administración del Sistema</h1>

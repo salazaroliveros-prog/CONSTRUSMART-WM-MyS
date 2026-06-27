@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useCallback } from 'react';
 import { useErp } from '../store';
 import { Download, FileJson, FileSpreadsheet, FileText, Plus, Trash2, Clock, Send, Table } from 'lucide-react';
@@ -78,6 +79,9 @@ const ExportacionInteligente: React.FC = () => {
   const [exportando, setExportando] = useState<string | null>(null);
   const [reportes, setReportes] = useState<ReporteProgramado[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
   const [form, setForm] = useState({ nombre: '', tipo: 'ejecutivo' as ReporteProgramado['tipo'], formato: 'json' as ExportFormat, frecuencia: 'semanal' as ReporteProgramado['frecuencia'], destinatarios: '' });
 
   const saveReportes = (r: ReporteProgramado[]) => {
@@ -370,6 +374,20 @@ const ExportacionInteligente: React.FC = () => {
     saveReportes(reportes.map(r => r.id === reporte.id ? { ...r, ultimoEnvio: todayISO() } : r));
   };
 
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
       <div className="flex items-center gap-2 mb-4">

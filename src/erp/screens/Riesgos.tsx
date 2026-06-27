@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useErp } from '../store';
 import { Riesgo } from '../types';
@@ -22,6 +23,9 @@ const calcularNivel = (prob: number, imp: number): Riesgo['nivel'] => {
 const Riesgos: React.FC = () => {
   const { proyectos, selectedProyectoId, setSelectedProyectoId, riesgos, addRiesgo, updateRiesgo, deleteRiesgo, addNotificacion } = useErp();
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
   const [form, setForm] = useState({
     proyectoId: '',
     nombre: '',
@@ -103,6 +107,20 @@ const Riesgos: React.FC = () => {
   const matrizRiesgos = riesgosFiltrados.filter(r => r.estado !== 'mitigado').length;
   const costoSoportable = riesgosFiltrados.filter(r => r.estado === 'materializado').reduce((a, r) => a + (r.costoSoporte || 0), 0);
 
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">

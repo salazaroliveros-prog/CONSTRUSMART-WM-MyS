@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useMemo, useState, useRef } from 'react';
 import { useErp } from '../store';
 import { fmtQ, todayISO } from '../utils';
@@ -48,6 +49,9 @@ const CurvasS: React.FC = () => {
   const chartRef = useRef<HTMLDivElement>(null);
 
   const [selectedProyectoId, setSelectedProyectoId] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
   const [selectedView, setSelectedView] = useState<'curvas' | 'flujo' | 'alertas'>('curvas');
 
   const proyecto = proyectos.find(p => p.id === selectedProyectoId);
@@ -193,6 +197,19 @@ const CurvasS: React.FC = () => {
     ...flujoCaja.map(m => Math.max(m.ingresos, m.egresos, 1))
   );
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       {/* Header */}
