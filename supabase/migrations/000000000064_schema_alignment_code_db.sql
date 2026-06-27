@@ -18,6 +18,11 @@ ALTER TABLE erp_ordenes_compra ADD COLUMN IF NOT EXISTS stock_actualizado boolea
 -- 3) Añadir columnas faltantes a erp_proyectos
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS descripcion text;
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS subtipo text;
+
+-- Fix estado CHECK constraint to match app enum: planeacion/ejecucion/pausado/finalizado
+ALTER TABLE erp_proyectos DROP CONSTRAINT IF EXISTS chk_erp_proyectos_estado_valid;
+ALTER TABLE erp_proyectos ADD CONSTRAINT chk_erp_proyectos_estado_valid
+  CHECK (estado = ANY (ARRAY['planeacion'::text, 'ejecucion'::text, 'pausado'::text, 'finalizado'::text]));
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS tipo_obra text;
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS cliente_nit text;
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS cliente_telefono text;
@@ -118,9 +123,23 @@ ALTER TABLE erp_pagos_proveedor ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_centros_costo ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_error_logs ENABLE ROW LEVEL SECURITY;
 
--- 7) Realtime para nuevas tablas
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_destajos;
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_recepciones;
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_pagos_proveedor;
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_centros_costo;
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_error_logs;
+-- 7) Realtime para nuevas tablas (usando DO block, IF NOT EXISTS no válido en ALTER PUBLICATION)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'erp_destajos') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE erp_destajos;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'erp_recepciones') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE erp_recepciones;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'erp_pagos_proveedor') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE erp_pagos_proveedor;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'erp_centros_costo') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE erp_centros_costo;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'erp_error_logs') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE erp_error_logs;
+  END IF;
+END;
+$$;

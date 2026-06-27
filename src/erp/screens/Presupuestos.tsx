@@ -471,8 +471,8 @@ const Presupuestos: React.FC = () => {
         const costoMat = r.subRenglones.reduce((sum, s) => sum + (s.cantidadUnitaria * s.precioUnitario), 0);
         return { ...r, costoMateriales: costoMat };
       });
-      const totalCalc = itemsSeguros.reduce((a, r) => a + calc(r).total, 0);
-      const costoDir = itemsSeguros.reduce((a, r) => a + costoDirectoUnitario(r.costoMateriales, r.costoManoObra, r.costoEquipo) * r.cantidad, 0);
+      const totalCalc = itemsSeguros.reduce((a, r) => a + (calc(r).total || 0), 0) || 0;
+      const costoDir = itemsSeguros.reduce((a, r) => a + (costoDirectoUnitario(r.costoMateriales || 0, r.costoManoObra || 0, r.costoEquipo || 0) * (r.cantidad || 0)), 0) || 0;
 
       if (editingPresupuesto) {
         await updatePresupuesto(editingPresupuesto.id, {
