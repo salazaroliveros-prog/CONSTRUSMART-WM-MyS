@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useRef, useMemo, useState,
 import { z } from 'zod';
 import { scheduleHealthCheck } from '@/lib/store-health';
 import { useErpStore, fetchInitialData } from './zustandStore';
+import { TABLE_MAP as STORE_KEY_MAP } from './constants/table-mappings';
 import {
   proyectoSchema, movimientoSchema, cuentaCobrarSchema, cuentaPagarSchema, ordenCambioSchema,
   presupuestoSchema, cotizacionSchema, empleadoSchema, incidenteSchema, materialSchema,
@@ -142,26 +143,6 @@ export const useErp = () => {
 };
 
 // Store key mapping: Supabase table name → zustand store key
-const STORE_KEY_MAP: Record<string, string> = {
-  erp_proyectos:'proyectos',erp_movimientos:'movimientos',erp_empleados:'empleados',
-  erp_materiales:'materiales',erp_ordenes_compra:'ordenes',erp_proveedores:'proveedores',
-  erp_cuentas_cobrar:'cuentasCobrar',erp_cuentas_pagar:'cuentasPagar',erp_hitos:'hitos',
-  erp_riesgos:'riesgos',erp_licitaciones:'licitaciones',
-  erp_cotizaciones_negocio:'cotizacionesNegocio',erp_vales_salida:'valesSalida',
-  erp_no_conformidades:'ncs',erp_incidentes:'incidentes',
-  erp_publicaciones_muro:'publicacionesMuro',erp_planos:'planos',erp_rfis:'rfis',
-  erp_submittals:'submittals',erp_activos:'activos',erp_cuadros:'cuadros',
-  erp_pagos_proveedor:'pagosProveedor',erp_destajos:'destajos',
-  recepciones_almacen:'recepciones',erp_centros_costo:'centrosCosto',
-  erp_seguimiento:'seguimientoEVM',erp_bitacora:'bitacora',
-  erp_plantillas_proyectos:'plantillas',
-  erp_presupuestos:'presupuestos',erp_avances:'avances',
-  erp_eventos_calendario:'eventos',ventas_paquetes:'ventasPaquetes',
-  erp_notificaciones:'notificaciones',erp_ordenes_cambio:'ordenesCambio',
-  erp_pruebas_laboratorio:'pruebas',
-  erp_liberaciones_partida:'liberaciones',erp_error_logs:'errorLogs',
-};
-
 const APP_ONLY_FIELDS = new Set(['selectedProyectoId']);
 
 function stripAppOnlyFields<T extends Record<string, unknown>>(obj: T): T {
