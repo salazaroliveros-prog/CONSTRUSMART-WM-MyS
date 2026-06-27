@@ -320,7 +320,7 @@ export interface Proveedor {
   id: string;
   proyectoId: string;
   nombre: string;
-  contacto: string;
+  contacto?: string;
   telefono: string;
   email: string;
   categoria: Categoria;

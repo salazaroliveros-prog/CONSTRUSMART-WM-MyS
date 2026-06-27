@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const empleadoSchema = z.object({
   id: z.string(),
-  proyectoId: z.string().default(''),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   nombre: z.string(),
   puesto: z.string(),
   salarioDiario: z.number(),

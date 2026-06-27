@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const activoSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   nombre: z.string().default(''),
   codigoInventario: z.string().default(''),
   tipo: z.enum(['herramienta','equipo','vehiculo','accesorio'] as const).default('herramienta'),
@@ -22,7 +22,7 @@ export const activoSchema = z.object({
 
 export const licitacionSchema = z.object({
   id: z.string(),
-  proyectoId: z.string().optional().default(''),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   nombre: z.string(),
   cliente: z.string(),
   monto: z.number(),
@@ -56,7 +56,7 @@ export const cuadroSchema = z.preprocess(raw => {
   return raw;
 }, z.object({
   id: z.string(),
-  proyectoId: z.string().optional(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   solicitud: z.string().default(''),
   fechaSolicitud: z.string().default(new Date().toISOString().split('T')[0]),
   fechaCierre: z.string().nullable().optional(),
@@ -68,7 +68,7 @@ export const cuadroSchema = z.preprocess(raw => {
 
 export const pagoProveedorSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   proveedorId: z.string().default(''),
   proveedorNombre: z.string().default(''),
   monto: z.number().default(0),
@@ -82,7 +82,7 @@ export const pagoProveedorSchema = z.object({
 
 export const planoSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   nombre: z.string().default(''),
   disciplina: z.enum(['arquitectura','estructura','instalaciones','electricas','sanitarias','mecanicas','otra'] as const).default('arquitectura'),
   version: z.string().default('1.0'),
@@ -96,7 +96,7 @@ export const planoSchema = z.object({
 
 export const rfiSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   numero: z.string().default(''),
   titulo: z.string().default(''),
   descripcion: z.string().default(''),
@@ -110,7 +110,7 @@ export const rfiSchema = z.object({
 
 export const destajoSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   renglonCodigo: z.string(),
   cuadrilla: z.string(),
   fecha: z.string(),
@@ -135,7 +135,7 @@ export const recepcionAlmacenSchema = z.object({
 
 export const submittalSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   titulo: z.string().default(''),
   descripcion: z.string().optional().default(''),
   categoria: z.enum(['material','equipo','especificacion','otro'] as const).default('otro'),
