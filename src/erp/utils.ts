@@ -129,6 +129,32 @@ export function decompressData(data: string): unknown {
   }
   try { return JSON.parse(data); } catch { return null; }
 }
+export async function compressDataAsync(data: unknown): Promise<string> {
+  try {
+    const worker = new Worker(new URL('../workers/compression.worker.ts', import.meta.url), { type: 'module' });
+    const payload = JSON.stringify(data);
+    const result = await new Promise<string>((resolve, reject) => {
+      const timer = setTimeout(() => { worker.terminate(); resolve(payload); }, 3000);
+      worker.onmessage = (e) => { clearTimeout(timer); worker.terminate(); if (e.data.success) resolve(e.data.result); else reject(new Error(e.data.error)); };
+      worker.onerror = (err) => { clearTimeout(timer); worker.terminate(); reject(err); };
+      worker.postMessage({ type: 'compress', payload });
+    });
+    return result;
+  } catch { return compressData(data); }
+}
+
+export async function decompressDataAsync(data: string): Promise<unknown> {
+  try {
+    const worker = new Worker(new URL('../workers/compression.worker.ts', import.meta.url), { type: 'module' });
+    const result = await new Promise<string | null>((resolve, reject) => {
+      const timer = setTimeout(() => { worker.terminate(); resolve(null); }, 3000);
+      worker.onmessage = (e) => { clearTimeout(timer); worker.terminate(); if (e.data.success) resolve(e.data.result); else resolve(null); };
+      worker.onerror = () => { clearTimeout(timer); worker.terminate(); resolve(null); };
+      worker.postMessage({ type: 'decompress', payload: data });
+    });
+    return result ?? decompressData(data);
+  } catch { return decompressData(data); }
+}
 
 export function isStorageQuotaCritical(): boolean {
   try {

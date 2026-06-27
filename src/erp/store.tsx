@@ -12,7 +12,7 @@ import {
   destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema,
   auditLogSchema, appSettingsSchema, proyectoWeatherSchema, errorLogSchema,
 } from './store/schemas';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, compressDataAsync, decompressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { hasSupabase, assertSupabase, supabase, hasServiceRole, getServiceClient } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
@@ -545,7 +545,7 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
     let timer: ReturnType<typeof setTimeout>;
     const unsub = useErpStore.subscribe(() => {
       clearTimeout(timer);
-      timer = setTimeout(() => {
+      timer = setTimeout(async () => {
         try {
           const s = useErpStore.getState();
           const map: Record<string, any> = {
@@ -564,14 +564,13 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
             errorLogs: s.errorLogs,
           };
           const quotaCritical = isStorageQuotaCritical();
-          Object.entries(map).forEach(([k, v]) => {
-            const value = compressData(v);
-            safeSetItem(`${STORAGE_KEY}_${k}`, value, `${STORAGE_KEY}_${k}`);
-          });
+          for (const [k, v] of Object.entries(map)) {
+            try { const value = await compressDataAsync(v); safeSetItem(`${STORAGE_KEY}_${k}`, value, `${STORAGE_KEY}_${k}`); } catch {}
+          }
           safeSetItem(`${STORAGE_KEY}_settings`, JSON.stringify(s.appSettings));
-          safeSetItem('wm_erp_queue', compressData(s.mutationQueue));
-          safeSetItem(`${STORAGE_KEY}_notificaciones`, compressData(s.notificaciones));
-          safeSetItem(`${STORAGE_KEY}_audit_log`, compressData(s.auditLog));
+          try { const q = await compressDataAsync(s.mutationQueue); safeSetItem('wm_erp_queue', q); } catch {}
+          try { const n = await compressDataAsync(s.notificaciones); safeSetItem(`${STORAGE_KEY}_notificaciones`, n); } catch {}
+          try { const a = await compressDataAsync(s.auditLog); safeSetItem(`${STORAGE_KEY}_audit_log`, a); } catch {}
           
           encryptionManager.encryptItem(AUDIT_KEY, s.auditLog, user?.id || 'default')
             .then(() => safeLogger.log('[Encryption] auditLog encrypted'))
