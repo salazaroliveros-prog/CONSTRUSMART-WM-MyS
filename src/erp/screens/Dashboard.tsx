@@ -79,6 +79,14 @@ const Dashboard: React.FC = () => {
   } = ctx;
 
   const hasData = (proyectos || []).length > 0 || (movimientos || []).length > 0 || (materiales || []).length > 0;
+
+  const filteredProyectos = useMemo(() => {
+    if (selectedProyectoId && selectedProyectoId !== 'none') {
+      return (proyectos || []).filter(p => p.id === selectedProyectoId);
+    }
+    return proyectos || [];
+  }, [proyectos, selectedProyectoId]);
+
   const proyectosSel = filteredProyectos;
   const totalOrphans = integrityData?.fk_orphans?.reduce?.((a, o) => a + o.count, 0) ?? 0;
   const totalNulls = integrityData?.null_checks?.reduce?.((a, o) => a + o.count, 0) ?? 0;
@@ -88,13 +96,6 @@ const Dashboard: React.FC = () => {
   const s3 = useStagger(200);
   const s4 = useStagger(300);
   const staggerArr = [s1, s2, s3, s4];
-
-  const filteredProyectos = useMemo(() => {
-    if (selectedProyectoId && selectedProyectoId !== 'none') {
-      return (proyectos || []).filter(p => p.id === selectedProyectoId);
-    }
-    return proyectos || [];
-  }, [proyectos, selectedProyectoId]);
 
   const activos = useMemo(() => (proyectos || []).filter(p => p.estado === 'ejecucion'), [proyectos]);
   const presupuestoTotal = useMemo(() => filteredProyectos.reduce((a, b) => a + b.presupuestoTotal, 0), [filteredProyectos]);

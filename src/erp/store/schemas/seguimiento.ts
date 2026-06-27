@@ -58,7 +58,7 @@ export const riesgoSchema = z.object({
   planContingencia: z.string().optional(),
   responsable: z.string().optional(),
   fechaIdentificacion: z.string().default(new Date().toISOString().split('T')[0]),
-  estado: z.enum(['identificado','en_mitigacion','mitigado','materializado'] as const).default('identificado'),
+  estado: z.enum(['identificado','en_proceso','mitigado','materializado'] as const).default('identificado'),
   costoSoporte: z.number().optional(),
   createdAt: z.string().default(new Date().toISOString()),
 });
