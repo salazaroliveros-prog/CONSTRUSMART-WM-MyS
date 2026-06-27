@@ -1,115 +1,23 @@
-# Dependencies
 node_modules/
-
-# Build output
 dist/
-build/
-
-# Environment files
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
+.env.*.local
+*.tsbuildinfo
+next-env.d.ts
+test-results/
+playwright-report/
+coverage/
+*.log
 .DS_Store
 Thumbs.db
-Desktop.ini
-
-# Logs
-*.log
-npm-debug.log*
-lint_out.txt
-lint_output.txt
-
-# Temporary scripts and files
-fix_warnings.js
-q-dev-chat-*.md
-
-# Test coverage
-coverage/
-reports/
-
-# Temp
-temp_untracked_files/
-*.tmp
-session-*.md
-test-output*.txt
-tests-finales.txt
-constraints-output.txt
 current-state-snapshot.yml
-apply-fix-015.mjs
-check-constraints.cjs
-check-db.mjs
-check-fix-result.mjs
-check-tables.c
-check-views.cjs
-check-views.js
-console.error*
-list-tables.cjs
-seed-completo.cjs
-seed-final
-seed-pooler.c
-seed-pooler.cjs
-seed-via-api.mjs
-VALIDACION-SESION-*
-
-# Cache
-.cache/
-.eslintcache
-
-# TypeScript
-*.tsbuildinfo
-
-# Vercel local config
-.vercel/
-
-# Embedded git repos
-CONSTRUSMART-DEVELOP/
-.vercel
-
-# Audit/analysis docs (not for repo)
-ANALISIS-ERP-CONSTRUSMART.md
-AUDITORIA_EXHAUSTIVA_2026.md
-auditoria-mapeo-inconsistencias.md
-ESTADO-ACTUAL.md
-ESTADO-PRODUCCION.md
-IMPLEMENTACION-PENDIENTE.md
-README_CONSOLIDATED.md
-SCRIPT-FIX-VITE.md
 app-snapshot.md
-
-# GitHub Pages (nunca crear rama gh-pages)
-gh-pages/
-
-# Playwright test artifacts
+.snap*
 .playwright-mcp/
-test-results/
-*.png
-
-# Temp scripts (not for repo)
-scripts/*.cjs
-
-# Generated reports
-data-integrity-report.html
-index-optimization-report.html
-deadlock-monitoring-report.html
-
-# Kilo agent system
-.kilo/
-.vercel
-check-constraints-violations.json
-""  
-"# Snap exploit artifacts (local only)"  
-".snap exploit.yml"  
-".snap-header.yml"  
-".snapshot-pending.yml" 
-".snap*"  
+.vercel/
+.vscode/
+screenshots/
+session-ses_*.md
+check-*.json
+check-*.js
