@@ -52,7 +52,9 @@ const Bodega: React.FC = () => {
   const [showProveedor, setShowProveedor] = useState(false);
   const [showOrden, setShowOrden] = useState(false);
   const [editingProveedor, setEditingProveedor] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
 
   const criticos = useMemo(() => materiales.filter(m => m.stock < m.stockMinimo), [materiales]);
   const pendientes = useMemo(() => ordenes.filter(o => o.estado === 'pendiente'), [ordenes]);
