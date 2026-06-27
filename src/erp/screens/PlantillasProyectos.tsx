@@ -71,14 +71,8 @@ const PlantillasProyectos: React.FC = () => {
   const [vistaLista, setVistaLista] = useState(false);
   const [seleccionMultiple, setSeleccionMultiple] = useState<Set<string>>(new Set());
   const [modoSeleccion, setModoSeleccion] = useState(false);
-  const [formData, setFormData] = useState<PlantillaFormData>({
-    nombre: '',
-    descripcion: '',
-    categoria: 'residencial',
-    proyectoOrigenId: '',
-    clienteId: '',
-    clienteNombre: '',
-  });
+  
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});//AUTO
 
   useEffect(() => { setLoading(false); }, []);
 
@@ -138,9 +132,10 @@ const PlantillasProyectos: React.FC = () => {
       setShowForm(false);
       setEditingId(null);
       setFormData({ nombre: '', descripcion: '', categoria: 'residencial', proyectoOrigenId: '', clienteId: '', clienteNombre: '' });
+      setFormErrors({});
     } catch (error) {
       if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
+        setFormErrors(prev => { const next = { ...prev }; error.errors.forEach((e: any) => { const f = e.path[0]; if (f) next[f] = e.message; }); return next; });
       }
     }
   };
@@ -1214,3 +1209,4 @@ const PlantillasProyectos: React.FC = () => {
 };
 
 export default PlantillasProyectos;
+
