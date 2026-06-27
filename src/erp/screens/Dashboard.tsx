@@ -98,35 +98,35 @@ const Dashboard: React.FC = () => {
   const staggerArr = [s1, s2, s3, s4];
 
   const activos = useMemo(() => (proyectos || []).filter(p => p.estado === 'ejecucion'), [proyectos]);
-  const presupuestoTotal = useMemo(() => filteredProyectos.reduce((a, b) => a + b.presupuestoTotal, 0), [filteredProyectos]);
-  const margenProm = useMemo(() => {
-    if (filteredProyectos.length === 0) return 0;
-    return filteredProyectos.reduce((a, b) => {
-      const m = b.montoContrato > 0 ? ((b.montoContrato - b.presupuestoTotal) / b.montoContrato) * 100 : 0;
-      return a + m;
-    }, 0) / filteredProyectos.length;
+
+  const { presupuestoTotal, margenProm, desviacion, avanceProm, avanceFinProm } = useMemo(() => {
+    if (filteredProyectos.length === 0) {
+      return { presupuestoTotal: 0, margenProm: 0, desviacion: 0, avanceProm: 0, avanceFinProm: 0 };
+    }
+    const totalP = filteredProyectos.reduce((a, b) => a + b.presupuestoTotal, 0);
+    let mSum = 0;
+    let dSum = 0;
+    let avFisSum = 0;
+    let avFinSum = 0;
+    filteredProyectos.forEach(p => {
+      const m = p.montoContrato > 0 ? ((p.montoContrato - p.presupuestoTotal) / p.montoContrato) * 100 : 0;
+      mSum += m;
+      dSum += (p.avanceFinanciero - p.avanceFisico);
+      avFisSum += (p.avanceFisico * p.presupuestoTotal);
+      avFinSum += (p.avanceFinanciero * p.presupuestoTotal);
+    });
+    return {
+      presupuestoTotal: totalP,
+      margenProm: mSum / filteredProyectos.length,
+      desviacion: dSum / filteredProyectos.length,
+      avanceProm: totalP > 0 ? Math.round(avFisSum / totalP) : 0,
+      avanceFinProm: totalP > 0 ? Math.round(avFinSum / totalP) : 0,
+    };
   }, [filteredProyectos]);
-  const desviacion = useMemo(() => {
-    if (filteredProyectos.length === 0) return 0;
-    return filteredProyectos.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / filteredProyectos.length;
-  }, [filteredProyectos]);
+
   const ingresos = useMemo(() => (movimientos || []).filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0), [movimientos]);
   const gastos = useMemo(() => (movimientos || []).filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0), [movimientos]);
   const saldoNeto = useMemo(() => ingresos - gastos, [ingresos, gastos]);
-
-  const avanceProm = useMemo(() => {
-    const totalP = filteredProyectos.reduce((a, b) => a + b.presupuestoTotal, 0);
-    return totalP > 0
-      ? Math.round(filteredProyectos.reduce((a, b) => a + (b.avanceFisico * b.presupuestoTotal), 0) / totalP)
-      : 0;
-  }, [filteredProyectos]);
-
-  const avanceFinProm = useMemo(() => {
-    const totalP = filteredProyectos.reduce((a, b) => a + b.presupuestoTotal, 0);
-    return totalP > 0
-      ? Math.round(filteredProyectos.reduce((a, b) => a + (b.avanceFinanciero * b.presupuestoTotal), 0) / totalP)
-      : 0;
-  }, [filteredProyectos]);
 
   const carteraData = useMemo(() => {
     const counts: Record<string, number> = { planeacion: 0, ejecucion: 0, pausado: 0, finalizado: 0 };

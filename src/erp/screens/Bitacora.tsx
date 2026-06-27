@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_DANGER } from '../ui';
@@ -6,6 +6,7 @@ import { Modal, message } from 'antd';
 import { toast } from 'sonner';
 import { Plus, Search, Filter, Calendar, BookOpen, Edit, Trash2, User, Clock, MapPin, Building2, AlertCircle } from 'lucide-react';
 import type { BitacoraEntry } from '../store/schemas/calendario';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Bitacora: React.FC = () => {
   const { t } = useTranslation();
@@ -15,6 +16,9 @@ const Bitacora: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState<BitacoraEntry | null>(null);
   const [formData, setFormData] = useState<Partial<BitacoraEntry>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
 
   const filteredBitacora = useMemo(() => {
     return (bitacora || []).filter(entry => {
@@ -37,6 +41,21 @@ const Bitacora: React.FC = () => {
     
     return { total, entriesHoy, incidentes, avances };
   }, [filteredBitacora]);
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-24 rounded-2xl" />
+        </div>
+        <Skeleton className="h-64 rounded-2xl" />
+      </div>
+    );
+  }
 
   const handleOpenModal = (entry?: BitacoraEntry) => {
     if (entry) {
