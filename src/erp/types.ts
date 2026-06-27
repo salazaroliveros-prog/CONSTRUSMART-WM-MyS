@@ -180,7 +180,6 @@ export interface Presupuesto {
 
 export interface Proyecto {
   id: string;
-  proyectoId: string;
   nombre: string;
   descripcion?: string;
   tipologia: Tipologia;

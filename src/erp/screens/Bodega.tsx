@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Modal, message } from 'antd';
 import { useErp } from '../store';
 import { fmtQ, fmtPct, todayISO } from '../utils';
 import { exportStockPDF } from '../export';
@@ -290,9 +291,9 @@ const Bodega: React.FC = () => {
                   <div className="text-muted-foreground mt-0.5">{o.proveedor} · {o.cantidad} u · {fmtQ(o.monto)}</div>
                   {o.estado === 'pendiente' && (
                     <div className="flex gap-1 mt-1.5">
-                      <button onClick={() => { if (window.confirm('¿Aprobar orden?')) updateOrden(o.id, { estado: 'aprobado' }); }}
-                        aria-label={`Aprobar orden de ${o.material}`}
-                        className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+                       <button onClick={async () => { try { await Modal.confirm({ title: 'Aprobar orden', content: '¿Aprobar esta orden de compra?', centered: true, okText: 'Sí, aprobar', cancelText: 'Cancelar' }); updateOrden(o.id, { estado: 'aprobado' }); } catch {} }}
+                         aria-label={`Aprobar orden de ${o.material}`}
+                         className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
                         <Check className="w-3 h-3" aria-hidden="true" /> Aprobar
                       </button>
                       <button onClick={() => updateOrden(o.id, { estado: 'rechazado' })}

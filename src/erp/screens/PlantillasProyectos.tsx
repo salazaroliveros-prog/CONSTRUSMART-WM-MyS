@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Modal, message } from 'antd';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
 import type { Plantilla } from '../store/schemas/plantillas';
@@ -189,14 +190,22 @@ const PlantillasProyectos: React.FC = () => {
     }
   };
 
-  const handleBulkDelete = () => {
+  const handleBulkDelete = async () => {
     if (seleccionMultiple.size === 0) return;
-    if (!window.confirm(`¿Eliminar ${seleccionMultiple.size} plantilla${seleccionMultiple.size > 1 ? 's' : ''}?`)) return;
-
-    seleccionMultiple.forEach(id => deletePlantilla(id));
-    setSeleccionMultiple(new Set());
-    setModoSeleccion(false);
-    toast.success(`${seleccionMultiple.size} plantilla${seleccionMultiple.size > 1 ? 's' : ''} eliminada${seleccionMultiple.size > 1 ? 's' : ''}`);
+    try {
+      await Modal.confirm({
+        title: 'Eliminar plantillas',
+        content: `¿Eliminar ${seleccionMultiple.size} plantilla${seleccionMultiple.size > 1 ? 's' : ''}?`,
+        centered: true,
+        okText: 'Sí, eliminar',
+        cancelText: 'Cancelar',
+        okType: 'danger',
+      });
+      seleccionMultiple.forEach(id => deletePlantilla(id));
+      setSeleccionMultiple(new Set());
+      setModoSeleccion(false);
+      toast.success(`${seleccionMultiple.size} plantilla${seleccionMultiple.size > 1 ? 's' : ''} eliminada${seleccionMultiple.size > 1 ? 's' : ''}`);
+    } catch {}
   };
 
   const handleBulkExport = () => {
@@ -227,11 +236,19 @@ const PlantillasProyectos: React.FC = () => {
     toast.success(`${plantillasSeleccionadas.length} plantilla${plantillasSeleccionadas.length > 1 ? 's' : ''} exportada${plantillasSeleccionadas.length > 1 ? 's' : ''}`);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('¿Está seguro de eliminar esta plantilla?')) {
+  const handleDelete = async (id: string) => {
+    try {
+      await Modal.confirm({
+        title: 'Eliminar plantilla',
+        content: '¿Está seguro de eliminar esta plantilla?',
+        centered: true,
+        okText: 'Sí, eliminar',
+        cancelText: 'Cancelar',
+        okType: 'danger',
+      });
       deletePlantilla(id);
       toast.success('Plantilla eliminada');
-    }
+    } catch {}
   };
 
   const handleClone = (plantilla: Plantilla) => {
@@ -300,12 +317,21 @@ const PlantillasProyectos: React.FC = () => {
     setShowHistorial(true);
   };
 
-  const handleRestaurarVersion = (version: number) => {
-    if (previewPlantilla && window.confirm(`¿Está seguro de restaurar la versión ${version}? Se creará una nueva versión basada en esta restauración.`)) {
+  const handleRestaurarVersion = async (version: number) => {
+    if (!previewPlantilla) return;
+    try {
+      await Modal.confirm({
+        title: 'Restaurar versión',
+        content: `¿Está seguro de restaurar la versión ${version}? Se creará una nueva versión basada en esta restauración.`,
+        centered: true,
+        okText: 'Sí, restaurar',
+        cancelText: 'Cancelar',
+        okType: 'primary',
+      });
       restaurarVersionPlantilla(previewPlantilla.id, version);
       toast.success('Versión restaurada correctamente');
       setShowHistorial(false);
-    }
+    } catch {}
   };
 
   const handlePreview = (plantilla: Plantilla) => {

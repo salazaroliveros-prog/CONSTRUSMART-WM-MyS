@@ -199,7 +199,7 @@ export const MUTATION_TABLE_MAP: Record<string, string> = {
   addIncidente:'erp_incidentes',updateIncidente:'erp_incidentes',deleteIncidente:'erp_incidentes',
   addDestajo:'erp_destajos',updateDestajo:'erp_destajos',deleteDestajo:'erp_destajos',
   addRecepcion:'erp_recepciones',deleteRecepcion:'erp_recepciones',
-  addValeSalida:'erp_vales_salida',deleteValeSalida:'erp_vales_salida',
+  addValeSalida:'erp_vales_salida',updateValeSalida:'erp_vales_salida',deleteValeSalida:'erp_vales_salida',
   addPublicacionMuro:'erp_muro',
   addComentarioMuro:'erp_muro',
   likePublicacionMuro:'erp_muro',
