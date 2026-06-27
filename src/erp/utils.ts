@@ -225,8 +225,11 @@ export const IVA = 0.12;
 export const factorSalarioReal = (salarioBase: number) => salarioBase * (1 + FSR_PRESTACIONES);
 
 export const costoDirectoUnitario = (mat: number, mo: number, eq: number) => {
-  const moConHerramienta = mo * (1 + HERRAMIENTA_MENOR);
-  return mat + moConHerramienta + eq;
+  const m = mat || 0;
+  const mo_ = mo || 0;
+  const e = eq || 0;
+  const moConHerramienta = mo_ * (1 + HERRAMIENTA_MENOR);
+  return m + moConHerramienta + e;
 };
 
 export const precioUnitarioVenta = (costoDirecto: number) => {

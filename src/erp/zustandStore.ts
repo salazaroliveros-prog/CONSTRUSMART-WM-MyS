@@ -763,7 +763,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
       });
       return;
     }
-    const n = { ...p, id: uid(), version: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } as Presupuesto;
+    const n = { ...p, id: uid(), version: 1 } as Presupuesto;
     get().setPresupuestos(prev => [n, ...prev]);
     get().enqueueMutation('addPresupuesto', n);
   },
