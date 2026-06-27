@@ -106,7 +106,7 @@ const CRM: React.FC = () => {
         fieldErrors[field] = err.message;
       });
       setFormErrors(fieldErrors);
-      toast.error('Corrige los errores del formulario');
+      
       return;
     }
     setFormErrors({});

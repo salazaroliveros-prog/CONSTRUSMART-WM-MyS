@@ -58,7 +58,7 @@ const SSOCalidad: React.FC = () => {
   const [incForm, setIncForm] = useState({ tipo: 'accidente' as Incidente['tipo'], descripcion: '', afectados: '', testigos: '', acciones: '', lat: undefined as number | undefined, lng: undefined as number | undefined });
 
   const handleAddIncidente = () => {
-    if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
+    if (!selProyecto) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
     const result = incidenteSchema.safeParse({ tipo: incForm.tipo, descripcion: incForm.descripcion, afectados: incForm.afectados });
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -105,7 +105,7 @@ const SSOCalidad: React.FC = () => {
   const [pruebaForm, setPruebaForm] = useState({ tipo: 'concreto' as PruebaLaboratorio['tipo'], descripcion: '', responsable: '' });
 
   const handleAddPrueba = () => {
-    if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
+    if (!selProyecto) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
     const result = pruebaSchema.safeParse(pruebaForm);
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -138,7 +138,7 @@ const SSOCalidad: React.FC = () => {
   const [ncForm, setNcForm] = useState({ descripcion: '', categoria: 'material' as NoConformidad['categoria'], detectadoPor: '' });
 
   const handleAddNC = () => {
-    if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
+    if (!selProyecto) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
     const result = ncSchema.safeParse(ncForm);
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -174,7 +174,7 @@ const SSOCalidad: React.FC = () => {
   const [libForm, setLibForm] = useState({ renglonId: '', renglonNombre: '', solicitante: '', supervisor: '' });
 
   const handleAddLiberacion = () => {
-    if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
+    if (!selProyecto) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
     const result = liberacionSchema.safeParse(libForm);
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -240,12 +240,13 @@ const SSOCalidad: React.FC = () => {
         </h1>
         <select
           value={selProyecto}
-          onChange={e => setSelProyecto(e.target.value)}
+          onChange={e => { setSelProyecto(e.target.value); clearSsError('proyecto'); }}
           className="text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-red-400 bg-white"
         >
           <option value="">— Todos los proyectos —</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
+          {ssFormErrors.proyecto && <p className="text-xs text-red-500 mt-1">{ssFormErrors.proyecto}</p>}
       </div>
 
       {/* Tabs */}
