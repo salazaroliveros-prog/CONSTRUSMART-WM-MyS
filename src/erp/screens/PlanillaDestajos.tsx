@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useMemo } from 'react';
 import { Modal, message } from 'antd';
 import { useErp } from '../store';
@@ -8,6 +9,9 @@ export const PlanillaDestajos: React.FC = () => {
   const { proyectos, destajos, addDestajo, deleteDestajo } = useErp();
 
   const [proyectoFilter, setProyectoFilter] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
   const [semanaFilter, setSemanaFilter] = useState(() => {
     const now = new Date();
     const monday = new Date(now);
@@ -75,6 +79,20 @@ export const PlanillaDestajos: React.FC = () => {
 
   const INPUT = 'text-sm px-3 py-2 border border-input rounded-lg outline-none focus:border-ring bg-background text-foreground';
 
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-wrap justify-between items-center mb-6 gap-3">

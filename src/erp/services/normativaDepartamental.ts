@@ -1,4 +1,7 @@
 import { supabase } from '@/lib/supabase';
+import { safeLogger } from '@/lib/safeLogger';
+import { logErrorFromException } from '@/lib/error-logger';
+
 import { NormativaDepartamental } from '@/erp/types';
 
 export interface CumplimientoNormativo {
@@ -44,7 +47,7 @@ export class NormativaDepartamental {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error obteniendo normativa departamental:', error);
+      safeLogger.error('Error obteniendo normativa departamental:', error);
       return [];
     }
   }
@@ -59,7 +62,7 @@ export class NormativaDepartamental {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error obteniendo todas las normativas:', error);
+      safeLogger.error('Error obteniendo todas las normativas:', error);
       return [];
     }
   }
@@ -81,7 +84,7 @@ export class NormativaDepartamental {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error validando cumplimiento normativo:', error);
+      safeLogger.error('Error validando cumplimiento normativo:', error);
       return [];
     }
   }
@@ -97,7 +100,7 @@ export class NormativaDepartamental {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error obteniendo cumplimiento del proyecto:', error);
+      safeLogger.error('Error obteniendo cumplimiento del proyecto:', error);
       return [];
     }
   }
@@ -133,7 +136,7 @@ export class NormativaDepartamental {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error registrando cumplimiento:', error);
+      safeLogger.error('Error registrando cumplimiento:', error);
       throw error;
     }
   }
@@ -149,7 +152,7 @@ export class NormativaDepartamental {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error creando normativa:', error);
+      safeLogger.error('Error creando normativa:', error);
       throw error;
     }
   }
@@ -166,7 +169,7 @@ export class NormativaDepartamental {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error actualizando normativa:', error);
+      safeLogger.error('Error actualizando normativa:', error);
       throw error;
     }
   }
@@ -180,7 +183,7 @@ export class NormativaDepartamental {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error eliminando normativa:', error);
+      safeLogger.error('Error eliminando normativa:', error);
       throw error;
     }
   }
@@ -199,7 +202,7 @@ export class NormativaDepartamental {
       }
       return data;
     } catch (error) {
-      console.error('Error obteniendo normativa por ID:', error);
+      safeLogger.error('Error obteniendo normativa por ID:', error);
       return null;
     }
   }
@@ -217,7 +220,7 @@ export class NormativaDepartamental {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error obteniendo normativas por tipo:', error);
+      safeLogger.error('Error obteniendo normativas por tipo:', error);
       return [];
     }
   }

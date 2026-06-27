@@ -1,4 +1,6 @@
 import { supabase } from '@/lib/supabase';
+import { safeLogger } from '@/lib/safeLogger';
+import { logErrorFromException } from '@/lib/error-logger';
 
 export interface ReglaFactor {
   id: string;
@@ -193,7 +195,7 @@ export class MotorReglasFactores {
         factor_total: factorAcumulado,
       };
     } catch (error) {
-      console.error('Error aplicando reglas:', error);
+      safeLogger.error('Error aplicando reglas:', error);
       return {
         valor_final: valor,
         reglas_aplicadas: [],
@@ -226,7 +228,7 @@ export class MotorReglasFactores {
         factor_total: resultado.factor_total,
       };
     } catch (error) {
-      console.error('Error aplicando reglas via RPC:', error);
+      safeLogger.error('Error aplicando reglas via RPC:', error);
       return {
         valor_final: valor,
         reglas_aplicadas: [],
@@ -254,7 +256,7 @@ export class MotorReglasFactores {
         usuario_id: contexto.usuario_id,
       });
     } catch (error) {
-      console.error('Error registrando aplicación de regla:', error);
+      safeLogger.error('Error registrando aplicación de regla:', error);
     }
   }
 

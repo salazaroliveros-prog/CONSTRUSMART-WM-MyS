@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, clearAllData, type UIMode, type AppThemeMode } from '../store';
@@ -63,6 +64,9 @@ const Ajustes: React.FC = () => {
   const { t } = useTranslation();
   const { appSettings, updateAppSettings, user, proyectos, notificacionesNoLeidas, marcarTodasLeidas } = useErp();
   const [resetModal, setResetModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
   const { token } = antTheme.useToken();
 
   const compactModeLabel = appSettings.compactMode ? 'compacto' : 'expandido';
@@ -531,6 +535,14 @@ const Ajustes: React.FC = () => {
       </Tag>
     </Space>
   );
+
+  if (loading) {
+    return (
+      <Layout style={{ padding: 24, minHeight: '100%', background: 'transparent' }}>
+        <Skeleton active paragraph={{ rows: 10 }} />
+      </Layout>
+    );
+  }
 
   return (
     <Layout style={{ padding: 24, minHeight: '100%', background: 'transparent' }}>

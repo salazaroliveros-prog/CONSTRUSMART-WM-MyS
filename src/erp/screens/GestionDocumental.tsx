@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState } from 'react';
 import { useErp } from '../store';
 import { toast } from 'sonner';
@@ -33,6 +34,9 @@ const GestionDocumental: React.FC = () => {
   const { proyectos, user, planos, addPlano, updatePlano, rfis, addRfi, updateRfi, submittals, addSubmittal, updateSubmittal } = useErp();
   const [tab, setTab] = useState<TabDoc>('planos');
   const [selProyecto, setSelProyecto] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
 
   const [versiones, setVersiones] = useState<Record<string, string[]>>({});
   const [_gdFormErrors, setGdFormErrors] = useState<Record<string, string>>({});
@@ -189,6 +193,19 @@ const GestionDocumental: React.FC = () => {
     { value: 'otra', label: 'Otra' },
   ];
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">

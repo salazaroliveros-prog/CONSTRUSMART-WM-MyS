@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useMemo } from 'react';
 import IFCViewer from '../components/IFCViewer';
 import { useErp } from '../store';
@@ -11,6 +12,9 @@ const VisorBIM: React.FC = () => {
   const { proyectos, presupuestos, avances, planos } = useErp();
   const [tab, setTab] = useState<BIMTab>('visor');
   const [selProyecto, setSelProyecto] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
   const [vinculos, setVinculos] = useState<Record<string, string>>({});
   const [elementoSeleccionado, setElementoSeleccionado] = useState<string | null>(null);
   const presupuestoActual = presupuestos.find(p => p.proyectoId === selProyecto);
@@ -69,6 +73,19 @@ const VisorBIM: React.FC = () => {
     return map;
   }, [avances, selProyecto]);
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto h-full flex flex-col">
       {/* Header */}

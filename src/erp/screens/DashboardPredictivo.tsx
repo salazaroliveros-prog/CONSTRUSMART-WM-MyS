@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
@@ -6,6 +7,9 @@ import { Calendar, AlertTriangle, DollarSign, Activity, Zap } from 'lucide-react
 const DashboardPredictivo: React.FC = () => {
   const { proyectos, movimientos, presupuestos, avances, empleados } = useErp();
   const [selProyecto, setSelProyecto] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
 
   const proyecto = proyectos.find(p => p.id === selProyecto);
   const presupuesto = presupuestos.find(p => p.proyectoId === selProyecto);
@@ -57,6 +61,19 @@ const DashboardPredictivo: React.FC = () => {
     .filter(e => e.activo && (!selProyecto || e.proyectoIds.includes(selProyecto)))
     .reduce((a, e) => a + e.salarioDiario, 0);
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState } from 'react';
 import { useErp } from '../store';
 import { CuentaPagar } from '../types';
@@ -10,6 +11,9 @@ import { todayISO, fmtQ } from '../utils';
 const CuentasPagarScreen: React.FC = () => {
   const { proyectos, cuentasPagar, addCuentaPagar, updateCuentaPagar, deleteCuentaPagar } = useErp();
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
   const [filtroProyecto, setFiltroProyecto] = useState('');
   const [form, setForm] = useState({ proyectoId: '', proveedor: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', facturaUrl: '' });
 
@@ -36,6 +40,19 @@ const CuentasPagarScreen: React.FC = () => {
   const vencidos = filtradas.filter(c => c.estado === 'vencido' || (c.estado === 'pendiente' && c.fechaVencimiento < todayISO()));
   const totalPendiente = pendientes.reduce((a, c) => a + c.saldoPendiente, 0);
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">

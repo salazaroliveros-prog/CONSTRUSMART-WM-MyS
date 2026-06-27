@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CARD, INPUT, BUTTON_DARK } from '../ui';
@@ -98,6 +99,9 @@ const Presupuestos: React.FC = () => {
   const [tab, setTab] = useState<'crear' | 'guardados'>('crear');
   const [tipologia, setTipologia] = useState<Tipologia>('residencial');
   const [proyecto, setProyecto] = useState('Nuevo Presupuesto');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
   const [projectId, setProjectId] = useState('');
   const [items, setItems] = useState<RenglonPresupuesto[]>([]);
   const [actividadSeleccionada, setActividadSeleccionada] = useState<string | null>(null);
@@ -614,6 +618,19 @@ const Presupuestos: React.FC = () => {
     </div>
   );
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
       <div className="flex flex-wrap items-end justify-between gap-1 sm:gap-2 mb-2">

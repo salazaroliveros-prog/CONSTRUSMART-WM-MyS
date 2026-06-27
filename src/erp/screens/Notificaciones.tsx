@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React from 'react';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
@@ -57,6 +58,19 @@ export default function Notificaciones() {
     return d.toLocaleDateString('es-GT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-4">
       <div className="flex items-center justify-between">

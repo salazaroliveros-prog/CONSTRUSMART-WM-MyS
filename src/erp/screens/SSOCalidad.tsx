@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState } from 'react';
 import { useErp } from '../store';
 import type { Incidente, PruebaLaboratorio, NoConformidad, LiberacionPartida } from '../types';
@@ -37,6 +38,9 @@ const SSOCalidad: React.FC = () => {
   const { proyectos, user, addNotificacion, incidentes, addIncidente, updateIncidente, pruebas, addPrueba, updatePrueba, ncs, addNC, updateNC, liberaciones, addLiberacion, updateLiberacion } = useErp();
   const [tab, setTab] = useState<TabSSO>('incidentes');
   const [selProyecto, setSelProyecto] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setLoading(false); }, []);
   const [diasSinAccidentes, setDiasSinAccidentes] = useState(() => {
     const ultimoIncidente = incidentes.filter(i => i.tipo === 'accidente').sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())[0];
     if (!ultimoIncidente) return 0;
@@ -215,6 +219,19 @@ const SSOCalidad: React.FC = () => {
     { id: 'liberaciones' as TabSSO, label: 'Liberación', icon: CheckCircle },
   ];
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">

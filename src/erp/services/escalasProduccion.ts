@@ -1,4 +1,7 @@
 import { supabase } from '@/lib/supabase';
+import { safeLogger } from '@/lib/safeLogger';
+import { logErrorFromException } from '@/lib/error-logger';
+
 import { EscalaProduccion } from '@/erp/types';
 
 export interface AplicacionEscala {
@@ -57,7 +60,7 @@ export class EscalasProduccion {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error obteniendo escalas de producción:', error);
+      safeLogger.error('Error obteniendo escalas de producción:', error);
       return [];
     }
   }
@@ -77,7 +80,7 @@ export class EscalasProduccion {
       if (error) throw error;
       return data?.[0] || null;
     } catch (error) {
-      console.error('Error determinando escala del proyecto:', error);
+      safeLogger.error('Error determinando escala del proyecto:', error);
       return null;
     }
   }
@@ -113,7 +116,7 @@ export class EscalasProduccion {
         rango_tamano: 'mediano'
       };
     } catch (error) {
-      console.error('Error aplicando factores de escala:', error);
+      safeLogger.error('Error aplicando factores de escala:', error);
       return {
         costo_ajustado: costoBase,
         factor_economia: 1.0,
@@ -166,7 +169,7 @@ export class EscalasProduccion {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error registrando aplicación de escala:', error);
+      safeLogger.error('Error registrando aplicación de escala:', error);
       throw error;
     }
   }
@@ -182,7 +185,7 @@ export class EscalasProduccion {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error obteniendo histórico de aplicaciones de escala:', error);
+      safeLogger.error('Error obteniendo histórico de aplicaciones de escala:', error);
       return [];
     }
   }
@@ -198,7 +201,7 @@ export class EscalasProduccion {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error creando escala de producción:', error);
+      safeLogger.error('Error creando escala de producción:', error);
       throw error;
     }
   }
@@ -215,7 +218,7 @@ export class EscalasProduccion {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error actualizando escala de producción:', error);
+      safeLogger.error('Error actualizando escala de producción:', error);
       throw error;
     }
   }
@@ -229,7 +232,7 @@ export class EscalasProduccion {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error eliminando escala de producción:', error);
+      safeLogger.error('Error eliminando escala de producción:', error);
       throw error;
     }
   }
@@ -248,7 +251,7 @@ export class EscalasProduccion {
       }
       return data;
     } catch (error) {
-      console.error('Error obteniendo escala por ID:', error);
+      safeLogger.error('Error obteniendo escala por ID:', error);
       return null;
     }
   }
@@ -265,7 +268,7 @@ export class EscalasProduccion {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error obteniendo escalas por rango:', error);
+      safeLogger.error('Error obteniendo escalas por rango:', error);
       return [];
     }
   }
@@ -290,7 +293,7 @@ export class EscalasProduccion {
         rango: resultado.rango_tamano
       };
     } catch (error) {
-      console.error('Error calculando ahorro de escala:', error);
+      safeLogger.error('Error calculando ahorro de escala:', error);
       return {
         costoBase,
         costoAjustado: costoBase,

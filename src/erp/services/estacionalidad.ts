@@ -57,7 +57,7 @@ export class Estacionalidad {
       if (error) throw error;
       return data?.[0] || null;
     } catch (error) {
-      console.error('Error obteniendo factores estacionales:', error);
+      safeLogger.error('Error obteniendo factores estacionales:', error);
       return null;
     }
   }
@@ -82,7 +82,7 @@ export class Estacionalidad {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error obteniendo estacionalidad del departamento:', error);
+      safeLogger.error('Error obteniendo estacionalidad del departamento:', error);
       return [];
     }
   }
@@ -115,7 +115,7 @@ export class Estacionalidad {
         condiciones_climaticas: 'Condiciones normales'
       };
     } catch (error) {
-      console.error('Error aplicando factores estacionales:', error);
+      safeLogger.error('Error aplicando factores estacionales:', error);
       return {
         costo_ajustado: costoBase,
         factor_disponibilidad: 1.0,
@@ -143,7 +143,7 @@ export class Estacionalidad {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error obteniendo ajustes estacionales:', error);
+      safeLogger.error('Error obteniendo ajustes estacionales:', error);
       return [];
     }
   }
@@ -168,7 +168,7 @@ export class Estacionalidad {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error obteniendo estacionalidad por temporada:', error);
+      safeLogger.error('Error obteniendo estacionalidad por temporada:', error);
       return [];
     }
   }
@@ -184,7 +184,7 @@ export class Estacionalidad {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error creando estacionalidad:', error);
+      safeLogger.error('Error creando estacionalidad:', error);
       throw error;
     }
   }
@@ -201,7 +201,7 @@ export class Estacionalidad {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error actualizando estacionalidad:', error);
+      safeLogger.error('Error actualizando estacionalidad:', error);
       throw error;
     }
   }
@@ -215,7 +215,7 @@ export class Estacionalidad {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error eliminando estacionalidad:', error);
+      safeLogger.error('Error eliminando estacionalidad:', error);
       throw error;
     }
   }
@@ -234,7 +234,7 @@ export class Estacionalidad {
       }
       return data;
     } catch (error) {
-      console.error('Error obteniendo estacionalidad por ID:', error);
+      safeLogger.error('Error obteniendo estacionalidad por ID:', error);
       return null;
     }
   }
@@ -250,7 +250,7 @@ export class Estacionalidad {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error creando ajuste estacional:', error);
+      safeLogger.error('Error creando ajuste estacional:', error);
       throw error;
     }
   }
@@ -267,7 +267,7 @@ export class Estacionalidad {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error actualizando ajuste estacional:', error);
+      safeLogger.error('Error actualizando ajuste estacional:', error);
       throw error;
     }
   }
@@ -281,7 +281,7 @@ export class Estacionalidad {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error eliminando ajuste estacional:', error);
+      safeLogger.error('Error eliminando ajuste estacional:', error);
       throw error;
     }
   }
@@ -320,7 +320,7 @@ export class Estacionalidad {
         desgloseMes
       };
     } catch (error) {
-      console.error('Error calculando impacto estacional:', error);
+      safeLogger.error('Error calculando impacto estacional:', error);
       return {
         costoTotal: costoBase,
         costoAjustado: costoBase,
@@ -366,7 +366,7 @@ export class Estacionalidad {
         ahorroMejor
       };
     } catch (error) {
-      console.error('Error obteniendo mejor mes para actividad:', error);
+      safeLogger.error('Error obteniendo mejor mes para actividad:', error);
       return {
         mejorMes: 1,
         peorMes: 1,
