@@ -44,6 +44,74 @@ export const CATEGORIA_LABEL: Record<Categoria, string> = {
   otros: 'Otros',
 };
 
+export const ESTADO_COLORS = {
+  // Estados generales
+  activo: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  inactivo: { bg: 'bg-slate-50 dark:bg-slate-900/40', border: 'border-slate-300 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: 'text-slate-500' },
+  pendiente: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
+  completado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  en_proceso: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  cancelado: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  rechazado: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  aprobado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  vencido: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  borrador: { bg: 'bg-slate-50 dark:bg-slate-900/40', border: 'border-slate-300 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: 'text-slate-500' },
+  
+  // Estados de proyectos
+  planeacion: { bg: 'bg-purple-50 dark:bg-purple-900/40', border: 'border-purple-300 dark:border-purple-700', text: 'text-purple-600 dark:text-purple-400', icon: 'text-purple-500' },
+  ejecucion: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  pausado: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
+  finalizado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  anulado: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  
+  // Estados de órdenes
+  pendiente: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
+  aprobada: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  recibida: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  rechazada: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  
+  // Estados de cotizaciones
+  borrador: { bg: 'bg-slate-50 dark:bg-slate-900/40', border: 'border-slate-300 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: 'text-slate-500' },
+  enviada: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  aprobada: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  rechazada: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  vencida: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  
+  // Estados de licitaciones
+  activa: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  adjudicada: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  perdida: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  cerrada: { bg: 'bg-slate-50 dark:bg-slate-900/40', border: 'border-slate-300 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: 'text-slate-500' },
+  
+  // Estados de activos
+  disponible: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  asignado: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  mantenimiento: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
+  baja: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  dado_baja: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  
+  // Estados de cuadros comparativos
+  abierto: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  cerrado: { bg: 'bg-slate-50 dark:bg-slate-900/40', border: 'border-slate-300 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: 'text-slate-500' },
+  adjudicado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  
+  // Estados de riesgos
+  identificado: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
+  en_proceso: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  mitigado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  materializado: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+  
+  // Estados de hitos
+  pendiente: { bg: 'bg-amber-50 dark:bg-amber-900/40', border: 'border-amber-300 dark:border-amber-700', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500' },
+  en_proceso: { bg: 'bg-blue-50 dark:bg-blue-900/40', border: 'border-blue-300 dark:border-blue-700', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
+  completado: { bg: 'bg-emerald-50 dark:bg-emerald-900/40', border: 'border-emerald-300 dark:border-emerald-700', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
+  retrasado: { bg: 'bg-red-50 dark:bg-red-900/40', border: 'border-red-300 dark:border-red-700', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
+};
+
+export const getEstadoColor = (estado: string) => {
+  return ESTADO_COLORS[estado as keyof typeof ESTADO_COLORS] || ESTADO_COLORS.pendiente;
+};
+
 export const EMPRESA_DEFAULT = {
   nombre: 'CONSTRUCTORA WM / M&S',
   eslogan: 'Edificando el Futuro',
