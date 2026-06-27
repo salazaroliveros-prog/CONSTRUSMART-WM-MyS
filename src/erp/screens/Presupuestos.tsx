@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CARD, INPUT, BUTTON_DARK } from '../ui';
+import { Modal, message } from 'antd';
 import { toast } from 'sonner';
 
 import { useErp } from '../store';
@@ -109,9 +110,21 @@ const Presupuestos: React.FC = () => {
   const [savedItemsCount, setSavedItemsCount] = useState(0);
 
   const hasUnsavedChanges = items.length > 0 && items.length !== savedItemsCount;
-  const confirmDiscard = (): boolean => {
+  const confirmDiscard = async (): Promise<boolean> => {
     if (!hasUnsavedChanges) return true;
-    return window.confirm(t('presupuestos.confirmar_descartar') || 'Hay cambios sin guardar. ¿Descartarlos?');
+    try {
+      await Modal.confirm({
+        title: 'Confirmar',
+        content: t('presupuestos.confirmar_descartar') || 'Hay cambios sin guardar. ¿Descartarlos?',
+        centered: true,
+        okText: 'Sí, descartar',
+        cancelText: 'Cancelar',
+        okType: 'danger',
+      });
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   useEffect(() => {
@@ -154,8 +167,8 @@ const Presupuestos: React.FC = () => {
     }
   }, [selectedProyectoId, presupuestos, proyectos]);
 
-  const openHistorial = () => {
-    if (!confirmDiscard()) return;
+  const openHistorial = async () => {
+    if (!(await confirmDiscard())) return;
     setTab('guardados');
   };
 
@@ -622,7 +635,7 @@ const Presupuestos: React.FC = () => {
       {/* Tabs */}
       <div className="flex gap-2 mb-4 border-b border-border">
           <button 
-            onClick={() => { if (!confirmDiscard()) return; setTab('crear'); setEditingPresupuesto(null); }}
+            onClick={async () => { if (!(await confirmDiscard())) return; setTab('crear'); setEditingPresupuesto(null); }}
             className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
               tab === 'crear' 
                 ? 'text-primary border-primary' 
@@ -632,7 +645,7 @@ const Presupuestos: React.FC = () => {
             ➕ {editingPresupuesto ? t('presupuestos.editar') : t('presupuestos.nuevo')}
           </button>
           <button 
-            onClick={() => { if (!confirmDiscard()) return; setTab('guardados'); }}
+            onClick={async () => { if (!(await confirmDiscard())) return; setTab('guardados'); }}
             className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
               tab === 'guardados' 
                 ? 'text-primary border-primary' 
@@ -667,7 +680,7 @@ const Presupuestos: React.FC = () => {
               <button disabled={!items.length} onClick={() => exportPDF(items, proyecto, tipologia)} className="bg-red-500 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><FileText className="w-3.5 h-3.5" /> PDF</button>
               <button disabled={!items.length} onClick={() => exportCSV(items, proyecto, tipologia)} className="bg-emerald-600 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><FileSpreadsheet className="w-3.5 h-3.5" /> CSV</button>
               <button disabled={!items.length} onClick={() => exportXLSX(items, proyecto, tipologia)} className="bg-green-700 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><FileSpreadsheet className="w-3.5 h-3.5" /> XLSX</button>
-              {editingPresupuesto && <button onClick={() => { if (!confirmDiscard()) return; setEditingPresupuesto(null); setItems([]); setSavedItemsCount(0); }} className="bg-slate-400 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs"><X className="w-3.5 h-3.5" /></button>}
+              {editingPresupuesto && <button onClick={async () => { if (!(await confirmDiscard())) return; setEditingPresupuesto(null); setItems([]); setSavedItemsCount(0); }} className="bg-slate-400 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs"><X className="w-3.5 h-3.5" /></button>}
             </div>
           </div>
 

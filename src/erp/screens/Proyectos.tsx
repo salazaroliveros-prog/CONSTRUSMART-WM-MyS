@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Modal, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { Proyecto, Tipologia } from '../types';
@@ -333,11 +334,21 @@ const Proyectos: React.FC = () => {
   const wMoneda = watch('moneda');
   const wArea = watch('areaConstruccion');
 
-  const limpiarProyectos = () => {
+  const limpiarProyectos = async () => {
     if (!proyectos.length) return;
-    if (!window.confirm(`¿Eliminar los ${proyectos.length} proyectos y sus dependencias registradas en Supabase?\nEsta acción no se puede deshacer.`)) return;
-    clearProyectos();
-    toast.success('Proyectos eliminados', { description: 'Los cambios se sincronizarán con Supabase.' });
+    try {
+      await Modal.confirm({
+        title: 'Eliminar todos los proyectos',
+        content: `¿Eliminar los ${proyectos.length} proyectos y sus dependencias registradas en Supabase?\nEsta acción no se puede deshacer.`,
+        centered: true,
+        okText: 'Sí, eliminar todo',
+        cancelText: 'Cancelar',
+        okType: 'danger',
+        width: 520,
+      });
+      clearProyectos();
+      toast.success('Proyectos eliminados', { description: 'Los cambios se sincronizarán con Supabase.' });
+    } catch {}
   };
 
   return (
@@ -414,11 +425,19 @@ const Proyectos: React.FC = () => {
                   <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={`Editar proyecto ${p.nombre}`}>
                     <Pencil className="w-4 h-4" aria-hidden="true" />
                   </button>
-                  <button onClick={() => {
-                    if (window.confirm(`¿Eliminar proyecto "${p.nombre}"?\nEsta acción no se puede deshacer.`)) {
+                  <button onClick={async () => {
+                    try {
+                      await Modal.confirm({
+                        title: 'Eliminar proyecto',
+                        content: `¿Eliminar proyecto "${p.nombre}"?\nEsta acción no se puede deshacer.`,
+                        centered: true,
+                        okText: 'Sí, eliminar',
+                        cancelText: 'Cancelar',
+                        okType: 'danger',
+                      });
                       deleteProyecto(p.id);
                       toast.success(`Proyecto "${p.nombre}" eliminado`);
-                    }
+                    } catch {}
                   }} className={BUTTON_DANGER} aria-label={`Eliminar proyecto ${p.nombre}`}>
                     <Trash2 className="w-4 h-4" aria-hidden="true" />
                   </button>

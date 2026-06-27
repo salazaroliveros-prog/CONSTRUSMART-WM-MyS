@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Modal, message } from 'antd';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { downloadBlob } from '../utils';
@@ -187,10 +188,18 @@ export const PlanillaDestajos: React.FC = () => {
                     <td className="p-2 text-right text-xs">{d.unidad}</td>
                     <td className="p-2 text-center">
                       <button
-                        onClick={() => {
-                          if (window.confirm(`¿Eliminar destajo de "${d.cuadrilla}" (${d.renglonCodigo})?`)) {
+                        onClick={async () => {
+                          try {
+                            await Modal.confirm({
+                              title: 'Eliminar destajo',
+                              content: `¿Eliminar destajo de "${d.cuadrilla}" (${d.renglonCodigo})?`,
+                              centered: true,
+                              okText: 'Sí, eliminar',
+                              cancelText: 'Cancelar',
+                              okType: 'danger',
+                            });
                             deleteDestajo(d.id);
-                          }
+                          } catch {}
                         }}
                         className="text-destructive hover:text-destructive/80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-2 py-1"
                         aria-label={`Eliminar destajo de ${d.cuadrilla}`}

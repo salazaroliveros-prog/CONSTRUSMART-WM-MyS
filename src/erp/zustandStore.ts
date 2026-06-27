@@ -850,6 +850,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   updateSeguimiento: (id, patch) => { get().setSeguimientoEVM(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateSeguimiento', { id, ...patch }); },
   deleteSeguimiento: (id) => { get().setSeguimientoEVM(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteSeguimiento', { id }); },
 
+  updateValeSalida: (id, patch) => { get().setValesSalida(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateValeSalida', { id, ...patch }); },
   addValeSalida: (v) => {
     const n = { ...v, id: uid() };
     const ids = (n.items || []).filter(i => i.materialId).map(i => i.materialId);
