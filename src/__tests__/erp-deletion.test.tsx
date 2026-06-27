@@ -625,6 +625,7 @@ describe('Stage 1: Individual Entity Deletion', () => {
       deleteRecepcion:'recepciones', deletePrueba:'pruebas', deleteNC:'ncs',
       deleteLiberacion:'liberaciones', deleteNotificacion:'notificaciones',
       deletePlantilla:'plantillas', deleteError:'errorLogs',
+      deleteCentroCosto:'centrosCosto',
     };
 
     deleteKeys.forEach(k => {
