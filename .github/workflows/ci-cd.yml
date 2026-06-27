@@ -34,7 +34,7 @@ jobs:
       - name: TypeScript check
         run: npm run typecheck
 
-  test:
+   test:
     name: 🧪 Tests
     runs-on: ubuntu-latest
     steps:
@@ -46,6 +46,10 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - name: Run tests
         run: npm test
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
+          NODE_ENV: test
 
   build:
     name: 🏗️ Build
