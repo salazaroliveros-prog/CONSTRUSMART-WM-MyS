@@ -89,7 +89,6 @@ const HitosScreen: React.FC = () => {
 };
 
   const hoy = todayISO();
-  const hoy = todayISO();
   const hitosFiltrados = useMemo(() => {
     let filtrados = hitos;
     if (selectedProyectoId) filtrados = filtrados.filter(h => h.proyectoId === selectedProyectoId);

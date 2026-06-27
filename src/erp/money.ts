@@ -1,4 +1,4 @@
-import Decimal from 'decimal.js';
+﻿import Decimal from 'decimal.js';
 import { z } from 'zod';
 
 Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP });
@@ -23,27 +23,27 @@ export function moneySum(items: Money[]): Money {
 }
 
 export function moneyFormat(amount: Money | number, currency: 'GTQ' | 'USD' = 'GTQ'): string {
-  const d = typeof amount === 'number' ? new Decimal(isFinite(amount) ? amount : 0) : amount;
+  const d = new Decimal(typeof amount === 'number' ? (isFinite(amount) ? amount : 0) : (amount && typeof amount.toNumber === 'function' ? (<any>amount).toNumber() : amount));
   const sym = currency === 'GTQ' ? 'Q' : '$';
-  return `${sym}${d.toFormat(2)}`;
+  return sym + d.toNumber().toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 export function moneyMultiply(amount: Money, factor: number): Money {
-  return Money(amount.times(factor));
+  return Money((<any>amount).times(factor));
 }
 
 export function moneyPercent(amount: Money, pct: number): Money {
-  return Money(amount.times(pct).dividedBy(100));
+  return Money((<any>amount).times(pct).dividedBy(100));
 }
 
 export function moneyCompare(a: Money, b: Money): number {
-  return a.comparedTo(b);
+  return (<any>a).comparedTo(b);
 }
 
 export function moneyIsZero(amount: Money): boolean {
-  return amount.isZero();
+  return (<any>amount).isZero();
 }
 
 export function moneyToNumber(amount: Money): number {
-  return amount.toNumber();
+  return (<any>amount).toNumber();
 }

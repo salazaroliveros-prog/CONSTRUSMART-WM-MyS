@@ -95,7 +95,6 @@ const Riesgos: React.FC = () => {
 };
 
   const nivelColor = (n: Riesgo['nivel']) => {
-  const nivelColor = (n: Riesgo['nivel']) => {
     const map = { bajo: 'bg-emerald-50 text-emerald-600', medio: 'bg-amber-50 text-amber-600', alto: 'bg-orange-50 text-orange-600', critico: 'bg-red-50 text-red-600' };
     return map[n];
   };
