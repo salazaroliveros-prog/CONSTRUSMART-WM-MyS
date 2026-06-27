@@ -1,4 +1,4 @@
-﻿-- Migración 074: Cerrar gap de RLS en 5 tablas sin políticas
+-- Migración 074: Cerrar gap de RLS en 5 tablas sin políticas
 -- Tablas: erp_activos, erp_cuadros, erp_planos, erp_rfis, erp_submittals
 
 CREATE TABLE IF NOT EXISTS erp_activos (
