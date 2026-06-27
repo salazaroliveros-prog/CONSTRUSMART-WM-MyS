@@ -164,6 +164,16 @@ interface ErpActions {
   setAuditLog: (v: LogAuditoria[] | ((prev: LogAuditoria[]) => LogAuditoria[])) => void;
   getSupplierPerformance: (proveedorId: string) => any;
   getAllSupplierPerformance: (filtroProyectoId?: string) => any[];
+  updateAvance: (id: string, patch: Partial<AvanceObra>) => void;
+  updatePublicacionMuro: (id: string, patch: Partial<PublicacionMuro>) => void;
+  deletePublicacionMuro: (id: string) => void;
+  updateNotificacion: (id: string, patch: Partial<Notificacion>) => void;
+  updateRecepcion: (id: string, patch: Partial<RecepcionAlmacen>) => void;
+  updateVentaPaquete: (id: string, patch: Partial<VentaPaquete>) => void;
+  deleteVentaPaquete: (id: string) => void;
+  likePublicacionMuro: (publicacionId: string) => void;
+  addError: (entry: Omit<ErrorLogEntry, "id" | "createdAt" | "updatedAt">) => void;
+  duplicarCotizacion: (id: string) => void;
 }
 
 export type ErpStore = ErpData & ErpActions;
@@ -1610,6 +1620,50 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     return proveedores.map(prov => 
       calculateSupplierPerformance(prov, ordenesFiltradas)
     );
+  },
+
+  updateAvance: (id, patch) => {
+    set((state) => ({ avances: state.avances.map((a) => (a.id === id ? { ...a, ...patch } : a)) }));
+  },
+
+  updatePublicacionMuro: (id, patch) => {
+    set((state) => ({ publicacionesMuro: state.publicacionesMuro.map((p) => (p.id === id ? { ...p, ...patch } : p)) }));
+  },
+
+  deletePublicacionMuro: (id) => {
+    set((state) => ({ publicacionesMuro: state.publicacionesMuro.filter((p) => p.id !== id) }));
+  },
+
+  updateNotificacion: (id, patch) => {
+    set((state) => ({ notificaciones: state.notificaciones.map((n) => (n.id === id ? { ...n, ...patch } : n)) }));
+  },
+
+  updateRecepcion: (id, patch) => {
+    set((state) => ({ recepciones: state.recepciones.map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
+  },
+
+  updateVentaPaquete: (id, patch) => {
+    set((state) => ({ ventasPaquetes: state.ventasPaquetes.map((v) => (v.id === id ? { ...v, ...patch } : v)) }));
+  },
+
+  deleteVentaPaquete: (id) => {
+    set((state) => ({ ventasPaquetes: state.ventasPaquetes.filter((v) => v.id !== id) }));
+  },
+
+  likePublicacionMuro: (publicacionId) => {
+    set((state) => ({ publicacionesMuro: state.publicacionesMuro.map((p) => (p.id === publicacionId ? { ...p, likes: (p.likes || 0) + 1 } : p)) }));
+  },
+
+  addError: (entry) => {
+    const newEntry = { id: Date.now().toString(), ...entry, createdAt: new Date().toISOString() };
+    set((state) => ({ errorLogs: [...state.errorLogs, newEntry] }));
+  },
+
+  duplicarCotizacion: (id) => {
+    const original = get().cotizacionesNegocio.find((c) => c.id === id);
+    if (!original) return;
+    const nueva = { ...original, id: undefined, numero: original.numero + " (copia)" };
+    get().addCotizacion(nueva);
   },
 }));
 
