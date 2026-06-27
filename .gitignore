@@ -112,3 +112,4 @@ check-constraints-violations.json
 ".snap exploit.yml"  
 ".snap-header.yml"  
 ".snapshot-pending.yml" 
+".snap*"  
