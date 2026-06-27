@@ -152,7 +152,7 @@ const STORE_KEY_MAP: Record<string, string> = {
   erp_publicaciones_muro:'publicacionesMuro',erp_planos:'planos',erp_rfis:'rfis',
   erp_submittals:'submittals',erp_activos:'activos',erp_cuadros:'cuadros',
   erp_pagos_proveedor:'pagosProveedor',erp_destajos:'destajos',
-  erp_recepciones:'recepciones',erp_centros_costo:'centrosCosto',
+  recepciones_almacen:'recepciones',erp_centros_costo:'centrosCosto',
   erp_seguimiento:'seguimientoEVM',erp_bitacora:'bitacora',
   erp_plantillas_proyectos:'plantillas',
   erp_presupuestos:'presupuestos',erp_avances:'avances',
@@ -199,7 +199,7 @@ export const MUTATION_TABLE_MAP: Record<string, string> = {
   addPagoProveedor:'erp_pagos_proveedor',updatePagoProveedor:'erp_pagos_proveedor',deletePagoProveedor:'erp_pagos_proveedor',
   addIncidente:'erp_incidentes',updateIncidente:'erp_incidentes',deleteIncidente:'erp_incidentes',
   addDestajo:'erp_destajos',updateDestajo:'erp_destajos',deleteDestajo:'erp_destajos',
-  addRecepcion:'erp_recepciones',updateRecepcion:'erp_recepciones',deleteRecepcion:'erp_recepciones',
+  addRecepcion:'recepciones_almacen',updateRecepcion:'recepciones_almacen',deleteRecepcion:'recepciones_almacen',
   addValeSalida:'erp_vales_salida',updateValeSalida:'erp_vales_salida',deleteValeSalida:'erp_vales_salida',
   addPublicacionMuro:'erp_muro',updatePublicacionMuro:'erp_muro',deletePublicacionMuro:'erp_muro',
   addComentarioMuro:'erp_muro',
@@ -640,7 +640,7 @@ const ctxValue = useMemo(() => ({
           'public:erp_cuadros',
           'public:erp_pagos_proveedor',
           'public:erp_destajos',
-          'public:erp_recepciones',
+          'public:recepciones_almacen',
           'public:erp_centros_costo',
           'public:erp_seguimiento',
           'public:erp_bitacora',
@@ -729,5 +729,6 @@ const ctxValue = useMemo(() => ({
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
 };
+
 
 
