@@ -1,9 +1,13 @@
 -- Migration 072: Fix Analisis Costos — column ambiguity (42702) + RLS permissions (42501)
 
 -- ============================================================
--- FIX 1: Reemplazar obtener_historial_calculos para evitar ambigüedad 42702
--- El error "It could refer to either a PL/pgSQL variable or a table column"
--- ocurría porque p_tipo_calculo como parámetro coincide con columna tipo_calculo
+-- FIX 0: Borrar función existente para poder recrear con nuevo nombre de parámetro
+-- ============================================================
+
+DROP FUNCTION IF EXISTS obtener_historial_calculos(uuid,text);
+
+-- ============================================================
+-- FIX 1: Recrear obtener_historial_calculos con parámetro renombrado
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION obtener_historial_calculos(
@@ -39,8 +43,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================================
--- FIX 2: Reemplazar registrar_calculo con prefijo consistente en parámetros
+-- FIX 2: Reemplazar registrar_calculo con todos los parámetros que usa el frontend
 -- ============================================================
+
+DROP FUNCTION IF EXISTS registrar_calculo(uuid,text,jsonb,jsonb,uuid,numeric,numeric,uuid,text);
 
 CREATE OR REPLACE FUNCTION registrar_calculo(
   p_proyecto_id uuid,
@@ -98,18 +104,18 @@ CREATE TABLE IF NOT EXISTS erp_normativas_departamentales (
 -- FIX 4: RLS para tablas de referencia del motor de cálculo
 -- ============================================================
 
--- erp_calculos_proyecto: política más permisiva para el modo guest
+-- erp_calculos_proyecto
 DROP POLICY IF EXISTS "calculos_proyecto_read_own" ON erp_calculos_proyecto;
 CREATE POLICY "calculos_proyecto_read_all" ON erp_calculos_proyecto
   FOR SELECT TO authenticated USING (true);
 
--- erp_comparaciones_calculos: SELECT público autenticado
+-- erp_comparaciones_calculos
 ALTER TABLE IF EXISTS erp_comparaciones_calculos ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "comparaciones_select" ON erp_comparaciones_calculos;
 CREATE POLICY "comparaciones_select" ON erp_comparaciones_calculos
   FOR SELECT TO authenticated USING (true);
 
--- erp_dosificaciones_concreto (lectura pública)
+-- erp_dosificaciones_concreto
 ALTER TABLE IF EXISTS erp_dosificaciones_concreto ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "dosificaciones_select" ON erp_dosificaciones_concreto;
 CREATE POLICY "dosificaciones_select" ON erp_dosificaciones_concreto
