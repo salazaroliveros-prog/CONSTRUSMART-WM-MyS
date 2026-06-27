@@ -393,6 +393,12 @@ const forceSync = useMemo(() => {
           const processed: string[] = [];
           const failed: Mutation[] = [];
 
+          const chunkArray = <T>(arr: T[], size: number): T[][] => {
+            const out: T[][] = [];
+            for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+            return out;
+          };
+
           const batches = queue.reduce((acc, m) => {
             const tbl = MUTATION_TABLE_MAP[m.type];
             if (!tbl) { processed.push(m.id); return acc; }
@@ -405,8 +411,9 @@ const forceSync = useMemo(() => {
             return acc;
           }, {} as Record<string, { INSERT: Mutation[]; UPDATE: Mutation[]; DELETE: Mutation[]; SPECIAL: Mutation[] }>);
 
-          for (const table of Object.keys(batches)) {
-            const ops = batches[table];
+          const processOps = async (table: string, ops: { INSERT: Mutation[]; UPDATE: Mutation[]; DELETE: Mutation[]; SPECIAL: Mutation[] }) => {
+            let tableProcessed: string[] = [];
+            let tableFailed: Mutation[] = [];
             try {
               if (ops.SPECIAL.length) {
                 for (const m of ops.SPECIAL) {
@@ -420,31 +427,32 @@ const forceSync = useMemo(() => {
                     const { error } = await client.rpc('increment_likes_muro', { pub_id: id });
                     if (error) throw error;
                   }
-                  processed.push(m.id);
+                  tableProcessed.push(m.id);
                 }
               }
-              if (ops.INSERT.length) {
-                const payload = ops.INSERT.map(m => toSnake(stripAppOnlyFields(sanitizarObjeto(m.payload) as Record<string, unknown>)));
+              const BATCH_SIZE = 50;
+              for (const chunk of chunkArray(ops.INSERT, BATCH_SIZE)) {
+                const payload = chunk.map(m => toSnake(stripAppOnlyFields(sanitizarObjeto(m.payload) as Record<string, unknown>)));
                 const { error } = await client.from(table).insert(payload);
                 if (error) throw error;
-                processed.push(...ops.INSERT.map(m => m.id));
+                tableProcessed.push(...chunk.map(m => m.id));
               }
-              if (ops.UPDATE.length) {
-                const payload = ops.UPDATE.map(m => {
+              for (const chunk of chunkArray(ops.UPDATE, BATCH_SIZE)) {
+                const payload = chunk.map(m => {
                   const p = toSnake(stripAppOnlyFields(sanitizarObjeto(m.payload) as Record<string, unknown>));
                   return { ...p, id: p.id };
                 });
                 const { error } = await client.from(table).update(payload);
                 if (error) throw error;
-                processed.push(...payload.map(p => p.id));
+                tableProcessed.push(...chunk.map(m => m.id));
               }
-              if (ops.DELETE.length) {
-                const ids = ops.DELETE.map(m => m.payload.id).filter(Boolean);
+              for (const chunk of chunkArray(ops.DELETE, BATCH_SIZE)) {
+                const ids = chunk.map(m => m.payload.id).filter(Boolean);
                 if (ids.length) {
                   const { error } = await client.from(table).delete().in('id', ids);
                   if (error) throw error;
                 }
-                processed.push(...ops.DELETE.map(m => m.id));
+                tableProcessed.push(...chunk.map(m => m.id));
               }
             } catch (err) {
               const error = err instanceof Error ? err.message : String(err);
@@ -458,10 +466,10 @@ const forceSync = useMemo(() => {
                   severity: 'error',
                   additional_context: { table, operation: 'fk_violation_23503', details: errObj.details, mutationCount: ops.INSERT.length + ops.UPDATE.length + ops.DELETE.length }
                 });
-                ops.INSERT.forEach(m => { if (m.retryCount >= 3) processed.push(m.id); else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
-                ops.UPDATE.forEach(m => { if (m.retryCount >= 3) processed.push(m.id); else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
-                ops.DELETE.forEach(m => { if (m.retryCount >= 3) processed.push(m.id); else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
-                continue;
+                ops.INSERT.forEach(m => { if (m.retryCount >= 3) tableProcessed.push(m.id); else tableFailed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
+                ops.UPDATE.forEach(m => { if (m.retryCount >= 3) tableProcessed.push(m.id); else tableFailed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
+                ops.DELETE.forEach(m => { if (m.retryCount >= 3) tableProcessed.push(m.id); else tableFailed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
+                return { tableProcessed, tableFailed };
               }
               safeLogger.warn(`[forceSync] Batch ${table} failed:`, error);
               logErrorFromException(err instanceof Error ? err : new Error(error), {
@@ -472,19 +480,29 @@ const forceSync = useMemo(() => {
                 additional_context: { table, operation: 'batch_sync', mutationCount: ops.INSERT.length + ops.UPDATE.length + ops.DELETE.length }
               });
               ops.INSERT.forEach(m => {
-                if (m.retryCount >= 3) processed.push(m.id);
-                else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 });
+                if (m.retryCount >= 3) tableProcessed.push(m.id);
+                else tableFailed.push({ ...m, retryCount: (m.retryCount || 0) + 1 });
               });
               ops.UPDATE.forEach(m => {
-                if (m.retryCount >= 3) processed.push(m.id);
-                else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 });
+                if (m.retryCount >= 3) tableProcessed.push(m.id);
+                else tableFailed.push({ ...m, retryCount: (m.retryCount || 0) + 1 });
               });
               ops.DELETE.forEach(m => {
-                if (m.retryCount >= 3) processed.push(m.id);
-                else failed.push({ ...m, retryCount: (m.retryCount || 0) + 1 });
+                if (m.retryCount >= 3) tableProcessed.push(m.id);
+                else tableFailed.push({ ...m, retryCount: (m.retryCount || 0) + 1 });
               });
             }
-          }
+            return { tableProcessed, tableFailed };
+          };
+
+          await Promise.all(
+            Object.keys(batches).map(table => processOps(table, batches[table]))
+          ).then((results) => {
+            results.forEach(({ tableProcessed, tableFailed }) => {
+              processed.push(...tableProcessed);
+              failed.push(...tableFailed);
+            });
+          });
 
           const remaining = queue.filter(m => !processed.includes(m.id));
           failed.forEach(f => { if (!remaining.find(r => r.id === f.id)) remaining.push(f); });
