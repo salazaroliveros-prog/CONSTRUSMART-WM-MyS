@@ -266,7 +266,7 @@ const Seguimiento: React.FC = () => {
                 <span>{s.fecha}</span>
                 <span>{fmtQ(safeNum(s.valorGanado))}</span>
               </div>
-              <div className="mt-2 grid grid-cols-3 gap-1 text-muted-foreground">
+               <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-1 text-muted-foreground">
                 <span>PV {fmtQ(safeNum(s.valorPlaneado))}</span>
                 <span>AC {fmtQ(safeNum(s.costoReal))}</span>
                 <span>CV {fmtQ(safeNum(s.cv))}</span>

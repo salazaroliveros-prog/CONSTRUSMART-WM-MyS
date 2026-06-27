@@ -14,6 +14,8 @@ import {
   FontSizeOutlined, EyeOutlined, KeyOutlined,
   DownloadOutlined, UploadOutlined, DeleteOutlined,
   CheckCircleOutlined, ExperimentOutlined, ExportOutlined,
+  UserOutlined, ImportOutlined,
+  CalendarOutlined, DollarOutlined, SwapRightOutlined, FundOutlined, WarningOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -27,14 +29,42 @@ const PRIMARY_COLORS = [
   { label: 'Teal', value: '#14b8a6' },
 ];
 
+const ICON_SIZE = 18;
+const dividerStyle: React.CSSProperties = { margin: '12px 0' };
+const rowStyle: React.CSSProperties = { marginBottom: 16 };
+const iconPrimaryStyle: React.CSSProperties = { fontSize: ICON_SIZE, color: 'inherit' };
+const controlWidthClass = 'w-full sm:w-40 md:w-44';
+
+interface SettingRowProps {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+}
+
+const SettingRow: React.FC<SettingRowProps> = ({ icon, title, subtitle, children }) => (
+  <div style={rowStyle}>
+    <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }} size="middle">
+      <Space>
+        {icon}
+        <div>
+          <Text strong>{title}</Text>
+          <br /><Text type="secondary">{subtitle}</Text>
+        </div>
+      </Space>
+      <div style={{ flexShrink: 0 }}>{children}</div>
+    </Space>
+    <Divider style={dividerStyle} />
+  </div>
+);
+
 const Ajustes: React.FC = () => {
   const { t } = useTranslation();
   const { appSettings, updateAppSettings, user, proyectos, notificacionesNoLeidas, marcarTodasLeidas } = useErp();
   const [resetModal, setResetModal] = useState(false);
   const { token } = antTheme.useToken();
-  const colStyle: React.CSSProperties = {
-    marginBottom: 16,
-  };
+
+  const [compactModeLabel, setCompactModeLabel] = useState(appSettings.compactMode ? 'compacto' : 'expandido');
 
   const exportBackup = () => {
     try {
@@ -52,9 +82,41 @@ const Ajustes: React.FC = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      message.success('Respaldo exportado correctamente');
     } catch (e) {
       message.error('No se pudo exportar el respaldo');
     }
+  };
+
+  const importBackup = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (typeof data !== 'object' || Array.isArray(data)) {
+          message.error('Formato de archivo inválido');
+          return;
+        }
+        const wmKeys = Object.keys(data).filter(k => k.startsWith('wm_'));
+        if (wmKeys.length === 0) {
+          message.warning('El archivo no contiene datos válidos de CONSTRUSMART');
+          return;
+        }
+        for (const k of wmKeys) {
+          localStorage.setItem(k, data[k]);
+        }
+        message.success(`Importados ${wmKeys.length} registros desde ${file.name}`);
+        window.location.reload();
+      } catch (err) {
+        message.error('Error al leer el archivo de respaldo');
+      }
+    };
+    input.click();
   };
 
   const sectionCard: React.CSSProperties = {
@@ -69,168 +131,136 @@ const Ajustes: React.FC = () => {
       children: (
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={12}>
-            <Card title={t('ajustes.apariencia')} style={sectionCard} size="small">
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <Space>
-                    <ExperimentOutlined style={{ fontSize: 18, color: token.colorPrimary }} />
-                    <div>
-                      <Text strong>Framework UI</Text>
-                      <br /><Text type="secondary">Elige el motor visual del sistema</Text>
-                    </div>
-                  </Space>
-                  <Radio.Group
-                    value={appSettings.uiMode}
-                    onChange={e => updateAppSettings({ uiMode: e.target.value as UIMode })}
-                    optionType="button"
-                    buttonStyle="solid"
-                    size="middle"
-                  >
-                    <Tooltip title="Estilo actual con Tailwind + Shadcn">
-                      <Radio.Button value="shadcn">
-                        <Space><span>🎨</span> Clásico</Space>
-                      </Radio.Button>
-                    </Tooltip>
-                    <Tooltip title="Ant Design - Diseño moderno profesional">
-                      <Radio.Button value="antd">
-                        <Space><span>✨</span> Moderno</Space>
-                      </Radio.Button>
-                    </Tooltip>
-                  </Radio.Group>
-                </Space>
-              </div>
+            <Card style={sectionCard} size="small">
+              <SettingRow
+                icon={<ExperimentOutlined style={{ fontSize: ICON_SIZE, color: token.colorPrimary }} />}
+                title="Framework UI"
+                subtitle="Elige el motor visual del sistema"
+              >
+                <Radio.Group
+                  value={appSettings.uiMode}
+                  onChange={e => updateAppSettings({ uiMode: e.target.value as UIMode })}
+                  optionType="button"
+                  buttonStyle="solid"
+                  size="middle"
+                >
+                  <Tooltip title="Estilo actual con Tailwind + Shadcn">
+                    <Radio.Button value="shadcn">
+                      <Space><span>🎨</span> Clásico</Space>
+                    </Radio.Button>
+                  </Tooltip>
+                  <Tooltip title="Ant Design - Diseño moderno profesional">
+                    <Radio.Button value="antd">
+                      <Space><span>✨</span> Moderno</Space>
+                    </Radio.Button>
+                  </Tooltip>
+                </Radio.Group>
+              </SettingRow>
 
-              <Divider style={{ margin: '12px 0' }} />
-
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <Space>
-                    <BgColorsOutlined style={{ fontSize: 18, color: token.colorPrimary }} />
+              <div style={rowStyle}>
+                <Space style={{ width: '100%' }} direction="vertical" size={0}>
+                  <Space style={{ width: '100%' }} align="center">
+                    <BgColorsOutlined style={{ fontSize: ICON_SIZE, color: token.colorPrimary }} />
                     <div>
                       <Text strong>Tema Visual</Text>
-                      <br /><Text type="secondary">Elige entre 5 diseños para toda la app</Text>
+                      <br /><Text type="secondary">Elige entre 8 diseños para toda la app</Text>
                     </div>
                   </Space>
-                </Space>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
-                  {(Object.entries(THEMES) as [ThemeName, typeof THEMES[ThemeName]][]).map(([key, t]) => (
-                    <Tooltip key={key} title={t.description}>
-                      <div
-                        onClick={() => updateAppSettings({ appTheme: key as AppThemeMode })}
-                        style={{
-                          cursor: 'pointer',
-                          padding: '6px 14px',
-                          borderRadius: 8,
-                          border: `2px solid ${appSettings.appTheme === key ? t.colors.primary : token.colorBorder}`,
-                          background: t.colors.background,
-                          color: t.colors.foreground,
-                          fontWeight: appSettings.appTheme === key ? 700 : 400,
-                          fontSize: 13,
-                          transition: 'all 0.2s',
-                          boxShadow: appSettings.appTheme === key ? `0 0 0 3px ${t.colors.primary}33` : 'none',
-                          display: 'flex', alignItems: 'center', gap: 6,
-                        }}
-                      >
-                        <span style={{ width: 12, height: 12, borderRadius: '50%', background: t.colors.primary, display: 'inline-block', flexShrink: 0 }} />
-                        {t.label}
-                      </div>
-                    </Tooltip>
-                  ))}
-                </div>
-              </div>
-
-              <Divider style={{ margin: '12px 0' }} />
-
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <Space>
-                    <BgColorsOutlined style={{ fontSize: 18, color: appSettings.primaryColor }} />
-                    <div>
-                      <Text strong>Color Principal</Text>
-                      <br /><Text type="secondary">Personaliza el color primario de la marca</Text>
-                    </div>
-                  </Space>
-                  <Radio.Group
-                    value={appSettings.primaryColor}
-                    onChange={e => updateAppSettings({ primaryColor: e.target.value })}
-                    optionType="button"
-                    buttonStyle="solid"
-                    size="small"
-                  >
-                    {PRIMARY_COLORS.map(c => (
-                      <Tooltip title={c.label} key={c.value}>
-                        <Radio.Button
-                          value={c.value}
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+                    {(Object.entries(THEMES) as [ThemeName, typeof THEMES[ThemeName]][]).map(([key, t]) => (
+                      <Tooltip key={key} title={t.description}>
+                        <div
+                          onClick={() => updateAppSettings({ appTheme: key as AppThemeMode })}
                           style={{
-                            backgroundColor: c.value,
-                            width: 28,
-                            height: 28,
-                            border: appSettings.primaryColor === c.value ? '2px solid #000' : 'none',
+                            cursor: 'pointer',
+                            padding: '6px 14px',
+                            borderRadius: 8,
+                            border: `2px solid ${appSettings.appTheme === key ? t.colors.primary : token.colorBorder}`,
+                            background: t.colors.background,
+                            color: t.colors.foreground,
+                            fontWeight: appSettings.appTheme === key ? 700 : 400,
+                            fontSize: 13,
+                            transition: 'all 0.2s',
+                            boxShadow: appSettings.appTheme === key ? `0 0 0 3px ${t.colors.primary}33` : 'none',
+                            display: 'flex', alignItems: 'center', gap: 6,
                           }}
-                        />
+                        >
+                          <span style={{ width: 12, height: 12, borderRadius: '50%', background: t.colors.primary, display: 'inline-block', flexShrink: 0 }} />
+                          {t.label}
+                        </div>
                       </Tooltip>
                     ))}
-                  </Radio.Group>
+                  </div>
                 </Space>
               </div>
+              <Divider style={dividerStyle} />
 
-              <Divider style={{ margin: '12px 0' }} />
+              <SettingRow
+                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE, color: appSettings.primaryColor }} />}
+                title="Color Principal"
+                subtitle="Personaliza el color primario de la marca"
+              >
+                <Radio.Group
+                  value={appSettings.primaryColor}
+                  onChange={e => updateAppSettings({ primaryColor: e.target.value })}
+                  optionType="button"
+                  buttonStyle="solid"
+                  size="small"
+                >
+                  {PRIMARY_COLORS.map(c => (
+                    <Tooltip title={c.label} key={c.value}>
+                      <Radio.Button
+                        value={c.value}
+                        style={{
+                          backgroundColor: c.value,
+                          width: 28,
+                          height: 28,
+                          border: appSettings.primaryColor === c.value ? '2px solid #000' : 'none',
+                        }}
+                      />
+                    </Tooltip>
+                  ))}
+                </Radio.Group>
+              </SettingRow>
 
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <Space>
-                    <FontSizeOutlined style={{ fontSize: 18 }} />
-                    <div>
-                      <Text strong>Tamaño de Fuente</Text>
-                      <br /><Text type="secondary">Ajusta el tamaño del texto en toda la app</Text>
-                    </div>
-                  </Space>
-                  <Radio.Group
-                    value={appSettings.fontSize}
-                    onChange={e => updateAppSettings({ fontSize: e.target.value as 'small' | 'medium' | 'large' })}
-                    optionType="button"
-                    buttonStyle="solid"
-                  >
-                    <Radio.Button value="small">Pequeño</Radio.Button>
-                    <Radio.Button value="medium">Mediano</Radio.Button>
-                    <Radio.Button value="large">Grande</Radio.Button>
-                  </Radio.Group>
-                </Space>
-              </div>
+              <SettingRow
+                icon={<FontSizeOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Tamaño de Fuente"
+                subtitle="Ajusta el tamaño del texto en toda la app"
+              >
+                <Radio.Group
+                  value={appSettings.fontSize}
+                  onChange={e => updateAppSettings({ fontSize: e.target.value as 'small' | 'medium' | 'large' })}
+                  optionType="button"
+                  buttonStyle="solid"
+                >
+                  <Radio.Button value="small">Pequeño</Radio.Button>
+                  <Radio.Button value="medium">Mediano</Radio.Button>
+                  <Radio.Button value="large">Grande</Radio.Button>
+                </Radio.Group>
+              </SettingRow>
 
-              <Divider style={{ margin: '12px 0' }} />
+              <SettingRow
+                icon={<ExperimentOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Animaciones"
+                subtitle="Transiciones suaves entre pantallas"
+              >
+                <Switch
+                  checked={appSettings.animationsEnabled}
+                  onChange={v => updateAppSettings({ animationsEnabled: v })}
+                />
+              </SettingRow>
 
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <Space>
-                    <SettingOutlined style={{ fontSize: 18 }} />
-                    <div>
-                      <Text strong>Animaciones</Text>
-                      <br /><Text type="secondary">Transiciones suaves entre pantallas</Text>
-                    </div>
-                  </Space>
-                  <Switch
-                    checked={appSettings.animationsEnabled}
-                    onChange={v => updateAppSettings({ animationsEnabled: v })}
-                  />
-                </Space>
-              </div>
-
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <Space>
-                    <SettingOutlined style={{ fontSize: 18 }} />
-                    <div>
-                      <Text strong>Modo Compacto</Text>
-                      <br /><Text type="secondary">Reduce espaciado para mostrar más información</Text>
-                    </div>
-                  </Space>
-                  <Switch
-                    checked={appSettings.compactMode}
-                    onChange={v => updateAppSettings({ compactMode: v })}
-                  />
-                </Space>
-              </div>
+              <SettingRow
+                icon={<EyeOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Modo Compacto"
+                subtitle="Reduce espaciado para mostrar más información"
+              >
+                <Switch
+                  checked={appSettings.compactMode}
+                  onChange={v => updateAppSettings({ compactMode: v })}
+                />
+              </SettingRow>
             </Card>
           </Col>
 
@@ -255,13 +285,16 @@ const Ajustes: React.FC = () => {
                   <Badge status="success" text={appSettings.appTheme === 'dark' ? 'Modo Oscuro' : 'Modo Claro'} />
                 </Space>
                 <Select
-                  defaultValue="compacto"
-                  className="w-full sm:w-40 md:w-48"
+                  value={compactModeLabel}
+                  onChange={v => {
+                    setCompactModeLabel(v);
+                    updateAppSettings({ compactMode: v === 'compacto' });
+                  }}
+                  className={controlWidthClass}
                   options={[
                     { value: 'compacto', label: 'Modo compacto' },
                     { value: 'expandido', label: 'Modo expandido' },
                   ]}
-                  onChange={(value) => updateAppSettings({ compactMode: value === 'compacto' })}
                 />
               </Space>
             </Card>
@@ -275,46 +308,40 @@ const Ajustes: React.FC = () => {
       children: (
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={12}>
-            <Card title="Configuración Regional" style={sectionCard} size="small">
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <div><Text strong>{t('ajustes.idioma')}</Text><br /><Text type="secondary">Idioma de la interfaz</Text></div>
-                  <Select value={appSettings.language} onChange={v => updateAppSettings({ language: v })}
-                    className="w-full sm:w-36 md:w-40"
-                    options={[
-                      { value: 'es', label: '🇬🇹 Español' },
-                      { value: 'en', label: '🇺🇸 English' },
-                    ]}
-                  />
-                </Space>
-              </div>
-              <Divider style={{ margin: '12px 0' }} />
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <div><Text strong>Formato de Fecha</Text><br /><Text type="secondary">Cómo se muestran las fechas</Text></div>
-                  <Select value={appSettings.dateFormat} onChange={v => updateAppSettings({ dateFormat: v as any })}
-                    className="w-full sm:w-40 md:w-44"
-                    options={[
-                      { value: 'DD/MM/YYYY', label: '31/12/2026' },
-                      { value: 'MM/DD/YYYY', label: '12/31/2026' },
-                      { value: 'YYYY-MM-DD', label: '2026-12-31' },
-                    ]}
-                  />
-                </Space>
-              </div>
-              <Divider style={{ margin: '12px 0' }} />
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <div><Text strong>Moneda</Text><br /><Text type="secondary">Símbolo monetario del sistema</Text></div>
-                  <Select value={appSettings.currency} onChange={v => updateAppSettings({ currency: v as 'GTQ' | 'USD' })}
-                    className="w-full sm:w-36 md:w-40"
-                    options={[
-                      { value: 'GTQ', label: 'Q (Quetzal GT)' },
-                      { value: 'USD', label: '$ (Dólar US)' },
-                    ]}
-                  />
-                </Space>
-              </div>
+            <Card style={sectionCard} size="small">
+              <SettingRow
+                icon={<GlobalOutlined style={{ fontSize: ICON_SIZE }} />}
+                title={t('ajustes.idioma') || 'Idioma'}
+                subtitle="Idioma de la interfaz"
+              >
+                <Select value={appSettings.language} onChange={v => updateAppSettings({ language: v })} className={controlWidthClass} options={[
+                  { value: 'es', label: '🇬🇹 Español' },
+                  { value: 'en', label: '🇺🇸 English' },
+                ]} />
+              </SettingRow>
+
+              <SettingRow
+                icon={<CalendarOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Formato de Fecha"
+                subtitle="Cómo se muestran las fechas"
+              >
+                <Select value={appSettings.dateFormat} onChange={v => updateAppSettings({ dateFormat: v as 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' })} className="w-full sm:w-40 md:w-44" options={[
+                  { value: 'DD/MM/YYYY', label: '31/12/2026' },
+                  { value: 'MM/DD/YYYY', label: '12/31/2026' },
+                  { value: 'YYYY-MM-DD', label: '2026-12-31' },
+                ]} />
+              </SettingRow>
+
+              <SettingRow
+                icon={<DollarOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Moneda"
+                subtitle="Símbolo monetario del sistema"
+              >
+                <Select value={appSettings.currency} onChange={v => updateAppSettings({ currency: v as 'GTQ' | 'USD' })} className={controlWidthClass} options={[
+                  { value: 'GTQ', label: 'Q (Quetzal GT)' },
+                  { value: 'USD', label: '$ (Dólar US)' },
+                ]} />
+              </SettingRow>
             </Card>
           </Col>
           <Col xs={24} lg={12}>
@@ -346,34 +373,39 @@ const Ajustes: React.FC = () => {
       children: (
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={12}>
-            <Card title="Preferencias de Notificaciones" style={sectionCard} size="small">
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <div><Text strong>Stock Crítico</Text><br /><Text type="secondary">Alertas cuando el inventario está bajo</Text></div>
-                  <Switch defaultChecked />
-                </Space>
-              </div>
-              <Divider style={{ margin: '12px 0' }} />
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <div><Text strong>Órdenes de Cambio</Text><br /><Text type="secondary">Notificar OC pendientes de revisión</Text></div>
-                  <Switch defaultChecked />
-                </Space>
-              </div>
-              <Divider style={{ margin: '12px 0' }} />
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <div><Text strong>Avances de Obra</Text><br /><Text type="secondary">Registro de avances físicos</Text></div>
-                  <Switch defaultChecked />
-                </Space>
-              </div>
-              <Divider style={{ margin: '12px 0' }} />
-              <div style={colStyle}>
-                <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <div><Text strong>Desviaciones</Text><br /><Text type="secondary">Alertas de rendimiento y costo</Text></div>
-                  <Switch defaultChecked />
-                </Space>
-              </div>
+            <Card style={sectionCard} size="small">
+              <SettingRow
+                icon={<BellOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Stock Crítico"
+                subtitle="Alertas cuando el inventario está bajo"
+              >
+                <Switch checked={appSettings.notificaciones?.stockCritico} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, stockCritico: v } })} />
+              </SettingRow>
+
+              <SettingRow
+                icon={<SwapRightOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Órdenes de Cambio"
+                subtitle="Notificar OC pendientes de revisión"
+              >
+                <Switch checked={appSettings.notificaciones?.ordenesCambio} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, ordenesCambio: v } })} />
+              </SettingRow>
+
+              <SettingRow
+                icon={<FundOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Avances de Obra"
+
+                subtitle="Registro de avances físicos"
+              >
+                <Switch checked={appSettings.notificaciones?.avancesObra} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, avancesObra: v } })} />
+              </SettingRow>
+
+              <SettingRow
+                icon={<WarningOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Desviaciones"
+                subtitle="Alertas de rendimiento y costo"
+              >
+                <Switch checked={appSettings.notificaciones?.desviaciones} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, desviaciones: v } })} />
+              </SettingRow>
             </Card>
           </Col>
           <Col xs={24} lg={12}>
@@ -395,12 +427,12 @@ const Ajustes: React.FC = () => {
       children: (
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={12}>
-            <Card title="Gestión de Datos" style={sectionCard} size="small">
+            <Card style={sectionCard} size="small">
               <Space direction="vertical" style={{ width: '100%' }} size={16}>
                 <Button icon={<DownloadOutlined />} block size="large" onClick={exportBackup}>
                   Exportar copia de seguridad
                 </Button>
-                <Button icon={<UploadOutlined />} block size="large">
+                <Button icon={<ImportOutlined />} block size="large" onClick={importBackup}>
                   Importar datos
                 </Button>
                 <Button icon={<DeleteOutlined />} danger block size="large" onClick={() => setResetModal(true)}>
@@ -425,9 +457,9 @@ const Ajustes: React.FC = () => {
       children: (
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={12}>
-            <Card title="Perfil" style={sectionCard} size="small">
+            <Card style={sectionCard} size="small">
               <Space align="center" style={{ marginBottom: 24 }}>
-                <Avatar size={64} icon={<SafetyOutlined />} style={{ backgroundColor: token.colorPrimary }} />
+                <Avatar size={64} icon={<UserOutlined />} style={{ backgroundColor: token.colorPrimary }} />
                 <div>
                   <Title level={5} style={{ margin: 0 }}>{user?.nombre || 'Usuario'}</Title>
                   <Text type="secondary">{user?.rol}</Text>
@@ -466,7 +498,7 @@ const Ajustes: React.FC = () => {
       children: (
         <Card style={sectionCard}>
           <Space direction="vertical" style={{ width: '100%', textAlign: 'center' }} size={16}>
-            <Avatar size={80} icon={<SettingOutlined />} style={{ backgroundColor: token.colorPrimary }} />
+            <Avatar size={80} icon={<InfoCircleOutlined />} style={{ backgroundColor: token.colorPrimary }} />
             <Title level={3}>ERP CONSTRUSMART</Title>
             <Text type="secondary">Sistema Integral de Gestión para Proyectos de Construcción</Text>
             <Tag color="orange" style={{ fontSize: 14, padding: '4px 12px' }}>Versión 2.0.0</Tag>
@@ -490,6 +522,17 @@ const Ajustes: React.FC = () => {
     },
   ];
 
+  const visualTab = (
+    <Space style={{ paddingRight: 24, paddingBottom: 16 }} className="hidden sm:inline-flex">
+      <Tag icon={<ExperimentOutlined />} color={appSettings.uiMode === 'antd' ? 'processing' : 'default'}>
+        UI: {appSettings.uiMode === 'antd' ? 'Ant Design' : 'Shadcn'}
+      </Tag>
+      <Tag icon={appSettings.appTheme === 'dark' ? <MoonOutlined /> : <SunOutlined />}>
+        {appSettings.appTheme === 'dark' ? 'Oscuro' : 'Claro'}
+      </Tag>
+    </Space>
+  );
+
   return (
     <Layout style={{ padding: 24, minHeight: '100%', background: 'transparent' }}>
       <div style={{ marginBottom: 24 }}>
@@ -509,16 +552,7 @@ const Ajustes: React.FC = () => {
           items={tabItems}
           size="large"
           tabBarStyle={{ paddingLeft: 24, paddingTop: 16, marginBottom: 0 }}
-          tabBarExtraContent={
-            <Space style={{ paddingRight: 24, paddingBottom: 16 }}>
-              <Tag icon={<ExperimentOutlined />} color={appSettings.uiMode === 'antd' ? 'processing' : 'default'}>
-                UI: {appSettings.uiMode === 'antd' ? 'Ant Design' : 'Shadcn'}
-              </Tag>
-              <Tag icon={appSettings.appTheme === 'dark' ? <MoonOutlined /> : <SunOutlined />}>
-                {appSettings.appTheme === 'dark' ? 'Oscuro' : 'Claro'}
-              </Tag>
-            </Space>
-          }
+          tabBarExtraContent={visualTab}
         />
       </Card>
 
@@ -533,6 +567,7 @@ const Ajustes: React.FC = () => {
         okText="Restablecer"
         cancelText="Cancelar"
         okButtonProps={{ danger: true }}
+        style={{ width: '95vw', maxWidth: 520 }}
       >
         <Alert
           message="¿Estás seguro?"
