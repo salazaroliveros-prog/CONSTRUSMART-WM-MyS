@@ -43,7 +43,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================================
--- FIX 2: Reemplazar registrar_calculo con todos los parámetros que usa el frontend
+-- FIX 2: Reemplazar registrar_calculo
 -- ============================================================
 
 DROP FUNCTION IF EXISTS registrar_calculo(uuid,text,jsonb,jsonb,uuid,numeric,numeric,uuid,text);
@@ -82,16 +82,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================================
--- FIX 3: RLS para erp_normativas_departamentales (error 42501)
+-- FIX 3: Crear/Asegurar tabla normativas y sus políticas RLS
 -- ============================================================
 
-ALTER TABLE IF EXISTS erp_normativas_departamentales ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "normativas_departamentales_select" ON erp_normativas_departamentales;
-CREATE POLICY "normativas_departamentales_select" ON erp_normativas_departamentales
-  FOR SELECT TO authenticated, anon USING (true);
-
--- Asegurar que la tabla exista
 CREATE TABLE IF NOT EXISTS erp_normativas_departamentales (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   codigo_departamento text NOT NULL,
@@ -99,6 +92,12 @@ CREATE TABLE IF NOT EXISTS erp_normativas_departamentales (
   descripcion text,
   created_at timestamptz DEFAULT now()
 );
+
+ALTER TABLE IF EXISTS erp_normativas_departamentales ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "normativas_departamentales_select" ON erp_normativas_departamentales;
+CREATE POLICY "normativas_departamentales_select" ON erp_normativas_departamentales
+  FOR SELECT TO authenticated, anon USING (true);
 
 -- ============================================================
 -- FIX 4: RLS para tablas de referencia del motor de cálculo
