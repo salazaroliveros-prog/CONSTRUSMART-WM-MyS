@@ -79,6 +79,7 @@ const Dashboard: React.FC = () => {
   } = ctx;
 
   const hasData = (proyectos || []).length > 0 || (movimientos || []).length > 0 || (materiales || []).length > 0;
+  const proyectosSel = filteredProyectos;
   const totalOrphans = integrityData?.fk_orphans?.reduce?.((a, o) => a + o.count, 0) ?? 0;
   const totalNulls = integrityData?.null_checks?.reduce?.((a, o) => a + o.count, 0) ?? 0;
 
@@ -88,39 +89,43 @@ const Dashboard: React.FC = () => {
   const s4 = useStagger(300);
   const staggerArr = [s1, s2, s3, s4];
 
-  const activos = (proyectos || []).filter(p => p.estado === 'ejecucion');
-  const proyectosSel = selectedProyectoId && selectedProyectoId !== 'none'
-    ? (proyectos || []).filter(p => p.id === selectedProyectoId) : (proyectos || []);
-  const presupuestoTotal = proyectosSel.reduce((a, b) => a + b.presupuestoTotal, 0);
-  const margenProm = proyectosSel.length > 0
-    ? proyectosSel.reduce((a, b) => {
-        const m = b.montoContrato > 0 ? ((b.montoContrato - b.presupuestoTotal) / b.montoContrato) * 100 : 0;
-        return a + m;
-      }, 0) / proyectosSel.length 
-    : 0;
-  const desviacion = proyectosSel.length
-    ? proyectosSel.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / proyectosSel.length : 0;
-  const ingresos = (movimientos || []).filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-  const gastos = (movimientos || []).filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-  const saldoNeto = ingresos - gastos;
+  const filteredProyectos = useMemo(() => {
+    if (selectedProyectoId && selectedProyectoId !== 'none') {
+      return (proyectos || []).filter(p => p.id === selectedProyectoId);
+    }
+    return proyectos || [];
+  }, [proyectos, selectedProyectoId]);
+
+  const activos = useMemo(() => (proyectos || []).filter(p => p.estado === 'ejecucion'), [proyectos]);
+  const presupuestoTotal = useMemo(() => filteredProyectos.reduce((a, b) => a + b.presupuestoTotal, 0), [filteredProyectos]);
+  const margenProm = useMemo(() => {
+    if (filteredProyectos.length === 0) return 0;
+    return filteredProyectos.reduce((a, b) => {
+      const m = b.montoContrato > 0 ? ((b.montoContrato - b.presupuestoTotal) / b.montoContrato) * 100 : 0;
+      return a + m;
+    }, 0) / filteredProyectos.length;
+  }, [filteredProyectos]);
+  const desviacion = useMemo(() => {
+    if (filteredProyectos.length === 0) return 0;
+    return filteredProyectos.reduce((a, b) => a + (b.avanceFinanciero - b.avanceFisico), 0) / filteredProyectos.length;
+  }, [filteredProyectos]);
+  const ingresos = useMemo(() => (movimientos || []).filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0), [movimientos]);
+  const gastos = useMemo(() => (movimientos || []).filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0), [movimientos]);
+  const saldoNeto = useMemo(() => ingresos - gastos, [ingresos, gastos]);
 
   const avanceProm = useMemo(() => {
-    const filtrados = selectedProyectoId && selectedProyectoId !== 'none'
-      ? (proyectos || []).filter(p => p.id === selectedProyectoId) : (proyectos || []);
-    const totalP = filtrados.reduce((a, b) => a + b.presupuestoTotal, 0);
+    const totalP = filteredProyectos.reduce((a, b) => a + b.presupuestoTotal, 0);
     return totalP > 0
-      ? Math.round(filtrados.reduce((a, b) => a + (b.avanceFisico * b.presupuestoTotal), 0) / totalP)
+      ? Math.round(filteredProyectos.reduce((a, b) => a + (b.avanceFisico * b.presupuestoTotal), 0) / totalP)
       : 0;
-  }, [proyectos, selectedProyectoId]);
+  }, [filteredProyectos]);
 
   const avanceFinProm = useMemo(() => {
-    const filtrados = selectedProyectoId && selectedProyectoId !== 'none'
-      ? (proyectos || []).filter(p => p.id === selectedProyectoId) : (proyectos || []);
-    const totalP = filtrados.reduce((a, b) => a + b.presupuestoTotal, 0);
+    const totalP = filteredProyectos.reduce((a, b) => a + b.presupuestoTotal, 0);
     return totalP > 0
-      ? Math.round(filtrados.reduce((a, b) => a + (b.avanceFinanciero * b.presupuestoTotal), 0) / totalP)
+      ? Math.round(filteredProyectos.reduce((a, b) => a + (b.avanceFinanciero * b.presupuestoTotal), 0) / totalP)
       : 0;
-  }, [proyectos, selectedProyectoId]);
+  }, [filteredProyectos]);
 
   const carteraData = useMemo(() => {
     const counts: Record<string, number> = { planeacion: 0, ejecucion: 0, pausado: 0, finalizado: 0 };
@@ -338,39 +343,40 @@ const Dashboard: React.FC = () => {
     }
   }, [exportingPdf]);
 
-  const categoriaResumen = useMemo(() => CATEGORIA_MAP.map((categoria, index) => {
-    let count = 0;
-    for (const table of categoria.tables) {
-      if (table === 'erp_proyectos') count += (proyectos || []).length;
-      else if (table === 'erp_licitaciones') count += (licitaciones || []).length;
-      else if (table === 'erp_cotizaciones_negocio') count += (cotizacionesNegocio || []).length;
-      else if (table === 'erp_presupuestos') count += (presupuestos || []).length;
-      else if (table === 'erp_hitos') count += (hitos || []).length;
-      else if (table === 'erp_riesgos') count += (riesgos || []).length;
-      else if (table === 'erp_seguimiento') count += (seguimientoEVM || []).length;
-      else if (table === 'erp_avances') count += (avances || []).length;
-      else if (table === 'erp_no_conformidades') count += (ncs || []).length;
-      else if (table === 'erp_publicaciones_muro') count += (publicacionesMuro || []).length;
-      else if (table === 'erp_ordenes_cambio') count += (ordenesCambio || []).length;
-      else if (table === 'erp_planos') count += (planos || []).length;
-      else if (table === 'erp_rfis') count += (rfis || []).length;
-      else if (table === 'erp_submittals') count += (submittals || []).length;
-      else if (table === 'erp_materiales') count += (materiales || []).length;
-      else if (table === 'erp_ordenes_compra') count += (ordenes || []).length;
-      else if (table === 'erp_vales_salida') count += (valesSalida || []).length;
-      else if (table === 'recepciones_almacen') count += (recepciones || []).length;
-      else if (table === 'erp_proveedores') count += (proveedores || []).length;
-      else if (table === 'erp_empleados') count += (empleados || []).length;
-      else if (table === 'destajos') count += (destajos || []).length;
-      else if (table === 'erp_movimientos') count += (movimientos || []).length;
-      else if (table === 'ventas_paquetes') count += (ventasPaquetes || []).length;
-      else if (table === 'erp_cuentas_cobrar') count += (cuentasCobrar || []).length;
-      else if (table === 'erp_cuentas_pagar') count += (cuentasPagar || []).length;
-      else if (table === 'pagos_proveedores') count += (pagosProveedor || []).length;
-      else if (table === 'erp_notificaciones') count += (notificacionesNoLeidas || []).length;
-    }
-    return { ...categoria, count, color: CATEGORIA_COLORS[index % CATEGORIA_COLORS.length] };
+  const tableToDataMap = useMemo(() => ({
+    erp_proyectos: proyectos || [],
+    erp_licitaciones: licitaciones || [],
+    erp_cotizaciones_negocio: cotizacionesNegocio || [],
+    erp_presupuestos: presupuestos || [],
+    erp_hitos: hitos || [],
+    erp_riesgos: riesgos || [],
+    erp_seguimiento: seguimientoEVM || [],
+    erp_avances: avances || [],
+    erp_no_conformidades: ncs || [],
+    erp_publicaciones_muro: publicacionesMuro || [],
+    erp_ordenes_cambio: ordenesCambio || [],
+    erp_planos: planos || [],
+    erp_rfis: rfis || [],
+    erp_submittals: submittals || [],
+    erp_materiales: materiales || [],
+    erp_ordenes_compra: ordenes || [],
+    erp_vales_salida: valesSalida || [],
+    recepciones_almacen: recepciones || [],
+    erp_proveedores: proveedores || [],
+    erp_empleados: empleados || [],
+    destajos: destajos || [],
+    erp_movimientos: movimientos || [],
+    ventas_paquetes: ventasPaquetes || [],
+    erp_cuentas_cobrar: cuentasCobrar || [],
+    erp_cuentas_pagar: cuentasPagar || [],
+    pagos_proveedores: pagosProveedor || [],
+    erp_notificaciones: notificacionesNoLeidas || [],
   }), [proyectos, licitaciones, cotizacionesNegocio, presupuestos, hitos, riesgos, seguimientoEVM, avances, ncs, publicacionesMuro, ordenesCambio, planos, rfis, submittals, materiales, ordenes, valesSalida, recepciones, empleados, destajos, movimientos, cuentasCobrar, cuentasPagar, pagosProveedor, notificacionesNoLeidas, proveedores, ventasPaquetes]);
+
+  const categoriaResumen = useMemo(() => CATEGORIA_MAP.map((categoria, index) => {
+    const count = categoria.tables.reduce((sum, table) => sum + (tableToDataMap[table]?.length || 0), 0);
+    return { ...categoria, count, color: CATEGORIA_COLORS[index % CATEGORIA_COLORS.length] };
+  }), [tableToDataMap]);
 
   const categoriaChartData = useMemo(() => categoriaResumen.map(c => ({ label: c.label.slice(0, 3), value: c.count, color: c.color })), [categoriaResumen]);
 
