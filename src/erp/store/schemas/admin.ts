@@ -33,6 +33,12 @@ export const appSettingsSchema = z.object({
   animationsEnabled: z.boolean().default(true),
   compactMode: z.boolean().default(false),
   fontSize: z.enum(['small','medium','large'] as const).default('medium'),
+  notificaciones: z.object({
+    stockCritico: z.boolean().default(true),
+    ordenesCambio: z.boolean().default(true),
+    avancesObra: z.boolean().default(true),
+    desviaciones: z.boolean().default(true),
+  }).default({ stockCritico: true, ordenesCambio: true, avancesObra: true, desviaciones: true }),
   empresaInfo: z.object({
     nombre: z.string().optional(),
     nit: z.string().optional(),

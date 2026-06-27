@@ -79,6 +79,7 @@ export const APP_SETTINGS_DEFAULTS: AppSettings = {
   animationsEnabled: true,
   compactMode: false,
   fontSize: 'medium',
+  notificaciones: { stockCritico: true, ordenesCambio: true, avancesObra: true, desviaciones: true },
   empresaInfo: EMPRESA_DEFAULT,
 };
 

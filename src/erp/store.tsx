@@ -105,6 +105,7 @@ export interface AppSettings {
   dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD'; currency: 'GTQ' | 'USD';
   sidebarCollapsed: boolean; animationsEnabled: boolean; compactMode: boolean;
   fontSize: 'small' | 'medium' | 'large';
+  notificaciones: { stockCritico: boolean; ordenesCambio: boolean; avancesObra: boolean; desviaciones: boolean };
   empresaInfo?: { nombre: string; nit: string; telefono: string; email: string; direccion: string; ciudad: string; pais: string; };
 }
 
