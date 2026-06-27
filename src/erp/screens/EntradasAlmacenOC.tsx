@@ -1,7 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useErp } from '../store';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const EntradasAlmacenOC: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { setLoading(false); }, []);
   const { ordenes, materiales, updateMaterial, updateOrden, recepciones, addRecepcion } = useErp();
   const [ocFilter, setOcFilter] = useState<'todas' | 'pendientes' | 'aprobadas'>('todas');
   const [showForm, setShowForm] = useState<string | null>(null);
@@ -52,6 +55,7 @@ export const EntradasAlmacenOC: React.FC = () => {
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
+      {loading && (<div className="space-y-4"><Skeleton className="h-8 w-72" /><div className="grid grid-cols-1 md:grid-cols-2 gap-4"><Skeleton className="h-32 rounded-xl" /><Skeleton className="h-32 rounded-xl" /></div><Skeleton className="h-64 rounded-2xl" /></div>)}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-bold">📦 Entradas de Almacén vs Órdenes de Compra</h1>
       </div>
