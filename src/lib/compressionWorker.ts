@@ -3,7 +3,7 @@ type CompressionResult<T> = { success: true; result: T } | { success: false; err
 const workerUrl = new URL('./compression.worker.ts', import.meta.url);
 
 let worker: Worker | null = null;
-let pending: Map<string, { resolve: (v: any) => void; reject: (e: Error) => void }> = new Map();
+const pending: Map<string, { resolve: (v: any) => void; reject: (e: Error) => void }> = new Map();
 let msgId = 0;
 
 function getWorker(): Worker {
