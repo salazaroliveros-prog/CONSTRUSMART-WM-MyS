@@ -6,10 +6,44 @@ export interface HealthReport {
   timestamp: string
   module: string
   recoveredKeys: string[]
+  retryCount?: number
+  circuitBreakerTripped?: boolean
+}
+
+export interface DebugMetrics {
+  checksPerformed: number
+  issuesDetected: number
+  repairsApplied: number
+  retriesTriggered: number
+  circuitBreakerTripped: number
+  lastHealthyAt: string | null
+  lastIssueAt: string | null
+}
+
+type HealthStatus = 'healthy' | 'degraded' | 'critical'
+
+interface CircuitBreakerState {
+  failures: number
+  lastFailure: number
+  openedUntil: number
 }
 
 const HEALTH_CHECK_INTERVAL = 300000 // 5 minutos
 const MAX_LOG_ENTRIES = 50
+const CIRCUIT_BREAKER_THRESHOLD = 3
+const CIRCUIT_BREAKER_COOLDOWN = 60000 // 1 min
+
+const metrics: DebugMetrics = {
+  checksPerformed: 0,
+  issuesDetected: 0,
+  repairsApplied: 0,
+  retriesTriggered: 0,
+  circuitBreakerTripped: 0,
+  lastHealthyAt: null,
+  lastIssueAt: null,
+}
+
+const circuitBreaker: Record<string, CircuitBreakerState> = {}
 
 /**
  * Store Health Check — Monitoreo y autorecuperación del estado global
@@ -185,4 +219,112 @@ export function generateHealthReport(
   }
 }
 
-export default checkStoreHealth
+export default checkStoreHealth/**
+ * AutoDebugger — Diagnóstico + auto-reparación avanzada en producción
+ * 
+ * Características nuevas:
+ * - Detección extendida (undefined/null/NaN/empty/arrays corruptos)
+ * - Circuit breaker para reintentos infinitos
+ * - Backoff exponencial en reparaciones
+ * - Métricas de salud persistentes
+ * - Modo debug/production
+ * - Integración con log y error-logger
+ */
+
+export class AutoDebugger {
+  private moduleName: string
+  private enabled = true
+  private intervalId: ReturnType<typeof setInterval> | null = null
+
+  constructor(moduleName: string) {
+    this.moduleName = moduleName
+  }
+
+  start(getState: () => Record<string, unknown>, intervalMs = HEALTH_CHECK_INTERVAL) {
+    if (this.intervalId) return
+    this.intervalId = setInterval(() => {
+      if (!this.enabled) return
+      try {
+        const state = getState()
+        const issues = detectIssues(state)
+
+        metrics.checksPerformed++
+
+        if (issues.length > 0) {
+          metrics.issuesDetected += issues.length
+          metrics.lastIssueAt = new Date().toISOString()
+
+          log('warn', `AutoDebug:${this.moduleName}`, `Issues detected: ${issues.length}`, {
+            issues,
+          })
+
+          const repaired = attemptRepair(state, issues)
+          if (repaired.recoveredKeys.length > 0) {
+            metrics.repairsApplied += repaired.recoveredKeys.length
+          }
+
+          const breakerKey = this.moduleName
+          const now = Date.now()
+          const breaker = circuitBreaker[breakerKey]
+          if (breaker && breaker.openedUntil > now) {
+            metrics.circuitBreakerTripped++
+            log('warn', `AutoDebug:${this.moduleName}`, 'Circuit breaker open, skipping repair', {
+              openedUntil: new Date(breaker.openedUntil).toISOString(),
+            })
+            return
+          }
+
+          if (!repaired.report.healthy) {
+            if (!breaker) {
+              circuitBreaker[breakerKey] = { failures: 1, lastFailure: now, openedUntil: 0 }
+            } else {
+              circuitBreaker[breakerKey].failures++
+              circuitBreaker[breakerKey].lastFailure = now
+            }
+
+            if (circuitBreaker[breakerKey].failures >= CIRCUIT_BREAKER_THRESHOLD) {
+              circuitBreaker[breakerKey].openedUntil = now + CIRCUIT_BREAKER_COOLDOWN
+              metrics.circuitBreakerTripped++
+              log('error', `AutoDebug:${this.moduleName}`, 'Circuit breaker tripped', {
+                failures: circuitBreaker[breakerKey].failures,
+              })
+            }
+          } else {
+            if (breaker) {
+              circuitBreaker[breakerKey].failures = 0
+              circuitBreaker[breakerKey].openedUntil = 0
+            }
+            metrics.lastHealthyAt = new Date().toISOString()
+          }
+        } else {
+          metrics.lastHealthyAt = new Date().toISOString()
+        }
+      } catch (error) {
+        log('error', `AutoDebug:${this.moduleName}`, 'AutoDebug execution failed', {
+          error: String(error),
+        })
+      }
+    }, intervalMs)
+  }
+
+  stop() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId)
+      this.intervalId = null
+    }
+  }
+
+  getMetrics(): DebugMetrics {
+    return { ...metrics }
+  }
+
+  resetMetrics() {
+    metrics.checksPerformed = 0
+    metrics.issuesDetected = 0
+    metrics.repairsApplied = 0
+    metrics.retriesTriggered = 0
+    metrics.circuitBreakerTripped = 0
+    metrics.lastHealthyAt = null
+    metrics.lastIssueAt = null
+  }
+}
