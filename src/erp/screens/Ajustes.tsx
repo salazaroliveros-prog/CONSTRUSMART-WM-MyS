@@ -66,7 +66,6 @@ const Ajustes: React.FC = () => {
   const { token } = antTheme.useToken();
 
   const compactModeLabel = appSettings.compactMode ? 'compacto' : 'expandido';
-  const [_compactPreview, setCompactPreview] = useState(compactModeLabel);
 
   const exportBackup = () => {
     try {
@@ -290,11 +289,7 @@ const Ajustes: React.FC = () => {
                 </Space>
                 <Select
                   value={compactModeLabel}
-                  onChange={v => {
-                    _compactPreview;
-                    setCompactPreview(v);
-                    updateAppSettings({ compactMode: v === 'compacto' });
-                  }}
+                  onChange={v => updateAppSettings({ compactMode: v === 'compacto' })}
                   className={controlWidthClass}
                   options={[
                     { value: 'compacto', label: 'Modo compacto' },
