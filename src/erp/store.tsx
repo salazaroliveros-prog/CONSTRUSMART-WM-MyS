@@ -412,8 +412,8 @@ const forceSync = useMemo(() => {
           }, {} as Record<string, { INSERT: Mutation[]; UPDATE: Mutation[]; DELETE: Mutation[]; SPECIAL: Mutation[] }>);
 
           const processOps = async (table: string, ops: { INSERT: Mutation[]; UPDATE: Mutation[]; DELETE: Mutation[]; SPECIAL: Mutation[] }) => {
-            let tableProcessed: string[] = [];
-            let tableFailed: Mutation[] = [];
+            const tableProcessed: string[] = [];
+            const tableFailed: Mutation[] = [];
             try {
               if (ops.SPECIAL.length) {
                 for (const m of ops.SPECIAL) {
