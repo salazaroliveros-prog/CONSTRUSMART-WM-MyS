@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { Modal } from 'antd';
 import { useErp } from '../store';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
 import { fmtQ } from '../utils';
@@ -168,11 +169,12 @@ const Cotizaciones: React.FC = () => {
     setShowForm(false);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('¿Eliminar esta cotización?')) {
-      deleteCotizacion(id);
-      toast.success('Cotización eliminada');
-    }
+  const handleDelete = async (id: string) => {
+    try {
+      await Modal.confirm({ title: 'Eliminar cotización', content: '¿Está seguro de eliminar esta cotización?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
+    } catch { return; }
+    deleteCotizacion(id);
+    toast.success('Cotización eliminada');
   };
 
   const handleEnviar = (c: CotizacionCliente) => {
