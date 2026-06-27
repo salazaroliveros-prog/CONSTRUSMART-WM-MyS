@@ -34,7 +34,7 @@ jobs:
       - name: TypeScript check
         run: npm run typecheck
 
-   test:
+  test:
     name: 🧪 Tests
     runs-on: ubuntu-latest
     steps:
