@@ -8,7 +8,7 @@ import {
   HardHat, DollarSign, Settings, Flag,
   CreditCard, Landmark, Percent, TriangleAlert,
    ClipboardList, PieChart, Cpu, Truck, FileCog, Package,
-   FileText, FileDown, Copy, Award,
+   FileText, FileDown, Copy, Award, Wrench,
 } from 'lucide-react';
 
 interface NavItem { id: View; label: string; icon: React.ElementType; group: string }
@@ -28,6 +28,7 @@ const ITEMS: NavItem[] = [
   { id: 'hitos',             label: 'Hitos',              icon: Flag,            group: 'Planificación'},
   { id: 'riesgos',           label: 'Riesgos',            icon: TriangleAlert,   group: 'Planificación'},
   { id: 'plantillas',       label: 'Plantillas',         icon: Copy,            group: 'Planificación'},
+  { id: 'bitacora',          label: 'Bitácora',           icon: BookOpen,        group: 'Planificación'},
 
   // ── 3. EJECUCIÓN / CAMPO ──────────────────────────────────────────────────
   { id: 'seguimiento',       label: 'Seguimiento EVM',    icon: ClipboardCheck,  group: 'Ejecución'    },
@@ -43,6 +44,8 @@ const ITEMS: NavItem[] = [
   { id: 'bodega',            label: 'Bodega',             icon: Warehouse,       group: 'Suministro'   },
   { id: 'logistica',         label: 'Logística/Compras',  icon: Truck,           group: 'Suministro'   },
   { id: 'entradas-almacen',  label: 'Entradas Almacén',   icon: Package,         group: 'Suministro'   },
+  { id: 'activos',           label: 'Activos',            icon: Wrench,          group: 'Suministro'   },
+  { id: 'cuadros',           label: 'Cuadros Comparativos', icon: ClipboardCheck,  group: 'Suministro'   },
   { id: 'proveedor-analytics', label: 'Analytics Proveedores', icon: Award,        group: 'Suministro'   },
 
   // ── 5. RRHH / NÓMINA ──────────────────────────────────────────────────────

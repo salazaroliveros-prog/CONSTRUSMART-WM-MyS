@@ -1657,11 +1657,6 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().enqueueMutation('deleteVentaPaquete', { id });
   },
 
-  likePublicacionMuro: (publicacionId) => {
-    set((state) => ({ publicacionesMuro: state.publicacionesMuro.map((p) => (p.id === publicacionId ? { ...p, likes: (p.likes || 0) + 1 } : p)) }));
-    get().enqueueMutation('likePublicacionMuro', { id: publicacionId });
-  },
-
   addError: (entry) => {
     const newEntry = { id: uid(), ...entry, createdAt: new Date().toISOString() };
     set((state) => ({ errorLogs: [...state.errorLogs, newEntry] }));

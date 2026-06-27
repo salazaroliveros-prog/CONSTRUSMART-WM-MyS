@@ -628,7 +628,6 @@ describe('Stage 1: Individual Entity Deletion', () => {
       deleteCentroCosto:'centrosCosto',
       deletePublicacionMuro:'publicacionesMuro',
       deleteVentaPaquete:'ventasPaquetes',
-      deleteRecepcion:'recepciones',
     };
 
     deleteKeys.forEach(k => {

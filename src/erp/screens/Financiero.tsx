@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899', '#14b8a6', '#a855f7', '#f43f5e'];
 
 const Financiero: React.FC = () => {
-  const { movimientos, deleteMovimiento, proyectos } = useErp();
+  const { movimientos, deleteMovimiento, proyectos, centrosCosto, selectedProyectoId } = useErp();
   const [filtro, setFiltro] = useState<'todos' | 'ingreso' | 'gasto'>('todos');
   const [loading, setLoading] = useState(true);
   const flowConfig = useChartConfig('line', 'default');
@@ -33,11 +33,31 @@ const Financiero: React.FC = () => {
     return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([k, v], i) => ({ label: CATEGORIA_LABEL[k as keyof typeof CATEGORIA_LABEL], value: v, color: COLORS[i % COLORS.length] }));
   }, [movimientos]);
 
-  const centrosCosto = useMemo(() => proyectos.map(p => {
-    const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-    const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-    return { nombre: p.nombre, ing, gas, margen: ing - gas };
-  }), [proyectos, movimientos]);
+  const centrosCostoData = useMemo(() => {
+    if (centrosCosto && centrosCosto.length > 0) {
+      return centrosCosto.map(cc => {
+        const proyecto = proyectos.find(p => p.id === cc.proyectoId);
+        const ing = movimientos.filter(m => m.proyectoId === cc.proyectoId && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+        const gas = movimientos.filter(m => m.proyectoId === cc.proyectoId && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+        return { 
+          nombre: cc.nombre, 
+          codigo: cc.codigo,
+          tipo: cc.tipo,
+          presupuesto: cc.presupuestoAsignado,
+          gasto: cc.gastoActual,
+          ing, 
+          gas, 
+          margen: ing - gas,
+          proyecto: proyecto?.nombre || 'Sin proyecto'
+        };
+      });
+    }
+    return proyectos.map(p => {
+      const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+      const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
+      return { nombre: p.nombre, codigo: p.id, tipo: 'directo', presupuesto: 0, gasto: gas, ing, gas, margen: ing - gas, proyecto: p.nombre };
+    });
+  }, [proyectos, movimientos, centrosCosto]);
 
   const cashFlow = useMemo(() => {
     const monthlyIng = new Array(12).fill(0);
@@ -165,12 +185,22 @@ const Financiero: React.FC = () => {
 
           <div className="bg-card text-card-foreground rounded-2xl shadow-sm mt-4 p-4 border border-border overflow-x-auto">
             <h3 className="font-bold text-foreground text-sm mb-2">Utilidad Neta por Centro de Costo</h3>
-            <table className="w-full text-xs min-w-[320px]">
-              <thead className="text-muted-foreground"><tr><th className="text-left pb-1">Proyecto</th><th className="text-right">Ingresos</th><th className="text-right">Egresos</th><th className="text-right">Margen</th></tr></thead>
+            <table className="w-full text-xs min-w-[400px]">
+              <thead className="text-muted-foreground"><tr><th className="text-left pb-1">Centro de Costo</th><th className="text-left pb-1">Tipo</th><th className="text-right">Presupuesto</th><th className="text-right">Ingresos</th><th className="text-right">Egresos</th><th className="text-right">Margen</th></tr></thead>
               <tbody>
-                {centrosCosto.length > 0 ? centrosCosto.map(c => (
-                  <tr key={c.nombre} className="border-b border-border/40"><td className="py-1.5 text-foreground">{c.nombre}</td><td className="text-right text-emerald-600 dark:text-emerald-400">{fmtQ(c.ing)}</td><td className="text-right text-red-500 dark:text-red-400">{fmtQ(c.gas)}</td><td className={`text-right font-bold ${c.margen >= 0 ? 'text-foreground' : 'text-red-600 dark:text-red-400'}`}>{fmtQ(c.margen)}</td></tr>
-                )) : <tr><td colSpan={4} className="p-4 text-center text-muted-foreground">Sin proyectos registrados</td></tr>}
+                {centrosCostoData.length > 0 ? centrosCostoData.map(c => (
+                  <tr key={c.codigo} className="border-b border-border/40">
+                    <td className="py-1.5 text-foreground">
+                      <div className="font-medium">{c.nombre}</div>
+                      <div className="text-muted-foreground text-[10px]">{c.proyecto}</div>
+                    </td>
+                    <td className="py-1.5 text-muted-foreground capitalize">{c.tipo}</td>
+                    <td className="text-right text-muted-foreground">{fmtQ(c.presupuesto)}</td>
+                    <td className="text-right text-emerald-600 dark:text-emerald-400">{fmtQ(c.ing)}</td>
+                    <td className="text-right text-red-500 dark:text-red-400">{fmtQ(c.gas)}</td>
+                    <td className={`text-right font-bold ${c.margen >= 0 ? 'text-foreground' : 'text-red-600 dark:text-red-400'}`}>{fmtQ(c.margen)}</td>
+                  </tr>
+                )) : <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">Sin centros de costo registrados</td></tr>}
               </tbody>
             </table>
           </div>
