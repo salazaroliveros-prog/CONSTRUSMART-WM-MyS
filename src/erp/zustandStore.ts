@@ -1624,39 +1624,48 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
 
   updateAvance: (id, patch) => {
     set((state) => ({ avances: state.avances.map((a) => (a.id === id ? { ...a, ...patch } : a)) }));
+    get().enqueueMutation('updateAvance', { id, ...patch });
   },
 
   updatePublicacionMuro: (id, patch) => {
     set((state) => ({ publicacionesMuro: state.publicacionesMuro.map((p) => (p.id === id ? { ...p, ...patch } : p)) }));
+    get().enqueueMutation('updatePublicacionMuro', { id, ...patch });
   },
 
   deletePublicacionMuro: (id) => {
     set((state) => ({ publicacionesMuro: state.publicacionesMuro.filter((p) => p.id !== id) }));
+    get().enqueueMutation('deletePublicacionMuro', { id });
   },
 
   updateNotificacion: (id, patch) => {
     set((state) => ({ notificaciones: state.notificaciones.map((n) => (n.id === id ? { ...n, ...patch } : n)) }));
+    get().enqueueMutation('updateNotificacion', { id, ...patch });
   },
 
   updateRecepcion: (id, patch) => {
     set((state) => ({ recepciones: state.recepciones.map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
+    get().enqueueMutation('updateRecepcion', { id, ...patch });
   },
 
   updateVentaPaquete: (id, patch) => {
     set((state) => ({ ventasPaquetes: state.ventasPaquetes.map((v) => (v.id === id ? { ...v, ...patch } : v)) }));
+    get().enqueueMutation('updateVentaPaquete', { id, ...patch });
   },
 
   deleteVentaPaquete: (id) => {
     set((state) => ({ ventasPaquetes: state.ventasPaquetes.filter((v) => v.id !== id) }));
+    get().enqueueMutation('deleteVentaPaquete', { id });
   },
 
   likePublicacionMuro: (publicacionId) => {
     set((state) => ({ publicacionesMuro: state.publicacionesMuro.map((p) => (p.id === publicacionId ? { ...p, likes: (p.likes || 0) + 1 } : p)) }));
+    get().enqueueMutation('likePublicacionMuro', { id: publicacionId });
   },
 
   addError: (entry) => {
-    const newEntry = { id: Date.now().toString(), ...entry, createdAt: new Date().toISOString() };
+    const newEntry = { id: uid(), ...entry, createdAt: new Date().toISOString() };
     set((state) => ({ errorLogs: [...state.errorLogs, newEntry] }));
+    get().enqueueMutation('addError', newEntry);
   },
 
   duplicarCotizacion: (id) => {
