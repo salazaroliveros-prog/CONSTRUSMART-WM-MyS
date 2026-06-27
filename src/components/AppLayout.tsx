@@ -117,7 +117,7 @@ const Shell: React.FC = () => {
       'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_no_conformidades',
       'erp_incidentes', 'erp_pruebas_laboratorio', 'erp_liberaciones_partida',
       'erp_planos', 'erp_rfis', 'erp_submittals', 'erp_activos', 'erp_cuadros',
-      'ventas_paquetes', 'pagos_proveedores',
+      'ventas_paquetes', 'erp_pagos_proveedor',
     ],
     enabled: true,
     rol: user?.rol,
@@ -266,3 +266,4 @@ const AppLayout: React.FC = () => (
 );
 
 export default AppLayout;
+
