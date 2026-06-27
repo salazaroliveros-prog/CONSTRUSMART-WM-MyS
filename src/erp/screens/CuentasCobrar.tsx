@@ -16,8 +16,17 @@ const CuentasCobrarScreen: React.FC = () => {
 
   useEffect(() => { setLoading(false); }, []);
   const [filtroProyecto, setFiltroProyecto] = useState('');
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const clearFieldError = (field: string) => setFormErrors(prev => ({ ...prev, [field]: '' }));
+  const set = (patch: Record<string, any>) => { setForm(prev => ({ ...prev, ...patch })); Object.keys(patch).forEach(clearFieldError); };
   const [form, setForm] = useState({ proyectoId: '', cliente: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', notas: '' });
 
+
+    const errs: Record<string, string> = {};
+    if (!form.cliente) errs.cliente = 'Cliente requerido';
+    if (!form.concepto) errs.concepto = 'Concepto requerido';
+    if (!form.monto || form.monto <= 0) errs.monto = 'Monto debe ser mayor a 0';
+    if (Object.keys(errs).length) { setFormErrors(errs); return; }
   const agregar = () => {
     if (!form.cliente || !form.concepto || form.monto <= 0) { toast.error('Cliente, concepto y monto requeridos'); return; }
     addCuentaCobrar({
@@ -28,6 +37,8 @@ const CuentasCobrarScreen: React.FC = () => {
     toast.success('Cuenta por cobrar registrada');
     setShowForm(false); setForm({ proyectoId: '', cliente: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', notas: '' });
   };
+    toast.success('Cuenta por cobrar registrada');
+    setShowForm(false); setForm({ proyectoId: '', cliente: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', notas: '' }); setFormErrors({});
 
   const cobrar = (id: string) => {
     updateCuentaCobrar(id, { estado: 'cobrado', fechaCobro: todayISO(), saldoPendiente: 0 });
@@ -75,16 +86,25 @@ const CuentasCobrarScreen: React.FC = () => {
       {showForm && (
         <div className="bg-emerald-50 rounded-xl p-4 mb-4 border border-emerald-200 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input value={form.cliente} onChange={e => setForm(prev => ({ ...prev, cliente: e.target.value }))} placeholder="Nombre del cliente *" className={INPUT} />
-            <input value={form.concepto} onChange={e => setForm(prev => ({ ...prev, concepto: e.target.value }))} placeholder="Concepto *" className={INPUT} />
+            <div>
+              <input value={form.cliente} onChange={e => set({ cliente: e.target.value })} placeholder="Nombre del cliente *" className={INPUT} />
+              {formErrors.cliente && <p className="text-xs text-red-500 mt-0.5">{formErrors.cliente}</p>}
+            </div>
+            <div>
+              <input value={form.concepto} onChange={e => set({ concepto: e.target.value })} placeholder="Concepto *" className={INPUT} />
+              {formErrors.concepto && <p className="text-xs text-red-500 mt-0.5">{formErrors.concepto}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <input type="number" value={form.monto ?? ''} onChange={e => setForm(prev => ({ ...prev, monto: +e.target.value }))} placeholder="Monto Q *" className={INPUT} />
-            <input type="date" value={form.fechaEmision} onChange={e => setForm(prev => ({ ...prev, fechaEmision: e.target.value }))} className={INPUT} />
-            <input type="date" value={form.fechaVencimiento} onChange={e => setForm(prev => ({ ...prev, fechaVencimiento: e.target.value }))} placeholder="Fecha vencimiento" className={INPUT} />
+            <div>
+              <input type="number" value={form.monto ?? ''} onChange={e => set({ monto: +e.target.value })} placeholder="Monto Q *" className={INPUT} />
+              {formErrors.monto && <p className="text-xs text-red-500 mt-0.5">{formErrors.monto}</p>}
+            </div>
+            <input type="date" value={form.fechaEmision} onChange={e => set({ fechaEmision: e.target.value })} className={INPUT} />
+            <input type="date" value={form.fechaVencimiento} onChange={e => set({ fechaVencimiento: e.target.value })} placeholder="Fecha vencimiento" className={INPUT} />
           </div>
-          <select value={form.proyectoId} onChange={e => setForm(prev => ({ ...prev, proyectoId: e.target.value }))} className={INPUT}><option value="">Sin proyecto</option>{proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}</select>
-          <input value={form.notas} onChange={e => setForm(prev => ({ ...prev, notas: e.target.value }))} placeholder="Notas" className={INPUT} />
+          <select value={form.proyectoId} onChange={e => set({ proyectoId: e.target.value })} className={INPUT}><option value="">Sin proyecto</option>{proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}</select>
+          <input value={form.notas} onChange={e => set({ notas: e.target.value })} placeholder="Notas" className={INPUT} />
           <div className="flex gap-2"><button onClick={agregar} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-semibold">Registrar</button><button onClick={() => setShowForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">Cancelar</button></div>
         </div>
       )}
