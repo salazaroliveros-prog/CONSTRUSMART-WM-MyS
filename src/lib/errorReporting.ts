@@ -32,8 +32,9 @@ class ErrorReporter {
   private isKnownTdzError(message: string): boolean {
     const msg = String(message);
     if (/Cannot access\s+['"]?[A-Za-z0-9_$]+['"]?\s+before initialization/i.test(msg)) return true;
-    if (msg.includes("toLocaleLowerCase is not a function")) return true;
+    if (msg.includes("toLocaleLowerCase") || msg.includes("toLocaleUpperCase")) return true;
     if (msg.includes("Unexpected character: }") && msg.includes("@ant-design")) return true;
+    if (msg.includes("Failed to load resource") && msg.includes("supabase.co")) return true;
     return false;
   }
 

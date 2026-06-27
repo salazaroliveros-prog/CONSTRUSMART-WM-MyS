@@ -106,6 +106,13 @@ const Presupuestos: React.FC = () => {
   const [nuevoProveedorContacto, setNuevoProveedorContacto] = useState('');
   const [saved, setSaved] = useState(false);
   const [editingPresupuesto, setEditingPresupuesto] = useState<Presupuesto | null>(null);
+  const [savedItemsCount, setSavedItemsCount] = useState(0);
+
+  const hasUnsavedChanges = items.length > 0 && items.length !== savedItemsCount;
+  const confirmDiscard = (): boolean => {
+    if (!hasUnsavedChanges) return true;
+    return window.confirm(t('presupuestos.confirmar_descartar') || 'Hay cambios sin guardar. ¿Descartarlos?');
+  };
 
   useEffect(() => {
     if (selectedProyectoId) {
@@ -148,6 +155,7 @@ const Presupuestos: React.FC = () => {
   }, [selectedProyectoId, presupuestos, proyectos]);
 
   const openHistorial = () => {
+    if (!confirmDiscard()) return;
     setTab('guardados');
   };
 
@@ -476,6 +484,7 @@ const Presupuestos: React.FC = () => {
           versionPresupuesto: (editingPresupuesto.versionPresupuesto || 1) + 1,
         });
         setEditingPresupuesto(null);
+        setSavedItemsCount(itemsSeguros.length);
         toast.success('Presupuesto actualizado correctamente', { description: `Versión ${(editingPresupuesto.versionPresupuesto || 1) + 1} · Total: Q${totalCalc.toFixed(2)}` });
       } else if (projectId) {
         await addPresupuesto({
@@ -490,10 +499,12 @@ const Presupuestos: React.FC = () => {
           notas: proyecto,
           versionPresupuesto: 1,
         });
+        setSavedItemsCount(itemsSeguros.length);
         toast.success('Presupuesto guardado correctamente', { description: `${itemsSeguros.length} renglones · Total: Q${totalCalc.toFixed(2)}` });
       } else {
         try {
           localStorage.setItem('wm_presupuesto_' + proyecto, JSON.stringify(itemsSeguros));
+          setSavedItemsCount(itemsSeguros.length);
           toast.success('Presupuesto guardado localmente', { description: 'Sin proyecto asociado · Guardado en localStorage' });
         } catch (err) { 
           toast.error('Error al guardar localmente'); 
@@ -611,7 +622,7 @@ const Presupuestos: React.FC = () => {
       {/* Tabs */}
       <div className="flex gap-2 mb-4 border-b border-border">
           <button 
-            onClick={() => { setTab('crear'); setEditingPresupuesto(null); }}
+            onClick={() => { if (!confirmDiscard()) return; setTab('crear'); setEditingPresupuesto(null); }}
             className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
               tab === 'crear' 
                 ? 'text-primary border-primary' 
@@ -621,7 +632,7 @@ const Presupuestos: React.FC = () => {
             ➕ {editingPresupuesto ? t('presupuestos.editar') : t('presupuestos.nuevo')}
           </button>
           <button 
-            onClick={() => setTab('guardados')}
+            onClick={() => { if (!confirmDiscard()) return; setTab('guardados'); }}
             className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
               tab === 'guardados' 
                 ? 'text-primary border-primary' 
@@ -656,7 +667,7 @@ const Presupuestos: React.FC = () => {
               <button disabled={!items.length} onClick={() => exportPDF(items, proyecto, tipologia)} className="bg-red-500 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><FileText className="w-3.5 h-3.5" /> PDF</button>
               <button disabled={!items.length} onClick={() => exportCSV(items, proyecto, tipologia)} className="bg-emerald-600 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><FileSpreadsheet className="w-3.5 h-3.5" /> CSV</button>
               <button disabled={!items.length} onClick={() => exportXLSX(items, proyecto, tipologia)} className="bg-green-700 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><FileSpreadsheet className="w-3.5 h-3.5" /> XLSX</button>
-              {editingPresupuesto && <button onClick={() => { setEditingPresupuesto(null); setItems([]); }} className="bg-slate-400 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs"><X className="w-3.5 h-3.5" /></button>}
+              {editingPresupuesto && <button onClick={() => { if (!confirmDiscard()) return; setEditingPresupuesto(null); setItems([]); setSavedItemsCount(0); }} className="bg-slate-400 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs"><X className="w-3.5 h-3.5" /></button>}
             </div>
           </div>
 

@@ -458,7 +458,8 @@
     "bajo_presupuesto": "Under Budget",
     "costo_directo": "Direct Cost",
     "total_con_indirectos": "Total w/ Indirect Costs",
-    "apu_asociado": "Associated APU"
+    "apu_asociado": "Associated APU",
+    "confirmar_descartar": "You have unsaved changes. Discard them?"
   },
   "seguimiento": {
     "titulo": "Tracking",

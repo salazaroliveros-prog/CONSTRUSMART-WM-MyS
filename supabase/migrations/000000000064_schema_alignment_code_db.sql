@@ -17,6 +17,7 @@ ALTER TABLE erp_ordenes_compra ADD COLUMN IF NOT EXISTS stock_actualizado boolea
 
 -- 3) Añadir columnas faltantes a erp_proyectos
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS descripcion text;
+ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS subtipo text;
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS tipo_obra text;
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS cliente_nit text;
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS cliente_telefono text;
