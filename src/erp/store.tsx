@@ -218,6 +218,14 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   const { user: authUser, signInWithGoogle: realSignInWithGoogle, signOut: realLogout, loading: authLoading } = useAuth();
+  const handleLogout = useCallback(async () => {
+    await realLogout();
+    try {
+      const keys = Object.keys(localStorage).filter(k => k.startsWith('erp_') || k === 'zustand_erp_store' || k === 'wm_photo' || k === 'wm_google_avatar');
+      keys.forEach(k => localStorage.removeItem(k));
+    } catch {}
+    window.location.reload();
+  }, [realLogout]);
 
    const zustandUser = useErpStore(s => (s as any).user);
    const user = useMemo(() => {
@@ -561,9 +569,9 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
 const ctxValue = useMemo(() => ({
      view, setView, user, initializing, isOnline, notificacionesNoLeidas,
      signInWithGoogle: realSignInWithGoogle,
-     logout: realLogout,
+      logout: handleLogout,
      allowedViews, forceSync,
-   }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, realLogout, allowedViews, forceSync]);
+    }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, handleLogout, allowedViews, forceSync]);
 
 // Initialize realtime subscriptions -Cuando recibimos cambios de otros clientes
     useEffect(() => {
