@@ -16,7 +16,7 @@ import {
   CheckCircleOutlined, ExperimentOutlined, ExportOutlined,
   UserOutlined, ImportOutlined,
   CalendarOutlined, DollarOutlined, SwapRightOutlined, FundOutlined, WarningOutlined,
-  PlayCircleOutlined, PaintOutlined, FileTextOutlined, RiseOutlined,
+  PlayCircleOutlined, FileTextOutlined, RiseOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -197,7 +197,7 @@ const Ajustes: React.FC = () => {
               <Divider style={dividerStyle} />
 
               <SettingRow
-                icon={<PaintOutlined style={{ fontSize: ICON_SIZE, color: appSettings.primaryColor }} />}
+                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE, color: appSettings.primaryColor }} />}
                 title={t('ajustes.color_principal') || 'Color Principal'}
                 subtitle={t('ajustes.color_principal_sub') || 'Personaliza el color primario de la marca'}
               >
