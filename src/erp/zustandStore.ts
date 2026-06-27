@@ -1662,8 +1662,9 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   duplicarCotizacion: (id) => {
     const original = get().cotizacionesNegocio.find((c) => c.id === id);
     if (!original) return;
-    const nueva = { ...original, id: undefined, numero: original.numero + " (copia)" };
+    const nueva = { ...original, id: uid(), numero: original.numero + " (copia)" };
     get().addCotizacion(nueva);
   },
 }));
+
 
