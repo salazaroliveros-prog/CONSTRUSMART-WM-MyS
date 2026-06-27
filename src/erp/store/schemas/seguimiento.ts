@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const avanceObraSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   presupuestoId: z.string(),
   renglonId: z.string(),
   renglonCodigo: z.string().optional(),
@@ -18,7 +18,7 @@ export const avanceObraSchema = z.object({
 
 export const seguimientoSchema = z.object({
   id: z.string(),
-  proyectoId: z.string(),
+  proyectoId: z.string().min(1, 'proyectoId es requerido'),
   fecha: z.string(),
   avanceFisico: z.number().default(0),
   avanceFinanciero: z.number().default(0),

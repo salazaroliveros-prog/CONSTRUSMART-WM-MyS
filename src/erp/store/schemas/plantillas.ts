@@ -82,7 +82,6 @@ export const plantillaSchema = z.object({
   versionHistorial: z.array(versionHistorialSchema).default([]),
   createdAt: z.string().default(() => new Date().toISOString()),
   updatedAt: z.string().default(() => new Date().toISOString()),
-  creadoPor: z.string().optional().default(''),
 });
 
 export type Plantilla = z.infer<typeof plantillaSchema>;
