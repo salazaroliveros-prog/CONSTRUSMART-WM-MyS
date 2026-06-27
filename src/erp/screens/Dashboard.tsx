@@ -13,6 +13,7 @@ import GanttChart from '../components/GanttChart';
 import { CARD, CARD_TITLE } from '../ui';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { SkeletonDashboard } from '../../components/SkeletonScreens';
+import { supabase } from '@/lib/supabase';
 import type { ActivoHerramienta, Empleado, Licitacion, Riesgo, OrdenCompra } from '../types';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
@@ -63,6 +64,8 @@ const Dashboard: React.FC = () => {
   const { t } = useTranslation();
   const online = useOnlineStatus();
   const dashRef = useRef<HTMLDivElement>(null);
+  const [integrityData, setIntegrityData] = useState<any>(null);
+  useEffect(() => { supabase.rpc('check_daily_integrity').then(({ data }) => data && setIntegrityData(data)).catch(() => {}); }, []);
 
   const {
     proyectos, movimientos, avances, selectedProyectoId, setView,
@@ -76,6 +79,8 @@ const Dashboard: React.FC = () => {
   } = ctx;
 
   const hasData = (proyectos || []).length > 0 || (movimientos || []).length > 0 || (materiales || []).length > 0;
+  const totalOrphans = integrityData?.fk_orphans?.reduce?.((a, o) => a + o.count, 0) ?? 0;
+  const totalNulls = integrityData?.null_checks?.reduce?.((a, o) => a + o.count, 0) ?? 0;
 
   const s1 = useStagger(0);
   const s2 = useStagger(100);
@@ -710,12 +715,12 @@ const Dashboard: React.FC = () => {
             </h3>
             <div className="text-[10px] space-y-1">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('dashboard.integridad_huérfanos', { count: 0 })}</span>
-                <span className="text-success font-medium">0</span>
+                <span className="text-muted-foreground">{t('dashboard.integridad_huérfanos', { count: totalOrphans })}</span>
+                <span className={totalOrphans > 0 ? 'text-destructive font-medium' : 'text-success font-medium'}>{totalOrphans}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('dashboard.integridad_nulls', { count: 0 })}</span>
-                <span className="text-success font-medium">0</span>
+                <span className="text-muted-foreground">{t('dashboard.integridad_nulls', { count: totalNulls })}</span>
+                <span className={totalNulls > 0 ? 'text-destructive font-medium' : 'text-success font-medium'}>{totalNulls}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t('dashboard.integridad_constraints', { count: mutationQueue.filter(m => m.retryCount > 2).length })}</span>
