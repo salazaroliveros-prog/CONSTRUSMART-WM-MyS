@@ -256,7 +256,7 @@ const Ajustes: React.FC = () => {
                 </Space>
                 <Select
                   defaultValue="compacto"
-                  style={{ width: 200 }}
+                  className="w-full sm:w-40 md:w-48"
                   options={[
                     { value: 'compacto', label: 'Modo compacto' },
                     { value: 'expandido', label: 'Modo expandido' },
@@ -280,7 +280,7 @@ const Ajustes: React.FC = () => {
                 <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
                   <div><Text strong>{t('ajustes.idioma')}</Text><br /><Text type="secondary">Idioma de la interfaz</Text></div>
                   <Select value={appSettings.language} onChange={v => updateAppSettings({ language: v })}
-                    style={{ width: 160 }}
+                    className="w-full sm:w-36 md:w-40"
                     options={[
                       { value: 'es', label: '🇬🇹 Español' },
                       { value: 'en', label: '🇺🇸 English' },
@@ -293,7 +293,7 @@ const Ajustes: React.FC = () => {
                 <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
                   <div><Text strong>Formato de Fecha</Text><br /><Text type="secondary">Cómo se muestran las fechas</Text></div>
                   <Select value={appSettings.dateFormat} onChange={v => updateAppSettings({ dateFormat: v as any })}
-                    style={{ width: 180 }}
+                    className="w-full sm:w-40 md:w-44"
                     options={[
                       { value: 'DD/MM/YYYY', label: '31/12/2026' },
                       { value: 'MM/DD/YYYY', label: '12/31/2026' },
@@ -307,7 +307,7 @@ const Ajustes: React.FC = () => {
                 <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
                   <div><Text strong>Moneda</Text><br /><Text type="secondary">Símbolo monetario del sistema</Text></div>
                   <Select value={appSettings.currency} onChange={v => updateAppSettings({ currency: v as 'GTQ' | 'USD' })}
-                    style={{ width: 160 }}
+                    className="w-full sm:w-36 md:w-40"
                     options={[
                       { value: 'GTQ', label: 'Q (Quetzal GT)' },
                       { value: 'USD', label: '$ (Dólar US)' },

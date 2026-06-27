@@ -110,7 +110,7 @@ export default function Auditoria() {
     return (
       <div className="p-4 max-w-6xl mx-auto space-y-4">
         <Skeleton active paragraph={{ rows: 1 }} />
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map(i => <Skeleton key={i} active paragraph={{ rows: 2 }} />)}
         </div>
         <Skeleton active paragraph={{ rows: 8 }} />
@@ -192,7 +192,7 @@ export default function Auditoria() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-sm text-gray-500">{t('auditoria.total')}</span>
@@ -228,7 +228,7 @@ export default function Auditoria() {
           prefix={<SearchOutlined />}
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{ width: 240 }}
+          className="w-full sm:w-48 md:w-60"
           aria-label="Buscar en auditoría"
         />
         <Select
@@ -236,7 +236,7 @@ export default function Auditoria() {
           value={filterTabla}
           onChange={v => setFilterTabla(v)}
           allowClear
-          style={{ width: 160 }}
+          className="w-full sm:w-36 md:w-40"
           aria-label="Filtrar por tabla"
           options={tablas.map(t => ({ value: t, label: t }))}
         />
@@ -245,7 +245,7 @@ export default function Auditoria() {
           value={filterOperacion}
           onChange={v => setFilterOperacion(v)}
           allowClear
-          style={{ width: 160 }}
+          className="w-full sm:w-36 md:w-40"
           aria-label="Filtrar por operación"
           options={[
             { value: 'Creación', label: t('auditoria.operacion_creacion') },
@@ -258,7 +258,7 @@ export default function Auditoria() {
           value={filterUsuario}
           onChange={v => setFilterUsuario(v)}
           allowClear
-          style={{ width: 160 }}
+          className="w-full sm:w-36 md:w-40"
           aria-label="Filtrar por usuario"
           options={usuarios.map(u => ({ value: u, label: u }))}
         />
@@ -294,6 +294,7 @@ export default function Auditoria() {
           </Button>,
         ]}
         width={800}
+        style={{ width: '95vw', maxWidth: 800 }}
       >
         {selectedEntry && (
           <Descriptions bordered column={2} size="small">

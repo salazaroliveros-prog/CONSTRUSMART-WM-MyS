@@ -773,7 +773,7 @@ const APUAvanzado: React.FC = () => {
 
                 <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                   <h3 className="font-bold text-slate-700 text-xs mb-2">Desglose de Costos</h3>
-                  <div className="grid grid-cols-3 gap-2 text-[10px]">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
                     <div className="flex justify-between">
                       <span className="text-slate-500">Cemento:</span>
                       <span className="font-medium text-slate-700">Q{resultadoDosificacion.desgloseCostos.cemento.toFixed(2)}</span>
@@ -1251,7 +1251,7 @@ const APUAvanzado: React.FC = () => {
               <div className="mt-4 space-y-3">
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
                   <h3 className="font-bold text-slate-700 text-xs mb-3">Factores Climáticos</h3>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
                       <div className="text-[10px] text-blue-600 mb-1">Factor Curado</div>
                       <div className="text-lg font-bold text-blue-700">x{resultadoClimaticos.factorCurado?.toFixed(2) || '1.00'}</div>
@@ -1399,7 +1399,7 @@ const APUAvanzado: React.FC = () => {
 
                 <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                   <h3 className="font-bold text-slate-700 text-xs mb-2">Desglose de Costos</h3>
-                  <div className="grid grid-cols-3 gap-2 text-[10px]">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
                     <div className="flex justify-between">
                       <span className="text-slate-500">Superficie:</span>
                       <span className="font-medium text-slate-700">Q{resultadoPavimento.costoSuperficieM2?.toFixed(2) || '0.00'}/m²</span>

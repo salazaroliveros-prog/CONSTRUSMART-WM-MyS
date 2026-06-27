@@ -161,7 +161,8 @@ const Riesgos: React.FC = () => {
         <div className="flex gap-4 items-start">
           <div className="flex-shrink-0">
             <div className="text-[9px] text-slate-400 text-center mb-1">Impacto →</div>
-            <div className="grid grid-cols-5 gap-0.5" style={{ gridTemplateColumns: 'repeat(5, 44px)' }}>
+            <div className="overflow-x-auto -mx-1 px-1">
+              <div className="grid grid-cols-5 gap-0.5" style={{ gridTemplateColumns: 'repeat(5, 44px)' }}>
               {[5,4,3,2,1].map(prob => 
                 [1,2,3,4,5].map(imp => {
                   const nivel = calcularNivel(prob as 1|2|3|4|5, imp as 1|2|3|4|5);
@@ -187,6 +188,7 @@ const Riesgos: React.FC = () => {
                   );
                 })
               )}
+              </div>
             </div>
             <div className="text-[9px] text-slate-400 text-center mt-1">← Probabilidad (1-5 arriba a abajo)</div>
           </div>

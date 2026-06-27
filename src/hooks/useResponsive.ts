@@ -4,11 +4,11 @@ export type BreakpointKey = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
 
 const breakpoints: Record<BreakpointKey, number> = {
   xs: 0,
-  sm: 576,
+  sm: 640,
   md: 768,
-  lg: 992,
-  xl: 1200,
-  xxl: 1600,
+  lg: 1024,
+  xl: 1280,
+  xxl: 1536,
 }
 
 export const useResponsive = () => {
@@ -46,14 +46,14 @@ export const useResponsive = () => {
   return {
     ...screen,
     width,
-    isXS: width < 576,
-    isSM: width >= 576 && width < 768,
-    isMD: width >= 768 && width < 992,
-    isLG: width >= 992 && width < 1200,
-    isXL: width >= 1200 && width < 1600,
-    isXXL: width >= 1600,
+    isXS: width < 640,
+    isSM: width >= 640 && width < 768,
+    isMD: width >= 768 && width < 1024,
+    isLG: width >= 1024 && width < 1280,
+    isXL: width >= 1280 && width < 1536,
+    isXXL: width >= 1536,
     isMobile: width < 768,
-    isTablet: width >= 768 && width < 992,
-    isDesktop: width >= 992,
+    isTablet: width >= 768 && width < 1024,
+    isDesktop: width >= 1024,
   }
 }
