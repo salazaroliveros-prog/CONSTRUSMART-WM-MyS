@@ -467,7 +467,8 @@
     "sobre_presupuesto": "Sobre presupuesto",
     "bajo_presupuesto": "Bajo presupuesto",
     "costo_directo": "Costo Directo",
-    "total_con_indirectos": "TOTAL PRESUPUESTO (c/ indirectos y utilidad)"
+    "total_con_indirectos": "TOTAL PRESUPUESTO (c/ indirectos y utilidad)",
+    "confirmar_descartar": "Hay cambios sin guardar. ¿Descartarlos?"
   },
   "seguimiento": {
     "titulo": "Seguimiento",

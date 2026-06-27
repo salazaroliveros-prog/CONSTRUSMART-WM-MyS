@@ -55,7 +55,12 @@ function initialize(): void {
   // Escuchar errores globales no capturados
   if (typeof window !== 'undefined') {
     window.addEventListener('error', (event) => {
-      log('error', 'GlobalErrorHandler', event.message, {
+      const msg = event.message || ''
+      if (msg.includes('toLocaleLowerCase') || msg.includes('toLocaleUpperCase') || msg.includes('Unexpected character: }')) {
+        event.preventDefault()
+        return
+      }
+      log('error', 'GlobalErrorHandler', msg, {
         filename: event.filename,
         lineno: event.lineno,
         colno: event.colno,
@@ -66,7 +71,7 @@ function initialize(): void {
     window.addEventListener('unhandledrejection', (event) => {
       const reason = event.reason
       const msg = reason?.message || String(reason)
-      if (msg.includes('toLocaleLowerCase is not a function') || msg.includes('Unexpected character: }')) {
+      if (msg.includes('toLocaleLowerCase') || msg.includes('toLocaleUpperCase') || msg.includes('Unexpected character: }')) {
         event.preventDefault()
         return
       }
