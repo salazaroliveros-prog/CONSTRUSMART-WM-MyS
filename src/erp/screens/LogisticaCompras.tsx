@@ -412,3 +412,4 @@ export const LogisticaCompras: React.FC = () => {
 };
 
 export default LogisticaCompras;
+
