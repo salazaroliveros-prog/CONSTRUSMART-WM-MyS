@@ -140,6 +140,9 @@ interface ErpActions {
   updateAppSettings: (patch: Partial<AppSettings>) => void;
   deleteOrden: (id: string) => void;
   deleteNotificacion: (id: string) => void;
+  addCentroCosto: (c: Omit<CentroCosto, 'id'>) => void;
+  updateCentroCosto: (id: string, patch: Partial<CentroCosto>) => void;
+  deleteCentroCosto: (id: string) => void;
   addPlantilla: (p: Omit<Plantilla, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updatePlantilla: (id: string, patch: Partial<Plantilla>) => void;
   deletePlantilla: (id: string) => void;
@@ -937,6 +940,10 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   addIncidente: (i) => { const n = { ...i, id: uid() }; get().setIncidentes(prev => [n, ...prev]); get().enqueueMutation('addIncidente', n); },
   updateIncidente: (id, patch) => { get().setIncidentes(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateIncidente', { id, ...patch }); },
   deleteIncidente: (id) => { get().setIncidentes(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteIncidente', { id }); },
+
+  addCentroCosto: (c) => { const n = { ...c, id: uid() }; get().setCentrosCosto(prev => [n, ...prev]); get().enqueueMutation('addCentroCosto', n); },
+  updateCentroCosto: (id, patch) => { get().setCentrosCosto(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateCentroCosto', { id, ...patch }); },
+  deleteCentroCosto: (id) => { get().setCentrosCosto(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteCentroCosto', { id }); },
 
   addDestajo: (d) => { const n = { ...d, id: uid() }; get().setDestajos(prev => [n, ...prev]); get().enqueueMutation('addDestajo', n); },
   updateDestajo: (id, patch) => { get().setDestajos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateDestajo', { id, ...patch }); },

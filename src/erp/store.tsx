@@ -16,7 +16,7 @@ import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, sa
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { hasSupabase, assertSupabase, supabase, hasServiceRole, getServiceClient } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
-import { sanitizarObjeto } from '@/lib/security';
+import { sanitizarObjeto, getViewsByRole } from '@/lib/security';
 import { useAuth } from '@/hooks/useAuth';
 import { encryptionManager, migrateSecureStorage } from '@/lib/encryption';
 import { logErrorFromException, getErrorContext } from '@/lib/error-logger';
@@ -152,16 +152,16 @@ const STORE_KEY_MAP: Record<string, string> = {
   erp_submittals:'submittals',erp_activos:'activos',erp_cuadros:'cuadros',
   erp_pagos_proveedor:'pagosProveedor',erp_destajos:'destajos',
   erp_recepciones:'recepciones',erp_centros_costo:'centrosCosto',
-  erp_seguimiento:'seguimientoEVM',erp_bitacora:'bitacora',erp_pruebas:'pruebas',
-  erp_liberaciones:'liberaciones',erp_plantillas_proyectos:'plantillas',
-  erp_presupuestos:'presupuestos',erp_avances:'avances',erp_muro:'publicacionesMuro',
+  erp_seguimiento:'seguimientoEVM',erp_bitacora:'bitacora',
+  erp_plantillas_proyectos:'plantillas',
+  erp_presupuestos:'presupuestos',erp_avances:'avances',
   erp_eventos_calendario:'eventos',ventas_paquetes:'ventasPaquetes',
   erp_notificaciones:'notificaciones',erp_ordenes_cambio:'ordenesCambio',
   erp_pruebas_laboratorio:'pruebas',
   erp_liberaciones_partida:'liberaciones',erp_error_logs:'errorLogs',
 };
 
-const APP_ONLY_FIELDS = new Set(['version', 'stockActualizado', 'selectedProyectoId']);
+const APP_ONLY_FIELDS = new Set(['selectedProyectoId']);
 
 function stripAppOnlyFields<T extends Record<string, unknown>>(obj: T): T {
   const result = { ...obj };
@@ -210,6 +210,7 @@ export const MUTATION_TABLE_MAP: Record<string, string> = {
   addSeguimiento:'erp_seguimiento',updateSeguimiento:'erp_seguimiento',deleteSeguimiento:'erp_seguimiento',
   addPlantilla:'erp_plantillas_proyectos',updatePlantilla:'erp_plantillas_proyectos',deletePlantilla:'erp_plantillas_proyectos',clonarPlantilla:'erp_plantillas_proyectos',exportarPlantilla:'erp_plantillas_proyectos',importarPlantilla:'erp_plantillas_proyectos',sugerirPlantillas:'erp_plantillas_proyectos',crearNuevaVersionPlantilla:'erp_plantillas_proyectos',restaurarVersionPlantilla:'erp_plantillas_proyectos',toggleFavoritoPlantilla:'erp_plantillas_proyectos',
   addErrorLog:'erp_error_logs',resolveError:'erp_error_logs',deleteError:'erp_error_logs',cleanupOldErrors:'erp_error_logs',
+  addCentroCosto:'erp_centros_costo',updateCentroCosto:'erp_centros_costo',deleteCentroCosto:'erp_centros_costo',
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -562,7 +563,15 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
     return () => { unsub(); clearTimeout(timer); };
   }, [user?.id]);
 
-  const allowedViews = useMemo(() => ALL_VIEWS, []);
+  const allowedViews = useMemo(() => {
+    if (!user?.rol) return ALL_VIEWS;
+    try {
+      const views = getViewsByRole(user.rol as any);
+      return views.length > 0 ? views : ALL_VIEWS;
+    } catch {
+      return ALL_VIEWS;
+    }
+  }, [user?.rol]);
 
   const notificacionesNoLeidas = useErpStore(s => s.notificaciones.filter(n => !n.leido).length);
 

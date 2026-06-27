@@ -11,6 +11,7 @@
 
 import { hasSupabase, assertSupabase } from './supabase';
 import { z } from 'zod';
+import type { View } from '@/erp/store';
 
 // ============================================================
 // TIPOS COMPARTIDOS
@@ -18,14 +19,7 @@ import { z } from 'zod';
 
 export type RolSistema = 'Administrador' | 'Gerente' | 'Residente' | 'Compras' | 'Bodeguero';
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' |
-  'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'rendimientos' |
-  'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' |
-  'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' |
-  'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' |
-  'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' |
-  'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' |
-  'plantillas' | 'analisis-costos';
+export type { View };
 
 // ============================================================
 // JERARQUIA DE ROLES
@@ -91,20 +85,20 @@ export function tieneRolMinimo(
 export function getViewsByRole(rol: RolSistema): View[] {
   const ALL: View[] = [
     'dashboard','proyectos','presupuestos','seguimiento','financiero',
-    'rrhh','bodega','crm','apu','curvas','rendimientos','baseprecios',
+    'rrhh','bodega','crm','apu','curvas','rendimiento-campo','baseprecios',
     'reportes','muro','ordenes-cambio','notificaciones','sso-calidad',
     'documentos','visor-bim','predictivo','exportacion','logistica',
-    'rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos',
+    'comercial-fin','admin-sistema','planilla-destajos',
     'impuestos','entradas-almacen','ajustes',
     'hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones',
-    'plantillas','analisis-costos'
+    'plantillas','analisis-costos','proveedor-analytics','error-log','auditoria'
   ];
 
   switch (rol) {
     case 'Administrador': return ALL;
     case 'Gerente': return ALL;
     case 'Residente': return ['dashboard','proyectos','presupuestos','seguimiento','apu',
-      'curvas','rendimientos','baseprecios','reportes','muro',
+      'curvas','rendimiento-campo','baseprecios','reportes','muro',
       'ordenes-cambio','notificaciones','sso-calidad','documentos'];
     case 'Compras': return ['dashboard','bodega','proyectos'];
     case 'Bodeguero': return ['dashboard','bodega'];
