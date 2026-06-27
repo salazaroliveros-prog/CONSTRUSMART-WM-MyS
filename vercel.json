@@ -43,7 +43,7 @@
     }
   ],
   "rewrites": [
-    { "source": "/manifest.json", "destination": "/manifest.json" },
+    { "source": "/site.manifest.json", "destination": "/site.manifest.json" },
     { "source": "/((?!assets/.*|.*\\.(?:json|ico|svg|webp|txt|js|css|png|jpg|jpeg|gif|woff|woff2|ttf|eot)$).*)", "destination": "/index.html" }
   ]
 }
