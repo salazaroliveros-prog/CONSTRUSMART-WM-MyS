@@ -184,8 +184,8 @@ export const MUTATION_TABLE_MAP: Record<string, string> = {
   addPresupuesto:'erp_presupuestos',updatePresupuesto:'erp_presupuestos',deletePresupuesto:'erp_presupuestos',
   addLicitacion:'erp_licitaciones',updateLicitacion:'erp_licitaciones',deleteLicitacion:'erp_licitaciones',
   addCotizacion:'erp_cotizaciones_negocio',updateCotizacion:'erp_cotizaciones_negocio',deleteCotizacion:'erp_cotizaciones_negocio',
-  addVentaPaquete:'ventas_paquetes',
-  addAvance:'erp_avances',deleteAvance:'erp_avances',
+  addVentaPaquete:'ventas_paquetes',updateVentaPaquete:'ventas_paquetes',deleteVentaPaquete:'ventas_paquetes',
+  addAvance:'erp_avances',updateAvance:'erp_avances',deleteAvance:'erp_avances',
   addCuentaCobrar:'erp_cuentas_cobrar',updateCuentaCobrar:'erp_cuentas_cobrar',deleteCuentaCobrar:'erp_cuentas_cobrar',
   addCuentaPagar:'erp_cuentas_pagar',updateCuentaPagar:'erp_cuentas_pagar',deleteCuentaPagar:'erp_cuentas_pagar',
   addOrdenCambio:'erp_ordenes_cambio',updateOrdenCambio:'erp_ordenes_cambio',deleteOrdenCambio:'erp_ordenes_cambio',
@@ -199,18 +199,18 @@ export const MUTATION_TABLE_MAP: Record<string, string> = {
   addPagoProveedor:'erp_pagos_proveedor',updatePagoProveedor:'erp_pagos_proveedor',deletePagoProveedor:'erp_pagos_proveedor',
   addIncidente:'erp_incidentes',updateIncidente:'erp_incidentes',deleteIncidente:'erp_incidentes',
   addDestajo:'erp_destajos',updateDestajo:'erp_destajos',deleteDestajo:'erp_destajos',
-  addRecepcion:'erp_recepciones',deleteRecepcion:'erp_recepciones',
+  addRecepcion:'erp_recepciones',updateRecepcion:'erp_recepciones',deleteRecepcion:'erp_recepciones',
   addValeSalida:'erp_vales_salida',updateValeSalida:'erp_vales_salida',deleteValeSalida:'erp_vales_salida',
-  addPublicacionMuro:'erp_muro',
+  addPublicacionMuro:'erp_muro',updatePublicacionMuro:'erp_muro',deletePublicacionMuro:'erp_muro',
   addComentarioMuro:'erp_muro',
   likePublicacionMuro:'erp_muro',
   addPrueba:'erp_pruebas_laboratorio',updatePrueba:'erp_pruebas_laboratorio',deletePrueba:'erp_pruebas_laboratorio',
   addNC:'erp_no_conformidades',updateNC:'erp_no_conformidades',deleteNC:'erp_no_conformidades',
   addLiberacion:'erp_liberaciones_partida',updateLiberacion:'erp_liberaciones_partida',deleteLiberacion:'erp_liberaciones_partida',
-  addNotificacion:'erp_notificaciones',markNotificacionLeida:'erp_notificaciones',deleteNotificacion:'erp_notificaciones',
+  addNotificacion:'erp_notificaciones',updateNotificacion:'erp_notificaciones',markNotificacionLeida:'erp_notificaciones',deleteNotificacion:'erp_notificaciones',
   addSeguimiento:'erp_seguimiento',updateSeguimiento:'erp_seguimiento',deleteSeguimiento:'erp_seguimiento',
   addPlantilla:'erp_plantillas_proyectos',updatePlantilla:'erp_plantillas_proyectos',deletePlantilla:'erp_plantillas_proyectos',clonarPlantilla:'erp_plantillas_proyectos',exportarPlantilla:'erp_plantillas_proyectos',importarPlantilla:'erp_plantillas_proyectos',sugerirPlantillas:'erp_plantillas_proyectos',crearNuevaVersionPlantilla:'erp_plantillas_proyectos',restaurarVersionPlantilla:'erp_plantillas_proyectos',toggleFavoritoPlantilla:'erp_plantillas_proyectos',
-  addErrorLog:'erp_error_logs',resolveError:'erp_error_logs',deleteError:'erp_error_logs',cleanupOldErrors:'erp_error_logs',
+  addErrorLog:'erp_error_logs',addError:'erp_error_logs',resolveError:'erp_error_logs',deleteError:'erp_error_logs',cleanupOldErrors:'erp_error_logs',
   addCentroCosto:'erp_centros_costo',updateCentroCosto:'erp_centros_costo',deleteCentroCosto:'erp_centros_costo',
 };
 
@@ -729,3 +729,5 @@ const ctxValue = useMemo(() => ({
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
 };
+
+
