@@ -674,7 +674,7 @@ const Proyectos: React.FC = () => {
                                   {p.categoria}
                                 </div>
                               </div>
-                              <div className="grid grid-cols-4 gap-2 mt-2 text-xs">
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 text-xs">
                                 <div className="text-center">
                                   <div className="font-semibold">{p.estructuraPresupuesto?.length || 0}</div>
                                   <div className="text-muted-foreground text-[10px]">Renglones</div>

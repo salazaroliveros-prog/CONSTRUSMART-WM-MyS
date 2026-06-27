@@ -156,7 +156,7 @@ export default function ErrorLog() {
     return (
       <div className="p-4 max-w-6xl mx-auto space-y-4">
         <Skeleton active paragraph={{ rows: 1 }} />
-        <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map(i => <Skeleton key={i} active paragraph={{ rows: 2 }} />)}
         </div>
         <Skeleton active paragraph={{ rows: 8 }} />
@@ -327,7 +327,7 @@ export default function ErrorLog() {
           prefix={<SearchOutlined />}
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{ width: 240 }}
+          className="w-full sm:w-48 md:w-60"
           aria-label="Buscar errores"
         />
         <Select
@@ -335,7 +335,7 @@ export default function ErrorLog() {
           value={filterSeverity}
           onChange={v => setFilterSeverity(v)}
           allowClear
-          style={{ width: 140 }}
+          className="w-full sm:w-32 md:w-36"
           aria-label="Filtrar por severidad"
           options={['critical', 'error', 'warning', 'info', 'debug'].map(s => ({
             value: s,
@@ -347,7 +347,7 @@ export default function ErrorLog() {
           value={filterStatus}
           onChange={v => setFilterStatus(v)}
           allowClear
-          style={{ width: 140 }}
+          className="w-full sm:w-32 md:w-36"
           aria-label="Filtrar por estado"
           options={[
             { value: 'open', label: t('error_log.abierto') },
@@ -495,6 +495,7 @@ export default function ErrorLog() {
           ),
         ]}
         width={800}
+        style={{ width: '95vw', maxWidth: 800 }}
       >
         {selectedError && (
           <Descriptions bordered column={2} size="small">
