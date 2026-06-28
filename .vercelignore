@@ -16,6 +16,7 @@ AUDIT_MASTER_INDEX.md
 READING_GUIDE.md
 CHECKLIST_HALLAZGOS.md
 INFORME_ALINEACION_DB.md
+ESTADO_IMPLEMENTACION_FINAL.md
 src/erp/__tests__
 src/erp/**/*.test.ts
 src/erp/**/*.test.tsx
