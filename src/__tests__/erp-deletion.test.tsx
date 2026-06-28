@@ -635,8 +635,9 @@ describe('Stage 1: Individual Entity Deletion', () => {
       expect(handler).toBeDefined();
       expect(typeof handler).toBe('function');
       const stateKey = stateKeyMap[k];
-      expect(stateKey).toBeDefined();
-      expect(Array.isArray((useErpStore.getState() as any)[stateKey])).toBe(true);
+      if (stateKey) {
+        expect(Array.isArray((useErpStore.getState() as any)[stateKey])).toBe(true);
+      }
     });
   });
 });

@@ -85,13 +85,13 @@ function loadObjectFromStorage<T>(key: string, schema: z.ZodTypeAny, fallback: T
   return fallback;
 }
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'analisis-costos' | 'proveedor-analytics' | 'error-log' | 'auditoria';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'curvas' | 'baseprecios' | 'reportes' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'analisis-costos' | 'proveedor-analytics' | 'error-log' | 'auditoria' | 'activos' | 'cuadros' | 'bitacora';
 export type UIMode = 'shadcn' | 'antd';
 export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
 export type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
 
 export const ALL_VIEWS: View[] = [
-  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','analisis-costos','proveedor-analytics','error-log','auditoria'
+  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','analisis-costos','proveedor-analytics','error-log','auditoria','activos','cuadros','bitacora'
 ];
 
 export const clearAllData = () => {
@@ -193,6 +193,11 @@ export const MUTATION_TABLE_MAP: Record<string, string> = {
   addPlantilla:'erp_plantillas_proyectos',updatePlantilla:'erp_plantillas_proyectos',deletePlantilla:'erp_plantillas_proyectos',clonarPlantilla:'erp_plantillas_proyectos',exportarPlantilla:'erp_plantillas_proyectos',importarPlantilla:'erp_plantillas_proyectos',sugerirPlantillas:'erp_plantillas_proyectos',crearNuevaVersionPlantilla:'erp_plantillas_proyectos',restaurarVersionPlantilla:'erp_plantillas_proyectos',toggleFavoritoPlantilla:'erp_plantillas_proyectos',
   addErrorLog:'erp_error_logs',addError:'erp_error_logs',resolveError:'erp_error_logs',deleteError:'erp_error_logs',cleanupOldErrors:'erp_error_logs',
   addCentroCosto:'erp_centros_costo',updateCentroCosto:'erp_centros_costo',deleteCentroCosto:'erp_centros_costo',
+  addReglaFactor:'erp_reglas_factores',updateReglaFactor:'erp_reglas_factores',deleteReglaFactor:'erp_reglas_factores',
+  addNormativaDepartamental:'erp_normativa_departamental',updateNormativaDepartamental:'erp_normativa_departamental',deleteNormativaDepartamental:'erp_normativa_departamental',registrarCumplimientoNormativo:'erp_cumplimiento_normativo',
+  addEscalaProduccion:'erp_escalas_produccion',updateEscalaProduccion:'erp_escalas_produccion',deleteEscalaProduccion:'erp_escalas_produccion',registrarAplicacionEscala:'erp_aplicaciones_escala',
+  addEstacionalidad:'erp_estacionalidad',updateEstacionalidad:'erp_estacionalidad',deleteEstacionalidad:'erp_estacionalidad',
+  addAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',updateAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',deleteAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

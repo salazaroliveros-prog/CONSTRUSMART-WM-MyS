@@ -1,3 +1,4 @@
+import { safeLogger } from '@/lib/safeLogger';
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useCallback } from 'react';
 import { useErp } from '../store';
@@ -228,7 +229,7 @@ const ExportacionInteligente: React.FC = () => {
       pdf.save(`construsmart-reporte-${todayISO()}.pdf`);
       toast.success('PDF exportado exitosamente');
     } catch (err) {
-      console.error('PDF error:', err);
+      safeLogger.error(new Error('PDF error: ' + (err as Error).message));
       toast.error('Error al generar PDF');
     }
     setExportando(null);
@@ -359,7 +360,7 @@ const ExportacionInteligente: React.FC = () => {
         XLSX.writeFile(wb, `construsmart-export-${todayISO()}.xlsx`);
         toast.success('✅ Excel exportado exitosamente (6 hojas: EERR incluido)');
       } catch (err) {
-        console.error('XLSX error:', err);
+        safeLogger.error(new Error('XLSX error: ' + (err as Error).message));
         toast.error('Error al exportar Excel');
       }
       setExportando(null);

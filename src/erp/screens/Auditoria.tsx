@@ -87,7 +87,7 @@ export default function Auditoria() {
   };
 
   const handleExportCSV = () => {
-    const headers = [t('auditoria.columna_fecha'), t('auditoria.columna_usuario'), t('auditoria.columna_tabla'), t('auditoria.columna_operacion'), t('auditoria.columna_id'), 'Detalles'];
+    const headers = [t('auditoria.columna_fecha'), t('auditoria.columna_usuario'), t('auditoria.columna_tabla'), t('auditoria.columna_operacion'), t('auditoria.columna_id'), t('auditoria.columna_detalles')];
     const rows = filtradas.map(e => [
       e.createdAt,
       e.usuarioNombre,

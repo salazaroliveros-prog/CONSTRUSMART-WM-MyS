@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
 import { logErrorFromException } from '@/lib/error-logger';
+import { useErpStore } from '@/erp/zustandStore';
 
 import { EscalaProduccion } from '@/erp/types';
 
@@ -169,7 +170,10 @@ export class EscalasProduccion {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error registrando aplicación de escala:', error);
+      safeLogger.warn('[escalasProduccion] Error registrando aplicación de escala, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('registrarAplicacionEscala', {
+        proyecto_id: proyectoId, escala_id: escalaId, ...resultadoAplicacion, ...metadatos
+      });
       throw error;
     }
   }
@@ -201,7 +205,8 @@ export class EscalasProduccion {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error creando escala de producción:', error);
+      safeLogger.warn('[escalasProduccion] Error creando escala, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('addEscalaProduccion', escala);
       throw error;
     }
   }
@@ -218,7 +223,8 @@ export class EscalasProduccion {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error actualizando escala de producción:', error);
+      safeLogger.warn('[escalasProduccion] Error actualizando escala, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('updateEscalaProduccion', { id, ...escala });
       throw error;
     }
   }
@@ -232,7 +238,8 @@ export class EscalasProduccion {
 
       if (error) throw error;
     } catch (error) {
-      safeLogger.error('Error eliminando escala de producción:', error);
+      safeLogger.warn('[escalasProduccion] Error eliminando escala, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('deleteEscalaProduccion', { id });
       throw error;
     }
   }

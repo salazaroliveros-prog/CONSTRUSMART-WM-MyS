@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Modal, message } from 'antd';
 import { useErp } from '../store';
+import { safeLogger } from '@/lib/safeLogger';
 import { fmtQ } from '../utils';
 import type { Plantilla } from '../store/schemas/plantillas';
 import type { Proyecto } from '../types';
@@ -222,7 +223,7 @@ const PlantillasProyectos: React.FC = () => {
           URL.revokeObjectURL(url);
         }
       } catch (error) {
-        console.error('Error exportando plantilla:', error);
+        safeLogger.error(new Error('Error exportando plantilla: ' + (error as Error).message));
       }
     });
 
@@ -275,7 +276,7 @@ const PlantillasProyectos: React.FC = () => {
       toast.success('Plantilla exportada correctamente');
     } catch (error) {
       toast.error('Error al exportar plantilla');
-      console.error(error);
+      safeLogger.error(error);
     }
   };
 

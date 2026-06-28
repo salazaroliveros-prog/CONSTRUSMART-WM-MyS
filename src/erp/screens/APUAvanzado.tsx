@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { safeLogger } from '@/lib/safeLogger';
 import { FactorSobrecosto, InsumoBase, RendimientoCuadrilla, DosificacionConcreto, DesgloseAcero, MovimientoTierra, ParametrosClimaticos, Pavimento, RedInfraestructura, MuroContencion } from '../types';
 import { ServicioMotorCalculo } from '../services/motorCalculo';
 import { registrarCalculo } from '../services/motorCalculo';
@@ -177,7 +178,7 @@ const APUAvanzado: React.FC = () => {
       toast.success('Dosificación calculada exitosamente');
     } catch (error) {
       toast.error('Error al calcular dosificación');
-      console.error(error);
+      safeLogger.error(error);
     } finally {
       setCalculando(false);
     }
@@ -191,7 +192,7 @@ const APUAvanzado: React.FC = () => {
       toast.success('Desglose de acero calculado exitosamente');
     } catch (error) {
       toast.error('Error al calcular desglose de acero');
-      console.error(error);
+      safeLogger.error(error);
     } finally {
       setCalculandoAcero(false);
     }
@@ -205,7 +206,7 @@ const APUAvanzado: React.FC = () => {
       toast.success('Movimiento de tierra calculado exitosamente');
     } catch (error) {
       toast.error('Error al calcular movimiento de tierra');
-      console.error(error);
+      safeLogger.error(error);
     } finally {
       setCalculandoMovimientoTierra(false);
     }
@@ -222,7 +223,7 @@ const APUAvanzado: React.FC = () => {
       toast.success('Parámetros climáticos calculados exitosamente');
     } catch (error) {
       toast.error('Error al calcular parámetros climáticos');
-      console.error(error);
+      safeLogger.error(error);
     } finally {
       setCalculandoClimaticos(false);
     }
@@ -258,7 +259,7 @@ const APUAvanzado: React.FC = () => {
       }
     } catch (error) {
       toast.error('Error al calcular pavimento');
-      console.error(error);
+      safeLogger.error(error);
     } finally {
       setCalculandoPavimento(false);
     }
@@ -294,7 +295,7 @@ const APUAvanzado: React.FC = () => {
       }
     } catch (error) {
       toast.error('Error al calcular red de infraestructura');
-      console.error(error);
+      safeLogger.error(error);
     } finally {
       setCalculandoRedInfraestructura(false);
     }
@@ -330,7 +331,7 @@ const APUAvanzado: React.FC = () => {
       }
     } catch (error) {
       toast.error('Error al calcular muro de contención');
-      console.error(error);
+      safeLogger.error(error);
     } finally {
       setCalculandoMuroContencion(false);
     }
