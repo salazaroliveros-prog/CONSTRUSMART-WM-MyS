@@ -39,6 +39,61 @@ CREATE POLICY "profiles_self_insert" ON public.profiles
   FOR INSERT TO authenticated WITH CHECK (auth.uid() = id);
 
 -- ============================================================
+-- 1.5 FUNCIONES BASE (necesarias para RLS)
+-- ============================================================
+
+-- FUNCIÓN: get_user_role()
+-- Retorna el rol del usuario actual desde public.profiles
+CREATE OR REPLACE FUNCTION public.get_user_role()
+RETURNS TEXT AS $$
+  SELECT COALESCE(
+    (SELECT rol FROM public.profiles WHERE id = auth.uid()),
+    'usuario'
+  );
+$$ LANGUAGE sql STABLE SECURITY DEFINER;
+
+-- FUNCIÓN: get_current_user_role()
+-- Alias para get_user_role() para consistencia
+CREATE OR REPLACE FUNCTION public.get_current_user_role()
+RETURNS TEXT AS $$
+  SELECT public.get_user_role();
+$$ LANGUAGE sql STABLE SECURITY DEFINER;
+
+-- FUNCIÓN: get_accessible_proyectos()
+-- Retorna los proyectos accesibles según el rol del usuario
+CREATE OR REPLACE FUNCTION public.get_accessible_proyectos()
+RETURNS SETOF uuid AS $$
+  DECLARE
+    user_rol TEXT := public.get_user_role();
+  BEGIN
+    -- Admin y Gerente ven TODOS los proyectos
+    IF user_rol IN ('Administrador', 'Gerente') THEN
+      RETURN QUERY SELECT id FROM erp_proyectos;
+    -- Residente: proyectos donde es created_by O está asignado
+    ELSIF user_rol = 'Residente' THEN
+      RETURN QUERY SELECT p.id FROM erp_proyectos p
+        WHERE p.created_by = auth.uid()
+        OR p.id IN (
+          SELECT e.proyecto_id FROM erp_empleados e
+          WHERE e.created_by = auth.uid()
+        );
+    -- Compras: proyectos con órdenes de compra creadas por él
+    ELSIF user_rol = 'Compras' THEN
+      RETURN QUERY SELECT DISTINCT o.proyecto_id FROM erp_ordenes_compra o
+        WHERE o.created_by = auth.uid();
+    -- Bodeguero: proyectos con vales de salida creados por él
+    ELSIF user_rol = 'Bodeguero' THEN
+      RETURN QUERY SELECT DISTINCT v.proyecto_id FROM erp_vales_salida v
+        WHERE v.created_by = auth.uid();
+    ELSE
+      -- Usuario normal: solo proyectos donde es miembro
+      RETURN QUERY SELECT p.id FROM erp_proyectos p
+        WHERE p.created_by = auth.uid();
+    END IF;
+  END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================================
 -- 2. TABLAS ERP PRINCIPALES
 -- ============================================================
 
