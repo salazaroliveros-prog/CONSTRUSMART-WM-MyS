@@ -635,7 +635,7 @@
     "titulo": "Notificaciones",
     "sin_notificaciones": "No hay notificaciones",
     "marcar_leidas": "Marcar todas como leídas",
-    "nuevas": "{n} nuevas",
+    "nuevas": "{{n}} nuevas",
     "tipo_info": "Información",
     "tipo_exito": "Éxito",
     "tipo_advertencia": "Advertencia",
@@ -783,7 +783,13 @@
     "desactivadas": "Desactivadas",
     "sidebar_colapsada": "Sidebar Colapsada",
     "constructora_wm": "CONSTRUCTORA WM",
-    "eslogan": "Edificando el Futuro"
+    "eslogan": "Edificando el Futuro",
+    "color_principal_sub": "Personaliza el color primario de la marca",
+    "animaciones_sub": "Transiciones suaves entre pantallas",
+    "avances_obra": "Avances de Obra",
+    "avances_obra_sub": "Registro de avances físicos",
+    "ordenes_cambio": "Órdenes de Cambio",
+    "ordenes_cambio_sub": "Notificar OC pendientes de revisión"
   },
   "baseprecios": {
     "titulo": "Base de Precios",

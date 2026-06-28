@@ -1,4 +1,7 @@
 import { supabase } from '@/lib/supabase';
+import { safeLogger } from '@/lib/safeLogger';
+import { logErrorFromException } from '@/lib/error-logger';
+import { useErpStore } from '@/erp/zustandStore';
 import { Estacionalidad } from '@/erp/types';
 
 export interface AjusteEstacionalActividad {
@@ -184,7 +187,8 @@ export class Estacionalidad {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error creando estacionalidad:', error);
+      safeLogger.warn('[estacionalidad] Error creando estacionalidad, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('addEstacionalidad', estacionalidad);
       throw error;
     }
   }
@@ -201,7 +205,8 @@ export class Estacionalidad {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error actualizando estacionalidad:', error);
+      safeLogger.warn('[estacionalidad] Error actualizando estacionalidad, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('updateEstacionalidad', { id, ...estacionalidad });
       throw error;
     }
   }
@@ -215,7 +220,8 @@ export class Estacionalidad {
 
       if (error) throw error;
     } catch (error) {
-      safeLogger.error('Error eliminando estacionalidad:', error);
+      safeLogger.warn('[estacionalidad] Error eliminando estacionalidad, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('deleteEstacionalidad', { id });
       throw error;
     }
   }
@@ -250,7 +256,8 @@ export class Estacionalidad {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error creando ajuste estacional:', error);
+      safeLogger.warn('[estacionalidad] Error creando ajuste estacional, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('addAjusteEstacionalActividad', ajuste);
       throw error;
     }
   }
@@ -267,7 +274,8 @@ export class Estacionalidad {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error actualizando ajuste estacional:', error);
+      safeLogger.warn('[estacionalidad] Error actualizando ajuste estacional, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('updateAjusteEstacionalActividad', { id, ...ajuste });
       throw error;
     }
   }
@@ -281,7 +289,8 @@ export class Estacionalidad {
 
       if (error) throw error;
     } catch (error) {
-      safeLogger.error('Error eliminando ajuste estacional:', error);
+      safeLogger.warn('[estacionalidad] Error eliminando ajuste estacional, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('deleteAjusteEstacionalActividad', { id });
       throw error;
     }
   }

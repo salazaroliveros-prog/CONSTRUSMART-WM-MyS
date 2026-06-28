@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useErp } from '../store';
+import { safeLogger } from '@/lib/safeLogger';
 import { fmtQ, fmtPct, calculateSupplierPerformance, getSupplierRecommendations, identifySupplierRisks, type SupplierPerformanceMetrics, CATEGORIA_LABEL } from '../utils';
 import { BarChart, Donut, Gauge, Progress } from '../components/Charts';
 import { TrendingUp, TrendingDown, AlertTriangle, Award, Star, Truck, Shield, DollarSign, Clock, Filter, Download, RefreshCw, Loader2 } from 'lucide-react';
@@ -136,7 +137,7 @@ const ProveedorAnalytics: React.FC = () => {
 
       XLSX.writeFile(workbook, `analytics-proveedores-${new Date().toISOString().split('T')[0]}.xlsx`);
     } catch (error) {
-      console.error('Error exporting:', error);
+      safeLogger.error(new Error('Error exporting: ' + (error as Error).message));
     } finally {
       setExporting(false);
     }

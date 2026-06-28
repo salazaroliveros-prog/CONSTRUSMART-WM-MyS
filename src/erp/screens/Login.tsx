@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Login: React.FC = () => {
-  const { t } = useTranslation();
   const { signInWithGoogle, setView, user } = useErp();
   const authError = '';
   const [loading, setLoading] = useState(false);

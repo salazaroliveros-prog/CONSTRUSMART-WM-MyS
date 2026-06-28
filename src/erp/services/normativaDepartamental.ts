@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
 import { logErrorFromException } from '@/lib/error-logger';
+import { useErpStore } from '@/erp/zustandStore';
 
 import { NormativaDepartamental } from '@/erp/types';
 
@@ -136,7 +137,8 @@ export class NormativaDepartamental {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error registrando cumplimiento:', error);
+      safeLogger.warn('[normativaDepartamental] Error registrando cumplimiento, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('registrarCumplimientoNormativo', { proyecto_id: proyectoId, norma_id: normaId, estado, opciones });
       throw error;
     }
   }
@@ -152,7 +154,8 @@ export class NormativaDepartamental {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error creando normativa:', error);
+      safeLogger.warn('[normativaDepartamental] Error creando normativa, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('addNormativaDepartamental', normativa);
       throw error;
     }
   }
@@ -169,7 +172,8 @@ export class NormativaDepartamental {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error actualizando normativa:', error);
+      safeLogger.warn('[normativaDepartamental] Error actualizando normativa, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('updateNormativaDepartamental', { id, ...normativa });
       throw error;
     }
   }
@@ -183,7 +187,8 @@ export class NormativaDepartamental {
 
       if (error) throw error;
     } catch (error) {
-      safeLogger.error('Error eliminando normativa:', error);
+      safeLogger.warn('[normativaDepartamental] Error eliminando normativa, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('deleteNormativaDepartamental', { id });
       throw error;
     }
   }

@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
 import { logErrorFromException } from '@/lib/error-logger';
+import { useErpStore } from '@/erp/zustandStore';
 
 export interface ReglaFactor {
   id: string;
@@ -296,7 +297,11 @@ export class MotorReglasFactores {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      safeLogger.warn('[reglasFactores] Error creando regla, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('addReglaFactor', regla);
+      throw error;
+    }
     return data;
   }
 
@@ -308,7 +313,11 @@ export class MotorReglasFactores {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      safeLogger.warn('[reglasFactores] Error actualizando regla, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('updateReglaFactor', { id, ...regla });
+      throw error;
+    }
     return data;
   }
 
@@ -318,7 +327,11 @@ export class MotorReglasFactores {
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      safeLogger.warn('[reglasFactores] Error eliminando regla, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('deleteReglaFactor', { id });
+      throw error;
+    }
   }
 
   async obtenerReglaPorId(id: string): Promise<ReglaFactor | null> {

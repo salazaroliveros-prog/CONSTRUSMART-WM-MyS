@@ -259,7 +259,7 @@ export default function ErrorLog() {
             size="small"
             icon={<EyeOutlined />}
             onClick={() => showDetail(record)}
-            aria-label={t('error_log.ver') + ' ' + t('error_log.detalle_titulo').replace('{{id}}', '')}
+            aria-label={t('error_log.ver') + ' ' + t('error_log.detalle_titulo', { id: '' })}
           >
             {t('error_log.ver')}
           </Button>
@@ -415,7 +415,7 @@ export default function ErrorLog() {
           icon={<CheckOutlined />}
           disabled={selectedRowKeys.length === 0}
           onClick={handleBulkResolve}
-          aria-label={t('error_log.resolver_seleccionados').replace('{{count}}', String(selectedRowKeys.length))}
+          aria-label={t('error_log.resolver_seleccionados', { count: selectedRowKeys.length })}
         >
           {t('error_log.resolver_seleccionados', { count: selectedRowKeys.length })}
         </Button>
@@ -424,7 +424,7 @@ export default function ErrorLog() {
           danger
           disabled={selectedRowKeys.length === 0}
           onClick={handleBulkDelete}
-          aria-label={t('error_log.eliminar_seleccionados').replace('{{count}}', String(selectedRowKeys.length))}
+          aria-label={t('error_log.eliminar_seleccionados', { count: selectedRowKeys.length })}
         >
           {t('error_log.eliminar_seleccionados', { count: selectedRowKeys.length })}
         </Button>
@@ -438,7 +438,7 @@ export default function ErrorLog() {
         <Button
           icon={<ClearOutlined />}
           onClick={handleCleanup}
-          aria-label={t('error_log.limpiar_antiguos').replace('{{dias}}', '30')}
+          aria-label={t('error_log.limpiar_antiguos', { dias: '30' })}
         >
           {t('error_log.limpiar_antiguos', { dias: '30' })}
         </Button>

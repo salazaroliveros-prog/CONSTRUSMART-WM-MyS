@@ -774,7 +774,13 @@
     "desactivadas": "Disabled",
     "sidebar_colapsada": "Collapsed Sidebar",
     "constructora_wm": "CONSTRUCTORA WM",
-    "eslogan": "Building the Future"
+    "eslogan": "Building the Future",
+    "color_principal_sub": "Customize the brand primary color",
+    "animaciones_sub": "Smooth transitions between screens",
+    "avances_obra": "Work Progress",
+    "avances_obra_sub": "Physical progress recording",
+    "ordenes_cambio": "Change Orders",
+    "ordenes_cambio_sub": "Notify pending change orders"
   },
   "baseprecios": {
     "titulo": "Price Database",

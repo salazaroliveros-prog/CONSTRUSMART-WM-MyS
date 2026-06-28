@@ -6,9 +6,12 @@ import { listarNormativas } from '../services/normativaDepartamental';
 import { listarEscalasProduccion } from '../services/escalasProduccion';
 import { listarEstacionalidad } from '../services/estacionalidad';
 import { useErpStore } from '@/erp/zustandStore';
+import { safeLogger } from '@/lib/safeLogger';
 
 interface CalculoRegistro {
-  tipoCalcululo: string;
+  tipoCalculo: string;
+  fechaCalculo?: string;
+  versionCalculo?: number;
   resultados?: { costo_total?: number };
 }
 
@@ -89,7 +92,7 @@ const AnalisisCostosDashboard: React.FC = () => {
         if (escData.status === 'fulfilled') setEscalas(escData.value);
         if (estData.status === 'fulfilled') setEstacionalidad(estData.value);
       } catch (error) {
-        console.error('Error al cargar datos del dashboard:', error);
+        safeLogger.error(new Error('Error al cargar datos del dashboard: ' + (error as Error).message));
       } finally {
         setLoading(false);
       }
@@ -241,9 +244,9 @@ const AnalisisCostosDashboard: React.FC = () => {
             <tbody>
               {calculos.slice(0, 10).map((calc, index) => (
                 <tr key={index} className="border-b border-border hover:bg-muted/50">
-                  <td className="py-2 px-3 text-foreground">{calc.tipoCalcululo}</td>
-                  <td className="py-2 px-3 text-muted-foreground">{new Date(calc.fechaCalcululo).toLocaleDateString()}</td>
-                  <td className="py-2 px-3 text-right text-muted-foreground">{calc.versionCalculculo}</td>
+                  <td className="py-2 px-3 text-foreground">{calc.tipoCalculo}</td>
+                  <td className="py-2 px-3 text-muted-foreground">{calc.fechaCalculo ? new Date(calc.fechaCalculo).toLocaleDateString() : '-'}</td>
+                  <td className="py-2 px-3 text-right text-muted-foreground">{calc.versionCalculo ?? '-'}</td>
                   <td className="py-2 px-3 text-right font-medium text-foreground">
                     Q{((calc.resultados?.costo_total || 0)).toLocaleString()}
                   </td>
