@@ -5,6 +5,7 @@ import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_DANGER } from '../ui';
 import { Modal, message } from 'antd';
 import { toast } from 'sonner';
 import { Plus, Search, Filter, Package, Wrench, Truck, Settings, Edit, Trash2, Calendar, DollarSign, MapPin, User, CheckCircle, AlertCircle, WrenchIcon } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import type { Activo } from '../store/schemas/gestion';
 
 const Activos: React.FC = () => {
