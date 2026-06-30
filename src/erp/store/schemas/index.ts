@@ -20,5 +20,7 @@ export { plantillaSchema } from './plantillas';
 export type { Plantilla, PlantillaStore } from './plantillas';
 export { weatherDataSchema, proyectoWeatherSchema } from './weather';
 export type { WeatherData, WeatherImpact, ProyectoWeather, ProyectoWeatherStore } from './weather';
+export { calculoProyectoSchema, snapshotCalculoSchema, comparacionCalculosSchema, historialAplicacionReglaSchema, reglaFactorSchema, normativaDepartamentalSchema, escalaProduccionSchema, estacionalidadSchema } from './calculos';
+export type { CalculoProyecto, SnapshotCalculo, ComparacionCalculos, HistorialAplicacionRegla, ReglaFactorSchema, NormativaDepartamentalSchema, EscalaProduccionSchema, EstacionalidadSchema } from './calculos';
 export { errorLogSchema } from './errorLog';
 export type { ErrorLogEntry } from './errorLog';

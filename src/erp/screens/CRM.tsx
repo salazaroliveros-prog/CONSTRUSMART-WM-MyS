@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Licitacion } from '../types';
 import { fmtQ } from '../utils';
@@ -38,6 +39,7 @@ const ESTADO_SIGUIENTE: Record<string, string> = {
 };
 
 const CRM: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, licitaciones, addLicitacion, updateLicitacion, deleteLicitacion } = useErp();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
@@ -122,7 +124,7 @@ const CRM: React.FC = () => {
         notas: data.notas || undefined,
         fechaLimite: data.fechaLimite || undefined,
       });
-      toast.success('Licitación actualizada');
+      toast.success(t('crm.toast_actualizada'));
     } else {
       addLicitacion({
         proyectoId: data.proyectoId || '',
@@ -134,7 +136,7 @@ const CRM: React.FC = () => {
         notas: data.notas || undefined,
         fechaLimite: data.fechaLimite || undefined,
       });
-      toast.success('Licitación creada');
+      toast.success(t('crm.toast_creada'));
     }
     resetForm();
     setShowForm(false);
@@ -144,9 +146,9 @@ const CRM: React.FC = () => {
     updateLicitacion(id, { estado: newEstado });
     const lic = licitaciones.find(l => l.id === id);
     if (newEstado === 'adjudicada') {
-      toast.success(`🎉 ¡Licitación "${lic?.nombre}" ganada!`);
+      toast.success(t('crm.toast_ganada', { nombre: lic?.nombre || '' }));
     } else if (newEstado === 'perdida') {
-      toast.info(`Licitación "${lic?.nombre}" marcada como perdida`);
+      toast.info(t('crm.toast_perdida', { nombre: lic?.nombre || '' }));
     }
   };
 
@@ -172,20 +174,20 @@ const CRM: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-2">
           <div className="flex items-center gap-2">
             <h1 className="text-lg sm:text-2xl font-black text-foreground flex items-center gap-2">
-              <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> CRM / Licitaciones
+              <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> {t('crm.heading')}
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Pipeline comercial y seguimiento de oportunidades</p>
+            <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{t('crm.subtitulo')}</p>
           </div>
           <div className="flex items-center gap-2">
             <select value={filtroProyecto} onChange={e => setFiltroProyecto(e.target.value)} className="px-2 py-1.5 rounded-lg text-xs outline-none focus:ring-2 focus:ring-ring bg-background border border-input text-foreground">
-              <option value="">Todos los proyectos</option>
+              <option value="">{t('crm.todos_proyectos')}</option>
               {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
             <button 
             onClick={() => { resetForm(); setShowForm(true); }}
             className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <Plus className="w-4 h-4" /> Nueva Licitación
+            <Plus className="w-4 h-4" /> {t('crm.nueva_licitacion')}
           </button>
         </div>
       </div>
@@ -194,35 +196,35 @@ const CRM: React.FC = () => {
         <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
             <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-            <span className="text-[10px] sm:text-xs text-muted-foreground">Oportunidades</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.oportunidades')}</span>
           </div>
           <div className="text-xl sm:text-2xl font-bold text-foreground">{licitacionesFiltradas.length}</div>
           <div className="text-[10px] text-muted-foreground">
-            {licitacionesFiltradas.filter(l => l.estado === 'adjudicada').length} ganadas · {licitacionesFiltradas.filter(l => l.estado === 'perdida').length} perdidas
+            {t('crm.ganadas_perdidas', { ganadas: licitacionesFiltradas.filter(l => l.estado === 'adjudicada').length, perdidas: licitacionesFiltradas.filter(l => l.estado === 'perdida').length })}
           </div>
         </div>
         <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
             <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success" />
-            <span className="text-[10px] sm:text-xs text-muted-foreground">Total Pipeline</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.total_pipeline')}</span>
           </div>
           <div className="text-lg sm:text-2xl font-bold text-foreground truncate">{fmtQ(totalMonto)}</div>
         </div>
         <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
             <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-info" />
-            <span className="text-[10px] sm:text-xs text-muted-foreground">Pipeline Activo</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.pipeline_activo')}</span>
           </div>
           <div className="text-lg sm:text-2xl font-bold text-info truncate">{fmtQ(pipelineActivo)}</div>
-          <div className="text-[10px] text-muted-foreground">Oportunidades activas</div>
+          <div className="text-[10px] text-muted-foreground">{t('crm.oportunidades_activas')}</div>
         </div>
         <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
             <PieChart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-warning" />
-            <span className="text-[10px] sm:text-xs text-muted-foreground">Conversión</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.conversion')}</span>
           </div>
           <div className="text-xl sm:text-2xl font-bold text-warning">{tasaConversion}%</div>
-          <div className="text-[10px] text-muted-foreground">Ganadas vs decididas</div>
+          <div className="text-[10px] text-muted-foreground">{t('crm.ganadas_vs_decididas')}</div>
         </div>
       </div>
 
@@ -233,7 +235,7 @@ const CRM: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <col.icon className={`w-4 h-4 ${col.textColor}`} />
-                  <h3 className={`font-bold text-sm ${col.textColor}`}>{col.label}</h3>
+                  <h3 className={`font-bold text-sm ${col.textColor}`}>{t(`crm.col_${col.key}`)}</h3>
                 </div>
                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full bg-white/80 ${col.textColor}`}>
                   {col.items.length}
@@ -241,7 +243,7 @@ const CRM: React.FC = () => {
               </div>
               {col.items.length > 0 && (
                 <div className="text-[10px] text-slate-500 mt-1">
-                  Total: {fmtQ(col.items.reduce((a, l) => a + l.monto, 0))}
+                  {t('common.total')}: {fmtQ(col.items.reduce((a, l) => a + l.monto, 0))}
                 </div>
               )}
             </div>
@@ -252,10 +254,10 @@ const CRM: React.FC = () => {
               {col.items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-32 text-slate-300">
                   <span className="text-2xl mb-1">📋</span>
-                  <span className="text-xs">Sin oportunidades</span>
+                  <span className="text-xs">{t('crm.sin_oportunidades')}</span>
                 </div>
               ) : col.items.map(l => (
-                <div key={l.id} className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-all group focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="button" aria-label={`Licitación ${l.nombre}`} onKeyDown={(e) => {
+                <div key={l.id} className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-all group focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="button" aria-label={t('crm.licitacion_card_aria', { nombre: l.nombre })} onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     openEdit(l);
@@ -264,11 +266,11 @@ const CRM: React.FC = () => {
                   <div className="flex justify-between items-start mb-1">
                     <h4 className="font-semibold text-sm text-foreground truncate flex-1">{l.nombre}</h4>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1">
-                      <button onClick={() => openEdit(l)} className="p-1 text-slate-400 hover:text-purple-500 hover:bg-purple-50 rounded" aria-label="Editar licitación">
-                        <Pencil className="w-3 h-3" aria-hidden="true" />
-                      </button>
-                      <button onClick={() => { deleteLicitacion(l.id); toast.success('Licitación eliminada'); }} className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded" aria-label="Eliminar licitación">
-                        <Trash2 className="w-3 h-3" aria-hidden="true" />
+<button onClick={() => openEdit(l)} className="p-1 text-slate-400 hover:text-purple-500 hover:bg-purple-50 rounded" aria-label={t('crm.editar_aria')}>
+                          <Pencil className="w-3 h-3" aria-hidden="true" />
+                        </button>
+                        <button onClick={() => { deleteLicitacion(l.id); toast.success(t('crm.toast_eliminada')); }} className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded" aria-label={t('crm.eliminar_aria')}>
+                          <Trash2 className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </div>
                   </div>
@@ -291,13 +293,13 @@ const CRM: React.FC = () => {
                         onClick={() => moveLicitacion(l.id, 'adjudicada')}
                         className="flex-1 text-[8px] py-1 rounded font-medium text-emerald-600 hover:bg-emerald-50"
                       >
-                        → Adjudicar
+                        {t('crm.adjudicar_btn')}
                       </button>
                       <button
                         onClick={() => moveLicitacion(l.id, 'perdida')}
                         className="flex-1 text-[8px] py-1 rounded font-medium text-red-500 hover:bg-red-50"
                       >
-                        → Perder
+                        {t('crm.perder_btn')}
                       </button>
                     </div>
                   )}
@@ -307,7 +309,7 @@ const CRM: React.FC = () => {
                         onClick={() => moveLicitacion(l.id, 'cerrada')}
                         className="flex-1 text-[8px] py-1 rounded font-medium text-slate-500 hover:bg-slate-100"
                       >
-                        → Cerrar
+                        {t('crm.cerrar_btn')}
                       </button>
                     </div>
                   )}
@@ -323,11 +325,11 @@ const CRM: React.FC = () => {
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit} className="bg-card text-card-foreground rounded-2xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto border border-border">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-lg text-foreground">
-                {editingId ? 'Editar Oportunidad' : 'Nueva Licitación'}
+                {editingId ? t('crm.editar_oportunidad') : t('crm.nueva_licitacion')}
               </h2>
-              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} aria-label="Cerrar">
-                <X className="w-5 h-5 text-muted-foreground hover:text-foreground" />
-              </button>
+                <button type="button" onClick={() => { setShowForm(false); resetForm(); }} aria-label={t('common.cerrar')}>
+                  <X className="w-5 h-5 text-muted-foreground hover:text-foreground" />
+                </button>
             </div>
             <div className="space-y-3">
               <div>

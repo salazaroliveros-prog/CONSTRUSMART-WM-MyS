@@ -1,5 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { Incidente, PruebaLaboratorio, NoConformidad, LiberacionPartida } from '../types';
 import { toast } from 'sonner';
@@ -35,6 +36,7 @@ const liberacionSchema = z.object({
 type TabSSO = 'incidentes' | 'checklist-sso' | 'estadisticas' | 'emergencia' | 'pruebas' | 'nc' | 'liberaciones';
 
 const SSOCalidad: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, user, addNotificacion, incidentes, addIncidente, updateIncidente, pruebas, addPrueba, updatePrueba, ncs, addNC, updateNC, liberaciones, addLiberacion, updateLiberacion } = useErp();
   const [tab, setTab] = useState<TabSSO>('incidentes');
   const [selProyecto, setSelProyecto] = useState('');
@@ -210,13 +212,13 @@ const SSOCalidad: React.FC = () => {
   const tasaIncidencia = proyectos.length > 0 ? ((totalIncidentes / proyectos.length) * 100).toFixed(1) : '0';
 
   const tabs = [
-    { id: 'incidentes' as TabSSO, label: 'Incidentes', icon: AlertTriangle },
-    { id: 'checklist-sso' as TabSSO, label: 'Checklist SSO', icon: ClipboardList },
-    { id: 'estadisticas' as TabSSO, label: 'Estadísticas', icon: Activity },
-    { id: 'emergencia' as TabSSO, label: 'Emergencia', icon: AlertTriangle },
-    { id: 'pruebas' as TabSSO, label: 'Pruebas Lab', icon: FlaskConical },
-    { id: 'nc' as TabSSO, label: 'No Conformidades', icon: XCircle },
-    { id: 'liberaciones' as TabSSO, label: 'Liberación', icon: CheckCircle },
+    { id: 'incidentes' as TabSSO, label: t('sso_calidad.tab_incidentes', 'Incidentes'), icon: AlertTriangle },
+    { id: 'checklist-sso' as TabSSO, label: t('sso_calidad.tab_checklist', 'Checklist SSO'), icon: ClipboardList },
+    { id: 'estadisticas' as TabSSO, label: t('sso_calidad.tab_estadisticas', 'Estadísticas'), icon: Activity },
+    { id: 'emergencia' as TabSSO, label: t('sso_calidad.tab_emergencia', 'Emergencia'), icon: AlertTriangle },
+    { id: 'pruebas' as TabSSO, label: t('sso_calidad.tab_pruebas', 'Pruebas Lab'), icon: FlaskConical },
+    { id: 'nc' as TabSSO, label: t('sso_calidad.tab_nc', 'No Conformidades'), icon: XCircle },
+    { id: 'liberaciones' as TabSSO, label: t('sso_calidad.tab_liberaciones', 'Liberación'), icon: CheckCircle },
   ];
 
   if (loading) {
@@ -236,14 +238,14 @@ const SSOCalidad: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-          <Shield className="w-6 h-6 text-red-500" /> SSO & Control de Calidad
+          <Shield className="w-6 h-6 text-red-500" /> {t('sso_calidad.titulo', 'SSO & Control de Calidad')}
         </h1>
         <select
           value={selProyecto}
           onChange={e => { setSelProyecto(e.target.value); clearSsError('proyecto'); }}
           className="text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-red-400 bg-white"
         >
-          <option value="">— Todos los proyectos —</option>
+          <option value="">{t('sso_calidad.todos_proyectos', '— Todos los proyectos —')}</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
           {ssFormErrors.proyecto && <p className="text-xs text-red-500 mt-1">{ssFormErrors.proyecto}</p>}
@@ -251,19 +253,19 @@ const SSOCalidad: React.FC = () => {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-4 bg-slate-100 p-1 rounded-xl overflow-x-auto">
-        {tabs.map(t => {
-          const Icon = t.icon;
-          const active = tab === t.id;
+        {tabs.map((tabItem) => {
+          const Icon = tabItem.icon;
+          const active = tab === tabItem.id;
           return (
             <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
+              key={tabItem.id}
+              onClick={() => setTab(tabItem.id)}
               className={`shrink-0 flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all ${
                 active ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
               }`}
             >
               <Icon className="w-4 h-4" />
-              <span className="hidden sm:inline">{t.label}</span>
+              <span className="hidden sm:inline">{tabItem.label}</span>
             </button>
           );
         })}
@@ -274,10 +276,10 @@ const SSOCalidad: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4 text-red-500" /> Reporte de Incidentes
+              <AlertTriangle className="w-4 h-4 text-red-500" /> {t('sso_calidad.reporte_incidentes', 'Reporte de Incidentes')}
             </h2>
             <button onClick={() => { setShowIncForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600">
-              <Plus className="w-3.5 h-3.5" /> Nuevo Incidente
+              <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nuevo_incidente', 'Nuevo Incidente')}
             </button>
           </div>
 
@@ -290,21 +292,21 @@ const SSOCalidad: React.FC = () => {
                     onChange={e => { setIncForm(prev => ({ ...prev, tipo: e.target.value as Incidente['tipo'] })); clearSsError('tipo'); }}
                     className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-red-400 ${ssFormErrors.tipo ? 'border-red-500 bg-red-50' : 'border-red-200'}`}
                   >
-                    <option value="accidente">Accidente</option>
-                    <option value="cuasi-accidente">Cuasi-accidente</option>
-                    <option value="condicion_insegura">Condición Insegura</option>
-                    <option value="acto_inseguro">Acto Inseguro</option>
+                    <option value="accidente">{t('sso_calidad.tipo_accidente', 'Accidente')}</option>
+                    <option value="cuasi-accidente">{t('sso_calidad.tipo_cuasi', 'Cuasi-accidente')}</option>
+                    <option value="condicion_insegura">{t('sso_calidad.tipo_condicion', 'Condición Insegura')}</option>
+                    <option value="acto_inseguro">{t('sso_calidad.tipo_acto', 'Acto Inseguro')}</option>
                   </select>
                   {ssFormErrors.tipo && <p className="text-xs text-red-500 mt-1">{ssFormErrors.tipo}</p>}
                 </div>
                 <button onClick={capturarGeoIncidente} className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-dashed border-red-300 text-xs text-red-600 hover:border-red-500">
-                  <MapPin className="w-3.5 h-3.5" /> {incForm.lat ? `📍 ${incForm.lat.toFixed(4)}` : 'Geolocalizar'}
+                  <MapPin className="w-3.5 h-3.5" /> {incForm.lat ? `📍 ${incForm.lat.toFixed(4)}` : t('sso_calidad.geolocalizar', 'Geolocalizar')}
                 </button>
               </div>
               <textarea
                 value={incForm.descripcion}
                 onChange={e => { setIncForm(prev => ({ ...prev, descripcion: e.target.value })); clearSsError('descripcion'); }}
-                placeholder="Describe el incidente..."
+                placeholder={t('sso_calidad.descripcion_incidente', 'Describe el incidente...')}
                 className={`w-full px-3 py-2 text-xs rounded-lg border outline-none focus:border-red-400 min-h-[60px] ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-red-200'}`}
               />
               {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
@@ -312,25 +314,25 @@ const SSOCalidad: React.FC = () => {
                 <input
                   value={incForm.afectados}
                   onChange={e => { setIncForm(prev => ({ ...prev, afectados: e.target.value })); clearSsError('afectados'); }}
-                  placeholder="Afectados"
+                  placeholder={t('sso_calidad.afectados', 'Afectados')}
                   className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-red-400 ${ssFormErrors.afectados ? 'border-red-500 bg-red-50' : 'border-red-200 border'}`}
                 />
                 <input
                   value={incForm.testigos}
                   onChange={e => setIncForm(prev => ({ ...prev, testigos: e.target.value }))}
-                  placeholder="Testigos (opcional)"
+                  placeholder={t('sso_calidad.testigos', 'Testigos (opcional)')}
                   className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400"
                 />
               </div>
               <input
                 value={incForm.acciones}
                 onChange={e => setIncForm(prev => ({ ...prev, acciones: e.target.value }))}
-                placeholder="Acciones inmediatas tomadas"
+                placeholder={t('sso_calidad.acciones_inmediatas', 'Acciones inmediatas tomadas')}
                 className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400"
               />
               <div className="flex gap-2">
-                <button onClick={handleAddIncidente} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-semibold">Reportar Incidente</button>
-                <button onClick={() => setShowIncForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600 hover:bg-slate-50">Cancelar</button>
+                <button onClick={handleAddIncidente} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-semibold">{t('sso_calidad.reportar_incidente', 'Reportar Incidente')}</button>
+                <button onClick={() => setShowIncForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">{t('sso_calidad.cancelar', 'Cancelar')}</button>
               </div>
             </div>
           )}
@@ -339,7 +341,7 @@ const SSOCalidad: React.FC = () => {
             {incidentes.filter(i => !selProyecto || i.proyectoId === selProyecto).length === 0 ? (
               <div className="text-center py-8 text-slate-400">
                 <Shield className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-                <p className="text-sm">Sin incidentes registrados</p>
+                <p className="text-sm">{t('sso_calidad.sin_incidentes', 'Sin incidentes registrados')}</p>
               </div>
             ) : (
               incidentes.filter(i => !selProyecto || i.proyectoId === selProyecto).map(inc => {
@@ -364,14 +366,14 @@ const SSOCalidad: React.FC = () => {
                           {inc.afectados && <span>👥 {inc.afectados}</span>}
                           {proy && <span className="text-indigo-500">{proy.nombre}</span>}
                         </div>
-                        {inc.accionesInmediatas && <p className="text-xs text-slate-500 mt-1 italic">Acciones: {inc.accionesInmediatas}</p>}
+                        {inc.accionesInmediatas && <p className="text-xs text-slate-500 mt-1 italic">{t('sso_calidad.acciones_colon', 'Acciones:')} {inc.accionesInmediatas}</p>}
                       </div>
                       <div className="flex gap-1 shrink-0 ml-2">
                         {inc.estado === 'abierto' && (
-                          <button onClick={() => updateIncidente(inc.id, { estado: 'investigacion' as const })} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">Investigar</button>
+                          <button onClick={() => updateIncidente(inc.id, { estado: 'investigacion' as const })} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">{t('sso_calidad.investigar', 'Investigar')}</button>
                         )}
                         {inc.estado !== 'cerrado' && (
-                          <button onClick={() => updateIncidente(inc.id, { estado: 'cerrado' as const })} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">Cerrar</button>
+                          <button onClick={() => updateIncidente(inc.id, { estado: 'cerrado' as const })} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('sso_calidad.cerrar', 'Cerrar')}</button>
                         )}
                       </div>
                     </div>
@@ -387,9 +389,9 @@ const SSOCalidad: React.FC = () => {
       {tab === 'checklist-sso' && (
         <div>
           <h2 className="font-bold text-slate-700 text-sm mb-3 flex items-center gap-1.5">
-            <ClipboardList className="w-4 h-4 text-amber-500" /> Checklist Diario SSO
+            <ClipboardList className="w-4 h-4 text-amber-500" /> {t('sso_calidad.titulo_checklist', 'Checklist Diario SSO')}
           </h2>
-          <p className="text-xs text-slate-400 mb-3">Lista de verificación de seguridad diaria obligatoria antes de iniciar labores.</p>
+          <p className="text-xs text-slate-400 mb-3">{t('sso_calidad.checklist_descripcion', 'Lista de verificación de seguridad diaria obligatoria antes de iniciar labores.')}</p>
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
             <div className="space-y-2">
               {[
@@ -414,10 +416,10 @@ const SSOCalidad: React.FC = () => {
             <div className="mt-4 pt-3 border-t flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-slate-400" />
-                <input placeholder="Nombre del supervisor" className="px-3 py-1.5 text-xs rounded-lg border border-slate-200 outline-none focus:border-amber-400" />
+                <input placeholder={t('sso_calidad.supervisor_placeholder', 'Nombre del supervisor')} className="px-3 py-1.5 text-xs rounded-lg border border-slate-200 outline-none focus:border-amber-400" />
               </div>
               <button onClick={() => toast.success('✅ Checklist SSO registrado')} className="px-4 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-600">
-                <Check className="w-3.5 h-3.5 inline mr-1" /> Registrar
+                <Check className="w-3.5 h-3.5 inline mr-1" /> {t('sso_calidad.registrar_checklist', 'Registrar')}
               </button>
             </div>
           </div>
@@ -428,27 +430,27 @@ const SSOCalidad: React.FC = () => {
       {tab === 'estadisticas' && (
         <div>
           <h2 className="font-bold text-slate-700 text-sm mb-3 flex items-center gap-1.5">
-            <Activity className="w-4 h-4 text-blue-500" /> Estadísticas SSO
+            <Activity className="w-4 h-4 text-blue-500" /> {t('sso_calidad.titulo_estadisticas', 'Estadísticas SSO')}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
             <div className="bg-white rounded-xl p-4 border border-slate-100">
-              <div className="text-[10px] text-slate-400">Días Sin Accidentes</div>
+              <div className="text-[10px] text-slate-400">{t('sso_calidad.dias_sin_accidentes', 'Días Sin Accidentes')}</div>
               <div className="text-xl sm:text-3xl font-black text-emerald-600">{diasSinAccidentes}</div>
-              <div className="text-[10px] text-slate-400 mt-1">días</div>
+              <div className="text-[10px] text-slate-400 mt-1">{t('sso_calidad.dias', 'días')}</div>
             </div>
             <div className={`bg-white rounded-xl p-4 border ${totalIncidentes > 0 ? 'border-red-200' : 'border-slate-100'}`}>
-              <div className="text-[10px] text-slate-400">Total Incidentes</div>
+              <div className="text-[10px] text-slate-400">{t('sso_calidad.total_incidentes', 'Total Incidentes')}</div>
               <div className={`text-xl sm:text-3xl font-black ${totalIncidentes > 0 ? 'text-red-600' : 'text-slate-800'}`}>{totalIncidentes}</div>
-              <div className="text-[10px] text-slate-400 mt-1">{incidentesAbiertos} abiertos · {totalIncidentes - incidentesAbiertos} cerrados</div>
+              <div className="text-[10px] text-slate-400 mt-1">{incidentesAbiertos} {t('sso_calidad.abiertos', 'abiertos')} · {totalIncidentes - incidentesAbiertos} {t('sso_calidad.cerrados', 'cerrados')}</div>
             </div>
             <div className="bg-white rounded-xl p-4 border border-slate-100">
-              <div className="text-[10px] text-slate-400">Tasa de Incidencia</div>
+              <div className="text-[10px] text-slate-400">{t('sso_calidad.tasa_incidencia', 'Tasa de Incidencia')}</div>
               <div className="text-xl sm:text-3xl font-black text-orange-600">{tasaIncidencia}%</div>
-              <div className="text-[10px] text-slate-400 mt-1">incidentes por proyecto</div>
+              <div className="text-[10px] text-slate-400 mt-1">{t('sso_calidad.incidentes_por_proyecto', 'incidentes por proyecto')}</div>
             </div>
           </div>
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-            <h3 className="font-bold text-xs text-slate-700 mb-3">Incidentes por Tipo</h3>
+            <h3 className="font-bold text-xs text-slate-700 mb-3">{t('sso_calidad.incidentes_por_tipo', 'Incidentes por Tipo')}</h3>
             <div className="space-y-2">
               {(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro'] as const).map(tipo => {
                 const count = incidentes.filter(i => i.tipo === tipo && (!selProyecto || i.proyectoId === selProyecto)).length;
@@ -476,11 +478,11 @@ const SSOCalidad: React.FC = () => {
             <div className="w-20 h-20 mx-auto rounded-full bg-red-100 flex items-center justify-center animate-pulse">
               <AlertTriangle className="w-10 h-10 text-red-600" />
             </div>
-            <h2 className="text-xl font-black text-red-600">Botón de Emergencia</h2>
-            <p className="text-sm text-slate-500">Activa este botón en caso de una emergencia real en obra. Se notificará a todos los supervisores y se enviará tu ubicación.</p>
+            <h2 className="text-xl font-black text-red-600">{t('sso_calidad.boton_emergencia_titulo', 'Botón de Emergencia')}</h2>
+            <p className="text-sm text-slate-500">{t('sso_calidad.boton_emergencia_desc', 'Activa este botón en caso de una emergencia real en obra. Se notificará a todos los supervisores y se enviará tu ubicación.')}</p>
             <button
               onClick={() => {
-                if (!selProyecto) { toast.error('Selecciona un proyecto primero'); return; }
+                if (!selProyecto) { toast.error(t('sso_calidad.selecciona_proyecto_emergencia', 'Selecciona un proyecto primero')); return; }
                 if (navigator.geolocation) {
                   navigator.geolocation.getCurrentPosition(
                     (pos) => {
@@ -502,9 +504,9 @@ const SSOCalidad: React.FC = () => {
               className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-bold text-xs shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center flex-col"
             >
               <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 mb-1" />
-              <span className="text-[9px] sm:text-[10px] font-semibold">EMERGENCIA</span>
+              <span className="text-[9px] sm:text-[10px] font-semibold">{t('sso_calidad.emergencia_boton', 'EMERGENCIA')}</span>
             </button>
-              <p className="text-[10px] text-muted-foreground">Se compartirá tu ubicación con los equipos de respuesta</p>
+              <p className="text-[10px] text-muted-foreground">{t('sso_calidad.emergencia_aviso', 'Se compartirá tu ubicación con los equipos de respuesta')}</p>
           </div>
         </div>
       )}
@@ -514,10 +516,10 @@ const SSOCalidad: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
-              <FlaskConical className="w-4 h-4 text-purple-500" /> Pruebas de Laboratorio
+              <FlaskConical className="w-4 h-4 text-purple-500" /> {t('sso_calidad.pruebas_laboratorio', 'Pruebas de Laboratorio')}
             </h2>
             <button onClick={() => { setShowPruebaForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-medium hover:bg-purple-600">
-              <Plus className="w-3.5 h-3.5" /> Nueva Prueba
+              <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nueva_prueba', 'Nueva Prueba')}
             </button>
           </div>
 
@@ -530,11 +532,11 @@ const SSOCalidad: React.FC = () => {
                     onChange={e => { setPruebaForm(prev => ({ ...prev, tipo: e.target.value as PruebaLaboratorio['tipo'] })); clearSsError('tipo'); }}
                     className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-purple-400 ${ssFormErrors.tipo ? 'border-red-500 bg-red-50' : 'border-purple-200'}`}
                   >
-                    <option value="concreto">Concreto</option>
-                    <option value="suelos">Suelos</option>
-                    <option value="acero">Acero</option>
-                    <option value="asfalto">Asfalto</option>
-                    <option value="otro">Otro</option>
+                    <option value="concreto">{t('sso_calidad.tipo_concreto', 'Concreto')}</option>
+                    <option value="suelos">{t('sso_calidad.tipo_suelos', 'Suelos')}</option>
+                    <option value="acero">{t('sso_calidad.tipo_acero', 'Acero')}</option>
+                    <option value="asfalto">{t('sso_calidad.tipo_asfalto', 'Asfalto')}</option>
+                    <option value="otro">{t('sso_calidad.tipo_otro', 'Otro')}</option>
                   </select>
                   {ssFormErrors.tipo && <p className="text-xs text-red-500 mt-1">{ssFormErrors.tipo}</p>}
                 </div>
@@ -542,7 +544,7 @@ const SSOCalidad: React.FC = () => {
                   <input
                     value={pruebaForm.responsable}
                     onChange={e => { setPruebaForm(prev => ({ ...prev, responsable: e.target.value })); clearSsError('responsable'); }}
-                    placeholder="Responsable"
+                    placeholder={t('sso_calidad.responsable_placeholder', 'Responsable')}
                     className={`w-full px-3 py-2 rounded-lg text-xs outline-none focus:border-purple-400 ${ssFormErrors.responsable ? 'border-red-500 bg-red-50' : 'border-purple-200 border'}`}
                   />
                   {ssFormErrors.responsable && <p className="text-xs text-red-500 mt-1">{ssFormErrors.responsable}</p>}
@@ -552,14 +554,14 @@ const SSOCalidad: React.FC = () => {
                 <input
                   value={pruebaForm.descripcion}
                   onChange={e => { setPruebaForm(prev => ({ ...prev, descripcion: e.target.value })); clearSsError('descripcion'); }}
-                  placeholder="Descripción de la prueba (ej: Resistencia concreto 28 días)"
+                  placeholder={t('sso_calidad.descripcion_prueba_placeholder', 'Descripción de la prueba (ej: Resistencia concreto 28 días)')}
                   className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-purple-400 ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-purple-200 border'}`}
                 />
                 {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
               </div>
               <div className="flex gap-2">
-                <button onClick={handleAddPrueba} className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-semibold">Registrar Prueba</button>
-                <button onClick={() => setShowPruebaForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">Cancelar</button>
+                <button onClick={handleAddPrueba} className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-semibold">{t('sso_calidad.registrar_prueba', 'Registrar Prueba')}</button>
+                <button onClick={() => setShowPruebaForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">{t('sso_calidad.cancelar', 'Cancelar')}</button>
               </div>
             </div>
           )}
@@ -568,7 +570,7 @@ const SSOCalidad: React.FC = () => {
             {pruebas.filter(p => !selProyecto || p.proyectoId === selProyecto).length === 0 ? (
               <div className="text-center py-8 text-slate-400">
                 <FlaskConical className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-                <p className="text-sm">Sin pruebas registradas</p>
+                <p className="text-sm">{t('sso_calidad.sin_pruebas', 'Sin pruebas registradas')}</p>
               </div>
             ) : (
               pruebas.filter(p => !selProyecto || p.proyectoId === selProyecto).map(p => (
@@ -583,15 +585,15 @@ const SSOCalidad: React.FC = () => {
                       </div>
                       <p className="text-sm font-medium text-slate-700">{p.descripcion}</p>
                       <div className="flex gap-2 mt-1 text-[10px] text-slate-400">
-                        <span>📅 Muestra: {p.fechaMuestra}</span>
-                        {p.fechaResultado && <span>📊 Resultado: {p.fechaResultado}</span>}
+                        <span>📅 {t('sso_calidad.muestra_label', 'Muestra')}: {p.fechaMuestra}</span>
+                        {p.fechaResultado && <span>📊 {t('sso_calidad.resultado_label', 'Resultado')}: {p.fechaResultado}</span>}
                         <span>👤 {p.responsable}</span>
                       </div>
                     </div>
                     {p.resultado === 'pendiente' && (
                       <div className="flex gap-1 shrink-0 ml-2">
-                        <button onClick={() => actualizarResultadoPrueba(p.id, 'pasa')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">Pasa</button>
-                        <button onClick={() => actualizarResultadoPrueba(p.id, 'no_pasa')} className="px-2 py-1 bg-red-500 text-white rounded text-[10px] hover:bg-red-600">No Pasa</button>
+                        <button onClick={() => actualizarResultadoPrueba(p.id, 'pasa')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('sso_calidad.pasa', 'Pasa')}</button>
+                        <button onClick={() => actualizarResultadoPrueba(p.id, 'no_pasa')} className="px-2 py-1 bg-red-500 text-white rounded text-[10px] hover:bg-red-600">{t('sso_calidad.no_pasa', 'No Pasa')}</button>
                       </div>
                     )}
                   </div>
@@ -608,10 +610,10 @@ const SSOCalidad: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
-              <XCircle className="w-4 h-4 text-red-500" /> No Conformidades (NC)
+              <XCircle className="w-4 h-4 text-red-500" /> {t('sso_calidad.titulo_nc', 'No Conformidades (NC)')}
             </h2>
             <button onClick={() => { setShowNCForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600">
-              <Plus className="w-3.5 h-3.5" /> Nueva NC
+              <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nueva_nc', 'Nueva NC')}
             </button>
           </div>
 
@@ -624,11 +626,11 @@ const SSOCalidad: React.FC = () => {
                     onChange={e => { setNcForm(prev => ({ ...prev, categoria: e.target.value as NoConformidad['categoria'] })); clearSsError('categoria'); }}
                     className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-red-400 ${ssFormErrors.categoria ? 'border-red-500 bg-red-50' : 'border-red-200'}`}
                   >
-                    <option value="material">Material</option>
-                    <option value="proceso">Proceso</option>
-                    <option value="documento">Documentación</option>
-                    <option value="instalacion">Instalación</option>
-                    <option value="otro">Otro</option>
+                    <option value="material">{t('sso_calidad.cat_material', 'Material')}</option>
+                    <option value="proceso">{t('sso_calidad.cat_proceso', 'Proceso')}</option>
+                    <option value="documento">{t('sso_calidad.cat_documento', 'Documentación')}</option>
+                    <option value="instalacion">{t('sso_calidad.cat_instalacion', 'Instalación')}</option>
+                    <option value="otro">{t('sso_calidad.cat_otro', 'Otro')}</option>
                   </select>
                   {ssFormErrors.categoria && <p className="text-xs text-red-500 mt-1">{ssFormErrors.categoria}</p>}
                 </div>
@@ -636,7 +638,7 @@ const SSOCalidad: React.FC = () => {
                   <input
                     value={ncForm.detectadoPor}
                     onChange={e => { setNcForm(prev => ({ ...prev, detectadoPor: e.target.value })); clearSsError('detectadoPor'); }}
-                    placeholder="Detectado por"
+                    placeholder={t('sso_calidad.detectado_por_placeholder', 'Detectado por')}
                     className={`w-full px-3 py-2 rounded-lg text-xs outline-none focus:border-red-400 ${ssFormErrors.detectadoPor ? 'border-red-500 bg-red-50' : 'border-red-200 border'}`}
                   />
                   {ssFormErrors.detectadoPor && <p className="text-xs text-red-500 mt-1">{ssFormErrors.detectadoPor}</p>}
@@ -646,14 +648,14 @@ const SSOCalidad: React.FC = () => {
                 <textarea
                   value={ncForm.descripcion}
                   onChange={e => { setNcForm(prev => ({ ...prev, descripcion: e.target.value })); clearSsError('descripcion'); }}
-                  placeholder="Describe la no conformidad..."
+                  placeholder={t('sso_calidad.descripcion_nc_placeholder', 'Describe la no conformidad...')}
                   className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-red-400 min-h-[60px] ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-red-200 border'}`}
                 />
                 {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
               </div>
               <div className="flex gap-2">
-                <button onClick={handleAddNC} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-semibold">Registrar NC</button>
-                <button onClick={() => setShowNCForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">Cancelar</button>
+                <button onClick={handleAddNC} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-semibold">{t('sso_calidad.registrar_nc', 'Registrar NC')}</button>
+                <button onClick={() => setShowNCForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">{t('sso_calidad.cancelar', 'Cancelar')}</button>
               </div>
             </div>
           )}
@@ -662,7 +664,7 @@ const SSOCalidad: React.FC = () => {
             {ncs.filter(n => !selProyecto || n.proyectoId === selProyecto).length === 0 ? (
               <div className="text-center py-8 text-slate-400">
                 <XCircle className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-                <p className="text-sm">Sin no conformidades</p>
+                <p className="text-sm">{t('sso_calidad.sin_nc', 'Sin no conformidades')}</p>
               </div>
             ) : (
               ncs.filter(n => !selProyecto || n.proyectoId === selProyecto).map(nc => (
@@ -681,17 +683,17 @@ const SSOCalidad: React.FC = () => {
                         <span>📅 {nc.fechaDeteccion}</span>
                         <span>👤 {nc.detectadoPor}</span>
                       </div>
-                      {nc.planAccion && <p className="text-xs text-slate-600 mt-1">📋 Plan: {nc.planAccion}</p>}
+                      {nc.planAccion && <p className="text-xs text-slate-600 mt-1">📋 {t('sso_calidad.plan_colon', 'Plan:')} {nc.planAccion}</p>}
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {nc.estado === 'detectado' && (
                         <button onClick={() => {
-                          const plan = prompt('Describe el plan de acción:');
+                          const plan = prompt(t('sso_calidad.plan_accion_prompt', 'Describe el plan de acción:'));
                           if (plan) actualizarEstadoNC(nc.id, 'plan_accion', plan);
-                        }} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">Plan</button>
+                        }} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">{t('sso_calidad.plan_boton', 'Plan')}</button>
                       )}
                       {nc.estado !== 'cerrado' && (
-                        <button onClick={() => actualizarEstadoNC(nc.id, 'cerrado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">Cerrar</button>
+                        <button onClick={() => actualizarEstadoNC(nc.id, 'cerrado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('sso_calidad.cerrar', 'Cerrar')}</button>
                       )}
                     </div>
                   </div>
@@ -707,10 +709,10 @@ const SSOCalidad: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
-              <CheckCircle className="w-4 h-4 text-emerald-500" /> Liberación de Partidas
+              <CheckCircle className="w-4 h-4 text-emerald-500" /> {t('sso_calidad.titulo_liberaciones', 'Liberación de Partidas')}
             </h2>
             <button onClick={() => { setShowLibForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-medium hover:bg-emerald-600">
-              <Plus className="w-3.5 h-3.5" /> Solicitar Liberación
+              <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nueva_liberacion', 'Solicitar Liberación')}
             </button>
           </div>
 
@@ -720,7 +722,7 @@ const SSOCalidad: React.FC = () => {
                 <input
                   value={libForm.renglonNombre}
                   onChange={e => { setLibForm(prev => ({ ...prev, renglonNombre: e.target.value })); clearSsError('renglonNombre'); }}
-                  placeholder="Actividad / Partida a liberar"
+                  placeholder={t('sso_calidad.renglon_placeholder', 'Actividad / Partida a liberar')}
                   className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 ${ssFormErrors.renglonNombre ? 'border-red-500 bg-red-50' : 'border-emerald-200 border'}`}
                 />
                 {ssFormErrors.renglonNombre && <p className="text-xs text-red-500 mt-1">{ssFormErrors.renglonNombre}</p>}
@@ -730,7 +732,7 @@ const SSOCalidad: React.FC = () => {
                   <input
                     value={libForm.solicitante}
                     onChange={e => { setLibForm(prev => ({ ...prev, solicitante: e.target.value })); clearSsError('solicitante'); }}
-                    placeholder="Solicitante"
+                    placeholder={t('sso_calidad.solicitante_placeholder', 'Solicitante')}
                     className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 ${ssFormErrors.solicitante ? 'border-red-500 bg-red-50' : 'border-emerald-200 border'}`}
                   />
                   {ssFormErrors.solicitante && <p className="text-xs text-red-500 mt-1">{ssFormErrors.solicitante}</p>}
@@ -739,15 +741,15 @@ const SSOCalidad: React.FC = () => {
                   <input
                     value={libForm.supervisor}
                     onChange={e => { setLibForm(prev => ({ ...prev, supervisor: e.target.value })); clearSsError('supervisor'); }}
-                    placeholder="Supervisor"
+                    placeholder={t('sso_calidad.supervisor_placeholder', 'Supervisor')}
                     className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 ${ssFormErrors.supervisor ? 'border-red-500 bg-red-50' : 'border-emerald-200 border'}`}
                   />
                   {ssFormErrors.supervisor && <p className="text-xs text-red-500 mt-1">{ssFormErrors.supervisor}</p>}
                 </div>
               </div>
               <div className="flex gap-2">
-                <button onClick={handleAddLiberacion} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-semibold">Solicitar Liberación</button>
-                <button onClick={() => setShowLibForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">Cancelar</button>
+                <button onClick={handleAddLiberacion} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-semibold">{t('sso_calidad.solicitar_liberacion', 'Solicitar Liberación')}</button>
+                <button onClick={() => setShowLibForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">{t('sso_calidad.cancelar', 'Cancelar')}</button>
               </div>
             </div>
           )}
@@ -756,7 +758,7 @@ const SSOCalidad: React.FC = () => {
             {liberaciones.filter(l => !selProyecto || l.proyectoId === selProyecto).length === 0 ? (
               <div className="text-center py-8 text-slate-400">
                 <Layers className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-                <p className="text-sm">Sin solicitudes de liberación</p>
+                <p className="text-sm">{t('sso_calidad.sin_liberaciones', 'Sin solicitudes de liberación')}</p>
               </div>
             ) : (
               liberaciones.filter(l => !selProyecto || l.proyectoId === selProyecto).map(l => (
@@ -771,8 +773,8 @@ const SSOCalidad: React.FC = () => {
                       </div>
                       <p className="text-sm font-medium text-slate-700">{l.renglonNombre}</p>
                       <div className="flex gap-2 mt-1 text-[10px] text-slate-400">
-                        <span>📅 Sol: {l.fechaSolicitud}</span>
-                        {l.fechaLiberacion && <span>✅ Lib: {l.fechaLiberacion}</span>}
+                        <span>📅 {t('sso_calidad.solicitud_label', 'Sol')}: {l.fechaSolicitud}</span>
+                        {l.fechaLiberacion && <span>✅ {t('sso_calidad.liberacion_label', 'Lib')}: {l.fechaLiberacion}</span>}
                         <span>👤 {l.solicitante}</span>
                         {l.supervisor && <span>🔍 {l.supervisor}</span>}
                       </div>
@@ -780,8 +782,8 @@ const SSOCalidad: React.FC = () => {
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {l.estado === 'pendiente' && (
                         <>
-                          <button onClick={() => actualizarLiberacion(l.id, 'liberado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">Liberar</button>
-                          <button onClick={() => actualizarLiberacion(l.id, 'rechazado')} className="px-2 py-1 bg-red-500 text-white rounded text-[10px] hover:bg-red-600">Rechazar</button>
+                          <button onClick={() => actualizarLiberacion(l.id, 'liberado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('sso_calidad.liberar_boton', 'Liberar')}</button>
+                          <button onClick={() => actualizarLiberacion(l.id, 'rechazado')} className="px-2 py-1 bg-red-500 text-white rounded text-[10px] hover:bg-red-600">{t('sso_calidad.rechazar_boton', 'Rechazar')}</button>
                         </>
                       )}
                     </div>

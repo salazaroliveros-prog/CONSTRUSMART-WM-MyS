@@ -150,9 +150,4 @@ ALTER TABLE erp_planos REPLICA IDENTITY FULL;
 ALTER TABLE erp_rfis REPLICA IDENTITY FULL;
 ALTER TABLE erp_submittals REPLICA IDENTITY FULL;
 
-INSERT INTO supabase_migrations.schema_migrations (version, name, statements)
-SELECT '000000000074', 'fix_rls_missing_tables', ARRAY[
-  'Created RLS + policies for erp_activos, erp_cuadros, erp_planos, erp_rfis, erp_submittals',
-  'Added indexes and replica identity for realtime'
-]
-WHERE NOT EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version = '000000000074');
+

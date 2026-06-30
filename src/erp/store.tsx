@@ -4,14 +4,16 @@ import { scheduleHealthCheck } from '@/lib/store-health';
 import { useErpStore, fetchInitialData } from './zustandStore';
 import { TABLE_MAP as STORE_KEY_MAP } from './constants/table-mappings';
 import {
-  proyectoSchema, movimientoSchema, cuentaCobrarSchema, cuentaPagarSchema, ordenCambioSchema,
-  presupuestoSchema, cotizacionSchema, empleadoSchema, incidenteSchema, materialSchema,
-  ordenSchema, proveedorSchema, eventoSchema,
-  bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema, muroSchema,
-  notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
-  licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
-  destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema,
-  auditLogSchema, appSettingsSchema, proyectoWeatherSchema, errorLogSchema,
+   proyectoSchema, movimientoSchema, cuentaCobrarSchema, cuentaPagarSchema, ordenCambioSchema, ventaPaqueteSchema,
+   presupuestoSchema, cotizacionSchema, empleadoSchema, incidenteSchema, materialSchema,
+   ordenSchema, proveedorSchema, eventoSchema,
+   bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema, muroSchema,
+   notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
+   licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
+   destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema,
+   auditLogSchema, appSettingsSchema, proyectoWeatherSchema, errorLogSchema, calculoProyectoSchema,
+   reglaFactorSchema, normativaDepartamentalSchema, escalaProduccionSchema, estacionalidadSchema,
+   historialAplicacionReglaSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, compressDataAsync, decompressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -60,6 +62,11 @@ const AUDIT_KEY = BASE_STORAGE_KEY + '_audit_log';
 const PLANTILLA_KEY = BASE_STORAGE_KEY + '_plantillas';
 const WEATHER_KEY = BASE_STORAGE_KEY + '_weather';
 const ERROR_LOG_KEY = BASE_STORAGE_KEY + '_error_logs';
+const REGLAS_KEY = BASE_STORAGE_KEY + '_reglas_factores';
+const NORMATIVAS_KEY = BASE_STORAGE_KEY + '_normativas';
+const ESCALAS_KEY = BASE_STORAGE_KEY + '_escalas';
+const ESTACIONALIDAD_KEY = BASE_STORAGE_KEY + '_estacionalidad';
+const HISTORIAL_REGLAS_KEY = BASE_STORAGE_KEY + '_historial_reglas';
 
 function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   try {
@@ -180,11 +187,11 @@ export const MUTATION_TABLE_MAP: Record<string, string> = {
   addPagoProveedor:'erp_pagos_proveedor',updatePagoProveedor:'erp_pagos_proveedor',deletePagoProveedor:'erp_pagos_proveedor',
   addIncidente:'erp_incidentes',updateIncidente:'erp_incidentes',deleteIncidente:'erp_incidentes',
   addDestajo:'erp_destajos',updateDestajo:'erp_destajos',deleteDestajo:'erp_destajos',
+  addCalculoProyecto:'erp_calculos_proyecto',updateCalculoProyecto:'erp_calculos_proyecto',deleteCalculoProyecto:'erp_calculos_proyecto',
   addRecepcion:'recepciones_almacen',updateRecepcion:'recepciones_almacen',deleteRecepcion:'recepciones_almacen',
   addValeSalida:'erp_vales_salida',updateValeSalida:'erp_vales_salida',deleteValeSalida:'erp_vales_salida',
-  addPublicacionMuro:'erp_muro',updatePublicacionMuro:'erp_muro',deletePublicacionMuro:'erp_muro',
-  addComentarioMuro:'erp_muro',
-  likePublicacionMuro:'erp_muro',
+  addComentarioMuro:'erp_publicaciones_muro',
+  likePublicacionMuro:'erp_publicaciones_muro',
   addPrueba:'erp_pruebas_laboratorio',updatePrueba:'erp_pruebas_laboratorio',deletePrueba:'erp_pruebas_laboratorio',
   addNC:'erp_no_conformidades',updateNC:'erp_no_conformidades',deleteNC:'erp_no_conformidades',
   addLiberacion:'erp_liberaciones_partida',updateLiberacion:'erp_liberaciones_partida',deleteLiberacion:'erp_liberaciones_partida',
@@ -195,9 +202,11 @@ export const MUTATION_TABLE_MAP: Record<string, string> = {
   addCentroCosto:'erp_centros_costo',updateCentroCosto:'erp_centros_costo',deleteCentroCosto:'erp_centros_costo',
   addReglaFactor:'erp_reglas_factores',updateReglaFactor:'erp_reglas_factores',deleteReglaFactor:'erp_reglas_factores',
   addNormativaDepartamental:'erp_normativa_departamental',updateNormativaDepartamental:'erp_normativa_departamental',deleteNormativaDepartamental:'erp_normativa_departamental',registrarCumplimientoNormativo:'erp_cumplimiento_normativo',
-  addEscalaProduccion:'erp_escalas_produccion',updateEscalaProduccion:'erp_escalas_produccion',deleteEscalaProduccion:'erp_escalas_produccion',registrarAplicacionEscala:'erp_aplicaciones_escala',
-  addEstacionalidad:'erp_estacionalidad',updateEstacionalidad:'erp_estacionalidad',deleteEstacionalidad:'erp_estacionalidad',
-  addAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',updateAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',deleteAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',
+  addEscalaProduccion:'erp_escalas_produccion',updateEscalaProduccion:'erp_escalas_produccion',deleteEscalaProduccion:'erp_escalas_produccion',registrarAplicacionEscala:'erp_aplicacion_escalas',
+addEstacionalidad:'erp_estacionalidad',updateEstacionalidad:'erp_estacionalidad',deleteEstacionalidad:'erp_estacionalidad',
+   addAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',updateAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',deleteAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',
+   validarCalculo:'erp_calculos_proyecto',guardarAlertasCalculo:'erp_calculos_proyecto',registrarAplicacionRegla:'erp_historial_aplicacion_reglas',
+   setReglasFactores:'erp_reglas_factores',setNormativasDepartamentales:'erp_normativa_departamental',setEscalasProduccion:'erp_escalas_produccion',setEstacionalidad:'erp_estacionalidad',
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -291,11 +300,18 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       cuadros: loadFromStorage(BASE_STORAGE_KEY + '_cuadros', cuadroSchema),
       pagosProveedor: loadFromStorage(BASE_STORAGE_KEY + '_pagos_proveedor', pagoProveedorSchema),
       destajos: loadFromStorage(BASE_STORAGE_KEY + '_destajos', destajoSchema),
-      recepciones: loadFromStorage(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema),
-      centrosCosto: loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
-      plantillas: loadFromStorage(PLANTILLA_KEY, plantillaSchema),
-      proyectoWeather: loadFromStorage(WEATHER_KEY, proyectoWeatherSchema),
-      errorLogs: loadFromStorage(ERROR_LOG_KEY, errorLogSchema),
+calculosProyecto: loadFromStorage(BASE_STORAGE_KEY + '_calculos_proyecto', calculoProyectoSchema),
+       ventasPaquetes: loadFromStorage(BASE_STORAGE_KEY + '_ventas_paquetes', ventaPaqueteSchema),
+       recepciones: loadFromStorage(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema),
+       centrosCosto: loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
+       plantillas: loadFromStorage(PLANTILLA_KEY, plantillaSchema),
+       proyectoWeather: loadFromStorage(WEATHER_KEY, proyectoWeatherSchema),
+       errorLogs: loadFromStorage(ERROR_LOG_KEY, errorLogSchema),
+       reglasFactores: loadFromStorage(REGLAS_KEY, reglaFactorSchema),
+       normativasDepartamentales: loadFromStorage(NORMATIVAS_KEY, normativaDepartamentalSchema),
+       escalasProduccion: loadFromStorage(ESCALAS_KEY, escalaProduccionSchema),
+       estacionalidad: loadFromStorage(ESTACIONALIDAD_KEY, estacionalidadSchema),
+       historialReglas: loadFromStorage(HISTORIAL_REGLAS_KEY, historialAplicacionReglaSchema),
       mutationQueue: (() => { try { const r = localStorage.getItem(QUEUE_KEY); if (!r) return []; const d = decompressData(r); return Array.isArray(d) ? d as Mutation[] : []; } catch { return []; } })(),
       notificaciones: loadFromStorage(NOTIF_KEY, notificacionSchema),
       auditLog: loadFromStorage(AUDIT_KEY, auditLogSchema),
@@ -541,13 +557,13 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
             ordenesCambio: s.ordenesCambio, hitos: s.hitos, riesgos: s.riesgos, licitaciones: s.licitaciones,
             cotizacionesNegocio: s.cotizacionesNegocio, bitacora: s.bitacora,
             pruebas: s.pruebas, no_conformidades: s.ncs, vales_salida: s.valesSalida,
-            seguimiento_evm: s.seguimientoEVM, incidentes: s.incidentes, publicacionesMuro: s.publicacionesMuro,
-            liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
-            activos: s.activos, cuadros: s.cuadros, pagos_proveedor: s.pagosProveedor,
-            destajos: s.destajos, recepciones: s.recepciones, centrosCosto: s.centrosCosto,
-            plantillas: s.plantillas,
-            proyectoWeather: s.proyectoWeather,
-            errorLogs: s.errorLogs,
+          seguimiento_evm: s.seguimientoEVM, incidentes: s.incidentes, publicacionesMuro: s.publicacionesMuro,
+          liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
+          activos: s.activos, cuadros: s.cuadros, pagosProveedor: s.pagosProveedor,
+          destajos: s.destajos, calculosProyecto: s.calculosProyecto, recepciones: s.recepciones, centrosCosto: s.centrosCosto,
+          plantillas: s.plantillas, proyectoWeather: s.proyectoWeather, errorLogs: s.errorLogs,
+          reglasFactores: s.reglasFactores, normativasDepartamentales: s.normativasDepartamentales,
+          escalasProduccion: s.escalasProduccion, estacionalidad: s.estacionalidad, historialReglas: s.historialReglas,
           };
           const quotaCritical = isStorageQuotaCritical();
           for (const [k, v] of Object.entries(map)) {

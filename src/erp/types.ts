@@ -1054,39 +1054,46 @@ export interface ComparacionCalculos {
 
 export interface NormativaDepartamental {
   id?: string;
-  departamentoCodigo: 'GT-01' | 'GT-02' | 'GT-03' | 'GT-04' | 'GT-05' | 'GT-06' | 'GT-07' | 'GT-08' | 'GT-09' | 'GT-10' | 'GT-11' | 'GT-12' | 'GT-13' | 'GT-14' | 'GT-15' | 'GT-16' | 'GT-17' | 'GT-18' | 'GT-19' | 'GT-20' | 'GT-21' | 'GT-22';
-  tipoNorma: 'estructural' | 'urbanistica' | 'ambiental' | 'sismica' | 'electrica' | 'sanitaria';
-  codigoNorma: string;
-  nombreNorma: string;
+  departamento_codigo?: string;
+  tipo_norma?: string;
+  codigo_norma: string;
+  nombre_norma: string;
   descripcion?: string;
-  anoUltimaRevision?: number;
-  organismoEmisor?: string;
-  requisitosEspecificos: Record<string, any>;
+  ano_ultima_revision?: number;
+  organismo_emisor?: string;
+  requisitos_especificos: Record<string, any>;
   aplicacion?: string;
   activo?: boolean;
 }
 
 export interface EscalaProduccion {
   id?: string;
-  tipoProyecto: string;
-  rangoTamano: string;
-  tamanoMinimo?: number;
-  tamanoMaximo?: number;
-  factorEconomia: number;
-  factorAdministracion: number;
-  factorImprevistos: number;
+  tipo_proyecto: string;
+  rango_tamano: string;
+  tamano_minimo?: number;
+  tamano_maximo?: number;
+  factor_economia: number;
+  factor_administracion: number;
+  factor_imprevistos: number;
+  factor_logistica?: number;
+  factor_financiero?: number;
+  factor_total?: number;
   descripcion?: string;
   activo?: boolean;
 }
 
 export interface Estacionalidad {
   id?: string;
-  departamentoCodigo: string;
+  departamento_codigo: string;
   mes: number;
-  factorDisponibilidad: number;
-  factorCosto: number;
-  factorProductividad: number;
-  condicionesEspeciales?: string;
+  temporada: string;
+  factor_disponibilidad: number;
+  factor_costo: number;
+  factor_productividad: number;
+  factor_especifico?: number;
+  condiciones_especiales?: string;
+  restricciones_especiales?: any[];
+  riesgos_estacionales?: any[];
   activo?: boolean;
 }
 

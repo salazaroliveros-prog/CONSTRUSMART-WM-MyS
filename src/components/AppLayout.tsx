@@ -252,7 +252,7 @@ const AppLayoutContent: React.FC = () => {
     return <AppLoader />;
   }
 
-  if (!user || (user as any)?.id === 'local') {
+  if (!user) {
     return (
       <Suspense fallback={<AppLoader />}>
         <Login />

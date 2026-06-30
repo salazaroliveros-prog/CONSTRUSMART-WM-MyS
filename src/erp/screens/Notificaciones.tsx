@@ -1,5 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { Bell, Check, CheckCheck, AlertTriangle, ClipboardList, Package, TrendingDown, Activity } from 'lucide-react';
@@ -32,10 +33,14 @@ const MAPA_LABEL: Record<string, string> = {
 };
 
 export default function Notificaciones() {
+  const { t } = useTranslation();
   const { notificaciones, markNotificacionLeida, marcarTodasLeidas, proyectos } = useErp();
   const [filtroTipo, setFiltroTipo] = React.useState<string | null>(null);
   const [filtroProyecto, setFiltroProyecto] = React.useState('');
   const [tab, setTab] = React.useState<'alertas' | 'historial'>('alertas');
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => { setLoading(false); }, []);
 
   const noLeidas = notificaciones.filter(n => !n.leido);
   const leidas = notificaciones.filter(n => n.leido);
@@ -77,10 +82,10 @@ export default function Notificaciones() {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Bell className="w-6 h-6" />
-            Notificaciones
+            {t('notificaciones.titulo', 'Notificaciones')}
           </h1>
           <p className="text-sm text-gray-500">
-            {noLeidas.length} alertas · {leidas.length} en historial
+            {noLeidas.length} {t('notificaciones.alertas', 'alertas')} · {leidas.length} {t('notificaciones.historial', 'en historial')}
           </p>
         </div>
         <button
@@ -88,7 +93,7 @@ export default function Notificaciones() {
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors"
         >
           <CheckCheck className="w-4 h-4" />
-          Marcar todas leídas
+          {t('notificaciones.marcar_todas_leidas', 'Marcar todas leídas')}
         </button>
       </div>
 
@@ -102,7 +107,7 @@ export default function Notificaciones() {
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Alertas {noLeidas.length > 0 && `(${noLeidas.length})`}
+          {t('notificaciones.tab_alertas', 'Alertas')} {noLeidas.length > 0 && `(${noLeidas.length})`}
         </button>
         <button
           onClick={() => setTab('historial')}
@@ -112,7 +117,7 @@ export default function Notificaciones() {
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Historial
+          {t('notificaciones.tab_historial', 'Historial')}
         </button>
       </div>
 
@@ -127,7 +132,7 @@ export default function Notificaciones() {
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          Todas
+          {t('notificaciones.tiltulas_todas', 'Todas')}
         </button>
         {tiposExistentes.map(tipo => (
           <button
@@ -149,12 +154,12 @@ export default function Notificaciones() {
         <div className="text-center py-16 text-gray-400">
           <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p className="text-lg font-medium">
-            {tab === 'alertas' ? 'No hay alertas pendientes' : 'No hay historial'}
+            {tab === 'alertas' ? t('notificaciones.sin_alertas', 'No hay alertas pendientes') : t('notificaciones.sin_historial', 'No hay historial')}
           </p>
           <p className="text-sm">
             {tab === 'alertas'
-              ? 'Todas las notificaciones han sido revisadas. ¡Buen trabajo!'
-              : 'Las notificaciones leídas aparecerán aquí.'}
+              ? t('notificaciones.sin_alertas_desc', 'Todas las notificaciones han sido revisadas. ¡Buen trabajo!')
+              : t('notificaciones.sin_historial_desc', 'Las notificaciones leídas aparecerán aquí.')}
           </p>
         </div>
       ) : (
@@ -194,7 +199,7 @@ export default function Notificaciones() {
                 <button
                   onClick={(e) => { e.stopPropagation(); markNotificacionLeida(notif.id); }}
                   className="p-1.5 hover:bg-white/50 rounded-full transition-colors shrink-0"
-                  title="Marcar como leída"
+                  title={t('notificaciones.marcar_leida', 'Marcar como leída')}
                 >
                   <Check className="w-4 h-4 text-gray-400" />
                 </button>

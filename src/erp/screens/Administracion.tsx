@@ -1,5 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { CentroCosto, LogAuditoria } from '../types';
 import ProyectoFilter from '../components/ProyectoFilter';
@@ -8,16 +9,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
-const centroCostoSchema = z.object({
-  proyectoId: z.string().min(1, 'Proyecto requerido'),
-  codigo: z.string().min(1, 'Código requerido').regex(/^CC-\d{3,}$/, 'Formato: CC-001'),
-  nombre: z.string().min(1, 'Nombre requerido').max(100, 'Máximo 100 caracteres'),
-  presupuestoAsignado: z.coerce.number().min(0, 'Debe ser ≥ 0').max(999_999_999, 'Monto muy alto'),
-  tipo: z.enum(['directo', 'indirecto', 'administrativo']),
-});
-type CentroCostoForm = z.infer<typeof centroCostoSchema>;
-
-export const Administracion: React.FC = () => {
+const Administracion: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, auditLog, centrosCosto, setCentrosCosto } = useErp();
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion'>('centros');
   const [showForm, setShowForm] = useState(false);
@@ -25,6 +18,15 @@ export const Administracion: React.FC = () => {
 
   useEffect(() => { setLoading(false); }, []);
   const [filtroProyecto, setFiltroProyecto] = useState('');
+
+  const centroCostoSchema = z.object({
+    proyectoId: z.string().min(1, t('admin.proyecto_requerido')),
+    codigo: z.string().min(1, t('admin.codigo_requerido')).regex(/^CC-\d{3,}$/, t('admin.formato_codigo')),
+    nombre: z.string().min(1, t('admin.nombre_requerido')).max(100, t('admin.max_nombre')),
+    presupuestoAsignado: z.coerce.number().min(0, t('admin.presupuesto_min')).max(999_999_999, t('admin.presupuesto_max')),
+    tipo: z.enum(['directo', 'indirecto', 'administrativo']),
+  });
+  type CentroCostoForm = z.infer<typeof centroCostoSchema>;
 
   const uid = () => Date.now().toString(36).substr(2, 9);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CentroCostoForm>({
@@ -34,7 +36,7 @@ export const Administracion: React.FC = () => {
 
   const onAddCentroCosto = (data: CentroCostoForm) => {
     setCentrosCosto(prev => [{ id: uid(), proyectoId: data.proyectoId, codigo: data.codigo, nombre: data.nombre, presupuestoAsignado: data.presupuestoAsignado, gastoActual: 0, tipo: data.tipo }, ...prev]);
-    toast.success('Centro de costo creado');
+    toast.success(t('admin.centro_creado'));
     setShowForm(false);
     reset();
   };
@@ -51,31 +53,31 @@ export const Administracion: React.FC = () => {
     return (
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold text-foreground">🏢 Centros de Costo</h2>
+          <h2 className="text-lg font-bold text-foreground">{t('admin.centros')}</h2>
           <div className="flex items-center gap-2">
             <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} />
             <button onClick={() => { setShowForm(true); reset(); }}
               className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">
-              + Nuevo Centro
+              {t('admin.nuevo_centro')}
             </button>
           </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <div className="p-3 bg-info/10 rounded-lg text-center">
-            <p className="text-xs text-info font-medium">Centros</p>
+            <p className="text-xs text-info font-medium">{t('admin.centros')}</p>
             <p className="text-xl font-bold text-info">{centrosFiltered.length}</p>
           </div>
           <div className="p-3 bg-success/10 rounded-lg text-center">
-            <p className="text-xs text-success font-medium">Presupuesto</p>
+            <p className="text-xs text-success font-medium">{t('admin.presupuesto')}</p>
             <p className="text-xl font-bold text-success">Q{totalPresupuesto.toLocaleString()}</p>
           </div>
           <div className="p-3 bg-primary/10 rounded-lg text-center">
-            <p className="text-xs text-primary font-medium">Gasto Actual</p>
+            <p className="text-xs text-primary font-medium">{t('admin.gasto')}</p>
             <p className="text-xl font-bold text-primary">Q{totalGasto.toLocaleString()}</p>
           </div>
           <div className="p-3 bg-muted rounded-lg text-center">
-            <p className="text-xs text-muted-foreground font-medium">Ejecución</p>
+            <p className="text-xs text-muted-foreground font-medium">{t('admin.ejecucion')}</p>
             <p className="text-xl font-bold text-foreground">{pctEjecucion.toFixed(1)}%</p>
           </div>
         </div>
@@ -84,13 +86,13 @@ export const Administracion: React.FC = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted">
-                <th className="text-left p-2">Código</th>
-                <th className="text-left p-2">Nombre</th>
-                <th className="text-left p-2">Proyecto</th>
-                <th className="text-right p-2">Presupuesto</th>
-                <th className="text-right p-2">Gasto</th>
-                <th className="text-right p-2">Saldo</th>
-                <th className="text-right p-2">Ejec. %</th>
+                <th className="text-left p-2">{t('admin.codigo')}</th>
+                <th className="text-left p-2">{t('admin.nombre')}</th>
+                <th className="text-left p-2">{t('admin.proyecto')}</th>
+                <th className="text-right p-2">{t('admin.presupuesto')}</th>
+                <th className="text-right p-2">{t('admin.gasto')}</th>
+                <th className="text-right p-2">{t('admin.saldo')}</th>
+                <th className="text-right p-2">{t('admin.ejec_pct')}</th>
               </tr>
             </thead>
             <tbody>
@@ -118,29 +120,29 @@ export const Administracion: React.FC = () => {
             </tbody>
           </table>
         </div>
-        {centrosFiltered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">No hay centros de costo registrados</p>}
+        {centrosFiltered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t('admin.sin_centros')}</p>}
       </div>
     );
   };
 
   const renderLogs = () => (
     <div>
-      <h2 className="text-lg font-bold mb-4 text-foreground">📋 Logs de Auditoría</h2>
+      <h2 className="text-lg font-bold mb-4 text-foreground">{t('admin.logs')}</h2>
       {auditLog.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-muted-foreground text-sm">No hay logs de auditoría registrados.</p>
-          <p className="text-muted-foreground text-xs mt-1">Las acciones del sistema se registrarán automáticamente.</p>
+          <p className="text-muted-foreground text-sm">{t('admin.sin_logs')}</p>
+          <p className="text-muted-foreground text-xs mt-1">{t('admin.logs_auto')}</p>
         </div>
       ) : (
         <div className="overflow-x-auto max-h-96 overflow-y-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-muted sticky top-0">
-                <th className="text-left p-2">Fecha</th>
-                <th className="text-left p-2">Usuario</th>
-                <th className="text-left p-2">Acción</th>
-                <th className="text-left p-2">Entidad</th>
-                <th className="text-left p-2">Detalle</th>
+                <th className="text-left p-2">{t('admin.fecha')}</th>
+                <th className="text-left p-2">{t('admin.usuario')}</th>
+                <th className="text-left p-2">{t('admin.accion')}</th>
+                <th className="text-left p-2">{t('admin.entidad')}</th>
+                <th className="text-left p-2">{t('admin.detalle')}</th>
               </tr>
             </thead>
             <tbody>
@@ -164,28 +166,27 @@ export const Administracion: React.FC = () => {
 
   const renderValidacion = () => (
     <div>
-      <h2 className="text-lg font-bold mb-4 text-foreground">✅ Validación de Precios en Subrenglones</h2>
+      <h2 className="text-lg font-bold mb-4 text-foreground">{t('admin.validacion')}</h2>
       <p className="text-sm text-muted-foreground mb-4">
-        Verifica que los precios unitarios de los subrenglones estén dentro de rangos razonables (Q1 – Q10,000).
+        {t('admin.validacion_desc')}
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="p-4 bg-success/10 rounded-lg border border-success/30">
-          <p className="text-sm font-semibold text-success">✅ Centros de costo</p>
-          <p className="text-xs text-muted-foreground mt-1">{centrosCosto.length} centros registrados, {centrosCosto.filter(c => c.gastoActual > c.presupuestoAsignado).length} con sobregasto</p>
+          <p className="text-sm font-semibold text-success">{t('admin.validacion_cc')}</p>
+          <p className="text-xs text-muted-foreground mt-1">{centrosCosto.length} {t('admin.centros')}, {centrosCosto.filter(c => c.gastoActual > c.presupuestoAsignado).length} {t('admin.con_sobrecosto')}</p>
         </div>
         <div className="p-4 bg-info/10 rounded-lg border border-info/30">
-          <p className="text-sm font-semibold text-info">📊 Proyectos</p>
-          <p className="text-xs text-muted-foreground mt-1">{proyectos.length} proyectos, {proyectos.filter(p => p.estado === 'ejecucion').length} en ejecución</p>
+          <p className="text-sm font-semibold text-info">{t('admin.validacion_proy')}</p>
+          <p className="text-xs text-muted-foreground mt-1">{proyectos.length} {t('admin.proyectos')}, {proyectos.filter(p => p.estado === 'ejecucion').length} {t('admin.en_ejecucion')}</p>
         </div>
       </div>
       <button onClick={() => {
-        toast.info('Validación completada: 0 precios fuera de rango');
+        toast.info(t('admin.validacion_ok'));
       }} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">
-        🔍 Ejecutar Validación
+        {t('admin.ejecutar_validacion')}
       </button>
     </div>
   );
-
 
   if (loading) {
     return (
@@ -202,14 +203,13 @@ export const Administracion: React.FC = () => {
   }
   return (
     <div className="p-4 sm:p-6 max-w-[1400px] mx-auto">
-      <h1 className="text-2xl font-black text-foreground mb-4">🔧 Administración del Sistema</h1>
+      <h1 className="text-2xl font-black text-foreground mb-4">{t('admin.titulo')}</h1>
 
-      {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto">
         {[
-          { key: 'centros' as const,    label: '🏢 Centros Costo' },
-          { key: 'logs' as const,       label: '📋 Auditoría' },
-          { key: 'validacion' as const, label: '✅ Validación' },
+          { key: 'centros' as const,    label: t('admin.tab_centros') },
+          { key: 'logs' as const,       label: t('admin.tab_logs') },
+          { key: 'validacion' as const, label: t('admin.tab_validacion') },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
@@ -222,40 +222,39 @@ export const Administracion: React.FC = () => {
       {tab === 'logs'       && renderLogs()}
       {tab === 'validacion' && renderValidacion()}
 
-      {/* Modal Centro Costo */}
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
           <form onSubmit={handleSubmit(onAddCentroCosto)} onClick={e => e.stopPropagation()} className="bg-card rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h3 className="font-bold mb-4 text-foreground">Nuevo Centro de Costo</h3>
+            <h3 className="font-bold mb-4 text-foreground">{t('admin.nuevo_centro')}</h3>
             <div className="grid gap-3">
               <div>
                 <select {...register('proyectoId')} className={inp(!!errors.proyectoId)}>
-                  <option value="">Seleccionar proyecto</option>
+                  <option value="">{t('admin.seleccionar_proyecto')}</option>
                   {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
                 {errors.proyectoId && <p className="text-xs text-destructive mt-1">{errors.proyectoId.message}</p>}
               </div>
               <div>
-                <input {...register('codigo')} placeholder="Código (ej: CC-001)" className={inp(!!errors.codigo)} />
+                <input {...register('codigo')} placeholder={t('admin.codigo_placeholder')} className={inp(!!errors.codigo)} />
                 {errors.codigo && <p className="text-xs text-destructive mt-1">{errors.codigo.message}</p>}
               </div>
               <div>
-                <input {...register('nombre')} placeholder="Nombre del centro de costo" className={inp(!!errors.nombre)} />
+                <input {...register('nombre')} placeholder={t('admin.nombre_placeholder')} className={inp(!!errors.nombre)} />
                 {errors.nombre && <p className="text-xs text-destructive mt-1">{errors.nombre.message}</p>}
               </div>
               <div>
-                <input {...register('presupuestoAsignado')} type="number" placeholder="Presupuesto asignado Q" className={inp(!!errors.presupuestoAsignado)} />
+                <input {...register('presupuestoAsignado')} type="number" placeholder={t('admin.presupuesto_placeholder')} className={inp(!!errors.presupuestoAsignado)} />
                 {errors.presupuestoAsignado && <p className="text-xs text-destructive mt-1">{errors.presupuestoAsignado.message}</p>}
               </div>
               <div>
                 <select {...register('tipo')} className={inp(false)}>
-                  <option value="directo">Directo</option>
-                  <option value="indirecto">Indirecto</option>
-                  <option value="administrativo">Administrativo</option>
+                  <option value="directo">{t('admin.tipo_directo')}</option>
+                  <option value="indirecto">{t('admin.tipo_indirecto')}</option>
+                  <option value="administrativo">{t('admin.tipo_admin')}</option>
                 </select>
               </div>
-              <button type="submit" className="bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">Guardar</button>
-              <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted">Cancelar</button>
+              <button type="submit" className="bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">{t('admin.guardar')}</button>
+              <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted">{t('admin.cancelar')}</button>
             </div>
           </form>
         </div>

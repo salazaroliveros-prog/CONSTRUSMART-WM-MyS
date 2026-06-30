@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_DANGER } from '../ui';
 import { Modal, message } from 'antd';
@@ -80,7 +81,7 @@ const Cuadros: React.FC = () => {
     try {
       if (editingCuadro) {
         await updateCuadro(editingCuadro.id, formData);
-        toast.success('Cuadro actualizado correctamente');
+        toast.success(t('cuadros.actualizado_exito'));
       } else {
         await addCuadro({
           ...formData,
@@ -91,27 +92,27 @@ const Cuadros: React.FC = () => {
           proyectoId: formData.proyectoId || '',
           cotizaciones: formData.cotizaciones || [],
         } as CuadroComparativo);
-        toast.success('Cuadro creado correctamente');
+        toast.success(t('cuadros.creado_exito'));
       }
       setShowModal(false);
       setEditingCuadro(null);
       setFormData({});
     } catch (error) {
-      toast.error('Error al guardar cuadro');
+      toast.error(t('cuadros.error_guardar'));
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
       await Modal.confirm({
-        title: 'Eliminar Cuadro Comparativo',
-        content: '¿Estás seguro de eliminar este cuadro comparativo?',
-        okText: 'Eliminar',
+        title: t('cuadros.confirmar_eliminar_titulo'),
+        content: t('cuadros.confirmar_eliminar'),
+        okText: t('cuadros.eliminar'),
         okType: 'danger',
-        cancelText: 'Cancelar',
+        cancelText: t('common.cancelar'),
       });
       await deleteCuadro(id);
-      toast.success('Cuadro eliminado correctamente');
+      toast.success(t('cuadros.eliminado_exito'));
     } catch {
       // User cancelled
     }
@@ -139,15 +140,15 @@ const Cuadros: React.FC = () => {
     <div className="h-full flex flex-col p-4 sm:p-6 max-w-[1600px] mx-auto overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4 flex-shrink-0">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Cuadros Comparativos</h1>
-          <p className="text-sm text-muted-foreground">Análisis comparativo de cotizaciones</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t('cuadros.titulo')}</h1>
+          <p className="text-sm text-muted-foreground">{t('cuadros.subtitulo')}</p>
         </div>
         <button
           onClick={() => handleOpenModal()}
           className={BUTTON_PRIMARY}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Nuevo Cuadro
+          {t('cuadros.nuevo_cuadro')}
         </button>
       </div>
 
@@ -156,28 +157,28 @@ const Cuadros: React.FC = () => {
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">
             <ClipboardCheck className="w-4 h-4 text-primary" />
-            <span className="text-xs text-muted-foreground">Total</span>
+            <span className="text-xs text-muted-foreground">{t('cuadros.total')}</span>
           </div>
           <div className="text-2xl font-bold text-foreground">{stats.total}</div>
         </div>
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">
             <ClipboardCheck className="w-4 h-4 text-blue-500" />
-            <span className="text-xs text-muted-foreground">Abiertos</span>
+            <span className="text-xs text-muted-foreground">{t('cuadros.estado_abierto')}</span>
           </div>
           <div className="text-2xl font-bold text-blue-500">{stats.abiertos}</div>
         </div>
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">
             <CheckCircle className="w-4 h-4 text-green-500" />
-            <span className="text-xs text-muted-foreground">Adjudicados</span>
+            <span className="text-xs text-muted-foreground">{t('cuadros.estado_adjudicado')}</span>
           </div>
           <div className="text-2xl font-bold text-green-500">{stats.adjudicados}</div>
         </div>
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">
             <DollarSign className="w-4 h-4 text-amber-500" />
-            <span className="text-xs text-muted-foreground">Monto Total</span>
+            <span className="text-xs text-muted-foreground">{t('cuadros.monto_total')}</span>
           </div>
           <div className="text-2xl font-bold text-amber-500">
             Q {(stats.montoTotal / 1000).toFixed(1)}K
@@ -191,7 +192,7 @@ const Cuadros: React.FC = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Buscar por solicitud..."
+            placeholder={t('cuadros.buscar_placeholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={INPUT}
@@ -203,10 +204,10 @@ const Cuadros: React.FC = () => {
           onChange={(e) => setFilterEstado(e.target.value)}
           className={INPUT}
         >
-          <option value="all">Todos los estados</option>
-          <option value="abierto">Abierto</option>
-          <option value="cerrado">Cerrado</option>
-          <option value="adjudicado">Adjudicado</option>
+          <option value="all">{t('cuadros.todos_estados')}</option>
+          <option value="abierto">{t('cuadros.estado_abierto')}</option>
+          <option value="cerrado">{t('cuadros.estado_cerrado')}</option>
+          <option value="adjudicado">{t('cuadros.estado_adjudicado')}</option>
         </select>
       </div>
 
@@ -216,21 +217,21 @@ const Cuadros: React.FC = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Solicitud</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Proyecto</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Estado</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Fecha Solicitud</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Fecha Cierre</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Adjudicado A</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Cotizaciones</th>
-                <th className="text-right p-3 text-xs font-medium text-muted-foreground">Acciones</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_solicitud')}</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_proyecto')}</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_estado')}</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_fecha_solicitud')}</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_fecha_cierre')}</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_adjudicado')}</th>
+                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_cotizaciones')}</th>
+                <th className="text-right p-3 text-xs font-medium text-muted-foreground">{t('activos.columna_acciones')}</th>
               </tr>
             </thead>
             <tbody>
               {filteredCuadros.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center p-8 text-muted-foreground">
-                    No hay cuadros comparativos registrados
+                    {t('cuadros.sin_cuadros')}
                   </td>
                 </tr>
               ) : (
@@ -270,14 +271,14 @@ const Cuadros: React.FC = () => {
                           <button
                             onClick={() => handleOpenModal(cuadro)}
                             className="text-blue-500 hover:text-blue-600"
-                            aria-label="Editar"
+                            aria-label={t('common.editar')}
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(cuadro.id)}
                             className="text-red-500 hover:text-red-600"
-                            aria-label="Eliminar"
+                            aria-label={t('common.eliminar')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -294,17 +295,17 @@ const Cuadros: React.FC = () => {
 
       {/* Modal */}
       <Modal
-        title={editingCuadro ? 'Editar Cuadro Comparativo' : 'Nuevo Cuadro Comparativo'}
+        title={editingCuadro ? t('cuadros.editar_cuadro') : t('cuadros.nuevo_cuadro')}
         open={showModal}
         onCancel={() => setShowModal(false)}
         onOk={handleSave}
-        okText="Guardar"
-        cancelText="Cancelar"
+        okText={t('common.guardar')}
+        cancelText={t('common.cancelar')}
         width={600}
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Solicitud *</label>
+            <label className="block text-sm font-medium mb-1">{t('cuadros.solicitud_label')}</label>
             <input
               type="text"
               value={formData.solicitud || ''}
@@ -314,7 +315,7 @@ const Cuadros: React.FC = () => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Fecha de Solicitud *</label>
+              <label className="block text-sm font-medium mb-1">{t('cuadros.fecha_solicitud_label')}</label>
               <input
                 type="date"
                 value={formData.fechaSolicitud || ''}
@@ -323,33 +324,33 @@ const Cuadros: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Estado *</label>
+              <label className="block text-sm font-medium mb-1">{t('cuadros.estado_label')}</label>
               <select
                 value={formData.estado || 'abierto'}
                 onChange={(e) => setFormData({ ...formData, estado: e.target.value as any })}
                 className={INPUT}
               >
-                <option value="abierto">Abierto</option>
-                <option value="cerrado">Cerrado</option>
-                <option value="adjudicado">Adjudicado</option>
+                <option value="abierto">{t('cuadros.estado_abierto')}</option>
+                <option value="cerrado">{t('cuadros.estado_cerrado')}</option>
+                <option value="adjudicado">{t('cuadros.estado_adjudicado')}</option>
               </select>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Proyecto</label>
+            <label className="block text-sm font-medium mb-1">{t('cuadros.proyecto_label')}</label>
             <select
               value={formData.proyectoId || ''}
               onChange={(e) => setFormData({ ...formData, proyectoId: e.target.value })}
               className={INPUT}
             >
-              <option value="">Seleccionar proyecto</option>
+              <option value="">{t('cuadros.seleccionar_proyecto')}</option>
               {proyectos.map((p) => (
                 <option key={p.id} value={p.id}>{p.nombre}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Fecha de Cierre</label>
+            <label className="block text-sm font-medium mb-1">{t('cuadros.fecha_cierre_label')}</label>
             <input
               type="date"
               value={formData.fechaCierre || ''}
@@ -358,20 +359,20 @@ const Cuadros: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Adjudicado A</label>
+            <label className="block text-sm font-medium mb-1">{t('cuadros.adjudicado_label')}</label>
             <select
               value={formData.adjudicadoA || ''}
               onChange={(e) => setFormData({ ...formData, adjudicadoA: e.target.value })}
               className={INPUT}
             >
-              <option value="">Seleccionar proveedor</option>
+              <option value="">{t('cuadros.seleccionar_proveedor')}</option>
               {proveedores.map((p) => (
                 <option key={p.id} value={p.id}>{p.nombre}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Observaciones</label>
+            <label className="block text-sm font-medium mb-1">{t('cuadros.observaciones_label')}</label>
             <textarea
               value={formData.observaciones || ''}
               onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}

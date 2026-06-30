@@ -1,4 +1,6 @@
 import { supabase } from '@/lib/supabase';
+import { safeLogger } from '@/lib/safeLogger';
+import { useErpStore } from '@/erp/zustandStore';
 import { DosificacionConcreto, ResultadoDosificacion, DepartamentoGT, MunicipioGT, Subtipologia, MovimientoTierra, ResultadoMovimientoTierra, ParametrosClimaticosExtendido, FactorClimatico, Pavimento, ResultadoPavimento, RedInfraestructura, ResultadoRedInfraestructura, MuroContencion, ResultadoMuroContencion, CalculoProyecto, ComparacionCalculos, ReglaFactor, ResultadoAplicacionReglas } from '@/erp/types';
 import { motorReglasFactores } from './reglasFactores';
 
@@ -760,11 +762,15 @@ export class ServicioMotorCalculo {
         })
         .eq('id', calculoId);
 
-      if (error) throw error;
+      if (error) {
+        safeLogger.warn('[motorCalculo] Error validando cálculo, encolando mutación:', error);
+        useErpStore.getState().enqueueMutation('validarCalculo', { id: calculoId, validado: aprobado, notas_validacion: notasValidacion, fecha_validacion: new Date().toISOString() });
+        return true;
+      }
       return true;
     } catch (error) {
-      console.error('Error al validar cálculo:', error);
-      throw error;
+      safeLogger.error('[motorCalculo] Error al validar cálculo:', error);
+      return false;
     }
   }
 

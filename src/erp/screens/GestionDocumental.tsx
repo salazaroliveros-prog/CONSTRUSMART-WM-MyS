@@ -1,5 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { toast } from 'sonner';
 import { FileText, Plus, Upload, Send, MessageSquare, Package } from 'lucide-react';
@@ -31,12 +32,13 @@ const submittalSchema = z.object({
 type TabDoc = 'planos' | 'rfis' | 'submittals';
 
 const GestionDocumental: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, user, planos, addPlano, updatePlano, rfis, addRfi, updateRfi, submittals, addSubmittal, updateSubmittal } = useErp();
   const [tab, setTab] = useState<TabDoc>('planos');
   const [selProyecto, setSelProyecto] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { setLoading(false); }, []);
+  React.useEffect(() => { setLoading(false); }, []);
 
   const [versiones, setVersiones] = useState<Record<string, string[]>>({});
   const [_gdFormErrors, setGdFormErrors] = useState<Record<string, string>>({});
@@ -47,7 +49,7 @@ const GestionDocumental: React.FC = () => {
   const [planoForm, setPlanoForm] = useState({ nombre: '', disciplina: 'arquitectura' as Plano['disciplina'], version: '1.0', descripcion: '' });
 
   const handleAddPlano = async () => {
-    if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
+    if (!selProyecto) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
     const planoResult = planoSchema.safeParse(planoForm);
     if (!planoResult.success) {
       const errs: Record<string, string> = {};
@@ -101,7 +103,7 @@ const GestionDocumental: React.FC = () => {
   const [rfiForm, setRfiForm] = useState({ titulo: '', descripcion: '', destino: '' });
 
   const handleAddRFI = async () => {
-    if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
+    if (!selProyecto) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
     const rfiResult = rfiSchema.safeParse(rfiForm);
     if (!rfiResult.success) {
       const errs: Record<string, string> = {};
@@ -139,7 +141,7 @@ const GestionDocumental: React.FC = () => {
   const [subForm, setSubForm] = useState({ titulo: '', descripcion: '', categoria: 'material' as Submittal['categoria'], proveedor: '' });
 
   const handleAddSubmittal = async () => {
-    if (!selProyecto) { toast.error('Selecciona un proyecto'); return; }
+    if (!selProyecto) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
     const subResult = submittalSchema.safeParse({
       titulo: subForm.titulo,
       categoria: subForm.categoria,
@@ -178,19 +180,19 @@ const GestionDocumental: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'planos' as TabDoc, label: 'Planos', icon: FileText },
-    { id: 'rfis' as TabDoc, label: 'RFIs', icon: MessageSquare },
-    { id: 'submittals' as TabDoc, label: 'Submittals', icon: Package },
+    { id: 'planos' as TabDoc, label: t('gestion_documental.tab_planos', 'Planos'), icon: FileText },
+    { id: 'rfis' as TabDoc, label: t('gestion_documental.tab_rfis', 'RFIs'), icon: MessageSquare },
+    { id: 'submittals' as TabDoc, label: t('gestion_documental.tab_submittals', 'Submittals'), icon: Package },
   ];
 
   const disciplinas: { value: Plano['disciplina']; label: string }[] = [
-    { value: 'arquitectura', label: 'Arquitectura' },
-    { value: 'estructura', label: 'Estructura' },
-    { value: 'instalaciones', label: 'Instalaciones' },
-    { value: 'electricas', label: 'Eléctricas' },
-    { value: 'sanitarias', label: 'Sanitarias' },
-    { value: 'mecanicas', label: 'Mecánicas' },
-    { value: 'otra', label: 'Otra' },
+    { value: 'arquitectura', label: t('gestion_documental.disciplina_arquitectura', 'Arquitectura') },
+    { value: 'estructura', label: t('gestion_documental.disciplina_estructura', 'Estructura') },
+    { value: 'instalaciones', label: t('gestion_documental.disciplina_instalaciones', 'Instalaciones') },
+    { value: 'electricas', label: t('gestion_documental.disciplina_electricas', 'Eléctricas') },
+    { value: 'sanitarias', label: t('gestion_documental.disciplina_sanitarias', 'Sanitarias') },
+    { value: 'mecanicas', label: t('gestion_documental.disciplina_mecanicas', 'Mecánicas') },
+    { value: 'otra', label: t('gestion_documental.disciplina_otra', 'Otra') },
   ];
 
   if (loading) {
@@ -210,14 +212,14 @@ const GestionDocumental: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
-          <FileText className="w-6 h-6 text-info" /> Gestión Documental
+          <FileText className="w-6 h-6 text-info" /> {t('gestion_documental.titulo', 'Gestión Documental')}
         </h1>
         <select
           value={selProyecto}
           onChange={e => setSelProyecto(e.target.value)}
           className="text-xs px-3 py-2 rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground"
         >
-          <option value="">— Todos los proyectos —</option>
+          <option value="">{t('gestion_documental.todos_proyectos', '— Todos los proyectos —')}</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
       </div>
@@ -225,34 +227,34 @@ const GestionDocumental: React.FC = () => {
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
-          <div className="text-[10px] text-muted-foreground">Planos</div>
+          <div className="text-[10px] text-muted-foreground">{t('gestion_documental.kpi_planos', 'Planos')}</div>
           <div className="text-lg font-bold text-foreground">{planos.filter(p => !selProyecto || p.proyectoId === selProyecto).length}</div>
         </div>
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
-          <div className="text-[10px] text-muted-foreground">RFIs Activos</div>
+          <div className="text-[10px] text-muted-foreground">{t('gestion_documental.kpi_rfis', 'RFIs Activos')}</div>
           <div className="text-lg font-bold text-warning">{rfis.filter(r => r.estado !== 'cerrado' && (!selProyecto || r.proyectoId === selProyecto)).length}</div>
         </div>
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
-          <div className="text-[10px] text-muted-foreground">Submittals Pendientes</div>
+          <div className="text-[10px] text-muted-foreground">{t('gestion_documental.kpi_submittals', 'Submittals Pendientes')}</div>
           <div className="text-lg font-bold text-info">{submittals.filter(s => s.estado === 'pendiente' && (!selProyecto || s.proyectoId === selProyecto)).length}</div>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-4 bg-muted p-1 rounded-xl">
-        {tabs.map(t => {
-          const Icon = t.icon;
-          const active = tab === t.id;
+        {tabs.map(tabItem => {
+          const Icon = tabItem.icon;
+          const active = tab === tabItem.id;
           return (
             <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
+              key={tabItem.id}
+              onClick={() => setTab(tabItem.id)}
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all ${
                 active ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
               }`}
             >
               <Icon className="w-4 h-4" />
-              <span className="hidden sm:inline">{t.label}</span>
+              <span className="hidden sm:inline">{tabItem.label}</span>
             </button>
           );
         })}
@@ -263,28 +265,28 @@ const GestionDocumental: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-foreground text-sm flex items-center gap-1.5">
-              <FileText className="w-4 h-4 text-info" /> Planos por Disciplina
+              <FileText className="w-4 h-4 text-info" /> {t('gestion_documental.planos_titulo', 'Planos por Disciplina')}
             </h2>
             <button onClick={() => { setShowPlanoForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-info text-info-foreground rounded-lg text-xs font-medium hover:bg-info/90">
-              <Upload className="w-3.5 h-3.5" /> Subir Plano
+              <Upload className="w-3.5 h-3.5" /> {t('gestion_documental.subir_plano', 'Subir Plano')}
             </button>
           </div>
 
           {showPlanoForm && (
             <div className="bg-muted rounded-xl p-4 mb-4 border border-border space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input value={planoForm.nombre} onChange={e => setPlanoForm(prev => ({ ...prev, nombre: e.target.value }))} placeholder="Nombre del plano" className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
+                <input value={planoForm.nombre} onChange={e => setPlanoForm(prev => ({ ...prev, nombre: e.target.value }))} placeholder={t('gestion_documental.nombre_plano_placeholder', 'Nombre del plano')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
                 <select value={planoForm.disciplina} onChange={e => setPlanoForm(prev => ({ ...prev, disciplina: e.target.value as Plano['disciplina'] }))} className={INPUT}>
                   {disciplinas.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input value={planoForm.version} onChange={e => setPlanoForm(prev => ({ ...prev, version: e.target.value }))} placeholder="Versión (ej: 1.0)" className={INPUT} />
-                <input value={planoForm.descripcion} onChange={e => setPlanoForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Descripción (opcional)" className={INPUT} />
+                <input value={planoForm.version} onChange={e => setPlanoForm(prev => ({ ...prev, version: e.target.value }))} placeholder={t('gestion_documental.version_placeholder', 'Versión (ej: 1.0)')} className={INPUT} />
+                <input value={planoForm.descripcion} onChange={e => setPlanoForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder={t('gestion_documental.descripcion_placeholder', 'Descripción (opcional)')} className={INPUT} />
               </div>
               <div className="flex gap-2">
-                <button onClick={handleAddPlano} className="flex-1 bg-info hover:bg-info/90 text-info-foreground py-2 rounded-lg text-xs font-semibold">Subir Plano</button>
-                <button onClick={() => setShowPlanoForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">Cancelar</button>
+                <button onClick={handleAddPlano} className="flex-1 bg-info hover:bg-info/90 text-info-foreground py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.subir_plano', 'Subir Plano')}</button>
+                <button onClick={() => setShowPlanoForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
               </div>
             </div>
           )}
@@ -292,7 +294,7 @@ const GestionDocumental: React.FC = () => {
           {/* Historial de versiones */}
           {Object.keys(versiones).length > 0 && (
             <div className="mb-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase mb-2">Historial de Versiones</h3>
+              <h3 className="text-[10px] font-bold text-slate-500 uppercase mb-2">{t('gestion_documental.historial_versiones', 'Historial de Versiones')}</h3>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(versiones).map(([planoId, vers]) => {
                   const plano = planos.find(p => p.id === planoId);
@@ -311,7 +313,7 @@ const GestionDocumental: React.FC = () => {
             {planos.filter(p => !selProyecto || p.proyectoId === selProyecto).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="w-10 h-10 mx-auto mb-2 text-muted-foreground/60" />
-                <p className="text-sm">Sin planos registrados</p>
+                <p className="text-sm">{t('gestion_documental.sin_planos', 'Sin planos registrados')}</p>
               </div>
             ) : (
               planos.filter(p => !selProyecto || p.proyectoId === selProyecto).map(p => (
@@ -333,9 +335,9 @@ const GestionDocumental: React.FC = () => {
                       {p.descripcion && <p className="text-[10px] text-muted-foreground mt-1">{p.descripcion}</p>}
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2">
-                      <button onClick={() => addVersionPlano(p.id)} className="px-2 py-1 bg-blue-500 text-white rounded text-[10px] hover:bg-blue-600" title="Nueva versión">+v</button>
+                      <button onClick={() => addVersionPlano(p.id)} className="px-2 py-1 bg-blue-500 text-white rounded text-[10px] hover:bg-blue-600" title={t('gestion_documental.nueva_version', 'Nueva versión')}>+v</button>
                       <button onClick={() => togglePlanoEstado(p.id)} className={`px-2 py-1 rounded text-[10px] ${p.estado === 'vigente' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}>
-                        {p.estado === 'vigente' ? 'Obsoleto' : 'Activar'}
+                        {p.estado === 'vigente' ? t('gestion_documental.obsoleto', 'Obsoleto') : t('gestion_documental.activar', 'Activar')}
                       </button>
                     </div>
                   </div>
@@ -351,21 +353,21 @@ const GestionDocumental: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-foreground text-sm flex items-center gap-1.5">
-              <MessageSquare className="w-4 h-4 text-warning" /> Request for Information (RFI)
+              <MessageSquare className="w-4 h-4 text-warning" /> {t('gestion_documental.rfis_titulo', 'Request for Information (RFI)')}
             </h2>
             <button onClick={() => { setShowRFIForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-warning text-warning-foreground rounded-lg text-xs font-medium hover:bg-warning/90">
-              <Send className="w-3.5 h-3.5" /> Nuevo RFI
+              <Send className="w-3.5 h-3.5" /> {t('gestion_documental.nuevo_rfi', 'Nuevo RFI')}
             </button>
           </div>
 
           {showRFIForm && (
             <div className="bg-warning/10 rounded-xl p-4 mb-4 border border-warning/30 space-y-2">
-              <input value={rfiForm.titulo} onChange={e => setRfiForm(prev => ({ ...prev, titulo: e.target.value }))} placeholder="Título del RFI" className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
-              <textarea value={rfiForm.descripcion} onChange={e => setRfiForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Descripción detallada..." className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground min-h-[60px]" />
-              <input value={rfiForm.destino} onChange={e => setRfiForm(prev => ({ ...prev, destino: e.target.value }))} placeholder="Destinatario (ej: Arquitecto de proyecto)" className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
+              <input value={rfiForm.titulo} onChange={e => setRfiForm(prev => ({ ...prev, titulo: e.target.value }))} placeholder={t('gestion_documental.rfi_titulo_placeholder', 'Título del RFI')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
+              <textarea value={rfiForm.descripcion} onChange={e => setRfiForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder={t('gestion_documental.rfi_descripcion_placeholder', 'Descripción detallada...')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground min-h-[60px]" />
+              <input value={rfiForm.destino} onChange={e => setRfiForm(prev => ({ ...prev, destino: e.target.value }))} placeholder={t('gestion_documental.rfi_destino_placeholder', 'Destinatario (ej: Arquitecto de proyecto)')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
               <div className="flex gap-2">
-                <button onClick={handleAddRFI} className="flex-1 bg-warning hover:bg-warning/90 text-warning-foreground py-2 rounded-lg text-xs font-semibold">Enviar RFI</button>
-                <button onClick={() => setShowRFIForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">Cancelar</button>
+                <button onClick={handleAddRFI} className="flex-1 bg-warning hover:bg-warning/90 text-warning-foreground py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.enviar_rfi', 'Enviar RFI')}</button>
+                <button onClick={() => setShowRFIForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
               </div>
             </div>
           )}
@@ -374,7 +376,7 @@ const GestionDocumental: React.FC = () => {
             {rfis.filter(r => !selProyecto || r.proyectoId === selProyecto).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <MessageSquare className="w-10 h-10 mx-auto mb-2 text-muted-foreground/60" />
-                <p className="text-sm">Sin RFIs registrados</p>
+                <p className="text-sm">{t('gestion_documental.sin_rfis', 'Sin RFIs registrados')}</p>
               </div>
             ) : (
               rfis.filter(r => !selProyecto || r.proyectoId === selProyecto).map(r => (
@@ -396,7 +398,7 @@ const GestionDocumental: React.FC = () => {
                       </div>
                       {r.respuesta && (
                         <div className="mt-2 p-2 bg-success/10 rounded-lg border border-success/30">
-                          <p className="text-[10px] font-bold text-success mb-0.5">Respuesta ({r.fechaRespuesta}):</p>
+                          <p className="text-[10px] font-bold text-success mb-0.5">{t('gestion_documental.respuesta_label', 'Respuesta')} ({r.fechaRespuesta}):</p>
                           <p className="text-xs text-foreground">{r.respuesta}</p>
                         </div>
                       )}
@@ -404,12 +406,12 @@ const GestionDocumental: React.FC = () => {
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {r.estado === 'abierto' && (
                         <button onClick={() => {
-                          const resp = prompt('Escribe la respuesta:');
+                          const resp = prompt(t('gestion_documental.escribe_respuesta', 'Escribe la respuesta:'));
                           if (resp) actualizarRFI(r.id, 'en_respuesta', resp);
-                        }} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">Responder</button>
+                        }} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">{t('gestion_documental.responder', 'Responder')}</button>
                       )}
                       {r.estado === 'en_respuesta' && (
-                        <button onClick={() => actualizarRFI(r.id, 'cerrado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">Cerrar</button>
+                        <button onClick={() => actualizarRFI(r.id, 'cerrado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('gestion_documental.cerrar', 'Cerrar')}</button>
                       )}
                     </div>
                   </div>
@@ -425,29 +427,29 @@ const GestionDocumental: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-foreground text-sm flex items-center gap-1.5">
-              <Package className="w-4 h-4 text-purple-500" /> Submittals
+              <Package className="w-4 h-4 text-purple-500" /> {t('gestion_documental.submittals_titulo', 'Submittals')}
             </h2>
             <button onClick={() => { setShowSubForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-medium hover:bg-purple-600">
-              <Plus className="w-3.5 h-3.5" /> Nuevo Submittal
+              <Plus className="w-3.5 h-3.5" /> {t('gestion_documental.nuevo_submittal', 'Nuevo Submittal')}
             </button>
           </div>
 
           {showSubForm && (
             <div className="bg-purple-50 rounded-xl p-4 mb-4 border border-purple-200 space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input value={subForm.titulo} onChange={e => setSubForm(prev => ({ ...prev, titulo: e.target.value }))} placeholder="Título" className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
+                <input value={subForm.titulo} onChange={e => setSubForm(prev => ({ ...prev, titulo: e.target.value }))} placeholder={t('gestion_documental.submittal_titulo_placeholder', 'Título')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
                 <select value={subForm.categoria} onChange={e => setSubForm(prev => ({ ...prev, categoria: e.target.value as Submittal['categoria'] }))} className={INPUT}>
-                  <option value="material">Material</option>
-                  <option value="equipo">Equipo</option>
-                  <option value="especificacion">Especificación</option>
-                  <option value="otro">Otro</option>
+                  <option value="material">{t('gestion_documental.cat_material', 'Material')}</option>
+                  <option value="equipo">{t('gestion_documental.cat_equipo', 'Equipo')}</option>
+                  <option value="especificacion">{t('gestion_documental.cat_especificacion', 'Especificación')}</option>
+                  <option value="otro">{t('gestion_documental.cat_otro', 'Otro')}</option>
                 </select>
               </div>
-              <input value={subForm.proveedor} onChange={e => setSubForm(prev => ({ ...prev, proveedor: e.target.value }))} placeholder="Proveedor" className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
-              <textarea value={subForm.descripcion} onChange={e => setSubForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder="Descripción..." className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400 min-h-[50px]" />
+              <input value={subForm.proveedor} onChange={e => setSubForm(prev => ({ ...prev, proveedor: e.target.value }))} placeholder={t('gestion_documental.proveedor_placeholder', 'Proveedor')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
+              <textarea value={subForm.descripcion} onChange={e => setSubForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder={t('gestion_documental.descripcion_submittal_placeholder', 'Descripción...')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400 min-h-[50px]" />
               <div className="flex gap-2">
-                <button onClick={handleAddSubmittal} className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-semibold">Registrar</button>
-                <button onClick={() => setShowSubForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">Cancelar</button>
+                <button onClick={handleAddSubmittal} className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.registrar_submittal', 'Registrar')}</button>
+                <button onClick={() => setShowSubForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
               </div>
             </div>
           )}
@@ -456,7 +458,7 @@ const GestionDocumental: React.FC = () => {
             {submittals.filter(s => !selProyecto || s.proyectoId === selProyecto).length === 0 ? (
               <div className="text-center py-8 text-slate-400">
                 <Package className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-                <p className="text-sm">Sin submittals registrados</p>
+                <p className="text-sm">{t('gestion_documental.sin_submittals', 'Sin submittals registrados')}</p>
               </div>
             ) : (
               submittals.filter(s => !selProyecto || s.proyectoId === selProyecto).map(s => (
@@ -479,9 +481,9 @@ const GestionDocumental: React.FC = () => {
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {s.estado === 'pendiente' && (
                         <>
-                          <button onClick={() => actualizarSubmittal(s.id, 'aprobado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">Aprobar</button>
-                          <button onClick={() => { const c = prompt('Comentarios:'); if (c) actualizarSubmittal(s.id, 'con_comentarios'); }} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">Comentar</button>
-                          <button onClick={() => actualizarSubmittal(s.id, 'rechazado')} className="px-2 py-1 bg-red-500 text-white rounded text-[10px] hover:bg-red-600">Rechazar</button>
+                          <button onClick={() => actualizarSubmittal(s.id, 'aprobado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('gestion_documental.aprobar', 'Aprobar')}</button>
+                          <button onClick={() => { const c = prompt(t('gestion_documental.comentarios_prompt', 'Comentarios:')); if (c) actualizarSubmittal(s.id, 'con_comentarios'); }} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">{t('gestion_documental.comentar', 'Comentar')}</button>
+                          <button onClick={() => actualizarSubmittal(s.id, 'rechazado')} className="px-2 py-1 bg-red-500 text-white rounded text-[10px] hover:bg-red-600">{t('gestion_documental.rechazar', 'Rechazar')}</button>
                         </>
                       )}
                     </div>

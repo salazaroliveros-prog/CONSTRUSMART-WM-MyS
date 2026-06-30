@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { AvanceObra, BitacoraEntry, Hito } from '../types';
 import { fmtPct, fmtQ, todayISO } from '../utils';
@@ -31,6 +32,8 @@ const Seguimiento: React.FC = () => {
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
 
+  const { t } = useTranslation();
+
   const proyData = useMemo(() => proyectos.map(p => {
     const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + safeNum(b.monto ?? b.costoTotal), 0);
     const gas = movimientos.filter(m => m.proyectoId === p.id && (m.tipo === 'gasto' || m.tipo === 'egreso')).reduce((a, b) => a + safeNum(b.monto ?? b.costoTotal), 0);
@@ -53,11 +56,11 @@ const Seguimiento: React.FC = () => {
   const cpi = AC > 0 ? EV / AC : 0;
 
   const tabs: { id: SeguimientoTab; label: string; description: string }[] = [
-    { id: 'resumen', label: 'Resumen', description: 'Avance físico-financiero por proyecto' },
-    { id: 'evm', label: 'EVM', description: 'Valor ganado, desviaciones e índices' },
-    { id: 'bitacora', label: 'Bitácora', description: 'Reportes diarios de campo' },
-    { id: 'avances', label: 'Avances', description: 'Avances por fecha y proyecto' },
-    { id: 'cronograma', label: 'Cronograma', description: 'Hitos y ruta de ejecución' },
+    { id: 'resumen', label: t('seguimiento.tab_resumen'), description: t('seguimiento.tab_resumen_desc') },
+    { id: 'evm', label: t('seguimiento.tab_evm'), description: t('seguimiento.tab_evm_desc') },
+    { id: 'bitacora', label: t('seguimiento.tab_bitacora'), description: t('seguimiento.tab_bitacora_desc') },
+    { id: 'avances', label: t('seguimiento.tab_avances'), description: t('seguimiento.tab_avances_desc') },
+    { id: 'cronograma', label: t('seguimiento.tab_cronograma'), description: t('seguimiento.tab_cronograma_desc') },
   ];
 
   const saveProjectProgress = (id: string) => {
@@ -140,17 +143,17 @@ const Seguimiento: React.FC = () => {
         <table className="w-full text-xs sm:text-sm min-w-[620px]">
           <thead className="bg-muted text-muted-foreground text-xs">
             <tr>
-              <th className="text-left p-3">Proyecto</th>
-              <th className="p-3 w-28 sm:w-40">Avance Físico</th>
-              <th className="p-3 w-28 sm:w-40">Avance Financiero</th>
-              <th className="p-3 text-right">Ingresos</th>
-              <th className="p-3 text-right">Gastos</th>
-              <th className="p-3 text-right">Pendiente de Aportar</th>
+              <th className="text-left p-3">{t('common.proyecto')}</th>
+              <th className="p-3 w-28 sm:w-40">{t('dashboard.avance_fisico')}</th>
+              <th className="p-3 w-28 sm:w-40">{t('dashboard.avance_financiero')}</th>
+              <th className="p-3 text-right">{t('dashboard.ingresos')}</th>
+              <th className="p-3 text-right">{t('dashboard.gastos')}</th>
+              <th className="p-3 text-right">{t('seguimiento.pendiente_aportar')}</th>
             </tr>
           </thead>
           <tbody>
             {proyData.length === 0 ? (
-              <tr><td colSpan={6} className="p-6 text-center text-xs text-muted-foreground">Sin proyectos cargados desde Supabase.</td></tr>
+              <tr><td colSpan={6} className="p-6 text-center text-xs text-muted-foreground">{t('seguimiento.sin_proyectos_supabase')}</td></tr>
             ) : proyData.map(p => (
               <tr key={p.id} className="border-t border-border/50 hover:bg-muted/40 transition-colors">
                 <td className="p-3">
@@ -168,16 +171,16 @@ const Seguimiento: React.FC = () => {
                         type="number" min={0} max={100}
                         value={pendingProgress[p.id] ?? String(safeNum(p.avanceFisico))}
                         onChange={e => setPendingProgress(prev => ({ ...prev, [p.id]: e.target.value }))}
-                        aria-label={`Avance físico de ${p.nombre}`}
+                        aria-label={t('seguimiento.avance_fisico_de', { nombre: p.nombre })}
                         className="w-20 px-2 py-1 border border-input bg-background text-foreground rounded text-xs focus:outline-none focus:ring-2 focus:ring-ring"
                       />
                       <button type="button" onClick={() => saveProjectProgress(p.id)}
-                        aria-label="Guardar avance"
+                        aria-label={t('seguimiento.guardar_avance')}
                         className="p-1 rounded bg-emerald-500 text-white text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
                         <Save className="w-3.5 h-3.5" aria-hidden="true" />
                       </button>
                       <button type="button" onClick={() => setEditingProject(null)}
-                        aria-label="Cancelar edición"
+                        aria-label={t('seguimiento.cancelar_edicion')}
                         className="p-1 rounded bg-muted text-foreground text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         <X className="w-3.5 h-3.5" aria-hidden="true" />
                       </button>
@@ -187,7 +190,7 @@ const Seguimiento: React.FC = () => {
                       <Progress value={safeNum(p.avanceFisico)} color="#3b82f6" />
                       <span className="text-xs font-semibold w-10 text-foreground">{safePct(p.avanceFisico)}</span>
                       <button type="button" onClick={() => startEditProjectProgress(p.id, safeNum(p.avanceFisico))}
-                        aria-label={`Editar avance físico de ${p.nombre}`}
+                        aria-label={t('seguimiento.editar_avance_fisico_de', { nombre: p.nombre })}
                         className="p-1 rounded bg-muted hover:bg-accent text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
                       </button>
@@ -211,26 +214,26 @@ const Seguimiento: React.FC = () => {
       <div className={`${CARD} xl:col-span-2`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
           <div>
-            <h3 className={CARD_TITLE}>Valor Ganado (EVM)</h3>
-            <p className="text-xs text-muted-foreground">Cálculo con presupuesto, avance y movimientos reales de Supabase.</p>
+            <h3 className={CARD_TITLE}>{t('seguimiento.valor_ganado_evm')}</h3>
+            <p className="text-xs text-muted-foreground">{t('seguimiento.evm_descripcion')}</p>
           </div>
           <select value={selProy} onChange={e => setSelProy(e.target.value)}
-            aria-label="Seleccionar proyecto para EVM"
+            aria-label={t('seguimiento.seleccionar_proyecto_evm')}
             className="text-xs px-2 py-1 rounded border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
-            <option value="">Selecciona proyecto</option>
+            <option value="">{t('seguimiento.selecciona_proyecto')}</option>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
           </select>
         </div>
         {proy ? (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
-              <div><Gauge value={CV} max={safeNum(proy.presupuestoTotal) || 1} label="CV (Costo)" color={CV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${CV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(CV)}</div></div>
-              <div><Gauge value={SV} max={safeNum(proy.presupuestoTotal) || 1} label="SV (Tiempo)" color={SV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${SV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(SV)}</div></div>
+              <div><Gauge value={CV} max={safeNum(proy.presupuestoTotal) || 1} label={t('seguimiento.cv_costo')} color={CV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${CV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(CV)}</div></div>
+              <div><Gauge value={SV} max={safeNum(proy.presupuestoTotal) || 1} label={t('seguimiento.sv_tiempo')} color={SV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${SV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(SV)}</div></div>
               <div><Gauge value={spi} max={1.5} label="SPI" color={spi >= 1 ? '#10b981' : '#f59e0b'} /><div className="text-center text-xs font-bold">{spi.toFixed(2)}</div></div>
               <div><Gauge value={cpi} max={1.5} label="CPI" color={cpi >= 1 ? '#10b981' : '#f59e0b'} /><div className="text-center text-xs font-bold">{cpi.toFixed(2)}</div></div>
             </div>
             <div className="flex items-center justify-between">
-              <h3 className={CARD_TITLE}>Físico vs Financiero</h3>
+              <h3 className={CARD_TITLE}>{t('seguimiento.fisico_vs_financiero')}</h3>
               <ChartToolbar
                 types={['line']}
                 currentType={barConfig.type}
@@ -251,15 +254,15 @@ const Seguimiento: React.FC = () => {
             ]} palette={barConfig.palette} />
           </>
         ) : (
-          <div className="p-6 text-center text-xs text-muted-foreground">Selecciona un proyecto para ver EVM.</div>
+          <div className="p-6 text-center text-xs text-muted-foreground">{t('seguimiento.selecciona_proyecto_evm_empty')}</div>
         )}
       </div>
 
       <div className={`${CARD} xl:col-span-1`}>
-        <h3 className={CARD_TITLE}>Registros EVM</h3>
+        <h3 className={CARD_TITLE}>{t('seguimiento.registros_evm')}</h3>
         <div className="space-y-2 mt-3 max-h-[460px] overflow-y-auto pr-1">
           {evmProyecto.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Sin registros en erp_seguimiento. Se muestra el cálculo en vivo desde proyecto y movimientos.</p>
+            <p className="text-xs text-muted-foreground">{t('seguimiento.sin_registros_evm')}</p>
           ) : evmProyecto.map(s => (
             <div key={s.id} className="rounded-lg bg-muted p-2 text-xs">
               <div className="flex items-center justify-between font-semibold">
@@ -281,9 +284,9 @@ const Seguimiento: React.FC = () => {
   const renderBitacora = () => (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
       <div className={`${CARD} lg:col-span-2`}>
-        <h3 className={`${CARD_TITLE} flex items-center gap-1`}><Camera className="w-4 h-4 text-emerald-500" aria-hidden="true" /> Bitácora reciente</h3>
+        <h3 className={`${CARD_TITLE} flex items-center gap-1`}><Camera className="w-4 h-4 text-emerald-500" aria-hidden="true" /> {t('seguimiento.bitacora_reciente')}</h3>
         <div className="space-y-2 mt-3 max-h-[520px] overflow-y-auto pr-1">
-          {bitacora.length === 0 && <p className="text-xs text-muted-foreground">Sin entradas. Registre el reporte diario abajo.</p>}
+          {bitacora.length === 0 && <p className="text-xs text-muted-foreground">{t('seguimiento.sin_entradas_bitacora')}</p>}
           {bitacora.slice(0, 20).map(b => (
             <div key={b.id} className="bg-muted rounded-lg p-2 text-xs">
               <div className="flex justify-between items-start gap-2">
@@ -293,19 +296,19 @@ const Seguimiento: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-1">
                   <button type="button" onClick={() => startEditBitacora(b)}
-                    aria-label="Editar entrada de bitácora"
+                    aria-label={t('seguimiento.editar_entrada_bitacora')}
                     className="p-1 rounded bg-muted hover:bg-accent text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                   <button type="button" onClick={() => deleteBitacora(b.id)}
-                    aria-label="Eliminar entrada de bitácora"
+                    aria-label={t('seguimiento.eliminar_entrada_bitacora')}
                     className="p-1 rounded bg-red-100 dark:bg-red-900/40 hover:bg-red-200 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
                     <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground mt-0.5">
-                <CloudRain className="w-3 h-3" aria-hidden="true" /> {b.clima} · {safeNum(b.personalPresente)} pers.
+                <CloudRain className="w-3 h-3" aria-hidden="true" /> {b.clima} · {safeNum(b.personalPresente)} {t('seguimiento.pers')}
               </div>
               {b.tareasRealizadas && <p className="text-foreground/80 mt-0.5">{b.tareasRealizadas}</p>}
               {b.observaciones && <p className="text-muted-foreground mt-0.5 italic">{b.observaciones}</p>}
@@ -317,33 +320,33 @@ const Seguimiento: React.FC = () => {
       <form onSubmit={guardarBit} className={`${CARD}`}>
         <div className="flex items-start sm:items-center justify-between gap-2 mb-3 sm:mb-4">
           <div className="min-w-0">
-            <h3 className={`${CARD_TITLE} text-sm sm:text-base`}>{editingBit ? 'Editar Bitácora' : 'Reporte Diario de Campo'}</h3>
-            {editingBit && <p className="text-xs text-muted-foreground truncate">Editando: {proyectos.find(p => p.id === editingBit.proyectoId)?.nombre}</p>}
+            <h3 className={`${CARD_TITLE} text-sm sm:text-base`}>{t(editingBit ? 'seguimiento.editar_bitacora' : 'seguimiento.reporte_diario_campo')}</h3>
+            {editingBit && <p className="text-xs text-muted-foreground truncate">{t('seguimiento.editando', { nombre: proyectos.find(p => p.id === editingBit.proyectoId)?.nombre || '' })}</p>}
           </div>
           {editingBit && (
             <button type="button" onClick={cancelEditBitacora} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
-              <X className="w-3.5 h-3.5" aria-hidden="true" /> Cancelar
+              <X className="w-3.5 h-3.5" aria-hidden="true" /> {t('common.cancelar')}
             </button>
           )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
           <select value={selProy} onChange={e => setSelProy(e.target.value)} className={`${INPUT} sm:col-span-2`}>
-            <option value="">Selecciona proyecto</option>
+            <option value="">{t('seguimiento.selecciona_proyecto')}</option>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
           </select>
           <select value={bit.clima} onChange={e => setBit({ ...bit, clima: e.target.value })} className={INPUT}>
-            <option value="soleado">Soleado</option>
-            <option value="nublado">Nublado</option>
-            <option value="lluvia">Lluvia</option>
+            <option value="soleado">{t('seguimiento.clima_soleado')}</option>
+            <option value="nublado">{t('seguimiento.clima_nublado')}</option>
+            <option value="lluvia">{t('seguimiento.clima_lluvia')}</option>
           </select>
-          <input type="number" value={bit.personal} onChange={e => setBit({ ...bit, personal: e.target.value })} placeholder="Personal activo" className={INPUT} />
-          <input value={bit.maquinaria} onChange={e => setBit({ ...bit, maquinaria: e.target.value })} placeholder="Maquinaria" className={`${INPUT} md:col-span-2`} />
-          <input value={bit.tareas} onChange={e => setBit({ ...bit, tareas: e.target.value })} placeholder="Tareas ejecutadas" className={`${INPUT} md:col-span-2`} />
-          <textarea value={bit.observaciones} onChange={e => setBit({ ...bit, observaciones: e.target.value })} placeholder="Observaciones" className={`${INPUT} md:col-span-4 min-h-20`} />
+          <input type="number" value={bit.personal} onChange={e => setBit({ ...bit, personal: e.target.value })} placeholder={t('seguimiento.personal_activo')} className={INPUT} />
+          <input value={bit.maquinaria} onChange={e => setBit({ ...bit, maquinaria: e.target.value })} placeholder={t('seguimiento.maquinaria')} className={`${INPUT} md:col-span-2`} />
+          <input value={bit.tareas} onChange={e => setBit({ ...bit, tareas: e.target.value })} placeholder={t('seguimiento.tareas_ejecutadas')} className={`${INPUT} md:col-span-2`} />
+          <textarea value={bit.observaciones} onChange={e => setBit({ ...bit, observaciones: e.target.value })} placeholder={t('seguimiento.observaciones')} className={`${INPUT} md:col-span-4 min-h-20`} />
         </div>
         <button type="submit"
           className="mt-3 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
-          <Plus className="w-4 h-4" aria-hidden="true" /> {editingBit ? 'Guardar cambios' : 'Registrar Reporte'}
+          <Plus className="w-4 h-4" aria-hidden="true" /> {t(editingBit ? 'seguimiento.guardar_cambios' : 'seguimiento.registrar_reporte')}
         </button>
       </form>
     </div>
@@ -355,9 +358,9 @@ const Seguimiento: React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-3 sm:gap-4">
         <div className={`${CARD} xl:col-span-2 overflow-hidden`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-            <h3 className={CARD_TITLE}>Avances de obra</h3>
+            <h3 className={CARD_TITLE}>{t('seguimiento.avances_obra')}</h3>
             <select value={selProy} onChange={e => setSelProy(e.target.value)} className={`${INPUT} sm:w-72`}>
-              <option value="">Todos los proyectos</option>
+              <option value="">{t('seguimiento.todos_proyectos')}</option>
               {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
           </div>
@@ -365,22 +368,22 @@ const Seguimiento: React.FC = () => {
             <table className="w-full text-xs sm:text-sm min-w-[620px]">
               <thead className="bg-muted text-muted-foreground">
                 <tr>
-                  <th className="text-left p-3">Fecha</th>
-                  <th className="text-left p-3">Proyecto</th>
-                  <th className="text-left p-3">Renglón</th>
-                  <th className="p-3 text-right">Avance Físico</th>
-                  <th className="p-3 text-right">Cantidad Ejecutada</th>
-                  <th className="p-3">Notas</th>
+                  <th className="text-left p-3">{t('common.fecha')}</th>
+                  <th className="text-left p-3">{t('common.proyecto')}</th>
+                  <th className="text-left p-3">{t('seguimiento.renglon')}</th>
+                  <th className="p-3 text-right">{t('dashboard.avance_fisico')}</th>
+                  <th className="p-3 text-right">{t('seguimiento.cantidad_ejecutada')}</th>
+                  <th className="p-3">{t('seguimiento.notas')}</th>
                 </tr>
               </thead>
               <tbody>
                 {avanceData.length === 0 ? (
-                  <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Sin avances cargados.</td></tr>
+                  <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">{t('seguimiento.sin_avances')}</td></tr>
                 ) : avanceData.map((a: AvanceObra) => (
                   <tr key={a.id} className="border-t border-border/50">
                     <td className="p-3">{a.fecha}</td>
                     <td className="p-3 font-medium">{proyectos.find(p => p.id === a.proyectoId)?.nombre}</td>
-                    <td className="p-3">{a.renglonNombre || a.renglonCodigo || a.renglonId || 'Global'}</td>
+                    <td className="p-3">{a.renglonNombre || a.renglonCodigo || a.renglonId || t('seguimiento.global')}</td>
                     <td className="p-3 text-right"><Progress value={safeNum(a.avanceFisico)} color="#10b981" /><span className="ml-2 font-semibold">{safePct(a.avanceFisico)}</span></td>
                     <td className="p-3 text-right font-semibold">{safeNum(a.cantidadEjecutada).toLocaleString('es-GT')}</td>
                     <td className="p-3 text-muted-foreground">{a.notas || '-'}</td>
@@ -391,14 +394,14 @@ const Seguimiento: React.FC = () => {
           </div>
         </div>
         <div className={`${CARD}`}>
-          <h3 className={CARD_TITLE}>Curva de avance</h3>
+          <h3 className={CARD_TITLE}>{t('seguimiento.curva_avance')}</h3>
           {avanceData.length > 0 ? (
             <LineChart height={220}
               labels={avanceData.map(a => a.fecha.slice(5))}
               series={[{ label: 'Avance físico', data: avanceData.map(a => safeNum(a.avanceFisico)), color: '#10b981' }]}
             />
           ) : (
-            <div className="p-6 text-center text-xs text-muted-foreground">Selecciona un proyecto con avances para ver la curva.</div>
+            <div className="p-6 text-center text-xs text-muted-foreground">{t('seguimiento.selecciona_proyecto_curva')}</div>
           )}
         </div>
       </div>
@@ -409,12 +412,12 @@ const Seguimiento: React.FC = () => {
     <div className={`${CARD}`}>
       <div className="flex items-center justify-between gap-2 mb-3">
         <div>
-          <h3 className={`${CARD_TITLE} flex items-center gap-1`}><CalendarClock className="w-4 h-4 text-primary" aria-hidden="true" /> Cronograma integrado</h3>
-          <p className="text-xs text-muted-foreground">Combina hitos de erp_hitos con fechas base de proyectos.</p>
+          <h3 className={`${CARD_TITLE} flex items-center gap-1`}><CalendarClock className="w-4 h-4 text-primary" aria-hidden="true" /> {t('seguimiento.cronograma_integrado')}</h3>
+          <p className="text-xs text-muted-foreground">{t('seguimiento.cronograma_descripcion')}</p>
         </div>
       </div>
       {ganttItems.length > 0 ? <GanttChart items={ganttItems} /> : (
-        <div className="p-6 text-center text-xs text-muted-foreground">Sin hitos ni fechas de proyecto cargadas.</div>
+        <div className="p-6 text-center text-xs text-muted-foreground">{t('seguimiento.sin_hitos_fechas')}</div>
       )}
     </div>
   );
@@ -438,9 +441,9 @@ const Seguimiento: React.FC = () => {
     <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
       <div className="mb-3 sm:mb-4">
         <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2">
-          <ClipboardCheck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" aria-hidden="true" /> Seguimiento y Control
+          <ClipboardCheck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" aria-hidden="true" /> {t('seguimiento.titulo_completo')}
         </h1>
-        <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Avance físico-financiero, bitácora, EVM y cronograma con datos reales de Supabase.</p>
+        <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{t('seguimiento.descripcion')}</p>
       </div>
 
       <div className={`${CARD} p-1 mb-3 sm:mb-4`}>

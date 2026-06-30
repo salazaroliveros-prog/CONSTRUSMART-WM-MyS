@@ -1,450 +1,162 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useErp } from '../store';
-import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_DANGER } from '../ui';
-import { Modal, message } from 'antd';
-import { toast } from 'sonner';
-import { Plus, Search, Filter, Package, Wrench, Truck, Settings, Edit, Trash2, Calendar, DollarSign, MapPin, User, CheckCircle, AlertCircle, WrenchIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { Activo } from '../store/schemas/gestion';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useErp } from '../store';
+import { Search, Wrench, Truck, Package, AlertTriangle, Edit2, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+const TIPOS = ['herramienta', 'equipo', 'vehiculo', 'accesorio'] as const;
+const ESTADOS = ['disponible', 'asignado', 'mantenimiento', 'baja'] as const;
+const TIPO_LABEL: Record<string, string> = {
+  herramienta: 'Herramienta',
+  equipo: 'Equipo',
+  vehiculo: 'Vehículo',
+  accesorio: 'Accesorio',
+};
+const ESTADO_LABEL: Record<string, string> = {
+  disponible: 'Disponible',
+  asignado: 'Asignado',
+  mantenimiento: 'En Mantenimiento',
+  baja: 'Dado de Baja',
+};
 
 const Activos: React.FC = () => {
   const { t } = useTranslation();
-  const { activos, proyectos, addActivo, updateActivo, deleteActivo, selectedProyectoId } = useErp();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterTipo, setFilterTipo] = useState<string>('all');
-  const [filterEstado, setFilterEstado] = useState<string>('all');
-  const [showModal, setShowModal] = useState(false);
-  const [editingActivo, setEditingActivo] = useState<Activo | null>(null);
-  const [formData, setFormData] = useState<Partial<Activo>>({});
+  const { activos, setActivos, proyectos } = useErp();
+  const [q, setQ] = useState('');
+  const [tipo, setTipo] = useState<string>('todos');
+  const [estado, setEstado] = useState<string>('todos');
+  const [showForm, setShowForm] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { setLoading(false); }, []);
+  const empty = { nombre: '', codigo: '', tipo: 'herramienta' as typeof TIPOS[number], estado: 'disponible' as typeof ESTADOS[number], valor: 0, proyectoId: '' };
 
-  const filteredActivos = useMemo(() => {
-    return (activos || []).filter(activo => {
-      const matchesSearch = !searchTerm || 
-        activo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        activo.codigoInventario.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesTipo = filterTipo === 'all' || activo.tipo === filterTipo;
-      const matchesEstado = filterEstado === 'all' || activo.estado === filterEstado;
-      const matchesProyecto = !selectedProyectoId || selectedProyectoId === 'none' || activo.proyectoId === selectedProyectoId;
-      
-      return matchesSearch && matchesTipo && matchesEstado && matchesProyecto;
+  const [form, setForm] = useState(empty);
+  const set = (k: string, v: string | number) => setForm(f => ({ ...f, [k]: v }));
+
+  const filtered = useMemo(() => {
+    const qq = q.trim().toLowerCase();
+    return activos.filter(a => {
+      if (qq && !`${a.nombre} ${a.codigo}`.toLowerCase().includes(qq)) return false;
+      if (tipo !== 'todos' && a.tipo !== tipo) return false;
+      if (estado !== 'todos' && a.estado !== estado) return false;
+      return true;
     });
-  }, [activos, searchTerm, filterTipo, filterEstado, selectedProyectoId]);
+  }, [activos, q, tipo, estado]);
 
-  const stats = useMemo(() => {
-    const total = filteredActivos.length;
-    const disponibles = filteredActivos.filter(a => a.estado === 'disponible').length;
-    const asignados = filteredActivos.filter(a => a.estado === 'asignado').length;
-    const mantenimiento = filteredActivos.filter(a => a.estado === 'mantenimiento').length;
-    const valorTotal = filteredActivos.reduce((sum, a) => sum + a.valorAdquisicion, 0);
-    
-    return { total, disponibles, asignados, mantenimiento, valorTotal };
-  }, [filteredActivos]);
+  const openCreate = () => { setEditId(null); setForm(empty); setShowForm(true); };
+  const openEdit = (a: typeof activos[0]) => {
+    setEditId(a.id);
+    setForm({ nombre: a.nombre, codigo: a.codigo, tipo: a.tipo, estado: a.estado, valor: a.valor, proyectoId: a.proyectoId || '' });
+    setShowForm(true);
+  };
 
-  if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-        </div>
-        <Skeleton className="h-64 rounded-2xl" />
-      </div>
-    );
-  }
-
-  const handleOpenModal = (activo?: Activo) => {
-    if (activo) {
-      setEditingActivo(activo);
-      setFormData(activo);
+  const save = () => {
+    if (!form.nombre || !form.codigo) return toast.error('Nombre y código requeridos');
+    const payload = { ...form, valor: Number(form.valor) || 0, fechaAdquisicion: new Date().toISOString().slice(0, 10) };
+    if (editId) {
+      setActivos(arr => arr.map(a => a.id === editId ? { ...a, ...payload } : a));
+      toast.success(t('activos.guardar_exito'));
     } else {
-      setEditingActivo(null);
-      setFormData({
-        nombre: '',
-        codigoInventario: '',
-        tipo: 'herramienta',
-        estado: 'disponible',
-        valorAdquisicion: 0,
-        fechaAdquisicion: new Date().toISOString().split('T')[0],
-        proyectoId: selectedProyectoId || '',
-      });
+      setActivos(arr => [{ id: crypto.randomUUID(), ...payload }, ...arr]);
+      toast.success(t('activos.guardar_exito'));
     }
-    setShowModal(true);
+    setShowForm(false);
   };
 
-  const handleSave = async () => {
-    try {
-      if (editingActivo) {
-        await updateActivo(editingActivo.id, formData);
-        toast.success('Activo actualizado correctamente');
-      } else {
-        await addActivo({
-          ...formData,
-          id: crypto.randomUUID(),
-          nombre: formData.nombre || '',
-          codigoInventario: formData.codigoInventario || '',
-          tipo: formData.tipo || 'herramienta',
-          estado: formData.estado || 'disponible',
-          valorAdquisicion: formData.valorAdquisicion || 0,
-          fechaAdquisicion: formData.fechaAdquisicion || new Date().toISOString().split('T')[0],
-          proyectoId: formData.proyectoId || '',
-        } as Activo);
-        toast.success('Activo creado correctamente');
-      }
-      setShowModal(false);
-      setEditingActivo(null);
-      setFormData({});
-    } catch (error) {
-      toast.error('Error al guardar activo');
-    }
+  const remove = (id: string) => {
+    if (t('common.confirmar') !== 'Sí') return;
+    setActivos(arr => arr.filter(a => a.id !== id));
+    toast.success(t('activos.eliminar_exito'));
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await Modal.confirm({
-        title: 'Eliminar Activo',
-        content: '¿Estás seguro de eliminar este activo?',
-        okText: 'Eliminar',
-        okType: 'danger',
-        cancelText: 'Cancelar',
-      });
-      await deleteActivo(id);
-      toast.success('Activo eliminado correctamente');
-    } catch {
-      // User cancelled
-    }
-  };
-
-  const getTipoIcon = (tipo: string) => {
-    switch (tipo) {
-      case 'herramienta': return <Wrench className="w-4 h-4" />;
-      case 'equipo': return <Settings className="w-4 h-4" />;
-      case 'vehiculo': return <Truck className="w-4 h-4" />;
-      case 'accesorio': return <Package className="w-4 h-4" />;
-      default: return <Package className="w-4 h-4" />;
-    }
-  };
-
-  const getEstadoColor = (estado: string) => {
-    switch (estado) {
-      case 'disponible': return 'text-green-500 dark:text-green-400';
-      case 'asignado': return 'text-blue-500 dark:text-blue-400';
-      case 'mantenimiento': return 'text-orange-500 dark:text-orange-400';
-      case 'baja': return 'text-red-500 dark:text-red-400';
-      case 'dado_baja': return 'text-gray-500 dark:text-gray-400';
-      default: return 'text-gray-500';
-    }
-  };
-
-  const getEstadoIcon = (estado: string) => {
-    switch (estado) {
-      case 'disponible': return <CheckCircle className="w-4 h-4" />;
-      case 'asignado': return <User className="w-4 h-4" />;
-      case 'mantenimiento': return <WrenchIcon className="w-4 h-4" />;
-      case 'baja':
-      case 'dado_baja': return <AlertCircle className="w-4 h-4" />;
-      default: return <AlertCircle className="w-4 h-4" />;
-    }
-  };
+  if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-48" /><Skeleton className="h-64 w-full" /></div>;
 
   return (
-    <div className="h-full flex flex-col p-4 sm:p-6 max-w-[1600px] mx-auto overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-4 flex-shrink-0">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Activos y Herramientas</h1>
-          <p className="text-sm text-muted-foreground">Gestión de activos, herramientas y equipos</p>
-        </div>
-        <button
-          onClick={() => handleOpenModal()}
-          className={BUTTON_PRIMARY}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Nuevo Activo
-        </button>
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+          <Wrench className="w-6 h-6 text-indigo-500" /> {t('activos.titulo')}
+        </h1>
+        <button onClick={openCreate} className="px-3 py-2 rounded-lg bg-indigo-500 text-white text-xs font-medium hover:bg-indigo-600">{t('activos.nuevo_activo')}</button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 flex-shrink-0">
-        <div className={CARD}>
-          <div className="flex items-center gap-2 mb-1">
-            <Package className="w-4 h-4 text-primary" />
-            <span className="text-xs text-muted-foreground">Total</span>
-          </div>
-          <div className="text-2xl font-bold text-foreground">{stats.total}</div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        <div className="relative">
+          <Search className="w-4 h-4 absolute left-2 top-2 text-slate-400" />
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder={t('activos.buscar_placeholder')} className="pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-white outline-none" />
         </div>
-        <div className={CARD}>
-          <div className="flex items-center gap-2 mb-1">
-            <CheckCircle className="w-4 h-4 text-green-500" />
-            <span className="text-xs text-muted-foreground">Disponibles</span>
-          </div>
-          <div className="text-2xl font-bold text-green-500">{stats.disponibles}</div>
-        </div>
-        <div className={CARD}>
-          <div className="flex items-center gap-2 mb-1">
-            <User className="w-4 h-4 text-blue-500" />
-            <span className="text-xs text-muted-foreground">Asignados</span>
-          </div>
-          <div className="text-2xl font-bold text-blue-500">{stats.asignados}</div>
-        </div>
-        <div className={CARD}>
-          <div className="flex items-center gap-2 mb-1">
-            <DollarSign className="w-4 h-4 text-amber-500" />
-            <span className="text-xs text-muted-foreground">Valor Total</span>
-          </div>
-          <div className="text-2xl font-bold text-amber-500">
-            Q {(stats.valorTotal / 1000).toFixed(1)}K
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2 mb-4 flex-shrink-0">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Buscar por nombre o código..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={INPUT}
-            style={{ paddingLeft: '2.5rem' }}
-          />
-        </div>
-        <select
-          value={filterTipo}
-          onChange={(e) => setFilterTipo(e.target.value)}
-          className={INPUT}
-        >
-          <option value="all">Todos los tipos</option>
-          <option value="herramienta">Herramientas</option>
-          <option value="equipo">Equipos</option>
-          <option value="vehiculo">Vehículos</option>
-          <option value="accesorio">Accesorios</option>
+        <select value={tipo} onChange={e => setTipo(e.target.value)} className="text-xs px-3 py-2 rounded-lg border border-slate-200 bg-white">
+          <option value="todos">{t('activos.todos_tipos')}</option>
+          {TIPOS.map(tp => <option key={tp} value={tp}>{TIPO_LABEL[tp]}</option>)}
         </select>
-        <select
-          value={filterEstado}
-          onChange={(e) => setFilterEstado(e.target.value)}
-          className={INPUT}
-        >
-          <option value="all">Todos los estados</option>
-          <option value="disponible">Disponible</option>
-          <option value="asignado">Asignado</option>
-          <option value="mantenimiento">Mantenimiento</option>
-          <option value="baja">Baja</option>
-          <option value="dado_baja">Dado de Baja</option>
+        <select value={estado} onChange={e => setEstado(e.target.value)} className="text-xs px-3 py-2 rounded-lg border border-slate-200 bg-white">
+          <option value="todos">{t('activos.todos_estados')}</option>
+          {ESTADOS.map(e => <option key={e} value={e}>{ESTADO_LABEL[e]}</option>)}
         </select>
       </div>
 
-      {/* Table */}
-      <div className={CARD + " flex-1 overflow-hidden flex flex-col"}>
-        <div className="overflow-x-auto flex-1">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Código</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Nombre</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Tipo</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Estado</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Ubicación</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Asignado A</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Valor</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">Fecha Adquisición</th>
-                <th className="text-right p-3 text-xs font-medium text-muted-foreground">Acciones</th>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div className="p-3 bg-indigo-50 rounded-lg text-center"><p className="text-[10px] text-indigo-600">{t('activos.total')}</p><p className="text-xl font-bold text-indigo-700">{activos.length}</p></div>
+        <div className="p-3 bg-emerald-50 rounded-lg text-center"><p className="text-[10px] text-emerald-600">{t('activos.disponibles')}</p><p className="text-xl font-bold text-emerald-700">{activos.filter(a => a.estado === 'disponible').length}</p></div>
+        <div className="p-3 bg-amber-50 rounded-lg text-center"><p className="text-[10px] text-amber-600">{t('activos.asignados')}</p><p className="text-xl font-bold text-amber-700">{activos.filter(a => a.estado === 'asignado').length}</p></div>
+        <div className="p-3 bg-slate-50 rounded-lg text-center"><p className="text-[10px] text-slate-600">{t('activos.valor_total')}</p><p className="text-xl font-bold text-slate-800">Q{activos.reduce((s, a) => s + (Number(a.valor) || 0), 0).toLocaleString()}</p></div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead><tr className="bg-slate-50">
+            <th className="text-left p-2">{t('activos.columna_codigo')}</th>
+            <th className="text-left p-2">{t('activos.columna_nombre')}</th>
+            <th className="text-left p-2">{t('activos.columna_tipo')}</th>
+            <th className="text-left p-2">{t('activos.columna_estado')}</th>
+            <th className="text-left p-2">{t('activos.columna_ubicacion')}</th>
+            <th className="text-left p-2">{t('activos.columna_valor')}</th>
+            <th className="text-right p-2">{t('activos.columna_acciones')}</th>
+          </tr></thead>
+          <tbody>
+            {filtered.map(a => (
+              <tr key={a.id} className="border-t hover:bg-slate-50">
+                <td className="p-2 font-mono text-slate-600">{a.codigo}</td>
+                <td className="p-2 font-medium text-slate-700">{a.nombre}</td>
+                <td className="p-2 text-slate-500">{TIPO_LABEL[a.tipo] || a.tipo}</td>
+                <td className="p-2"><span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${a.estado === 'disponible' ? 'bg-emerald-50 text-emerald-600' : a.estado === 'asignado' ? 'bg-amber-50 text-amber-600' : a.estado === 'mantenimiento' ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'}`}>{ESTADO_LABEL[a.estado] || a.estado}</span></td>
+                <td className="p-2 text-slate-500">{proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}</td>
+                <td className="p-2 font-mono">Q{Number(a.valor || 0).toLocaleString()}</td>
+                <td className="p-2 text-right">
+                  <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-slate-100"><Edit2 className="w-4 h-4 text-slate-500" /></button>
+                  <button onClick={() => { if (window.confirm(t('activos.confirmar_eliminar'))) remove(a.id); }} className="p-1.5 rounded hover:bg-slate-100"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredActivos.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="text-center p-8 text-muted-foreground">
-                    No hay activos registrados
-                  </td>
-                </tr>
-              ) : (
-                filteredActivos.map((activo) => (
-                  <tr key={activo.id} className="border-b border-border hover:bg-muted/50">
-                    <td className="p-3 text-sm font-medium">{activo.codigoInventario}</td>
-                    <td className="p-3 text-sm">{activo.nombre}</td>
-                    <td className="p-3 text-sm">
-                      <div className="flex items-center gap-2">
-                        {getTipoIcon(activo.tipo)}
-                        <span className="capitalize">{activo.tipo}</span>
-                      </div>
-                    </td>
-                    <td className="p-3 text-sm">
-                      <div className="flex items-center gap-2">
-                        {getEstadoIcon(activo.estado)}
-                        <span className={`capitalize ${getEstadoColor(activo.estado)}`}>
-                          {activo.estado.replace('_', ' ')}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="p-3 text-sm text-muted-foreground">{activo.ubicacion || '-'}</td>
-                    <td className="p-3 text-sm text-muted-foreground">{activo.asignadoA || '-'}</td>
-                    <td className="p-3 text-sm font-medium">Q {activo.valorAdquisicion.toLocaleString()}</td>
-                    <td className="p-3 text-sm text-muted-foreground">{activo.fechaAdquisicion}</td>
-                    <td className="p-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleOpenModal(activo)}
-                          className="text-blue-500 hover:text-blue-600"
-                          aria-label="Editar"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(activo.id)}
-                          className="text-red-500 hover:text-red-600"
-                          aria-label="Eliminar"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+            ))}
+            {filtered.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-slate-400">{t('activos.sin_activos')}</td></tr>}
+          </tbody>
+        </table>
       </div>
 
-      {/* Modal */}
-      <Modal
-        title={editingActivo ? 'Editar Activo' : 'Nuevo Activo'}
-        open={showModal}
-        onCancel={() => setShowModal(false)}
-        onOk={handleSave}
-        okText="Guardar"
-        cancelText="Cancelar"
-        width={600}
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Nombre *</label>
-            <input
-              type="text"
-              value={formData.nombre || ''}
-              onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-              className={INPUT}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Código de Inventario *</label>
-            <input
-              type="text"
-              value={formData.codigoInventario || ''}
-              onChange={(e) => setFormData({ ...formData, codigoInventario: e.target.value })}
-              className={INPUT}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Tipo *</label>
-              <select
-                value={formData.tipo || 'herramienta'}
-                onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
-                className={INPUT}
-              >
-                <option value="herramienta">Herramienta</option>
-                <option value="equipo">Equipo</option>
-                <option value="vehiculo">Vehículo</option>
-                <option value="accesorio">Accesorio</option>
+      {showForm && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl p-5 w-full max-w-md shadow-lg">
+            <h3 className="font-bold mb-3">{editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}</h3>
+            <div className="grid gap-2">
+              <input value={form.nombre} onChange={e => set('nombre', e.target.value)} placeholder={t('activos.columna_nombre')} className="px-3 py-2 border rounded-lg text-sm" />
+              <input value={form.codigo} onChange={e => set('codigo', e.target.value)} placeholder={t('activos.columna_codigo')} className="px-3 py-2 border rounded-lg text-sm" />
+              <select value={form.tipo} onChange={e => set('tipo', e.target.value)} className="px-3 py-2 border rounded-lg text-sm">
+                {TIPOS.map(tp => <option key={tp} value={tp}>{TIPO_LABEL[tp]}</option>)}
               </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Estado *</label>
-              <select
-                value={formData.estado || 'disponible'}
-                onChange={(e) => setFormData({ ...formData, estado: e.target.value as any })}
-                className={INPUT}
-              >
-                <option value="disponible">Disponible</option>
-                <option value="asignado">Asignado</option>
-                <option value="mantenimiento">Mantenimiento</option>
-                <option value="baja">Baja</option>
-                <option value="dado_baja">Dado de Baja</option>
+              <select value={form.estado} onChange={e => set('estado', e.target.value)} className="px-3 py-2 border rounded-lg text-sm">
+                {ESTADOS.map(e => <option key={e} value={e}>{ESTADO_LABEL[e]}</option>)}
               </select>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Marca</label>
-              <input
-                type="text"
-                value={formData.marca || ''}
-                onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
-                className={INPUT}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Modelo</label>
-              <input
-                type="text"
-                value={formData.modelo || ''}
-                onChange={(e) => setFormData({ ...formData, modelo: e.target.value })}
-                className={INPUT}
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Número de Serie</label>
-            <input
-              type="text"
-              value={formData.numeroSerie || ''}
-              onChange={(e) => setFormData({ ...formData, numeroSerie: e.target.value })}
-              className={INPUT}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Valor de Adquisición *</label>
-              <input
-                type="number"
-                value={formData.valorAdquisicion || 0}
-                onChange={(e) => setFormData({ ...formData, valorAdquisicion: parseFloat(e.target.value) || 0 })}
-                className={INPUT}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Fecha de Adquisición *</label>
-              <input
-                type="date"
-                value={formData.fechaAdquisicion || ''}
-                onChange={(e) => setFormData({ ...formData, fechaAdquisicion: e.target.value })}
-                className={INPUT}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Ubicación</label>
-              <input
-                type="text"
-                value={formData.ubicacion || ''}
-                onChange={(e) => setFormData({ ...formData, ubicacion: e.target.value })}
-                className={INPUT}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Asignado A</label>
-              <input
-                type="text"
-                value={formData.asignadoA || ''}
-                onChange={(e) => setFormData({ ...formData, asignadoA: e.target.value })}
-                className={INPUT}
-              />
+              <input type="number" value={form.valor} onChange={e => set('valor', Number(e.target.value))} placeholder={t('activos.columna_valor')} className="px-3 py-2 border rounded-lg text-sm" />
+              <button onClick={save} className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm">{t('common.guardar')}</button>
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 border rounded-lg text-xs text-slate-600">{t('common.cancelar')}</button>
             </div>
           </div>
         </div>
-      </Modal>
+      )}
     </div>
   );
 };
-
 export default Activos;

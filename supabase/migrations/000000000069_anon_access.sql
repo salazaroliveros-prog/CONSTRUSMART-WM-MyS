@@ -34,12 +34,3 @@ CREATE POLICY "proyectos_anon_read" ON erp_proyectos FOR SELECT TO anon USING (t
 DROP POLICY IF EXISTS "notificaciones_anon_read" ON erp_notificaciones;
 CREATE POLICY "notificaciones_anon_read" ON erp_notificaciones FOR SELECT TO anon USING (true);
 
--- Register migration
-INSERT INTO supabase_migrations.schema_migrations (version, name, statements)
-SELECT '000000000069', 'anon_access_for_initial_load', ARRAY[
-  'Added updated_at column to erp_notificaciones',
-  'GRANT SELECT ON erp_proyectos TO anon',
-  'GRANT SELECT ON erp_notificaciones TO anon',
-  'Created anon policies for initial load'
-]
-WHERE NOT EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version = '000000000069');

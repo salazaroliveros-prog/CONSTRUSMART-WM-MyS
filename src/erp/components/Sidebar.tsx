@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp, View } from '../store';
 import { useAppContext } from '@/components/AppLayout';
 import {
@@ -11,67 +12,78 @@ import {
    FileText, FileDown, Copy, Award, Wrench,
 } from 'lucide-react';
 
-interface NavItem { id: View; label: string; icon: React.ElementType; group: string }
+interface NavItem { id: View; labelKey: string; icon: React.ElementType; group: string }
 
 // ─── Navegación reorganizada por área funcional de una constructora ──────────
 const ITEMS: NavItem[] = [
   // ── 1. PRINCIPAL ──────────────────────────────────────────────────────────
-  { id: 'dashboard',         label: 'Tablero',            icon: LayoutDashboard, group: 'Principal'    },
-  { id: 'proyectos',         label: 'Proyectos',          icon: Building2,       group: 'Principal'    },
-  { id: 'crm',               label: 'CRM / Pipeline',     icon: Target,          group: 'Principal'    },
-  { id: 'cotizaciones',      label: 'Cotizaciones',        icon: FileText,       group: 'Principal'    },
+  { id: 'dashboard',         labelKey: 'dashboard',       icon: LayoutDashboard, group: 'Principal'    },
+  { id: 'proyectos',         labelKey: 'proyectos',       icon: Building2,       group: 'Principal'    },
+  { id: 'crm',               labelKey: 'crm',             icon: Target,          group: 'Principal'    },
+  { id: 'cotizaciones',      labelKey: 'cotizaciones',    icon: FileText,        group: 'Principal'    },
 
   // ── 2. PLANIFICACIÓN ──────────────────────────────────────────────────────
-  { id: 'presupuestos',      label: 'Presupuestos APU',   icon: Calculator,      group: 'Planificación'},
-  { id: 'apu',               label: 'APU Avanzado',       icon: Receipt,         group: 'Planificación'},
-  { id: 'baseprecios',       label: 'Base de Precios',    icon: BookOpen,        group: 'Planificación'},
-  { id: 'hitos',             label: 'Hitos',              icon: Flag,            group: 'Planificación'},
-  { id: 'riesgos',           label: 'Riesgos',            icon: TriangleAlert,   group: 'Planificación'},
-  { id: 'plantillas',       label: 'Plantillas',         icon: Copy,            group: 'Planificación'},
-  { id: 'bitacora',          label: 'Bitácora',           icon: BookOpen,        group: 'Planificación'},
+  { id: 'presupuestos',      labelKey: 'presupuestos',    icon: Calculator,      group: 'Planificación'},
+  { id: 'apu',               labelKey: 'apu',             icon: Receipt,         group: 'Planificación'},
+  { id: 'baseprecios',       labelKey: 'baseprecios',     icon: BookOpen,        group: 'Planificación'},
+  { id: 'hitos',             labelKey: 'hitos',           icon: Flag,            group: 'Planificación'},
+  { id: 'riesgos',           labelKey: 'riesgos',         icon: TriangleAlert,   group: 'Planificación'},
+  { id: 'plantillas',       labelKey: 'plantillas',      icon: Copy,            group: 'Planificación'},
+  { id: 'bitacora',          labelKey: 'bitacora',        icon: BookOpen,        group: 'Planificación'},
 
   // ── 3. EJECUCIÓN / CAMPO ──────────────────────────────────────────────────
-  { id: 'seguimiento',       label: 'Seguimiento EVM',    icon: ClipboardCheck,  group: 'Ejecución'    },
-  { id: 'curvas',            label: 'Curvas S',           icon: TrendingUp,      group: 'Ejecución'    },
-  { id: 'rendimiento-campo', label: 'Rendimiento Campo',  icon: HardHat,         group: 'Ejecución'    },
-  { id: 'sso-calidad',       label: 'SSO & Calidad',      icon: ShieldCheck,     group: 'Ejecución'    },
-  { id: 'muro',              label: 'Muro de Obra',       icon: Newspaper,       group: 'Ejecución'    },
-  { id: 'ordenes-cambio',    label: 'Órdenes de Cambio',  icon: GitPullRequest,  group: 'Ejecución'    },
-  { id: 'documentos',        label: 'Documentos',         icon: FolderOpen,      group: 'Ejecución'    },
-  { id: 'visor-bim',         label: 'Visor BIM',          icon: Cpu,             group: 'Ejecución'    },
+  { id: 'seguimiento',       labelKey: 'seguimiento',     icon: ClipboardCheck,  group: 'Ejecución'    },
+  { id: 'curvas',            labelKey: 'curvas',          icon: TrendingUp,      group: 'Ejecución'    },
+  { id: 'rendimiento-campo', labelKey: 'rendimiento-campo', icon: HardHat,       group: 'Ejecución'    },
+  { id: 'sso-calidad',       labelKey: 'sso-calidad',     icon: ShieldCheck,     group: 'Ejecución'    },
+  { id: 'muro',              labelKey: 'muro',            icon: Newspaper,       group: 'Ejecución'    },
+  { id: 'ordenes-cambio',    labelKey: 'ordenes-cambio',  icon: GitPullRequest,  group: 'Ejecución'    },
+  { id: 'documentos',        labelKey: 'documentos',      icon: FolderOpen,      group: 'Ejecución'    },
+  { id: 'visor-bim',         labelKey: 'visor-bim',       icon: Cpu,             group: 'Ejecución'    },
 
   // ── 4. SUMINISTRO / BODEGA ────────────────────────────────────────────────
-  { id: 'bodega',            label: 'Bodega',             icon: Warehouse,       group: 'Suministro'   },
-  { id: 'logistica',         label: 'Logística/Compras',  icon: Truck,           group: 'Suministro'   },
-  { id: 'entradas-almacen',  label: 'Entradas Almacén',   icon: Package,         group: 'Suministro'   },
-  { id: 'activos',           label: 'Activos',            icon: Wrench,          group: 'Suministro'   },
-  { id: 'cuadros',           label: 'Cuadros Comparativos', icon: ClipboardCheck,  group: 'Suministro'   },
-  { id: 'proveedor-analytics', label: 'Analytics Proveedores', icon: Award,        group: 'Suministro'   },
+  { id: 'bodega',            labelKey: 'bodega',          icon: Warehouse,       group: 'Suministro'   },
+  { id: 'logistica',         labelKey: 'logistica',       icon: Truck,           group: 'Suministro'   },
+  { id: 'entradas-almacen',  labelKey: 'entradas-almacen', icon: Package,        group: 'Suministro'   },
+  { id: 'activos',           labelKey: 'activos',         icon: Wrench,          group: 'Suministro'   },
+  { id: 'cuadros',           labelKey: 'cuadros',         icon: ClipboardCheck,  group: 'Suministro'   },
+  { id: 'proveedor-analytics', labelKey: 'proveedor-analytics', icon: Award,     group: 'Suministro'   },
 
   // ── 5. RRHH / NÓMINA ──────────────────────────────────────────────────────
-  { id: 'rrhh',              label: 'RRHH',               icon: Users,           group: 'RRHH'         },
-  { id: 'planilla-destajos', label: 'Planilla Destajos',  icon: ClipboardList,   group: 'RRHH'         },
+  { id: 'rrhh',              labelKey: 'rrhh',            icon: Users,           group: 'RRHH'         },
+  { id: 'planilla-destajos', labelKey: 'planilla-destajos', icon: ClipboardList, group: 'RRHH'         },
 
   // ── 6. FINANZAS ───────────────────────────────────────────────────────────
-  { id: 'financiero',        label: 'Financiero',         icon: Wallet,          group: 'Finanzas'     },
-  { id: 'comercial-fin',     label: 'Comercial/Finanzas', icon: DollarSign,      group: 'Finanzas'     },
-  { id: 'cuentas-cobrar',    label: 'Cuentas x Cobrar',   icon: CreditCard,      group: 'Finanzas'     },
-  { id: 'cuentas-pagar',     label: 'Cuentas x Pagar',    icon: Landmark,        group: 'Finanzas'     },
-  { id: 'impuestos',         label: 'Impuestos',          icon: Percent,         group: 'Finanzas'     },
+  { id: 'financiero',        labelKey: 'financiero',      icon: Wallet,          group: 'Finanzas'     },
+  { id: 'comercial-fin',     labelKey: 'comercial-fin',   icon: DollarSign,      group: 'Finanzas'     },
+  { id: 'cuentas-cobrar',    labelKey: 'cuentas-cobrar',  icon: CreditCard,      group: 'Finanzas'     },
+  { id: 'cuentas-pagar',     labelKey: 'cuentas-pagar',   icon: Landmark,        group: 'Finanzas'     },
+  { id: 'impuestos',         labelKey: 'impuestos',       icon: Percent,         group: 'Finanzas'     },
 
   // ── 7. ANÁLISIS / BI ──────────────────────────────────────────────────────
-  { id: 'analisis-costos',    label: 'Análisis Costos',    icon: PieChart,        group: 'Análisis BI'  },
-  { id: 'predictivo',        label: 'Dashboard BI',       icon: BarChart3,       group: 'Análisis BI'  },
-  { id: 'exportacion',       label: 'Exportación',        icon: Download,        group: 'Análisis BI'  },
-  { id: 'reportes',          label: 'Reportes Técnicos',  icon: FileText,         group: 'Análisis BI'  },
+  { id: 'analisis-costos',    labelKey: 'analisis-costos', icon: PieChart,       group: 'Análisis BI'  },
+  { id: 'predictivo',        labelKey: 'predictivo',      icon: BarChart3,       group: 'Análisis BI'  },
+  { id: 'exportacion',       labelKey: 'exportacion',     icon: Download,        group: 'Análisis BI'  },
+  { id: 'reportes',          labelKey: 'reportes',        icon: FileText,        group: 'Análisis BI'  },
 
   // ── 8. SISTEMA ────────────────────────────────────────────────────────────
-  { id: 'notificaciones',    label: 'Notificaciones',     icon: Bell,            group: 'Sistema'      },
-  { id: 'error-log',         label: 'Error Log',          icon: TriangleAlert,    group: 'Sistema'      },
-  { id: 'auditoria',         label: 'Auditoría',          icon: FileCog,         group: 'Sistema'      },
-  { id: 'admin-sistema',     label: 'Administración',     icon: FileCog,         group: 'Sistema'      },
-  { id: 'ajustes',           label: 'Ajustes',            icon: Settings,        group: 'Sistema'      },
+  { id: 'notificaciones',    labelKey: 'notificaciones',  icon: Bell,            group: 'Sistema'      },
+  { id: 'error-log',         labelKey: 'error-log',       icon: TriangleAlert,   group: 'Sistema'      },
+  { id: 'auditoria',         labelKey: 'auditoria',       icon: FileCog,         group: 'Sistema'      },
+  { id: 'admin-sistema',     labelKey: 'admin-sistema',   icon: FileCog,         group: 'Sistema'      },
+  { id: 'ajustes',           labelKey: 'ajustes',         icon: Settings,        group: 'Sistema'      },
 ];
+
+const GROUP_KEYS: Record<string, string> = {
+  'Principal':     'principal',
+  'Planificación': 'planificacion',
+  'Ejecución':     'ejecucion',
+  'Suministro':    'suministro',
+  'RRHH':          'rrhh',
+  'Finanzas':      'finanzas',
+  'Análisis BI':   'analisis_bi',
+  'Sistema':       'sistema',
+};
 
 // Dot color por grupo para separación visual
 const GROUP_DOT: Record<string, string> = {
@@ -86,6 +98,7 @@ const GROUP_DOT: Record<string, string> = {
 };
 
 const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
+  const { t } = useTranslation();
   const { view, setView, allowedViews, user, notificacionesNoLeidas, errorLogs } = useErp();
   const { sidebarCollapsed, toggleCollapse } = useAppContext();
 
@@ -115,8 +128,8 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
       >
         {/* ── Mobile header ── */}
         <div className="flex items-center justify-between px-3 py-2.5 border-b border-border lg:hidden flex-shrink-0">
-          <span className="font-semibold text-sm text-foreground">Módulos</span>
-          <button onClick={onClose} aria-label="Cerrar menú"
+          <span className="font-semibold text-sm text-foreground">{t('nav.modulos')}</span>
+          <button onClick={onClose} aria-label={t('sidebar.cerrar_menu')}
             className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground transition-colors">
             <X className="w-4 h-4" />
           </button>
@@ -133,9 +146,9 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
               </div>
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold text-foreground truncate leading-tight">
-                  {user?.nombre || 'Usuario'}
+                  {user?.nombre || t('common.usuario')}
                 </p>
-                 <p className="text-[10px] text-muted-foreground leading-tight">{user?.rol || 'Administrador'}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{user?.rol || t('common.administrador')}</p>
               </div>
             </div>
           </div>
@@ -145,7 +158,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
         <nav
           className="px-2 py-2 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin"
           role="navigation"
-          aria-label="Navegación principal"
+          aria-label={t('nav.navegacion_principal')}
           id="sidebar-navigation"
         >
           {collapsed ? (
@@ -160,8 +173,8 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                   <button
                     key={it.id}
                     onClick={() => { setView(it.id); window.location.hash = it.id; onClose(); }}
-                    title={it.label}
-                    aria-label={it.label}
+                    title={t('nav.items.' + it.labelKey)}
+                    aria-label={t('nav.items.' + it.labelKey)}
                     aria-current={active ? 'page' : undefined}
                     className={`relative w-full flex items-center justify-center p-2.5 rounded-xl
                       transition-all duration-150 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
@@ -194,7 +207,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                     <div className="flex items-center gap-1.5 px-2 mb-1">
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />
                       <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/70 truncate">
-                        {group}
+                        {t('nav.sidebar_grupos.' + GROUP_KEYS[group])}
                       </span>
                     </div>
 
@@ -218,7 +231,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                                 : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
                           >
                             <Icon className="w-[15px] h-[15px] shrink-0" aria-hidden="true" />
-                            <span className="truncate leading-tight">{it.label}</span>
+                            <span className="truncate leading-tight">{t('nav.items.' + it.labelKey)}</span>
                             {badge && (
                               <span className="ml-auto shrink-0 min-w-[16px] h-4 text-[9px] font-bold
                                 bg-destructive text-destructive-foreground rounded-full
@@ -248,7 +261,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
         <div className="hidden lg:flex flex-shrink-0 px-2 py-2 border-t border-border/60">
           <button
             onClick={toggleCollapse}
-            aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+            aria-label={collapsed ? t('sidebar.expandir_menu') : t('sidebar.colapsar_menu')}
             aria-expanded={!collapsed}
             aria-controls="sidebar-navigation"
             className="w-full flex items-center justify-center gap-2 py-2 px-2 rounded-xl
@@ -257,7 +270,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
           >
             {collapsed
               ? <ChevronRight className="w-4 h-4" aria-hidden="true" />
-              : <><ChevronLeft className="w-4 h-4" aria-hidden="true" /><span className="truncate">Colapsar</span></>
+              : <><ChevronLeft className="w-4 h-4" aria-hidden="true" /><span className="truncate">{t('sidebar.colapsar')}</span></>
             }
           </button>
         </div>

@@ -1,5 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { fmtQ, todayISO } from '../utils';
 import {
@@ -45,6 +46,7 @@ const generarRealDesdeAvances = (avances: { fecha: string; avanceFisico: number 
 };
 
 const CurvasS: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, movimientos, avances } = useErp();
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -215,7 +217,7 @@ const CurvasS: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-          <TrendingUp className="w-6 h-6 text-indigo-500" /> Curvas S y Flujo de Caja
+          <TrendingUp className="w-6 h-6 text-indigo-500" /> {t('curvas_s.titulo')}
         </h1>
         <div className="flex gap-2">
           <select
@@ -229,7 +231,7 @@ const CurvasS: React.FC = () => {
             ))}
           </select>
           <button onClick={handleExportImage} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors">
-            <Download className="w-3.5 h-3.5" aria-hidden="true" /> Exportar
+            <Download className="w-3.5 h-3.5" aria-hidden="true" /> {t('exportacion.excel')}
           </button>
         </div>
       </div>
@@ -286,7 +288,7 @@ const CurvasS: React.FC = () => {
         {selectedView === 'curvas' && (
           <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-slate-700 text-sm">Curva S — Programado vs Real</h2>
+              <h2 className="font-bold text-slate-700 text-sm">{t('curvas_s.curva_s')} — {t('curvas_s.curva_planificada')} vs {t('curvas_s.curva_ejecutada')}</h2>
               <div className="flex items-center gap-3 text-xs">
                 <div className="flex items-center gap-1">
                   <div className="w-3 h-3 rounded bg-indigo-400" />
@@ -300,10 +302,10 @@ const CurvasS: React.FC = () => {
             </div>
 
             {!curvaS ? (
-              <div className="text-center py-8 text-sm text-slate-400">
-                <BarChart3 className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                Selecciona un proyecto para ver la curva S
-              </div>
+                <div className="text-center py-8 text-sm text-slate-400">
+                  <BarChart3 className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                  {t('seguimiento.selecciona_proyecto_curva')}
+                </div>
             ) : (
               <div className="relative h-64">
                 {/* Y axis labels */}
@@ -383,19 +385,19 @@ const CurvasS: React.FC = () => {
 
         {selectedView === 'flujo' && (
           <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-slate-700 text-sm">Flujo de Caja — 12 meses</h2>
-              <div className="flex items-center gap-3 text-xs">
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded bg-emerald-400" />
-                  <span className="text-slate-500">Ingresos</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded bg-red-400" />
-                  <span className="text-slate-500">Egresos</span>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-bold text-slate-700 text-sm">{t('curvas_s.flujo_caja')} — 12 meses</h2>
+                <div className="flex items-center gap-3 text-xs">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded bg-emerald-400" />
+                    <span className="text-slate-500">{t('curvas_s.ingresos')}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded bg-red-400" />
+                    <span className="text-slate-500">{t('curvas_s.egresos')}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
             {/* Gráfico de flujo */}
             <div className="relative h-52">
@@ -434,24 +436,24 @@ const CurvasS: React.FC = () => {
 
             {/* Resumen flujo */}
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div className="bg-emerald-50 rounded-xl p-2 text-center">
-                <div className="text-[9px] text-emerald-600 font-medium">Total Ingresos</div>
-                <div className="text-sm font-bold text-emerald-700">
-                  {fmtQ(flujoCaja.reduce((a, b) => a + b.ingresos, 0))}
+                <div className="bg-emerald-50 rounded-xl p-2 text-center">
+                  <div className="text-[9px] text-emerald-600 font-medium">{t('curvas_s.total_ingresos')}</div>
+                  <div className="text-sm font-bold text-emerald-700">
+                    {fmtQ(flujoCaja.reduce((a, b) => a + b.ingresos, 0))}
+                  </div>
                 </div>
-              </div>
-              <div className="bg-red-50 rounded-xl p-2 text-center">
-                <div className="text-[9px] text-red-600 font-medium">Total Egresos</div>
-                <div className="text-sm font-bold text-red-700">
-                  {fmtQ(flujoCaja.reduce((a, b) => a + b.egresos, 0))}
+                <div className="bg-red-50 rounded-xl p-2 text-center">
+                  <div className="text-[9px] text-red-600 font-medium">{t('curvas_s.total_egresos')}</div>
+                  <div className="text-sm font-bold text-red-700">
+                    {fmtQ(flujoCaja.reduce((a, b) => a + b.egresos, 0))}
+                  </div>
                 </div>
-              </div>
-              <div className="bg-indigo-50 rounded-xl p-2 text-center">
-                <div className="text-[9px] text-indigo-600 font-medium">Saldo Neto</div>
-                <div className="text-sm font-bold text-indigo-700">
-                  {fmtQ(flujoCaja.reduce((a, b) => a + b.ingresos - b.egresos, 0))}
+                <div className="bg-indigo-50 rounded-xl p-2 text-center">
+                  <div className="text-[9px] text-indigo-600 font-medium">{t('curvas_s.saldo_neto')}</div>
+                  <div className="text-sm font-bold text-indigo-700">
+                    {fmtQ(flujoCaja.reduce((a, b) => a + b.ingresos - b.egresos, 0))}
+                  </div>
                 </div>
-              </div>
             </div>
           </div>
         )}
@@ -459,10 +461,10 @@ const CurvasS: React.FC = () => {
         {selectedView === 'alertas' && (
           <div className="space-y-3">
             {alertas.length === 0 ? (
-              <div className="bg-white rounded-2xl p-6 text-center text-sm text-slate-400 border border-slate-100">
-                <Target className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                Sin alertas predictivas — todo dentro de parámetros ✅
-              </div>
+            <div className="bg-white rounded-2xl p-6 text-center text-sm text-slate-400 border border-slate-100">
+              <Target className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+              {t('curvas_s.sin_alertas')}
+            </div>
             ) : alertas.map((a, i) => (
               <div key={i} className={`rounded-2xl p-4 border shadow-sm ${
                 a.tipo === 'danger' ? 'bg-red-50 border-red-200' :
@@ -487,18 +489,18 @@ const CurvasS: React.FC = () => {
 
             {/* Resumen general */}
             <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
-              <h3 className="font-bold text-slate-700 text-sm mb-3">📊 Resumen Predictivo General</h3>
+              <h3 className="font-bold text-slate-700 text-sm mb-3">{t('curvas_s.resumen_general')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-[10px] text-slate-400">Proyectos activos</div>
+                  <div className="text-[10px] text-slate-400">{t('dashboard.proyectos_activos')}</div>
                   <div className="text-lg font-bold text-slate-700">{proyectos.filter(p => p.estado === 'ejecucion').length}</div>
                 </div>
                 <div className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-[10px] text-slate-400">Alertas activas</div>
+                  <div className="text-[10px] text-slate-400">{t('curvas_s.alertas_activas')}</div>
                   <div className="text-lg font-bold text-red-600">{alertas.filter(a => a.tipo === 'danger').length}</div>
                 </div>
                 <div className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-[10px] text-slate-400">Advertencias</div>
+                  <div className="text-[10px] text-slate-400">{t('curvas_s.advertencias')}</div>
                   <div className="text-lg font-bold text-amber-600">{alertas.filter(a => a.tipo === 'warning').length}</div>
                 </div>
               </div>

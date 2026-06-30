@@ -3,6 +3,16 @@ import { safeLogger } from '@/lib/safeLogger';
 import { logErrorFromException } from '@/lib/error-logger';
 import { useErpStore } from '@/erp/zustandStore';
 import { Estacionalidad } from '@/erp/types';
+import { estacionalidadSchema } from '@/erp/store/schemas/calculos';
+import { safeParseArray } from '@/erp/utils';
+
+export const safeParseEstacionalidadArray = (value: unknown): Estacionalidad[] =>
+  safeParseArray(value, estacionalidadSchema) as Estacionalidad[];
+
+export const parseEstacionalidad = (value: unknown): Estacionalidad | null => {
+  const parsed = estacionalidadSchema.safeParse(value);
+  return parsed.success ? (parsed.data as Estacionalidad) : null;
+};
 
 export interface AjusteEstacionalActividad {
   id?: string;
@@ -58,9 +68,10 @@ export class Estacionalidad {
       });
 
       if (error) throw error;
-      return data?.[0] || null;
+      const rows = safeParseEstacionalidadArray(data);
+      return rows[0] ?? null;
     } catch (error) {
-      safeLogger.error('Error obteniendo factores estacionales:', error);
+      safeLogger.warn('Error obteniendo factores estacionales (offline esperado):', error);
       return null;
     }
   }
@@ -83,9 +94,9 @@ export class Estacionalidad {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return safeParseEstacionalidadArray(data);
     } catch (error) {
-      safeLogger.error('Error obteniendo estacionalidad del departamento:', error);
+      safeLogger.warn('Error obteniendo estacionalidad del departamento (offline esperado):', error);
       return [];
     }
   }
@@ -118,7 +129,7 @@ export class Estacionalidad {
         condiciones_climaticas: 'Condiciones normales'
       };
     } catch (error) {
-      safeLogger.error('Error aplicando factores estacionales:', error);
+      safeLogger.warn('Error aplicando factores estacionales (offline esperado):', error);
       return {
         costo_ajustado: costoBase,
         factor_disponibilidad: 1.0,
@@ -144,9 +155,9 @@ export class Estacionalidad {
         .order('tipo_actividad');
 
       if (error) throw error;
-      return data || [];
+      return safeParseEstacionalidadArray(data);
     } catch (error) {
-      safeLogger.error('Error obteniendo ajustes estacionales:', error);
+      safeLogger.warn('Error obteniendo ajustes estacionales (offline esperado):', error);
       return [];
     }
   }
@@ -169,9 +180,9 @@ export class Estacionalidad {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return safeParseEstacionalidadArray(data);
     } catch (error) {
-      safeLogger.error('Error obteniendo estacionalidad por temporada:', error);
+      safeLogger.warn('Error obteniendo estacionalidad por temporada (offline esperado):', error);
       return [];
     }
   }
@@ -189,7 +200,7 @@ export class Estacionalidad {
     } catch (error) {
       safeLogger.warn('[estacionalidad] Error creando estacionalidad, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('addEstacionalidad', estacionalidad);
-      throw error;
+      return { ...estacionalidad, id: crypto.randomUUID?.() || Date.now().toString() } as Estacionalidad;
     }
   }
 
@@ -207,7 +218,7 @@ export class Estacionalidad {
     } catch (error) {
       safeLogger.warn('[estacionalidad] Error actualizando estacionalidad, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('updateEstacionalidad', { id, ...estacionalidad });
-      throw error;
+      return { id, ...estacionalidad } as Estacionalidad;
     }
   }
 
@@ -222,11 +233,11 @@ export class Estacionalidad {
     } catch (error) {
       safeLogger.warn('[estacionalidad] Error eliminando estacionalidad, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('deleteEstacionalidad', { id });
-      throw error;
+      return;
     }
   }
 
-  async obtenerEstacionalidadPorId(id: string): Promise<Estacionalidad | null> {
+   async obtenerEstacionalidadPorId(id: string): Promise<Estacionalidad | null> {
     try {
       const { data, error } = await supabase
         .from('erp_estacionalidad')
@@ -238,7 +249,7 @@ export class Estacionalidad {
         if (error.code === 'PGRST116') return null;
         throw error;
       }
-      return data;
+      return parseEstacionalidad(data);
     } catch (error) {
       safeLogger.error('Error obteniendo estacionalidad por ID:', error);
       return null;
@@ -258,7 +269,7 @@ export class Estacionalidad {
     } catch (error) {
       safeLogger.warn('[estacionalidad] Error creando ajuste estacional, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('addAjusteEstacionalActividad', ajuste);
-      throw error;
+      return { ...ajuste, id: crypto.randomUUID?.() || Date.now().toString() } as AjusteEstacionalActividad;
     }
   }
 
@@ -276,7 +287,7 @@ export class Estacionalidad {
     } catch (error) {
       safeLogger.warn('[estacionalidad] Error actualizando ajuste estacional, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('updateAjusteEstacionalActividad', { id, ...ajuste });
-      throw error;
+      return { id, ...ajuste } as AjusteEstacionalActividad;
     }
   }
 
@@ -291,7 +302,7 @@ export class Estacionalidad {
     } catch (error) {
       safeLogger.warn('[estacionalidad] Error eliminando ajuste estacional, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('deleteAjusteEstacionalActividad', { id });
-      throw error;
+      return;
     }
   }
 
