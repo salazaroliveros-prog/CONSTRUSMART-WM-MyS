@@ -12,7 +12,8 @@ import type {
   Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
   CuentaCobrar, CuentaPagar, Hito, Riesgo, PublicacionMuro, ComentarioMuro, PruebaLaboratorio,
   NoConformidad, LiberacionPartida, Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo,
-  PagoProveedor, CotizacionCliente, VentaPaquete, Destajo, RecepcionAlmacen, Incidente, Rol, CentroCosto,
+  PagoProveedor, CotizacionCliente, VentaPaquete, Destajo, RecepcionAlmacen, Incidente, Rol, CentroCosto, CalculoProyecto,
+  ReglaFactor, NormativaDepartamental, EscalaProduccion, Estacionalidad, HistorialAplicacionRegla,
 } from './types';
 import type { Plantilla } from './store/schemas/plantillas';
 import type { ErrorLogEntry } from './store/schemas/errorLog';
@@ -21,14 +22,34 @@ import type { ProyectoWeather } from './store/schemas/weather';
 
 const RATE_LIMIT_MS = 100;
 const lastMutationCall: Record<string, number> = {};
+const callCounts: Record<string, number> = {};
 
-export const resetRateLimit = () => { for (const k in lastMutationCall) delete lastMutationCall[k]; };
+export const resetRateLimit = () => { for (const k in lastMutationCall) delete lastMutationCall[k]; for (const k in callCounts) delete callCounts[k]; };
 
 function checkRateLimit(type: string): boolean {
   const now = Date.now();
   const last = lastMutationCall[type];
-  if (last && now - last < RATE_LIMIT_MS) { safeLogger.warn(`[RateLimit] ${type} bloqueada`); return false; }
+  
+  if (!last) {
+    lastMutationCall[type] = now;
+    callCounts[type] = 1;
+    return true;
+  }
+  
+  const elapsed = now - last;
+  if (elapsed < RATE_LIMIT_MS) {
+    const count = callCounts[type] || 0;
+    if (count >= 5) {
+      safeLogger.warn(`[RateLimit] ${type} bloqueada (demasiadas llamadas rápidas)`);
+      return false;
+    }
+    callCounts[type] = count + 1;
+    lastMutationCall[type] = now;
+    return true;
+  }
+  
   lastMutationCall[type] = now;
+  callCounts[type] = 1;
   return true;
 }
 
@@ -74,8 +95,11 @@ interface ErpData {
   seguimientoEVM: SeguimientoEVM[]; incidentes: Incidente[]; publicacionesMuro: PublicacionMuro[];
   liberaciones: LiberacionPartida[]; planos: Plano[]; rfis: RFI[]; submittals: Submittal[];
   activos: ActivoHerramienta[]; cuadros: CuadroComparativo[]; pagosProveedor: PagoProveedor[];
-  destajos: Destajo[]; recepciones: RecepcionAlmacen[]; centrosCosto: CentroCosto[];
+  destajos: Destajo[]; calculosProyecto: CalculoProyecto[]; recepciones: RecepcionAlmacen[]; centrosCosto: CentroCosto[];
   plantillas: Plantilla[];
+  reglasFactores: ReglaFactor[]; normativasDepartamentales: NormativaDepartamental[];
+  escalasProduccion: EscalaProduccion[]; estacionalidad: Estacionalidad[];
+  historialReglas: HistorialAplicacionRegla[];
   mutationQueue: Mutation[]; syncMessage: string; syncCooldown: boolean; notificaciones: Notificacion[];
   auditLog: LogAuditoria[]; syncStatus: 'idle' | 'loading' | 'synced' | 'queued' | 'error';
   lastSyncedAt?: string; syncError?: string;
@@ -117,6 +141,7 @@ interface ErpActions {
   setCuadros: (v: CuadroComparativo[] | ((prev: CuadroComparativo[]) => CuadroComparativo[])) => void;
   setPagosProveedor: (v: PagoProveedor[] | ((prev: PagoProveedor[]) => PagoProveedor[])) => void;
   setDestajos: (v: Destajo[] | ((prev: Destajo[]) => Destajo[])) => void;
+  setCalculosProyecto: (v: CalculoProyecto[] | ((prev: CalculoProyecto[]) => CalculoProyecto[])) => void;
   setRecepciones: (v: RecepcionAlmacen[] | ((prev: RecepcionAlmacen[]) => RecepcionAlmacen[])) => void;
   setCentrosCosto: (v: CentroCosto[] | ((prev: CentroCosto[]) => CentroCosto[])) => void;
   setPlantillas: (v: Plantilla[] | ((prev: Plantilla[]) => Plantilla[])) => void;
@@ -148,7 +173,10 @@ interface ErpActions {
   deleteNormativaDepartamental: (id: string) => void;
   deleteEscalaProduccion: (id: string) => void;
   deleteEstacionalidad: (id: string) => void;
-  deleteAjusteEstacionalActividad: (id: string) => void;
+  setReglasFactores: (v: ReglaFactor[] | ((prev: ReglaFactor[]) => ReglaFactor[])) => void;
+  setNormativasDepartamentales: (v: NormativaDepartamental[] | ((prev: NormativaDepartamental[]) => NormativaDepartamental[])) => void;
+  setEscalasProduccion: (v: EscalaProduccion[] | ((prev: EscalaProduccion[]) => EscalaProduccion[])) => void;
+  setEstacionalidad: (v: Estacionalidad[] | ((prev: Estacionalidad[]) => Estacionalidad[])) => void;
   addPlantilla: (p: Omit<Plantilla, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updatePlantilla: (id: string, patch: Partial<Plantilla>) => void;
   deletePlantilla: (id: string) => void;
@@ -258,6 +286,9 @@ interface ErpActions {
   addDestajo: (d: Omit<Destajo, 'id'>) => void;
   updateDestajo: (id: string, patch: Partial<Destajo>) => void;
   deleteDestajo: (id: string) => void;
+  addCalculoProyecto: (d: Omit<CalculoProyecto, 'id'>) => void;
+  updateCalculoProyecto: (id: string, patch: Partial<CalculoProyecto>) => void;
+  deleteCalculoProyecto: (id: string) => void;
   addRecepcion: (r: Omit<RecepcionAlmacen, 'id'>) => void;
   deleteRecepcion: (id: string) => void;
   addPublicacionMuro: (p: Omit<PublicacionMuro, 'id'>) => void;
@@ -443,7 +474,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   ordenesCambio: [], hitos: [], riesgos: [], licitaciones: [], cotizacionesNegocio: [],
   ventasPaquetes: [], bitacora: [], pruebas: [], ncs: [], valesSalida: [],
   seguimientoEVM: [], incidentes: [], publicacionesMuro: [], liberaciones: [], planos: [],
-  rfis: [], submittals: [], activos: [], cuadros: [], pagosProveedor: [], destajos: [],
+  rfis: [], submittals: [], activos: [], cuadros: [], pagosProveedor: [],   destajos: [], calculosProyecto: [],
     recepciones: [], centrosCosto: [], plantillas: [],
   mutationQueue: [], syncMessage: '', syncCooldown: false, syncStatus: 'idle',
   notificaciones: [],
@@ -486,6 +517,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setCuadros: (v) => set(typeof v === 'function' ? { cuadros: v(get().cuadros) } : { cuadros: v }),
   setPagosProveedor: (v) => set(typeof v === 'function' ? { pagosProveedor: v(get().pagosProveedor) } : { pagosProveedor: v }),
   setDestajos: (v) => set(typeof v === 'function' ? { destajos: v(get().destajos) } : { destajos: v }),
+  setCalculosProyecto: (v) => set(typeof v === 'function' ? { calculosProyecto: v(get().calculosProyecto) } : { calculosProyecto: v }),
   setRecepciones: (v) => set(typeof v === 'function' ? { recepciones: v(get().recepciones) } : { recepciones: v }),
   setCentrosCosto: (v) => set(typeof v === 'function' ? { centrosCosto: v(get().centrosCosto) } : { centrosCosto: v }),
   setPlantillas: (v) => set(typeof v === 'function' ? { plantillas: v(get().plantillas) } : { plantillas: v }),
@@ -651,6 +683,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().setCuadros([]);
     get().setPagosProveedor([]);
     get().setDestajos([]);
+    get().setCalculosProyecto([]);
     get().setRecepciones([]);
     get().setCentrosCosto([]);
     get().setPlantillas([]);
@@ -1045,13 +1078,16 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   updateDestajo: (id, patch) => { get().setDestajos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateDestajo', { id, ...patch }); },
   deleteDestajo: (id) => { get().setDestajos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteDestajo', { id }); },
 
+  addCalculoProyecto: (d) => { const n = { ...d, id: uid() }; get().setCalculosProyecto(prev => [n, ...prev]); get().enqueueMutation('addCalculoProyecto', n); },
+  updateCalculoProyecto: (id, patch) => { get().setCalculosProyecto(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateCalculoProyecto', { id, ...patch }); },
+  deleteCalculoProyecto: (id) => { get().setCalculosProyecto(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteCalculoProyecto', { id }); },
+
   addRecepcion: (r) => { const n = { ...r, id: uid() }; get().setRecepciones(prev => [n, ...prev]); get().enqueueMutation('addRecepcion', n); },
   deleteRecepcion: (id) => { get().setRecepciones(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteRecepcion', { id }); },
 
   addPublicacionMuro: (p) => {
     const n = { ...p, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), likes: 0, comentarios: [] };
     get().setPublicacionesMuro(prev => [n, ...prev]);
-    get().enqueueMutation('addPublicacionMuro', n);
   },
   addComentarioMuro: (publicacionId, comentario) => {
     const c: ComentarioMuro = { ...comentario, id: uid(), createdAt: new Date().toISOString() };
@@ -1712,7 +1748,6 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
 
   deletePublicacionMuro: (id) => {
     set((state) => ({ publicacionesMuro: state.publicacionesMuro.filter((p) => p.id !== id) }));
-    get().enqueueMutation('deletePublicacionMuro', { id });
   },
 
   updateNotificacion: (id, patch) => {
@@ -1747,11 +1782,42 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     const nueva = { ...original, id: uid(), numero: original.numero + " (copia)" };
     get().addCotizacion(nueva);
   },
-  deleteReglaFactor: (id) => { get().enqueueMutation('deleteReglaFactor', { id }); },
-  deleteNormativaDepartamental: (id) => { get().enqueueMutation('deleteNormativaDepartamental', { id }); },
-  deleteEscalaProduccion: (id) => { get().enqueueMutation('deleteEscalaProduccion', { id }); },
-  deleteEstacionalidad: (id) => { get().enqueueMutation('deleteEstacionalidad', { id }); },
-  deleteAjusteEstacionalActividad: (id) => { get().enqueueMutation('deleteAjusteEstacionalActividad', { id }); },
+  deleteReglaFactor: (id) => {
+    set((state) => ({ reglasFactores: state.reglasFactores.filter((r) => r.id !== id) }));
+    get().enqueueMutation('deleteReglaFactor', { id });
+  },
+  deleteNormativaDepartamental: (id) => {
+    set((state) => ({ normativasDepartamentales: state.normativasDepartamentales.filter((n) => n.id !== id) }));
+    get().enqueueMutation('deleteNormativaDepartamental', { id });
+  },
+  deleteEscalaProduccion: (id) => {
+    set((state) => ({ escalasProduccion: state.escalasProduccion.filter((e) => e.id !== id) }));
+    get().enqueueMutation('deleteEscalaProduccion', { id });
+  },
+  deleteEstacionalidad: (id) => {
+    set((state) => ({ estacionalidad: state.estacionalidad.filter((e) => e.id !== id) }));
+    get().enqueueMutation('deleteEstacionalidad', { id });
+  },
+  deleteAjusteEstacionalActividad: (id) => {
+    get().enqueueMutation('deleteAjusteEstacionalActividad', { id });
+  },
+  setReglasFactores: (v) => {
+    set((state) => ({ reglasFactores: typeof v === 'function' ? (v as Function)(state.reglasFactores) : v }));
+    get().enqueueMutation('setReglasFactores', typeof v === 'function' ? (v as Function)(get().reglasFactores) : v as ReglaFactor[]);
+  },
+  setNormativasDepartamentales: (v) => {
+    set((state) => ({ normativasDepartamentales: typeof v === 'function' ? (v as Function)(state.normativasDepartamentales) : v }));
+    get().enqueueMutation('setNormativasDepartamentales', typeof v === 'function' ? (v as Function)(get().normativasDepartamentales) : v as NormativaDepartamental[]);
+  },
+  setEscalasProduccion: (v) => {
+    set((state) => ({ escalasProduccion: typeof v === 'function' ? (v as Function)(state.escalasProduccion) : v }));
+    get().enqueueMutation('setEscalasProduccion', typeof v === 'function' ? (v as Function)(get().escalasProduccion) : v as EscalaProduccion[]);
+  },
+  setEstacionalidad: (v) => {
+    set((state) => ({ estacionalidad: typeof v === 'function' ? (v as Function)(state.estacionalidad) : v }));
+    get().enqueueMutation('setEstacionalidad', typeof v === 'function' ? (v as Function)(get().estacionalidad) : v as Estacionalidad[]);
+  },
 }));
+
 
 

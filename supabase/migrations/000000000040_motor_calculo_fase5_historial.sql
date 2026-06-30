@@ -43,14 +43,45 @@ CREATE TABLE IF NOT EXISTS erp_calculos_proyecto (
   updated_at timestamptz DEFAULT now() NOT NULL
 );
 
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS renglon_id text;
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS tipo_calculo text NOT NULL DEFAULT 'apu_general' CHECK (tipo_calculo IN ('dosificacion_concreto','desglose_acero','movimiento_tierra','pavimento','red_infraestructura','muro_contencion','apu_general','costo_con_reglas'));
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS version_calculo integer NOT NULL DEFAULT 1;
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS parametros_entrada jsonb NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS resultado_calculado jsonb NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS costo_total numeric(12,2);
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS costo_unitario numeric(8,2);
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS motor_version text;
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS ip_address text;
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS user_agent text;
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS consistencia_check jsonb;
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS alertas_generadas jsonb DEFAULT '[]'::jsonb;
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS calculo_previo_id uuid REFERENCES erp_calculos_proyecto(id);
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS es_version_actual boolean DEFAULT true;
+ALTER TABLE erp_calculos_proyecto ADD COLUMN IF NOT EXISTS contexto_negocio text;
+
 -- Índices
-CREATE INDEX idx_calculos_proyecto_id ON erp_calculos_proyecto(proyecto_id);
-CREATE INDEX idx_calculos_renglon_id ON erp_calculos_proyecto(renglon_id);
-CREATE INDEX idx_calculos_tipo ON erp_calculos_proyecto(tipo_calculo);
-CREATE INDEX idx_calculos_fecha ON erp_calculos_proyecto(fecha_calculo DESC);
-CREATE INDEX idx_calculos_usuario ON erp_calculos_proyecto(usuario_id);
-CREATE INDEX idx_calculos_version_actual ON erp_calculos_proyecto(proyecto_id, es_version_actual);
-CREATE INDEX idx_calculos_previo ON erp_calculos_proyecto(calculo_previo_id);
+CREATE INDEX IF NOT EXISTS idx_calculos_proyecto_id ON erp_calculos_proyecto(proyecto_id);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'erp_calculos_proyecto' AND column_name = 'renglon_id') THEN
+    CREATE INDEX idx_calculos_renglon_id ON erp_calculos_proyecto(renglon_id);
+  END IF;
+END $$;
+CREATE INDEX IF NOT EXISTS idx_calculos_tipo ON erp_calculos_proyecto(tipo_calculo);
+CREATE INDEX IF NOT EXISTS idx_calculos_fecha ON erp_calculos_proyecto(fecha_calculo DESC);
+CREATE INDEX IF NOT EXISTS idx_calculos_usuario ON erp_calculos_proyecto(usuario_id);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'erp_calculos_proyecto' AND column_name = 'es_version_actual') THEN
+    CREATE INDEX IF NOT EXISTS idx_calculos_version_actual ON erp_calculos_proyecto(proyecto_id, es_version_actual);
+  END IF;
+END $$;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'erp_calculos_proyecto' AND column_name = 'calculo_previo_id') THEN
+    CREATE INDEX idx_calculos_previo ON erp_calculos_proyecto(calculo_previo_id);
+  END IF;
+END $$;
 
 -- Tabla de comparaciones entre cálculos
 CREATE TABLE IF NOT EXISTS erp_comparaciones_calculos (
@@ -79,9 +110,9 @@ CREATE TABLE IF NOT EXISTS erp_comparaciones_calculos (
 );
 
 -- Índices
-CREATE INDEX idx_comparaciones_base ON erp_comparaciones_calculos(calculo_base_id);
-CREATE INDEX idx_comparaciones_comparado ON erp_comparaciones_calculos(calculo_comparado_id);
-CREATE INDEX idx_comparaciones_fecha ON erp_comparaciones_calculos(fecha_comparacion DESC);
+CREATE INDEX IF NOT EXISTS idx_comparaciones_base ON erp_comparaciones_calculos(calculo_base_id);
+CREATE INDEX IF NOT EXISTS idx_comparaciones_comparado ON erp_comparaciones_calculos(calculo_comparado_id);
+CREATE INDEX IF NOT EXISTS idx_comparaciones_fecha ON erp_comparaciones_calculos(fecha_comparacion DESC);
 
 -- Tabla de snapshots de estados completos (para auditoría profunda)
 CREATE TABLE IF NOT EXISTS erp_snapshots_estado_calculo (
@@ -95,17 +126,17 @@ CREATE TABLE IF NOT EXISTS erp_snapshots_estado_calculo (
 );
 
 -- Índices
-CREATE INDEX idx_snapshots_calculo ON erp_snapshots_estado_calculo(calculo_id);
-CREATE INDEX idx_snapshots_tipo ON erp_snapshots_estado_calculo(tipo_snapshot);
-CREATE INDEX idx_snapshots_timestamp ON erp_snapshots_estado_calculo(timestamp_snapshot DESC);
+CREATE INDEX IF NOT EXISTS idx_snapshots_calculo ON erp_snapshots_estado_calculo(calculo_id);
+CREATE INDEX IF NOT EXISTS idx_snapshots_tipo ON erp_snapshots_estado_calculo(tipo_snapshot);
+CREATE INDEX IF NOT EXISTS idx_snapshots_timestamp ON erp_snapshots_estado_calculo(timestamp_snapshot DESC);
 
 -- Función para registrar nuevo cálculo
 CREATE OR REPLACE FUNCTION registrar_calculo(
   p_proyecto_id text,
   p_renglon_id text DEFAULT NULL,
-  p_tipo_calculo text,
-  p_parametros_entrada jsonb,
-  p_resultado_calculado jsonb,
+  p_tipo_calculo text DEFAULT NULL,
+  p_parametros_entrada jsonb DEFAULT NULL,
+  p_resultado_calculado jsonb DEFAULT NULL,
   p_costo_total numeric DEFAULT NULL,
   p_costo_unitario numeric DEFAULT NULL,
   p_usuario_id text DEFAULT NULL,
@@ -317,6 +348,3 @@ CREATE POLICY "snapshots_escritura_autenticados"
 COMMENT ON TABLE erp_calculos_proyecto IS 'Historial completo de cálculos del motor avanzado con trazabilidad de versiones';
 COMMENT ON TABLE erp_comparaciones_calculos IS 'Comparaciones entre versiones de cálculos para análisis de cambios';
 COMMENT ON TABLE erp_snapshots_estado_calculo IS 'Snapshots de estados intermedios para auditoría detallada';
-COMMENT ON FUNCTION registrar_calculo IS 'Función principal para registrar nuevos cálculos con control de versiones';
-COMMENT ON FUNCTION comparar_calculos IS 'Función para comparar dos cálculos y detectar diferencias significativas';
-COMMENT ON FUNCTION crear_snapshot_estado IS 'Función para capturar snapshots de estado durante el proceso de cálculo';

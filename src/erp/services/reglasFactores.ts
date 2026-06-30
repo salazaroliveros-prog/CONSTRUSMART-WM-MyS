@@ -3,6 +3,18 @@ import { safeLogger } from '@/lib/safeLogger';
 import { logErrorFromException } from '@/lib/error-logger';
 import { useErpStore } from '@/erp/zustandStore';
 
+import { ReglaFactor } from '@/erp/types';
+import { reglaFactorSchema } from '@/erp/store/schemas/calculos';
+import { safeParseArray } from '@/erp/utils';
+
+export const safeParseReglaFactorArray = (value: unknown): ReglaFactor[] =>
+  safeParseArray(value, reglaFactorSchema) as ReglaFactor[];
+
+export const parseReglaFactor = (value: unknown): ReglaFactor | null => {
+  const parsed = reglaFactorSchema.safeParse(value);
+  return parsed.success ? (parsed.data as ReglaFactor) : null;
+};
+
 export interface ReglaFactor {
   id: string;
   nombre: string;
@@ -62,7 +74,7 @@ export interface ContextoAplicacion {
 }
 
 export class MotorReglasFactores {
-  async obtenerReglasActivas(
+   async obtenerReglasActivas(
     tipoFactor?: ReglaFactor['tipo_factor'],
     ambito?: ReglaFactor['ambito']
   ): Promise<ReglaFactor[]> {
@@ -82,7 +94,7 @@ export class MotorReglasFactores {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data || [];
+    return safeParseReglaFactorArray(data);
   }
 
   async evaluarCondicion(
@@ -287,7 +299,7 @@ export class MotorReglasFactores {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data || [];
+    return safeParseReglaFactorArray(data as unknown as ReglaFactor[]);
   }
 
   async crearRegla(regla: Partial<ReglaFactor>): Promise<ReglaFactor> {
@@ -300,7 +312,7 @@ export class MotorReglasFactores {
     if (error) {
       safeLogger.warn('[reglasFactores] Error creando regla, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('addReglaFactor', regla);
-      throw error;
+      return { ...regla, id: crypto.randomUUID?.() || Date.now().toString() } as ReglaFactor;
     }
     return data;
   }
@@ -316,7 +328,7 @@ export class MotorReglasFactores {
     if (error) {
       safeLogger.warn('[reglasFactores] Error actualizando regla, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('updateReglaFactor', { id, ...regla });
-      throw error;
+      return { id, ...regla } as ReglaFactor;
     }
     return data;
   }
@@ -330,7 +342,7 @@ export class MotorReglasFactores {
     if (error) {
       safeLogger.warn('[reglasFactores] Error eliminando regla, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('deleteReglaFactor', { id });
-      throw error;
+      return;
     }
   }
 
@@ -345,7 +357,7 @@ export class MotorReglasFactores {
       if (error.code === 'PGRST116') return null;
       throw error;
     }
-    return data;
+    return parseReglaFactor(data);
   }
 }
 

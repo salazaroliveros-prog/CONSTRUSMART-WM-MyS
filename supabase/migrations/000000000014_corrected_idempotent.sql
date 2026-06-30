@@ -10,7 +10,7 @@ FOR SELECT
 USING (
   get_user_role() IN ('Administrador', 'Gerente')
   OR
-  proyecto_id IN (SELECT unnest(get_accessible_proyectos()))
+  proyecto_id IN (SELECT * FROM public.get_accessible_proyectos())
 );
 
 -- 2. Tablas con prefijo erp_ que deben estar en realtime (evita duplicados)
@@ -29,7 +29,6 @@ END $$;
 
 -- 3. Alternativa simple: agregar tablas a publicación solo si no están
 -- (Esta sección no causa error si ya existen)
-\echo 'Tablas erp_ verificadas en publicación supabase_realtime'
 
 -- 4. Verificar que las 4 vistas SECURITY DEFINER están recreadas correctamente
 DROP VIEW IF EXISTS public.erp_publicaciones_muro;
@@ -45,4 +44,4 @@ DROP VIEW IF EXISTS public.erp_activos_herramienta;
 CREATE VIEW public.erp_activos_herramienta AS SELECT * FROM public.activos_herramientas;
 
 -- 5. Verificación final
-\echo 'Ejecuta: SELECT relname, pg_get_viewdef(oid) FROM pg_class WHERE relkind = ''v'' AND nspname = ''public'' AND pg_get_viewdef(oid) LIKE ''%SECURITY DEFINER%'';' -- Debería devolver 0 filas
+-- Debería devolver 0 filas

@@ -407,16 +407,3 @@ BEGIN
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 END $$;
 
--- ============================================================
--- 6. REGISTRAR MIGRACIÓN
--- ============================================================
-
-INSERT INTO supabase_migrations.schema_migrations (version, name, statements)
-SELECT '000000000004', 'complete_missing_tables_and_policies', ARRAY[
-  'Created missing tables: erp_insumos_base, erp_rendimientos_cuadrilla, erp_auditoria, erp_licitaciones, erp_hitos, erp_riesgos, erp_cuentas_cobrar, erp_cuentas_pagar, erp_ordenes_cambio, erp_muro, erp_incidentes, erp_pruebas_laboratorio, erp_no_conformidades, erp_liberaciones_partida',
-  'Enabled RLS on all new tables',
-  'Created simplified RLS policies (no function dependencies)',
-  'Created update_updated_at_column function',
-  'Created updated_at triggers for all new tables'
-]
-WHERE NOT EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version = '000000000004');

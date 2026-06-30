@@ -313,22 +313,4 @@ ALTER FUNCTION exec_sql(TEXT) OWNER TO postgres;
 
 COMMENT ON FUNCTION exec_sql(TEXT) IS 'Ejecuta SQL arbitrario (solo service_role/admin). NO llamar desde el frontend.';
 
--- ============================================================
--- PART 5: Register pending migrations in tracking table
--- ============================================================
 
-INSERT INTO supabase_migrations.schema_migrations (version, name, statements)
-SELECT '000000000063', 'fix_critical_gaps', ARRAY['Created erp_plantillas_proyectos table', 'Created erp_error_logs view', 'Created exec_sql RPC', 'Added realtime publications']
-WHERE NOT EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version = '000000000063');
-
-INSERT INTO supabase_migrations.schema_migrations (version, name, statements)
-SELECT '000000000064', 'schema_alignment_code_db', ARRAY['Added version columns', 'Created erp_destajos table', 'Created erp_recepciones table', 'Created erp_pagos_proveedor table', 'Created erp_centros_costo table', 'Created erp_error_logs table', 'Fixed estado CHECK constraints', 'Added realtime publications']
-WHERE NOT EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version = '000000000064');
-
-INSERT INTO supabase_migrations.schema_migrations (version, name, statements)
-SELECT '000000000065', 'db_app_alignment_complete', ARRAY['Fixed ALTER PUBLICATION with DO blocks', 'Added created_at/updated_at to erp_presupuestos', 'Dropped duplicate estado constraint', 'Enabled RLS on 5 motor calculo tables', 'Created RLS policies for motor calculo tables', 'Added realtime for 10 tables']
-WHERE NOT EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version = '000000000065');
-
-INSERT INTO supabase_migrations.schema_migrations (version, name, statements)
-SELECT '000000000066', 'security_advisor_fixes', ARRAY['Dropped 40+ allow_all permissive policies', 'Created policies for 5 tables without RLS policies', 'Revoked anon SELECT from 62+ tables', 'Created exec_sql RPC function']
-WHERE NOT EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version = '000000000066');

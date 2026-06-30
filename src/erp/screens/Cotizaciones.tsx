@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Modal } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
 import { fmtQ } from '../utils';
@@ -50,6 +51,7 @@ const ESTADOS_COTIZACION = [
 ] as const;
 
 const Cotizaciones: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, cotizacionesNegocio: cotizaciones, addCotizacion, updateCotizacion, deleteCotizacion } = useErp();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
@@ -153,17 +155,17 @@ const Cotizaciones: React.FC = () => {
         fieldErrors[err.path[0] as string] = err.message;
       });
       setFormErrors(fieldErrors);
-      toast.error('Corrige los errores del formulario');
+      toast.error(t('cotizaciones.corrige_errores'));
       return;
     }
     setFormErrors({});
 
     if (editingId) {
       updateCotizacion(editingId, schema.data);
-      toast.success('Cotización actualizada');
+      toast.success(t('cotizaciones.actualizada'));
     } else {
       addCotizacion(schema.data);
-      toast.success('Cotización creada');
+      toast.success(t('cotizaciones.creada'));
     }
     resetForm();
     setShowForm(false);
@@ -171,15 +173,15 @@ const Cotizaciones: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await Modal.confirm({ title: 'Eliminar cotización', content: '¿Está seguro de eliminar esta cotización?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
+      await Modal.confirm({ title: t('cotizaciones.confirmar_eliminar'), content: t('cotizaciones.confirmar_eliminar_msg'), centered: true, okText: t('cotizaciones.si_eliminar'), cancelText: t('common.cancelar') });
     } catch { return; }
     deleteCotizacion(id);
-    toast.success('Cotización eliminada');
+    toast.success(t('cotizaciones.eliminada'));
   };
 
   const handleEnviar = (c: CotizacionCliente) => {
     updateCotizacion(c.id, { estado: 'enviada' });
-    toast.success('Cotización enviada al cliente');
+    toast.success(t('cotizaciones.enviada_cliente'));
   };
 
   const duplicarCotizacion = (c: CotizacionCliente) => {
@@ -191,12 +193,12 @@ const Cotizaciones: React.FC = () => {
       estado: 'borrador' as const,
     });
     addCotizacion(nueva);
-    toast.success('Cotización duplicada como borrador');
+    toast.success(t('cotizaciones.duplicada_borrador'));
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success('Copiado al portapapeles');
+    toast.success(t('cotizaciones.copiado'));
   };
 
   if (loading) {
@@ -217,21 +219,21 @@ const Cotizaciones: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Cotizaciones</h1>
-          <p className="text-sm text-muted-foreground">Gestione cotizaciones para clientes nuevos y proyectos</p>
+          <h1 className="text-2xl font-bold text-foreground">{t('cotizaciones.titulo')}</h1>
+          <p className="text-sm text-muted-foreground">{t('cotizaciones.descripcion')}</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Nueva cotización">
-          <Plus className="w-4 h-4" /> Nueva Cotización
+        <button onClick={openCreate} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('cotizaciones.nueva')}>
+          <Plus className="w-4 h-4" /> {t('cotizaciones.nueva')}
         </button>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Total Cotizaciones', value: cotizaciones.length, color: 'bg-blue-50 text-blue-600' },
-          { label: 'Enviadas', value: cotizaciones.filter(c => c.estado === 'enviada').length, color: 'bg-amber-50 text-amber-600' },
-          { label: 'Aprobadas', value: cotizaciones.filter(c => c.estado === 'aprobada').length, color: 'bg-emerald-50 text-emerald-600' },
-          { label: 'Monto Aprobado', value: fmtQ(cotizaciones.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.precioVentaTotal, 0)), color: 'bg-purple-50 text-purple-600' },
+          { label: t('cotizaciones.total'), value: cotizaciones.length, color: 'bg-blue-50 text-blue-600' },
+          { label: t('cotizaciones.enviadas'), value: cotizaciones.filter(c => c.estado === 'enviada').length, color: 'bg-amber-50 text-amber-600' },
+          { label: t('cotizaciones.aprobadas'), value: cotizaciones.filter(c => c.estado === 'aprobada').length, color: 'bg-emerald-50 text-emerald-600' },
+          { label: t('cotizaciones.monto_aprobado'), value: fmtQ(cotizaciones.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.precioVentaTotal, 0)), color: 'bg-purple-50 text-purple-600' },
         ].map((kpi, i) => (
           <div key={i} className={`${kpi.color} rounded-xl p-3 border`}>
             <div className="text-xs font-medium opacity-70 mb-1">{kpi.label}</div>
@@ -245,8 +247,8 @@ const Cotizaciones: React.FC = () => {
         {cotizacionesFiltradas.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">No hay cotizaciones registradas</p>
-            <button onClick={openCreate} className="mt-3 text-primary text-sm font-medium hover:underline">Crear primera cotización</button>
+            <p className="text-sm">{t('cotizaciones.sin_cotizaciones')}</p>
+            <button onClick={openCreate} className="mt-3 text-primary text-sm font-medium hover:underline">{t('cotizaciones.crear_primera')}</button>
           </div>
         ) : (
           <div className="space-y-2">
@@ -278,17 +280,17 @@ const Cotizaciones: React.FC = () => {
                     <div className="flex flex-col gap-1">
                       {c.estado === 'borrador' && (
                         <button onClick={() => handleEnviar(c)} className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 flex items-center gap-1">
-                          <Send className="w-3 h-3" aria-hidden="true" /> Enviar
+                          <Send className="w-3 h-3" aria-hidden="true" /> {t('common.cancelar')}
                         </button>
                       )}
                       <button onClick={() => { exportCotizacionPDF(c); }} className="text-xs bg-emerald-500 text-white px-2 py-1 rounded hover:bg-emerald-600 flex items-center gap-1">
-                        <FileText className="w-3 h-3" aria-hidden="true" /> PDF
+                        <FileText className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.exportar_pdf')}
                       </button>
                       <button onClick={() => openEdit(c)} className="text-xs bg-muted text-foreground px-2 py-1 rounded hover:bg-muted/80 flex items-center gap-1">
-                        <Pencil className="w-3 h-3" aria-hidden="true" /> Editar
+                        <Pencil className="w-3 h-3" aria-hidden="true" /> {t('common.editar')}
                       </button>
                       <button onClick={() => duplicarCotizacion(c)} className="text-xs bg-muted text-foreground px-2 py-1 rounded hover:bg-muted/80 flex items-center gap-1">
-                        <Copy className="w-3 h-3" aria-hidden="true" /> Copiar
+                        <Copy className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.duplicar')}
                       </button>
                       <button onClick={() => handleDelete(c.id)} className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 flex items-center gap-1">
                         <Trash2 className="w-3 h-3" aria-hidden="true" />
@@ -307,8 +309,8 @@ const Cotizaciones: React.FC = () => {
         <div className={MODAL_OVERLAY} role="dialog" aria-modal="true">
           <form onSubmit={handleSubmit} className={`${MODAL_PANEL} max-w-2xl`}>
             <div className={MODAL_HEADER}>
-              <h2 className={MODAL_TITLE}>{editingId ? 'Editar Cotización' : 'Nueva Cotización'}</h2>
-              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className={MODAL_CLOSE} aria-label="Cerrar">
+              <h2 className={MODAL_TITLE}>{editingId ? t('cotizaciones.editar') : t('cotizaciones.nueva')}</h2>
+              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className={MODAL_CLOSE} aria-label={t('common.cerrar')}>
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -316,83 +318,83 @@ const Cotizaciones: React.FC = () => {
             <div className="p-4 sm:p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Tipo de Cotización</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.tipo_cotizacion')}</label>
                   <select value={formData.tipo} onChange={e => setFormData(p => ({ ...p, tipo: e.target.value as CotizacionTipo }))} className={INPUT}>
                     {TIPOS_COTIZACION.map(t => <option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}
                   </select>
                 </div>
                 {formData.tipo === 'construccion' && (
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Cálculo Avanzado</label>
+                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.motor_calculo')}</label>
                     <button type="button" onClick={() => setShowCalculadora(true)} className={`${BUTTON_SECONDARY} flex items-center gap-2 w-full justify-center`}>
-                      <Calculator className="w-4 h-4" aria-hidden="true" /> Usar Motor de Cálculo
+                      <Calculator className="w-4 h-4" aria-hidden="true" /> {t('cotizaciones.motor_calculo')}
                     </button>
                   </div>
                 )}
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Número</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.numero')}</label>
                   <input value={formData.numero} onChange={e => setFormData(p => ({ ...p, numero: e.target.value }))} placeholder="COT-001-2026" className={INPUT} />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Fecha</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.fecha')}</label>
                   <input type="date" value={formData.fecha} onChange={e => setFormData(p => ({ ...p, fecha: e.target.value }))} className={INPUT} />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Vencimiento</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.vencimiento')}</label>
                   <input type="date" value={formData.fechaVencimiento} onChange={e => setFormData(p => ({ ...p, fechaVencimiento: e.target.value }))} className={INPUT} />
                 </div>
               </div>
 
               <div className="border-t pt-3">
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Datos del Cliente</h3>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.descripcion')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="sm:col-span-2">
-                    <label className="text-xs text-muted-foreground mb-1 block">Nombre / Razón Social *</label>
-                    <input value={formData.clienteNombre} onChange={e => setFormData(p => ({ ...p, clienteNombre: e.target.value }))} placeholder="Nombre del cliente" className={INPUT} />
+                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.nombre_razon')}</label>
+                    <input value={formData.clienteNombre} onChange={e => setFormData(p => ({ ...p, clienteNombre: e.target.value }))} placeholder={t('common.nombre')} className={INPUT} />
                     {formErrors.clienteNombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.clienteNombre}</p>}
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">NIT</label>
+                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.nit')}</label>
                     <input value={formData.clienteNit} onChange={e => setFormData(p => ({ ...p, clienteNit: e.target.value }))} placeholder="NIT" className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Teléfono</label>
-                    <input value={formData.clienteTelefono} onChange={e => setFormData(p => ({ ...p, clienteTelefono: e.target.value }))} placeholder="Teléfono" className={INPUT} />
+                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.telefono')}</label>
+                    <input value={formData.clienteTelefono} onChange={e => setFormData(p => ({ ...p, clienteTelefono: e.target.value }))} placeholder={t('cotizaciones.telefono')} className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Email</label>
+                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.email')}</label>
                     <input value={formData.clienteEmail} onChange={e => setFormData(p => ({ ...p, clienteEmail: e.target.value }))} placeholder="correo@ejemplo.com" className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Dirección</label>
-                    <input value={formData.clienteDireccion} onChange={e => setFormData(p => ({ ...p, clienteDireccion: e.target.value }))} placeholder="Dirección" className={INPUT} />
+                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.direccion')}</label>
+                    <input value={formData.clienteDireccion} onChange={e => setFormData(p => ({ ...p, clienteDireccion: e.target.value }))} placeholder={t('cotizaciones.direccion')} className={INPUT} />
                   </div>
                 </div>
               </div>
 
               <div className="border-t pt-3">
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Descripción y Alcance</h3>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.descripcion')}</h3>
                 <div className="grid grid-cols-1 gap-3">
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Descripción Corta</label>
+                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.descripcion_corta')}</label>
                     <input value={formData.descripcion} onChange={e => setFormData(p => ({ ...p, descripcion: e.target.value }))} placeholder="Ej. Diseño de planos para casa unifamiliar" className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Alcance del Servicio</label>
+                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.alcance')}</label>
                     <textarea value={formData.alcance} onChange={e => setFormData(p => ({ ...p, alcance: e.target.value }))} placeholder="Describe detalladamente qué incluye esta cotización..." className={`${INPUT} min-h-[80px] resize-none`} rows={3} />
                   </div>
                 </div>
               </div>
 
               <div className="border-t pt-3">
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Montos</h3>
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.precio')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Costo Directo (Q)</label>
+                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.costo_directo')}</label>
                     <input type="number" value={formData.costoDirectoTotal} onChange={e => setFormData(p => ({ ...p, costoDirectoTotal: +e.target.value }))} className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Precio de Venta (Q)</label>
+                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.precio_venta')}</label>
                     <input type="number" value={formData.precioVentaTotal} onChange={e => setFormData(p => ({ ...p, precioVentaTotal: +e.target.value }))} className={INPUT} />
                   </div>
                 </div>
@@ -400,8 +402,8 @@ const Cotizaciones: React.FC = () => {
             </div>
 
             <div className="p-4 sm:p-6 border-t border-border flex justify-end gap-2">
-              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className={BUTTON_SECONDARY}>Cancelar</button>
-              <button type="submit" className={BUTTON_PRIMARY}>{editingId ? 'Actualizar' : 'Crear Cotización'}</button>
+              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className={BUTTON_SECONDARY}>{t('common.cancelar')}</button>
+              <button type="submit" className={BUTTON_PRIMARY}>{editingId ? t('common.editar') : t('cotizaciones.crear')}</button>
             </div>
           </form>
         </div>
@@ -412,15 +414,15 @@ const Cotizaciones: React.FC = () => {
         <div className={MODAL_OVERLAY} role="dialog" aria-modal="true">
           <div className={`${MODAL_PANEL} max-w-4xl`}>
             <div className={MODAL_HEADER}>
-              <h2 className={MODAL_TITLE}>Calculadora Avanzada de Construcción</h2>
-              <button type="button" onClick={() => setShowCalculadora(false)} className={MODAL_CLOSE} aria-label="Cerrar">
+              <h2 className={MODAL_TITLE}>{t('cotizaciones.calculadora')}</h2>
+              <button type="button" onClick={() => setShowCalculadora(false)} className={MODAL_CLOSE} aria-label={t('common.cerrar')}>
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="p-4 sm:p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="text-sm text-muted-foreground mb-4">
-                Use los motores especializados para generar cálculos técnicos precisos y agréguelos a la cotización.
+                {t('cotizaciones.calculadora')}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -430,8 +432,8 @@ const Cotizaciones: React.FC = () => {
                   className={`p-6 rounded-xl border-2 transition-all ${selectedCalculadora === 'pavimentos' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
                 >
                   <div className="text-2xl mb-2">🏗️</div>
-                  <div className="font-semibold text-sm">Pavimentos</div>
-                  <div className="text-xs text-muted-foreground">Cálculo de superficies y bases</div>
+                  <div className="font-semibold text-sm">{t('cotizaciones.pavimentos')}</div>
+                  <div className="text-xs text-muted-foreground">{t('cotizaciones.pavimentos')}</div>
                 </button>
 
                 <button
@@ -440,8 +442,8 @@ const Cotizaciones: React.FC = () => {
                   className={`p-6 rounded-xl border-2 transition-all ${selectedCalculadora === 'redesInfraestructura' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
                 >
                   <div className="text-2xl mb-2">💧</div>
-                  <div className="font-semibold text-sm">Redes de Infraestructura</div>
-                  <div className="text-xs text-muted-foreground">Tuberías y sistemas hidráulicos</div>
+                  <div className="font-semibold text-sm">{t('cotizaciones.redes_infraestructura')}</div>
+                  <div className="text-xs text-muted-foreground">{t('cotizaciones.redes_infraestructura')}</div>
                 </button>
 
                 <button
@@ -450,62 +452,62 @@ const Cotizaciones: React.FC = () => {
                   className={`p-6 rounded-xl border-2 transition-all ${selectedCalculadora === 'murosContencion' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
                 >
                   <div className="text-2xl mb-2">🧱</div>
-                  <div className="font-semibold text-sm">Muros de Contención</div>
-                  <div className="text-xs text-muted-foreground">Estructuras de contención de tierra</div>
+                  <div className="font-semibold text-sm">{t('cotizaciones.muros_contencion')}</div>
+                  <div className="text-xs text-muted-foreground">{t('cotizaciones.muros_contencion')}</div>
                 </button>
               </div>
 
               {selectedCalculadora === 'pavimentos' && (
                 <div className="bg-muted/30 p-4 rounded-xl border">
-                  <h3 className="font-semibold mb-3 text-sm">Cálculo de Pavimento</h3>
+                  <h3 className="font-semibold mb-3 text-sm">{t('cotizaciones.pavimentos')}</h3>
                   <p className="text-xs text-muted-foreground mb-4">
-                    El motor de pavimentos calcula espesor, costo total y volumen de base según uso, tipo y superficie.
+                    {t('cotizaciones.pavimentos')}
                   </p>
                   <button type="button" onClick={() => {
-                    toast.success('Cálculo de pavimento agregado a cotización');
+                    toast.success(t('cotizaciones.calcular_agregar'));
                     setShowCalculadora(false);
                     setSelectedCalculadora(null);
                   }} className={`${BUTTON_PRIMARY} w-full`}>
-                    Calcular y Agregar a Cotización
+                    {t('cotizaciones.calcular_agregar')}
                   </button>
                 </div>
               )}
 
               {selectedCalculadora === 'redesInfraestructura' && (
                 <div className="bg-muted/30 p-4 rounded-xl border">
-                  <h3 className="font-semibold mb-3 text-sm">Cálculo de Redes de Infraestructura</h3>
+                  <h3 className="font-semibold mb-3 text-sm">{t('cotizaciones.redes_infraestructura')}</h3>
                   <p className="text-xs text-muted-foreground mb-4">
-                    El motor de redes calcula costo por metro lineal según tipo, diámetro, material y presión.
+                    {t('cotizaciones.redes_infraestructura')}
                   </p>
                   <button type="button" onClick={() => {
-                    toast.success('Cálculo de redes agregado a cotización');
+                    toast.success(t('cotizaciones.calcular_agregar'));
                     setShowCalculadora(false);
                     setSelectedCalculadora(null);
                   }} className={`${BUTTON_PRIMARY} w-full`}>
-                    Calcular y Agregar a Cotización
+                    {t('cotizaciones.calcular_agregar')}
                   </button>
                 </div>
               )}
 
               {selectedCalculadora === 'murosContencion' && (
                 <div className="bg-muted/30 p-4 rounded-xl border">
-                  <h3 className="font-semibold mb-3 text-sm">Cálculo de Muros de Contención</h3>
+                  <h3 className="font-semibold mb-3 text-sm">{t('cotizaciones.muros_contencion')}</h3>
                   <p className="text-xs text-muted-foreground mb-4">
-                    El motor de muros calcula costo por m² según altura, tipo, suelo y sistema de drenaje.
+                    {t('cotizaciones.muros_contencion')}
                   </p>
                   <button type="button" onClick={() => {
-                    toast.success('Cálculo de muros agregado a cotización');
+                    toast.success(t('cotizaciones.calcular_agregar'));
                     setShowCalculadora(false);
                     setSelectedCalculadora(null);
                   }} className={`${BUTTON_PRIMARY} w-full`}>
-                    Calcular y Agregar a Cotización
+                    {t('cotizaciones.calcular_agregar')}
                   </button>
                 </div>
               )}
             </div>
 
             <div className="p-4 sm:p-6 border-t border-border flex justify-end gap-2">
-              <button type="button" onClick={() => { setShowCalculadora(false); setSelectedCalculadora(null); }} className={BUTTON_SECONDARY}>Cerrar</button>
+              <button type="button" onClick={() => { setShowCalculadora(false); setSelectedCalculadora(null); }} className={BUTTON_SECONDARY}>{t('common.cerrar')}</button>
             </div>
           </div>
         </div>

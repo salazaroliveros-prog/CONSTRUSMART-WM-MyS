@@ -62,8 +62,8 @@ SELECT
     n.nspname AS schema_name,
     c.relname AS table_name
 FROM pg_publication_tables pt
-JOIN pg_class c ON c.oid = pt.relid
-JOIN pg_namespace n ON n.oid = c.relnamespace
+JOIN pg_class c ON c.relname = pt.tablename
+JOIN pg_namespace n ON n.oid = c.relnamespace AND n.nspname = pt.schemaname
 WHERE pt.pubname = 'supabase_realtime'
 ORDER BY c.relname;
 

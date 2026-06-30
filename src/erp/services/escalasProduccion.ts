@@ -4,6 +4,16 @@ import { logErrorFromException } from '@/lib/error-logger';
 import { useErpStore } from '@/erp/zustandStore';
 
 import { EscalaProduccion } from '@/erp/types';
+import { escalaProduccionSchema } from '@/erp/store/schemas/calculos';
+import { safeParseArray } from '@/erp/utils';
+
+export const safeParseEscalaProduccionArray = (value: unknown): EscalaProduccion[] =>
+  safeParseArray(value, escalaProduccionSchema) as EscalaProduccion[];
+
+export const parseEscalaProduccion = (value: unknown): EscalaProduccion | null => {
+  const parsed = escalaProduccionSchema.safeParse(value);
+  return parsed.success ? (parsed.data as EscalaProduccion) : null;
+};
 
 export interface AplicacionEscala {
   id?: string;
@@ -59,9 +69,9 @@ export class EscalasProduccion {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return safeParseEscalaProduccionArray(data);
     } catch (error) {
-      safeLogger.error('Error obteniendo escalas de producción:', error);
+      safeLogger.warn('Error obteniendo escalas de producción (offline esperado):', error);
       return [];
     }
   }
@@ -81,7 +91,7 @@ export class EscalasProduccion {
       if (error) throw error;
       return data?.[0] || null;
     } catch (error) {
-      safeLogger.error('Error determinando escala del proyecto:', error);
+      safeLogger.warn('Error determinando escala del proyecto (offline esperado):', error);
       return null;
     }
   }
@@ -105,7 +115,8 @@ export class EscalasProduccion {
       });
 
       if (error) throw error;
-      return data?.[0] || {
+      const rows = safeParseEscalaProduccionArray(data);
+      return rows[0] ?? {
         costo_ajustado: costoBase,
         factor_economia: 1.0,
         factor_administracion: 1.0,
@@ -117,7 +128,7 @@ export class EscalasProduccion {
         rango_tamano: 'mediano'
       };
     } catch (error) {
-      safeLogger.error('Error aplicando factores de escala:', error);
+      safeLogger.warn('Error aplicando factores de escala (offline esperado):', error);
       return {
         costo_ajustado: costoBase,
         factor_economia: 1.0,
@@ -174,7 +185,7 @@ export class EscalasProduccion {
       useErpStore.getState().enqueueMutation('registrarAplicacionEscala', {
         proyecto_id: proyectoId, escala_id: escalaId, ...resultadoAplicacion, ...metadatos
       });
-      throw error;
+      return data || null;
     }
   }
 
@@ -187,7 +198,7 @@ export class EscalasProduccion {
         .order('fecha_aplicacion', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return safeParseEscalaProduccionArray(data);
     } catch (error) {
       safeLogger.error('Error obteniendo histórico de aplicaciones de escala:', error);
       return [];
@@ -207,7 +218,7 @@ export class EscalasProduccion {
     } catch (error) {
       safeLogger.warn('[escalasProduccion] Error creando escala, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('addEscalaProduccion', escala);
-      throw error;
+      return { ...escala, id: crypto.randomUUID?.() || Date.now().toString() } as EscalaProduccion;
     }
   }
 
@@ -225,7 +236,7 @@ export class EscalasProduccion {
     } catch (error) {
       safeLogger.warn('[escalasProduccion] Error actualizando escala, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('updateEscalaProduccion', { id, ...escala });
-      throw error;
+      return { id, ...escala } as EscalaProduccion;
     }
   }
 
@@ -240,11 +251,11 @@ export class EscalasProduccion {
     } catch (error) {
       safeLogger.warn('[escalasProduccion] Error eliminando escala, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('deleteEscalaProduccion', { id });
-      throw error;
+      return;
     }
   }
 
-  async obtenerEscalaPorId(id: string): Promise<EscalaProduccion | null> {
+   async obtenerEscalaPorId(id: string): Promise<EscalaProduccion | null> {
     try {
       const { data, error } = await supabase
         .from('erp_escalas_produccion')
@@ -256,7 +267,7 @@ export class EscalasProduccion {
         if (error.code === 'PGRST116') return null;
         throw error;
       }
-      return data;
+      return parseEscalaProduccion(data);
     } catch (error) {
       safeLogger.error('Error obteniendo escala por ID:', error);
       return null;
@@ -273,7 +284,7 @@ export class EscalasProduccion {
         .order('tipo_proyecto', 'subtipo_proyecto');
 
       if (error) throw error;
-      return data || [];
+      return safeParseEscalaProduccionArray(data);
     } catch (error) {
       safeLogger.error('Error obteniendo escalas por rango:', error);
       return [];

@@ -64,8 +64,8 @@ describe('Stage 1: MUTATION_TABLE_MAP Completeness', () => {
   });
 
   it('1.5 Special mutations (muro, plantillas) are mapped', () => {
-    expect(MUTATION_TABLE_MAP['addComentarioMuro']).toBe('erp_muro');
-    expect(MUTATION_TABLE_MAP['likePublicacionMuro']).toBe('erp_muro');
+    expect(MUTATION_TABLE_MAP['addComentarioMuro']).toBe('erp_publicaciones_muro');
+    expect(MUTATION_TABLE_MAP['likePublicacionMuro']).toBe('erp_publicaciones_muro');
     expect(MUTATION_TABLE_MAP['addPlantilla']).toBe('erp_plantillas_proyectos');
     expect(MUTATION_TABLE_MAP['clonarPlantilla']).toBe('erp_plantillas_proyectos');
   });

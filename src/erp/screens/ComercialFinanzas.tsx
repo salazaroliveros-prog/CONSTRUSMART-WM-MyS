@@ -1,5 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { VentaPaquete, Anticipo, AmortizacionItem, CajaChica } from '../types';
 import { toast } from 'sonner';
@@ -7,6 +8,7 @@ import { toast } from 'sonner';
 const uid = () => Date.now().toString(36).substr(2, 9);
 
 export const ComercialFinanzas: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, user, ventasPaquetes } = useErp();
 
   const [tab, setTab] = useState<'ventas' | 'anticipos' | 'cajas'>('ventas');
@@ -58,7 +60,7 @@ export const ComercialFinanzas: React.FC = () => {
   const renderVentas = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground">🏠 Control de Ventas y Paquetes</h2>
+        <h2 className="text-lg font-bold text-foreground">🏠 {t('comercial.ventas')}</h2>
         <button onClick={() => { setShowForm('venta'); setForm({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">+ Nueva Venta</button>
       </div>
@@ -121,7 +123,7 @@ export const ComercialFinanzas: React.FC = () => {
   const renderAnticipos = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground">💰 Gestión de Anticipos y Amortizaciones</h2>
+        <h2 className="text-lg font-bold text-foreground">💰 {t('comercial.anticipos')}</h2>
         <button onClick={() => { setShowForm('anticipo'); setForm({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">+ Nuevo Anticipo</button>
       </div>
@@ -187,7 +189,7 @@ export const ComercialFinanzas: React.FC = () => {
   const renderCajas = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground">💵 Cajas Chicas de Obra</h2>
+        <h2 className="text-lg font-bold text-foreground">💵 {t('comercial.cajas')}</h2>
         <button onClick={() => { setShowForm('caja'); setForm({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">+ Nuevo Gasto</button>
       </div>
@@ -275,14 +277,14 @@ export const ComercialFinanzas: React.FC = () => {
   }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <h1 className="text-2xl font-black text-foreground mb-4">Comercial / Finanzas</h1>
+      <h1 className="text-2xl font-black text-foreground mb-4">{t('comercial.titulo')}</h1>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto">
         {[
-          { key: 'ventas',    label: '🏠 Ventas' },
-          { key: 'anticipos', label: '💰 Anticipos' },
-          { key: 'cajas',     label: '💵 Cajas Chicas' },
+          { key: 'ventas',    label: `🏠 ${t('comercial.ventas')}` },
+          { key: 'anticipos', label: `💰 ${t('comercial.anticipos')}` },
+          { key: 'cajas',     label: `💵 ${t('comercial.cajas')}` },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
             className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${

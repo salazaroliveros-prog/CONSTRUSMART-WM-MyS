@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
 import { LogOut, Home, Menu, Upload, Bell } from 'lucide-react';
@@ -6,6 +7,7 @@ import SyncIndicator from './SyncIndicator';
 import { SyncStatusBadge } from '../../components/SyncStatusBadge';
 
 const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, title }) => {
+  const { t } = useTranslation();
   const { user, logout, setView, view, notificacionesNoLeidas } = useErp();
   const [now, setNow] = useState(new Date());
   const [customPhoto, setCustomPhoto] = useState<string | null>(null);
@@ -58,7 +60,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
       {/* Left: Logo + Title */}
       <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 min-w-0 flex-1">
         {onMenu && (
-          <button onClick={onMenu} aria-label="Abrir menú" className="lg:hidden p-1 rounded-lg hover:bg-primary-foreground/20 transition-colors flex-shrink-0">
+          <button onClick={onMenu} aria-label={t('header.abrir_menu')} className="lg:hidden p-1 rounded-lg hover:bg-primary-foreground/20 transition-colors flex-shrink-0">
             <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         )}
@@ -90,7 +92,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         {/* Notifications */}
         <button
           onClick={() => setView('notificaciones')}
-          aria-label="Notificaciones"
+          aria-label={t('header.notificaciones')}
           className="relative p-1 sm:p-1.5 lg:p-2 hover:bg-primary-foreground/20 rounded-lg transition-colors"
         >
           <Bell className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
@@ -105,15 +107,15 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         {view !== 'dashboard' && (
           <button
             onClick={() => setView('dashboard')}
-            aria-label="Volver al tablero"
+            aria-label={t('common.volver_tablero')}
             className="hidden sm:flex items-center gap-1 px-2 sm:px-2.5 lg:px-3 py-1 sm:py-1.5 bg-primary-foreground/10 hover:bg-primary-foreground/20 rounded-lg text-xs font-medium transition-colors"
           >
-            <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden md:inline">Tablero</span>
+            <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden md:inline">{t('header.tablero')}</span>
           </button>
         )}
 
         {/* Avatar */}
-        <button onClick={onPick} className="relative flex-shrink-0" aria-label="Cambiar foto de perfil">
+        <button onClick={onPick} className="relative flex-shrink-0" aria-label={t('header.cambiar_foto')}>
           {avatarSrc ? (
             <img src={avatarSrc} alt={user?.nombre || 'Avatar'} className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full object-cover border border-primary-foreground/30" />
           ) : (
@@ -136,7 +138,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         {/* Logout */}
         <button
           onClick={logout}
-          aria-label="Cerrar sesión"
+          aria-label={t('header.cerrar_sesion')}
           className="p-1 sm:p-1.5 lg:p-2 hover:bg-destructive/20 text-primary-foreground hover:text-destructive rounded-lg transition-colors flex-shrink-0"
         >
           <LogOut className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />

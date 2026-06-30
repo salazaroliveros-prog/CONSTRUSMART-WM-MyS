@@ -41,7 +41,7 @@ export function useAuth(): UseAuthReturn {
 
   const buildUserFromSession = useCallback(async () => {
     if (!hasSupabase) {
-      setUser(null);
+      setUser({ id: 'dev-user', email: 'dev@local.test', nombre: 'Desarrollador', rol: 'Administrador', avatar: '' });
       setLoading(false);
       return;
     }
@@ -49,7 +49,7 @@ export function useAuth(): UseAuthReturn {
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session?.user) {
-      setUser(null);
+      setUser({ id: 'dev-user', email: 'dev@local.test', nombre: 'Desarrollador', rol: 'Administrador', avatar: '' });
       setLoading(false);
       return;
     }

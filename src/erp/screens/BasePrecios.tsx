@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import {
   Database, Search, Check, X, RefreshCw, Upload, Download,
@@ -35,6 +36,7 @@ const CONVERSIONES: Record<string, { de: string; a: string; factor: number }[]> 
 };
 
 const BasePrecios: React.FC = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const [insumos, setInsumos] = useState<InsumoBase[]>(SEED_INSUMOS_BASE);
@@ -197,7 +199,7 @@ const BasePrecios: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-          <Database className="w-6 h-6 text-teal-500" /> Base de Precios
+          <Database className="w-6 h-6 text-teal-500" /> {t('baseprecios.titulo')}
         </h1>
         <div className="flex gap-2 flex-wrap">
           <select
@@ -210,16 +212,16 @@ const BasePrecios: React.FC = () => {
             ))}
           </select>
           <button onClick={handleImportarCSV} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-colors">
-            <Upload className="w-3.5 h-3.5" aria-hidden="true" /> Importar CSV
+            <Upload className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.importar_csv')}
           </button>
           <button onClick={handleExportarCSV} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors">
-            <Download className="w-3.5 h-3.5" aria-hidden="true" /> Exportar CSV
+            <Download className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.exportar_csv')}
           </button>
           <button onClick={() => setShowConvertir(!showConvertir)} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors">
-            <ArrowUpDown className="w-3.5 h-3.5" aria-hidden="true" /> Convertir
+            <ArrowUpDown className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.convertir')}
           </button>
           <button onClick={() => { setShowAgregar(true); setNuevoNombre(''); setNuevoPrecio(0); setNuevoUnidad(''); setNuevoRubro(''); }} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">
-            <Plus className="w-3.5 h-3.5" aria-hidden="true" /> Nuevo
+            <Plus className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.nuevo')}
           </button>
         </div>
       </div>

@@ -96,14 +96,3 @@ CREATE POLICY "error_log_insert_bypass" ON erp_error_log
   FOR INSERT TO authenticated
   WITH CHECK (true);
 
--- ============================================================
--- PART 4: Register migration
--- ============================================================
-
-INSERT INTO supabase_migrations.schema_migrations (version, name, statements)
-SELECT '000000000068', 'production_rls_fix', ARRAY[
-  'Created RLS policies for catalog tables (erp_subtipologias, erp_departamentos_gt, erp_municipios_gt, erp_dosificaciones_concreto)',
-  'Fixed erp_cotizaciones_negocio RLS policy to use erp_proyecto_miembros instead of profiles',
-  'Ensured log_error RPC accessible for authenticated users'
-]
-WHERE NOT EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version = '000000000068');

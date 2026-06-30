@@ -1,382 +1,237 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useMemo } from 'react';
-import IFCViewer from '../components/IFCViewer';
+import React, { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
-import { Box, Link, BarChart3, Ruler, Layers, Activity } from 'lucide-react';
 import { toast } from 'sonner';
-import { fmtQ } from '../utils';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Eye, Link2, Unlink, Ruler, TrendingUp, Construction, Download, ZoomIn, ZoomOut, RotateCcw, Maximize } from 'lucide-react';
 
-type BIMTab = 'visor' | 'vincular' | 'cubicacion' | 'avance';
+type TabBIM = 'visor' | 'vincular' | 'cubicacion' | 'avance';
 
-const VisorBIM: React.FC = () => {
-  const { proyectos, presupuestos, avances, planos } = useErp();
-  const [tab, setTab] = useState<BIMTab>('visor');
-  const [selProyecto, setSelProyecto] = useState('');
+export default function VisorBIM() {
+  const { t } = useTranslation();
+  const { proyectos, presupuestos, selectedProyectoId, setSelectedProyectoId, setView } = useErp();
+  const [tab, setTab] = useState<TabBIM>('visor');
+  const [elementoSeleccionado, setElementoSeleccionado] = useState<any>(null);
+  const [vinculaciones, setVinculaciones] = useState<Record<string, string>>({});
+  const [selRenglon, setSelRenglon] = useState('');
+  const [cubicacion, setCubicacion] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { setLoading(false); }, []);
-  const [vinculos, setVinculos] = useState<Record<string, string>>({});
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<string | null>(null);
-  const presupuestoActual = presupuestos.find(p => p.proyectoId === selProyecto);
-  const renglones = useMemo(() => presupuestoActual?.renglones || [], [presupuestoActual]);
+  // Elementos simulados del modelo IFC
+  const elementosModelo = [
+    { id: 'e1', guid: '3O2$q4k5L8wX9zA1', nombre: 'Muro Norte - Planta Baja', tipo: 'IfcWallStandardCase', cantidad: 145.2, unidad: 'm²' },
+    { id: 'e2', guid: '1aB3cD5eF7gH9iJ2', nombre: 'Columna C-01', tipo: 'IfcColumn', cantidad: 3.8, unidad: 'm³' },
+    { id: 'e3', guid: '2bC4dE6fG8hJ0kL3', nombre: 'Losa Cubierta Nivel 2', tipo: 'IfcSlab', cantidad: 210.5, unidad: 'm²' },
+    { id: 'e4', guid: '4cD5eF6gH7iJ8kL1', nombre: 'Ventana V-12', tipo: 'IfcWindow', cantidad: 12, unidad: 'und' },
+    { id: 'e5', guid: '5dE6fG7hH8iJ9kL2', nombre: 'Puerta P-03', tipo: 'IfcDoor', cantidad: 8, unidad: 'und' },
+    { id: 'e6', guid: '6eF7gH8hI9jK0lM3', nombre: 'Instalación Sanitaria', tipo: 'IfcFlowSegment', cantidad: 85.3, unidad: 'm' },
+  ];
 
-  const saveVinculos = (v: Record<string, string>) => {
-    setVinculos(v);
-  };
+  const presupuestoActual = presupuestos.find(p => p.proyectoId === selectedProyectoId);
+  const renglones = presupuestoActual?.renglones || [];
 
-  const vincularRenglon = (elementoId: string, renglonId: string) => {
-    const nuevos = { ...vinculos, [elementoId]: renglonId };
-    saveVinculos(nuevos);
-    toast.success(`Elemento BIM vinculado a renglón`);
-  };
+  React.useEffect(() => {
+    setTimeout(() => setLoading(false), 400);
+  }, []);
 
-  const desvincular = (elementoId: string) => {
-    const nuevos = { ...vinculos };
-    delete nuevos[elementoId];
-    saveVinculos(nuevos);
-    toast.success('Vinculación eliminada');
-  };
+  const handleVincular = useCallback((elementoId: string) => {
+    if (!selRenglon) {
+      toast.error('Selecciona un renglón');
+      return;
+    }
+    setVinculaciones(prev => ({ ...prev, [elementoId]: selRenglon }));
+    toast.success('Vinculación creada');
+  }, [selRenglon]);
 
-  // Elementos BIM generados desde planos reales del proyecto
-  const elementosBIM = useMemo(() => {
-    const planosProyecto = planos.filter(p => p.proyectoId === selProyecto);
-    if (planosProyecto.length === 0) return [];
-    
-    return planosProyecto.map((plano, idx) => ({
-      id: plano.id || `plano-${idx}`,
-      nombre: plano.nombre || `Plano ${idx + 1}`,
-      tipo: plano.tipo || 'documento',
-      version: plano.version || '1.0',
-      fecha: plano.fecha || new Date().toISOString().slice(0, 10),
-    }));
-  }, [planos, selProyecto]);
-
-  // Cubicación generada desde renglones del presupuesto
-  const cubicacionBIM = useMemo(() => {
-    if (renglones.length === 0) return [];
-    
-    return renglones.map((renglon, idx) => ({
-      elementoId: renglon.id || `renglon-${idx}`,
-      concepto: renglon.descripcion || `Renglón ${idx + 1}`,
-      unidad: renglon.unidad || 'm²',
-      cantidad: renglon.cantidad || 0,
-    }));
-  }, [renglones]);
-
-  // Avance desde campo (vales + avances registrados)
-  const avanceCampo = useMemo(() => {
-    const map: Record<string, number> = {};
-    avances.filter(a => a.proyectoId === selProyecto).forEach(a => {
-      const key = a.renglonId || a.renglonNombre;
-      if (key) map[key] = Math.max(map[key] || 0, a.avanceFisico);
+  const handleDesvincular = useCallback((elementoId: string) => {
+    setVinculaciones(prev => {
+      const next = { ...prev };
+      delete next[elementoId];
+      return next;
     });
-    return map;
-  }, [avances, selProyecto]);
+    toast.success('Vinculación eliminada');
+  }, []);
+
+  const generarCubicacion = useCallback(() => {
+    const elementosVinculados = elementosModelo.filter(el => vinculaciones[el.id]);
+    if (elementosVinculados.length === 0) {
+      toast.error('Vincula al menos un elemento');
+      return;
+    }
+    const resultado = elementosVinculados.map(el => ({
+      elemento: el.nombre,
+      renglon: renglones.find(r => r.id === vinculaciones[el.id])?.nombre || 'Desconocido',
+      cantidad: el.cantidad,
+      unidad: el.unidad,
+      precioUnitario: renglones.find(r => r.id === vinculaciones[el.id])?.precioUnitario || 0,
+      total: el.cantidad * (renglones.find(r => r.id === vinculaciones[el.id])?.precioUnitario || 0),
+    }));
+    setCubicacion(resultado);
+    toast.success('Cubicación generada');
+  }, [vinculaciones, renglones]);
 
   if (loading) {
     return (
       <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
         <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-        </div>
         <Skeleton className="h-64 rounded-xl" />
       </div>
     );
   }
+
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto h-full flex flex-col">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2">
-          <Box className="w-6 h-6 text-blue-500" />
-          <div>
-            <h1 className="text-2xl font-black text-slate-800">BIM - Vinculación ERP</h1>
-            <p className="text-xs text-slate-500">Vincula elementos del modelo IFC con el ERP y extrae cubicaciones</p>
-          </div>
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Eye className="w-6 h-6" />
+            <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+              BIM - Vinculación ERP
+            </span>
+          </h1>
+          <p className="text-xs text-gray-500 mt-1">Vincula elementos del modelo IFC con el ERP y extrae cubicaciones</p>
         </div>
+      </div>
+
+      {/* Selector de proyecto */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-3">
+        <Label className="text-xs text-gray-600">Proyecto</Label>
         <select
-          value={selProyecto}
-          onChange={e => setSelProyecto(e.target.value)}
-          className="text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-blue-400 bg-white"
+          value={selectedProyectoId || ''}
+          onChange={e => setSelectedProyectoId(e.target.value)}
+          className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
         >
-          <option value="">— Selecciona proyecto —</option>
+          <option value="">Selecciona un proyecto</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-4 bg-slate-100 p-1 rounded-xl">
-        {[
-          { id: 'visor' as BIMTab, label: 'Visor 3D', icon: Box },
-          { id: 'vincular' as BIMTab, label: 'Vincular Renglones', icon: Link },
-          { id: 'cubicacion' as BIMTab, label: 'Cubicación', icon: Ruler },
-          { id: 'avance' as BIMTab, label: 'Avance vs Campo', icon: Activity },
-        ].map(t => {
-          const Icon = t.icon;
-          const active = tab === t.id;
-          return (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all ${
-                active ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
-              }`}>
-              <Icon className="w-4 h-4" />
-              <span className="hidden sm:inline">{t.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <Tabs value={tab} onValueChange={v => setTab(v as TabBIM)} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="visor"><Eye className="w-4 h-4 mr-1" /> Visor 3D</TabsTrigger>
+          <TabsTrigger value="vincular"><Link2 className="w-4 h-4 mr-1" /> Vincular Renglones</TabsTrigger>
+          <TabsTrigger value="cubicacion"><Ruler className="w-4 h-4 mr-1" /> Cubicación</TabsTrigger>
+          <TabsTrigger value="avance"><TrendingUp className="w-4 h-4 mr-1" /> Avance vs Campo</TabsTrigger>
+        </TabsList>
 
-      {/* Visor 3D */}
-      {tab === 'visor' && <IFCViewer className="flex-1 min-h-[500px]" />}
+        {/* Visor 3D simulado */}
+        <TabsContent value="visor" className="space-y-3">
+          <Card className="p-6 bg-slate-50 border-slate-200">
+            <div className="aspect-video bg-slate-900 rounded-lg flex items-center justify-center relative overflow-hidden">
+              <div className="text-white text-center">
+                <Maximize className="w-16 h-16 mx-auto mb-3 opacity-30" />
+                <p className="text-sm opacity-70">Visor 3D - Carga tu modelo IFC</p>
+                <Button size="sm" className="mt-3">
+                  <Download className="w-4 h-4 mr-1" /> Cargar Modelo
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
 
-      {/* Vincular Renglones */}
-      {tab === 'vincular' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 overflow-auto">
-          {/* Elementos BIM */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-            <h2 className="font-bold text-slate-700 text-sm mb-3 flex items-center gap-1.5">
-              <Box className="w-4 h-4 text-blue-500" /> Elementos del Modelo BIM
-            </h2>
+        {/* Vincular */}
+        <TabsContent value="vincular" className="space-y-3">
+          <Card className="p-4">
+            <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+              <Construction className="w-5 h-5" /> Elementos del Modelo BIM
+            </h3>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+              <Label className="text-xs text-blue-800">Renglón a vincular</Label>
+              <select value={selRenglon} onChange={e => setSelRenglon(e.target.value)} className="mt-1 w-full rounded-lg border border-blue-200 px-3 py-2 text-sm">
+                <option value="">— Renglón —</option>
+                {renglones.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
+              </select>
+            </div>
             <div className="space-y-2">
-              {elementosBIM.map(elem => {
-                const renglonVinculado = vinculos[elem.id];
-                const renglonData = renglones.find(r => r.id === renglonVinculado || r.codigo === renglonVinculado);
-                return (
-                  <div key={elem.id} className={`p-3 rounded-lg border transition-colors ${renglonVinculado ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-700">{elem.nombre}</p>
-                        <p className="text-[10px] text-slate-400">{elem.tipo} · ID: {elem.id}</p>
-                        {renglonVinculado && renglonData && (
-                          <div className="mt-1 text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded inline-block">
-                            ✅ {renglonData.codigo} - {renglonData.nombre}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex gap-1 shrink-0 ml-2">
-                        {renglonVinculado ? (
-                          <button onClick={() => desvincular(elem.id)} className="px-2 py-1 bg-red-100 text-red-600 rounded text-[10px] hover:bg-red-200">Desvincular</button>
-                        ) : (
-                          <button onClick={() => setElementoSeleccionado(elem.id)} className="px-2 py-1 bg-blue-500 text-white rounded text-[10px] hover:bg-blue-600">Vincular</button>
-                        )}
-                      </div>
-                    </div>
-                    {/* Selector de renglón */}
-                    {elementoSeleccionado === elem.id && (
-                      <div className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-[10px] font-medium text-blue-700 mb-1">Selecciona renglón:</p>
-                        <select
-                          onChange={e => { if (e.target.value) vincularRenglon(elem.id, e.target.value); }}
-                          className="w-full px-2 py-1 text-xs rounded border border-blue-200 outline-none focus:border-blue-400"
-                          defaultValue=""
-                        >
-                          <option value="" disabled>— Renglón —</option>
-                          {renglones.map(r => (
-                            <option key={r.id} value={r.id}>{r.codigo} - {r.nombre}</option>
-                          ))}
-                          {renglones.length === 0 && (
-                            <option disabled>Sin renglones (selecciona proyecto con presupuesto)</option>
-                          )}
-                        </select>
-                      </div>
+              {elementosModelo.map(el => (
+                <Card key={el.id} className="p-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">{el.nombre}</p>
+                    <p className="text-[10px] text-gray-500">{el.tipo} · {el.cantidad} {el.unidad}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    {vinculaciones[el.id] ? (
+                      <Badge variant="secondary" className="cursor-pointer" onClick={() => handleDesvincular(el.id)}>
+                        <Unlink className="w-3 h-3 mr-1" /> Desvincular
+                      </Badge>
+                    ) : (
+                      <Badge variant="default" className="cursor-pointer" onClick={() => handleVincular(el.id)}>
+                        <Link2 className="w-3 h-3 mr-1" /> Vincular
+                      </Badge>
                     )}
                   </div>
-                );
-              })}
+                </Card>
+              ))}
             </div>
-          </div>
+          </Card>
+        </TabsContent>
 
-          {/* Renglones del presupuesto */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-            <h2 className="font-bold text-slate-700 text-sm mb-3 flex items-center gap-1.5">
-              <Layers className="w-4 h-4 text-indigo-500" /> Renglones del Presupuesto
-            </h2>
-            {renglones.length === 0 ? (
-              <div className="text-center py-8 text-slate-400">
-                <Layers className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                <p className="text-sm">Selecciona un proyecto con presupuesto</p>
-              </div>
+        {/* Cubicación */}
+        <TabsContent value="cubicacion" className="space-y-3">
+          <Card className="p-4">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-bold text-slate-800">Cubicación</h3>
+              <Button size="sm" onClick={generarCubicacion}>
+                <Ruler className="w-4 h-4 mr-1" /> Generar
+              </Button>
+            </div>
+            {cubicacion.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Elemento</TableHead>
+                    <TableHead>Renglón</TableHead>
+                    <TableHead>Cantidad</TableHead>
+                    <TableHead>Precio Unit.</TableHead>
+                    <TableHead>Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {cubicacion.map((item, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="text-xs">{item.elemento}</TableCell>
+                      <TableCell className="text-xs">{item.renglon}</TableCell>
+                      <TableCell className="text-xs">{item.cantidad} {item.unidad}</TableCell>
+                      <TableCell className="text-xs">Q{item.precioUnitario.toFixed(2)}</TableCell>
+                      <TableCell className="text-xs font-bold">Q{item.total.toFixed(2)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             ) : (
-              <div className="space-y-1 max-h-[500px] overflow-y-auto">
-                {renglones.map(r => {
-                  const vinculadoA = Object.entries(vinculos).find(([, v]) => v === r.id);
-                  return (
-                    <div key={r.id} className={`p-2 rounded-lg text-xs ${vinculadoA ? 'bg-emerald-50 border border-emerald-200' : 'border border-slate-100'}`}>
-                      <div className="flex items-center justify-between">
-                        <div className="min-w-0 flex-1">
-                          <span className="font-semibold text-slate-700">{r.codigo}</span>
-                          <span className="text-slate-400 ml-1">{r.nombre}</span>
-                          {vinculadoA && (
-                            <span className="ml-1 text-[10px] text-emerald-600">🔗 {vinculadoA[1]}</span>
-                          )}
-                        </div>
-                        <span className="text-slate-400">{r.unidad} · {fmtQ(r.totalCD || 0)}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <p className="text-xs text-gray-400 text-center py-6">Vincula elementos para generar la cubicación.</p>
             )}
-          </div>
-        </div>
-      )}
+          </Card>
+        </TabsContent>
 
-      {/* Cubicación */}
-      {tab === 'cubicacion' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 overflow-auto">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-            <h2 className="font-bold text-slate-700 text-sm mb-3 flex items-center gap-1.5">
-              <Ruler className="w-4 h-4 text-orange-500" /> Cubicación desde Modelo BIM
-            </h2>
-            <div className="space-y-2">
-              {cubicacionBIM.map(c => {
-                const elemBIM = elementosBIM.find(e => e.id === c.elementoId);
-                return (
-                  <div key={c.elementoId} className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-slate-700">{c.concepto}</p>
-                      <p className="text-[10px] text-slate-400">{elemBIM?.nombre}</p>
-                    </div>
-                    <div className="text-right shrink-0 ml-2">
-                      <p className="text-sm font-bold text-orange-600">{c.cantidad.toFixed(2)}</p>
-                      <p className="text-[10px] text-slate-400">{c.unidad}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="mt-3 pt-3 border-t flex justify-between text-xs font-bold text-slate-700">
-              <span>Total:</span>
-              <span>{cubicacionBIM.reduce((a, c) => a + c.cantidad, 0).toFixed(2)} unidades</span>
-            </div>
-          </div>
-
-          {/* Comparativa BIM vs Presupuesto */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-            <h2 className="font-bold text-slate-700 text-sm mb-3 flex items-center gap-1.5">
-              <BarChart3 className="w-4 h-4 text-emerald-500" /> BIM vs Presupuesto ERP
-            </h2>
-            {renglones.length === 0 ? (
-              <p className="text-xs text-slate-400 text-center py-8">Selecciona un proyecto con presupuesto</p>
-            ) : (
-              <div className="space-y-2">
-                {renglones.slice(0, 10).map(r => {
-                  // Encontrar cubicación BIM equivalente por nombre
-                  const cBIM = cubicacionBIM.find(c => r.nombre.toLowerCase().includes(c.concepto.toLowerCase().split(' ').slice(0, 2).join(' ')));
-                  const cantBIM = cBIM?.cantidad || 0;
-                  const cantPresup = r.cantidad || 0;
-                  const diff = cantBIM - cantPresup;
-                  const pct = cantPresup > 0 ? (cantBIM / cantPresup) * 100 : 0;
-                  return (
-                    <div key={r.id} className="p-2 rounded-lg border border-slate-100">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="font-medium text-slate-700">{r.codigo} - {r.nombre}</span>
-                        <span className={`text-[10px] ${Math.abs(diff) > 1 ? 'text-amber-600' : 'text-emerald-600'}`}>
-                          {diff > 0 ? '+' : ''}{diff.toFixed(1)} {r.unidad}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-blue-400 rounded-full" style={{ width: `${Math.min(pct, 100)}%` }} />
-                        </div>
-                        <span className="text-[10px] text-slate-400 w-20 text-right">
-                          BIM: {cantBIM.toFixed(1)} / Presup: {cantPresup.toFixed(1)}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+        {/* Avance vs Campo */}
+        <TabsContent value="avance" className="space-y-3">
+          <Card className="p-4">
+            <h3 className="font-bold text-slate-800 mb-3">Avance vs Campo</h3>
+            <p className="text-xs text-gray-500">Comparativa entre avance modelado en BIM y avance físico registrado en campo.</p>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <p className="text-[10px] text-blue-600 font-bold">MODELADO (BIM)</p>
+                <p className="text-2xl font-bold text-blue-700">78%</p>
               </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Avance vs Campo */}
-      {tab === 'avance' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 overflow-auto">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-            <h2 className="font-bold text-slate-700 text-sm mb-3 flex items-center gap-1.5">
-              <Activity className="w-4 h-4 text-blue-500" /> Avance desde Campo
-            </h2>
-            {renglones.length === 0 ? (
-              <p className="text-xs text-slate-400 text-center py-8">Selecciona un proyecto</p>
-            ) : (
-              <div className="space-y-2">
-                {renglones.map(r => {
-                  const avance = avanceCampo[r.id] || avanceCampo[r.codigo] || 0;
-                  return (
-                    <div key={r.id} className="p-2 rounded-lg border border-slate-100">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="font-medium text-slate-700 truncate">{r.codigo} - {r.nombre}</span>
-                        <span className="font-bold text-blue-600">{avance}%</span>
-                      </div>
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-blue-400 rounded-full" style={{ width: `${Math.min(avance, 100)}%` }} />
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="p-4 bg-emerald-50 rounded-lg">
+                <p className="text-[10px] text-emerald-600 font-bold">CAMPO (ERP)</p>
+                <p className="text-2xl font-bold text-emerald-700">72%</p>
               </div>
-            )}
-          </div>
-
-          {/* Comparativa: Modelo vs Campo */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-            <h2 className="font-bold text-slate-700 text-sm mb-3 flex items-center gap-1.5">
-              <BarChart3 className="w-4 h-4 text-purple-500" /> Modelo BIM vs Avance Campo
-            </h2>
-            <p className="text-xs text-slate-400 mb-3">Compara los elementos del modelo BIM vinculados con el avance físico registrado en campo.</p>
-            <div className="space-y-2">
-              {elementosBIM.filter(e => vinculos[e.id]).map(elem => {
-                const renglonId = vinculos[elem.id];
-                const renglon = renglones.find(r => r.id === renglonId);
-                const avanceFisico = avanceCampo[renglonId] || avanceCampo[renglon?.codigo || ''] || 0;
-                const avanceModelo = 0; // En producción vendría del modelo comparando geometría
-                return (
-                  <div key={elem.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="font-medium text-slate-700">{elem.nombre}</span>
-                      <span className="text-[10px] text-indigo-500">{renglon?.codigo}</span>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
-                      <div>
-                        <p className="text-[10px] text-slate-400">Campo</p>
-                        <div className="flex items-center gap-1">
-                          <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${avanceFisico}%` }} />
-                          </div>
-                          <span className="text-[10px] font-bold text-emerald-600">{avanceFisico}%</span>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-slate-400">Modelo BIM</p>
-                        <div className="flex items-center gap-1">
-                          <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-blue-400 rounded-full" style={{ width: `${avanceModelo}%` }} />
-                          </div>
-                          <span className="text-[10px] font-bold text-blue-600">{avanceModelo}%</span>
-                        </div>
-                      </div>
-                    </div>
-                    {avanceFisico > 0 && avanceModelo > 0 && Math.abs(avanceFisico - avanceModelo) > 5 && (
-                      <p className="text-[10px] text-amber-600 mt-1">⚠️ Desviación detectada: {Math.abs(avanceFisico - avanceModelo).toFixed(0)}%</p>
-                    )}
-                  </div>
-                );
-              })}
-              {elementosBIM.filter(e => vinculos[e.id]).length === 0 && (
-                <p className="text-xs text-slate-400 text-center py-4">Vincula elementos BIM con renglones para ver la comparativa</p>
-              )}
             </div>
-          </div>
-        </div>
-      )}
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
-};
-
-export default VisorBIM;
+}

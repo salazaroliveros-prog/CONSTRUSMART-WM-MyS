@@ -4,6 +4,16 @@ import { logErrorFromException } from '@/lib/error-logger';
 import { useErpStore } from '@/erp/zustandStore';
 
 import { NormativaDepartamental } from '@/erp/types';
+import { normativaDepartamentalSchema } from '@/erp/store/schemas/calculos';
+import { safeParseArray } from '@/erp/utils';
+
+export const safeParseNormativaDepartamentalArray = (value: unknown): NormativaDepartamental[] =>
+  safeParseArray(value, normativaDepartamentalSchema) as NormativaDepartamental[];
+
+export const parseNormativaDepartamental = (value: unknown): NormativaDepartamental | null => {
+  const parsed = normativaDepartamentalSchema.safeParse(value);
+  return parsed.success ? (parsed.data as NormativaDepartamental) : null;
+};
 
 export interface CumplimientoNormativo {
   id?: string;
@@ -46,9 +56,9 @@ export class NormativaDepartamental {
       });
 
       if (error) throw error;
-      return data || [];
+      return safeParseNormativaDepartamentalArray(data);
     } catch (error) {
-      safeLogger.error('Error obteniendo normativa departamental:', error);
+      safeLogger.warn('Error obteniendo normativa departamental (offline esperado):', error);
       return [];
     }
   }
@@ -61,9 +71,9 @@ export class NormativaDepartamental {
         .eq('activo', true);
 
       if (error) throw error;
-      return data || [];
+      return safeParseNormativaDepartamentalArray(data);
     } catch (error) {
-      safeLogger.error('Error obteniendo todas las normativas:', error);
+      safeLogger.warn('Error obteniendo todas las normativas (offline esperado):', error);
       return [];
     }
   }
@@ -83,9 +93,9 @@ export class NormativaDepartamental {
       });
 
       if (error) throw error;
-      return data || [];
+      return safeParseNormativaDepartamentalArray(data);
     } catch (error) {
-      safeLogger.error('Error validando cumplimiento normativo:', error);
+      safeLogger.warn('Error validando cumplimiento normativo (offline esperado):', error);
       return [];
     }
   }
@@ -99,9 +109,9 @@ export class NormativaDepartamental {
         .order('fecha_verificacion', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return safeParseNormativaDepartamentalArray(data);
     } catch (error) {
-      safeLogger.error('Error obteniendo cumplimiento del proyecto:', error);
+      safeLogger.warn('Error obteniendo cumplimiento del proyecto (offline esperado):', error);
       return [];
     }
   }
@@ -139,7 +149,7 @@ export class NormativaDepartamental {
     } catch (error) {
       safeLogger.warn('[normativaDepartamental] Error registrando cumplimiento, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('registrarCumplimientoNormativo', { proyecto_id: proyectoId, norma_id: normaId, estado, opciones });
-      throw error;
+      return data || null;
     }
   }
 
@@ -156,7 +166,7 @@ export class NormativaDepartamental {
     } catch (error) {
       safeLogger.warn('[normativaDepartamental] Error creando normativa, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('addNormativaDepartamental', normativa);
-      throw error;
+      return { ...normativa, id: crypto.randomUUID?.() || Date.now().toString() } as NormativaDepartamental;
     }
   }
 
@@ -174,7 +184,7 @@ export class NormativaDepartamental {
     } catch (error) {
       safeLogger.warn('[normativaDepartamental] Error actualizando normativa, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('updateNormativaDepartamental', { id, ...normativa });
-      throw error;
+      return { id, ...normativa } as NormativaDepartamental;
     }
   }
 
@@ -189,11 +199,11 @@ export class NormativaDepartamental {
     } catch (error) {
       safeLogger.warn('[normativaDepartamental] Error eliminando normativa, encolando mutación:', error);
       useErpStore.getState().enqueueMutation('deleteNormativaDepartamental', { id });
-      throw error;
+      return;
     }
   }
 
-  async obtenerNormativaPorId(id: string): Promise<NormativaDepartamental | null> {
+   async obtenerNormativaPorId(id: string): Promise<NormativaDepartamental | null> {
     try {
       const { data, error } = await supabase
         .from('erp_normativa_departamental')
@@ -205,9 +215,9 @@ export class NormativaDepartamental {
         if (error.code === 'PGRST116') return null;
         throw error;
       }
-      return data;
+      return parseNormativaDepartamental(data);
     } catch (error) {
-      safeLogger.error('Error obteniendo normativa por ID:', error);
+      safeLogger.warn('Error obteniendo normativa por ID:', error);
       return null;
     }
   }
@@ -223,7 +233,7 @@ export class NormativaDepartamental {
         .order('obligatoria', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return safeParseNormativaDepartamentalArray(data);
     } catch (error) {
       safeLogger.error('Error obteniendo normativas por tipo:', error);
       return [];

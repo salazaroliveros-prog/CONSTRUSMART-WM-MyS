@@ -175,7 +175,7 @@ BEGIN
             IF NOT (v_context_value #>> '{}') = ANY(string_to_array(v_cond_value->>'valor', ',')) THEN
               v_result := false;
             END IF;
-        END IF;
+        END CASE;
       ELSE
         -- Igualdad directa
         IF v_context_value != v_cond_value THEN

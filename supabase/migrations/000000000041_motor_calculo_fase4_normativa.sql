@@ -14,15 +14,12 @@ CREATE TABLE IF NOT EXISTS erp_normativa_departamental (
   ano_ultima_revision integer,
   organismo_emisor text,
   
-  -- Parámetros específicos según tipo de norma
-  parametros_normativos jsonb NOT NULL,
-  
   -- Valores específicos por tipo
-  carga_viva_minima numeric(6,2) DEFAULT NULL, -- kg/m² (para normas urbanísticas)
-  coeficiente_sismico numeric(4,3) DEFAULT NULL, -- para normas sísmicas
-  factor_resistencia_minima numeric(5,3) DEFAULT NULL, -- para normas estructurales
+  carga_viva_minima numeric(6,2) DEFAULT NULL,
+  coeficiente_sismico numeric(4,3) DEFAULT NULL,
+  factor_resistencia_minima numeric(5,3) DEFAULT NULL,
   zonificacion_climatica text DEFAULT NULL,
-  restricciones_altitud numeric(6,2) DEFAULT NULL, -- msnm
+  restricciones_altitud numeric(6,2) DEFAULT NULL,
   
   -- Documentación y referencias
   url_documento text,
@@ -39,12 +36,36 @@ CREATE TABLE IF NOT EXISTS erp_normativa_departamental (
   updated_at timestamptz DEFAULT now() NOT NULL
 );
 
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS parametros_normativos jsonb NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS carga_viva_minima numeric(6,2) DEFAULT NULL;
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS coeficiente_sismico numeric(4,3) DEFAULT NULL;
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS factor_resistencia_minima numeric(5,3) DEFAULT NULL;
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS zonificacion_climatica text DEFAULT NULL;
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS restricciones_altitud numeric(6,2) DEFAULT NULL;
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS url_documento text;
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS referencia_tecnica text;
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS fecha_vigencia_inicio date;
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS fecha_vigencia_fin date;
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS obligatoria boolean DEFAULT true;
+ALTER TABLE erp_normativa_departamental ADD COLUMN IF NOT EXISTS ambito_aplicacion text CHECK (ambito_aplicacion IN ('nacional','departamental','municipal'));
+
 -- Índices
-CREATE INDEX idx_normativa_departamento_codigo ON erp_normativa_departamental(departamento_codigo);
-CREATE INDEX idx_normativa_tipo ON erp_normativa_departamental(tipo_norma);
-CREATE INDEX idx_normativa_codigo ON erp_normativa_departamental(codigo_norma);
-CREATE INDEX idx_normativa_activo ON erp_normativa_departamental(activo);
-CREATE INDEX idx_normativa_vigencia ON erp_normativa_departamental(fecha_vigencia_inicio, fecha_vigencia_fin);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND indexname = 'idx_normativa_departamento_codigo') THEN
+    DROP INDEX idx_normativa_departamento_codigo;
+  END IF;
+END $$;
+CREATE INDEX IF NOT EXISTS idx_normativa_departamento_codigo ON erp_normativa_departamental(departamento_codigo);
+CREATE INDEX IF NOT EXISTS idx_normativa_tipo ON erp_normativa_departamental(tipo_norma);
+CREATE INDEX IF NOT EXISTS idx_normativa_codigo ON erp_normativa_departamental(codigo_norma);
+CREATE INDEX IF NOT EXISTS idx_normativa_activo ON erp_normativa_departamental(activo);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'erp_normativa_departamental' AND column_name = 'fecha_vigencia_inicio') THEN
+    CREATE INDEX IF NOT EXISTS idx_normativa_vigencia ON erp_normativa_departamental(fecha_vigencia_inicio, fecha_vigencia_fin);
+  END IF;
+END $$;
 
 -- Tabla de cumplimiento normativo por proyecto
 CREATE TABLE IF NOT EXISTS erp_cumplimiento_normativo (
@@ -71,6 +92,7 @@ CREATE INDEX idx_cumplimiento_estado ON erp_cumplimiento_normativo(estado_cumpli
 CREATE INDEX idx_cumplimiento_fecha ON erp_cumplimiento_normativo(fecha_verificacion);
 
 -- Función para obtener normativa aplicable por departamento
+DROP FUNCTION IF EXISTS obtener_normativa_departamental(text, text);
 CREATE OR REPLACE FUNCTION obtener_normativa_departamental(
   p_departamento_codigo text,
   p_tipo_norma text DEFAULT NULL
@@ -79,7 +101,7 @@ RETURNS TABLE(
   id uuid,
   codigo_norma text,
   nombre_norma text,
-  parametros_normativos jsonb,
+  requisitos_especificos jsonb,
   carga_viva_minima numeric,
   coeficiente_sismico numeric,
   activo boolean
@@ -87,7 +109,7 @@ RETURNS TABLE(
 BEGIN
   RETURN QUERY
   SELECT 
-    n.id, n.codigo_norma, n.nombre_norma, n.parametros_normativos,
+    n.id, n.codigo_norma, n.nombre_norma, n.requisitos_especificos,
     n.carga_viva_minima, n.coeficiente_sismico, n.activo
   FROM erp_normativa_departamental n
   WHERE n.departamento_codigo = p_departamento_codigo
@@ -100,6 +122,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Función para validar cumplimiento normativo en un cálculo
+DROP FUNCTION IF EXISTS validar_cumplimiento_normativo(text, text, jsonb);
+DROP FUNCTION IF EXISTS validar_cumplimiento_normativo(text, text, text, jsonb);
 CREATE OR REPLACE FUNCTION validar_cumplimiento_normativo(
   p_proyecto_id text,
   p_departamento_codigo text,
@@ -118,7 +142,7 @@ DECLARE
   v_estado text := 'cumple';
 BEGIN
   FOR v_norma IN 
-    SELECT id, codigo_norma, parametros_normativos 
+    SELECT id, codigo_norma, requisitos_especificos 
     FROM erp_normativa_departamental 
     WHERE departamento_codigo = p_departamento_codigo 
       AND activo = true
@@ -126,14 +150,14 @@ BEGIN
     -- Validaciones específicas según tipo de cálculo
     IF p_tipo_calculo = 'dosificacion_concreto' THEN
       -- Validación resistencia vs normativa estructural
-      IF v_norma.parametros_normativos->'resistencia_minima' IS NOT NULL THEN
-        IF (p_parametros_calculo->>'resistencia')::numeric < (v_norma.parametros_normativos->>'resistencia_minima')::numeric THEN
+      IF v_norma.requisitos_especificos->'resistencia_minima' IS NOT NULL THEN
+        IF (p_parametros_calculo->>'resistencia')::numeric < (v_norma.requisitos_especificos->>'resistencia_minima')::numeric THEN
           v_alertas := v_alertas || jsonb_build_object(
             'tipo', 'normativa',
             'mensaje', 'Resistencia de concreto insuficiente según normativa',
             'codigo_norma', v_norma.codigo_norma,
             'valor_actual', p_parametros_calculo->>'resistencia',
-            'valor_requerido', v_norma.parametros_normativos->>'resistencia_minima'
+            'valor_requerido', v_norma.requisitos_especificos->>'resistencia_minima'
           );
           v_estado := 'no_cumple';
         END IF;
@@ -154,33 +178,37 @@ BEGIN
       END IF;
     END IF;
     
-    RETURN QUERY NEXT v_norma.id, v_norma.codigo_norma, v_estado, v_alertas;
+    norma_id := v_norma.id;
+    codigo_norma := v_norma.codigo_norma;
+    estado_cumplimiento := v_estado;
+    alertas := v_alertas;
+    RETURN NEXT;
   END LOOP;
 END;
 $$ LANGUAGE plpgsql;
 
 -- Seed data: normativa para los principales departamentos
-INSERT INTO erp_normativa_departamental (departamento_codigo, tipo_norma, codigo_norma, nombre_norma, descripcion, ano_ultima_revision, organismo_emisor, parametros_normativos, carga_viva_minima, coeficiente_sismico, factor_resistencia_minima, obligatoria, ambito_aplicacion) VALUES
+INSERT INTO erp_normativa_departamental (departamento_codigo, tipo_norma, codigo_norma, nombre_norma, descripcion, ano_ultima_revision, organismo_emisor, requisitos_especificos, aplicacion, activo, created_at, updated_at) VALUES
 -- Guatemala (GT-01)
-('GT-01', 'sismica', 'AGIE-NORM-2016', 'Norma Sísmica AGIE 2016', 'Normativa sísmica para Guatemala', 2016, 'AGIE', '{"zonas": ["Zona 1", "Zona 2", "Zona 3"], "periodos": ["0.5s", "1.0s"]}'::jsonb, NULL, 0.25, 1.0, true, 'nacional'),
-('GT-01', 'urbanistica', 'MUNICIPAL-GT-01-2020', 'Normativa Urbana Guatemala', 'Normativa urbana para el municipio de Guatemala', 2020, 'Municipalidad de Guatemala', '{"zonas_residenciales": ["R1", "R2", "R3"], "zonas_comerciales": ["C1", "C2"], "zonas_industriales": ["I1"]}'::jsonb, 250.00, NULL, NULL, true, 'municipal'),
-('GT-01', 'estructural', 'COVENIN-1753-2008', 'Normativa Estructural', 'Normativa para diseño estructural', 2008, 'COVENIN', '{"materiales": ["concreto", "acero"], "metodos": ["LRFD", "ASD"]}'::jsonb, NULL, NULL, 1.3, true, 'nacional'),
+('GT-01', 'sismica', 'AGIE-NORM-2016', 'Norma Sísmica AGIE 2016', 'Normativa sísmica para Guatemala', 2016, 'AGIE', '{"zonas": ["Zona 1", "Zona 2", "Zona 3"], "periodos": ["0.5s", "1.0s"]}'::jsonb, 'Nacional', true, NOW(), NOW()),
+('GT-01', 'urbanistica', 'MUNICIPAL-GT-01-2020', 'Normativa Urbana Guatemala', 'Normativa urbana para el municipio de Guatemala', 2020, 'Municipalidad de Guatemala', '{"zonas_residenciales": ["R1", "R2", "R3"], "zonas_comerciales": ["C1", "C2"], "zonas_industriales": ["I1"]}'::jsonb, 'Municipal', true, NOW(), NOW()),
+('GT-01', 'estructural', 'COVENIN-1753-2008', 'Normativa Estructural', 'Normativa para diseño estructural', 2008, 'COVENIN', '{"materiales": ["concreto", "acero"], "metodos": ["LRFD", "ASD"]}'::jsonb, 'Nacional', true, NOW(), NOW()),
 
 -- Quetzaltenango (GT-09) - zona sísmica alta
-('GT-09', 'sismica', 'AGIE-NORM-2016-XE', 'Norma Sísmica Quetzaltenango', 'Ajustes sísmicos por altitud >2000msnm', 2017, 'AGIE', '{"zonas": ["Zona 3"], "factor_altitud": 1.15}'::jsonb, NULL, 0.35, 1.1, true, 'departamental'),
-('GT-09', 'urbanistica', 'MUNICIPAL-XE-2019', 'Normativa Urbana Xela', 'Normativa urbana específica', 2019, 'Municipalidad de Quetzaltenango', '{"zonas_residenciales": ["R1"], "zonas_historicas": ["H1"]}'::jsonb, 200.00, NULL, NULL, true, 'municipal'),
+('GT-09', 'sismica', 'AGIE-NORM-2016-XE', 'Norma Sísmica Quetzaltenango', 'Ajustes sísmicos por altitud >2000msnm', 2017, 'AGIE', '{"zonas": ["Zona 3"], "factor_altitud": 1.15}'::jsonb, 'Departamental', true, NOW(), NOW()),
+('GT-09', 'urbanistica', 'MUNICIPAL-XE-2019', 'Normativa Urbana Xela', 'Normativa urbana específica', 2019, 'Municipalidad de Quetzaltenango', '{"zonas_residenciales": ["R1"], "zonas_historicas": ["H1"]}'::jsonb, 'Municipal', true, NOW(), NOW()),
 
 -- Escuintla (GT-05) - zona industrial
-('GT-05', 'ambiental', 'MINED-AMBIENTAL-2018', 'Normativa Ambiental', 'Regulaciones ambientales zona industrial', 2018, 'MINED', '{"zonas_industriales": ["ZI-1", "ZI-2"], "emisiones_maximas": true}'::jsonb, NULL, NULL, NULL, true, 'departamental'),
-('GT-05', 'urbanistica', 'MUNICIPAL-ESC-2021', 'Normativa Urbana Escuintla', 'Normativa para zona industrial', 2021, 'Municipalidad de Escuintla', '{"zonas_industriales": ["I1", "I2", "I3"]}'::jsonb, 300.00, NULL, NULL, true, 'municipal'),
+('GT-05', 'ambiental', 'MINED-AMBIENTAL-2018', 'Normativa Ambiental', 'Regulaciones ambientales zona industrial', 2018, 'MINED', '{"zonas_industriales": ["ZI-1", "ZI-2"], "emisiones_maximas": true}'::jsonb, 'Departamental', true, NOW(), NOW()),
+('GT-05', 'urbanistica', 'MUNICIPAL-ESC-2021', 'Normativa Urbana Escuintla', 'Normativa para zona industrial', 2021, 'Municipalidad de Escuintla', '{"zonas_industriales": ["I1", "I2", "I3"]}'::jsonb, 'Municipal', true, NOW(), NOW()),
 
 -- Sololá (GT-07) - zona climática especial
-('GT-07', 'ambiental', 'MINED-CLIMA-2019', 'Normativa Climática Sololá', 'Regulaciones por clima frío', 2019, 'MINED', '{"factor_curado": 1.5, "protecciones_antiheladas": true}'::jsonb, NULL, NULL, NULL, true, 'departamental'),
-('GT-07', 'sismica', 'AGIE-NORM-2016-SO', 'Norma Sísmica Sololá', 'Ajustes sísmicos por condiciones locales', 2018, 'AGIE', '{"zonas": ["Zona 3"], "factor_suelo_volcanico": 1.1}'::jsonb, NULL, 0.30, 1.0, true, 'departamental'),
+('GT-07', 'ambiental', 'MINED-CLIMA-2019', 'Normativa Climática Sololá', 'Regulaciones por clima frío', 2019, 'MINED', '{"factor_curado": 1.5, "protecciones_antiheladas": true}'::jsonb, 'Departamental', true, NOW(), NOW()),
+('GT-07', 'sismica', 'AGIE-NORM-2016-SO', 'Norma Sísmica Sololá', 'Ajustes sísmicos por condiciones locales', 2018, 'AGIE', '{"zonas": ["Zona 3"], "factor_suelo_volcanico": 1.1}'::jsonb, 'Departamental', true, NOW(), NOW()),
 
 -- Petén (GT-16) - zona climática tropical
-('GT-16', 'ambiental', 'MINED-HUMEDAD-2020', 'Normativa Humedad Petén', 'Regulaciones por clima tropical', 2020, 'MINED', '{"factor_humedad": 1.2, "protecciones_hongos": true}'::jsonb, NULL, NULL, NULL, true, 'departamental'),
-('GT-16', 'sanitaria', 'MSPAS-SANITARIA-2019', 'Normativa Sanitaria Petén', 'Regulaciones sanitarias zona tropical', 2019, 'MSPAS', '{"zonas_salubres": ["S1", "S2"], "control_vectorial": true}'::jsonb, NULL, NULL, NULL, true, 'departamental');
+('GT-16', 'ambiental', 'MINED-HUMEDAD-2020', 'Normativa Humedad Petén', 'Regulaciones por clima tropical', 2020, 'MINED', '{"factor_humedad": 1.2, "protecciones_hongos": true}'::jsonb, 'Departamental', true, NOW(), NOW()),
+('GT-16', 'sanitaria', 'MSPAS-SANITARIA-2019', 'Normativa Sanitaria Petén', 'Regulaciones sanitarias zona tropical', 2019, 'MSPAS', '{"zonas_salubres": ["S1", "S2"], "control_vectorial": true}'::jsonb, 'Departamental', true, NOW(), NOW());
 
 -- Trigger para actualizar updated_at
 CREATE OR REPLACE FUNCTION actualizar_updated_at_normativa()

@@ -1,5 +1,13 @@
 import { Categoria, Tipologia } from './types';
 
+export const safeParseArray = <T>(value: unknown, schema: { safeParse: (data: unknown) => { success: boolean; data?: T } }): T[] => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map(item => schema.safeParse(item))
+    .filter((result): result is { success: true; data: T } => result.success === true)
+    .map(result => result.data as T);
+};
+
 export type AppSettings = {
   uiMode: 'shadcn' | 'antd';
   appTheme: 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';

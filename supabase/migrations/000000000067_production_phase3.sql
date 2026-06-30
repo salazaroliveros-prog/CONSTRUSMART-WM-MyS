@@ -207,14 +207,4 @@ GRANT EXECUTE ON FUNCTION get_db_performance_metrics() TO authenticated;
 
 COMMENT ON FUNCTION get_db_performance_metrics() IS 'Métricas de performance: tamaño DB por tabla, total, conteos';
 
--- ============================================================
--- PART 4: Register migration
--- ============================================================
 
-INSERT INTO supabase_migrations.schema_migrations (version, name, statements)
-SELECT '000000000067', 'production_phase3', ARRAY[
-  'Created 25+ strategic indexes on FK/filter columns',
-  'Created check_daily_integrity() RPC',
-  'Created get_db_performance_metrics() RPC'
-]
-WHERE NOT EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version = '000000000067');

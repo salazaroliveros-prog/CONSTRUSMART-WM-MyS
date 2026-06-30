@@ -1,4 +1,6 @@
 import { supabase } from '@/lib/supabase';
+import { safeLogger } from '@/lib/safeLogger';
+import { useErpStore } from '@/erp/zustandStore';
 
 export interface AlertaInconsistencia {
   id: string;
@@ -447,7 +449,7 @@ export class ValidacionCalculos {
     if (alertas.length === 0) return;
 
     try {
-      await supabase
+      const { error } = await supabase
         .from('erp_calculos_proyecto')
         .update({
           alertas_generadas: alertas,
@@ -464,8 +466,14 @@ export class ValidacionCalculos {
           },
         })
         .eq('id', calculoId);
+
+      if (error) {
+        safeLogger.warn('[validacionCalculos] Error guardando alertas, encolando mutación:', error);
+        useErpStore.getState().enqueueMutation('guardarAlertasCalculo', { calculoId, alertas });
+      }
     } catch (error) {
-      console.error('Error guardando alertas:', error);
+      safeLogger.warn('[validacionCalculos] Error guardando alertas, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('guardarAlertasCalculo', { calculoId, alertas });
     }
   }
 

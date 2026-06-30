@@ -193,12 +193,6 @@ ALTER TABLE public.erp_cotizaciones_negocio ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "allow_all_cotizaciones" ON public.erp_cotizaciones_negocio;
 CREATE POLICY "allow_all_cotizaciones" ON public.erp_cotizaciones_negocio FOR ALL USING (true) WITH CHECK (true);
 
-ALTER TABLE public.erp_notificaciones ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS "allow_all_notificaciones" ON public.erp_notificaciones;
-CREATE POLICY "allow_all_notificaciones" ON public.erp_notificaciones FOR ALL USING (true) WITH CHECK (true);
-
--- erp_publicaciones_muro es una VISTA, no se le puede habilitar RLS
-
 ALTER TABLE public.erp_vales_salida ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "allow_all_vales" ON public.erp_vales_salida;
 CREATE POLICY "allow_all_vales" ON public.erp_vales_salida FOR ALL USING (true) WITH CHECK (true);
@@ -277,17 +271,17 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- Seed de órdenes de compra
-INSERT INTO public.erp_ordenes_compra (id, proveedor, material, cantidad, monto, estado, fecha, proyecto_id)
+INSERT INTO public.erp_ordenes_compra (id, proveedor, material, cantidad, monto, estado, fecha)
 VALUES 
-  ('61000000-0000-0000-0000-000000000001', 'Cemento Progreso S.A.', 'Cemento UGC Tolteca 42.5kg', 200, 17900, 'aprobado', '2025-01-10', 'a1000000-0000-0000-0000-000000000001'),
-  ('61000000-0000-0000-0000-000000000002', 'Ferretería Industrial GT', 'Varilla corrugada #4', 80, 34000, 'recibida', '2024-07-10', 'a1000000-0000-0000-0000-000000000002'),
-  ('61000000-0000-0000-0000-000000000003', 'Distribuidora de Hierro S.A.', 'Hierro liso 1/4"', 30, 11400, 'pendiente', '2025-01-15', 'a1000000-0000-0000-0000-000000000001')
+  ('61000000-0000-0000-0000-000000000001', 'Cemento Progreso S.A.', 'Cemento UGC Tolteca 42.5kg', 200, 17900, 'aprobado', '2025-01-10'),
+  ('61000000-0000-0000-0000-000000000002', 'Ferretería Industrial GT', 'Varilla corrugada #4', 80, 34000, 'recibida', '2024-07-10'),
+  ('61000000-0000-0000-0000-000000000003', 'Distribuidora de Hierro S.A.', 'Hierro liso 1/4"', 30, 11400, 'pendiente', '2025-01-15')
 ON CONFLICT (id) DO NOTHING;
 
 -- Seed de proveedores
-INSERT INTO public.erp_proveedores (id, nombre, contacto, telefono, email, categoria, calificacion)
+INSERT INTO public.erp_proveedores (id, nombre, contacto, rubro, calificacion)
 VALUES 
-  ('71000000-0000-0000-0000-000000000001', 'Cemento Progreso S.A.', 'Carlos Soto', '2245-7890', 'ventas@cempro.gt', 'materiales', 4),
-  ('71000000-0000-0000-0000-000000000002', 'Ferretería Industrial GT', 'Luis Fernández', '2233-4567', 'lfernandez@ferrera.gt', 'materiales', 5),
-  ('71000000-0000-0000-0000-000000000003', 'Distribuidora de Hierro S.A.', 'Ana María Rivas', '2288-9012', 'ventas@dihierro.gt', 'materiales', 4)
+  ('71000000-0000-0000-0000-000000000001', 'Cemento Progreso S.A.', 'Carlos Soto', 'materiales', 4),
+  ('71000000-0000-0000-0000-000000000002', 'Ferretería Industrial GT', 'Luis Fernández', 'materiales', 5),
+  ('71000000-0000-0000-0000-000000000003', 'Distribuidora de Hierro S.A.', 'Ana María Rivas', 'materiales', 4)
 ON CONFLICT (id) DO NOTHING;

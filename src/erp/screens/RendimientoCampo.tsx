@@ -1,5 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import type { Destajo, CapturaRendimiento, PlantillaSubrenglon, ValeSalidaRenglon } from '../types';
@@ -13,6 +14,7 @@ const getEficienciaColor = (ef: number) => {
 };
 
 export const RendimientoCampo: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos } = useErp();
 
   const [tab, setTab] = useState<'destajos' | 'capturas' | 'plantillas' | 'vales'>('destajos');
@@ -50,7 +52,7 @@ export const RendimientoCampo: React.FC = () => {
     return (
       <div>
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-          <h2 className="text-lg font-bold text-foreground">🏗️ Destajos — Rendimiento Real</h2>
+          <h2 className="text-lg font-bold text-foreground">🏗️ {t('rendimiento_campo.destajos')}</h2>
           <div className="flex gap-2 flex-wrap">
             <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
             <button onClick={() => {
@@ -102,7 +104,7 @@ export const RendimientoCampo: React.FC = () => {
     return (
       <div>
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-          <h2 className="text-lg font-bold text-foreground">📊 Captura de Rendimiento Diario</h2>
+          <h2 className="text-lg font-bold text-foreground">📊 {t('rendimiento_campo.capturas')}</h2>
           <div className="flex gap-2">
             <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)} className={SELECT}>
               <option value="">Todos</option>
@@ -163,7 +165,7 @@ export const RendimientoCampo: React.FC = () => {
   const renderPlantillas = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground">📋 Plantillas de Sub-Renglones</h2>
+        <h2 className="text-lg font-bold text-foreground">📋 {t('rendimiento_campo.plantillas')}</h2>
         <p className="text-xs text-muted-foreground">Sin plantillas predefinidas — crea nuevas plantillas desde cero</p>
       </div>
       {plantillas.length > 0 ? (
@@ -179,7 +181,7 @@ export const RendimientoCampo: React.FC = () => {
   const renderVales = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground">📦 Vales de Salida por Renglón</h2>
+        <h2 className="text-lg font-bold text-foreground">📦 {t('rendimiento_campo.vales')}</h2>
         <button disabled className="bg-primary/50 text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-medium cursor-not-allowed">+ Nuevo Vale (formulario próximamente)</button>
       </div>
       <div className="overflow-x-auto">
@@ -224,7 +226,7 @@ export const RendimientoCampo: React.FC = () => {
   }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <h1 className="text-2xl font-black text-foreground mb-4">⛏️ Rendimiento de Campo</h1>
+      <h1 className="text-2xl font-black text-foreground mb-4">⛏️ {t('rendimiento_campo.titulo')}</h1>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto">

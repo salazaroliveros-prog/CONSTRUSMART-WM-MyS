@@ -7,7 +7,7 @@ export const TABLE_MAP: Record<string, string> = {
   erp_no_conformidades:'ncs',erp_incidentes:'incidentes',
   erp_publicaciones_muro:'publicacionesMuro',erp_planos:'planos',erp_rfis:'rfis',
   erp_submittals:'submittals',erp_activos:'activos',erp_cuadros:'cuadros',
-  erp_pagos_proveedor:'pagosProveedor',erp_destajos:'destajos',
+  erp_pagos_proveedor:'pagosProveedor',  erp_destajos:'destajos',erp_calculos_proyecto:'calculosProyecto',
   recepciones_almacen:'recepciones',erp_centros_costo:'centrosCosto',
   erp_seguimiento:'seguimientoEVM',erp_bitacora:'bitacora',
   erp_plantillas_proyectos:'plantillas',
@@ -16,4 +16,5 @@ export const TABLE_MAP: Record<string, string> = {
   erp_notificaciones:'notificaciones',erp_ordenes_cambio:'ordenesCambio',
   erp_pruebas_laboratorio:'pruebas',
   erp_liberaciones_partida:'liberaciones',erp_error_logs:'errorLogs',
+  erp_reglas_factores:'reglasFactores',erp_normativa_departamental:'normativasDepartamentales',erp_escalas_produccion:'escalasProduccion',erp_estacionalidad:'estacionalidad',erp_aplicacion_escalas:'aplicacionesEscala',erp_historial_aplicacion_reglas:'historialReglas',erp_ajustes_estacionales_actividad:'ajustesEstacionales',erp_dosificaciones_concreto:'dosificacionesConcreto',erp_parametros_movimiento_tierra:'parametrosMovimientoTierra',erp_parametros_pavimentos:'parametrosPavimentos',erp_parametros_redes_infraestructura:'parametrosRedesInfraestructura',erp_parametros_muros_contencion:'parametrosMurosContencion',erp_subtipologias:'subtipologias',erp_departamentos_gt:'departamentos',erp_municipios_gt:'municipios',
 };
