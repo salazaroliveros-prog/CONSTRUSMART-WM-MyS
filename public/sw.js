@@ -46,12 +46,14 @@ self.addEventListener('fetch', (event) => {
             caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           }
           return res;
-        }).catch(() => {
+        }).catch(async () => {
           // Si es una imagen no cacheada, devolver placeholder
           if (request.destination === 'image') {
-            return caches.match('/placeholder.svg') || new Response('', { status: 204 });
+            const placeholder = await caches.match('/placeholder.svg');
+            return placeholder || new Response('', { status: 204 });
           }
-          return caches.match('/offline.html') || new Response('Sin conexión', { status: 503 });
+          const offline = await caches.match('/offline.html');
+          return offline || new Response('Sin conexión', { status: 503 });
         });
       })
     );
@@ -64,7 +66,12 @@ self.addEventListener('fetch', (event) => {
         const clone = res.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         return res;
-      }).catch(() => caches.match(request).then((cached) => cached || caches.match('/index.html')))
+      }).catch(async () => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        const index = await caches.match('/index.html');
+        return index || new Response('Página no disponible', { status: 503 });
+      })
     );
     return;
   }
@@ -76,7 +83,10 @@ self.addEventListener('fetch', (event) => {
         caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
       }
       return res;
-    }).catch(() => caches.match(request))
+    }).catch(async () => {
+      const cached = await caches.match(request);
+      return cached || new Response('', { status: 204 });
+    })
   );
 });
 
