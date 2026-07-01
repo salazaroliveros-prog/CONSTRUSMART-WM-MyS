@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://neygzluxugodiwcuctbj.supabase.co';
-const supabaseKey = 'SERVICE_ROLE_KEY_REVOKED';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://neygzluxugodiwcuctbj.supabase.co';
+const supabaseKey = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_KEY || '';
 
 const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
