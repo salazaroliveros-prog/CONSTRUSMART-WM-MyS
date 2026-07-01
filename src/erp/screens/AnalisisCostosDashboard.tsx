@@ -48,7 +48,8 @@ const AnalisisCostosDashboard: React.FC = () => {
   const costosPorTipo = useMemo(() => {
     const tipos: Record<string, number> = {};
     calculos.forEach(c => {
-      tipos[c.tipoCalcululo] = (tipos[c.tipoCalcululo] || 0) + (c.resultados?.costo_total || 0);
+      const key = c.tipoCalculo || 'desconocido';
+      tipos[key] = (tipos[key] || 0) + (c.resultados?.costo_total || 0);
     });
     return Object.entries(tipos).map(([name, value]) => ({ tipo: name, costo: value }));
   }, [calculos]);
