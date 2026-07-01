@@ -84,15 +84,15 @@ const OrdenesCambio: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
+        <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-100">
           <div className="text-[10px] text-slate-400">Total Órdenes</div>
           <div className="text-lg font-bold text-slate-800">{ordenesCambio.length}</div>
         </div>
-        <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
+        <div className="bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200">
           <div className="text-[10px] text-amber-600">Pendientes</div>
           <div className="text-lg font-bold text-amber-600">{pendientes}</div>
         </div>
-        <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-200">
+        <div className="bg-emerald-50 rounded-xl p-3 sm:p-4 border border-emerald-200">
           <div className="text-[10px] text-emerald-600">Costo Aprobado</div>
           <div className="text-lg font-bold text-emerald-600">{fmtQ(costoTotal)}</div>
         </div>
