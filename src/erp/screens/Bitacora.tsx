@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_DANGER } from '../ui';
 import { Modal, message } from 'antd';
