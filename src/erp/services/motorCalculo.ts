@@ -715,15 +715,22 @@ export class ServicioMotorCalculo {
   /**
    * Obtener historial de cálculos de un proyecto
    */
-  static async obtenerHistorialCalculos(proyectoId: string, tipoCalcululo?: string) {
+  static async obtenerHistorialCalculos(proyectoId: string, tipoCalculo?: string) {
     try {
-      const { data, error } = await supabase.rpc('obtener_historial_calculos', {
-        p_proyecto_id: proyectoId,
-        p_tipo_calculo: tipoCalcululo || null
-      });
+      let query = supabase
+        .from('erp_calculos_proyecto')
+        .select('*')
+        .eq('proyecto_id', proyectoId)
+        .order('created_at', { ascending: false });
+
+      if (tipoCalculo) {
+        query = query.eq('tipo_calculo', tipoCalculo);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
-        console.warn('[motorCalculo] RPC obtener_historial_calculos no disponible:', error);
+        console.warn('[motorCalculo] Error consultando erp_calculos_proyecto:', error);
         return [];
       }
       return data ?? [];
