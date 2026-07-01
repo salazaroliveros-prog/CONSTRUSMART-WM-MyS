@@ -82,7 +82,7 @@ const BasePrecios: React.FC = () => {
   const handleExportarCSV = () => {
     const header = 'Nombre,Categoría,Unidad,Precio Base,Rubro,Código,Activo';
     const rows = filtered.map(i =>
-      `${i.nombre},${i.categoria},${i.unidad},${i.costo_base},${i.rubro},${i.codigo},${i.activo}`
+      `${i.nombre},${i.categoria},${i.unidad},${i.costo_base ?? 0},${i.rubro},${i.codigo},${i.activo}`
     ).join('\n');
     const csv = `${header}\n${rows}`;
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -186,7 +186,7 @@ const BasePrecios: React.FC = () => {
     );
   }
 
-  const totalValor = filtered.reduce((a, i) => a + i.costo_base, 0);
+  const totalValor = filtered.reduce((a, i) => a + (i.costo_base ?? 0), 0);
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
@@ -326,7 +326,8 @@ const BasePrecios: React.FC = () => {
             </thead>
             <tbody>
               {filtered.map(ins => {
-                const precioZona = +(ins.costo_base * factorZona).toFixed(2);
+                const costoBase = ins.costo_base ?? 0;
+                const precioZona = +(costoBase * factorZona).toFixed(2);
                 const inactivo = !ins.activo;
                 return (
                   <tr key={ins.id} className={`border-b border-slate-50 hover:bg-slate-50 ${inactivo ? 'opacity-50' : ''}`}>
@@ -349,7 +350,7 @@ const BasePrecios: React.FC = () => {
                     <td className="py-2 px-2 text-right font-semibold text-slate-700">
                       {editando === ins.id ? (
                         <input type="number" value={nuevoPrecio} onChange={e => setNuevoPrecio(+e.target.value)} className="w-20 text-xs px-1 py-0.5 rounded border border-teal-300 text-right outline-none" />
-                      ) : `Q${ins.costo_base.toFixed(2)}`}
+                      ) : `Q${costoBase.toFixed(2)}`}
                     </td>
                     <td className="py-2 px-2 text-right font-bold text-teal-600">
                       Q{precioZona.toFixed(2)}
@@ -368,7 +369,7 @@ const BasePrecios: React.FC = () => {
                         </div>
                       ) : (
                         <div className="flex justify-center gap-1">
-                          <button onClick={() => { setEditando(ins.id); setNuevoNombre(ins.nombre); setNuevoPrecio(ins.costo_base); setNuevoUnidad(ins.unidad); setNuevoRubro(ins.rubro); }} className="p-1 text-slate-400 hover:text-teal-500" aria-label={t('baseprecios.editar')}><Edit3 className="w-3 h-3" aria-hidden="true" /></button>
+                          <button onClick={() => { setEditando(ins.id); setNuevoNombre(ins.nombre); setNuevoPrecio(costoBase); setNuevoUnidad(ins.unidad); setNuevoRubro(ins.rubro); }} className="p-1 text-slate-400 hover:text-teal-500" aria-label={t('baseprecios.editar')}><Edit3 className="w-3 h-3" aria-hidden="true" /></button>
                           <button onClick={() => handleActivarDesactivar(ins.id)} className={`p-1 ${inactivo ? 'text-emerald-400' : 'text-red-400 hover:text-red-500'}`} aria-label={inactivo ? t('baseprecios.activar_btn') : t('baseprecios.eliminar_btn')}>
                             {inactivo ? <RefreshCw className="w-3 h-3" aria-hidden="true" /> : <Trash2 className="w-3 h-3" aria-hidden="true" />}
                           </button>
