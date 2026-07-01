@@ -427,7 +427,7 @@ const Proyectos: React.FC = () => {
         return;
       }
       console.error('Error in limpiarProyectos:', error);
-      toast.error(t('common.error'));
+      toast.error(t('common.error'), { description: t('proyectos.error_eliminar_todos_desc') });
     }
   };
 
@@ -635,11 +635,11 @@ const Proyectos: React.FC = () => {
                           okType: 'danger',
                         });
                         deleteProyecto(p.id);
-                        toast.success(t('proyectos.proyecto_eliminado', { nombre: p.nombre }));
+                        toast.success(t('proyectos.proyecto_eliminado', { nombre: p.nombre }), { description: t('proyectos.proyecto_eliminado_desc') });
                       } catch (error) {
                         if (error instanceof Error) return;
                         console.error('Error deleting proyecto:', error);
-                        toast.error(t('common.error'));
+                        toast.error(t('common.error'), { description: t('proyectos.error_eliminar_proyecto_desc') });
                       }
                     }} className={BUTTON_DANGER} aria-label={t('proyectos.eliminar_proyecto_nombre', { nombre: p.nombre })}>
                       <Trash2 className="w-4 h-4" aria-hidden="true" />
