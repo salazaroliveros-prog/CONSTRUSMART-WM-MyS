@@ -165,7 +165,7 @@ export const ComercialFinanzas: React.FC = () => {
                       setAmortInputs(prev => ({ ...prev, [a.id]: '' }));
                       toast.success('Amortización registrada');
                     }
-                  }} className="bg-success text-success-foreground px-3 py-2 rounded-lg text-xs hover:bg-success/90">Amortizar</button>
+                  }} className="bg-success text-success-foreground px-4 py-2.5 rounded-lg text-xs hover:bg-success/90 active:bg-success/80 active:scale-95 min-h-[44px] transition-all">Amortizar</button>
                 </div>
               )}
               {a.amortizaciones.length > 0 && (

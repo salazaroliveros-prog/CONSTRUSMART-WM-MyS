@@ -4,7 +4,7 @@ import { useErp } from '../store';
 import { CuentaCobrar } from '../types';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { DollarSign, Plus, X, TrendingUp, CalendarDays, AlertTriangle } from 'lucide-react';
-import { INPUT } from '../ui';
+import { INPUT, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO } from '../ui';
 import { toast } from 'sonner';
 import { Modal } from 'antd';
 import { todayISO, fmtQ } from '../utils';
@@ -72,17 +72,17 @@ const CuentasCobrarScreen: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <div><h1 className="text-2xl font-black text-slate-800 flex items-center gap-2"><DollarSign className="w-6 h-6 text-emerald-500" /> Cuentas por Cobrar</h1><p className="text-sm text-slate-400">Gestión de cuentas por cobrar a clientes</p></div>
+        <div><h1 className="text-2xl font-black text-slate-800 flex items-center gap-2"><DollarSign className={`w-6 h-6 ${COLOR_SUCCESS}`} /> Cuentas por Cobrar</h1><p className="text-sm text-slate-400">Gestión de cuentas por cobrar a clientes</p></div>
         <div className="flex items-center gap-2">
           <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} />
           <button onClick={() => setShowForm(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2"><Plus className="w-4 h-4" /> Nueva Cuenta</button>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><DollarSign className="w-4 h-4 text-emerald-500" /><span className="text-xs text-slate-500">Total por cobrar</span></div><div className="text-xl font-bold text-emerald-600">{fmtQ(totalPendiente)}</div></div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-blue-500" /><span className="text-xs text-slate-500">Pendientes</span></div><div className="text-xl font-bold text-slate-800">{pendientes.length}</div></div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-amber-500" /><span className="text-xs text-slate-500">Cobradas</span></div><div className="text-xl font-bold text-amber-600">{filtradas.filter(c => c.estado === 'cobrado').length}</div></div>
-        <div className={`rounded-xl p-3 border ${vencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-100'}`}><div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /><span className="text-xs text-slate-500">Vencidas</span></div><div className="text-xl font-bold text-red-600">{vencidos.length}</div></div>
+        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><DollarSign className={`w-4 h-4 ${COLOR_SUCCESS}`} /><span className="text-xs text-slate-500">Total por cobrar</span></div><div className={`text-xl font-bold ${COLOR_SUCCESS}`}>{fmtQ(totalPendiente)}</div></div>
+        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><TrendingUp className={`w-4 h-4 ${COLOR_INFO}`} /><span className="text-xs text-slate-500">Pendientes</span></div><div className="text-xl font-bold text-slate-800">{pendientes.length}</div></div>
+        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><CalendarDays className={`w-4 h-4 ${COLOR_WARNING}`} /><span className="text-xs text-slate-500">Cobradas</span></div><div className={`text-xl font-bold ${COLOR_WARNING}`}>{filtradas.filter(c => c.estado === 'cobrado').length}</div></div>
+        <div className={`rounded-xl p-3 border ${vencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-100'}`}><div className="flex items-center gap-2"><AlertTriangle className={`w-4 h-4 ${COLOR_DANGER}`} /><span className="text-xs text-slate-500">Vencidas</span></div><div className={`text-xl font-bold ${COLOR_DANGER}`}>{vencidos.length}</div></div>
       </div>
       {showForm && (
         <div className="bg-emerald-50 rounded-xl p-4 mb-4 border border-emerald-200 space-y-2">
@@ -131,8 +131,8 @@ const CuentasCobrarScreen: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0 ml-2">
-                  {c.estado !== 'cobrado' && <button onClick={() => cobrar(c.id)} className="px-3 py-2 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">Cobrar</button>}
-                  <button onClick={() => eliminar(c.id)} className="p-1 text-slate-300 hover:text-red-500"><X className="w-3 h-3" /></button>
+                  {c.estado !== 'cobrado' && <button onClick={() => cobrar(c.id)} className="px-4 py-2.5 bg-emerald-500 text-white rounded text-xs hover:bg-emerald-600 active:bg-emerald-700 active:scale-95 min-h-[44px] transition-all">Cobrar</button>}
+                  <button onClick={() => eliminar(c.id)} className="p-2 text-slate-300 hover:text-red-500 active:text-red-600 active:scale-95 min-h-[44px] min-w-[44px] flex items-center justify-center transition-all"><X className="w-4 h-4" /></button>
                 </div>
               </div>
             </div>

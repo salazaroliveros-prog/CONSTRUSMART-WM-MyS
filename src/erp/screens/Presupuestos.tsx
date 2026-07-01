@@ -554,15 +554,15 @@ const Presupuestos: React.FC = () => {
   }
   return (
     <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
-      <div className="flex flex-wrap items-end justify-between gap-1 sm:gap-2 mb-2">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-1 sm:gap-2 mb-2">
         <div>
           <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2"><Calculator className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> {t('presupuestos.titulo_calculadora')}</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{t('presupuestos.motor_calculo', { 
-            h_menor: HERRAMIENTA_MENOR*100, 
-            indirectos: COSTOS_INDIRECTOS*100, 
-            admin: ADMINISTRACION*100, 
-            imprevistos: IMPREVISTOS*100, 
-            utilidad: UTILIDAD*100 
+          <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{t('presupuestos.motor_calculo', {
+            h_menor: HERRAMIENTA_MENOR*100,
+            indirectos: COSTOS_INDIRECTOS*100,
+            admin: ADMINISTRACION*100,
+            imprevistos: IMPREVISTOS*100,
+            utilidad: UTILIDAD*100
           })}</p>
         </div>
         <div className="flex items-center gap-2">
