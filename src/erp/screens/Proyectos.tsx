@@ -17,53 +17,6 @@ import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, 
 import { toast } from 'sonner';
 import { proyectoSchemaObject as proyectoSchemaCanonico } from '../store/schemas/proyectos';
 
-const proyectoSchema = proyectoSchemaCanonico.pick({
-  nombre: true,
-  descripcion: true,
-  tipologia: true,
-  subtipo: true,
-  tipoObra: true,
-  cliente: true,
-  clienteNit: true,
-  clienteTelefono: true,
-  clienteEmail: true,
-  ubicacion: true,
-  direccion: true,
-  ciudad: true,
-  departamento: true,
-  codigoPostal: true,
-  areaConstruccion: true,
-  numPisos: true,
-  plazoSemanas: true,
-  ingenieroResidente: true,
-  supervisor: true,
-  arquitecto: true,
-  numeroExpediente: true,
-  numeroLicencia: true,
-  presupuestoTotal: true,
-  montoContrato: true,
-  fechaInicio: true,
-  fechaFin: true,
-  margenUtilidadObjetivo: true,
-  moneda: true,
-  estado: true,
-  etapa: true,
-}).extend({
-  nombre: z.string().min(1, t('proyectos.nombre_requerido')),
-  cliente: z.string().min(1, t('proyectos.cliente_requerido')),
-  ubicacion: z.string().min(1, t('proyectos.ubicacion_requerida')),
-  presupuestoTotal: z.coerce.number().min(0, t('proyectos.valor_requerido')),
-  montoContrato: z.coerce.number().min(0, t('proyectos.valor_requerido')),
-  fechaInicio: z.string().min(1, t('proyectos.nombre_requerido')),
-  fechaFin: z.string().min(1, t('proyectos.nombre_requerido')),
-  clienteEmail: z.string().email(t('proyectos.nombre_requerido')).optional().or(z.literal('')),
-  areaConstruccion: z.coerce.number().min(0).optional(),
-  numPisos: z.coerce.number().int().min(0).optional(),
-  plazoSemanas: z.coerce.number().int().min(0).optional(),
-  margenUtilidadObjetivo: z.coerce.number().min(0).max(100).optional(),
-});
-
-type ProyectoFormData = z.infer<typeof proyectoSchema>;
 
 const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado: string }) => {
   const dev = p.avanceFinanciero - p.avanceFisico;
@@ -78,6 +31,55 @@ const ETAPAS = ['planificacion', 'diseno', 'preconstruccion', 'construccion', 'c
 
 const Proyectos: React.FC = () => {
   const { t } = useTranslation();
+
+  const proyectoSchema = proyectoSchemaCanonico.pick({
+    nombre: true,
+    descripcion: true,
+    tipologia: true,
+    subtipo: true,
+    tipoObra: true,
+    cliente: true,
+    clienteNit: true,
+    clienteTelefono: true,
+    clienteEmail: true,
+    ubicacion: true,
+    direccion: true,
+    ciudad: true,
+    departamento: true,
+    codigoPostal: true,
+    areaConstruccion: true,
+    numPisos: true,
+    plazoSemanas: true,
+    ingenieroResidente: true,
+    supervisor: true,
+    arquitecto: true,
+    numeroExpediente: true,
+    numeroLicencia: true,
+    presupuestoTotal: true,
+    montoContrato: true,
+    fechaInicio: true,
+    fechaFin: true,
+    margenUtilidadObjetivo: true,
+    moneda: true,
+    estado: true,
+    etapa: true,
+  }).extend({
+    nombre: z.string().min(1, t('proyectos.nombre_requerido')),
+    cliente: z.string().min(1, t('proyectos.cliente_requerido')),
+    ubicacion: z.string().min(1, t('proyectos.ubicacion_requerida')),
+    presupuestoTotal: z.coerce.number().min(0, t('proyectos.valor_requerido')),
+    montoContrato: z.coerce.number().min(0, t('proyectos.valor_requerido')),
+    fechaInicio: z.string().min(1, t('proyectos.nombre_requerido')),
+    fechaFin: z.string().min(1, t('proyectos.nombre_requerido')),
+    clienteEmail: z.string().email(t('proyectos.nombre_requerido')).optional().or(z.literal('')),
+    areaConstruccion: z.coerce.number().min(0).optional(),
+    numPisos: z.coerce.number().int().min(0).optional(),
+    plazoSemanas: z.coerce.number().int().min(0).optional(),
+    margenUtilidadObjetivo: z.coerce.number().min(0).max(100).optional(),
+  });
+
+  type ProyectoFormData = z.infer<typeof proyectoSchema>;
+
   const { proyectos, addProyecto, updateProyecto, deleteProyecto, clearProyectos, plantillas, crearProyectoDesdePlantilla, sugerirPlantillas, setSelectedProyectoId, setView } = useErp();
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(true);
