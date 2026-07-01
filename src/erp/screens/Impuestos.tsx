@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
-import { CATEGORIA_LABEL } from '../utils';
+import { CATEGORIA_LABEL, fmtQ } from '../utils';
 
 export const Impuestos: React.FC = () => {
   const { t } = useTranslation();
@@ -37,11 +37,11 @@ export const Impuestos: React.FC = () => {
   const calculos = useMemo(() => {
     const ingresos = movimientosFiltrados
       .filter(m => m.tipo === 'ingreso')
-      .reduce((a, m) => a + m.monto, 0);
+      .reduce((a, m) => a + (m.monto ?? m.costoTotal ?? 0), 0);
 
     const egresos = movimientosFiltrados
       .filter(m => m.tipo === 'gasto' || m.tipo === 'egreso')
-      .reduce((a, m) => a + m.monto, 0);
+      .reduce((a, m) => a + (m.monto ?? m.costoTotal ?? 0), 0);
 
     const utilidadBruta = ingresos - egresos;
 
@@ -107,17 +107,17 @@ export const Impuestos: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="p-3 bg-green-50 rounded-lg">
               <p className="text-xs text-green-600">{t('impuestos.ingresos')}</p>
-              <p className="text-xl font-bold text-green-700">Q{calculos.ingresos.toLocaleString()}</p>
+               <p className="text-xl font-bold text-green-700">{fmtQ(calculos.ingresos)}</p>
             </div>
             <div className="p-3 bg-red-50 rounded-lg">
               <p className="text-xs text-red-600">{t('impuestos.egresos')}</p>
-              <p className="text-xl font-bold text-red-700">Q{calculos.egresos.toLocaleString()}</p>
+               <p className="text-xl font-bold text-red-700">{fmtQ(calculos.egresos)}</p>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg col-span-2">
               <p className="text-xs text-blue-600">{t('impuestos.utilidad_bruta')}</p>
-              <p className={`text-xl font-bold ${calculos.utilidadBruta >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
-                Q{calculos.utilidadBruta.toLocaleString()}
-              </p>
+                 <p className={`text-xl font-bold ${calculos.utilidadBruta >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
+                  {fmtQ(calculos.utilidadBruta)}
+                </p>
             </div>
           </div>
         </div>
@@ -131,13 +131,13 @@ export const Impuestos: React.FC = () => {
                   <p className="text-xs text-yellow-600 font-medium">{t('impuestos.isr')}</p>
                   <p className="text-xs text-gray-400">{t('impuestos.isr_desc')}</p>
                 </div>
-                <p className="text-lg font-bold text-yellow-700">
-                  Q{calculos.isr.toLocaleString()}
-                </p>
+                   <p className="text-lg font-bold text-yellow-700">
+                   {fmtQ(calculos.isr)}
+                 </p>
               </div>
               <div className="mt-1 flex justify-between text-xs text-gray-400">
-                <span>{t('impuestos.tasa_efectiva')}: {calculos.tasaEfectiva.toFixed(1)}%</span>
-                <span>{t('impuestos.base')}: Q{Math.max(0, calculos.utilidadBruta).toLocaleString()}</span>
+                 <span>{t('impuestos.tasa_efectiva')}: {calculos.tasaEfectiva.toFixed(1)}%</span>
+                 <span>{t('impuestos.base')}: {fmtQ(Math.max(0, calculos.utilidadBruta))}</span>
               </div>
             </div>
 
@@ -147,13 +147,13 @@ export const Impuestos: React.FC = () => {
                   <p className="text-xs text-orange-600 font-medium">{t('impuestos.iva_pagar')}</p>
                   <p className="text-xs text-gray-400">{t('impuestos.iva_desc')}</p>
                 </div>
-                <p className="text-lg font-bold text-orange-700">
-                  Q{calculos.ivaPagar.toLocaleString()}
-                </p>
-              </div>
-              <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
-                <span>{t('impuestos.iva_debito')}: Q{calculos.ivaSobreIngresos.toLocaleString()}</span>
-                <span>{t('impuestos.iva_credito')}: Q{calculos.ivaAcreditable.toLocaleString()}</span>
+                 <p className="text-lg font-bold text-orange-700">
+                   {fmtQ(calculos.ivaPagar)}
+                 </p>
+               </div>
+               <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
+                 <span>{t('impuestos.iva_debito')}: {fmtQ(calculos.ivaSobreIngresos)}</span>
+                 <span>{t('impuestos.iva_credito')}: {fmtQ(calculos.ivaAcreditable)}</span>
               </div>
             </div>
           </div>
@@ -167,19 +167,19 @@ export const Impuestos: React.FC = () => {
           <div>
             <h4 className="font-medium mb-2">{t('impuestos.calculo_isr')}</h4>
             <div className="space-y-1 text-gray-600">
-              <p>{t('impuestos.ingresos_gravables')}: Q{calculos.ingresos.toLocaleString()}</p>
-              <p>{t('impuestos.egresos_deducibles')}: Q{calculos.egresos.toLocaleString()}</p>
-              <p className="border-t pt-1 font-semibold">{t('impuestos.renta_imponible')}: Q{Math.max(0, calculos.utilidadBruta).toLocaleString()}</p>
-              <p>{t('impuestos.isr_25')}: <span className="font-bold text-yellow-700">Q{calculos.isr.toLocaleString()}</span></p>
+               <p>{t('impuestos.ingresos_gravables')}: {fmtQ(calculos.ingresos)}</p>
+               <p>{t('impuestos.egresos_deducibles')}: {fmtQ(calculos.egresos)}</p>
+               <p className="border-t pt-1 font-semibold">{t('impuestos.renta_imponible')}: {fmtQ(Math.max(0, calculos.utilidadBruta))}</p>
+               <p>{t('impuestos.isr_25')}: <span className="font-bold text-yellow-700">{fmtQ(calculos.isr)}</span></p>
             </div>
           </div>
           <div>
             <h4 className="font-medium mb-2">{t('impuestos.calculo_iva')}</h4>
             <div className="space-y-1 text-gray-600">
-              <p>{t('impuestos.ingresos_base')}: Q{calculos.ingresos.toLocaleString()}</p>
-              <p>{t('impuestos.iva_debito_12')}: Q{calculos.ivaSobreIngresos.toLocaleString()}</p>
-              <p>{t('impuestos.iva_credito_12')}: Q{calculos.ivaAcreditable.toLocaleString()}</p>
-              <p className="border-t pt-1 font-semibold">{t('impuestos.iva_pagar')}: <span className="font-bold text-orange-700">Q{calculos.ivaPagar.toLocaleString()}</span></p>
+               <p>{t('impuestos.ingresos_base')}: {fmtQ(calculos.ingresos)}</p>
+               <p>{t('impuestos.iva_debito_12')}: {fmtQ(calculos.ivaSobreIngresos)}</p>
+               <p>{t('impuestos.iva_credito_12')}: {fmtQ(calculos.ivaAcreditable)}</p>
+               <p className="border-t pt-1 font-semibold">{t('impuestos.iva_pagar')}: <span className="font-bold text-orange-700">{fmtQ(calculos.ivaPagar)}</span></p>
             </div>
           </div>
         </div>
@@ -211,7 +211,7 @@ export const Impuestos: React.FC = () => {
                       m.tipo === 'ingreso' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                     }`}>{m.tipo}</span>
                   </td>
-                  <td className="p-2 text-right font-mono text-xs">Q{m.monto.toLocaleString()}</td>
+                  <td className="p-2 text-right font-mono text-xs">{fmtQ(m.monto ?? m.costoTotal ?? 0)}</td>
                   <td className="p-2 text-xs text-gray-500">{CATEGORIA_LABEL[m.categoria as keyof typeof CATEGORIA_LABEL] ?? m.categoria}</td>
                 </tr>
               ))}
