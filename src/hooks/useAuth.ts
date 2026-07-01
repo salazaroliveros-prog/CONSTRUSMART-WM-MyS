@@ -59,7 +59,23 @@ export function useAuth(): UseAuthReturn {
     const userMeta = (session.user as any).user_metadata || {};
     const nombre = userMeta.full_name || userMeta.name || email.split('@')[0] || 'Usuario';
     const avatar = userMeta.picture || userMeta.avatar_url || '';
-    const rol = 'Administrador';
+
+    // Obtener rol desde la base de datos
+    let rol = 'usuario';
+    try {
+      const { data: roleData } = await supabase
+        .from('profiles')
+        .select('rol')
+        .eq('id', session.user.id)
+        .single();
+
+      if (roleData?.rol) {
+        rol = roleData.rol;
+      }
+    } catch (error) {
+      // Si no hay perfil, usar rol por defecto
+      console.warn('No se pudo obtener el rol del perfil, usando "usuario"');
+    }
 
     const validated = safeParse(userSchema, {
       ...session.user,
