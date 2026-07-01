@@ -150,7 +150,7 @@ const Activos: React.FC = () => {
               <select value={form.estado} onChange={e => set('estado', e.target.value)} className="px-3 py-2 border rounded-lg text-sm">
                 {ESTADOS.map(e => <option key={e} value={e}>{ESTADO_LABEL[e]}</option>)}
               </select>
-              <input type="number" value={form.valor} onChange={e => set('valor', Number(e.target.value))} placeholder={t('activos.columna_valor')} className="px-3 py-2 border rounded-lg text-sm" />
+              <input type="number" inputMode="decimal" value={form.valor} onChange={e => set('valor', Number(e.target.value))} placeholder={t('activos.columna_valor')} className="px-3 py-2 border rounded-lg text-sm" />
               <button onClick={save} className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm">{t('common.guardar')}</button>
               <button onClick={() => setShowForm(false)} className="px-4 py-2 border rounded-lg text-xs text-slate-600">{t('common.cancelar')}</button>
             </div>

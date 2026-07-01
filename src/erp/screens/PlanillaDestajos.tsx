@@ -158,7 +158,7 @@ export const PlanillaDestajos: React.FC = () => {
                 <td className="p-2 text-xs">{p.unidad}</td>
                 <td className="p-2 text-right">{p.dias}</td>
                 <td className="p-2 text-right">
-                  <input type="number" value={tasaPago[p.key] || 150}
+                  <input type="number" inputMode="decimal" value={tasaPago[p.key] || 150}
                     onChange={e => setTasaPago(prev => ({ ...prev, [p.key]: +e.target.value }))}
                     className="w-20 text-right px-2 py-1 border border-input rounded-lg text-sm font-mono bg-background text-foreground outline-none focus:border-ring" />
                 </td>
@@ -268,12 +268,12 @@ export const PlanillaDestajos: React.FC = () => {
               <input placeholder="Cuadrilla" value={formData.cuadrilla} onChange={e => setFormData(p => ({ ...p, cuadrilla: e.target.value }))} className={INPUT} />
               <input type="date" value={formData.fecha} onChange={e => setFormData(p => ({ ...p, fecha: e.target.value }))} className={INPUT} />
               <div className="grid grid-cols-2 gap-2">
-                <input type="number" placeholder="Cant. ejecutada" value={formData.cantidadEjecutada || ''} onChange={e => setFormData(p => ({ ...p, cantidadEjecutada: +e.target.value }))} className={INPUT} />
+                <input type="number" inputMode="decimal" placeholder="Cant. ejecutada" value={formData.cantidadEjecutada || ''} onChange={e => setFormData(p => ({ ...p, cantidadEjecutada: +e.target.value }))} className={INPUT} />
                 <input placeholder="Unidad" value={formData.unidad} onChange={e => setFormData(p => ({ ...p, unidad: e.target.value }))} className={INPUT} />
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <input type="number" placeholder="Horas trabajadas" value={formData.horasTrabajadas || ''} onChange={e => setFormData(p => ({ ...p, horasTrabajadas: +e.target.value }))} className={INPUT} />
-                <input type="number" placeholder="Rend. teórico" value={formData.rendimientoTeorico || ''} onChange={e => setFormData(p => ({ ...p, rendimientoTeorico: +e.target.value }))} className={INPUT} />
+                <input type="number" inputMode="decimal" placeholder="Horas trabajadas" value={formData.horasTrabajadas || ''} onChange={e => setFormData(p => ({ ...p, horasTrabajadas: +e.target.value }))} className={INPUT} />
+                <input type="number" inputMode="decimal" placeholder="Rend. teórico" value={formData.rendimientoTeorico || ''} onChange={e => setFormData(p => ({ ...p, rendimientoTeorico: +e.target.value }))} className={INPUT} />
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSubmitForm}

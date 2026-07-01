@@ -258,7 +258,7 @@ const BasePrecios: React.FC = () => {
             </div>
             <div>
               <label className="text-xs text-slate-500 mb-1 block">{t('baseprecios.cantidad')}</label>
-              <input type="number" value={convCantidad} onChange={e => setConvCantidad(Math.max(0, +e.target.value))} min={0} className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none" />
+              <input type="number" inputMode="decimal" value={convCantidad} onChange={e => setConvCantidad(Math.max(0, +e.target.value))} min={0} className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none" />
             </div>
             <div className="bg-white rounded-lg p-2 text-center border border-slate-200">
               <div className="text-[9px] text-slate-400">{t('baseprecios.resultado')}</div>
@@ -275,7 +275,7 @@ const BasePrecios: React.FC = () => {
           <h3 className="font-bold text-slate-700 text-sm mb-3">{t('baseprecios.nuevo_insumo')}</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} placeholder={t('baseprecios.nombre_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400" />
-            <input type="number" value={nuevoPrecio || ''} onChange={e => setNuevoPrecio(+e.target.value)} placeholder={t('baseprecios.precio_placeholder')} min={0} step={0.01} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400" />
+            <input type="number" inputMode="decimal" value={nuevoPrecio || ''} onChange={e => setNuevoPrecio(+e.target.value)} placeholder={t('baseprecios.precio_placeholder')} min={0} step={0.01} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400" />
             <input value={nuevoUnidad} onChange={e => setNuevoUnidad(e.target.value)} placeholder={t('baseprecios.unidad_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400" />
             <input value={nuevoRubro} onChange={e => setNuevoRubro(e.target.value)} placeholder={t('baseprecios.rubro_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400" />
           </div>
@@ -349,7 +349,7 @@ const BasePrecios: React.FC = () => {
                     <td className="py-2 px-2 text-slate-500">{ins.unidad}</td>
                     <td className="py-2 px-2 text-right font-semibold text-slate-700">
                       {editando === ins.id ? (
-                        <input type="number" value={nuevoPrecio} onChange={e => setNuevoPrecio(+e.target.value)} className="w-20 text-xs px-1 py-0.5 rounded border border-teal-300 text-right outline-none" />
+                        <input type="number" inputMode="decimal" value={nuevoPrecio} onChange={e => setNuevoPrecio(+e.target.value)} className="w-20 text-xs px-1 py-0.5 rounded border border-teal-300 text-right outline-none" />
                       ) : `Q${costoBase.toFixed(2)}`}
                     </td>
                     <td className="py-2 px-2 text-right font-bold text-teal-600">

@@ -77,7 +77,7 @@ const OrdenesCambio: React.FC = () => {
         </h1>
         <div className="flex flex-wrap gap-2">
           <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors">
+          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1 text-xs px-3.5 py-2.5 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors">
             <Plus className="w-3.5 h-3.5" aria-hidden="true" /> Nueva
           </button>
         </div>
@@ -102,16 +102,16 @@ const OrdenesCambio: React.FC = () => {
         <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-4">
           <h3 className="font-bold text-sm text-slate-700 mb-3">📝 Nueva Solicitud de Cambio</h3>
           <div className="space-y-2">
-            <input value={fTitulo} onChange={e => setFTitulo(e.target.value)} placeholder="Título del cambio *" className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-amber-400" />
-            <textarea value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Descripción detallada del cambio..." rows={2} className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-amber-400 resize-none" />
+            <input value={fTitulo} onChange={e => setFTitulo(e.target.value)} placeholder="Título del cambio *" className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-amber-400" />
+            <textarea value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Descripción detallada del cambio..." rows={2} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-amber-400 resize-none" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
                 <label className="text-[10px] text-slate-500 mb-0.5 block">Impacto Costo (Q)</label>
-                <input type="number" value={fCosto || ''} onChange={e => setFCosto(+e.target.value)} min={0} className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none" />
+                <input type="number" inputMode="decimal" value={fCosto || ''} onChange={e => setFCosto(+e.target.value)} min={0} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-200 outline-none" />
               </div>
               <div>
                 <label className="text-[10px] text-slate-500 mb-0.5 block">Impacto Plazo (días)</label>
-                <input type="number" value={fPlazo || ''} onChange={e => setFPlazo(+e.target.value)} min={0} className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none" />
+                <input type="number" inputMode="decimal" value={fPlazo || ''} onChange={e => setFPlazo(+e.target.value)} min={0} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-200 outline-none" />
               </div>
             </div>
             <div className="flex gap-2">

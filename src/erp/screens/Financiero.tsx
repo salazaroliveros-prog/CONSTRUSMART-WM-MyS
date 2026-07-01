@@ -155,7 +155,7 @@ const Financiero: React.FC = () => {
                 {(['todos', 'ingreso', 'gasto'] as const).map(f => (
                   <button key={f} onClick={() => setFiltro(f)}
                     aria-pressed={filtro === f}
-                    className={`text-xs px-2.5 py-1 rounded-lg capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${filtro === f ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
+                    className={`text-xs px-2.5 py-1 rounded-lg capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${filtro === f ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-muted/80 active:bg-muted'}`}>
                     {f}
                   </button>
                 ))}

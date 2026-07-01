@@ -451,7 +451,7 @@ const PlantillasProyectos: React.FC = () => {
               setFormData({ nombre: '', descripcion: '', categoria: 'residencial', proyectoOrigenId: '', clienteId: '', clienteNombre: '' });
               setShowForm(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Plus className="h-4 w-4" />
             Nueva Plantilla
@@ -623,7 +623,7 @@ const PlantillasProyectos: React.FC = () => {
               setFormData({ nombre: '', descripcion: '', categoria: 'residencial', proyectoOrigenId: '' });
               setShowForm(true);
             }}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Crear Plantilla
           </button>
@@ -672,7 +672,7 @@ const PlantillasProyectos: React.FC = () => {
                       <div className="text-xs text-muted-foreground truncate max-w-xs">{plantilla.descripcion || 'Sin descripción'}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`${catInfo.color} px-2 py-1 rounded text-xs ${catInfo.textColor}`}>
+                      <span className={`${catInfo.color} px-3 py-1.5 rounded text-xs ${catInfo.textColor}`}>
                         {catInfo.label}
                       </span>
                     </td>
@@ -728,7 +728,7 @@ const PlantillasProyectos: React.FC = () => {
             return (
               <div
                 key={plantilla.id}
-                className="border rounded-lg p-4 hover:shadow-md transition-all duration-200 hover:scale-[1.02] cursor-default relative focus:outline-none focus:ring-2 focus:ring-ring"
+                className="border rounded-lg p-4 hover:shadow-md active:shadow-sm transition-all duration-200 hover:scale-[1.02] cursor-default relative focus:outline-none focus:ring-2 focus:ring-ring"
                 tabIndex={0}
                 role="button"
                 aria-label={`Plantilla ${plantilla.nombre}`}
@@ -848,7 +848,7 @@ const PlantillasProyectos: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                  <span className={`${catInfo.color} px-2 py-1 rounded ${catInfo.textColor}`}>
+                  <span className={`${catInfo.color} px-3 py-1.5 rounded ${catInfo.textColor}`}>
                     {catInfo.label}
                   </span>
                   <span>v{plantilla.version}</span>
@@ -873,7 +873,7 @@ const PlantillasProyectos: React.FC = () => {
                 </div>
                 <button
                   onClick={() => handleCrearProyecto(plantilla.id)}
-                  className="w-full mt-3 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="w-full mt-3 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 active:scale-95 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <Copy className="h-4 w-4" />
                   Crear Proyecto
@@ -973,7 +973,7 @@ const PlantillasProyectos: React.FC = () => {
               <div className="flex gap-2 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {editingId ? 'Actualizar' : 'Crear'}
                 </button>

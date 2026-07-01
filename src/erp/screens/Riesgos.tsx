@@ -255,11 +255,11 @@ const Riesgos: React.FC = () => {
             </select>
             <div className="flex items-center gap-2">
               <label className="text-[10px] text-slate-500">{t('riesgos.probabilidad', 'Probabilidad')} (1-5)</label>
-              <input type="number" min={1} max={5} value={form.probabilidad} onChange={e => setForm(p => ({ ...p, probabilidad: Math.min(5, Math.max(1, +e.target.value)) as RProb }))} className={INPUT} />
+              <input type="number" inputMode="decimal" min={1} max={5} value={form.probabilidad} onChange={e => setForm(p => ({ ...p, probabilidad: Math.min(5, Math.max(1, +e.target.value)) as RProb }))} className={INPUT} />
             </div>
             <div className="flex items-center gap-2">
               <label className="text-[10px] text-slate-500">{t('riesgos.impacto', 'Impacto')} (1-5)</label>
-              <input type="number" min={1} max={5} value={form.impacto} onChange={e => setForm(p => ({ ...p, impacto: Math.min(5, Math.max(1, +e.target.value)) as RImp }))} className={INPUT} />
+              <input type="number" inputMode="decimal" min={1} max={5} value={form.impacto} onChange={e => setForm(p => ({ ...p, impacto: Math.min(5, Math.max(1, +e.target.value)) as RImp }))} className={INPUT} />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -268,7 +268,7 @@ const Riesgos: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <input value={form.responsable} onChange={e => setForm(p => ({ ...p, responsable: e.target.value }))} placeholder={t('riesgos.responsable_placeholder', 'Responsable')} className={INPUT} />
-            <input type="number" value={form.costoSoporte || ''} onChange={e => setForm(p => ({ ...p, costoSoporte: +e.target.value }))} placeholder={t('riesgos.costo_soporte_placeholder', 'Costo estimado de soporte Q')} className={INPUT} />
+            <input type="number" inputMode="decimal" value={form.costoSoporte || ''} onChange={e => setForm(p => ({ ...p, costoSoporte: +e.target.value }))} placeholder={t('riesgos.costo_soporte_placeholder', 'Costo estimado de soporte Q')} className={INPUT} />
           </div>
           <div className="flex gap-2">
             <button onClick={agregar} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg text-xs font-semibold">{t('riesgos.registrar', 'Registrar Riesgo')}</button>

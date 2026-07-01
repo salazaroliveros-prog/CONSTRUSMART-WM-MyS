@@ -93,7 +93,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         <button
           onClick={() => setView('notificaciones')}
           aria-label={t('header.notificaciones')}
-          className="relative p-1 sm:p-1.5 lg:p-2 hover:bg-primary-foreground/20 rounded-lg transition-colors"
+          className="relative p-1.5 sm:p-2 lg:p-2.5 hover:bg-primary-foreground/20 rounded-lg transition-colors"
         >
           <Bell className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
           {notificacionesNoLeidas > 0 && (
@@ -139,7 +139,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         <button
           onClick={logout}
           aria-label={t('header.cerrar_sesion')}
-          className="p-1 sm:p-1.5 lg:p-2 hover:bg-destructive/20 text-primary-foreground hover:text-destructive rounded-lg transition-colors flex-shrink-0"
+          className="p-1.5 sm:p-2 lg:p-2.5 hover:bg-destructive/20 text-primary-foreground hover:text-destructive rounded-lg transition-colors flex-shrink-0"
         >
           <LogOut className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
         </button>

@@ -230,7 +230,7 @@ export const LogisticaCompras: React.FC = () => {
                   <option value="accesorio">Accesorio</option>
                 </select>
                 <div>
-                  <input placeholder={t('logistica.valor_adquisicion_placeholder', 'Valor de adquisición Q *')} type="number" className={fc('valorAdquisicion')}
+                  <input placeholder={t('logistica.valor_adquisicion_placeholder', 'Valor de adquisición Q *')} type="number" inputMode="decimal" className={fc('valorAdquisicion')}
                     value={form.valorAdquisicion || ''} onChange={e => updateForm('valorAdquisicion', e.target.value)} />
                   {formErrors.valorAdquisicion && <p className="text-xs text-destructive mt-1">{formErrors.valorAdquisicion}</p>}
                 </div>
@@ -260,7 +260,7 @@ export const LogisticaCompras: React.FC = () => {
                   {formErrors.concepto && <p className="text-xs text-destructive mt-1">{formErrors.concepto}</p>}
                 </div>
                 <div>
-                  <input placeholder={t('logistica.monto_placeholder', 'Monto Q *')} type="number" className={fc('monto')}
+                  <input placeholder={t('logistica.monto_placeholder', 'Monto Q *')} type="number" inputMode="decimal" className={fc('monto')}
                     value={form.monto || ''} onChange={e => updateForm('monto', e.target.value)} />
                   {formErrors.monto && <p className="text-xs text-destructive mt-1">{formErrors.monto}</p>}
                 </div>

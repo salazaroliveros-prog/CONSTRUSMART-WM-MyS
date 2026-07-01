@@ -527,7 +527,7 @@ const Presupuestos: React.FC = () => {
   const gastoReal = projectId ? movimientos.filter(m => m.proyectoId === projectId && (m.tipo === 'gasto' || m.tipo === 'egreso')).reduce((sum, m) => sum + (m.costoTotal ?? m.monto), 0) : 0;
   const variacionReal = presupuestoActual ? gastoReal - presupuestoActual.totalCalculado : 0;
 
-  const ninp = "w-full px-2 py-1 text-xs rounded border border-slate-200 outline-none focus:border-orange-400 text-right";
+  const ninp = "w-full px-3 py-2 text-xs rounded border border-slate-200 outline-none focus:border-orange-400 text-right";
   const SkeletonRow = (
     <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-3 animate-pulse space-y-2">
       <div className="flex items-center gap-2">
@@ -566,7 +566,7 @@ const Presupuestos: React.FC = () => {
           })}</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={openHistorial} className="bg-muted px-3 py-1 rounded-xl text-sm text-foreground hover:bg-muted/80">{t('presupuestos.historial')}</button>
+          <button onClick={openHistorial} className="bg-muted px-3 py-1 rounded-xl text-sm text-foreground hover:bg-muted/80 active:bg-muted">{t('presupuestos.historial')}</button>
         </div>
       </div>
 
@@ -692,7 +692,7 @@ const Presupuestos: React.FC = () => {
                   <span className="flex-1 text-sm font-semibold text-foreground truncate">{idx + 1}. {r.nombre}</span>
                   <div className="hidden sm:flex items-center gap-1 text-xs">
                     <span className="text-muted-foreground">{t('presupuestos.cantidad_abrev')}</span>
-                    <input type="number" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} placeholder={t('presupuestos.cantidad')} className="w-16 px-2 py-1 rounded border border-input text-right text-xs bg-background" />
+                    <input type="number" inputMode="decimal" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} placeholder={t('presupuestos.cantidad')} className="w-16 px-3 py-2 rounded border border-input text-right text-xs bg-background" />
                     <span className="text-muted-foreground">{r.unidad}</span>
                   </div>
                   <span className="text-sm font-bold text-primary w-24 text-right">{fmtQ(c.total)}</span>
@@ -701,13 +701,13 @@ const Presupuestos: React.FC = () => {
                 {r.expanded && (
                   <div className="bg-muted/60 px-3 pb-3 pt-1 border-t border-border">
                     <div className="grid grid-cols-2 sm:hidden gap-2 mb-2 text-xs">
-                      <div><label className="text-slate-400">Cantidad ({r.unidad})</label><input type="number" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} placeholder="Cantidad" className={ninp} /></div>
+                      <div><label className="text-slate-400">Cantidad ({r.unidad})</label><input type="number" inputMode="decimal" value={r.cantidad} onChange={e => upd(r.id, { cantidad: +e.target.value })} placeholder="Cantidad" className={ninp} /></div>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 text-xs">
-                      <div><label className="text-slate-400 block mb-0.5">Rendimiento/día</label><input type="number" value={r.rendimientoCuadrilla} onChange={e => upd(r.id, { rendimientoCuadrilla: +e.target.value })} placeholder="Rendimiento/día" className={ninp} /></div>
-                      <div><label className="text-slate-400 block mb-0.5">Materiales Q {(r.subRenglones?.length ?? 0) > 0 && <span className="text-orange-400 text-[9px]">(auto)</span>}</label><input type="number" value={r.costoMateriales} onChange={e => upd(r.id, { costoMateriales: +e.target.value })} placeholder="Materiales Q" className={ninp} readOnly={(r.subRenglones?.length ?? 0) > 0} /></div>
-                      <div><label className="text-slate-400 block mb-0.5">Mano Obra Q</label><input type="number" value={r.costoManoObra} onChange={e => upd(r.id, { costoManoObra: +e.target.value })} placeholder="Mano Obra Q" className={ninp} /></div>
-                      <div><label className="text-slate-400 block mb-0.5">Equipo Q</label><input type="number" value={r.costoEquipo} onChange={e => upd(r.id, { costoEquipo: +e.target.value })} placeholder="Equipo Q" className={ninp} /></div>
+                      <div><label className="text-slate-400 block mb-0.5">Rendimiento/día</label><input type="number" inputMode="decimal" value={r.rendimientoCuadrilla} onChange={e => upd(r.id, { rendimientoCuadrilla: +e.target.value })} placeholder="Rendimiento/día" className={ninp} /></div>
+                      <div><label className="text-slate-400 block mb-0.5">Materiales Q {(r.subRenglones?.length ?? 0) > 0 && <span className="text-orange-400 text-[9px]">(auto)</span>}</label><input type="number" inputMode="decimal" value={r.costoMateriales} onChange={e => upd(r.id, { costoMateriales: +e.target.value })} placeholder="Materiales Q" className={ninp} readOnly={(r.subRenglones?.length ?? 0) > 0} /></div>
+                      <div><label className="text-slate-400 block mb-0.5">Mano Obra Q</label><input type="number" inputMode="decimal" value={r.costoManoObra} onChange={e => upd(r.id, { costoManoObra: +e.target.value })} placeholder="Mano Obra Q" className={ninp} /></div>
+                      <div><label className="text-slate-400 block mb-0.5">Equipo Q</label><input type="number" inputMode="decimal" value={r.costoEquipo} onChange={e => upd(r.id, { costoEquipo: +e.target.value })} placeholder="Equipo Q" className={ninp} /></div>
                       <div><label className="text-slate-400 block mb-0.5">Duración (días)</label><div className={ninp + ' bg-white text-slate-600'}>{c.dur}</div></div>
                     </div>
 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 text-xs">
@@ -734,15 +734,15 @@ const Presupuestos: React.FC = () => {
                               setActividadSeleccionada(null);
                             }
                           }}
-                          className="text-[10px] px-2 py-1 rounded border border-orange-200 outline-none focus:border-orange-400 bg-white"
+                          className="text-[10px] px-3 py-2 rounded border border-orange-200 outline-none focus:border-orange-400 bg-white"
                         >
                            <option value="">{t('presupuestos.tipo_actividad')}</option>
                              {ACTIVIDADES_TIPICAS.map(act => (
                                <option key={act} value={act}>{act.charAt(0).toUpperCase() + act.slice(1)} ({MATERIALES_POR_ACTIVIDAD[act].length} materiales)</option>
                              ))}
                            </select>
-                           <button onClick={() => addSubRenglon(r.id)} className="text-[10px] bg-orange-100 text-orange-600 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200">
-                             <Plus className="w-3 h-3" /> {t('presupuestos.manual')}
+                           <button onClick={() => addSubRenglon(r.id)} className="text-[10px] bg-orange-100 text-orange-600 px-3 py-2 rounded flex items-center gap-1 hover:bg-orange-200">
+                             <Plus className="w-4 h-4" /> {t('presupuestos.manual')}
                            </button>
                          </div>
                        </div>
@@ -761,17 +761,17 @@ const Presupuestos: React.FC = () => {
                                    className="flex-1 px-1.5 py-0.5 rounded border border-slate-200 text-xs"
                                  />
                                  <input 
-                                   type="number" 
+                                   type="number" inputMode="decimal" 
                                    value={sub.cantidadUnitaria} 
                                    onChange={e => updSubRenglon(r.id, sub.id, { cantidadUnitaria: +e.target.value })}
                                    placeholder={t('presupuestos.cant_u')}
-                                   className="w-12 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
+                                   className="w-12 px-3 py-2 rounded border border-slate-200 text-right text-xs"
                                  />
                                  <span className="text-slate-500 text-[10px] w-14 text-right">{(sub.cantidadUnitaria * r.cantidad).toFixed(2)}</span>
                                  <select 
                                    value={sub.unidad} 
                                    onChange={e => updSubRenglon(r.id, sub.id, { unidad: e.target.value })}
-                                   className="w-14 px-1 py-0.5 rounded border border-slate-200 text-xs"
+                                   className="w-14 px-3 py-2 rounded border border-slate-200 text-xs"
                                  >
                                    <option>kg</option>
                                    <option>l</option>
@@ -781,15 +781,15 @@ const Presupuestos: React.FC = () => {
                                    <option>ml</option>
                                  </select>
                                  <input 
-                                   type="number" 
+                                   type="number" inputMode="decimal" 
                                    value={sub.precioUnitario} 
                                    onChange={e => updSubRenglon(r.id, sub.id, { precioUnitario: +e.target.value })}
                                    placeholder={t('presupuestos.precio')}
-                                   className="w-16 px-1 py-0.5 rounded border border-slate-200 text-right text-xs"
+                                   className="w-16 px-3 py-2 rounded border border-slate-200 text-right text-xs"
                                  />
                                  <span className="text-slate-600 font-semibold w-20 text-right">{fmtQ(subTotal)}</span>
                                  <button onClick={() => delSubRenglon(r.id, sub.id)} className="text-slate-300 hover:text-red-500 dark:text-red-400">
-                                   <X className="w-3 h-3" />
+                                   <X className="w-4 h-4" />
                                  </button>
                                </div>
                              );
@@ -809,7 +809,7 @@ const Presupuestos: React.FC = () => {
                        <div className="text-[10px] font-semibold text-slate-500 mb-1">{t('presupuestos.desglose_apu')}</div>
                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                          {r.insumos.map(ins => (
-                           <div key={ins.id} className="flex justify-between bg-white rounded px-2 py-1 text-[11px]">
+                           <div key={ins.id} className="flex justify-between bg-white rounded px-3 py-2 text-[11px]">
                              <span className="text-slate-600 truncate">{ins.nombre}</span>
                              <span className="text-slate-400">{ins.tipo} · {fmtQ(ins.precio)}</span>
                            </div>
@@ -824,19 +824,19 @@ const Presupuestos: React.FC = () => {
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
                           <div>
                             <label className="text-slate-400 text-[9px]">Jornal Unitario</label>
-                            <input type="number" value={r.costoManoObra} onChange={e => upd(r.id, { costoManoObra: +e.target.value })} className="w-full px-1 py-0.5 rounded border border-slate-200 text-right text-[11px]" />
+                            <input type="number" inputMode="decimal" value={r.costoManoObra} onChange={e => upd(r.id, { costoManoObra: +e.target.value })} className="w-full px-3 py-2 rounded border border-slate-200 text-right text-[11px]" />
                           </div>
                           <div>
                             <label className="text-slate-400 text-[9px]">Rendimiento/día</label>
-                            <input type="number" value={r.rendimientoCuadrilla} onChange={e => upd(r.id, { rendimientoCuadrilla: +e.target.value })} className="w-full px-1 py-0.5 rounded border border-slate-200 text-right text-[11px]" />
+                            <input type="number" inputMode="decimal" value={r.rendimientoCuadrilla} onChange={e => upd(r.id, { rendimientoCuadrilla: +e.target.value })} className="w-full px-3 py-2 rounded border border-slate-200 text-right text-[11px]" />
                           </div>
                           <div>
                             <label className="text-slate-400 text-[9px]">Días Estimados</label>
-                            <div className="px-1 py-0.5 rounded bg-slate-50 text-right text-[11px] text-slate-600">{getManoObraRenglon(r).diasEstimados}</div>
+                            <div className="px-3 py-2 rounded bg-slate-50 text-right text-[11px] text-slate-600">{getManoObraRenglon(r).diasEstimados}</div>
                           </div>
                           <div>
                             <label className="text-slate-400 text-[9px]">Trabajadores</label>
-                            <div className="px-1 py-0.5 rounded bg-slate-50 text-right text-[11px] text-slate-600">{getManoObraRenglon(r).trabajadores}</div>
+                            <div className="px-3 py-2 rounded bg-slate-50 text-right text-[11px] text-slate-600">{getManoObraRenglon(r).trabajadores}</div>
                           </div>
                         </div>
                         <div className="mt-2 flex justify-between text-[10px] text-slate-500">

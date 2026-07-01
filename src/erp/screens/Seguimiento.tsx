@@ -168,7 +168,7 @@ const Seguimiento: React.FC = () => {
                   {editingProject === p.id ? (
                     <div className="flex items-center gap-2">
                       <input
-                        type="number" min={0} max={100}
+                        type="number" inputMode="decimal" min={0} max={100}
                         value={pendingProgress[p.id] ?? String(safeNum(p.avanceFisico))}
                         onChange={e => setPendingProgress(prev => ({ ...prev, [p.id]: e.target.value }))}
                         aria-label={t('seguimiento.avance_fisico_de', { nombre: p.nombre })}
@@ -339,7 +339,7 @@ const Seguimiento: React.FC = () => {
             <option value="nublado">{t('seguimiento.clima_nublado')}</option>
             <option value="lluvia">{t('seguimiento.clima_lluvia')}</option>
           </select>
-          <input type="number" value={bit.personal} onChange={e => setBit({ ...bit, personal: e.target.value })} placeholder={t('seguimiento.personal_activo')} className={INPUT} />
+          <input type="number" inputMode="decimal" value={bit.personal} onChange={e => setBit({ ...bit, personal: e.target.value })} placeholder={t('seguimiento.personal_activo')} className={INPUT} />
           <input value={bit.maquinaria} onChange={e => setBit({ ...bit, maquinaria: e.target.value })} placeholder={t('seguimiento.maquinaria')} className={`${INPUT} md:col-span-2`} />
           <input value={bit.tareas} onChange={e => setBit({ ...bit, tareas: e.target.value })} placeholder={t('seguimiento.tareas_ejecutadas')} className={`${INPUT} md:col-span-2`} />
           <textarea value={bit.observaciones} onChange={e => setBit({ ...bit, observaciones: e.target.value })} placeholder={t('seguimiento.observaciones')} className={`${INPUT} md:col-span-4 min-h-20`} />

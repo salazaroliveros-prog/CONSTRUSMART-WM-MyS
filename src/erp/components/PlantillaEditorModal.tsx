@@ -144,20 +144,20 @@ const PlantillaEditorModal: React.FC<PlantillaEditorModalProps> = ({ plantilla, 
                     placeholder="Nombre"
                     value={newRenglon.nombre}
                     onChange={(e) => setNewRenglon({ ...newRenglon, nombre: e.target.value })}
-                    className="px-2 py-1 border rounded text-sm"
+                    className="px-3.5 py-2.5 border rounded text-sm"
                   />
                   <input
                     placeholder="Unidad"
                     value={newRenglon.unidad}
                     onChange={(e) => setNewRenglon({ ...newRenglon, unidad: e.target.value })}
-                    className="px-2 py-1 border rounded text-sm"
+                    className="px-3.5 py-2.5 border rounded text-sm"
                   />
                   <input
                     type="number"
                     placeholder="Cantidad"
                     value={newRenglon.cantidad}
                     onChange={(e) => setNewRenglon({ ...newRenglon, cantidad: Number(e.target.value) })}
-                    className="px-2 py-1 border rounded text-sm"
+                    className="px-3.5 py-2.5 border rounded text-sm"
                   />
                   <button onClick={addRenglon} className="flex items-center justify-center gap-1 px-3 py-1 bg-primary text-primary-foreground rounded text-sm">
                     <Plus className="h-3 w-3" /> Agregar
@@ -167,7 +167,7 @@ const PlantillaEditorModal: React.FC<PlantillaEditorModalProps> = ({ plantilla, 
                   placeholder="Descripción (opcional)"
                   value={newRenglon.descripcion}
                   onChange={(e) => setNewRenglon({ ...newRenglon, descripcion: e.target.value })}
-                  className="w-full px-2 py-1 border rounded text-sm resize-none"
+                  className="w-full px-3.5 py-2.5 border rounded text-sm resize-none"
                   rows={2}
                 />
               </div>
@@ -202,27 +202,27 @@ const PlantillaEditorModal: React.FC<PlantillaEditorModalProps> = ({ plantilla, 
                     placeholder="Nombre del hito"
                     value={newHito.nombre}
                     onChange={(e) => setNewHito({ ...newHito, nombre: e.target.value })}
-                    className="px-2 py-1 border rounded text-sm"
+                    className="px-3.5 py-2.5 border rounded text-sm"
                   />
                   <input
                     type="number"
                     placeholder="Días desde inicio"
                     value={newHito.diasDesdeInicio}
                     onChange={(e) => setNewHito({ ...newHito, diasDesdeInicio: Number(e.target.value) })}
-                    className="px-2 py-1 border rounded text-sm"
+                    className="px-3.5 py-2.5 border rounded text-sm"
                   />
                 </div>
                 <textarea
                   placeholder="Descripción (opcional)"
                   value={newHito.descripcion}
                   onChange={(e) => setNewHito({ ...newHito, descripcion: e.target.value })}
-                  className="w-full px-2 py-1 border rounded text-sm resize-none mb-2"
+                  className="w-full px-3.5 py-2.5 border rounded text-sm resize-none mb-2"
                   rows={2}
                 />
                 <select
                   value={newHito.estado}
                   onChange={(e) => setNewHito({ ...newHito, estado: e.target.value as any })}
-                  className="w-full px-2 py-1 border rounded text-sm mb-2"
+                  className="w-full px-3.5 py-2.5 border rounded text-sm mb-2"
                 >
                   <option value="pendiente">Pendiente</option>
                   <option value="en_proceso">En Proceso</option>
@@ -263,12 +263,12 @@ const PlantillaEditorModal: React.FC<PlantillaEditorModalProps> = ({ plantilla, 
                     placeholder="Categoría"
                     value={newRiesgo.categoria}
                     onChange={(e) => setNewRiesgo({ ...newRiesgo, categoria: e.target.value })}
-                    className="px-2 py-1 border rounded text-sm"
+                    className="px-3.5 py-2.5 border rounded text-sm"
                   />
                   <select
                     value={newRiesgo.nivel}
                     onChange={(e) => setNewRiesgo({ ...newRiesgo, nivel: e.target.value as any })}
-                    className="px-2 py-1 border rounded text-sm"
+                    className="px-3.5 py-2.5 border rounded text-sm"
                   >
                     <option value="bajo">Bajo</option>
                     <option value="medio">Medio</option>
@@ -279,14 +279,14 @@ const PlantillaEditorModal: React.FC<PlantillaEditorModalProps> = ({ plantilla, 
                   placeholder="Descripción del riesgo"
                   value={newRiesgo.descripcion}
                   onChange={(e) => setNewRiesgo({ ...newRiesgo, descripcion: e.target.value })}
-                  className="w-full px-2 py-1 border rounded text-sm resize-none mb-2"
+                  className="w-full px-3.5 py-2.5 border rounded text-sm resize-none mb-2"
                   rows={2}
                 />
                 <textarea
                   placeholder="Mitigación (opcional)"
                   value={newRiesgo.mitigation}
                   onChange={(e) => setNewRiesgo({ ...newRiesgo, mitigation: e.target.value })}
-                  className="w-full px-2 py-1 border rounded text-sm resize-none mb-2"
+                  className="w-full px-3.5 py-2.5 border rounded text-sm resize-none mb-2"
                   rows={2}
                 />
                 <button onClick={addRiesgo} className="flex items-center justify-center gap-1 w-full px-3 py-1 bg-primary text-primary-foreground rounded text-sm">
@@ -323,9 +323,9 @@ const PlantillaEditorModal: React.FC<PlantillaEditorModalProps> = ({ plantilla, 
                     placeholder="Categoría"
                     value={newChecklist.categoria}
                     onChange={(e) => setNewChecklist({ ...newChecklist, categoria: e.target.value })}
-                    className="px-2 py-1 border rounded text-sm"
+                    className="px-3.5 py-2.5 border rounded text-sm"
                   />
-                  <div className="flex items-center gap-2 px-2 py-1 border rounded">
+                  <div className="flex items-center gap-2 px-3.5 py-2.5 border rounded">
                     <input
                       type="checkbox"
                       checked={newChecklist.requerido}
@@ -339,7 +339,7 @@ const PlantillaEditorModal: React.FC<PlantillaEditorModalProps> = ({ plantilla, 
                   placeholder="Item de calidad"
                   value={newChecklist.item}
                   onChange={(e) => setNewChecklist({ ...newChecklist, item: e.target.value })}
-                  className="w-full px-2 py-1 border rounded text-sm mb-2 resize-none"
+                  className="w-full px-3.5 py-2.5 border rounded text-sm mb-2 resize-none"
                 />
                 <button onClick={addChecklist} className="flex items-center justify-center gap-1 w-full px-3 py-1 bg-primary text-primary-foreground rounded text-sm">
                   <Plus className="h-3 w-3" /> Agregar Item

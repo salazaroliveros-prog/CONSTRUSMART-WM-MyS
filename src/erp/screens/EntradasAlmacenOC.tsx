@@ -149,7 +149,7 @@ export const EntradasAlmacenOC: React.FC = () => {
             <div className="grid gap-3">
               <div>
                 <label className="text-xs text-gray-500">Cantidad a recibir</label>
-                <input type="number" value={formCantidad}
+                <input type="number" inputMode="decimal" value={formCantidad}
                   onChange={e => setFormCantidad(+e.target.value)}
                   max={ordenes.find(o => o.id === showForm)?.cantidad || 0}
                   className="w-full px-3 py-2 border rounded text-sm" />

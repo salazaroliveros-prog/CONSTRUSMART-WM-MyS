@@ -253,9 +253,9 @@ const AnalisisCostosDashboard: React.FC = () => {
                   </td>
                   <td className="py-2 px-3 text-center">
                     {calc.validado ? (
-                      <span className="px-2 py-1 bg-emerald-50 text-emerald-600 text-xs rounded-full">Validado</span>
+                      <span className="px-3 py-1.5 bg-emerald-50 text-emerald-600 text-xs rounded-full">Validado</span>
                     ) : (
-                      <span className="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded-full">Pendiente</span>
+                      <span className="px-3 py-1.5 bg-slate-50 text-slate-600 text-xs rounded-full">Pendiente</span>
                     )}
                   </td>
                 </tr>

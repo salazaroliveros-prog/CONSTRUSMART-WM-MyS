@@ -176,7 +176,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                     title={t('nav.items.' + it.labelKey)}
                     aria-label={t('nav.items.' + it.labelKey)}
                     aria-current={active ? 'page' : undefined}
-                    className={`relative w-full flex items-center justify-center p-2.5 rounded-xl
+                    className={`relative w-full flex items-center justify-center p-3 rounded-xl
                       transition-all duration-150 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
                       ${active
                         ? 'bg-primary text-primary-foreground shadow-sm'
@@ -223,7 +223,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                             key={it.id}
                             onClick={() => { setView(it.id); window.location.hash = it.id; onClose(); }}
                             aria-current={active ? 'page' : undefined}
-                            className={`relative w-full flex items-center gap-2.5 px-2.5 py-[7px] rounded-xl
+                            className={`relative w-full flex items-center gap-3 px-2.5 py-[7px] rounded-xl
                               text-xs font-medium transition-all duration-150 active:scale-[0.97]
                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1
                               ${active

@@ -624,7 +624,7 @@ const QuickActionsFab: React.FC = () => {
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.15 }}
               onClick={handleClose}
-              className="p-2 bg-muted hover:bg-muted/80 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+              className="p-2 bg-muted hover:bg-muted/80 active:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Cerrar acciones rápidas"
             >
               <X className="w-5 h-5" />
@@ -636,7 +636,7 @@ const QuickActionsFab: React.FC = () => {
           onClick={handleFabClick}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="relative group flex items-center justify-center w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+          className="relative group flex items-center justify-center w-14 h-14 bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
           aria-label={isOpen ? 'Cerrar acciones rápidas' : 'Abrir acciones rápidas'}
           aria-expanded={isOpen}
         >

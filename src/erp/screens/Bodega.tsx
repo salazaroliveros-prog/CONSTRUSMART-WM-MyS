@@ -163,7 +163,7 @@ const Bodega: React.FC = () => {
         </h1>
         <div className="flex gap-2">
           <button onClick={() => setShowOrden(true)}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-2 rounded-xl text-sm flex items-center gap-1.5 flex-1 sm:flex-none justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            className="bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground px-3 py-2 rounded-xl text-sm flex items-center gap-1.5 flex-1 sm:flex-none justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             <Plus className="w-4 h-4" aria-hidden="true" /> <span className="hidden sm:inline">{t('common.nuevo')}</span> OC
           </button>
           <button onClick={() => { setShowProveedor(true); setEditingProveedor(null); }}
@@ -246,7 +246,7 @@ const Bodega: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-3 py-2 text-right">
-                        <input type="number" value={m.stock} onChange={e => updateMaterial(m.id, { stock: +e.target.value })} className="w-16 px-1.5 py-1 rounded border border-input bg-background text-foreground text-right text-xs focus:outline-none focus:ring-2 focus:ring-ring" />
+                        <input type="number" inputMode="decimal" value={m.stock} onChange={e => updateMaterial(m.id, { stock: +e.target.value })} className="w-16 px-1.5 py-1 rounded border border-input bg-background text-foreground text-right text-xs focus:outline-none focus:ring-2 focus:ring-ring" />
                       </td>
                       <td className="px-3 py-2 text-right">{m.stockMinimo} <span className="text-muted-foreground">{m.unidad}</span></td>
                       <td className="px-3 py-2 text-right">
@@ -379,7 +379,7 @@ const Bodega: React.FC = () => {
                 {[0, 1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{t('bodega.estrellas', { n })}</option>)}
               </select>
             </div>
-            <button type="submit" className="mt-4 w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2.5 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <button type="submit" className="mt-4 w-full bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground py-2.5 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               {editingProveedor ? t('bodega.actualizar_proveedor') : t('bodega.crear_proveedor')}
             </button>
           </form>
@@ -416,10 +416,10 @@ const Bodega: React.FC = () => {
                 ))}
               </select>
               <input {...registerOrd('material')} placeholder={t('bodega.material')} className={`${inp} ${errorsOrd.material ? 'border-red-400' : ''}`} />
-              <input type="number" {...registerOrd('cantidad')} placeholder={t('common.cantidad')} className={`${inp} ${errorsOrd.cantidad ? 'border-red-400' : ''}`} />
-              <input type="number" {...registerOrd('monto')} placeholder={t('bodega.monto_q')} className={`${inp} ${errorsOrd.monto ? 'border-red-400' : ''}`} />
+              <input type="number" inputMode="decimal" {...registerOrd('cantidad')} placeholder={t('common.cantidad')} className={`${inp} ${errorsOrd.cantidad ? 'border-red-400' : ''}`} />
+              <input type="number" inputMode="decimal" {...registerOrd('monto')} placeholder={t('bodega.monto_q')} className={`${inp} ${errorsOrd.monto ? 'border-red-400' : ''}`} />
             </div>
-            <button type="submit" className="mt-4 w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2.5 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('bodega.crear_orden')}</button>
+            <button type="submit" className="mt-4 w-full bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground py-2.5 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('bodega.crear_orden')}</button>
           </form>
         </div>
       )}
