@@ -391,11 +391,11 @@ const Cotizaciones: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.costo_directo')}</label>
-                    <input type="number" value={formData.costoDirectoTotal} onChange={e => setFormData(p => ({ ...p, costoDirectoTotal: +e.target.value }))} className={INPUT} />
+                    <input type="number" inputMode="decimal" value={formData.costoDirectoTotal} onChange={e => setFormData(p => ({ ...p, costoDirectoTotal: +e.target.value }))} className={INPUT} />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.precio_venta')}</label>
-                    <input type="number" value={formData.precioVentaTotal} onChange={e => setFormData(p => ({ ...p, precioVentaTotal: +e.target.value }))} className={INPUT} />
+                    <input type="number" inputMode="decimal" value={formData.precioVentaTotal} onChange={e => setFormData(p => ({ ...p, precioVentaTotal: +e.target.value }))} className={INPUT} />
                   </div>
                 </div>
               </div>

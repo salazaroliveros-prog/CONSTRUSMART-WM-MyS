@@ -243,7 +243,7 @@ const Administracion: React.FC = () => {
                 {errors.nombre && <p className="text-xs text-destructive mt-1">{errors.nombre.message}</p>}
               </div>
               <div>
-                <input {...register('presupuestoAsignado')} type="number" placeholder={t('admin.presupuesto_placeholder')} className={inp(!!errors.presupuestoAsignado)} />
+                <input {...register('presupuestoAsignado')} type="number" inputMode="decimal" placeholder={t('admin.presupuesto_placeholder')} className={inp(!!errors.presupuestoAsignado)} />
                 {errors.presupuestoAsignado && <p className="text-xs text-destructive mt-1">{errors.presupuestoAsignado.message}</p>}
               </div>
               <div>

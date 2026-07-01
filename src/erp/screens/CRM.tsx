@@ -185,7 +185,7 @@ const CRM: React.FC = () => {
             </select>
             <button 
             onClick={() => { resetForm(); setShowForm(true); }}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Plus className="w-4 h-4" /> {t('crm.nueva_licitacion')}
           </button>
@@ -257,7 +257,7 @@ const CRM: React.FC = () => {
                   <span className="text-xs">{t('crm.sin_oportunidades')}</span>
                 </div>
               ) : col.items.map(l => (
-                <div key={l.id} className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-all group focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="button" aria-label={t('crm.licitacion_card_aria', { nombre: l.nombre })} onKeyDown={(e) => {
+                <div key={l.id} className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md active:shadow-sm transition-all group focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="button" aria-label={t('crm.licitacion_card_aria', { nombre: l.nombre })} onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     openEdit(l);
@@ -338,13 +338,13 @@ const CRM: React.FC = () => {
                   value={formData.nombre}
                   onChange={e => { setFormData(p => ({ ...p, nombre: e.target.value })); setFormErrors(prev => ({ ...prev, nombre: '' })); }}
                   placeholder="Ej. Edificio Comercial"
-                  className={`w-full px-3 py-2 text-sm rounded-lg border outline-none bg-background text-foreground focus:border-primary ${formErrors.nombre ? 'border-destructive bg-destructive/5' : 'border-border'}`}
+                  className={`w-full px-3.5 py-2.5 text-sm rounded-lg border outline-none bg-background text-foreground focus:border-primary ${formErrors.nombre ? 'border-destructive bg-destructive/5' : 'border-border'}`}
                 />
                 {formErrors.nombre && <p className="text-xs text-red-500 mt-1">{formErrors.nombre}</p>}
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Proyecto</label>
-                <select value={formData.proyectoId} onChange={e => setFormData(p => ({ ...p, proyectoId: e.target.value }))} className="w-full px-3 py-2 text-sm rounded-lg border outline-none bg-background text-foreground focus:border-primary border-border">
+                <select value={formData.proyectoId} onChange={e => setFormData(p => ({ ...p, proyectoId: e.target.value }))} className="w-full px-3.5 py-2.5 text-sm rounded-lg border outline-none bg-background text-foreground focus:border-primary border-border">
                   <option value="">Sin proyecto</option>
                   {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
@@ -356,18 +356,18 @@ const CRM: React.FC = () => {
                     value={formData.cliente}
                     onChange={e => { setFormData(p => ({ ...p, cliente: e.target.value })); setFormErrors(prev => ({ ...prev, cliente: '' })); }}
                     placeholder="Nombre del cliente"
-                    className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-purple-400"
+                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border outline-none focus:border-purple-400"
                   />
                   {formErrors.cliente && <p className="text-xs text-red-500 mt-1">{formErrors.cliente}</p>}
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 mb-1 block">Monto Q</label>
                   <input
-                    type="number"
+                    type="number" inputMode="decimal"
                     value={formData.monto}
                     onChange={e => { setFormData(p => ({ ...p, monto: +e.target.value })); setFormErrors(prev => ({ ...prev, monto: '' })); }}
                     placeholder="0.00"
-                    className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-purple-400"
+                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border outline-none focus:border-purple-400"
                   />
                   {formErrors.monto && <p className="text-xs text-red-500 mt-1">{formErrors.monto}</p>}
                 </div>
@@ -390,7 +390,7 @@ const CRM: React.FC = () => {
                   type="date"
                   value={formData.fechaLimite}
                   onChange={e => setFormData(p => ({ ...p, fechaLimite: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400"
+                  className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400"
                 />
               </div>
               <div>
@@ -400,11 +400,11 @@ const CRM: React.FC = () => {
                   onChange={e => setFormData(p => ({ ...p, notas: e.target.value }))}
                   placeholder="Notas internas..."
                   rows={2}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400 resize-none"
+                  className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400 resize-none"
                 />
               </div>
             </div>
-            <button type="submit" className="mt-4 w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2.5 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <button type="submit" className="mt-4 w-full bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground py-2.5 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               {editingId ? 'Guardar Cambios' : 'Crear Oportunidad'}
             </button>
           </form>

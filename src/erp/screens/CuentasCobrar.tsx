@@ -98,7 +98,7 @@ const CuentasCobrarScreen: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div>
-              <input type="number" value={form.monto ?? ''} onChange={e => set({ monto: +e.target.value })} placeholder="Monto Q *" className={INPUT} />
+              <input type="number" inputMode="decimal" value={form.monto ?? ''} onChange={e => set({ monto: +e.target.value })} placeholder="Monto Q *" className={INPUT} />
               {formErrors.monto && <p className="text-xs text-red-500 mt-0.5">{formErrors.monto}</p>}
             </div>
             <input type="date" value={form.fechaEmision} onChange={e => set({ fechaEmision: e.target.value })} className={INPUT} />
@@ -131,7 +131,7 @@ const CuentasCobrarScreen: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0 ml-2">
-                  {c.estado !== 'cobrado' && <button onClick={() => cobrar(c.id)} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">Cobrar</button>}
+                  {c.estado !== 'cobrado' && <button onClick={() => cobrar(c.id)} className="px-3 py-2 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">Cobrar</button>}
                   <button onClick={() => eliminar(c.id)} className="p-1 text-slate-300 hover:text-red-500"><X className="w-3 h-3" /></button>
                 </div>
               </div>

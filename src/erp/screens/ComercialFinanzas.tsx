@@ -101,7 +101,7 @@ export const ComercialFinanzas: React.FC = () => {
                 <td className="p-2 text-xs">{v.cliente || '—'}</td>
                 <td className="p-2">
                   <select value={v.estado} onChange={e => updateVenta(v.id, { estado: e.target.value as VentaPaquete['estado'] })}
-                    className={`text-xs px-2 py-1 rounded border outline-none ${
+                    className={`text-xs px-3 py-2 rounded border outline-none ${
                       v.estado === 'disponible' ? 'text-success bg-success/10' :
                       v.estado === 'reservado'  ? 'text-warning bg-warning/10' :
                       v.estado === 'vendido'    ? 'text-info bg-info/10' :
@@ -154,8 +154,8 @@ export const ComercialFinanzas: React.FC = () => {
               </div>
               {a.estado === 'activo' && (
                 <div className="mt-2 flex gap-2">
-                  <input type="number" placeholder="Monto a amortizar"
-                    className="text-xs px-2 py-1 border border-input rounded-lg outline-none focus:border-ring bg-background w-36"
+                  <input type="number" inputMode="decimal" placeholder="Monto a amortizar"
+                    className="text-xs px-3 py-2 border border-input rounded-lg outline-none focus:border-ring bg-background w-36"
                     value={amortInputs[a.id] || ''}
                     onChange={e => setAmortInputs(prev => ({ ...prev, [a.id]: e.target.value }))} />
                   <button onClick={() => {
@@ -165,7 +165,7 @@ export const ComercialFinanzas: React.FC = () => {
                       setAmortInputs(prev => ({ ...prev, [a.id]: '' }));
                       toast.success('Amortización registrada');
                     }
-                  }} className="bg-success text-success-foreground px-2 py-1 rounded-lg text-xs hover:bg-success/90">Amortizar</button>
+                  }} className="bg-success text-success-foreground px-3 py-2 rounded-lg text-xs hover:bg-success/90">Amortizar</button>
                 </div>
               )}
               {a.amortizaciones.length > 0 && (
@@ -244,7 +244,7 @@ export const ComercialFinanzas: React.FC = () => {
                     aprobadoPor: e.target.value === 'aprobada' ? (user?.nombre || 'Admin') : undefined,
                     fechaAprobacion: e.target.value === 'aprobada' ? new Date().toISOString() : undefined
                   })}
-                    className={`text-xs px-2 py-1 rounded border outline-none ${
+                    className={`text-xs px-3 py-2 rounded border outline-none ${
                       c.estado === 'aprobada'  ? 'text-success bg-success/10' :
                       c.estado === 'rechazada' ? 'text-destructive bg-destructive/10' :
                       'text-warning bg-warning/10'
@@ -319,7 +319,7 @@ export const ComercialFinanzas: React.FC = () => {
                   <option value="unidad">Unidad</option><option value="lote">Lote</option><option value="paquete">Paquete</option>
                 </select>
                 <input placeholder="Identificador (ej: Torre A - Apt 301)" className={INPUT} value={form.identificador || ''} onChange={e => setForm({ ...form, identificador: e.target.value })} />
-                <input placeholder="Precio de venta Q" type="number" className={INPUT} value={form.precioVenta || ''} onChange={e => setForm({ ...form, precioVenta: +e.target.value })} />
+                <input placeholder="Precio de venta Q" type="number" inputMode="decimal" className={INPUT} value={form.precioVenta || ''} onChange={e => setForm({ ...form, precioVenta: +e.target.value })} />
                 <input placeholder="Cliente (opcional)" className={INPUT} value={form.cliente || ''} onChange={e => setForm({ ...form, cliente: e.target.value })} />
                 <button onClick={() => {
                   if (!form.proyectoId) { toast.error('Selecciona un proyecto'); return; }
@@ -341,7 +341,7 @@ export const ComercialFinanzas: React.FC = () => {
                 </select>
                 <input placeholder="Beneficiario" className={INPUT} value={form.beneficiario || ''} onChange={e => setForm({ ...form, beneficiario: e.target.value })} />
                 <input placeholder="Concepto" className={INPUT} value={form.concepto || ''} onChange={e => setForm({ ...form, concepto: e.target.value })} />
-                <input placeholder="Monto total Q" type="number" className={INPUT} value={form.montoTotal || ''} onChange={e => setForm({ ...form, montoTotal: +e.target.value })} />
+                <input placeholder="Monto total Q" type="number" inputMode="decimal" className={INPUT} value={form.montoTotal || ''} onChange={e => setForm({ ...form, montoTotal: +e.target.value })} />
                 <button onClick={() => {
                   if (!form.proyectoId) { toast.error('Selecciona un proyecto'); return; }
                   const monto = form.montoTotal || 0;
@@ -363,7 +363,7 @@ export const ComercialFinanzas: React.FC = () => {
                   <option value="materiales">Materiales</option><option value="herramientas">Herramientas</option>
                   <option value="transporte">Transporte</option><option value="comidas">Comidas</option><option value="otros">Otros</option>
                 </select>
-                <input placeholder="Monto Q" type="number" className={INPUT} value={form.monto || ''} onChange={e => setForm({ ...form, monto: +e.target.value })} />
+                <input placeholder="Monto Q" type="number" inputMode="decimal" className={INPUT} value={form.monto || ''} onChange={e => setForm({ ...form, monto: +e.target.value })} />
                 <input placeholder="Solicitante" className={INPUT} value={form.solicitante || ''} onChange={e => setForm({ ...form, solicitante: e.target.value })} />
                 <button onClick={() => {
                   if (!form.proyectoId) { toast.error('Selecciona un proyecto'); return; }

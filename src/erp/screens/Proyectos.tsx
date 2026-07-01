@@ -12,7 +12,7 @@ import { obtenerSubtipologias } from '../services/motorCalculo';
 import { Progress } from '../components/Charts';
 import MapPicker from '../components/MapPicker';
 import HeatMap from '../components/HeatMap';
-import { INPUT, BUTTON_PRIMARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER, KPI_CARD, CARD_TITLE } from '../ui';
+import { INPUT, BUTTON_PRIMARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER, KPI_CARD, CARD_TITLE, SECTION_TITLE } from '../ui';
 import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, AlertCircle, ChevronRight, Copy, Layout, Sparkles, Star, Search, ArrowUpDown, List, Grid3x3, DollarSign, ClipboardList, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import { proyectoSchemaObject as proyectoSchemaCanonico } from '../store/schemas/proyectos';
@@ -448,12 +448,12 @@ const Proyectos: React.FC = () => {
     <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div>
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground">{t('proyectos.titulo')}</h1>
+          <h1 className={SECTION_TITLE}>{t('proyectos.titulo')}</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">{t('proyectos.subtitulo', { count: proyectos.length })}</p>
         </div>
         <div className="flex gap-2">
           {proyectos.length > 0 && (
-            <button onClick={limpiarProyectos} className="px-3 py-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-semibold transition-colors">
+            <button onClick={limpiarProyectos} className="px-4 py-2.5 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-semibold transition-colors">
               <Trash2 className="w-3 h-3 mr-1" aria-hidden="true" />{t('proyectos.eliminar_todos')}
             </button>
           )}
@@ -525,7 +525,7 @@ const Proyectos: React.FC = () => {
               className={`px-2.5 py-1.5 text-xs rounded-lg font-medium transition-colors ${
                 ordenamiento === key
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80 active:bg-muted'
               }`}
               aria-label={t('proyectos.ordenar_por')}
             >
@@ -538,7 +538,7 @@ const Proyectos: React.FC = () => {
         <button
           onClick={() => setVistaLista(!vistaLista)}
           className={`px-2.5 py-1.5 text-xs rounded-lg font-medium transition-colors ${
-            vistaLista ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            vistaLista ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80 active:bg-muted'
           }`}
           aria-label={vistaLista ? t('proyectos.vista_grid') : t('proyectos.vista_lista')}
         >
@@ -559,7 +559,7 @@ const Proyectos: React.FC = () => {
           {proyectosFiltrados.map((p, i) => (
             <div
               key={p.id}
-              className="group bg-card text-card-foreground rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-border p-4 flex flex-wrap items-center gap-3 focus:outline-none focus:ring-2 focus:ring-ring"
+              className="group bg-card text-card-foreground rounded-xl shadow-sm hover:shadow-md active:shadow-sm transition-all duration-200 border border-border p-4 flex flex-wrap items-center gap-3 focus:outline-none focus:ring-2 focus:ring-ring"
               tabIndex={0}
               role="row"
               aria-label={t('proyectos.aria_card', { nombre: p.nombre })}
@@ -650,9 +650,9 @@ const Proyectos: React.FC = () => {
               <div className="flex flex-wrap gap-1.5 mb-3">
                 <span className="text-[10px] px-2.5 py-1 rounded-full bg-muted text-foreground font-medium">{TIPOLOGIA_LABEL[p.tipologia]}</span>
                 <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium transition-colors ${estadoBadgeClass(p.estado)}`}>{estadoLabel[p.estado] || p.estado}</span>
-                {p.etapa && <span className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground">{etapaLabel[p.etapa] || p.etapa}</span>}
-                {p.estado === 'pausado' && p.motivoPausa && <span className="text-[10px] px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 truncate max-w-[140px]" title={p.motivoPausa}>{p.motivoPausa}</span>}
-                {p.moneda && <span className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground">{p.moneda}</span>}
+                {p.etapa && <span className="text-[10px] px-3 py-1.5 rounded-full bg-muted text-muted-foreground">{etapaLabel[p.etapa] || p.etapa}</span>}
+                {p.estado === 'pausado' && p.motivoPausa && <span className="text-[10px] px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 truncate max-w-[140px]" title={p.motivoPausa}>{p.motivoPausa}</span>}
+                {p.moneda && <span className="text-[10px] px-3 py-1.5 rounded-full bg-muted text-muted-foreground">{p.moneda}</span>}
               </div>
 
               <div className="space-y-2.5 mb-4">
@@ -693,7 +693,7 @@ const Proyectos: React.FC = () => {
                 {p.estado === 'planeacion' && (
                   <button
                     onClick={() => accionRapida(p, 'iniciar')}
-                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
+                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md active:shadow-sm"
                   >
                     <Play className="w-3 h-3" /> {t('proyectos.iniciar')}
                   </button>
@@ -702,13 +702,13 @@ const Proyectos: React.FC = () => {
                   <>
                     <button
                       onClick={() => accionRapida(p, 'pausar')}
-                      className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
+                      className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md active:shadow-sm"
                     >
                       <Pause className="w-3 h-3" /> {t('proyectos.pausar')}
                     </button>
                     <button
                       onClick={() => accionRapida(p, 'finalizar')}
-                      className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
+                      className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md active:shadow-sm"
                     >
                       <CheckCircle2 className="w-3 h-3" /> {t('proyectos.finalizar')}
                     </button>
@@ -717,7 +717,7 @@ const Proyectos: React.FC = () => {
                 {p.estado === 'pausado' && (
                   <button
                     onClick={() => accionRapida(p, 'reanudar')}
-                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
+                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md active:shadow-sm"
                   >
                     <RotateCcw className="w-3 h-3" /> {t('proyectos.reanudar')}
                   </button>
@@ -725,14 +725,14 @@ const Proyectos: React.FC = () => {
                 {p.estado === 'finalizado' && (
                   <button
                     onClick={() => accionRapida(p, 'reabrir')}
-                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-slate-500 hover:bg-slate-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
+                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-slate-500 hover:bg-slate-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md active:shadow-sm"
                   >
                     <RotateCcw className="w-3 h-3" /> {t('proyectos.reabrir')}
                   </button>
                 )}
                 <button
                   onClick={() => openDetail(p)}
-                  className="text-[11px] px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground font-medium flex items-center justify-center gap-1 transition-all active:scale-95"
+                  className="text-[11px] px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 active:bg-muted text-muted-foreground hover:text-foreground font-medium flex items-center justify-center gap-1 transition-all active:scale-95"
                 >
                   <ChevronRight className="w-3 h-3" /> {t('proyectos.detalle')}
                 </button>
@@ -787,7 +787,7 @@ const Proyectos: React.FC = () => {
               <button onClick={confirmarPausa} className={BUTTON_PRIMARY + ' flex-1 justify-center active:scale-[0.98]'}>
                 <Pause className="w-4 h-4" /> {t('proyectos.confirmar_pausa')}
               </button>
-              <button onClick={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }} className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground font-medium transition-all">
+              <button onClick={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }} className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 active:bg-muted text-muted-foreground font-medium transition-all">
                 {t('common.cancelar')}
               </button>
             </div>
@@ -829,7 +829,7 @@ const Proyectos: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setTemplateSearch('')}
-                          className="px-3 py-2 text-xs bg-muted hover:bg-muted/80 rounded"
+                          className="px-3 py-2 text-xs bg-muted hover:bg-muted/80 active:bg-muted rounded"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -867,7 +867,7 @@ const Proyectos: React.FC = () => {
                                     {p.descripcion || t('proyectos.sin_descripcion')}
                                   </p>
                                 </div>
-                                <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded shrink-0">
+                                <div className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded shrink-0">
                                   {p.categoria}
                                 </div>
                               </div>
@@ -943,7 +943,7 @@ const Proyectos: React.FC = () => {
                                       )}
                                     </div>
                                     {sugerencia.metricas?.exitoPromedio && sugerencia.metricas.exitoPromedio >= 80 && (
-                                      <div className="flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
+                                      <div className="flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded">
                                         <Star className="w-3 h-3" />
                                         <span>{t('proyectos.excelente')}</span>
                                       </div>
@@ -1001,10 +1001,10 @@ const Proyectos: React.FC = () => {
                     <option value="USD">USD - {t('proyectos.dolar')}</option>
                   </select>
                   <div className="flex gap-2 sm:col-span-2">
-                    <input type="number" {...register('areaConstruccion')} placeholder={t('proyectos.area_placeholder')} className={INPUT} />
-                    <input type="number" {...register('numPisos')} placeholder={t('proyectos.niveles_placeholder')} className={INPUT} />
+                    <input type="number" inputMode="decimal" {...register('areaConstruccion')} placeholder={t('proyectos.area_placeholder')} className={INPUT} />
+                    <input type="number" inputMode="decimal" {...register('numPisos')} placeholder={t('proyectos.niveles_placeholder')} className={INPUT} />
                   </div>
-                  <input type="number" {...register('plazoSemanas')} placeholder={t('proyectos.plazo_placeholder')} className={INPUT} />
+                  <input type="number" inputMode="decimal" {...register('plazoSemanas')} placeholder={t('proyectos.plazo_placeholder')} className={INPUT} />
                 </div>
               </div>
 
@@ -1092,15 +1092,15 @@ const Proyectos: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.presupuesto_total')}</label>
-                    <input type="number" {...register('presupuestoTotal')} placeholder={t('proyectos.presupuesto_placeholder')} className={INPUT} />
+                    <input type="number" inputMode="decimal" {...register('presupuestoTotal')} placeholder={t('proyectos.presupuesto_placeholder')} className={INPUT} />
                   </div>
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.monto_contrato')}</label>
-                    <input type="number" {...register('montoContrato')} placeholder={t('proyectos.contrato_placeholder')} className={INPUT} />
+                    <input type="number" inputMode="decimal" {...register('montoContrato')} placeholder={t('proyectos.contrato_placeholder')} className={INPUT} />
                   </div>
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.margen_utilidad')}</label>
-                    <input type="number" {...register('margenUtilidadObjetivo')} placeholder={t('proyectos.margen_placeholder')} className={INPUT} />
+                    <input type="number" inputMode="decimal" {...register('margenUtilidadObjetivo')} placeholder={t('proyectos.margen_placeholder')} className={INPUT} />
                   </div>
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.fecha_inicio')}</label>

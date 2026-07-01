@@ -286,12 +286,12 @@ const RRHH: React.FC = () => {
           </div>
           <div>
             <label className="block text-xs font-medium mb-1">{t('rrhh.dailyWage')}</label>
-            <input type="number" step="0.01" {...register('salarioDiario')} className={INPUT} />
+            <input type="number" inputMode="decimal" step="0.01" {...register('salarioDiario')} className={INPUT} />
             {errors.salarioDiario && <p className={ERROR_STATE}>{errors.salarioDiario.message}</p>}
           </div>
           <div>
             <label className="block text-xs font-medium mb-1">{t('rrhh.daysWorked')}</label>
-            <input type="number" min={0} max={31} {...register('diasTrabajados')} className={INPUT} />
+            <input type="number" inputMode="decimal" min={0} max={31} {...register('diasTrabajados')} className={INPUT} />
             {errors.diasTrabajados && <p className={ERROR_STATE}>{errors.diasTrabajados.message}</p>}
           </div>
           <div>

@@ -573,7 +573,7 @@ const APUAvanzado: React.FC = () => {
                   <div className="text-[10px] text-slate-300 mb-1">{item.desc}</div>
                   {editFactor ? (
                     <input
-                      type="number"
+                      type="number" inputMode="decimal"
                       value={factor[item.key]}
                       onChange={e => setFactor(f => ({ ...f, [item.key]: Math.max(0, +e.target.value) }))}
                       min={0}
@@ -700,7 +700,7 @@ const APUAvanzado: React.FC = () => {
               <div>
                 <label className="text-[10px] text-slate-500 mb-1 block">Volumen (m³)</label>
                 <input
-                  type="number"
+                  type="number" inputMode="decimal"
                   value={volumen}
                   onChange={e => setVolumen(Math.max(0.1, parseFloat(e.target.value) || 1))}
                   min={0.1}
@@ -1001,7 +1001,7 @@ const APUAvanzado: React.FC = () => {
               <div>
                 <label className="text-[10px] text-slate-500 mb-1 block">Volumen (m³)</label>
                 <input
-                  type="number"
+                  type="number" inputMode="decimal"
                   value={acero.volumenM3}
                   onChange={e => setAcero(d => ({ ...d, volumenM3: Math.max(0.1, parseFloat(e.target.value) || 1) }))}
                   min={0.1}
@@ -1133,7 +1133,7 @@ const APUAvanzado: React.FC = () => {
               <div>
                 <label className="text-[10px] text-slate-500 mb-1 block">Volumen (m³)</label>
                 <input
-                  type="number"
+                  type="number" inputMode="decimal"
                   value={movimientoTierra.volumenM3}
                   onChange={e => setMovimientoTierra(d => ({ ...d, volumenM3: Math.max(0.1, parseFloat(e.target.value) || 1) }))}
                   min={0.1}
@@ -1353,7 +1353,7 @@ const APUAvanzado: React.FC = () => {
               <div>
                 <label className="text-[10px] text-slate-500 mb-1 block">Área (m²)</label>
                 <input
-                  type="number"
+                  type="number" inputMode="decimal"
                   value={pavimento.areaM2}
                   onChange={e => setPavimento(d => ({ ...d, areaM2: Math.max(1, parseFloat(e.target.value) || 1) }))}
                   min={1}
@@ -1499,7 +1499,7 @@ const APUAvanzado: React.FC = () => {
               <div>
                 <label className="text-[10px] text-slate-500 mb-1 block">Longitud (ml)</label>
                 <input
-                  type="number"
+                  type="number" inputMode="decimal"
                   value={redInfraestructura.longitudMl}
                   onChange={e => setRedInfraestructura(d => ({ ...d, longitudMl: Math.max(1, parseFloat(e.target.value) || 1) }))}
                   min={1}
@@ -1572,7 +1572,7 @@ const APUAvanzado: React.FC = () => {
               <div>
                 <label className="text-[10px] text-slate-500 mb-1 block">Altura (m)</label>
                 <input
-                  type="number"
+                  type="number" inputMode="decimal"
                   value={muroContencion.alturaM}
                   onChange={e => setMuroContencion(d => ({ ...d, alturaM: Math.max(1, parseFloat(e.target.value) || 1) }))}
                   min={1}
@@ -1642,7 +1642,7 @@ const APUAvanzado: React.FC = () => {
               <div>
                 <label className="text-[10px] text-slate-500 mb-1 block">Longitud (m)</label>
                 <input
-                  type="number"
+                  type="number" inputMode="decimal"
                   value={muroContencion.longitudM}
                   onChange={e => setMuroContencion(d => ({ ...d, longitudM: Math.max(1, parseFloat(e.target.value) || 1) }))}
                   min={1}
