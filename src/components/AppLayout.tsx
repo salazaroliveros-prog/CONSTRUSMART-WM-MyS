@@ -55,9 +55,7 @@ const RRHH               = lazy(() => import('@/erp/screens/RRHH'));
 const Bodega             = lazy(() => import('@/erp/screens/Bodega'));
 const CRM                = lazy(() => import('@/erp/screens/CRM'));
 const APUAvanzado        = lazy(() => import('@/erp/screens/APUAvanzado'));
-const CurvasS            = lazy(() => import('@/erp/screens/CurvasS'));
 const BasePrecios        = lazy(() => import('@/erp/screens/BasePrecios'));
-const ReportesTecnicos   = lazy(() => import('@/erp/screens/ReportesTecnicos'));
 const MuroObra           = lazy(() => import('@/erp/screens/MuroObra'));
 const OrdenesCambio      = lazy(() => import('@/erp/screens/OrdenesCambio'));
 const Notificaciones     = lazy(() => import('@/erp/screens/Notificaciones'));
@@ -80,15 +78,12 @@ const CuentasCobrar      = lazy(() => import('@/erp/screens/CuentasCobrar'));
 const CuentasPagar       = lazy(() => import('@/erp/screens/CuentasPagar'));
 const Cotizaciones       = lazy(() => import('@/erp/screens/Cotizaciones'));
 const PlantillasProyectos = lazy(() => import('@/erp/screens/PlantillasProyectos'));
-const AnalisisCostosDashboard = lazy(() => import('@/erp/screens/AnalisisCostosDashboard'));
 const ProveedorAnalytics = lazy(() => import('@/erp/screens/ProveedorAnalytics'));
 const ErrorLog            = lazy(() => import('@/erp/screens/ErrorLog'));
-const Auditoria            = lazy(() => import('@/erp/screens/Auditoria'));
 const Activos             = lazy(() => import('@/erp/screens/Activos'));
 const Cuadros             = lazy(() => import('@/erp/screens/Cuadros'));
-const Bitacora            = lazy(() => import('@/erp/screens/Bitacora'));
 
-const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','curvas','baseprecios','reportes','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','analisis-costos','proveedor-analytics','error-log','auditoria','activos','cuadros','bitacora'] as const;
+const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros'] as const;
 
 const SCREEN_SET = new Set<string>(SCREEN_KEYS as readonly string[]);
 
@@ -157,9 +152,7 @@ const Shell: React.FC = () => {
     bodega:            <Bodega />,
     crm:               <CRM />,
     apu:               <APUAvanzado />,
-    curvas:            <CurvasS />,
     baseprecios:       <BasePrecios />,
-    reportes:          <ReportesTecnicos />,
     muro:              <MuroObra />,
     'ordenes-cambio':  <OrdenesCambio />,
     notificaciones:    <Notificaciones />,
@@ -182,13 +175,8 @@ const Shell: React.FC = () => {
     'cuentas-pagar':   <CuentasPagar />,
     cotizaciones:      <Cotizaciones />,
     plantillas:        <PlantillasProyectos />,
-    'analisis-costos':  <AnalisisCostosDashboard />,
     'proveedor-analytics': <ProveedorAnalytics />,
     'error-log':       <ErrorLog />,
-    auditoria:         <Auditoria />,
-    activos:           <Activos />,
-    cuadros:           <Cuadros />,
-    bitacora:          <Bitacora />,
   }), []);
 
   const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter(key => allowedViews.includes(key as any)), [allowedViews]);
