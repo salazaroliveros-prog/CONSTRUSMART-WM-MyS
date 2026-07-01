@@ -41,7 +41,8 @@ export function useAuth(): UseAuthReturn {
 
   const buildUserFromSession = useCallback(async () => {
     if (!hasSupabase) {
-      setUser({ id: 'dev-user', email: 'dev@local.test', nombre: 'Desarrollador', rol: 'Administrador', avatar: '' });
+      setError('Supabase no está configurado. Configura VITE_SUPABASE_URL y VITE_SUPABASE_KEY en .env');
+      setUser(null);
       setLoading(false);
       return;
     }
@@ -49,7 +50,7 @@ export function useAuth(): UseAuthReturn {
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session?.user) {
-      setUser({ id: 'dev-user', email: 'dev@local.test', nombre: 'Desarrollador', rol: 'Administrador', avatar: '' });
+      setUser(null);
       setLoading(false);
       return;
     }

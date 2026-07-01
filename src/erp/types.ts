@@ -105,14 +105,15 @@ export interface SeguimientoEVM {
 export interface InsumoBase {
   id: string;
   codigo: string;
-  proyectoId: string;
   nombre: string;
   categoria: string;
   unidad: string;
-  precioReferencia: number;
+  costo_base: number;
   rubro: string;
   activo: boolean;
-  fechaActualizacion?: string;
+  created_by?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface HistorialPrecio {

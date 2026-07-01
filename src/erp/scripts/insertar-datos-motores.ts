@@ -1,7 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
+import { config } from 'dotenv';
 
-const supabaseUrl = 'https://neygzluxugodiwcuctbj.supabase.co';
-const supabaseKey = 'JWT_ANON_KEY_PLACEHOLDER';
+config();
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Faltan VITE_SUPABASE_URL o VITE_SUPABASE_KEY en el entorno');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 

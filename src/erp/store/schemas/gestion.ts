@@ -143,3 +143,17 @@ export const submittalSchema = z.object({
   fechaEnvio: z.string().default(new Date().toISOString().split('T')[0]),
   estado: z.enum(['pendiente','aprobado','rechazado','con_comentarios'] as const).default('pendiente'),
 });
+
+export const insumosBaseSchema = z.object({
+  id: z.string(),
+  codigo: z.string().min(1, 'codigo es requerido'),
+  nombre: z.string().min(1, 'nombre es requerido'),
+  categoria: z.string().default('material'),
+  unidad: z.string().default('u'),
+  costo_base: z.number().default(0),
+  rubro: z.string().default('general'),
+  activo: z.boolean().default(true),
+  created_by: z.string().optional(),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional(),
+});

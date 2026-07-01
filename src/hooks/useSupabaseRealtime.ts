@@ -107,16 +107,7 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
   const subscribe = useCallback(() => {
     if (!hasSupabase || !enabled || effectiveTablas.length === 0) return;
 
-    // Determinar qué cliente usar: sesión real o service role (guest mode)
-    let rtClient = supabase;
-    if (hasServiceRole) {
-      try {
-        const raw = localStorage.getItem('sb-neygzluxugodiwcuctbj-auth-token');
-        if (!raw || raw.includes('mock')) {
-          rtClient = getServiceRealtimeClient();
-        }
-      } catch { /* ignore */ }
-    }
+    const rtClient = supabase;
 
     // Limpiar canal anterior si existe
     if (channelRef.current) {

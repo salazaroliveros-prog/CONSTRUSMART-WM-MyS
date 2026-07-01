@@ -16,6 +16,7 @@ export const ComercialFinanzas: React.FC = () => {
   const [form, setForm] = useState<Record<string, any>>({});
   const [amortInputs, setAmortInputs] = useState<Record<string, string>>({});
 
+  const [loading, setLoading] = useState(true);
   const [anticipos, setAnticipos] = useState<Anticipo[]>([]);
   const [cajasChicas, setCajasChicas] = useState<CajaChica[]>([]);
 

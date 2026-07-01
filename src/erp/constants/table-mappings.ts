@@ -11,6 +11,7 @@ export const TABLE_MAP: Record<string, string> = {
   recepciones_almacen:'recepciones',erp_centros_costo:'centrosCosto',
   erp_seguimiento:'seguimientoEVM',erp_bitacora:'bitacora',
   erp_plantillas_proyectos:'plantillas',
+  erp_insumos_base:'insumosBase',
   erp_presupuestos:'presupuestos',erp_avances:'avances',
   erp_eventos_calendario:'eventos',ventas_paquetes:'ventasPaquetes',
   erp_notificaciones:'notificaciones',erp_ordenes_cambio:'ordenesCambio',

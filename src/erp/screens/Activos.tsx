@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Search, Wrench, Truck, Package, AlertTriangle, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Modal } from 'antd';
 
 const TIPOS = ['herramienta', 'equipo', 'vehiculo', 'accesorio'] as const;
 const ESTADOS = ['disponible', 'asignado', 'mantenimiento', 'baja'] as const;
@@ -127,7 +128,7 @@ const Activos: React.FC = () => {
                 <td className="p-2 font-mono">Q{Number(a.valor || 0).toLocaleString()}</td>
                 <td className="p-2 text-right">
                   <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-slate-100"><Edit2 className="w-4 h-4 text-slate-500" /></button>
-                  <button onClick={() => { if (window.confirm(t('activos.confirmar_eliminar'))) remove(a.id); }} className="p-1.5 rounded hover:bg-slate-100"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                  <button onClick={() => Modal.confirm({ title: t('activos.confirmar_eliminar'), onOk: () => remove(a.id), okText: 'Eliminar', cancelText: 'Cancelar', okButtonProps: { danger: true } })} className="p-1.5 rounded hover:bg-slate-100"><Trash2 className="w-4 h-4 text-red-500" /></button>
                 </td>
               </tr>
             ))}

@@ -1,9 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
+import { readFileSync, existsSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 
-// Service role key con permisos de admin (bypass RLS)
-const supabaseUrl = 'https://neygzluxugodiwcuctbj.supabase.co';
-const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5leWd6bHV4dWdvZGl3Y3VjdGJqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDI2MDg5MiwiZXhwIjoyMDk1ODM2ODkyfQ.R_V6DzM2K3-1v9cW8x-pgZB-5mX4YvV-0NqE8b1y1c';
-
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const envPath = resolve(__dirname, '../../../.env.local');
+let supabaseUrl = '';
+let supabaseServiceKey = '';
+if (existsSync(envPath)) {
+  for (const line of readFileSync(envPath, 'utf-8').split('\n')) {
+    const t = line.trim();
+    if (t.startsWith('VITE_SUPABASE_URL=')) supabaseUrl = t.slice('VITE_SUPABASE_URL='.length).trim();
+    else if (t.startsWith('VITE_SUPABASE_SERVICE_ROLE_KEY=')) supabaseServiceKey = t.slice('VITE_SUPABASE_SERVICE_ROLE_KEY='.length).trim();
+  }
+}
+if (!supabaseServiceKey) throw new Error('VITE_SUPABASE_SERVICE_ROLE_KEY not found in .env.local');
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function ejecutarRLSCorreccion() {

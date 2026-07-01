@@ -1,24 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-import { readFileSync } from 'fs';
-
-const supabaseUrl = 'https://neygzluxugodiwcuctbj.supabase.co';
-
-const envContent = readFileSync('.env', 'utf-8');
-const lines = envContent.split('\n');
-let supabaseKey = '';
-for (const line of lines) {
-  if (line.startsWith('VITE_SUPABASE_KEY=')) {
-    supabaseKey = line.split('=')[1].trim();
-    break;
-  }
-}
-
-if (!supabaseKey) {
-  console.error('No se pudo encontrar VITE_SUPABASE_KEY en .env');
-  process.exit(1);
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+import 'dotenv/config';
 
 interface DatoHistorico {
   tipoProyecto: string;

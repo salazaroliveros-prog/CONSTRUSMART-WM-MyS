@@ -17,19 +17,20 @@ export default defineConfig(({ mode: _mode }) => ({
     port: 8080,
   },
   optimizeDeps: {
-    include: ['antd', '@ant-design/icons'],
+    include: ['antd', '@ant-design/icons', 'react-leaflet', '@react-leaflet/core', 'leaflet', 'react-leaflet-cluster'],
   },
   build: {
     chunkSizeWarningLimit: 5000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom', 'react-i18next'],
-          antd: ['antd'],
-          icons: ['@ant-design/icons'],
-          xlsx: ['xlsx'],
-          pdf: ['jspdf', 'html2canvas'],
-          three: ['three', 'web-ifc'],
+        manualChunks(id: string) {
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react-router') || id.includes('node_modules/react-i18next')) return 'vendor';
+          if (id.includes('node_modules/react/')) return 'vendor';
+          if (id.includes('node_modules/antd')) return 'antd';
+          if (id.includes('node_modules/@ant-design/icons')) return 'icons';
+          if (id.includes('node_modules/xlsx')) return 'xlsx';
+          if (id.includes('node_modules/jspdf') || id.includes('node_modules/html2canvas')) return 'pdf';
+          if (id.includes('node_modules/three') || id.includes('node_modules/web-ifc')) return 'three';
         },
       },
       onwarn(warning, warn) {

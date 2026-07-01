@@ -1,0 +1,428 @@
+- generic [ref=e3]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - button "Abrir menú" [ref=e7] [cursor=pointer]:
+          - img [ref=e8]
+        - img "WM" [ref=e10]
+        - generic [ref=e11]:
+          - generic [ref=e12]: CONSTRUCTORA WM / M&S
+          - generic [ref=e13]: Edificando el Futuro
+      - generic [ref=e14]:
+        - generic [ref=e16]:
+          - img [ref=e17]
+          - generic [ref=e21]: En línea
+        - generic [ref=e22]:
+          - img [ref=e24]
+          - generic [ref=e26]: Error de sync
+        - generic [ref=e27]:
+          - generic [ref=e28]: 01:36 p. m.
+          - generic [ref=e29]: 30 jun
+      - generic [ref=e30]:
+        - button "Notificaciones" [ref=e31] [cursor=pointer]:
+          - img [ref=e32]
+        - button "Cambiar foto de perfil" [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]: D
+          - img [ref=e38]
+        - button "Cerrar sesión" [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+    - generic [ref=e45]:
+      - complementary [ref=e46]:
+        - generic [ref=e47]:
+          - generic [ref=e48]: Módulos
+          - button "Cerrar menú" [ref=e49] [cursor=pointer]:
+            - img [ref=e50]
+        - generic [ref=e54]:
+          - generic [ref=e56]: D
+          - generic [ref=e57]:
+            - paragraph [ref=e58]: Desarrollador
+            - paragraph [ref=e59]: Administrador
+        - navigation "Navegación principal" [ref=e60]:
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - generic [ref=e65]: PRINCIPAL
+              - generic [ref=e66]:
+                - button "Dashboard" [ref=e67] [cursor=pointer]:
+                  - img [ref=e68]
+                  - generic [ref=e73]: Dashboard
+                - button "Proyectos" [ref=e74] [cursor=pointer]:
+                  - img [ref=e75]
+                  - generic [ref=e79]: Proyectos
+                - button "CRM (Clientes)" [ref=e80] [cursor=pointer]:
+                  - img [ref=e81]
+                  - generic [ref=e85]: CRM (Clientes)
+                - button "Cotizaciones" [ref=e86] [cursor=pointer]:
+                  - img [ref=e87]
+                  - generic [ref=e90]: Cotizaciones
+            - generic [ref=e91]:
+              - generic [ref=e95]: PLANIFICACIÓN
+              - generic [ref=e96]:
+                - button "Presupuestos + APU" [ref=e97] [cursor=pointer]:
+                  - img [ref=e98]
+                  - generic [ref=e100]: Presupuestos + APU
+                - button "APU Avanzado" [ref=e101] [cursor=pointer]:
+                  - img [ref=e102]
+                  - generic [ref=e105]: APU Avanzado
+                - button "Base de Precios" [ref=e106] [cursor=pointer]:
+                  - img [ref=e107]
+                  - generic [ref=e109]: Base de Precios
+                - button "Hitos del Proyecto" [ref=e110] [cursor=pointer]:
+                  - img [ref=e111]
+                  - generic [ref=e113]: Hitos del Proyecto
+                - button "Gestión de Riesgos" [ref=e114] [cursor=pointer]:
+                  - img [ref=e115]
+                  - generic [ref=e117]: Gestión de Riesgos
+                - button "Plantillas de Proyectos" [ref=e118] [cursor=pointer]:
+                  - img [ref=e119]
+                  - generic [ref=e122]: Plantillas de Proyectos
+                - button "Bitácora" [ref=e123] [cursor=pointer]:
+                  - img [ref=e124]
+                  - generic [ref=e126]: Bitácora
+            - generic [ref=e127]:
+              - generic [ref=e131]: EJECUCIÓN
+              - generic [ref=e132]:
+                - button "Seguimiento + Gantt" [ref=e133] [cursor=pointer]:
+                  - img [ref=e134]
+                  - generic [ref=e138]: Seguimiento + Gantt
+                - button "Curvas S" [ref=e139] [cursor=pointer]:
+                  - img [ref=e140]
+                  - generic [ref=e143]: Curvas S
+                - button "Rendimiento Campo" [ref=e144] [cursor=pointer]:
+                  - img [ref=e145]
+                  - generic [ref=e150]: Rendimiento Campo
+                - button "SSO & Calidad" [ref=e151] [cursor=pointer]:
+                  - img [ref=e152]
+                  - generic [ref=e155]: SSO & Calidad
+                - button "Muro de Obra" [ref=e156] [cursor=pointer]:
+                  - img [ref=e157]
+                  - generic [ref=e160]: Muro de Obra
+                - button "Órdenes de Cambio" [ref=e161] [cursor=pointer]:
+                  - img [ref=e162]
+                  - generic [ref=e166]: Órdenes de Cambio
+                - button "Documentos y Planos" [ref=e167] [cursor=pointer]:
+                  - img [ref=e168]
+                  - generic [ref=e170]: Documentos y Planos
+                - button "Visor BIM" [ref=e171] [cursor=pointer]:
+                  - img [ref=e172]
+                  - generic [ref=e175]: Visor BIM
+            - generic [ref=e176]:
+              - generic [ref=e180]: SUMINISTRO
+              - generic [ref=e181]:
+                - button "Inventario (Bodega)" [ref=e182] [cursor=pointer]:
+                  - img [ref=e183]
+                  - generic [ref=e186]: Inventario (Bodega)
+                - button "Logística y Compras" [ref=e187] [cursor=pointer]:
+                  - img [ref=e188]
+                  - generic [ref=e193]: Logística y Compras
+                - button "Entradas Almacén" [ref=e194] [cursor=pointer]:
+                  - img [ref=e195]
+                  - generic [ref=e199]: Entradas Almacén
+                - button "Activos" [ref=e200] [cursor=pointer]:
+                  - img [ref=e201]
+                  - generic [ref=e203]: Activos
+                - button "Cuadros Comparativos" [ref=e204] [cursor=pointer]:
+                  - img [ref=e205]
+                  - generic [ref=e209]: Cuadros Comparativos
+                - button "Analytics Proveedores" [ref=e210] [cursor=pointer]:
+                  - img [ref=e211]
+                  - generic [ref=e214]: Analytics Proveedores
+            - generic [ref=e215]:
+              - generic [ref=e219]: RRHH
+              - generic [ref=e220]:
+                - button "Recursos Humanos" [ref=e221] [cursor=pointer]:
+                  - img [ref=e222]
+                  - generic [ref=e227]: Recursos Humanos
+                - button "Planilla Destajos" [ref=e228] [cursor=pointer]:
+                  - img [ref=e229]
+                  - generic [ref=e232]: Planilla Destajos
+            - generic [ref=e233]:
+              - generic [ref=e237]: FINANZAS
+              - generic [ref=e238]:
+                - button "Control Financiero" [ref=e239] [cursor=pointer]:
+                  - img [ref=e240]
+                  - generic [ref=e243]: Control Financiero
+                - button "Comercial / Finanzas" [ref=e244] [cursor=pointer]:
+                  - img [ref=e245]
+                  - generic [ref=e247]: Comercial / Finanzas
+                - button "Cuentas por Cobrar" [ref=e248] [cursor=pointer]:
+                  - img [ref=e249]
+                  - generic [ref=e251]: Cuentas por Cobrar
+                - button "Cuentas por Pagar" [ref=e252] [cursor=pointer]:
+                  - img [ref=e253]
+                  - generic [ref=e255]: Cuentas por Pagar
+                - button "Impuestos" [ref=e256] [cursor=pointer]:
+                  - img [ref=e257]
+                  - generic [ref=e261]: Impuestos
+            - generic [ref=e262]:
+              - generic [ref=e266]: ANÁLISIS BI
+              - generic [ref=e267]:
+                - button "Análisis de Costos" [ref=e268] [cursor=pointer]:
+                  - img [ref=e269]
+                  - generic [ref=e272]: Análisis de Costos
+                - button "Dashboard Predictivo" [ref=e273] [cursor=pointer]:
+                  - img [ref=e274]
+                  - generic [ref=e276]: Dashboard Predictivo
+                - button "Exportación Inteligente" [ref=e277] [cursor=pointer]:
+                  - img [ref=e278]
+                  - generic [ref=e281]: Exportación Inteligente
+                - button "Reportes Técnicos" [ref=e282] [cursor=pointer]:
+                  - img [ref=e283]
+                  - generic [ref=e286]: Reportes Técnicos
+            - generic [ref=e287]:
+              - generic [ref=e291]: SISTEMA
+              - generic [ref=e292]:
+                - button "Notificaciones" [ref=e293] [cursor=pointer]:
+                  - img [ref=e294]
+                  - generic [ref=e297]: Notificaciones
+                - button "Log de Errores" [ref=e298] [cursor=pointer]:
+                  - img [ref=e299]
+                  - generic [ref=e301]: Log de Errores
+                - button "Auditoría" [ref=e302] [cursor=pointer]:
+                  - img [ref=e303]
+                  - generic [ref=e315]: Auditoría
+                - button "Admin del Sistema" [ref=e316] [cursor=pointer]:
+                  - img [ref=e317]
+                  - generic [ref=e329]: Admin del Sistema
+                - button "Ajustes" [ref=e330] [cursor=pointer]:
+                  - img [ref=e331]
+                  - generic [ref=e334]: Ajustes
+        - generic [ref=e336]:
+          - paragraph [ref=e337]: CONSTRUSMART ERP
+          - paragraph [ref=e338]: Edificando el Futuro
+      - main "Contenido principal" [ref=e339]:
+        - generic [ref=e341]:
+          - generic [ref=e342]:
+            - generic [ref=e343]:
+              - generic [ref=e344]:
+                - heading "Tablero" [level=1] [ref=e345]
+                - paragraph [ref=e346]: Métricas en tiempo real
+              - generic [ref=e347]:
+                - text: En vivo
+                - generic [ref=e349]: ·
+                - generic [ref=e350]: No se pudieron cargar datos críticos. Verifique la conexión a Supabase.
+              - generic [ref=e351]: Sync 1:34:59 p.m.
+              - button "PDF" [ref=e352] [cursor=pointer]:
+                - img [ref=e353]
+                - text: PDF
+            - combobox [ref=e356]:
+              - option "Todos los proyectos" [selected]
+          - generic [ref=e357]:
+            - generic [ref=e358]:
+              - img [ref=e359]
+              - generic [ref=e363]:
+                - text: Sin datos
+                - text: en Supabase
+            - generic [ref=e364]:
+              - img [ref=e365]
+              - generic [ref=e369]:
+                - text: Sin datos
+                - text: en Supabase
+            - generic [ref=e370]:
+              - img [ref=e371]
+              - generic [ref=e375]:
+                - text: Sin datos
+                - text: en Supabase
+            - generic [ref=e376]:
+              - img [ref=e377]
+              - generic [ref=e381]:
+                - text: Sin datos
+                - text: en Supabase
+          - generic [ref=e382]:
+            - generic [ref=e383]:
+              - heading "Planif. vs Real" [level=3] [ref=e384]:
+                - img [ref=e385]
+                - text: Planif. vs Real
+              - generic [ref=e387]: Sin presupuestos cargados
+            - generic [ref=e388]:
+              - heading "Avance General" [level=3] [ref=e389]:
+                - img [ref=e390]
+                - text: Avance General
+              - generic [ref=e392]:
+                - 'img "Gauge: Avance Físico" [ref=e394]':
+                  - generic [ref=e399]: Avance Físico
+                - generic [ref=e400]:
+                  - generic [ref=e401]:
+                    - generic [ref=e402]: Avance Físico
+                    - generic [ref=e403]: 0.0%
+                  - generic [ref=e405]:
+                    - generic [ref=e406]: Avances Financiero
+                    - generic [ref=e407]: 0.0%
+                  - generic [ref=e409]:
+                    - generic [ref=e410]: Registros de avance
+                    - generic [ref=e411]: "0"
+                  - generic [ref=e412]:
+                    - generic [ref=e413]: Proy. en ejecución
+                    - generic [ref=e414]: "0"
+            - generic [ref=e415]:
+              - heading "Recursos" [level=3] [ref=e416]:
+                - img [ref=e417]
+                - text: Recursos
+              - generic [ref=e421]:
+                - generic [ref=e422]:
+                  - img "Gráfico donut" [ref=e423]:
+                    - 'generic "Stock Crítico: 0%"'
+                    - 'generic "OK: 0%"'
+                    - generic [ref=e425]: Sin datos
+                  - generic [ref=e426]: 0 mats
+                - generic [ref=e428]:
+                  - generic [ref=e429]:
+                    - generic [ref=e430]:
+                      - img [ref=e431]
+                      - text: RRHH
+                    - generic [ref=e436]: "0"
+                  - generic [ref=e437]:
+                    - 'generic "Disp: 0" [ref=e438]'
+                    - 'generic "Ocup: 0" [ref=e439]'
+                  - generic [ref=e440]:
+                    - generic [ref=e441]: 0 disp.
+                    - generic [ref=e442]: 0 ocup.
+          - generic [ref=e443]:
+            - generic [ref=e446]:
+              - img [ref=e447]
+              - paragraph [ref=e451]: Sin datos
+            - generic [ref=e452]:
+              - generic [ref=e453]:
+                - heading "Top Proyectos por Presupuesto" [level=3] [ref=e454]:
+                  - img [ref=e455]
+                  - text: Top Proyectos por Presupuesto
+                - paragraph [ref=e459]: Sin proyectos
+              - generic [ref=e460]:
+                - heading "OC Pendientes" [level=3] [ref=e461]:
+                  - img [ref=e462]
+                  - text: OC Pendientes
+                - paragraph [ref=e466]: Sin datos
+              - generic [ref=e467]:
+                - heading "Integridad de Datos" [level=3] [ref=e468]:
+                  - img [ref=e469]
+                  - text: Integridad de Datos
+                - generic [ref=e471]:
+                  - generic [ref=e472]:
+                    - generic [ref=e473]: "Registros huérfanos: 0"
+                    - generic [ref=e474]: "0"
+                  - generic [ref=e475]:
+                    - generic [ref=e476]: "Campos NULL: 0"
+                    - generic [ref=e477]: "0"
+                  - generic [ref=e478]:
+                    - generic [ref=e479]: "Errores constraint: 0"
+                    - generic [ref=e480]: "0"
+              - generic [ref=e481]:
+                - heading "Performance de Queries" [level=3] [ref=e482]:
+                  - img [ref=e483]
+                  - text: Performance de Queries
+                - generic [ref=e487]:
+                  - generic [ref=e488]:
+                    - generic [ref=e489]: "Queries lentas: 0"
+                    - generic [ref=e490]: "0"
+                  - generic [ref=e491]:
+                    - generic [ref=e492]: "Sync promedio: 0.0s"
+                    - generic [ref=e493]: 0.0s
+                  - generic [ref=e494]:
+                    - generic [ref=e495]: "Tamaño DB: 0 registros"
+                    - generic [ref=e496]: "0"
+          - generic [ref=e497]:
+            - generic [ref=e499]:
+              - heading "Registro Rápido" [level=3] [ref=e500]
+              - generic [ref=e501]:
+                - group "Tipo de movimiento" [ref=e502]:
+                  - button "Ingreso" [ref=e503] [cursor=pointer]
+                  - button "Gasto" [pressed] [ref=e504] [cursor=pointer]
+                - generic [ref=e505]:
+                  - combobox [ref=e506]:
+                    - option "— Sin proyecto —" [selected]
+                  - textbox "Descripción *" [ref=e507]
+                  - spinbutton "Cantidad" [ref=e508]: "1"
+                  - textbox "Unidad" [ref=e509]: global
+                  - combobox [ref=e510]:
+                    - option "Materiales" [selected]
+                    - option "Mano de Obra"
+                    - option "Equipo"
+                    - option "Subcontrato"
+                    - option "Administración"
+                    - option "Transporte"
+                    - option "Imprevistos"
+                    - option "Marketing"
+                    - option "Licencias"
+                    - option "Seguros"
+                    - option "Otros"
+                  - spinbutton "Costo unit." [ref=e511]: "0"
+                  - textbox [ref=e512]: 2026-06-30
+                  - generic [ref=e513]: Q 0.00
+                  - textbox "Proveedor" [ref=e514]
+                  - textbox "N° Factura" [ref=e515]
+                  - combobox [ref=e516]:
+                    - option "Forma de Pago" [selected]
+                    - option "Efectivo"
+                    - option "Transferencia"
+                    - option "Cheque"
+                    - option "Tarjeta"
+                    - option "Otro"
+                  - textbox "Ref. Bancaria / N° Cheque" [ref=e517]
+                  - spinbutton "Retención ISR (Q)" [ref=e518]
+                  - spinbutton "Retención IVA (Q)" [ref=e519]
+                  - textbox "Notas adicionales" [ref=e520]
+                - button "Registrar gasto" [ref=e521] [cursor=pointer]:
+                  - img [ref=e522]
+                  - text: Registrar gasto
+            - generic [ref=e523]:
+              - generic [ref=e524]:
+                - heading "Gastos vs Ingresos" [level=3] [ref=e525]:
+                  - img [ref=e526]
+                  - text: Gastos
+                  - generic [ref=e528]: vs Ingresos
+                - img "Gráfico de barras" [ref=e530]
+                - generic [ref=e531]:
+                  - generic [ref=e532]: Ingresos
+                  - generic [ref=e534]: Q 0.00
+                  - generic [ref=e535]: Gastos
+                  - generic [ref=e537]: Q 0.00
+              - generic [ref=e538]:
+                - generic [ref=e539]:
+                  - heading "Próximas actividades" [level=3] [ref=e540]:
+                    - img [ref=e541]
+                    - text: Próximas actividades
+                  - button "Ver todos" [ref=e545] [cursor=pointer]:
+                    - text: Ver todos
+                    - img [ref=e546]
+                - generic [ref=e548]:
+                  - generic [ref=e549]:
+                    - img [ref=e550]
+                    - generic [ref=e552]:
+                      - generic [ref=e553]: Reunión de obra
+                      - generic [ref=e554]:
+                        - generic [ref=e555]: mié, 1 jul
+                        - generic [ref=e556]: •
+                        - generic [ref=e557]: 08:00
+                    - generic [ref=e558]: Reunión
+                  - generic [ref=e559]:
+                    - img [ref=e560]
+                    - generic [ref=e562]:
+                      - generic [ref=e563]: Visita de supervisión
+                      - generic [ref=e564]:
+                        - generic [ref=e565]: jue, 2 jul
+                        - generic [ref=e566]: •
+                        - generic [ref=e567]: 10:00
+                    - generic [ref=e568]: Visita
+                  - generic [ref=e569]:
+                    - img [ref=e570]
+                    - generic [ref=e572]:
+                      - generic [ref=e573]: Actividad programada
+                      - generic [ref=e574]:
+                        - generic [ref=e575]: vie, 3 jul
+                        - generic [ref=e576]: •
+                        - generic [ref=e577]: 12:00
+                    - generic [ref=e578]: Actividad
+                  - generic [ref=e579]:
+                    - img [ref=e580]
+                    - generic [ref=e582]:
+                      - generic [ref=e583]: Entrega de reporte
+                      - generic [ref=e584]:
+                        - generic [ref=e585]: sáb, 4 jul
+                        - generic [ref=e586]: •
+                        - generic [ref=e587]: 14:00
+                    - generic [ref=e588]: Entrega
+    - button "Abrir acciones rápidas" [ref=e591] [cursor=pointer]:
+      - img [ref=e594]
+      - button "Minimizar" [ref=e595]

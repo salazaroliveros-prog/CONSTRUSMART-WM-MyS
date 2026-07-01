@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useErp } from '../store';
 import { CuentaCobrar } from '../types';
 import ProyectoFilter from '../components/ProyectoFilter';
