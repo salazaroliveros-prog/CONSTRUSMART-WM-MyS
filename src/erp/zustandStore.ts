@@ -641,9 +641,13 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   },
   deleteProyecto: (id) => {
     const p = get().proyectos.find(x => x.id === id);
+    if (!p) {
+      safeLogger.warn('[deleteProyecto] Proyecto no encontrado:', id);
+      return;
+    }
     get().setProyectos(prev => prev.filter(p => p.id !== id));
     get().enqueueMutation('deleteProyecto', { id });
-    if (p) get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'eliminar', entidad: 'proyecto', entidadId: id, valoresAnteriores: { nombre: p.nombre, estado: p.estado } });
+    get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'eliminar', entidad: 'proyecto', entidadId: id, valoresAnteriores: { nombre: p.nombre, estado: p.estado } });
   },
   clearProyectos: () => {
     const ids = get().proyectos.map(p => p.id);
@@ -651,7 +655,9 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     const nombres = get().proyectos.map(p => p.nombre);
     get().setProyectos([]);
     if (ids.includes(get().selectedProyectoId || '')) get().setSelectedProyectoId(null);
-    get().enqueueMutation('clearProyectos', { ids });
+    ids.forEach(id => {
+      get().enqueueMutation('deleteProyecto', { id });
+    });
     get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'eliminar_todo', entidad: 'proyectos', valoresAnteriores: { ids, nombres } });
   },
   clearAllData: () => {

@@ -161,7 +161,7 @@ function stripAppOnlyFields<T extends Record<string, unknown>>(obj: T): T {
 }
 
 export const MUTATION_TABLE_MAP: Record<string, string> = {
-  addProyecto:'erp_proyectos',updateProyecto:'erp_proyectos',deleteProyecto:'erp_proyectos',clearProyectos:'erp_proyectos',
+  addProyecto:'erp_proyectos',updateProyecto:'erp_proyectos',deleteProyecto:'erp_proyectos',
   addMovimiento:'erp_movimientos',updateMovimiento:'erp_movimientos',deleteMovimiento:'erp_movimientos',
   addEmpleado:'erp_empleados',updateEmpleado:'erp_empleados',deleteEmpleado:'erp_empleados',
   addMaterial:'erp_materiales',updateMaterial:'erp_materiales',deleteMaterial:'erp_materiales',
