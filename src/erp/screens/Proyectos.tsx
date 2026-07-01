@@ -421,7 +421,14 @@ const Proyectos: React.FC = () => {
       });
       clearProyectos();
       toast.success(t('proyectos.proyectos_eliminados'), { description: t('proyectos.proyectos_eliminados_desc') });
-    } catch {}
+    } catch (error) {
+      if (error instanceof Error) {
+        // Rechaza de Modal confirm (usario pulsó cancelar)
+        return;
+      }
+      console.error('Error in limpiarProyectos:', error);
+      toast.error(t('common.error'));
+    }
   };
 
   if (loading) {
@@ -617,22 +624,26 @@ const Proyectos: React.FC = () => {
                   <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={t('proyectos.editar_proyecto', { nombre: p.nombre })}>
                     <Pencil className="w-4 h-4" aria-hidden="true" />
                   </button>
-                  <button onClick={async () => {
-                    try {
-                      await Modal.confirm({
-                        title: t('proyectos.eliminar_proyecto'),
-                        content: t('proyectos.confirmar_eliminar', { nombre: p.nombre }),
-                        centered: true,
-                        okText: t('common.si'),
-                        cancelText: t('common.cancelar'),
-                        okType: 'danger',
-                      });
-                      deleteProyecto(p.id);
-                      toast.success(t('proyectos.proyecto_eliminado', { nombre: p.nombre }));
-                    } catch {}
-                  }} className={BUTTON_DANGER} aria-label={t('proyectos.eliminar_proyecto_nombre', { nombre: p.nombre })}>
-                    <Trash2 className="w-4 h-4" aria-hidden="true" />
-                  </button>
+<button onClick={async () => {
+                      try {
+                        await Modal.confirm({
+                          title: t('proyectos.eliminar_proyecto'),
+                          content: t('proyectos.confirmar_eliminar', { nombre: p.nombre }),
+                          centered: true,
+                          okText: t('common.si'),
+                          cancelText: t('common.cancelar'),
+                          okType: 'danger',
+                        });
+                        deleteProyecto(p.id);
+                        toast.success(t('proyectos.proyecto_eliminado', { nombre: p.nombre }));
+                      } catch (error) {
+                        if (error instanceof Error) return;
+                        console.error('Error deleting proyecto:', error);
+                        toast.error(t('common.error'));
+                      }
+                    }} className={BUTTON_DANGER} aria-label={t('proyectos.eliminar_proyecto_nombre', { nombre: p.nombre })}>
+                      <Trash2 className="w-4 h-4" aria-hidden="true" />
+                    </button>
                 </div>
               </div>
 
