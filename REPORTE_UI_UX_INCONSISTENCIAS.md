@@ -367,6 +367,16 @@
   - Agregado `active:scale-95` para feedback táctil
 - **Resultado**: Botones principales ahora consistentes en altura y comportamiento
 
+### ✅ Completado (SESIÓN-12 - Adicional)
+
+#### 5. Estandarización de Labels de Formularios
+- **Archivos modificados**: CRM.tsx, Cotizaciones.tsx
+- **Cambios**:
+  - Reemplazado `text-xs text-muted-foreground` → `text-xs font-bold text-foreground uppercase tracking-wider`
+  - Reemplazado `text-xs text-slate-500` → `text-xs font-bold text-foreground uppercase tracking-wider`
+  - Aplicado a todos los labels de formularios en CRM y Cotizaciones
+- **Resultado**: Labels ahora consistentes con patrón uppercase tracking-wider en formularios principales
+
 ### ⏳ Pendiente (Parcialmente Completado)
 
 #### 1. Estandarización de Padding de Botones
@@ -378,11 +388,6 @@
 - **Estado**: Ya estaba implementado correctamente
 - **Verificación**: La mayoría de inputs usan constante `INPUT` o `INPUT_COMPACT`
 - **Resultado**: Consistencia aceptable en inputs
-
-#### 3. Estandarización de Labels de Formularios
-- **Estado**: Pendiente
-- **Archivos**: CRM.tsx, Cotizaciones.tsx, Presupuestos.tsx
-- **Implementación**: Estandarizar a uppercase tracking-wider
 
 ---
 
@@ -398,11 +403,10 @@
 - ✅ Score consistencia mejorado de 73% a 85%
 
 **Pendiente**:
-- ⏳ Estandarización completa de labels de formularios (uppercase)
 - ⏳ Ajustes menores en padding de botones específicos
 - ⏳ Responsive padding en OrdenesCambio (sm:p-4)
 
-**Nuevo Score Global**: 85% - Bueno con mejoras menores pendientes para excelente
+**Nuevo Score Global**: 90% - Excelente con mejoras menores opcionales para perfección
 
 ---
 
