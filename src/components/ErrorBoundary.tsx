@@ -1,202 +1,122 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react'
-import { log } from '@/lib/auto-logger'
-import { checkStoreHealth } from '@/lib/store-health'
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { captureException, captureMessage } from '@/lib/sentry';
 
-interface ErrorBoundaryProps {
-  children: ReactNode
-  fallback?: ReactNode
-  onReset?: () => void
-  moduleName?: string
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
 }
 
-interface ErrorBoundaryState {
-  hasError: boolean
-  error: Error | null
-  errorInfo: ErrorInfo | null
-  recoveryAttempts: number
+interface State {
+  hasError: boolean;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
 }
 
-const MAX_RECOVERY_ATTEMPTS = 3
-const RECOVERY_DELAYS = [1000, 2000, 4000] // Exponential backoff: 1s, 2s, 4s
-
-/**
- * ErrorBoundary inteligente con autorecuperación automática
- * 
- * Características:
- * - Captura errores de renderizado en hijos
- * - Reintenta hasta 3 veces con backoff exponencial (1s, 2s, 4s)
- * - Registra errores en auto-logger persistente
- * - Verifica salud del store y reinicia si es necesario
- * - Muestra UI de fallback con botón "Reintentar"
- * - Soporta módulos nombrados para trazabilidad
- */
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  private recoveryTimer: ReturnType<typeof setTimeout> | null = null
-
-  constructor(props: ErrorBoundaryProps) {
-    super(props)
+export class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
     this.state = {
       hasError: false,
       error: null,
       errorInfo: null,
-      recoveryAttempts: 0,
-    }
+    };
   }
 
-  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    return { hasError: true, error }
+  static getDerivedStateFromError(error: Error): State {
+    return {
+      hasError: true,
+      error,
+      errorInfo: null,
+    };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    this.setState({ errorInfo })
-    
-    const moduleName = this.props.moduleName || 'UnknownModule'
-    
-    log('error', `ErrorBoundary:${moduleName}`, error.message, {
-      error: error.toString(),
-      stack: error.stack,
+    this.setState({
+      error,
+      errorInfo,
+    });
+
+    captureException(error, {
       componentStack: errorInfo.componentStack,
-      recoveryAttempts: this.state.recoveryAttempts,
-    })
+      errorBoundary: true,
+    });
 
-    // Intento de autorecuperación automática
-    this.attemptAutoRecovery()
+    captureMessage('ErrorBoundary caught an error', 'error', {
+      error: error.message,
+      stack: error.stack,
+    });
   }
 
-  componentWillUnmount(): void {
-    if (this.recoveryTimer) {
-      clearTimeout(this.recoveryTimer)
-    }
-  }
-
-  private attemptAutoRecovery(): void {
-    const { recoveryAttempts } = this.state
-
-    if (recoveryAttempts >= MAX_RECOVERY_ATTEMPTS) {
-      log('warn', 'ErrorBoundary', `Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Manual intervention required.`)
-      return
-    }
-
-    const delay = RECOVERY_DELAYS[recoveryAttempts] || 4000
-    const moduleName = this.props.moduleName || 'UnknownModule'
-
-    log('recovery', `ErrorBoundary:${moduleName}`, 
-      `Attempting auto-recovery #${recoveryAttempts + 1}/${MAX_RECOVERY_ATTEMPTS} in ${delay}ms...`)
-
-    this.recoveryTimer = setTimeout(() => {
-      this.setState(prev => ({
-        hasError: false,
-        error: null,
-        errorInfo: null,
-        recoveryAttempts: prev.recoveryAttempts + 1,
-      }))
-    }, delay)
-  }
-
-  private handleManualReset = (): void => {
-    log('recovery', 'ErrorBoundary', 'Manual reset triggered by user')
-
-    // Verificar salud del store antes de resetear
-    try {
-      const rootState = (window as unknown as Record<string, unknown>).__store_state__ as Record<string, unknown> | undefined
-      if (rootState && !checkStoreHealth(rootState)) {
-        log('recovery', 'ErrorBoundary', 'Store health check failed. Resetting store to initial state.')
-      }
-    } catch {
-      // Silencio — el store puede no estar disponible
-    }
-
+  handleReset = (): void => {
     this.setState({
       hasError: false,
       error: null,
       errorInfo: null,
-      recoveryAttempts: 0,
-    })
-
-    this.props.onReset?.()
-  }
+    });
+  };
 
   render(): ReactNode {
     if (this.state.hasError) {
-      // Si hay fallback personalizado, usarlo
       if (this.props.fallback) {
-        return this.props.fallback
+        return this.props.fallback;
       }
 
-      const { recoveryAttempts } = this.state
-      const canRetry = recoveryAttempts < MAX_RECOVERY_ATTEMPTS
-
       return (
-        <div style={{
-          padding: '24px',
-          margin: '16px',
-          borderRadius: '8px',
-          backgroundColor: 'hsl(var(--destructive) / 0.1)',
-          border: '1px solid hsl(var(--destructive) / 0.3)',
-          color: 'hsl(var(--destructive))',
-          textAlign: 'center',
-          fontFamily: 'system-ui, sans-serif',
-        }}>
-          <h2 style={{ margin: '0 0 8px', fontSize: '1.25rem', fontWeight: 600 }}>
-            ⚠️ Error en el módulo {this.props.moduleName || 'del sistema'}
-          </h2>
-          <p style={{ margin: '0 0 16px', fontSize: '0.875rem', opacity: 0.8 }}>
-            {this.state.error?.message || 'Ha ocurrido un error inesperado'}
-          </p>
-          
-          {canRetry ? (
-            <p style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '12px' }}>
-              Reintentando automáticamente... (intento {recoveryAttempts + 1}/{MAX_RECOVERY_ATTEMPTS})
-            </p>
-          ) : (
-            <p style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '12px', color: 'hsl(var(--warning))' }}>
-              La recuperación automática no tuvo éxito. Intenta manualmente.
-            </p>
-          )}
-
-          <button
-            onClick={this.handleManualReset}
-            style={{
-              padding: '8px 24px',
-              borderRadius: '6px',
-              border: 'none',
-              backgroundColor: 'hsl(var(--primary))',
-              color: 'hsl(var(--primary-foreground))',
-              fontWeight: 500,
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-            }}
-          >
-            🔄 Reintentar
-          </button>
-
-          {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
-            <details style={{ marginTop: '16px', textAlign: 'left' }}>
-              <summary style={{ cursor: 'pointer', fontSize: '0.75rem', opacity: 0.6 }}>
-                Ver detalle técnico
-              </summary>
-              <pre style={{
-                marginTop: '8px',
-                padding: '8px',
-                borderRadius: '4px',
-                backgroundColor: 'hsl(var(--background))',
-                fontSize: '0.7rem',
-                overflowX: 'auto',
-                whiteSpace: 'pre-wrap',
-                maxHeight: '200px',
-              }}>
-                {this.state.error?.stack}
-                {'\n\nComponent Stack:\n'}
-                {this.state.errorInfo.componentStack}
-              </pre>
-            </details>
-          )}
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                <svg
+                  className="h-8 w-8 text-red-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Algo salió mal
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Ha ocurrido un error inesperado. El error ha sido reportado
+                automáticamente a nuestro equipo de soporte.
+              </p>
+              {this.state.error && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6 text-left">
+                  <p className="text-sm font-medium text-red-800 mb-2">
+                    Error:
+                  </p>
+                  <p className="text-sm text-red-700 font-mono break-all">
+                    {this.state.error.message}
+                  </p>
+                </div>
+              )}
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={this.handleReset}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Intentar de nuevo
+                </button>
+                <button
+                  onClick={() => window.location.href = '/'}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Ir al inicio
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      )
+      );
     }
 
-    return this.props.children
+    return this.props.children;
   }
 }
-
-export default ErrorBoundary

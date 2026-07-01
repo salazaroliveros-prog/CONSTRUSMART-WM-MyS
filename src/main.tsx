@@ -21,7 +21,7 @@ initServiceWorker().then(reg => {
   }
 });
 
-// Inicializar sistema de reporte de errores
+// Inicializar sistema de reporte de errores local
 errorReporter.init();
 log('info', 'Main', 'Sistema de reporte de errores inicializado');
 
