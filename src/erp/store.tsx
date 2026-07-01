@@ -325,6 +325,7 @@ calculosProyecto: loadFromStorage(BASE_STORAGE_KEY + '_calculos_proyecto', calcu
     if (useErpStore.getState().appSettings.empresaInfo) setEmpresaInfo(useErpStore.getState().appSettings.empresaInfo);
 
     migrateSecureStorage(user?.id).catch(err => safeLogger.warn('[Encryption] Migration error:', err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
 const tokenBucketRef = useRef({ tokens: 5, lastRefill: Date.now(), maxTokens: 10, refillRate: 5 });

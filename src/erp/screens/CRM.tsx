@@ -328,9 +328,9 @@ const CRM: React.FC = () => {
               <h2 className="font-bold text-lg text-foreground">
                 {editingId ? t('crm.editar_oportunidad') : t('crm.nueva_licitacion')}
               </h2>
-                <button type="button" onClick={() => { setShowForm(false); resetForm(); }} aria-label={t('common.cerrar')}>
-                  <X className="w-5 h-5 text-muted-foreground hover:text-foreground" />
-                </button>
+              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} aria-label={t('common.cerrar')} className={`${BUTTON_ICON} min-h-[44px] min-w-[44px]`}>
+                <X className="w-5 h-5" aria-hidden="true" />
+              </button>
             </div>
             <div className="space-y-3">
               <div>
@@ -353,11 +353,11 @@ const CRM: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Cliente *</label>
-                  <input
+  <input
                     value={formData.cliente}
                     onChange={e => { setFormData(p => ({ ...p, cliente: e.target.value })); setFormErrors(prev => ({ ...prev, cliente: '' })); }}
                     placeholder="Nombre del cliente"
-                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border outline-none focus:border-purple-400"
+                    className={INPUT}
                   />
                   {formErrors.cliente && <p className="text-xs COLOR_DANGER mt-1">{formErrors.cliente}</p>}
                 </div>
@@ -368,7 +368,7 @@ const CRM: React.FC = () => {
                     value={formData.monto}
                     onChange={e => { setFormData(p => ({ ...p, monto: +e.target.value })); setFormErrors(prev => ({ ...prev, monto: '' })); }}
                     placeholder="0.00"
-                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border outline-none focus:border-purple-400"
+                    className={INPUT}
                   />
                   {formErrors.monto && <p className="text-xs COLOR_DANGER mt-1">{formErrors.monto}</p>}
                 </div>
@@ -386,28 +386,28 @@ const CRM: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Fecha Límite</label>
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Fecha Límite</label>
                 <input
                   type="date"
                   value={formData.fechaLimite}
                   onChange={e => setFormData(p => ({ ...p, fechaLimite: e.target.value }))}
-                  className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400"
+                  className={INPUT}
                 />
               </div>
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Notas</label>
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Notas</label>
                 <textarea
                   value={formData.notas}
                   onChange={e => setFormData(p => ({ ...p, notas: e.target.value }))}
                   placeholder="Notas internas..."
                   rows={2}
-                  className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-200 outline-none focus:border-purple-400 resize-none"
+                  className={INPUT}
                 />
               </div>
             </div>
-            <button type="submit" className="mt-4 w-full bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground py-2.5 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              {editingId ? 'Guardar Cambios' : 'Crear Oportunidad'}
-            </button>
+          <button type="submit" className={`${BUTTON_PRIMARY} mt-4 w-full justify-center`}>
+            {editingId ? 'Guardar Cambios' : 'Crear Oportunidad'}
+          </button>
           </form>
         </div>
       )}

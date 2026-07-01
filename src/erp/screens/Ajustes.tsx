@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, clearAllData, type UIMode, type AppThemeMode } from '../store';
-import { THEMES, type ThemeName } from '@/lib/themes';
+import { THEMES, type ThemeName, PRIMARY_COLORS } from '@/lib/themes';
 import {
   Layout, Card, Row, Col, Switch, Select, Button, Divider,
   Typography, Space, Tabs, Tag, Avatar, Descriptions, Modal, message,
@@ -22,25 +22,17 @@ import {
 
 const { Title, Text } = Typography;
 
-const PRIMARY_COLORS = [
-  { label: 'Naranja (Marca)', value: '#E8752F' },
-  { label: 'Azul', value: '#1677FF' },
-  { label: 'Verde', value: '#10b981' },
-  { label: 'Púrpura', value: '#7c3aed' },
-  { label: 'Rojo', value: '#ef4444' },
-  { label: 'Teal', value: '#14b8a6' },
-];
-
 const ICON_SIZE = 18;
 const dividerStyle: React.CSSProperties = { margin: '12px 0' };
 const rowStyle: React.CSSProperties = { marginBottom: 16 };
 const iconPrimaryStyle: React.CSSProperties = { fontSize: ICON_SIZE, color: 'inherit' };
 const controlWidthClass = 'w-full sm:w-40 md:w-44';
+const halfWidthClass = 'w-full sm:w-44 md:w-52';
 
 interface SettingRowProps {
   icon: React.ReactNode;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   children: React.ReactNode;
 }
 
@@ -50,8 +42,13 @@ const SettingRow: React.FC<SettingRowProps> = ({ icon, title, subtitle, children
       <Space>
         {icon}
         <div>
-          <Text strong>{title}</Text>
-          <br /><Text type="secondary">{subtitle}</Text>
+          <Text strong style={{ fontSize: 14 }}>{title}</Text>
+          {subtitle ? (
+            <>
+              <br />
+              <Text type="secondary" style={{ fontSize: 12 }}>{subtitle}</Text>
+            </>
+          ) : null}
         </div>
       </Space>
       <div style={{ flexShrink: 0 }}>{children}</div>
@@ -126,7 +123,7 @@ const Ajustes: React.FC = () => {
 
   const sectionCard: React.CSSProperties = {
     borderRadius: token.borderRadiusLG,
-    boxShadow: '0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02)',
+    boxShadow: token.boxShadow,
   };
 
   const tabItems = [
@@ -547,15 +544,17 @@ const Ajustes: React.FC = () => {
   return (
     <Layout style={{ padding: 24, minHeight: '100%', background: 'transparent' }}>
       <div style={{ marginBottom: 24 }}>
-        <Title level={3} style={{ margin: 0 }}>
+        <Title level={3} style={{ margin: 0, color: token.colorText, fontSize: 22, fontWeight: 700 }}>
           <SettingOutlined style={{ marginRight: 8, color: token.colorPrimary }} />
           {t('ajustes.titulo')}
         </Title>
-        <Text type="secondary">Personaliza la apariencia, idioma, notificaciones y configuración general del ERP</Text>
+        <Text type="secondary" style={{ color: token.colorTextSecondary, fontSize: 13 }}>
+          Personaliza la apariencia, idioma, notificaciones y configuración general del ERP
+        </Text>
       </div>
 
       <Card
-        style={{ ...sectionCard, borderRadius: token.borderRadiusLG, overflow: 'hidden' }}
+        style={{ ...sectionCard, borderRadius: token.borderRadiusLG, overflow: 'hidden', background: token.colorBgContainer }}
         styles={{ body: { padding: 0 } }}
       >
         <Tabs
@@ -564,6 +563,7 @@ const Ajustes: React.FC = () => {
           size="large"
           tabBarStyle={{ paddingLeft: 24, paddingTop: 16, marginBottom: 0 }}
           tabBarExtraContent={visualTab}
+          className="settings-tabs"
         />
       </Card>
 
@@ -577,7 +577,7 @@ const Ajustes: React.FC = () => {
         onCancel={() => setResetModal(false)}
         okText="Restablecer"
         cancelText="Cancelar"
-        okButtonProps={{ danger: true }}
+        okButtonProps={{ danger: true, style: { minHeight: 44 } }}
         style={{ width: '95vw', maxWidth: 520 }}
       >
         <Alert

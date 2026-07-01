@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { toast } from 'sonner';
@@ -27,18 +27,18 @@ export default function VisorBIM() {
   const [cubicacion, setCubicacion] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Elementos simulados del modelo IFC
-  const elementosModelo = [
+  // Elementos simulados del modelo IFC (memorizados para estabilidad de referencias)
+  const elementosModelo = useMemo(() => [
     { id: 'e1', guid: '3O2$q4k5L8wX9zA1', nombre: 'Muro Norte - Planta Baja', tipo: 'IfcWallStandardCase', cantidad: 145.2, unidad: 'm²' },
     { id: 'e2', guid: '1aB3cD5eF7gH9iJ2', nombre: 'Columna C-01', tipo: 'IfcColumn', cantidad: 3.8, unidad: 'm³' },
     { id: 'e3', guid: '2bC4dE6fG8hJ0kL3', nombre: 'Losa Cubierta Nivel 2', tipo: 'IfcSlab', cantidad: 210.5, unidad: 'm²' },
     { id: 'e4', guid: '4cD5eF6gH7iJ8kL1', nombre: 'Ventana V-12', tipo: 'IfcWindow', cantidad: 12, unidad: 'und' },
     { id: 'e5', guid: '5dE6fG7hH8iJ9kL2', nombre: 'Puerta P-03', tipo: 'IfcDoor', cantidad: 8, unidad: 'und' },
     { id: 'e6', guid: '6eF7gH8hI9jK0lM3', nombre: 'Instalación Sanitaria', tipo: 'IfcFlowSegment', cantidad: 85.3, unidad: 'm' },
-  ];
+  ], []);
 
-  const presupuestoActual = presupuestos.find(p => p.proyectoId === selectedProyectoId);
-  const renglones = presupuestoActual?.renglones || [];
+  const presupuestoActual = useMemo(() => presupuestos.find(p => p.proyectoId === selectedProyectoId), [presupuestos, selectedProyectoId]);
+  const renglones = useMemo(() => presupuestoActual?.renglones || [], [presupuestoActual]);
 
   React.useEffect(() => {
     setTimeout(() => setLoading(false), 400);
@@ -78,7 +78,7 @@ export default function VisorBIM() {
     }));
     setCubicacion(resultado);
     toast.success('Cubicación generada');
-  }, [vinculaciones, renglones]);
+  }, [vinculaciones, renglones, elementosModelo]);
 
   if (loading) {
     return (
