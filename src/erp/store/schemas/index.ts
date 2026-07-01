@@ -14,7 +14,7 @@ export { eventoSchema, bitacoraSchema } from './calendario';
 export { seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema } from './seguimiento';
 export { muroSchema, notificacionSchema } from './social';
 export { liberacionSchema, pruebaSchema, noConformidadSchema } from './calidad';
-export { activoSchema, licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema, destajoSchema, recepcionAlmacenSchema } from './gestion';
+export { activoSchema, licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema, destajoSchema, recepcionAlmacenSchema, insumosBaseSchema } from './gestion';
 export { centroCostoSchema, auditLogSchema, appSettingsSchema } from './admin';
 export { plantillaSchema } from './plantillas';
 export type { Plantilla, PlantillaStore } from './plantillas';

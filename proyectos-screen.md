@@ -1,0 +1,206 @@
+- generic [ref=e3]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - img "WM" [ref=e10]
+        - generic [ref=e11]:
+          - generic [ref=e12]: CONSTRUCTORA WM / M&S
+          - generic [ref=e13]: Edificando el Futuro
+      - generic [ref=e14]:
+        - generic [ref=e16]:
+          - img [ref=e17]
+          - generic [ref=e21]: En línea
+        - generic [ref=e22]:
+          - img [ref=e24]
+          - generic [ref=e26]: Error de sync
+        - generic [ref=e27]:
+          - generic [ref=e28]: 01:38 p. m.
+          - generic [ref=e29]: 30 jun
+      - generic [ref=e30]:
+        - button "Notificaciones" [ref=e31] [cursor=pointer]:
+          - img [ref=e32]
+        - button "Volver al Tablero" [ref=e606] [cursor=pointer]:
+          - img [ref=e607]
+          - generic [ref=e610]: Tablero
+        - button "Cambiar foto de perfil" [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]: D
+          - img [ref=e38]
+        - generic [ref=e597]:
+          - generic [ref=e598]: Desarrollador
+          - generic [ref=e599]: Administrador
+        - button "Cerrar sesión" [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+    - generic [ref=e45]:
+      - complementary [ref=e46]:
+        - generic [ref=e54]:
+          - generic [ref=e56]: D
+          - generic [ref=e57]:
+            - paragraph [ref=e58]: Desarrollador
+            - paragraph [ref=e59]: Administrador
+        - navigation "Navegación principal" [ref=e60]:
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - generic [ref=e65]: PRINCIPAL
+              - generic [ref=e66]:
+                - button "Dashboard" [ref=e67] [cursor=pointer]:
+                  - img [ref=e68]
+                  - generic [ref=e73]: Dashboard
+                - button "Proyectos" [active] [ref=e74] [cursor=pointer]:
+                  - img [ref=e75]
+                  - generic [ref=e79]: Proyectos
+                - button "CRM (Clientes)" [ref=e80] [cursor=pointer]:
+                  - img [ref=e81]
+                  - generic [ref=e85]: CRM (Clientes)
+                - button "Cotizaciones" [ref=e86] [cursor=pointer]:
+                  - img [ref=e87]
+                  - generic [ref=e90]: Cotizaciones
+            - generic [ref=e91]:
+              - generic [ref=e95]: PLANIFICACIÓN
+              - generic [ref=e96]:
+                - button "Presupuestos + APU" [ref=e97] [cursor=pointer]:
+                  - img [ref=e98]
+                  - generic [ref=e100]: Presupuestos + APU
+                - button "APU Avanzado" [ref=e101] [cursor=pointer]:
+                  - img [ref=e102]
+                  - generic [ref=e105]: APU Avanzado
+                - button "Base de Precios" [ref=e106] [cursor=pointer]:
+                  - img [ref=e107]
+                  - generic [ref=e109]: Base de Precios
+                - button "Hitos del Proyecto" [ref=e110] [cursor=pointer]:
+                  - img [ref=e111]
+                  - generic [ref=e113]: Hitos del Proyecto
+                - button "Gestión de Riesgos" [ref=e114] [cursor=pointer]:
+                  - img [ref=e115]
+                  - generic [ref=e117]: Gestión de Riesgos
+                - button "Plantillas de Proyectos" [ref=e118] [cursor=pointer]:
+                  - img [ref=e119]
+                  - generic [ref=e122]: Plantillas de Proyectos
+                - button "Bitácora" [ref=e123] [cursor=pointer]:
+                  - img [ref=e124]
+                  - generic [ref=e126]: Bitácora
+            - generic [ref=e127]:
+              - generic [ref=e131]: EJECUCIÓN
+              - generic [ref=e132]:
+                - button "Seguimiento + Gantt" [ref=e133] [cursor=pointer]:
+                  - img [ref=e134]
+                  - generic [ref=e138]: Seguimiento + Gantt
+                - button "Curvas S" [ref=e139] [cursor=pointer]:
+                  - img [ref=e140]
+                  - generic [ref=e143]: Curvas S
+                - button "Rendimiento Campo" [ref=e144] [cursor=pointer]:
+                  - img [ref=e145]
+                  - generic [ref=e150]: Rendimiento Campo
+                - button "SSO & Calidad" [ref=e151] [cursor=pointer]:
+                  - img [ref=e152]
+                  - generic [ref=e155]: SSO & Calidad
+                - button "Muro de Obra" [ref=e156] [cursor=pointer]:
+                  - img [ref=e157]
+                  - generic [ref=e160]: Muro de Obra
+                - button "Órdenes de Cambio" [ref=e161] [cursor=pointer]:
+                  - img [ref=e162]
+                  - generic [ref=e166]: Órdenes de Cambio
+                - button "Documentos y Planos" [ref=e167] [cursor=pointer]:
+                  - img [ref=e168]
+                  - generic [ref=e170]: Documentos y Planos
+                - button "Visor BIM" [ref=e171] [cursor=pointer]:
+                  - img [ref=e172]
+                  - generic [ref=e175]: Visor BIM
+            - generic [ref=e176]:
+              - generic [ref=e180]: SUMINISTRO
+              - generic [ref=e181]:
+                - button "Inventario (Bodega)" [ref=e182] [cursor=pointer]:
+                  - img [ref=e183]
+                  - generic [ref=e186]: Inventario (Bodega)
+                - button "Logística y Compras" [ref=e187] [cursor=pointer]:
+                  - img [ref=e188]
+                  - generic [ref=e193]: Logística y Compras
+                - button "Entradas Almacén" [ref=e194] [cursor=pointer]:
+                  - img [ref=e195]
+                  - generic [ref=e199]: Entradas Almacén
+                - button "Activos" [ref=e200] [cursor=pointer]:
+                  - img [ref=e201]
+                  - generic [ref=e203]: Activos
+                - button "Cuadros Comparativos" [ref=e204] [cursor=pointer]:
+                  - img [ref=e205]
+                  - generic [ref=e209]: Cuadros Comparativos
+                - button "Analytics Proveedores" [ref=e210] [cursor=pointer]:
+                  - img [ref=e211]
+                  - generic [ref=e214]: Analytics Proveedores
+            - generic [ref=e215]:
+              - generic [ref=e219]: RRHH
+              - generic [ref=e220]:
+                - button "Recursos Humanos" [ref=e221] [cursor=pointer]:
+                  - img [ref=e222]
+                  - generic [ref=e227]: Recursos Humanos
+                - button "Planilla Destajos" [ref=e228] [cursor=pointer]:
+                  - img [ref=e229]
+                  - generic [ref=e232]: Planilla Destajos
+            - generic [ref=e233]:
+              - generic [ref=e237]: FINANZAS
+              - generic [ref=e238]:
+                - button "Control Financiero" [ref=e239] [cursor=pointer]:
+                  - img [ref=e240]
+                  - generic [ref=e243]: Control Financiero
+                - button "Comercial / Finanzas" [ref=e244] [cursor=pointer]:
+                  - img [ref=e245]
+                  - generic [ref=e247]: Comercial / Finanzas
+                - button "Cuentas por Cobrar" [ref=e248] [cursor=pointer]:
+                  - img [ref=e249]
+                  - generic [ref=e251]: Cuentas por Cobrar
+                - button "Cuentas por Pagar" [ref=e252] [cursor=pointer]:
+                  - img [ref=e253]
+                  - generic [ref=e255]: Cuentas por Pagar
+                - button "Impuestos" [ref=e256] [cursor=pointer]:
+                  - img [ref=e257]
+                  - generic [ref=e261]: Impuestos
+            - generic [ref=e262]:
+              - generic [ref=e266]: ANÁLISIS BI
+              - generic [ref=e267]:
+                - button "Análisis de Costos" [ref=e268] [cursor=pointer]:
+                  - img [ref=e269]
+                  - generic [ref=e272]: Análisis de Costos
+                - button "Dashboard Predictivo" [ref=e273] [cursor=pointer]:
+                  - img [ref=e274]
+                  - generic [ref=e276]: Dashboard Predictivo
+                - button "Exportación Inteligente" [ref=e277] [cursor=pointer]:
+                  - img [ref=e278]
+                  - generic [ref=e281]: Exportación Inteligente
+                - button "Reportes Técnicos" [ref=e282] [cursor=pointer]:
+                  - img [ref=e283]
+                  - generic [ref=e286]: Reportes Técnicos
+            - generic [ref=e287]:
+              - generic [ref=e291]: SISTEMA
+              - generic [ref=e292]:
+                - button "Notificaciones" [ref=e293] [cursor=pointer]:
+                  - img [ref=e294]
+                  - generic [ref=e297]: Notificaciones
+                - button "Log de Errores" [ref=e298] [cursor=pointer]:
+                  - img [ref=e299]
+                  - generic [ref=e301]: Log de Errores
+                - button "Auditoría" [ref=e302] [cursor=pointer]:
+                  - img [ref=e303]
+                  - generic [ref=e315]: Auditoría
+                - button "Admin del Sistema" [ref=e316] [cursor=pointer]:
+                  - img [ref=e317]
+                  - generic [ref=e329]: Admin del Sistema
+                - button "Ajustes" [ref=e330] [cursor=pointer]:
+                  - img [ref=e331]
+                  - generic [ref=e334]: Ajustes
+        - button "Colapsar menú" [expanded] [ref=e601] [cursor=pointer]:
+          - img [ref=e602]
+          - generic [ref=e604]: Colapsar
+        - generic [ref=e336]:
+          - paragraph [ref=e337]: CONSTRUSMART ERP
+          - paragraph [ref=e338]: Edificando el Futuro
+      - main "Contenido principal" [ref=e339]:
+        - generic [ref=e611]:
+          - heading "⚠️ Error en el módulo proyectos" [level=2] [ref=e612]
+          - paragraph [ref=e613]: "Minified React error #130; visit https://reactjs.org/docs/error-decoder.html?invariant=130&args[]=undefined&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+          - paragraph [ref=e614]: La recuperación automática no tuvo éxito. Intenta manualmente.
+          - button "🔄 Reintentar" [ref=e615] [cursor=pointer]
+    - button "Abrir acciones rápidas" [ref=e591] [cursor=pointer]:
+      - img [ref=e594]
+      - button "Minimizar" [ref=e595]

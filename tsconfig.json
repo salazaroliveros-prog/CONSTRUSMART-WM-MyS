@@ -5,23 +5,7 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-    "baseUrl": ".",
-    "jsx": "react-jsx",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "noImplicitAny": true,
-    "noUnusedParameters": true,
-    "noUnusedLocals": true,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "strictNullChecks": true,
-    "strict": true,
-    "noFallthroughCasesInSwitch": true,
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "isolatedModules": true
+    "skipLibCheck": true
   },
   "exclude": ["node_modules"]
 }

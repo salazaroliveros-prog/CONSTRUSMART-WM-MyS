@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { Tipologia } from '@/erp/types';
 
-export const proyectoSchema = z.object({
+const proyectoSchemaDefinition = z.object({
   id: z.string(),
   nombre: z.string(),
   ubicacion: z.string(),
@@ -58,7 +58,11 @@ export const proyectoSchema = z.object({
   version: z.number().optional(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
-}).transform(d => ({
+});
+
+export const proyectoSchemaObject = proyectoSchemaDefinition;
+
+export const proyectoSchema = proyectoSchemaDefinition.transform(d => ({
   ...d,
   lat: d.lat ?? d.latitud ?? 14.6349,
   lng: d.lng ?? d.longitud ?? -90.5069,

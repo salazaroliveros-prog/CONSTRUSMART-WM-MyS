@@ -1,6 +1,18 @@
 import pg from 'pg';
+import { readFileSync, existsSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 
-const connectionString = 'postgresql://postgres:AngelDario.2026@aws-0-us-east-1.pooler.supabase.com:6543/postgres';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const envPath = resolve(__dirname, '../../../.env.local');
+let connectionString = process.env.DATABASE_URL || '';
+if (!connectionString && existsSync(envPath)) {
+  for (const line of readFileSync(envPath, 'utf-8').split('\n')) {
+    const t = line.trim();
+    if (t.startsWith('DATABASE_URL=')) connectionString = t.slice('DATABASE_URL='.length).trim();
+  }
+}
+if (!connectionString) throw new Error('DATABASE_URL not found. Set DATABASE_URL env var or add it to .env.local');
 
 async function ejecutarRLSCorreccion() {
   const client = new pg.Client({ connectionString });

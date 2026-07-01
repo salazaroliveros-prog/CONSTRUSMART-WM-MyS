@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
 import { Calendar, AlertTriangle, DollarSign, Activity, Zap } from 'lucide-react';

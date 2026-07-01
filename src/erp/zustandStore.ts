@@ -12,7 +12,7 @@ import type {
   Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
   CuentaCobrar, CuentaPagar, Hito, Riesgo, PublicacionMuro, ComentarioMuro, PruebaLaboratorio,
   NoConformidad, LiberacionPartida, Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo,
-  PagoProveedor, CotizacionCliente, VentaPaquete, Destajo, RecepcionAlmacen, Incidente, Rol, CentroCosto, CalculoProyecto,
+  PagoProveedor, CotizacionCliente, VentaPaquete,   Destajo, RecepcionAlmacen, Incidente, Rol, CentroCosto, CalculoProyecto, InsumoBase,
   ReglaFactor, NormativaDepartamental, EscalaProduccion, Estacionalidad, HistorialAplicacionRegla,
 } from './types';
 import type { Plantilla } from './store/schemas/plantillas';
@@ -97,6 +97,7 @@ interface ErpData {
   activos: ActivoHerramienta[]; cuadros: CuadroComparativo[]; pagosProveedor: PagoProveedor[];
   destajos: Destajo[]; calculosProyecto: CalculoProyecto[]; recepciones: RecepcionAlmacen[]; centrosCosto: CentroCosto[];
   plantillas: Plantilla[];
+  insumosBase: InsumoBase[];
   reglasFactores: ReglaFactor[]; normativasDepartamentales: NormativaDepartamental[];
   escalasProduccion: EscalaProduccion[]; estacionalidad: Estacionalidad[];
   historialReglas: HistorialAplicacionRegla[];
@@ -145,6 +146,7 @@ interface ErpActions {
   setRecepciones: (v: RecepcionAlmacen[] | ((prev: RecepcionAlmacen[]) => RecepcionAlmacen[])) => void;
   setCentrosCosto: (v: CentroCosto[] | ((prev: CentroCosto[]) => CentroCosto[])) => void;
   setPlantillas: (v: Plantilla[] | ((prev: Plantilla[]) => Plantilla[])) => void;
+  setInsumosBase: (v: InsumoBase[] | ((prev: InsumoBase[]) => InsumoBase[])) => void;
   setProyectoWeather: (v: ProyectoWeather[] | ((prev: ProyectoWeather[]) => ProyectoWeather[])) => void;
   setErrorLogs: (v: ErrorLogEntry[] | ((prev: ErrorLogEntry[]) => ErrorLogEntry[])) => void;
   resolveError: (id: string, notes?: string) => void;
@@ -286,6 +288,9 @@ interface ErpActions {
   addDestajo: (d: Omit<Destajo, 'id'>) => void;
   updateDestajo: (id: string, patch: Partial<Destajo>) => void;
   deleteDestajo: (id: string) => void;
+  addInsumoBase: (i: Omit<InsumoBase, 'id'>) => void;
+  updateInsumoBase: (id: string, patch: Partial<InsumoBase>) => void;
+  deleteInsumoBase: (id: string) => void;
   addCalculoProyecto: (d: Omit<CalculoProyecto, 'id'>) => void;
   updateCalculoProyecto: (id: string, patch: Partial<CalculoProyecto>) => void;
   deleteCalculoProyecto: (id: string) => void;
@@ -358,27 +363,25 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_pruebas_laboratorio','ventas_paquetes',
       'erp_plantillas_proyectos',
       'erp_destajos','erp_recepciones','erp_pagos_proveedor',
-      'erp_centros_costo','erp_error_logs',
+      'erp_centros_costo','erp_error_logs','erp_insumos_base',
     ] as const;
 
     const isGuestMode = hasServiceRole && !localStorage.getItem('sb-neygzluxugodiwcuctbj-auth-token');
+    let serviceRoleFailed = false;
 
     const fetchTable = async (table: string) => {
-      const client = isGuestMode ? getServiceClient() : supabase;
-      const { data, error } = await client.from(table).select('*');
+      if (isGuestMode && !serviceRoleFailed) {
+        const svcClient = getServiceClient();
+        const { data: svcData, error: svcError } = await svcClient.from(table).select('*').limit(1);
+        if (!svcError) {
+          const { data: allData } = await svcClient.from(table).select('*');
+          return { table, data: (allData || []).map(normalizarFilaSupabase) };
+        }
+        serviceRoleFailed = true;
+        safeLogger.warn(`[fetchInitialData] service_role falló (${svcError.message}), usando anon`);
+      }
+      const { data, error } = await supabase.from(table).select('*');
       if (error) {
-        if (isGuestMode) {
-          safeLogger.warn(`[fetchInitialData] Error en ${table}: ${error.message}`);
-          return null;
-        }
-        const isAuthError = String(error.code) === 'PGRST301' || String(error.code) === '42501' || (error.message && (error.message.includes('permission denied') || error.message.includes('JWT') || error.message.includes('401')));
-        if (isAuthError && hasServiceRole) {
-          try {
-            const serviceClient = getServiceClient();
-            const { data: svcData, error: svcError } = await serviceClient.from(table).select('*');
-            if (!svcError) return { table, data: (svcData || []).map(normalizarFilaSupabase) };
-          } catch { /* service client also failed */ }
-        }
         safeLogger.warn(`[fetchInitialData] Error en ${table}: ${error.message}`);
         return null;
       }
@@ -475,7 +478,8 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   ventasPaquetes: [], bitacora: [], pruebas: [], ncs: [], valesSalida: [],
   seguimientoEVM: [], incidentes: [], publicacionesMuro: [], liberaciones: [], planos: [],
   rfis: [], submittals: [], activos: [], cuadros: [], pagosProveedor: [],   destajos: [], calculosProyecto: [],
-    recepciones: [], centrosCosto: [], plantillas: [],
+    recepciones: [], centrosCosto: [],   plantillas: [],
+  insumosBase: [],
   mutationQueue: [], syncMessage: '', syncCooldown: false, syncStatus: 'idle',
   notificaciones: [],
   auditLog: [],
@@ -521,6 +525,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setRecepciones: (v) => set(typeof v === 'function' ? { recepciones: v(get().recepciones) } : { recepciones: v }),
   setCentrosCosto: (v) => set(typeof v === 'function' ? { centrosCosto: v(get().centrosCosto) } : { centrosCosto: v }),
   setPlantillas: (v) => set(typeof v === 'function' ? { plantillas: v(get().plantillas) } : { plantillas: v }),
+  setInsumosBase: (v) => set(typeof v === 'function' ? { insumosBase: v(get().insumosBase) } : { insumosBase: v }),
   setProyectoWeather: (v) => set(typeof v === 'function' ? { proyectoWeather: v(get().proyectoWeather) } : { proyectoWeather: v }),
   setErrorLogs: (v) => set(typeof v === 'function' ? { errorLogs: v(get().errorLogs) } : { errorLogs: v }),
   resolveError: (id, notes) => {
@@ -687,6 +692,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().setRecepciones([]);
     get().setCentrosCosto([]);
     get().setPlantillas([]);
+    get().setInsumosBase([]);
     get().setMutationQueue([]);
     get().setNotificaciones([]);
     get().setAuditLog([]);
@@ -1077,6 +1083,10 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   addDestajo: (d) => { const n = { ...d, id: uid() }; get().setDestajos(prev => [n, ...prev]); get().enqueueMutation('addDestajo', n); },
   updateDestajo: (id, patch) => { get().setDestajos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateDestajo', { id, ...patch }); },
   deleteDestajo: (id) => { get().setDestajos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteDestajo', { id }); },
+
+  addInsumoBase: (i) => { const n = { ...i, id: uid() }; get().setInsumosBase(prev => [n, ...prev]); get().enqueueMutation('addInsumoBase', n); },
+  updateInsumoBase: (id, patch) => { get().setInsumosBase(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateInsumoBase', { id, ...patch }); },
+  deleteInsumoBase: (id) => { get().setInsumosBase(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteInsumoBase', { id }); },
 
   addCalculoProyecto: (d) => { const n = { ...d, id: uid() }; get().setCalculosProyecto(prev => [n, ...prev]); get().enqueueMutation('addCalculoProyecto', n); },
   updateCalculoProyecto: (id, patch) => { get().setCalculosProyecto(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateCalculoProyecto', { id, ...patch }); },

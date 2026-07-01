@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, clearAllData, type UIMode, type AppThemeMode } from '../store';
 import { THEMES, type ThemeName } from '@/lib/themes';

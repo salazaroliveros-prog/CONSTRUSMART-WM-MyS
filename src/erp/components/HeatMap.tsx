@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import MarkerClusterGroup from 'leaflet.markercluster';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Card, Select, Button, DatePicker, Row, Col, Statistic } from 'antd';
 import { Filter, Download, MapPin, Building2, TrendingUp, Layers } from 'lucide-react';
 import html2canvas from 'html2canvas';

@@ -1,7 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
+import { config } from 'dotenv';
 
-const supabaseUrl = 'https://neygzluxugodiwcuctbj.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5leWd6bHV4dWdvZGl3Y3VjdGJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNjA4OTIsImV4cCI6MjA5NTgzNjg5Mn0.IfCMtFbZYL0GDgV_3zwqBmqjCNf3PZfYS-SvbRGXhY0';
+config();
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Faltan VITE_SUPABASE_URL o VITE_SUPABASE_KEY en el entorno');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 

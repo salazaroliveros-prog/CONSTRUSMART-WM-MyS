@@ -10,7 +10,7 @@ import {
    bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema, muroSchema,
    notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
    licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
-   destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema,
+   destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema, insumosBaseSchema,
    auditLogSchema, appSettingsSchema, proyectoWeatherSchema, errorLogSchema, calculoProyectoSchema,
    reglaFactorSchema, normativaDepartamentalSchema, escalaProduccionSchema, estacionalidadSchema,
    historialAplicacionReglaSchema,
@@ -187,6 +187,7 @@ export const MUTATION_TABLE_MAP: Record<string, string> = {
   addPagoProveedor:'erp_pagos_proveedor',updatePagoProveedor:'erp_pagos_proveedor',deletePagoProveedor:'erp_pagos_proveedor',
   addIncidente:'erp_incidentes',updateIncidente:'erp_incidentes',deleteIncidente:'erp_incidentes',
   addDestajo:'erp_destajos',updateDestajo:'erp_destajos',deleteDestajo:'erp_destajos',
+  addInsumoBase:'erp_insumos_base',updateInsumoBase:'erp_insumos_base',deleteInsumoBase:'erp_insumos_base',
   addCalculoProyecto:'erp_calculos_proyecto',updateCalculoProyecto:'erp_calculos_proyecto',deleteCalculoProyecto:'erp_calculos_proyecto',
   addRecepcion:'recepciones_almacen',updateRecepcion:'recepciones_almacen',deleteRecepcion:'recepciones_almacen',
   addValeSalida:'erp_vales_salida',updateValeSalida:'erp_vales_salida',deleteValeSalida:'erp_vales_salida',
@@ -252,20 +253,23 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => { window.removeEventListener('online', goOnline); window.removeEventListener('offline', goOffline); };
   }, []);
 
-  useEffect(() => { if (initializing) setInitializing(false); }, [initializing]);
+  useEffect(() => {
+    if (!authLoading) {
+      setInitializing(false);
+    }
+  }, [authLoading]);
 
   const fetchedRef = useRef(false);
   useEffect(() => {
-    if (initializing) setInitializing(false);
-    if (!fetchedRef.current) {
+    if (authUser && !fetchedRef.current) {
       fetchedRef.current = true;
       fetchInitialData();
     }
-  }, [initializing]);
+  }, [authUser]);
 
   const initializedRef = useRef(false);
   useEffect(() => {
-    if (initializedRef.current) return;
+    if (!authUser || initializedRef.current) return;
     initializedRef.current = true;
     useErpStore.setState({
       proyectos: loadFromStorage(BASE_STORAGE_KEY + '_proyectos', proyectoSchema),
@@ -305,6 +309,7 @@ calculosProyecto: loadFromStorage(BASE_STORAGE_KEY + '_calculos_proyecto', calcu
        recepciones: loadFromStorage(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema),
        centrosCosto: loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
        plantillas: loadFromStorage(PLANTILLA_KEY, plantillaSchema),
+       insumosBase: loadFromStorage(BASE_STORAGE_KEY + '_insumos_base', insumosBaseSchema),
        proyectoWeather: loadFromStorage(WEATHER_KEY, proyectoWeatherSchema),
        errorLogs: loadFromStorage(ERROR_LOG_KEY, errorLogSchema),
        reglasFactores: loadFromStorage(REGLAS_KEY, reglaFactorSchema),
@@ -561,7 +566,7 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
           liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
           activos: s.activos, cuadros: s.cuadros, pagosProveedor: s.pagosProveedor,
           destajos: s.destajos, calculosProyecto: s.calculosProyecto, recepciones: s.recepciones, centrosCosto: s.centrosCosto,
-          plantillas: s.plantillas, proyectoWeather: s.proyectoWeather, errorLogs: s.errorLogs,
+          plantillas: s.plantillas, insumos_base: s.insumosBase, proyectoWeather: s.proyectoWeather, errorLogs: s.errorLogs,
           reglasFactores: s.reglasFactores, normativasDepartamentales: s.normativasDepartamentales,
           escalasProduccion: s.escalasProduccion, estacionalidad: s.estacionalidad, historialReglas: s.historialReglas,
           };

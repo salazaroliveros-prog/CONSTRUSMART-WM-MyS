@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
-import { Loader2 } from 'lucide-react';
+import { hasSupabase } from '@/lib/supabase';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Login: React.FC = () => {
@@ -79,8 +80,19 @@ const Login: React.FC = () => {
               </div>
             )}
 
+            {!hasSupabase && (
+              <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
+                  <p className="text-xs text-amber-700">
+                    Supabase no está configurado. El administrador debe configurar VITE_SUPABASE_URL y VITE_SUPABASE_KEY en el archivo .env
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-col items-center space-y-3">
-              <button type="button" onClick={handleGoogleLogin} disabled={loading} className={btn}>
+              <button type="button" onClick={handleGoogleLogin} disabled={loading || !hasSupabase} className={btn}>
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
                 ) : (

@@ -1,6 +1,6 @@
 import { safeLogger } from '@/lib/safeLogger';
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Download, FileJson, FileSpreadsheet, FileText, Plus, Trash2, Clock, Send, Table } from 'lucide-react';
