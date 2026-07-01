@@ -21,24 +21,22 @@ const CuentasPagarScreen: React.FC = () => {
   const set = (patch: Record<string, any>) => { setForm(prev => ({ ...prev, ...patch })); Object.keys(patch).forEach(clearFieldError); };
   const [form, setForm] = useState({ proyectoId: '', proveedor: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', facturaUrl: '' });
 
-
+  const agregar = () => {
     const errs: Record<string, string> = {};
     if (!form.proveedor) errs.proveedor = 'Proveedor requerido';
     if (!form.concepto) errs.concepto = 'Concepto requerido';
     if (!form.monto || form.monto <= 0) errs.monto = 'Monto debe ser mayor a 0';
     if (Object.keys(errs).length) { setFormErrors(errs); return; }
-  const agregar = () => {
-    if (!form.proveedor || !form.concepto || form.monto <= 0) { toast.error('Proveedor, concepto y monto requeridos'); return; }
     addCuentaPagar({
       proyectoId: form.proyectoId, proveedor: form.proveedor, concepto: form.concepto,
       monto: form.monto, saldoPendiente: form.monto, fechaEmision: form.fechaEmision,
       fechaVencimiento: form.fechaVencimiento, estado: 'pendiente', facturaUrl: form.facturaUrl || undefined,
     });
     toast.success('Cuenta por pagar registrada');
-    setShowForm(false); setForm({ proyectoId: '', proveedor: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', facturaUrl: '' });
+    setShowForm(false);
+    setForm({ proyectoId: '', proveedor: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', facturaUrl: '' });
+    setFormErrors({});
   };
-    toast.success('Cuenta por pagar registrada');
-    setShowForm(false); setForm({ proyectoId: '', proveedor: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', facturaUrl: '' }); setFormErrors({});
 
   const pagar = (id: string) => {
     updateCuentaPagar(id, { estado: 'pagado', fechaPago: todayISO(), saldoPendiente: 0 });
@@ -46,9 +44,12 @@ const CuentasPagarScreen: React.FC = () => {
   };
 
   const eliminar = async (id: string) => {
-  await Modal.confirm({ title: 'Confirmar eliminación', content: '¿Eliminar esta cuenta por pagar?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
-  deleteCuentaPagar(id);
-};
+    try {
+      await Modal.confirm({ title: 'Confirmar eliminación', content: '¿Eliminar esta cuenta por pagar?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
+      deleteCuentaPagar(id);
+      toast.success('Cuenta por pagar eliminada');
+    } catch {}
+  };
 
   const filtradas = filtroProyecto ? cuentasPagar.filter(c => c.proyectoId === filtroProyecto) : cuentasPagar;
   const pendientes = filtradas.filter(c => c.estado === 'pendiente' || c.estado === 'parcial');

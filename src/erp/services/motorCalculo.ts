@@ -722,11 +722,14 @@ export class ServicioMotorCalculo {
         p_tipo_calculo: tipoCalcululo || null
       });
 
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.warn('[motorCalculo] RPC obtener_historial_calculos no disponible:', error);
+        return [];
+      }
+      return data ?? [];
     } catch (error) {
-      console.error('Error al obtener historial de cálculos:', error);
-      throw error;
+      console.warn('[motorCalculo] Error al obtener historial de cálculos (capturado):', error);
+      return [];
     }
   }
 
