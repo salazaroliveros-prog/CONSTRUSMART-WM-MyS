@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
-import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_DANGER } from '../ui';
+import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_DANGER, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY } from '../ui';
 import { Modal, message } from 'antd';
 import { toast } from 'sonner';
 import { Plus, Search, Filter, Calendar, BookOpen, Edit, Trash2, User, Clock, MapPin, Building2, AlertCircle } from 'lucide-react';
@@ -121,10 +121,10 @@ const Bitacora: React.FC = () => {
 
   const getTipoColor = (tipo: string) => {
     switch (tipo) {
-      case 'avance': return 'text-green-500 dark:text-green-400';
-      case 'incidente': return 'text-red-500 dark:text-red-400';
-      case 'inspeccion': return 'text-blue-500 dark:text-blue-400';
-      case 'reunion': return 'text-purple-500 dark:text-purple-400';
+      case 'avance': return 'COLOR_SUCCESS dark:text-green-400';
+      case 'incidente': return 'COLOR_DANGER dark:text-red-400';
+      case 'inspeccion': return 'COLOR_INFO dark:text-blue-400';
+      case 'reunion': return 'COLOR_PRIMARY dark:text-purple-400';
       case 'general': return 'text-gray-500 dark:text-gray-400';
       default: return 'text-gray-500';
     }
@@ -168,24 +168,24 @@ const Bitacora: React.FC = () => {
         </div>
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">
-            <Calendar className="w-4 h-4 text-blue-500" />
+            <Calendar className="w-4 h-4 COLOR_INFO" />
             <span className="text-xs text-muted-foreground">Hoy</span>
           </div>
-          <div className="text-2xl font-bold text-blue-500">{stats.entriesHoy}</div>
+          <div className="text-2xl font-bold COLOR_INFO">{stats.entriesHoy}</div>
         </div>
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">
-            <AlertCircle className="w-4 h-4 text-red-500" />
+            <AlertCircle className="w-4 h-4 COLOR_DANGER" />
             <span className="text-xs text-muted-foreground">Incidentes</span>
           </div>
-          <div className="text-2xl font-bold text-red-500">{stats.incidentes}</div>
+          <div className="text-2xl font-bold COLOR_DANGER">{stats.incidentes}</div>
         </div>
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">
-            <BookOpen className="w-4 h-4 text-green-500" />
+            <BookOpen className="w-4 h-4 COLOR_SUCCESS" />
             <span className="text-xs text-muted-foreground">Avances</span>
           </div>
-          <div className="text-2xl font-bold text-green-500">{stats.avances}</div>
+          <div className="text-2xl font-bold COLOR_SUCCESS">{stats.avances}</div>
         </div>
       </div>
 
@@ -261,14 +261,14 @@ const Bitacora: React.FC = () => {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleOpenModal(entry)}
-                            className="text-blue-500 hover:text-blue-600"
+                            className="COLOR_INFO hover:text-blue-600"
                             aria-label="Editar"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(entry.id)}
-                            className="text-red-500 hover:text-red-600"
+                            className="COLOR_DANGER hover:COLOR_DANGER"
                             aria-label="Eliminar"
                           >
                             <Trash2 className="w-4 h-4" />

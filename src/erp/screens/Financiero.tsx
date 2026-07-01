@@ -7,6 +7,7 @@ import { useChartConfig } from '../hooks/useChartConfig';
 import MovimientoForm from '../components/MovimientoForm';
 import { Wallet, Trash2, TrendingUp, TrendingDown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY } from '../ui';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899', '#14b8a6', '#a855f7', '#f43f5e'];
 
@@ -90,7 +91,7 @@ const Financiero: React.FC = () => {
 
   return (
     <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
-      <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2 mb-2"><Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-violet-500" aria-hidden="true" /> Control Financiero y Caja</h1>
+      <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2 mb-2"><Wallet className="w-5 h-5 sm:w-6 sm:h-6 COLOR_PRIMARY" aria-hidden="true" /> Control Financiero y Caja</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
         <div className="bg-emerald-500 text-white rounded-xl sm:rounded-2xl p-3 sm:p-4"><TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2" aria-hidden="true" /><div className="text-xl sm:text-2xl font-bold">{fmtQ(ingresos)}</div><div className="text-xs opacity-80">Ingresos Totales</div></div>
@@ -168,11 +169,11 @@ const Financiero: React.FC = () => {
                     {lista.length > 0 ? lista.map(m => (
                       <tr key={m.id} className="border-b border-border/50 hover:bg-muted/40 transition-colors">
                         <td className="p-2"><div className="font-semibold text-foreground">{m.descripcion}</div><div className="text-muted-foreground">{CATEGORIA_LABEL[m.categoria] || m.categoria} · {proyectos.find(p => p.id === m.proyectoId)?.nombre || 'Operativo'} · {m.fecha}</div></td>
-                        <td className={`p-2 text-right font-bold ${m.tipo === 'ingreso' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{m.tipo === 'ingreso' ? '+' : '-'}{fmtQ(m.costoTotal ?? m.monto)}</td>
+                        <td className={`p-2 text-right font-bold ${m.tipo === 'ingreso' ? 'text-emerald-600 dark:text-emerald-400' : 'COLOR_DANGER dark:text-red-400'}`}>{m.tipo === 'ingreso' ? '+' : '-'}{fmtQ(m.costoTotal ?? m.monto)}</td>
                         <td className="p-2 w-8">
                           <button onClick={() => deleteMovimiento(m.id)} aria-label={`Eliminar movimiento ${m.descripcion}`}
                             className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
-                            <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-red-500" aria-hidden="true" />
+                            <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:COLOR_DANGER" aria-hidden="true" />
                           </button>
                         </td>
                       </tr>
@@ -197,8 +198,8 @@ const Financiero: React.FC = () => {
                     <td className="py-1.5 text-muted-foreground capitalize">{c.tipo}</td>
                     <td className="text-right text-muted-foreground">{fmtQ(c.presupuesto)}</td>
                     <td className="text-right text-emerald-600 dark:text-emerald-400">{fmtQ(c.ing)}</td>
-                    <td className="text-right text-red-500 dark:text-red-400">{fmtQ(c.gas)}</td>
-                    <td className={`text-right font-bold ${c.margen >= 0 ? 'text-foreground' : 'text-red-600 dark:text-red-400'}`}>{fmtQ(c.margen)}</td>
+                    <td className="text-right COLOR_DANGER dark:text-red-400">{fmtQ(c.gas)}</td>
+                    <td className={`text-right font-bold ${c.margen >= 0 ? 'text-foreground' : 'COLOR_DANGER dark:text-red-400'}`}>{fmtQ(c.margen)}</td>
                   </tr>
                 )) : <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">Sin centros de costo registrados</td></tr>}
               </tbody>

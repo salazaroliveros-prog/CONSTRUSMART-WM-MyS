@@ -279,20 +279,20 @@ const Cotizaciones: React.FC = () => {
                     </div>
                     <div className="flex flex-col gap-1">
                       {c.estado === 'borrador' && (
-                        <button onClick={() => handleEnviar(c)} className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 flex items-center gap-1">
+                        <button onClick={() => handleEnviar(c)} className="text-xs bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 active:bg-blue-700 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
                           <Send className="w-3 h-3" aria-hidden="true" /> {t('common.cancelar')}
                         </button>
                       )}
-                      <button onClick={() => { exportCotizacionPDF(c); }} className="text-xs bg-emerald-500 text-white px-2 py-1 rounded hover:bg-emerald-600 flex items-center gap-1">
+                      <button onClick={() => { exportCotizacionPDF(c); }} className="text-xs bg-emerald-500 text-white px-3 py-2 rounded hover:bg-emerald-600 active:bg-emerald-700 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
                         <FileText className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.exportar_pdf')}
                       </button>
-                      <button onClick={() => openEdit(c)} className="text-xs bg-muted text-foreground px-2 py-1 rounded hover:bg-muted/80 flex items-center gap-1">
+                      <button onClick={() => openEdit(c)} className="text-xs bg-muted text-foreground px-3 py-2 rounded hover:bg-muted/80 active:bg-muted/90 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
                         <Pencil className="w-3 h-3" aria-hidden="true" /> {t('common.editar')}
                       </button>
-                      <button onClick={() => duplicarCotizacion(c)} className="text-xs bg-muted text-foreground px-2 py-1 rounded hover:bg-muted/80 flex items-center gap-1">
+                      <button onClick={() => duplicarCotizacion(c)} className="text-xs bg-muted text-foreground px-3 py-2 rounded hover:bg-muted/80 active:bg-muted/90 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
                         <Copy className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.duplicar')}
                       </button>
-                      <button onClick={() => handleDelete(c.id)} className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 flex items-center gap-1">
+                      <button onClick={() => handleDelete(c.id)} className="text-xs bg-red-50 text-red-600 px-3 py-2 rounded hover:bg-red-100 active:bg-red-200 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
                         <Trash2 className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </div>

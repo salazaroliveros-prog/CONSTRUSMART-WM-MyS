@@ -176,13 +176,13 @@ const Seguimiento: React.FC = () => {
                       />
                       <button type="button" onClick={() => saveProjectProgress(p.id)}
                         aria-label={t('seguimiento.guardar_avance')}
-                        className="p-1 rounded bg-emerald-500 text-white text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
-                        <Save className="w-3.5 h-3.5" aria-hidden="true" />
+                        className="p-2 rounded bg-emerald-500 text-white text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 min-h-[36px] min-w-[36px] flex items-center justify-center">
+                        <Save className="w-4 h-4" aria-hidden="true" />
                       </button>
                       <button type="button" onClick={() => setEditingProject(null)}
                         aria-label={t('seguimiento.cancelar_edicion')}
-                        className="p-1 rounded bg-muted text-foreground text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                        <X className="w-3.5 h-3.5" aria-hidden="true" />
+                        className="p-2 rounded bg-muted text-foreground text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[36px] min-w-[36px] flex items-center justify-center">
+                        <X className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
                   ) : (
@@ -191,8 +191,8 @@ const Seguimiento: React.FC = () => {
                       <span className="text-xs font-semibold w-10 text-foreground">{safePct(p.avanceFisico)}</span>
                       <button type="button" onClick={() => startEditProjectProgress(p.id, safeNum(p.avanceFisico))}
                         aria-label={t('seguimiento.editar_avance_fisico_de', { nombre: p.nombre })}
-                        className="p-1 rounded bg-muted hover:bg-accent text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                        <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
+                        className="p-2 rounded bg-muted hover:bg-accent text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[36px] min-w-[36px] flex items-center justify-center">
+                        <Pencil className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
                   )}
