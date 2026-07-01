@@ -10,6 +10,7 @@ const Header = lazy(() => import('@/erp/components/Header'));
 const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
 const Login = lazy(() => import('@/erp/screens/Login'));
 const QuickActionsFab = lazy(() => import('@/erp/components/QuickActionsFab'));
+const BottomNavigation = lazy(() => import('@/erp/components/BottomNavigation'));
 import { applyThemeToDocument } from '@/lib/themes';
 
 interface AppContextType {
@@ -225,7 +226,7 @@ const Shell: React.FC = () => {
         <Sidebar open={sidebarOpen} onClose={closeSidebar} />
         <main
           id="main-content"
-          className={`flex-1 min-w-0 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-0' : ''}`}
+          className={`flex-1 min-w-0 overflow-auto transition-all duration-300 pb-16 md:pb-0 ${sidebarCollapsed ? 'lg:ml-0' : ''}`}
           role="main"
           aria-label="Contenido principal"
         >
@@ -240,6 +241,9 @@ const Shell: React.FC = () => {
       </div>
       <Suspense fallback={null}>
         <QuickActionsFab />
+      </Suspense>
+      <Suspense fallback={null}>
+        <BottomNavigation currentView={viewName} onViewChange={setView} />
       </Suspense>
     </div>
   );
