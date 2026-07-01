@@ -349,24 +349,24 @@ const Cotizaciones: React.FC = () => {
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.descripcion')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="sm:col-span-2">
-                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.nombre_razon')}</label>
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.nombre_razon')}</label>
                     <input value={formData.clienteNombre} onChange={e => setFormData(p => ({ ...p, clienteNombre: e.target.value }))} placeholder={t('common.nombre')} className={INPUT} />
-                    {formErrors.clienteNombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.clienteNombre}</p>}
+                    {formErrors.clienteNombre && <p className="text-xs COLOR_DANGER mt-0.5">{formErrors.clienteNombre}</p>}
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.nit')}</label>
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.nit')}</label>
                     <input value={formData.clienteNit} onChange={e => setFormData(p => ({ ...p, clienteNit: e.target.value }))} placeholder="NIT" className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.telefono')}</label>
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.telefono')}</label>
                     <input value={formData.clienteTelefono} onChange={e => setFormData(p => ({ ...p, clienteTelefono: e.target.value }))} placeholder={t('cotizaciones.telefono')} className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.email')}</label>
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.email')}</label>
                     <input value={formData.clienteEmail} onChange={e => setFormData(p => ({ ...p, clienteEmail: e.target.value }))} placeholder="correo@ejemplo.com" className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.direccion')}</label>
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.direccion')}</label>
                     <input value={formData.clienteDireccion} onChange={e => setFormData(p => ({ ...p, clienteDireccion: e.target.value }))} placeholder={t('cotizaciones.direccion')} className={INPUT} />
                   </div>
                 </div>
@@ -376,11 +376,11 @@ const Cotizaciones: React.FC = () => {
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.descripcion')}</h3>
                 <div className="grid grid-cols-1 gap-3">
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.descripcion_corta')}</label>
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.descripcion_corta')}</label>
                     <input value={formData.descripcion} onChange={e => setFormData(p => ({ ...p, descripcion: e.target.value }))} placeholder="Ej. Diseño de planos para casa unifamiliar" className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.alcance')}</label>
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.alcance')}</label>
                     <textarea value={formData.alcance} onChange={e => setFormData(p => ({ ...p, alcance: e.target.value }))} placeholder="Describe detalladamente qué incluye esta cotización..." className={`${INPUT} min-h-[80px] resize-none`} rows={3} />
                   </div>
                 </div>
@@ -390,11 +390,11 @@ const Cotizaciones: React.FC = () => {
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.precio')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.costo_directo')}</label>
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.costo_directo')}</label>
                     <input type="number" inputMode="decimal" value={formData.costoDirectoTotal} onChange={e => setFormData(p => ({ ...p, costoDirectoTotal: +e.target.value }))} className={INPUT} />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.precio_venta')}</label>
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.precio_venta')}</label>
                     <input type="number" inputMode="decimal" value={formData.precioVentaTotal} onChange={e => setFormData(p => ({ ...p, precioVentaTotal: +e.target.value }))} className={INPUT} />
                   </div>
                 </div>

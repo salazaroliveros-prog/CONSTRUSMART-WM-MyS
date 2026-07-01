@@ -334,7 +334,7 @@ const CRM: React.FC = () => {
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Nombre *</label>
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Nombre *</label>
                 <input
                   value={formData.nombre}
                   onChange={e => { setFormData(p => ({ ...p, nombre: e.target.value })); setFormErrors(prev => ({ ...prev, nombre: '' })); }}
@@ -344,7 +344,7 @@ const CRM: React.FC = () => {
                 {formErrors.nombre && <p className="text-xs COLOR_DANGER mt-1">{formErrors.nombre}</p>}
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Proyecto</label>
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Proyecto</label>
                 <select value={formData.proyectoId} onChange={e => setFormData(p => ({ ...p, proyectoId: e.target.value }))} className="w-full px-3.5 py-2.5 text-sm rounded-lg border outline-none bg-background text-foreground focus:border-primary border-border">
                   <option value="">Sin proyecto</option>
                   {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
@@ -352,7 +352,7 @@ const CRM: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-slate-500 mb-1 block">Cliente *</label>
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Cliente *</label>
                   <input
                     value={formData.cliente}
                     onChange={e => { setFormData(p => ({ ...p, cliente: e.target.value })); setFormErrors(prev => ({ ...prev, cliente: '' })); }}
@@ -362,7 +362,7 @@ const CRM: React.FC = () => {
                   {formErrors.cliente && <p className="text-xs COLOR_DANGER mt-1">{formErrors.cliente}</p>}
                 </div>
                 <div>
-                  <label className="text-xs text-slate-500 mb-1 block">Monto Q</label>
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Monto Q</label>
                   <input
                     type="number" inputMode="decimal"
                     value={formData.monto}
@@ -374,7 +374,7 @@ const CRM: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Probabilidad <span className="font-bold text-purple-600">{formData.probabilidad}%</span></label>
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Probabilidad <span className="font-bold text-purple-600">{formData.probabilidad}%</span></label>
                 <input
                   type="range" min="0" max="100" step="5"
                   value={formData.probabilidad}
