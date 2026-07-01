@@ -445,12 +445,12 @@ const forceSync = useMemo(() => {
                 tableProcessed.push(...chunk.map(m => m.id));
               }
               for (const chunk of chunkArray(ops.UPDATE, BATCH_SIZE)) {
-                const payload = chunk.map(m => {
+                for (const m of chunk) {
                   const p = toSnake(stripAppOnlyFields(sanitizarObjeto(m.payload) as Record<string, unknown>));
-                  return { ...p, id: p.id };
-                });
-                const { error } = await client.from(table).update(payload);
-                if (error) throw error;
+                  if (!p.id) continue;
+                  const { error } = await client.from(table).update(p).eq('id', p.id);
+                  if (error) throw error;
+                }
                 tableProcessed.push(...chunk.map(m => m.id));
               }
               for (const chunk of chunkArray(ops.DELETE, BATCH_SIZE)) {
