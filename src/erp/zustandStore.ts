@@ -1812,20 +1812,20 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().enqueueMutation('deleteAjusteEstacionalActividad', { id });
   },
   setReglasFactores: (v) => {
-    set((state) => ({ reglasFactores: typeof v === 'function' ? (v as Function)(state.reglasFactores) : v }));
-    get().enqueueMutation('setReglasFactores', typeof v === 'function' ? (v as Function)(get().reglasFactores) : v as ReglaFactor[]);
+    set((state) => ({ reglasFactores: typeof v === 'function' ? (v as (s: ReglaFactor[]) => ReglaFactor[])(state.reglasFactores) : v }));
+    get().enqueueMutation('setReglasFactores', typeof v === 'function' ? (v as (s: ReglaFactor[]) => ReglaFactor[])(get().reglasFactores) : v as ReglaFactor[]);
   },
   setNormativasDepartamentales: (v) => {
-    set((state) => ({ normativasDepartamentales: typeof v === 'function' ? (v as Function)(state.normativasDepartamentales) : v }));
-    get().enqueueMutation('setNormativasDepartamentales', typeof v === 'function' ? (v as Function)(get().normativasDepartamentales) : v as NormativaDepartamental[]);
+    set((state) => ({ normativasDepartamentales: typeof v === 'function' ? (v as (s: NormativaDepartamental[]) => NormativaDepartamental[])(state.normativasDepartamentales) : v }));
+    get().enqueueMutation('setNormativasDepartamentales', typeof v === 'function' ? (v as (s: NormativaDepartamental[]) => NormativaDepartamental[])(get().normativasDepartamentales) : v as NormativaDepartamental[]);
   },
   setEscalasProduccion: (v) => {
-    set((state) => ({ escalasProduccion: typeof v === 'function' ? (v as Function)(state.escalasProduccion) : v }));
-    get().enqueueMutation('setEscalasProduccion', typeof v === 'function' ? (v as Function)(get().escalasProduccion) : v as EscalaProduccion[]);
+    set((state) => ({ escalasProduccion: typeof v === 'function' ? (v as (s: EscalaProduccion[]) => EscalaProduccion[])(state.escalasProduccion) : v }));
+    get().enqueueMutation('setEscalasProduccion', typeof v === 'function' ? (v as (s: EscalaProduccion[]) => EscalaProduccion[])(get().escalasProduccion) : v as EscalaProduccion[]);
   },
   setEstacionalidad: (v) => {
-    set((state) => ({ estacionalidad: typeof v === 'function' ? (v as Function)(state.estacionalidad) : v }));
-    get().enqueueMutation('setEstacionalidad', typeof v === 'function' ? (v as Function)(get().estacionalidad) : v as Estacionalidad[]);
+    set((state) => ({ estacionalidad: typeof v === 'function' ? (v as (s: Estacionalidad[]) => Estacionalidad[])(state.estacionalidad) : v }));
+    get().enqueueMutation('setEstacionalidad', typeof v === 'function' ? (v as (s: Estacionalidad[]) => Estacionalidad[])(get().estacionalidad) : v as Estacionalidad[]);
   },
 }));
 
