@@ -134,6 +134,7 @@ const ReportesTecnicos: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-black text-slate-800">CONSTRUCTORA WM/M&S</h2>
+              {/* eslint-disable-next-line react/no-unescaped-entities */}
               <p className="text-xs text-slate-500 italic">"Edificando el Futuro"</p>
             </div>
             <div className="text-right text-xs text-slate-500">
