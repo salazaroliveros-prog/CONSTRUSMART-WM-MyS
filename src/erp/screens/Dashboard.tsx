@@ -65,14 +65,6 @@ const Dashboard: React.FC = () => {
   const online = useOnlineStatus();
   const dashRef = useRef<HTMLDivElement>(null);
   const [integrityData, setIntegrityData] = useState<any>(null);
-  useEffect(() => {
-    if (ctx.user) {
-      // check_daily_integrity RPC may not exist in Supabase yet; silently ignore if it fails
-      supabase.rpc('check_daily_integrity').then(({ data, error }) => {
-        if (!error && data) setIntegrityData(data);
-      });
-    }
-  }, [ctx.user]);
 
   const {
     proyectos, movimientos, avances, selectedProyectoId, setView,
