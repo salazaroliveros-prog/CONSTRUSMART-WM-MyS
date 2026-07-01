@@ -74,6 +74,14 @@ const PlantillasProyectos: React.FC = () => {
   const [modoSeleccion, setModoSeleccion] = useState(false);
   
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});//AUTO
+  const [formData, setFormData] = useState<PlantillaFormData>({
+    nombre: '',
+    descripcion: '',
+    categoria: 'residencial',
+    proyectoOrigenId: '',
+    clienteId: '',
+    clienteNombre: '',
+  });
 
   useEffect(() => { setLoading(false); }, []);
 
