@@ -6,7 +6,7 @@ import { Modal, message } from 'antd';
 import { toast } from 'sonner';
 
 import { useErp } from '../store';
-import { Tipologia, RenglonPresupuesto, SubRenglon, Presupuesto } from '../types';
+import { Tipologia, RenglonPresupuesto, SubRenglon, Presupuesto, Proyecto } from '../types';
 import { generarRenglones } from '../data';
 import { fmtQ, TIPOLOGIA_LABEL, costoDirectoUnitario, precioUnitarioVenta, precioUnitarioVentaConFactores, duracionPorRendimiento, HERRAMIENTA_MENOR, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD } from '../utils';
 import { exportCSV, exportPDF, exportXLSX } from '../export';
