@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { VentaPaquete, Anticipo, AmortizacionItem, CajaChica } from '../types';
@@ -17,13 +17,14 @@ export const ComercialFinanzas: React.FC = () => {
   const [amortInputs, setAmortInputs] = useState<Record<string, string>>({});
 
   const [loading, setLoading] = useState(true);
+  const [ventas, setVentas] = useState<VentaPaquete[]>((ventasPaquetes ?? []) as VentaPaquete[]);
   const [anticipos, setAnticipos] = useState<Anticipo[]>([]);
   const [cajasChicas, setCajasChicas] = useState<CajaChica[]>([]);
 
-  const ventas = (ventasPaquetes ?? []) as VentaPaquete[];
-  const setVentas = (updater: React.SetStateAction<VentaPaquete[]>) => {
-    const next = typeof updater === 'function' ? (updater as (v: VentaPaquete[]) => VentaPaquete[])(ventas) : updater;
-  };
+  useEffect(() => {
+    setLoading(false);
+    setVentas((ventasPaquetes ?? []) as VentaPaquete[]);
+  }, [ventasPaquetes]);
 
   const addVenta = (data: Omit<VentaPaquete, 'id'>) => {
     const updated = [{ ...data, id: uid() }, ...ventas];
