@@ -12,6 +12,11 @@ export interface ThemeInfo {
     primary: string;
     background: string;
     foreground: string;
+    card?: string;
+    cardForeground?: string;
+    muted?: string;
+    mutedForeground?: string;
+    border?: string;
   };
 }
 

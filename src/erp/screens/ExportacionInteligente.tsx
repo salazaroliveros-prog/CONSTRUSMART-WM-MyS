@@ -165,7 +165,7 @@ const ExportacionInteligente: React.FC = () => {
       toast.success(t('exportacion.csv_exito', 'CSV exportado exitosamente'));
       setExportando(null);
     }, 500);
-  }, [proyectos, movimientos, empleados, materiales]);
+  }, [proyectos, movimientos, empleados, materiales, t]);
 
   // === GENERAR REPORTE PDF EJECUTIVO ===
   const generarPDF = useCallback(async () => {
@@ -367,7 +367,7 @@ const ExportacionInteligente: React.FC = () => {
       }
       setExportando(null);
     }, 500);
-  }, [proyectos, movimientos, empleados, materiales, presupuestos]);
+  }, [proyectos, movimientos, empleados, materiales, presupuestos, t]);
 
   const ejecutarReporteAhora = (reporte: ReporteProgramado) => {
     if (reporte.formato === 'json') exportarJSON();
