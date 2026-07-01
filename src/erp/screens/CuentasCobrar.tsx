@@ -21,24 +21,22 @@ const CuentasCobrarScreen: React.FC = () => {
   const set = (patch: Record<string, any>) => { setForm(prev => ({ ...prev, ...patch })); Object.keys(patch).forEach(clearFieldError); };
   const [form, setForm] = useState({ proyectoId: '', cliente: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', notas: '' });
 
-
+  const agregar = () => {
     const errs: Record<string, string> = {};
     if (!form.cliente) errs.cliente = 'Cliente requerido';
     if (!form.concepto) errs.concepto = 'Concepto requerido';
     if (!form.monto || form.monto <= 0) errs.monto = 'Monto debe ser mayor a 0';
     if (Object.keys(errs).length) { setFormErrors(errs); return; }
-  const agregar = () => {
-    if (!form.cliente || !form.concepto || form.monto <= 0) { toast.error('Cliente, concepto y monto requeridos'); return; }
     addCuentaCobrar({
       proyectoId: form.proyectoId, cliente: form.cliente, concepto: form.concepto,
       monto: form.monto, saldoPendiente: form.monto, fechaEmision: form.fechaEmision,
       fechaVencimiento: form.fechaVencimiento, estado: 'pendiente', notas: form.notas || undefined,
     });
     toast.success('Cuenta por cobrar registrada');
-    setShowForm(false); setForm({ proyectoId: '', cliente: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', notas: '' });
+    setShowForm(false);
+    setForm({ proyectoId: '', cliente: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', notas: '' });
+    setFormErrors({});
   };
-    toast.success('Cuenta por cobrar registrada');
-    setShowForm(false); setForm({ proyectoId: '', cliente: '', concepto: '', monto: 0, fechaEmision: todayISO(), fechaVencimiento: '', notas: '' }); setFormErrors({});
 
   const cobrar = (id: string) => {
     updateCuentaCobrar(id, { estado: 'cobrado', fechaCobro: todayISO(), saldoPendiente: 0 });
@@ -46,9 +44,12 @@ const CuentasCobrarScreen: React.FC = () => {
   };
 
   const eliminar = async (id: string) => {
-  await Modal.confirm({ title: 'Confirmar eliminación', content: '¿Eliminar esta cuenta por cobrar?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
-  deleteCuentaCobrar(id);
-};
+    try {
+      await Modal.confirm({ title: 'Confirmar eliminación', content: '¿Eliminar esta cuenta por cobrar?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
+      deleteCuentaCobrar(id);
+      toast.success('Cuenta por cobrar eliminada');
+    } catch {}
+  };
 
   const filtradas = filtroProyecto ? cuentasCobrar.filter(c => c.proyectoId === filtroProyecto) : cuentasCobrar;
   const pendientes = filtradas.filter(c => c.estado === 'pendiente' || c.estado === 'parcial' || c.estado === 'vencido');
