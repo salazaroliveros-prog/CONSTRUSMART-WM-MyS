@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,8 +12,8 @@ import { obtenerSubtipologias } from '../services/motorCalculo';
 import { Progress } from '../components/Charts';
 import MapPicker from '../components/MapPicker';
 import HeatMap from '../components/HeatMap';
-import { INPUT, BUTTON_PRIMARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER } from '../ui';
-import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, AlertCircle, ChevronRight, Copy, Layout, Sparkles, Star, Search } from 'lucide-react';
+import { INPUT, BUTTON_PRIMARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER, KPI_CARD, CARD_TITLE } from '../ui';
+import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, AlertCircle, ChevronRight, Copy, Layout, Sparkles, Star, Search, ArrowUpDown, List, Grid3x3, DollarSign, ClipboardList, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import { proyectoSchemaObject as proyectoSchemaCanonico } from '../store/schemas/proyectos';
 
@@ -49,15 +49,15 @@ const proyectoSchema = proyectoSchemaCanonico.pick({
   estado: true,
   etapa: true,
 }).extend({
-  nombre: z.string().min(1, 'Nombre requerido'),
-  cliente: z.string().min(1, 'Cliente requerido'),
-  ubicacion: z.string().min(1, 'Ubicación requerida'),
-  presupuestoTotal: z.coerce.number().min(0, 'Valor requerido'),
-  montoContrato: z.coerce.number().min(0, 'Valor requerido'),
-  fechaInicio: z.string().min(1, 'Fecha requerida'),
-  fechaFin: z.string().min(1, 'Fecha requerida'),
-  clienteEmail: z.string().email('Email inválido').optional().or(z.literal('')),
-  areaConstruccion: z.coerce.number().min(0, 'Debe ser positivo').optional(),
+  nombre: z.string().min(1, t('proyectos.nombre_requerido')),
+  cliente: z.string().min(1, t('proyectos.cliente_requerido')),
+  ubicacion: z.string().min(1, t('proyectos.ubicacion_requerida')),
+  presupuestoTotal: z.coerce.number().min(0, t('proyectos.valor_requerido')),
+  montoContrato: z.coerce.number().min(0, t('proyectos.valor_requerido')),
+  fechaInicio: z.string().min(1, t('proyectos.nombre_requerido')),
+  fechaFin: z.string().min(1, t('proyectos.nombre_requerido')),
+  clienteEmail: z.string().email(t('proyectos.nombre_requerido')).optional().or(z.literal('')),
+  areaConstruccion: z.coerce.number().min(0).optional(),
   numPisos: z.coerce.number().int().min(0).optional(),
   plazoSemanas: z.coerce.number().int().min(0).optional(),
   margenUtilidadObjetivo: z.coerce.number().min(0).max(100).optional(),
@@ -73,6 +73,9 @@ const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado
   return '#10b981';
 };
 
+const TIPOS_OBRA = ['nueva', 'remodelacion', 'ampliacion'] as const;
+const ETAPAS = ['planificacion', 'diseno', 'preconstruccion', 'construccion', 'cierre'] as const;
+
 const Proyectos: React.FC = () => {
   const { t } = useTranslation();
   const { proyectos, addProyecto, updateProyecto, deleteProyecto, clearProyectos, plantillas, crearProyectoDesdePlantilla, sugerirPlantillas, setSelectedProyectoId, setView } = useErp();
@@ -86,6 +89,10 @@ const Proyectos: React.FC = () => {
   const [templateSearch, setTemplateSearch] = useState('');
   const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
   const [subtipologias, setSubtipologias] = useState<any[]>([]);
+  const [busqueda, setBusqueda] = useState('');
+  const [ordenamiento, setOrdenamiento] = useState<'nombre' | 'fecha' | 'presupuesto'>('fecha');
+  const [ordenDescendente, setOrdenDescendente] = useState(true);
+  const [vistaLista, setVistaLista] = useState(false);
 
   const {
     register,
@@ -176,12 +183,44 @@ const Proyectos: React.FC = () => {
     }
   }, [watch]);
 
+  const proyectosFiltrados = useMemo(() => {
+    const filtrados = proyectos.filter(p =>
+      busqueda === '' ||
+      p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+      (p.cliente && p.cliente.toLowerCase().includes(busqueda.toLowerCase())) ||
+      (p.ubicacion && p.ubicacion.toLowerCase().includes(busqueda.toLowerCase()))
+    );
+    return [...filtrados].sort((a, b) => {
+      let comparison = 0;
+      switch (ordenamiento) {
+        case 'nombre':
+          comparison = a.nombre.localeCompare(b.nombre);
+          break;
+        case 'fecha':
+          comparison = new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+          break;
+        case 'presupuesto':
+          comparison = (a.presupuestoTotal || 0) - (b.presupuestoTotal || 0);
+          break;
+      }
+      return ordenDescendente ? -comparison : comparison;
+    });
+  }, [proyectos, busqueda, ordenamiento, ordenDescendente]);
+
+  const kpis = useMemo(() => {
+    const total = proyectos.length;
+    const enEjecucion = proyectos.filter(p => p.estado === 'ejecucion').length;
+    const presupuestoTotal = proyectos.reduce((s, p) => s + (p.presupuestoTotal || 0), 0);
+    const contratoTotal = proyectos.reduce((s, p) => s + (p.montoContrato || 0), 0);
+    return { total, enEjecucion, presupuestoTotal, contratoTotal };
+  }, [proyectos]);
+
   const onSubmit = (data: ProyectoFormData) => {
     setSubmitting(true);
     try {
       if (editingId) {
         updateProyecto(editingId, { ...data, lat: coords.lat, lng: coords.lng });
-        toast.success(`Proyecto "${data.nombre}" actualizado`, { description: 'Cambios guardados correctamente' });
+        toast.success(t('proyectos.proyecto_actualizado', { nombre: data.nombre }), { description: t('proyectos.proyecto_actualizado_desc') });
       } else {
         if (selectedTemplate) {
           crearProyectoDesdePlantilla(selectedTemplate, {
@@ -191,7 +230,7 @@ const Proyectos: React.FC = () => {
             latitud: coords.lat,
             longitud: coords.lng,
           });
-          toast.success(`Proyecto "${data.nombre}" creado desde plantilla`, { description: 'Proyecto registrado exitosamente con configuración de plantilla' });
+          toast.success(t('proyectos.proyecto_creado_plantilla', { nombre: data.nombre }), { description: t('proyectos.proyecto_creado_plantilla_desc') });
         } else {
           addProyecto({
             ...data,
@@ -201,7 +240,7 @@ const Proyectos: React.FC = () => {
             lng: coords.lng || -90.5069,
             moneda: data.moneda || 'GTQ',
           });
-          toast.success(`Proyecto "${data.nombre}" creado`, { description: 'Proyecto registrado exitosamente' });
+          toast.success(t('proyectos.proyecto_creado', { nombre: data.nombre }), { description: t('proyectos.proyecto_creado_desc') });
         }
       }
       reset();
@@ -212,7 +251,7 @@ const Proyectos: React.FC = () => {
       setTemplateSearch('');
       setShow(false);
     } catch {
-      toast.error('No se pudo guardar', { description: 'Se reintentará cuando haya conexión.' });
+      toast.error(t('proyectos.error_guardar'), { description: t('proyectos.error_guardar_desc') });
     } finally {
       setSubmitting(false);
     }
@@ -302,8 +341,8 @@ const Proyectos: React.FC = () => {
 
   const confirmarPausa = useCallback(() => {
     if (!pauseModal) return;
-    if (!pauseReason.trim()) { toast.error('Motivo de pausa requerido'); return; }
-    if (!pauseAutorizador.trim()) { toast.error('Autorizador requerido'); return; }
+    if (!pauseReason.trim()) { toast.error(t('proyectos.motivo_pausa_requerido')); return; }
+    if (!pauseAutorizador.trim()) { toast.error(t('proyectos.autorizador_requerido')); return; }
     updateProyecto(pauseModal.proyectoId, {
       estado: 'pausado',
       motivoPausa: pauseReason.trim(),
@@ -311,18 +350,18 @@ const Proyectos: React.FC = () => {
       fechaPausa: todayISO(),
       fechaReanudacionEstimada: pauseReanudacion || undefined,
     });
-    toast.warning(`Proyecto "${pauseModal.nombre}" pausado`, { description: `Motivo: ${pauseReason}` });
+    toast.warning(t('proyectos.proyecto_pausado', { nombre: pauseModal.nombre }), { description: t('proyectos.proyecto_pausado_desc', { motivo: pauseReason }) });
     setPauseModal(null);
     setPauseReason('');
     setPauseAutorizador('');
     setPauseReanudacion('');
-  }, [pauseModal, pauseReason, pauseAutorizador, pauseReanudacion, updateProyecto]);
+  }, [pauseModal, pauseReason, pauseAutorizador, pauseReanudacion, updateProyecto, t]);
 
   const accionRapida = (p: Proyecto, accion: string) => {
     switch (accion) {
       case 'iniciar':
         updateProyecto(p.id, { estado: 'ejecucion', etapa: 'preconstruccion', fechaInicioReal: todayISO() });
-        toast.success(`Proyecto "${p.nombre}" iniciado`, { description: 'Estado cambiado a Ejecución' });
+        toast.success(t('proyectos.proyecto_iniciado', { nombre: p.nombre }), { description: t('proyectos.proyecto_iniciado_desc') });
         break;
       case 'pausar':
         setPauseModal({ proyectoId: p.id, nombre: p.nombre });
@@ -332,40 +371,54 @@ const Proyectos: React.FC = () => {
         break;
       case 'reanudar':
         updateProyecto(p.id, { estado: 'ejecucion' });
-        toast.success(`Proyecto "${p.nombre}" reanudado`, { description: 'Estado cambiado a Ejecución' });
+        toast.success(t('proyectos.proyecto_reanudado', { nombre: p.nombre }), { description: t('proyectos.proyecto_reanudado_desc') });
         break;
       case 'finalizar':
         updateProyecto(p.id, { estado: 'finalizado', etapa: 'cierre', avanceFisico: 100, avanceFinanciero: 100, fechaFinEstimada: todayISO() });
-        toast.success(`Proyecto "${p.nombre}" finalizado`, { description: 'Estado cambiado a Finalizado' });
+        toast.success(t('proyectos.proyecto_finalizado', { nombre: p.nombre }), { description: t('proyectos.proyecto_finalizado_desc') });
         break;
       case 'reabrir':
         updateProyecto(p.id, { estado: 'planeacion', etapa: 'planificacion', avanceFisico: 0, avanceFinanciero: 0 });
-        toast.info(`Proyecto "${p.nombre}" reabierto`, { description: 'Estado cambiado a Planeación' });
+        toast.info(t('proyectos.proyecto_reabierto', { nombre: p.nombre }), { description: t('proyectos.proyecto_reabierto_desc') });
         break;
     }
   };
 
   const estadoLabel: Record<string, string> = {
-    planeacion: 'Planeación', ejecucion: 'Ejecución', pausado: 'Pausado', finalizado: 'Finalizado',
+    planeacion: t('proyectos.planeacion'), ejecucion: t('proyectos.ejecucion'), pausado: t('proyectos.pausado'), finalizado: t('proyectos.finalizado'),
   };
 
-  const wMoneda = watch('moneda');
-  const wArea = watch('areaConstruccion');
+  const tipoObraLabel: Record<string, string> = {
+    nueva: t('proyectos.obra_nueva'), remodelacion: t('proyectos.remodelacion'), ampliacion: t('proyectos.ampliacion'),
+  };
+
+  const etapaLabel: Record<string, string> = {
+    planificacion: t('proyectos.etapa_planificacion'), diseno: t('proyectos.etapa_diseno'),
+    preconstruccion: t('proyectos.etapa_preconstruccion'), construccion: t('proyectos.etapa_construccion'),
+    cierre: t('proyectos.etapa_cierre'),
+  };
+
+  const estadoBadgeClass = (estado: string) => {
+    if (estado === 'ejecucion') return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
+    if (estado === 'pausado') return 'bg-amber-500/10 text-amber-600 dark:text-amber-400';
+    if (estado === 'finalizado') return 'bg-blue-500/10 text-blue-600 dark:text-blue-400';
+    return 'bg-slate-500/10 text-slate-600 dark:text-slate-400';
+  };
 
   const limpiarProyectos = async () => {
     if (!proyectos.length) return;
     try {
       await Modal.confirm({
-        title: 'Eliminar todos los proyectos',
-        content: `¿Eliminar los ${proyectos.length} proyectos y sus dependencias registradas en Supabase?\nEsta acción no se puede deshacer.`,
+        title: t('proyectos.eliminar_todos'),
+        content: t('proyectos.confirmar_eliminar_todos', { count: proyectos.length }),
         centered: true,
-        okText: 'Sí, eliminar todo',
-        cancelText: 'Cancelar',
+        okText: t('common.si'),
+        cancelText: t('common.cancelar'),
         okType: 'danger',
         width: 520,
       });
       clearProyectos();
-      toast.success('Proyectos eliminados', { description: 'Los cambios se sincronizarán con Supabase.' });
+      toast.success(t('proyectos.proyectos_eliminados'), { description: t('proyectos.proyectos_eliminados_desc') });
     } catch {}
   };
 
@@ -384,19 +437,19 @@ const Proyectos: React.FC = () => {
   }
   return (
     <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div>
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground">Portafolio de Proyectos</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">{proyectos.length} proyectos registrados</p>
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground">{t('proyectos.titulo')}</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">{t('proyectos.subtitulo', { count: proyectos.length })}</p>
         </div>
         <div className="flex gap-2">
           {proyectos.length > 0 && (
             <button onClick={limpiarProyectos} className="px-3 py-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-semibold transition-colors">
-              Eliminar todos
+              <Trash2 className="w-3 h-3 mr-1" aria-hidden="true" />{t('proyectos.eliminar_todos')}
             </button>
           )}
           <button onClick={openCreate} className={BUTTON_PRIMARY}>
-            <Plus className="w-4 h-4" aria-hidden="true" /> Nuevo Proyecto
+            <Plus className="w-4 h-4" aria-hidden="true" /> {t('proyectos.nuevo')}
           </button>
         </div>
       </div>
@@ -405,33 +458,139 @@ const Proyectos: React.FC = () => {
         <HeatMap proyectos={proyectos} />
         <div className="absolute top-0 left-0 right-0 z-20 p-4">
           <div className="flex items-center gap-2 text-white mb-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-            <MapPin className="w-4 h-4 text-orange-200" /><span className="text-sm font-bold">Mapa de Calor - Geolocalización de Obras</span>
+            <MapPin className="w-4 h-4 text-orange-200" /><span className="text-sm font-bold">{t('proyectos.mapa_calor')}</span>
           </div>
           <div className="flex gap-3 text-[10px] text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />En tiempo</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" />Riesgo</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" />Desviado</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />{t('proyectos.en_tiempo')}</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" />{t('proyectos.riesgo')}</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" />{t('proyectos.desviado')}</span>
           </div>
         </div>
+      </div>
+
+      {/* KPI metrics bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div className={KPI_CARD}>
+          <Activity className="w-4 h-4 text-primary" aria-hidden="true" />
+          <div className="text-lg font-black">{kpis.total}</div>
+          <div className={CARD_TITLE}>{t('proyectos.total_proyectos')}</div>
+        </div>
+        <div className={KPI_CARD}>
+          <Play className="w-4 h-4 text-emerald-500" aria-hidden="true" />
+          <div className="text-lg font-black">{kpis.enEjecucion}</div>
+          <div className={CARD_TITLE}>{t('proyectos.en_ejecucion')}</div>
+        </div>
+        <div className={KPI_CARD}>
+          <ClipboardList className="w-4 h-4 text-blue-500" aria-hidden="true" />
+          <div className="text-lg font-black">{fmtQ(kpis.presupuestoTotal)}</div>
+          <div className={CARD_TITLE}>{t('proyectos.total_presupuesto')}</div>
+        </div>
+        <div className={KPI_CARD}>
+          <DollarSign className="w-4 h-4 text-emerald-500" aria-hidden="true" />
+          <div className="text-lg font-black">{fmtQ(kpis.contratoTotal)}</div>
+          <div className={CARD_TITLE}>{t('proyectos.total_contratos')}</div>
+        </div>
+      </div>
+
+      {/* Search + Sort + View Toggle */}
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <input
+            type="text"
+            placeholder={t('proyectos.buscar_proyectos')}
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className={`${INPUT} pl-9`}
+            aria-label={t('proyectos.buscar_proyectos')}
+          />
+        </div>
+        <div className="flex gap-1">
+          {(['nombre', 'fecha', 'presupuesto'] as const).map(key => (
+            <button
+              key={key}
+              onClick={() => {
+                if (ordenamiento === key) setOrdenDescendente(!ordenDescendente);
+                else { setOrdenamiento(key); setOrdenDescendente(true); }
+              }}
+              className={`px-2.5 py-1.5 text-xs rounded-lg font-medium transition-colors ${
+                ordenamiento === key
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+              aria-label={t('proyectos.ordenar_por')}
+            >
+              <ArrowUpDown className="w-3 h-3 inline mr-1" aria-hidden="true" />
+              {ordenamiento === key && (ordenDescendente ? '↓ ' : '↑ ')}
+              {t(`proyectos.sort_${key}`)}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => setVistaLista(!vistaLista)}
+          className={`px-2.5 py-1.5 text-xs rounded-lg font-medium transition-colors ${
+            vistaLista ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+          }`}
+          aria-label={vistaLista ? t('proyectos.vista_grid') : t('proyectos.vista_lista')}
+        >
+          {vistaLista ? <Grid3x3 className="w-3 h-3 inline mr-1" aria-hidden="true" /> : <List className="w-3 h-3 inline mr-1" aria-hidden="true" />}
+          {vistaLista ? t('proyectos.vista_grid') : t('proyectos.vista_lista')}
+        </button>
       </div>
 
       {proyectos.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
           <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/60" aria-hidden="true" />
-          <h2 className="text-base font-bold text-foreground mb-1">No hay proyectos registrados</h2>
-          <p className="text-sm text-muted-foreground mb-4">Crea un proyecto nuevo o sincroniza desde Supabase para alimentar tableros, KPIs y gráficas.</p>
-          <button onClick={openCreate} className={BUTTON_PRIMARY}>Crear primer proyecto</button>
+          <h2 className="text-base font-bold text-foreground mb-1">{t('proyectos.sin_proyectos_title')}</h2>
+          <p className="text-sm text-muted-foreground mb-4">{t('proyectos.sin_proyectos_desc')}</p>
+          <button onClick={openCreate} className={BUTTON_PRIMARY}>{t('proyectos.crear_primer')}</button>
+        </div>
+      ) : vistaLista ? (
+        <div className="space-y-2">
+          {proyectosFiltrados.map((p, i) => (
+            <div
+              key={p.id}
+              className="group bg-card text-card-foreground rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-border p-4 flex flex-wrap items-center gap-3 focus:outline-none focus:ring-2 focus:ring-ring"
+              tabIndex={0}
+              role="row"
+              aria-label={t('proyectos.aria_card', { nombre: p.nombre })}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(p); }
+              }}
+            >
+              <div className="w-1 self-stretch rounded" style={{ background: estadoColor(p) }} aria-hidden="true" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-sm truncate">{p.nombre}</h3>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${estadoBadgeClass(p.estado)}`}>{estadoLabel[p.estado] || p.estado}</span>
+                </div>
+                <p className="text-xs text-muted-foreground truncate">{p.cliente} · {p.ubicacion}</p>
+              </div>
+              <div className="text-xs text-muted-foreground hidden sm:block">
+                <span className="block">{fmtQ(p.presupuestoTotal || 0)}</span>
+                <span className="block">{fmtPct(p.avanceFisico)}</span>
+              </div>
+              <div className="flex gap-1">
+                <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={t('proyectos.editar_proyecto', { nombre: p.nombre })}>
+                  <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
+                <button onClick={() => openDetail(p)} className={BUTTON_ICON} aria-label={t('proyectos.ver_detalle', { nombre: p.nombre })}>
+                  <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-        {proyectos.map((p, i) => (
+        {proyectosFiltrados.map((p, i) => (
           <div
             key={p.id}
             className="group bg-card text-card-foreground rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-border hover:-translate-y-1 animate-enter focus:outline-none focus:ring-2 focus:ring-ring"
             style={{ animationDelay: `${i * 0.04}s` }}
             tabIndex={0}
             role="button"
-            aria-label={`Proyecto ${p.nombre}`}
+            aria-label={t('proyectos.aria_card', { nombre: p.nombre })}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -450,26 +609,26 @@ const Proyectos: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-foreground text-sm truncate">{p.nombre}</h3>
                   <p className="text-[11px] text-muted-foreground truncate">{p.cliente}</p>
-                  {p.areaConstruccion && <p className="text-[10px] text-muted-foreground">{p.areaConstruccion.toLocaleString()} m² · {p.numPisos ? `${p.numPisos} niveles` : ''}</p>}
+                  {p.areaConstruccion && <p className="text-[10px] text-muted-foreground">{p.areaConstruccion.toLocaleString()} m² · {p.numPisos ? `${p.numPisos} ${t('proyectos.niveles')}` : ''}</p>}
                 </div>
                 <div className="flex gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
-                  <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={`Editar proyecto ${p.nombre}`}>
+                  <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={t('proyectos.editar_proyecto', { nombre: p.nombre })}>
                     <Pencil className="w-4 h-4" aria-hidden="true" />
                   </button>
                   <button onClick={async () => {
                     try {
                       await Modal.confirm({
-                        title: 'Eliminar proyecto',
-                        content: `¿Eliminar proyecto "${p.nombre}"?\nEsta acción no se puede deshacer.`,
+                        title: t('proyectos.eliminar_proyecto'),
+                        content: t('proyectos.confirmar_eliminar', { nombre: p.nombre }),
                         centered: true,
-                        okText: 'Sí, eliminar',
-                        cancelText: 'Cancelar',
+                        okText: t('common.si'),
+                        cancelText: t('common.cancelar'),
                         okType: 'danger',
                       });
                       deleteProyecto(p.id);
-                      toast.success(`Proyecto "${p.nombre}" eliminado`);
+                      toast.success(t('proyectos.proyecto_eliminado', { nombre: p.nombre }));
                     } catch {}
-                  }} className={BUTTON_DANGER} aria-label={`Eliminar proyecto ${p.nombre}`}>
+                  }} className={BUTTON_DANGER} aria-label={t('proyectos.eliminar_proyecto_nombre', { nombre: p.nombre })}>
                     <Trash2 className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
@@ -477,21 +636,16 @@ const Proyectos: React.FC = () => {
 
               <div className="flex flex-wrap gap-1.5 mb-3">
                 <span className="text-[10px] px-2.5 py-1 rounded-full bg-muted text-foreground font-medium">{TIPOLOGIA_LABEL[p.tipologia]}</span>
-                <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium transition-colors ${
-                  p.estado === 'ejecucion' ? 'bg-emerald-500/10 text-emerald-600' :
-                  p.estado === 'pausado' ? 'bg-amber-500/10 text-amber-600' :
-                  p.estado === 'finalizado' ? 'bg-blue-500/10 text-blue-600' :
-                  'bg-slate-500/10 text-slate-600'
-                }`}>{estadoLabel[p.estado] || p.estado}</span>
-                {p.etapa && <span className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground">{p.etapa}</span>}
-                {p.estado === 'pausado' && p.motivoPausa && <span className="text-[10px] px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 truncate max-w-[140px]" title={p.motivoPausa}>{p.motivoPausa}</span>}
+                <span className={`text-[10px] px-2.5 py-1 rounded-full font-medium transition-colors ${estadoBadgeClass(p.estado)}`}>{estadoLabel[p.estado] || p.estado}</span>
+                {p.etapa && <span className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground">{etapaLabel[p.etapa] || p.etapa}</span>}
+                {p.estado === 'pausado' && p.motivoPausa && <span className="text-[10px] px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 truncate max-w-[140px]" title={p.motivoPausa}>{p.motivoPausa}</span>}
                 {p.moneda && <span className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground">{p.moneda}</span>}
               </div>
 
               <div className="space-y-2.5 mb-4">
                 <div>
                   <div className="flex justify-between text-[11px] mb-1.5">
-                    <span className="text-muted-foreground">Avance Físico</span>
+                    <span className="text-muted-foreground">{t('proyectos.avance_fisico')}</span>
                     <span className="font-semibold text-foreground">{fmtPct(p.avanceFisico)}</span>
                   </div>
                   <div className="relative overflow-hidden rounded-full">
@@ -501,7 +655,7 @@ const Proyectos: React.FC = () => {
                 </div>
                 <div>
                   <div className="flex justify-between text-[11px] mb-1.5">
-                    <span className="text-muted-foreground">Avance Financiero</span>
+                    <span className="text-muted-foreground">{t('proyectos.avance_financiero')}</span>
                     <span className="font-semibold text-foreground">{fmtPct(p.avanceFinanciero)}</span>
                   </div>
                   <div className="relative overflow-hidden rounded-full">
@@ -513,23 +667,22 @@ const Proyectos: React.FC = () => {
 
               <div className="pt-3.5 flex justify-between text-xs border-t border-border">
                 <div>
-                  <span className="text-muted-foreground block text-[10px] mb-0.5">Presupuesto</span>
+                  <span className="text-muted-foreground block text-[10px] mb-0.5">{t('proyectos.presupuesto')}</span>
                   <b className="text-foreground font-semibold">{fmtQ(p.presupuestoTotal)}</b>
                 </div>
                 <div className="text-right">
-                  <span className="text-muted-foreground block text-[10px] mb-0.5">Contrato</span>
+                  <span className="text-muted-foreground block text-[10px] mb-0.5">{t('proyectos.contrato')}</span>
                   <b className="text-emerald-600 dark:text-emerald-400 font-semibold">{fmtQ(p.montoContrato || 0)}</b>
                 </div>
               </div>
 
-              {/* Botones de acción rápida */}
               <div className="mt-3 pt-3 border-t border-border flex flex-wrap gap-1.5">
                 {p.estado === 'planeacion' && (
                   <button
                     onClick={() => accionRapida(p, 'iniciar')}
                     className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
                   >
-                    <Play className="w-3 h-3" /> Iniciar Ejecución
+                    <Play className="w-3 h-3" /> {t('proyectos.iniciar')}
                   </button>
                 )}
                 {p.estado === 'ejecucion' && (
@@ -538,13 +691,13 @@ const Proyectos: React.FC = () => {
                       onClick={() => accionRapida(p, 'pausar')}
                       className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
                     >
-                      <Pause className="w-3 h-3" /> Pausar
+                      <Pause className="w-3 h-3" /> {t('proyectos.pausar')}
                     </button>
                     <button
                       onClick={() => accionRapida(p, 'finalizar')}
                       className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
                     >
-                      <CheckCircle2 className="w-3 h-3" /> Finalizar
+                      <CheckCircle2 className="w-3 h-3" /> {t('proyectos.finalizar')}
                     </button>
                   </>
                 )}
@@ -553,7 +706,7 @@ const Proyectos: React.FC = () => {
                     onClick={() => accionRapida(p, 'reanudar')}
                     className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
                   >
-                    <RotateCcw className="w-3 h-3" /> Reanudar
+                    <RotateCcw className="w-3 h-3" /> {t('proyectos.reanudar')}
                   </button>
                 )}
                 {p.estado === 'finalizado' && (
@@ -561,14 +714,14 @@ const Proyectos: React.FC = () => {
                     onClick={() => accionRapida(p, 'reabrir')}
                     className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-slate-500 hover:bg-slate-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md"
                   >
-                    <RotateCcw className="w-3 h-3" /> Reabrir
+                    <RotateCcw className="w-3 h-3" /> {t('proyectos.reabrir')}
                   </button>
                 )}
                 <button
                   onClick={() => openDetail(p)}
                   className="text-[11px] px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground font-medium flex items-center justify-center gap-1 transition-all active:scale-95"
                 >
-                  <ChevronRight className="w-3 h-3" /> Detalle
+                  <ChevronRight className="w-3 h-3" /> {t('proyectos.detalle')}
                 </button>
               </div>
             </div>
@@ -581,34 +734,34 @@ const Proyectos: React.FC = () => {
         <div className={MODAL_OVERLAY + ' animate-enter'} role="dialog" aria-modal="true" aria-labelledby="modal-pausa-title">
           <div onClick={e => e.stopPropagation()} className={`${MODAL_PANEL.replace('max-w-lg sm:max-w-xl md:max-w-2xl', 'max-w-md')} animate-enter`}>
             <div className={MODAL_HEADER}>
-              <h2 id="modal-pausa-title" className={MODAL_TITLE}>Pausar Proyecto</h2>
-              <button type="button" onClick={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }} className={MODAL_CLOSE} aria-label="Cerrar">
+              <h2 id="modal-pausa-title" className={MODAL_TITLE}>{t('proyectos.pausar_proyecto')}</h2>
+              <button type="button" onClick={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }} className={MODAL_CLOSE} aria-label={t('common.cerrar')}>
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
             <div className="p-4 space-y-3">
-              <p className="text-sm font-medium text-foreground">Proyecto: <span className="text-primary">{pauseModal.nombre}</span></p>
+              <p className="text-sm font-medium text-foreground">{t('proyectos.proyecto_label')}: <span className="text-primary">{pauseModal.nombre}</span></p>
               <div>
-                <label className="text-[10px] text-muted-foreground mb-0.5 block">Motivo de Pausa *</label>
+                <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.motivo_pausa')} *</label>
                 <textarea
                   value={pauseReason}
                   onChange={e => setPauseReason(e.target.value)}
-                  placeholder="Describa la razón de la pausa (ej: falta de materiales, condiciones climáticas, problemas contractuales...)"
+                  placeholder={t('proyectos.motivo_pausa_placeholder')}
                   className={`${INPUT} min-h-[80px] resize-none`}
                   rows={3}
                 />
               </div>
               <div>
-                <label className="text-[10px] text-muted-foreground mb-0.5 block">Autorizado por *</label>
+                <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.autorizado_por')} *</label>
                 <input
                   value={pauseAutorizador}
                   onChange={e => setPauseAutorizador(e.target.value)}
-                  placeholder="Nombre de quien autoriza la pausa"
+                  placeholder={t('proyectos.autorizado_por_placeholder')}
                   className={INPUT}
                 />
               </div>
               <div>
-                <label className="text-[10px] text-muted-foreground mb-0.5 block">Fecha estimada de reanudación</label>
+                <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.fecha_reanudacion')}</label>
                 <input
                   type="date"
                   value={pauseReanudacion}
@@ -619,10 +772,10 @@ const Proyectos: React.FC = () => {
             </div>
             <div className="px-4 pb-4 flex gap-2">
               <button onClick={confirmarPausa} className={BUTTON_PRIMARY + ' flex-1 justify-center active:scale-[0.98]'}>
-                <Pause className="w-4 h-4" /> Confirmar Pausa
+                <Pause className="w-4 h-4" /> {t('proyectos.confirmar_pausa')}
               </button>
               <button onClick={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }} className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground font-medium transition-all">
-                Cancelar
+                {t('common.cancelar')}
               </button>
             </div>
           </div>
@@ -643,9 +796,9 @@ const Proyectos: React.FC = () => {
               {!editingId && (
                 <>
                   <div>
-                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                      <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
                       <Layout className="w-3 h-3" />
-                      Plantilla (Opcional)
+                      {t('proyectos.plantilla_opcional')}
                     </h3>
                     
                     <div className="space-y-3">
@@ -654,7 +807,7 @@ const Proyectos: React.FC = () => {
                           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                           <input
                             type="text"
-                            placeholder="Buscar plantilla..."
+                            placeholder={t('proyectos.buscar_plantilla')}
                             value={templateSearch}
                             onChange={(e) => setTemplateSearch(e.target.value)}
                             className={`${INPUT} pl-9`}
@@ -698,7 +851,7 @@ const Proyectos: React.FC = () => {
                                     <span className="font-medium text-sm">{p.nombre}</span>
                                   </div>
                                   <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                    {p.descripcion || 'Sin descripción'}
+                                    {p.descripcion || t('proyectos.sin_descripcion')}
                                   </p>
                                 </div>
                                 <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded shrink-0">
@@ -708,32 +861,32 @@ const Proyectos: React.FC = () => {
                               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 text-xs">
                                 <div className="text-center">
                                   <div className="font-semibold">{p.estructuraPresupuesto?.length || 0}</div>
-                                  <div className="text-muted-foreground text-[10px]">Renglones</div>
+                                  <div className="text-muted-foreground text-[10px]">{t('proyectos.renglones')}</div>
                                 </div>
                                 <div className="text-center">
                                   <div className="font-semibold">{p.hitosTemplate?.length || 0}</div>
-                                  <div className="text-muted-foreground text-[10px]">Hitos</div>
+                                  <div className="text-muted-foreground text-[10px]">{t('proyectos.hitos')}</div>
                                 </div>
                                 <div className="text-center">
                                   <div className="font-semibold">{p.riesgosTemplate?.length || 0}</div>
-                                  <div className="text-muted-foreground text-[10px]">Riesgos</div>
+                                  <div className="text-muted-foreground text-[10px]">{t('proyectos.riesgos')}</div>
                                 </div>
                                 <div className="text-center">
                                   <div className="font-semibold">{p.usosCount || 0}</div>
-                                  <div className="text-muted-foreground text-[10px]">Usos</div>
+                                  <div className="text-muted-foreground text-[10px]">{t('proyectos.usos')}</div>
                                 </div>
                               </div>
                               {selectedTemplate === p.id && (
                                 <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-950/30 rounded text-xs text-blue-700 dark:text-blue-300">
                                   <div className="flex items-center gap-1 mb-1">
                                     <Copy className="w-3 h-3" />
-                                    <span className="font-medium">Se crearán automáticamente:</span>
+                                    <span className="font-medium">{t('proyectos.se_crearan_auto')}</span>
                                   </div>
                                   <div className="grid grid-cols-2 gap-1 text-[10px]">
-                                    <div>• Presupuesto con renglones</div>
-                                    <div>• Hitos del proyecto</div>
-                                    <div>• Riesgos predefinidos</div>
-                                    <div>• Configuración base</div>
+                                    <div>• {t('proyectos.presupuesto_renglones')}</div>
+                                    <div>• {t('proyectos.hitos_proyecto')}</div>
+                                    <div>• {t('proyectos.riesgos_predefinidos')}</div>
+                                    <div>• {t('proyectos.configuracion_base')}</div>
                                   </div>
                                 </div>
                               )}
@@ -745,7 +898,7 @@ const Proyectos: React.FC = () => {
                         <div className="mt-3">
                           <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
                             <Sparkles className="w-3 h-3" />
-                            <span>Sugerencias basadas en tu proyecto:</span>
+                            <span>{t('proyectos.sugerencias')}</span>
                           </div>
                           <div className="grid grid-cols-1 gap-2">
                             {sugerencias.map(sugerencia => {
@@ -768,18 +921,18 @@ const Proyectos: React.FC = () => {
                                         {sugerencia.nombre}
                                       </div>
                                       <div className="text-xs text-muted-foreground mt-1">
-                                        {catInfo} • {sugerencia.estructuraPresupuesto?.length || 0} renglones • {sugerencia.usosCount || 0} usos
-                                      </div>
-                                      {sugerencia.clienteNombre && (
-                                        <div className="text-xs text-blue-600 mt-1">
-                                          Cliente: {sugerencia.clienteNombre}
+                                      {catInfo} • {sugerencia.estructuraPresupuesto?.length || 0} {t('proyectos.renglones')} • {sugerencia.usosCount || 0} {t('proyectos.usos')}
+                                        </div>
+                                        {sugerencia.clienteNombre && (
+                                          <div className="text-xs text-blue-600 mt-1">
+                                            {t('proyectos.cliente')}: {sugerencia.clienteNombre}
                                         </div>
                                       )}
                                     </div>
                                     {sugerencia.metricas?.exitoPromedio && sugerencia.metricas.exitoPromedio >= 80 && (
                                       <div className="flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
                                         <Star className="w-3 h-3" />
-                                        <span>Excelente</span>
+                                        <span>{t('proyectos.excelente')}</span>
                                       </div>
                                     )}
                                   </div>
@@ -799,7 +952,7 @@ const Proyectos: React.FC = () => {
                       className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                     >
                       <X className="w-3 h-3" />
-                      Omitir plantilla
+                      {t('proyectos.omitir_plantilla')}
                     </button>
                   </div>
                 </>
@@ -821,26 +974,24 @@ const Proyectos: React.FC = () => {
                   </select>
                   {subtipologias.length > 0 && (
                     <select {...register('subtipo')} className={INPUT}>
-                      <option value="">Subtipo (opcional)</option>
+                      <option value="">{t('proyectos.subtipo_opcional')}</option>
                       {subtipologias.map(s => (
                         <option key={s.subtipo} value={s.subtipo}>{s.subtipo}</option>
                       ))}
                     </select>
                   )}
                   <select {...register('tipoObra')} className={INPUT}>
-                    <option value="nueva">Obra Nueva</option>
-                    <option value="remodelacion">Remodelación</option>
-                    <option value="ampliacion">Ampliación</option>
+                    {TIPOS_OBRA.map(t => <option key={t} value={t}>{tipoObraLabel[t]}</option>)}
                   </select>
                   <select {...register('moneda')} className={INPUT}>
-                    <option value="GTQ">GTQ - Quetzal</option>
-                    <option value="USD">USD - Dólar</option>
+                    <option value="GTQ">GTQ - {t('proyectos.quetzal')}</option>
+                    <option value="USD">USD - {t('proyectos.dolar')}</option>
                   </select>
                   <div className="flex gap-2 sm:col-span-2">
-                    <input type="number" {...register('areaConstruccion')} placeholder="Área (m²)" className={INPUT} />
-                    <input type="number" {...register('numPisos')} placeholder="Niveles" className={INPUT} />
+                    <input type="number" {...register('areaConstruccion')} placeholder={t('proyectos.area_placeholder')} className={INPUT} />
+                    <input type="number" {...register('numPisos')} placeholder={t('proyectos.niveles_placeholder')} className={INPUT} />
                   </div>
-                  <input type="number" {...register('plazoSemanas')} placeholder="Plazo estimado (semanas)" className={INPUT} />
+                  <input type="number" {...register('plazoSemanas')} placeholder={t('proyectos.plazo_placeholder')} className={INPUT} />
                 </div>
               </div>
 
@@ -848,12 +999,16 @@ const Proyectos: React.FC = () => {
               <div>
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.cliente')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <input {...register('cliente')} placeholder="Nombre del cliente *" className={INPUT} />
-                  {errors.cliente && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{errors.cliente.message}</p>}
-                  <input {...register('clienteNit')} placeholder="NIT" className={INPUT} />
-                  <input {...register('clienteTelefono')} placeholder="Teléfono" className={INPUT} />
-                  <input {...register('clienteEmail')} placeholder="Email" className={INPUT} />
-                  {errors.clienteEmail && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{errors.clienteEmail.message}</p>}
+                  <div>
+                    <input {...register('cliente')} placeholder={t('proyectos.cliente_placeholder')} className={INPUT} />
+                    {errors.cliente && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{errors.cliente.message}</p>}
+                  </div>
+                  <input {...register('clienteNit')} placeholder={t('proyectos.nit_placeholder')} className={INPUT} />
+                  <input {...register('clienteTelefono')} placeholder={t('proyectos.telefono_placeholder')} className={INPUT} />
+                  <div>
+                    <input {...register('clienteEmail')} placeholder={t('proyectos.email_placeholder')} className={INPUT} />
+                    {errors.clienteEmail && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{errors.clienteEmail.message}</p>}
+                  </div>
                 </div>
               </div>
 
@@ -861,12 +1016,14 @@ const Proyectos: React.FC = () => {
               <div>
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.ubicacion')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
-                  <input {...register('ubicacion')} placeholder="Ubicación (texto) *" className={INPUT} />
-                  {errors.ubicacion && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{errors.ubicacion.message}</p>}
-                  <input {...register('direccion')} placeholder="Dirección" className={INPUT} />
-                  <input {...register('ciudad')} placeholder="Ciudad" className={INPUT} />
-                  <input {...register('departamento')} placeholder="Departamento" className={INPUT} />
-                  <input {...register('codigoPostal')} placeholder="Código Postal" className={INPUT + ' sm:col-span-2'} />
+                  <div>
+                    <input {...register('ubicacion')} placeholder={t('proyectos.ubicacion_placeholder')} className={INPUT} />
+                    {errors.ubicacion && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{errors.ubicacion.message}</p>}
+                  </div>
+                  <input {...register('direccion')} placeholder={t('proyectos.direccion_placeholder')} className={INPUT} />
+                  <input {...register('ciudad')} placeholder={t('proyectos.ciudad_placeholder')} className={INPUT} />
+                  <input {...register('departamento')} placeholder={t('proyectos.departamento_placeholder')} className={INPUT} />
+                  <input {...register('codigoPostal')} placeholder={t('proyectos.codigo_postal_placeholder')} className={INPUT + ' sm:col-span-2'} />
                 </div>
                 <MapPicker
                   lat={coords.lat}
@@ -882,9 +1039,9 @@ const Proyectos: React.FC = () => {
               <div>
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.responsables')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <input {...register('ingenieroResidente')} placeholder="Ingeniero Residente" className={INPUT} />
-                  <input {...register('supervisor')} placeholder="Supervisor" className={INPUT} />
-                  <input {...register('arquitecto')} placeholder="Arquitecto" className={INPUT + ' sm:col-span-2'} />
+                  <input {...register('ingenieroResidente')} placeholder={t('proyectos.ingeniero_placeholder')} className={INPUT} />
+                  <input {...register('supervisor')} placeholder={t('proyectos.supervisor_placeholder')} className={INPUT} />
+                  <input {...register('arquitecto')} placeholder={t('proyectos.arquitecto_placeholder')} className={INPUT + ' sm:col-span-2'} />
                 </div>
               </div>
 
@@ -892,8 +1049,8 @@ const Proyectos: React.FC = () => {
               <div>
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.documentacion')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <input {...register('numeroExpediente')} placeholder="N° Expediente" className={INPUT} />
-                  <input {...register('numeroLicencia')} placeholder="N° Licencia Municipal" className={INPUT} />
+                  <input {...register('numeroExpediente')} placeholder={t('proyectos.expediente_placeholder')} className={INPUT} />
+                  <input {...register('numeroLicencia')} placeholder={t('proyectos.licencia_placeholder')} className={INPUT} />
                 </div>
               </div>
 
@@ -904,20 +1061,13 @@ const Proyectos: React.FC = () => {
 <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.estado')}</label>
                     <select {...register('estado')} className={INPUT}>
-                      <option value="planeacion">Planeación</option>
-                      <option value="ejecucion">Ejecución</option>
-                      <option value="pausado">Pausado</option>
-                      <option value="finalizado">Finalizado</option>
+                      {Object.entries(estadoLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.etapa')}</label>
                     <select {...register('etapa')} className={INPUT}>
-                      <option value="planificacion">Planificación</option>
-                      <option value="diseno">Diseño</option>
-                      <option value="preconstruccion">Pre-construcción</option>
-                      <option value="construccion">Construcción</option>
-                      <option value="cierre">Cierre</option>
+                      {ETAPAS.map(e => <option key={e} value={e}>{etapaLabel[e]}</option>)}
                     </select>
                   </div>
                 </div>
@@ -929,15 +1079,15 @@ const Proyectos: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.presupuesto_total')}</label>
-                    <input type="number" {...register('presupuestoTotal')} placeholder="Presupuesto" className={INPUT} />
+                    <input type="number" {...register('presupuestoTotal')} placeholder={t('proyectos.presupuesto_placeholder')} className={INPUT} />
                   </div>
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.monto_contrato')}</label>
-                    <input type="number" {...register('montoContrato')} placeholder="Contrato" className={INPUT} />
+                    <input type="number" {...register('montoContrato')} placeholder={t('proyectos.contrato_placeholder')} className={INPUT} />
                   </div>
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.margen_utilidad')}</label>
-                    <input type="number" {...register('margenUtilidadObjetivo')} placeholder="Ej: 15" className={INPUT} />
+                    <input type="number" {...register('margenUtilidadObjetivo')} placeholder={t('proyectos.margen_placeholder')} className={INPUT} />
                   </div>
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.fecha_inicio')}</label>
@@ -949,7 +1099,7 @@ const Proyectos: React.FC = () => {
                   </div>
                 </div>
                 {(errors.presupuestoTotal || errors.montoContrato || errors.fechaInicio || errors.fechaFin) && (
-                  <p className="text-xs text-red-500 dark:text-red-400 mt-1">Complete los campos requeridos</p>
+                  <p className="text-xs text-red-500 dark:text-red-400 mt-1">{t('proyectos.campos_requeridos')}</p>
                 )}
               </div>
             </div>
