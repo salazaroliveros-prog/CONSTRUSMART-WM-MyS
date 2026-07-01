@@ -85,20 +85,20 @@ export function tieneRolMinimo(
 export function getViewsByRole(rol: RolSistema): View[] {
   const ALL: View[] = [
     'dashboard','proyectos','presupuestos','seguimiento','financiero',
-    'rrhh','bodega','crm','apu','curvas','rendimiento-campo','baseprecios',
-    'reportes','muro','ordenes-cambio','notificaciones','sso-calidad',
+    'rrhh','bodega','crm','apu','rendimiento-campo','baseprecios',
+    'muro','ordenes-cambio','notificaciones','sso-calidad',
     'documentos','visor-bim','predictivo','exportacion','logistica',
     'comercial-fin','admin-sistema','planilla-destajos',
     'impuestos','entradas-almacen','ajustes',
     'hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones',
-    'plantillas','analisis-costos','proveedor-analytics','error-log','auditoria','activos','cuadros','bitacora'
+    'plantillas','proveedor-analytics','error-log','activos','cuadros'
   ];
 
   switch (rol) {
     case 'Administrador': return ALL;
     case 'Gerente': return ALL;
     case 'Residente': return ['dashboard','proyectos','presupuestos','seguimiento','apu',
-      'curvas','rendimiento-campo','baseprecios','reportes','muro',
+      'rendimiento-campo','baseprecios','muro',
       'ordenes-cambio','notificaciones','sso-calidad','documentos'];
     case 'Compras': return ['dashboard','bodega','proyectos'];
     case 'Bodeguero': return ['dashboard','bodega'];

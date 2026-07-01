@@ -4,12 +4,12 @@ import { useErp, View } from '../store';
 import { useAppContext } from '@/components/AppLayout';
 import {
   LayoutDashboard, Building2, Calculator, ClipboardCheck, Wallet, Users, Warehouse,
-  X, ChevronLeft, ChevronRight, Target, Receipt, TrendingUp, BookOpen, Newspaper,
+  X, ChevronLeft, ChevronRight, Target, Receipt, BookOpen, Newspaper,
   GitPullRequest, Bell, ShieldCheck, FolderOpen, BarChart3, Download,
   HardHat, DollarSign, Settings, Flag,
   CreditCard, Landmark, Percent, TriangleAlert,
-   ClipboardList, PieChart, Cpu, Truck, FileCog, Package,
-   FileText, FileDown, Copy, Award, Wrench,
+   ClipboardList, Cpu, Truck, FileCog, Package,
+   FileText, Copy, Award, Wrench,
 } from 'lucide-react';
 
 interface NavItem { id: View; labelKey: string; icon: React.ElementType; group: string }
@@ -29,11 +29,9 @@ const ITEMS: NavItem[] = [
   { id: 'hitos',             labelKey: 'hitos',           icon: Flag,            group: 'Planificación'},
   { id: 'riesgos',           labelKey: 'riesgos',         icon: TriangleAlert,   group: 'Planificación'},
   { id: 'plantillas',       labelKey: 'plantillas',      icon: Copy,            group: 'Planificación'},
-  { id: 'bitacora',          labelKey: 'bitacora',        icon: BookOpen,        group: 'Planificación'},
 
   // ── 3. EJECUCIÓN / CAMPO ──────────────────────────────────────────────────
   { id: 'seguimiento',       labelKey: 'seguimiento',     icon: ClipboardCheck,  group: 'Ejecución'    },
-  { id: 'curvas',            labelKey: 'curvas',          icon: TrendingUp,      group: 'Ejecución'    },
   { id: 'rendimiento-campo', labelKey: 'rendimiento-campo', icon: HardHat,       group: 'Ejecución'    },
   { id: 'sso-calidad',       labelKey: 'sso-calidad',     icon: ShieldCheck,     group: 'Ejecución'    },
   { id: 'muro',              labelKey: 'muro',            icon: Newspaper,       group: 'Ejecución'    },
@@ -61,15 +59,12 @@ const ITEMS: NavItem[] = [
   { id: 'impuestos',         labelKey: 'impuestos',       icon: Percent,         group: 'Finanzas'     },
 
   // ── 7. ANÁLISIS / BI ──────────────────────────────────────────────────────
-  { id: 'analisis-costos',    labelKey: 'analisis-costos', icon: PieChart,       group: 'Análisis BI'  },
   { id: 'predictivo',        labelKey: 'predictivo',      icon: BarChart3,       group: 'Análisis BI'  },
   { id: 'exportacion',       labelKey: 'exportacion',     icon: Download,        group: 'Análisis BI'  },
-  { id: 'reportes',          labelKey: 'reportes',        icon: FileText,        group: 'Análisis BI'  },
 
   // ── 8. SISTEMA ────────────────────────────────────────────────────────────
   { id: 'notificaciones',    labelKey: 'notificaciones',  icon: Bell,            group: 'Sistema'      },
   { id: 'error-log',         labelKey: 'error-log',       icon: TriangleAlert,   group: 'Sistema'      },
-  { id: 'auditoria',         labelKey: 'auditoria',       icon: FileCog,         group: 'Sistema'      },
   { id: 'admin-sistema',     labelKey: 'admin-sistema',   icon: FileCog,         group: 'Sistema'      },
   { id: 'ajustes',           labelKey: 'ajustes',         icon: Settings,        group: 'Sistema'      },
 ];
