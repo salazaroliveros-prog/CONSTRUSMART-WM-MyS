@@ -12,7 +12,6 @@ const Login = lazy(() => import('@/erp/screens/Login'));
 const QuickActionsFab = lazy(() => import('@/erp/components/QuickActionsFab'));
 const BottomNavigation = lazy(() => import('@/erp/components/BottomNavigation'));
 import { applyThemeToDocument } from '@/lib/themes';
-import { ThemeProvider } from '@/erp/components/ThemeProvider';
 import '@/styles/theme-variables.css';
 
 interface AppContextType {
@@ -210,8 +209,7 @@ const Shell: React.FC = () => {
   }
 
   return (
-    <ThemeProvider>
-      <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
         <Header onMenu={toggleSidebar} />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar open={sidebarOpen} onClose={closeSidebar} />
@@ -254,7 +252,6 @@ const Shell: React.FC = () => {
           <BottomNavigation currentView={viewName} onViewChange={setView} />
         </Suspense>
       </div>
-    </ThemeProvider>
   );
 };
 
