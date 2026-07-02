@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
-import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
+import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, BUTTON_DANGER, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, CARD, KPI_CARD, GRID_4, FLEX_ROW, FLEX_COL, FORM_LABEL, FORM_ERROR, FORM_GROUP, DIVIDER } from '../ui';
 import { fmtQ } from '../utils';
 import { sanitizarObjeto } from '@/lib/security';
 import { exportCotizacionPDF } from '../export';
@@ -203,7 +203,7 @@ const Cotizaciones: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+    <div className="p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto space-y-4">
         <Skeleton className="h-8 w-48" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Skeleton className="h-24 rounded-xl" />

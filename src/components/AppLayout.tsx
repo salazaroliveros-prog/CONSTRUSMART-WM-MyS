@@ -12,6 +12,8 @@ const Login = lazy(() => import('@/erp/screens/Login'));
 const QuickActionsFab = lazy(() => import('@/erp/components/QuickActionsFab'));
 const BottomNavigation = lazy(() => import('@/erp/components/BottomNavigation'));
 import { applyThemeToDocument } from '@/lib/themes';
+import { ThemeProvider } from '@/erp/components/ThemeProvider';
+import '@/styles/theme-variables.css';
 
 interface AppContextType {
   sidebarOpen: boolean;
@@ -208,32 +210,51 @@ const Shell: React.FC = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
-      <Header onMenu={toggleSidebar} />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar open={sidebarOpen} onClose={closeSidebar} />
-        <main
-          id="main-content"
-          className={`flex-1 min-w-0 overflow-auto transition-all duration-300 pb-16 md:pb-0 ${sidebarCollapsed ? 'lg:ml-0' : ''}`}
-          role="main"
-          aria-label="Contenido principal"
-        >
-          <PageTransition>
-            <ErrorBoundary moduleName={viewName}>
-              <Suspense fallback={<ScreenLoader />}>
-                {safeScreen}
-              </Suspense>
-            </ErrorBoundary>
-          </PageTransition>
-        </main>
+    <ThemeProvider>
+      <div className="h-screen flex flex-col bg-background overflow-hidden">
+        <Header onMenu={toggleSidebar} />
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar open={sidebarOpen} onClose={closeSidebar} />
+          {appSettings.showBreadcrumbs !== false && (
+            <nav aria-label="breadcrumb" className="px-3 sm:px-4 lg:px-6 pt-2 flex-shrink-0">
+              <ol className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <li className="cursor-pointer hover:text-foreground" onClick={() => setView('dashboard')}>Inicio</li>
+                <li>/</li>
+                <li className="text-foreground font-medium capitalize">{String(view).replace(/-/g, ' ')}</li>
+              </ol>
+            </nav>
+          )}
+          <main
+            id="main-content"
+            className={`flex-1 min-w-0 overflow-auto transition-all duration-300 pb-16 md:pb-0 ${sidebarCollapsed ? 'lg:ml-0' : ''}`}
+            role="main"
+            aria-label="Contenido principal"
+          >
+            <PageTransition>
+              <ErrorBoundary moduleName={viewName}>
+                <Suspense fallback={<ScreenLoader />}>
+                  {safeScreen}
+                </Suspense>
+              </ErrorBoundary>
+            </PageTransition>
+          </main>
+        </div>
+        {appSettings.showFooter !== false && (
+          <footer className="border-t border-border bg-muted/30 px-3 sm:px-4 lg:px-6 py-2 flex-shrink-0">
+            <div className="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
+              <span>© {new Date().getFullYear()} CONSTRUSMART ERP</span>
+              <span>{EMPRESA.nombreCorto} · {EMPRESA.eslogan}</span>
+            </div>
+          </footer>
+        )}
+        <Suspense fallback={null}>
+          <QuickActionsFab />
+        </Suspense>
+        <Suspense fallback={null}>
+          <BottomNavigation currentView={viewName} onViewChange={setView} />
+        </Suspense>
       </div>
-      <Suspense fallback={null}>
-        <QuickActionsFab />
-      </Suspense>
-      <Suspense fallback={null}>
-        <BottomNavigation currentView={viewName} onViewChange={setView} />
-      </Suspense>
-    </div>
+    </ThemeProvider>
   );
 };
 

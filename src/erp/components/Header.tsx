@@ -81,7 +81,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
           <div className="font-mono text-xs lg:text-sm font-bold tabular-nums text-primary-foreground/90">
             {now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}
           </div>
-          <div className="text-[8px] lg:text-[9px] text-primary-foreground/60">
+          <div className="text-[10px] lg:text-[11px] text-primary-foreground/60">
             {now.toLocaleDateString('es-GT', { day: 'numeric', month: 'short' })}
           </div>
         </div>

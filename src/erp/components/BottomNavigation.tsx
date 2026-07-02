@@ -32,14 +32,14 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentView, onView
         {navItems.map((item) => {
           const isActive = currentView === item.key || (item.key === 'mas' && !navItems.some(n => n.key === currentView));
           const Icon = item.icon;
-          
+
           return (
             <button
               key={item.key}
               onClick={() => handleNavClick(item.key)}
               className={`flex flex-col items-center justify-center w-full h-full min-h-[44px] transition-all active:scale-95 ${
-                isActive 
-                  ? 'text-primary' 
+                isActive
+                  ? 'text-primary'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
               aria-label={item.label}

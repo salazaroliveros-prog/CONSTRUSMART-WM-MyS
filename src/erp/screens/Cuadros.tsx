@@ -137,7 +137,7 @@ const Cuadros: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex flex-col p-4 sm:p-6 max-w-[1600px] mx-auto overflow-hidden">
+    <div className="h-full flex flex-col p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4 flex-shrink-0">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t('cuadros.titulo')}</h1>

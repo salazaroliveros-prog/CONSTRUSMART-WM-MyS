@@ -12,7 +12,7 @@ import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
 import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { INPUT_COMPACT, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY, SECTION_TITLE } from '../ui';
+import { INPUT_COMPACT, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY, SECTION_TITLE, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, BUTTON_DANGER, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
 
 const proveedorSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -156,25 +156,25 @@ const Bodega: React.FC = () => {
   }
 
   return (
-    <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
+    <div className="p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-2">
         <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground flex items-center gap-2 mb-0">
           <Warehouse className={`w-5 h-5 sm:w-6 sm:h-6 ${COLOR_INFO}`} aria-hidden="true" /> <span className="hidden sm:inline">{t('bodega.title_full')}</span><span className="sm:hidden">{t('bodega.titulo')}</span>
         </h1>
         <div className="flex gap-2">
           <button onClick={() => setShowOrden(true)}
-            className="bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground px-3 py-2 rounded-xl text-sm flex items-center gap-1.5 flex-1 sm:flex-none justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            className={`${BUTTON_PRIMARY} flex-1 sm:flex-none justify-center`}>
             <Plus className="w-4 h-4" aria-hidden="true" /> <span className="hidden sm:inline">{t('common.nuevo')}</span> OC
           </button>
           <button onClick={() => { setShowProveedor(true); setEditingProveedor(null); }}
-            className="bg-foreground hover:bg-foreground/90 text-background px-3 py-2 rounded-xl text-sm flex items-center gap-1.5 flex-1 sm:flex-none justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            className={`${BUTTON_SECONDARY} flex-1 sm:flex-none justify-center`}>
             <Plus className="w-4 h-4" aria-hidden="true" /> {t('bodega.proveedor')}
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2 mb-2">
-        <div className="bg-card text-card-foreground rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+        <div className={KPI_CARD}>
           <div className="text-xl sm:text-2xl font-bold text-foreground">{materiales.length}</div>
           <div className="text-xs text-muted-foreground">{t('bodega.materiales')}</div>
         </div>
@@ -188,7 +188,7 @@ const Bodega: React.FC = () => {
           <div className="text-xl sm:text-2xl font-bold COLOR_WARNING dark:text-amber-400">{pendientes.length}</div>
           <div className="text-xs COLOR_WARNING dark:text-amber-400">{t('bodega.oc_por_aprobar')}</div>
         </div>
-        <div className="bg-card text-card-foreground rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+        <div className={KPI_CARD}>
           <div className="text-lg sm:text-2xl font-bold text-foreground truncate">{fmtQ(materiales.reduce((a, m) => a + m.stock * m.precio, 0))}</div>
           <div className="text-xs text-muted-foreground">{t('bodega.valor_inventario')}</div>
         </div>
@@ -211,11 +211,11 @@ const Bodega: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-3">
-        <div className="lg:col-span-2 bg-card text-card-foreground rounded-xl sm:rounded-2xl shadow-md border border-border overflow-hidden">
+        <div className={`lg:col-span-2 ${CARD} overflow-hidden`}>
           <div className="p-3 border-b border-border flex items-center justify-between">
             <h3 className="font-bold text-foreground text-sm">{t('bodega.control_stock')}</h3>
             <div className="flex items-center gap-2">
-              <button onClick={handleExportStockPDF} disabled={!ctx || materiales.length === 0} className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[44px] hover:bg-primary/90 active:bg-primary/80 active:scale-95 transition-all">PDF</button>
+              <button onClick={handleExportStockPDF} disabled={!ctx || materiales.length === 0} className={`${BUTTON_PRIMARY} text-xs min-h-[var(--touch-target)]`}>PDF</button>
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -266,7 +266,7 @@ const Bodega: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border">
+          <div className={CARD}>
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-bold text-foreground text-sm">{t('bodega.pareto_inventario')}</h3>
               <ChartToolbar
@@ -281,7 +281,7 @@ const Bodega: React.FC = () => {
             <BarChart height={160} data={pareto} palette={paretoConfig.palette} />
           </div>
 
-          <div className="bg-card text-card-foreground rounded-2xl shadow-md border border-border overflow-hidden">
+          <div className={`${CARD} overflow-hidden`}>
             <div className="p-3 border-b border-border">
               <h3 className="font-bold text-foreground text-sm">{t('bodega.ordenes_por_aprobar')}</h3>
             </div>
@@ -324,7 +324,7 @@ const Bodega: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-card text-card-foreground rounded-2xl p-3 sm:p-4 shadow-sm border border-border mt-3">
+      <div className={`${CARD} mt-3`}>
         <h3 className="font-bold text-foreground text-sm mb-3">{t('bodega.proveedores')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {proveedores.length === 0 ? (
@@ -358,9 +358,9 @@ const Bodega: React.FC = () => {
       </div>
 
       {showProveedor && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-proveedor-title">
+        <div className={MODAL_OVERLAY} role="dialog" aria-modal="true" aria-labelledby="modal-proveedor-title">
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmitProv(onAddProveedor)}
-            className="bg-card text-card-foreground rounded-2xl p-4 w-full max-w-md border border-border shadow-xl">
+            className={MODAL_PANEL}>
             <div className="flex items-center justify-between mb-3">
               <h2 id="modal-proveedor-title" className="font-bold text-lg text-foreground">{editingProveedor ? t('bodega.editar_proveedor') : t('bodega.nuevo_proveedor')}</h2>
               <button type="button" onClick={() => setShowProveedor(false)} aria-label={t('bodega.cerrar_dialogo')}
@@ -387,9 +387,9 @@ const Bodega: React.FC = () => {
       )}
 
       {showOrden && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-orden-title">
+        <div className={MODAL_OVERLAY} role="dialog" aria-modal="true" aria-labelledby="modal-orden-title">
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmitOrd(onAddOrden)}
-            className="bg-card text-card-foreground rounded-2xl p-4 w-full max-w-md border border-border shadow-xl">
+            className={MODAL_PANEL}>
             <div className="flex items-center justify-between mb-3">
               <h2 id="modal-orden-title" className="font-bold text-lg text-foreground">{t('bodega.nueva_orden_compra')}</h2>
               <button type="button" onClick={() => setShowOrden(false)} aria-label={t('bodega.cerrar_dialogo')}

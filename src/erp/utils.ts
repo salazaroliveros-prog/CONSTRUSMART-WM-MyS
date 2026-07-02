@@ -16,9 +16,20 @@ export type AppSettings = {
   dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
   currency: 'GTQ' | 'USD';
   sidebarCollapsed: boolean;
+  sidebarPosition: 'left' | 'right' | 'overlay';
+  sidebarMode: 'expanded' | 'collapsed' | 'hover-expand' | 'mini';
+  sidebarWidth: 240 | 280 | 320;
+  sidebarMiniWidth: 64 | 72 | 80;
   animationsEnabled: boolean;
   compactMode: boolean;
   fontSize: 'small' | 'medium' | 'large';
+  fontFamily: 'system-ui' | 'inter' | 'roboto' | 'open-sans' | 'poppins';
+  borderRadius: 'none' | 'small' | 'medium' | 'large' | 'full';
+  spacingScale: 'compact' | 'normal' | 'spacious';
+  densityTable: 'compact' | 'normal' | 'comfortable';
+  breadcrumbsEnabled: boolean;
+  footerEnabled: boolean;
+  touchMode: boolean;
   empresaInfo?: {
     nombre: string;
     nit: string;
@@ -152,9 +163,20 @@ export const APP_SETTINGS_DEFAULTS: AppSettings = {
   dateFormat: 'DD/MM/YYYY',
   currency: 'GTQ',
   sidebarCollapsed: false,
+  sidebarPosition: 'left',
+  sidebarMode: 'expanded',
+  sidebarWidth: 240,
+  sidebarMiniWidth: 64,
   animationsEnabled: true,
   compactMode: false,
   fontSize: 'medium',
+  fontFamily: 'system-ui',
+  borderRadius: 'medium',
+  spacingScale: 'normal',
+  densityTable: 'normal',
+  breadcrumbsEnabled: true,
+  footerEnabled: true,
+  touchMode: false,
   notificaciones: { stockCritico: true, ordenesCambio: true, avancesObra: true, desviaciones: true },
   empresaInfo: EMPRESA_DEFAULT,
 };

@@ -445,7 +445,7 @@ const Proyectos: React.FC = () => {
     );
   }
   return (
-    <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
+    <div className="p-[var(--density-padding)] max-w-[1600px] mx-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
         <div>
           <h1 className={SECTION_TITLE}>{t('proyectos.titulo')}</h1>
@@ -457,7 +457,7 @@ const Proyectos: React.FC = () => {
               <Trash2 className="w-3 h-3 mr-1" aria-hidden="true" />{t('proyectos.eliminar_todos')}
             </button>
           )}
-          <button onClick={openCreate} className={BUTTON_PRIMARY}>
+          <button onClick={openCreate} className={`${BUTTON_PRIMARY} h-[var(--density-input-height)]`}>
             <Plus className="w-4 h-4" aria-hidden="true" /> {t('proyectos.nuevo')}
           </button>
         </div>
@@ -478,7 +478,7 @@ const Proyectos: React.FC = () => {
       </div>
 
       {/* KPI metrics bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-[var(--density-gap)] mb-4">
         <div className={KPI_CARD}>
           <Activity className="w-4 h-4 text-primary" aria-hidden="true" />
           <div className="text-lg font-black">{kpis.total}</div>
@@ -693,7 +693,7 @@ const Proyectos: React.FC = () => {
                 {p.estado === 'planeacion' && (
                   <button
                     onClick={() => accionRapida(p, 'iniciar')}
-                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md active:shadow-sm"
+                    className={`${BUTTON_PRIMARY} flex-1 justify-center bg-emerald-500 hover:bg-emerald-600 text-white`}
                   >
                     <Play className="w-3 h-3" /> {t('proyectos.iniciar')}
                   </button>
@@ -702,13 +702,13 @@ const Proyectos: React.FC = () => {
                   <>
                     <button
                       onClick={() => accionRapida(p, 'pausar')}
-                      className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md active:shadow-sm"
+                      className={`${BUTTON_PRIMARY} flex-1 justify-center bg-amber-500 hover:bg-amber-600 text-white`}
                     >
                       <Pause className="w-3 h-3" /> {t('proyectos.pausar')}
                     </button>
                     <button
                       onClick={() => accionRapida(p, 'finalizar')}
-                      className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md active:shadow-sm"
+                      className={`${BUTTON_PRIMARY} flex-1 justify-center bg-blue-500 hover:bg-blue-600 text-white`}
                     >
                       <CheckCircle2 className="w-3 h-3" /> {t('proyectos.finalizar')}
                     </button>
@@ -717,7 +717,7 @@ const Proyectos: React.FC = () => {
                 {p.estado === 'pausado' && (
                   <button
                     onClick={() => accionRapida(p, 'reanudar')}
-                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md active:shadow-sm"
+                    className={`${BUTTON_PRIMARY} flex-1 justify-center bg-emerald-500 hover:bg-emerald-600 text-white`}
                   >
                     <RotateCcw className="w-3 h-3" /> {t('proyectos.reanudar')}
                   </button>
@@ -725,7 +725,7 @@ const Proyectos: React.FC = () => {
                 {p.estado === 'finalizado' && (
                   <button
                     onClick={() => accionRapida(p, 'reabrir')}
-                    className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-slate-500 hover:bg-slate-600 text-white font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 hover:shadow-md active:shadow-sm"
+                    className={`${BUTTON_SECONDARY} flex-1 justify-center`}
                   >
                     <RotateCcw className="w-3 h-3" /> {t('proyectos.reabrir')}
                   </button>

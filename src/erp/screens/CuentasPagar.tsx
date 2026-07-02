@@ -70,7 +70,7 @@ const CuentasPagarScreen: React.FC = () => {
     );
   }
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
+    <div className="p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">
         <div><h1 className="text-2xl font-black text-slate-800 flex items-center gap-2"><TrendingDown className={`w-6 h-6 ${COLOR_DANGER}`} /> Cuentas por Pagar</h1><p className="text-sm text-slate-400">Gestión de cuentas por pagar a proveedores</p></div>
         <div className="flex items-center gap-2">

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY, SECTION_TITLE } from '../ui';
+import { COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY, SECTION_TITLE, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, BUTTON_DANGER, INPUT, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
 
 const licitacionFormSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido').max(200, 'Máximo 200 caracteres'),
@@ -171,7 +171,7 @@ const CRM: React.FC = () => {
   }
 
   return (
-    <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
+    <div className="p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-2">
           <div className="flex items-center gap-2">
             <h1 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2 mb-2">
@@ -194,7 +194,7 @@ const CRM: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
-        <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+        <div className={KPI_CARD}>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
             <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
             <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.oportunidades')}</span>
@@ -204,14 +204,14 @@ const CRM: React.FC = () => {
             {t('crm.ganadas_perdidas', { ganadas: licitacionesFiltradas.filter(l => l.estado === 'adjudicada').length, perdidas: licitacionesFiltradas.filter(l => l.estado === 'perdida').length })}
           </div>
         </div>
-        <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+        <div className={KPI_CARD}>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
             <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 COLOR_SUCCESS" />
             <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.total_pipeline')}</span>
           </div>
           <div className="text-lg sm:text-2xl font-bold text-foreground truncate">{fmtQ(totalMonto)}</div>
         </div>
-        <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+        <div className={KPI_CARD}>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
             <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 COLOR_INFO" />
             <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.pipeline_activo')}</span>
@@ -219,7 +219,7 @@ const CRM: React.FC = () => {
           <div className="text-lg sm:text-2xl font-bold COLOR_INFO truncate">{fmtQ(pipelineActivo)}</div>
           <div className="text-[10px] text-muted-foreground">{t('crm.oportunidades_activas')}</div>
         </div>
-        <div className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
+        <div className={KPI_CARD}>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
             <PieChart className="w-3.5 h-3.5 sm:w-4 sm:h-4 COLOR_WARNING" />
             <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.conversion')}</span>

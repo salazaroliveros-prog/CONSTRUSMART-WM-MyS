@@ -16,7 +16,8 @@ import {
   DownloadOutlined, UploadOutlined, DeleteOutlined,
   CheckCircleOutlined, ExperimentOutlined, ExportOutlined,
   UserOutlined, ImportOutlined,
-  CalendarOutlined, DollarOutlined, SwapRightOutlined, FundOutlined, WarningOutlined,
+  SwapRightOutlined,
+  CalendarOutlined, DollarOutlined, WarningOutlined,
   PlayCircleOutlined, FileTextOutlined, RiseOutlined,
 } from '@ant-design/icons';
 
@@ -240,6 +241,73 @@ const Ajustes: React.FC = () => {
                   <Radio.Button value="small">Pequeño</Radio.Button>
                   <Radio.Button value="medium">Mediano</Radio.Button>
                   <Radio.Button value="large">Grande</Radio.Button>
+                </Radio.Group>
+              </SettingRow>
+
+              <SettingRow
+                icon={<FontSizeOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Tipografía"
+                subtitle="Fuente base del sistema"
+              >
+                <Select value={appSettings.fontFamily} onChange={v => updateAppSettings({ fontFamily: v as any })} className={controlWidthClass} options={[
+                  { value: 'system-ui', label: 'System UI' },
+                  { value: 'inter', label: 'Inter' },
+                  { value: 'roboto', label: 'Roboto' },
+                  { value: 'open-sans', label: 'Open Sans' },
+                  { value: 'poppins', label: 'Poppins' },
+                ]} />
+              </SettingRow>
+
+              <SettingRow
+                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Radio de Bordes"
+                subtitle="Esquinas de cards, botones e inputs"
+              >
+                <Radio.Group
+                  value={appSettings.borderRadius}
+                  onChange={e => updateAppSettings({ borderRadius: e.target.value as any })}
+                  optionType="button"
+                  buttonStyle="solid"
+                >
+                  <Radio.Button value="none">Ninguno</Radio.Button>
+                  <Radio.Button value="small">Pequeño</Radio.Button>
+                  <Radio.Button value="medium">Mediano</Radio.Button>
+                  <Radio.Button value="large">Grande</Radio.Button>
+                  <Radio.Button value="full">Pill</Radio.Button>
+                </Radio.Group>
+              </SettingRow>
+
+              <SettingRow
+                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Espaciado Global"
+                subtitle="Padding/gaps generales"
+              >
+                <Radio.Group
+                  value={appSettings.spacingScale}
+                  onChange={e => updateAppSettings({ spacingScale: e.target.value as any })}
+                  optionType="button"
+                  buttonStyle="solid"
+                >
+                  <Radio.Button value="compact">Compacto</Radio.Button>
+                  <Radio.Button value="normal">Normal</Radio.Button>
+                  <Radio.Button value="spacious">Amplio</Radio.Button>
+                </Radio.Group>
+              </SettingRow>
+
+              <SettingRow
+                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Densidad de Tablas"
+                subtitle="Altura de filas y celdas"
+              >
+                <Radio.Group
+                  value={appSettings.densityTable}
+                  onChange={e => updateAppSettings({ densityTable: e.target.value as any })}
+                  optionType="button"
+                  buttonStyle="solid"
+                >
+                  <Radio.Button value="compact">Compacta</Radio.Button>
+                  <Radio.Button value="normal">Normal</Radio.Button>
+                  <Radio.Button value="comfortable">Cómoda</Radio.Button>
                 </Radio.Group>
               </SettingRow>
 
@@ -530,6 +598,9 @@ const Ajustes: React.FC = () => {
       <Tag icon={appSettings.appTheme === 'dark' ? <MoonOutlined /> : <SunOutlined />}>
         {appSettings.appTheme === 'dark' ? 'Oscuro' : 'Claro'}
       </Tag>
+      <Tag icon={<BgColorsOutlined />}>
+        Sidebar: {appSettings.sidebarPosition === 'right' ? 'Der' : appSettings.sidebarPosition === 'overlay' ? 'Overlay' : 'Izq'}
+      </Tag>
     </Space>
   );
 
@@ -540,6 +611,69 @@ const Ajustes: React.FC = () => {
       </Layout>
     );
   }
+
+  const sidebarSection = (
+    <Row gutter={[24, 24]}>
+      <Col xs={24} lg={12}>
+
+        <Card style={sectionCard} size="small">
+          <SettingRow
+            icon={<SwapRightOutlined style={{ fontSize: ICON_SIZE }} />}
+            title="Posición del Sidebar"
+            subtitle="Lado de la barra lateral y modo responsive"
+          >
+            <Select value={appSettings.sidebarPosition} onChange={v => updateAppSettings({ sidebarPosition: v as 'left' | 'right' | 'overlay' })} className="w-full sm:w-40 md:w-44" options={[
+              { value: 'left', label: 'Izquierda' },
+              { value: 'right', label: 'Derecha' },
+              { value: 'overlay', label: 'Overlay (móvil)' },
+            ]} />
+          </SettingRow>
+
+          <SettingRow
+            icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
+            title="Modo de Navegación"
+            subtitle="Comportamiento del sidebar"
+          >
+            <Select value={appSettings.sidebarMode} onChange={v => updateAppSettings({ sidebarMode: v as 'expanded' | 'collapsed' | 'hover-expand' | 'mini' })} className="w-full sm:w-40 md:w-44" options={[
+              { value: 'expanded', label: 'Expandido' },
+              { value: 'collapsed', label: 'Contraído' },
+              { value: 'hover-expand', label: 'Hover Expand' },
+              { value: 'mini', label: 'Mini' },
+            ]} />
+          </SettingRow>
+
+          <Row gutter={12}>
+            <Col span={12}>
+              <SettingRow
+                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Ancho Expandido"
+                subtitle="px"
+              >
+                <Select value={appSettings.sidebarWidth} onChange={v => updateAppSettings({ sidebarWidth: v as 240 | 280 | 320 })} className="w-full" options={[
+                  { value: 240, label: '240 px' },
+                  { value: 280, label: '280 px' },
+                  { value: 320, label: '320 px' },
+                ]} />
+              </SettingRow>
+            </Col>
+            <Col span={12}>
+              <SettingRow
+                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Ancho Mini"
+                subtitle="px"
+              >
+                <Select value={appSettings.sidebarMiniWidth} onChange={v => updateAppSettings({ sidebarMiniWidth: v as 64 | 72 | 80 })} className="w-full" options={[
+                  { value: 64, label: '64 px' },
+                  { value: 72, label: '72 px' },
+                  { value: 80, label: '80 px' },
+                ]} />
+              </SettingRow>
+            </Col>
+          </Row>
+        </Card>
+      </Col>
+    </Row>
+  );
 
   return (
     <Layout style={{ padding: 24, minHeight: '100%', background: 'transparent' }}>
