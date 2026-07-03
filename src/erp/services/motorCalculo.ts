@@ -644,8 +644,19 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al registrar cálculo:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error registrando cálculo, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('registrarCalculo', {
+        proyecto_id: proyectoId,
+        renglon_id: opciones?.renglonId,
+        tipo_calculo: tipoCalcululo,
+        parametros_entrada: parametrosEntrada,
+        resultado_calculado: resultadoCalculado,
+        costo_total: opciones?.costoTotal,
+        costo_unitario: opciones?.costoUnitario,
+        usuario_id: opciones?.usuarioId,
+        observaciones: opciones?.observaciones,
+      });
+      return '';
     }
   }
 
@@ -669,8 +680,14 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al crear snapshot:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error creando snapshot, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('crearSnapshotEstado', {
+        calculo_id: calculoId,
+        tipo_snapshot: tipoSnapshot,
+        estado_completo: estadoCompleto,
+        descripcion: descripcion,
+      });
+      return null;
     }
   }
 

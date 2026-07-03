@@ -274,16 +274,28 @@ const GestionDocumental: React.FC = () => {
 
           {showPlanoForm && (
             <div className="bg-muted rounded-xl p-4 mb-4 border border-border space-y-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input value={planoForm.nombre} onChange={e => setPlanoForm(prev => ({ ...prev, nombre: e.target.value }))} placeholder={t('gestion_documental.nombre_plano_placeholder', 'Nombre del plano')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
-                <select value={planoForm.disciplina} onChange={e => setPlanoForm(prev => ({ ...prev, disciplina: e.target.value as Plano['disciplina'] }))} className={INPUT}>
-                  {disciplinas.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
-                </select>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input value={planoForm.version} onChange={e => setPlanoForm(prev => ({ ...prev, version: e.target.value }))} placeholder={t('gestion_documental.version_placeholder', 'Versión (ej: 1.0)')} className={INPUT} />
-                <input value={planoForm.descripcion} onChange={e => setPlanoForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder={t('gestion_documental.descripcion_placeholder', 'Descripción (opcional)')} className={INPUT} />
-              </div>
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                 <div>
+                   <input value={planoForm.nombre} onChange={e => { setPlanoForm(prev => ({ ...prev, nombre: e.target.value })); setGdFormErrors(prev => ({ ...prev, nombre: '' })); }} placeholder={t('gestion_documental.nombre_plano_placeholder', 'Nombre del plano')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
+                   {_gdFormErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.nombre}</p>}
+                 </div>
+                 <div>
+                   <select value={planoForm.disciplina} onChange={e => { setPlanoForm(prev => ({ ...prev, disciplina: e.target.value as Plano['disciplina'] })); setGdFormErrors(prev => ({ ...prev, disciplina: '' })); }} className={INPUT}>
+                     {disciplinas.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+                   </select>
+                   {_gdFormErrors.disciplina && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.disciplina}</p>}
+                 </div>
+               </div>
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                 <div>
+                   <input value={planoForm.version} onChange={e => { setPlanoForm(prev => ({ ...prev, version: e.target.value })); setGdFormErrors(prev => ({ ...prev, version: '' })); }} placeholder={t('gestion_documental.version_placeholder', 'Versión (ej: 1.0)')} className={INPUT} />
+                   {_gdFormErrors.version && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.version}</p>}
+                 </div>
+                 <div>
+                   <input value={planoForm.descripcion} onChange={e => { setPlanoForm(prev => ({ ...prev, descripcion: e.target.value })); setGdFormErrors(prev => ({ ...prev, descripcion: '' })); }} placeholder={t('gestion_documental.descripcion_placeholder', 'Descripción (opcional)')} className={INPUT} />
+                   {_gdFormErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.descripcion}</p>}
+                 </div>
+               </div>
               <div className="flex gap-2">
                 <button onClick={handleAddPlano} className="flex-1 bg-info hover:bg-info/90 text-info-foreground py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.subir_plano', 'Subir Plano')}</button>
                 <button onClick={() => setShowPlanoForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
@@ -360,17 +372,26 @@ const GestionDocumental: React.FC = () => {
             </button>
           </div>
 
-          {showRFIForm && (
-            <div className="bg-warning/10 rounded-xl p-4 mb-4 border border-warning/30 space-y-2">
-              <input value={rfiForm.titulo} onChange={e => setRfiForm(prev => ({ ...prev, titulo: e.target.value }))} placeholder={t('gestion_documental.rfi_titulo_placeholder', 'Título del RFI')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
-              <textarea value={rfiForm.descripcion} onChange={e => setRfiForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder={t('gestion_documental.rfi_descripcion_placeholder', 'Descripción detallada...')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground min-h-[60px]" />
-              <input value={rfiForm.destino} onChange={e => setRfiForm(prev => ({ ...prev, destino: e.target.value }))} placeholder={t('gestion_documental.rfi_destino_placeholder', 'Destinatario (ej: Arquitecto de proyecto)')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
-              <div className="flex gap-2">
-                <button onClick={handleAddRFI} className="flex-1 bg-warning hover:bg-warning/90 text-warning-foreground py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.enviar_rfi', 'Enviar RFI')}</button>
-                <button onClick={() => setShowRFIForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
-              </div>
-            </div>
-          )}
+           {showRFIForm && (
+             <div className="bg-warning/10 rounded-xl p-4 mb-4 border border-warning/30 space-y-2">
+               <div>
+                 <input value={rfiForm.titulo} onChange={e => { setRfiForm(prev => ({ ...prev, titulo: e.target.value })); setGdFormErrors(prev => ({ ...prev, titulo: '' })); }} placeholder={t('gestion_documental.rfi_titulo_placeholder', 'Título del RFI')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
+                 {_gdFormErrors.titulo && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.titulo}</p>}
+               </div>
+               <div>
+                 <textarea value={rfiForm.descripcion} onChange={e => { setRfiForm(prev => ({ ...prev, descripcion: e.target.value })); setGdFormErrors(prev => ({ ...prev, descripcion: '' })); }} placeholder={t('gestion_documental.rfi_descripcion_placeholder', 'Descripción detallada...')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground min-h-[60px]" />
+                 {_gdFormErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.descripcion}</p>}
+               </div>
+               <div>
+                 <input value={rfiForm.destino} onChange={e => { setRfiForm(prev => ({ ...prev, destino: e.target.value })); setGdFormErrors(prev => ({ ...prev, destino: '' })); }} placeholder={t('gestion_documental.rfi_destino_placeholder', 'Destinatario (ej: Arquitecto de proyecto)')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
+                 {_gdFormErrors.destino && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.destino}</p>}
+               </div>
+               <div className="flex gap-2">
+                 <button onClick={handleAddRFI} className="flex-1 bg-warning hover:bg-warning/90 text-warning-foreground py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.enviar_rfi', 'Enviar RFI')}</button>
+                 <button onClick={() => setShowRFIForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
+               </div>
+             </div>
+           )}
 
           <div className="space-y-2">
             {rfis.filter(r => !selProyecto || r.proyectoId === selProyecto).length === 0 ? (
@@ -437,16 +458,28 @@ const GestionDocumental: React.FC = () => {
           {showSubForm && (
             <div className="bg-purple-50 rounded-xl p-4 mb-4 border border-purple-200 space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input value={subForm.titulo} onChange={e => setSubForm(prev => ({ ...prev, titulo: e.target.value }))} placeholder={t('gestion_documental.submittal_titulo_placeholder', 'Título')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
-                <select value={subForm.categoria} onChange={e => setSubForm(prev => ({ ...prev, categoria: e.target.value as Submittal['categoria'] }))} className={INPUT}>
-                  <option value="material">{t('gestion_documental.cat_material', 'Material')}</option>
-                  <option value="equipo">{t('gestion_documental.cat_equipo', 'Equipo')}</option>
-                  <option value="especificacion">{t('gestion_documental.cat_especificacion', 'Especificación')}</option>
-                  <option value="otro">{t('gestion_documental.cat_otro', 'Otro')}</option>
-                </select>
+                <div>
+                  <input value={subForm.titulo} onChange={e => { setSubForm(prev => ({ ...prev, titulo: e.target.value })); setGdFormErrors(prev => ({ ...prev, titulo: '' })); }} placeholder={t('gestion_documental.submittal_titulo_placeholder', 'Título')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
+                  {_gdFormErrors.titulo && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.titulo}</p>}
+                </div>
+                <div>
+                  <select value={subForm.categoria} onChange={e => { setSubForm(prev => ({ ...prev, categoria: e.target.value as Submittal['categoria'] })); setGdFormErrors(prev => ({ ...prev, categoria: '' })); }} className={INPUT}>
+                    <option value="material">{t('gestion_documental.cat_material', 'Material')}</option>
+                    <option value="equipo">{t('gestion_documental.cat_equipo', 'Equipo')}</option>
+                    <option value="especificacion">{t('gestion_documental.cat_especificacion', 'Especificación')}</option>
+                    <option value="otro">{t('gestion_documental.cat_otro', 'Otro')}</option>
+                  </select>
+                  {_gdFormErrors.categoria && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.categoria}</p>}
+                </div>
               </div>
-              <input value={subForm.proveedor} onChange={e => setSubForm(prev => ({ ...prev, proveedor: e.target.value }))} placeholder={t('gestion_documental.proveedor_placeholder', 'Proveedor')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
-              <textarea value={subForm.descripcion} onChange={e => setSubForm(prev => ({ ...prev, descripcion: e.target.value }))} placeholder={t('gestion_documental.descripcion_submittal_placeholder', 'Descripción...')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400 min-h-[50px]" />
+              <div>
+                <input value={subForm.proveedor} onChange={e => { setSubForm(prev => ({ ...prev, proveedor: e.target.value })); setGdFormErrors(prev => ({ ...prev, proveedor: '' })); }} placeholder={t('gestion_documental.proveedor_placeholder', 'Proveedor')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
+                {_gdFormErrors.proveedor && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.proveedor}</p>}
+              </div>
+              <div>
+                <textarea value={subForm.descripcion} onChange={e => { setSubForm(prev => ({ ...prev, descripcion: e.target.value })); setGdFormErrors(prev => ({ ...prev, descripcion: '' })); }} placeholder={t('gestion_documental.descripcion_submittal_placeholder', 'Descripción...')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400 min-h-[50px]" />
+                {_gdFormErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.descripcion}</p>}
+              </div>
               <div className="flex gap-2">
                 <button onClick={handleAddSubmittal} className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.registrar_submittal', 'Registrar')}</button>
                 <button onClick={() => setShowSubForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>

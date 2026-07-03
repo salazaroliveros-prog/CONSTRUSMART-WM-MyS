@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { z } from 'zod';
 import { useErp } from '../store';
 import { Hito } from '../types';
 import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter } from 'lucide-react';
@@ -18,6 +19,16 @@ const HitosScreen: React.FC = () => {
     const d = new Date(); return { year: d.getFullYear(), month: d.getMonth() };
   });
   const [form, setForm] = useState({ proyectoId: '', nombre: '', descripcion: '', fecha: '', tipo: 'hito' as Hito['tipo'], responsable: '', dependeDe: [] as string[] });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const hitoSchema = z.object({
+    proyectoId: z.string().min(1, 'Proyecto requerido'),
+    nombre: z.string().min(1, 'Nombre requerido'),
+    descripcion: z.string().optional().default(''),
+    fecha: z.string().min(1, 'Fecha requerida'),
+    tipo: z.enum(['inicio', 'hito', 'entrega', 'cierre']),
+    responsable: z.string().optional().default('')
+  });
 
   useEffect(() => {
     if (selectedProyectoId && !form.proyectoId) {
@@ -35,19 +46,25 @@ const HitosScreen: React.FC = () => {
   };
 
   const agregar = () => {
-    if (!form.nombre || !form.proyectoId || !form.fecha) {
-      toast.error('Nombre, proyecto y fecha son requeridos');
+    const result = hitoSchema.safeParse(form);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach(e => {
+        if (e.path[0]) errors[e.path[0] as string] = e.message;
+      });
+      setFormErrors(errors);
       return;
     }
+    setFormErrors({});
     const nuevo: Hito = {
       id: crypto.randomUUID(),
-      proyectoId: form.proyectoId,
-      nombre: form.nombre,
-      descripcion: form.descripcion,
-      fecha: form.fecha,
-      tipo: form.tipo,
+      proyectoId: result.data.proyectoId,
+      nombre: result.data.nombre,
+      descripcion: result.data.descripcion,
+      fecha: result.data.fecha,
+      tipo: result.data.tipo,
       estado: 'pendiente',
-      responsable: form.responsable,
+      responsable: result.data.responsable,
       dependeDe: form.dependeDe.length > 0 ? form.dependeDe : undefined,
       createdAt: new Date().toISOString(),
     };
@@ -123,7 +140,7 @@ const HitosScreen: React.FC = () => {
           </h1>
           <p className="text-sm text-slate-400">Milestones y fases críticas del cronograma</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
+        <button onClick={() => { setShowForm(true); setFormErrors({}); }} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nuevo Hito
         </button>
       </div>
@@ -161,23 +178,41 @@ const HitosScreen: React.FC = () => {
       {showForm && (
         <div className="bg-emerald-50 rounded-xl p-4 mb-4 border border-emerald-200 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre del hito *" className={INPUT} />
-            <select value={form.proyectoId} onChange={e => setForm(p => ({ ...p, proyectoId: e.target.value }))} className={INPUT}>
-              <option value="">Seleccionar proyecto *</option>
-              {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-            </select>
+            <div>
+              <input value={form.nombre} onChange={e => { setForm(p => ({ ...p, nombre: e.target.value })); setFormErrors(prev => ({ ...prev, nombre: '' })); }} placeholder="Nombre del hito *" className={INPUT} />
+              {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
+            </div>
+            <div>
+              <select value={form.proyectoId} onChange={e => { setForm(p => ({ ...p, proyectoId: e.target.value })); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }} className={INPUT}>
+                <option value="">Seleccionar proyecto *</option>
+                {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+              </select>
+              {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <input type="date" value={form.fecha} onChange={e => setForm(p => ({ ...p, fecha: e.target.value }))} className={INPUT} />
-            <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as any }))} className={INPUT}>
-              <option value="inicio">Inicio</option>
-              <option value="hito">Hito</option>
-              <option value="entrega">Entrega</option>
-              <option value="cierre">Cierre</option>
-            </select>
-            <input value={form.responsable} onChange={e => setForm(p => ({ ...p, responsable: e.target.value }))} placeholder="Responsable" className={INPUT} />
+            <div>
+              <input type="date" value={form.fecha} onChange={e => { setForm(p => ({ ...p, fecha: e.target.value })); setFormErrors(prev => ({ ...prev, fecha: '' })); }} className={INPUT} />
+              {formErrors.fecha && <p className="text-xs text-red-500 mt-0.5">{formErrors.fecha}</p>}
+            </div>
+            <div>
+              <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as any }))} className={INPUT}>
+                <option value="inicio">Inicio</option>
+                <option value="hito">Hito</option>
+                <option value="entrega">Entrega</option>
+                <option value="cierre">Cierre</option>
+              </select>
+              {formErrors.tipo && <p className="text-xs text-red-500 mt-0.5">{formErrors.tipo}</p>}
+            </div>
+            <div>
+              <input value={form.responsable} onChange={e => { setForm(p => ({ ...p, responsable: e.target.value })); setFormErrors(prev => ({ ...prev, responsable: '' })); }} placeholder="Responsable" className={INPUT} />
+              {formErrors.responsable && <p className="text-xs text-red-500 mt-0.5">{formErrors.responsable}</p>}
+            </div>
           </div>
-          <textarea value={form.descripcion} onChange={e => setForm(p => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción del hito" className={`${INPUT} min-h-[50px]`} />
+          <div>
+            <textarea value={form.descripcion} onChange={e => { setForm(p => ({ ...p, descripcion: e.target.value })); setFormErrors(prev => ({ ...prev, descripcion: '' })); }} placeholder="Descripción del hito" className={`${INPUT} min-h-[50px]`} />
+            {formErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{formErrors.descripcion}</p>}
+          </div>
 
           {form.proyectoId && (() => {
             const hitosMismoProy = hitos.filter(h => h.proyectoId === form.proyectoId);

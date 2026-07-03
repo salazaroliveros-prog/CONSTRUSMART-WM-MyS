@@ -1,6 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useErp } from '../store';
 import { Skeleton } from '@/components/ui/skeleton';
+import { z } from 'zod';
+
+const recepcionSchema = z.object({
+  cantidad: z.number().min(0.01, 'Cantidad debe ser mayor a 0'),
+});
 
 export const EntradasAlmacenOC: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -9,6 +14,7 @@ export const EntradasAlmacenOC: React.FC = () => {
   const [ocFilter, setOcFilter] = useState<'todas' | 'pendientes' | 'aprobadas'>('todas');
   const [showForm, setShowForm] = useState<string | null>(null);
   const [formCantidad, setFormCantidad] = useState(0);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const ocFiltradas = useMemo(() => {
     let filtered = ordenes;
@@ -21,8 +27,24 @@ export const EntradasAlmacenOC: React.FC = () => {
     const orden = ordenes.find(o => o.id === ocId);
     if (!orden) return;
 
-    if (formCantidad <= 0) return;
+    const result = recepcionSchema.safeParse({ cantidad: formCantidad });
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.errors.forEach(err => { errs[err.path[0] as string] = err.message; });
+      setFormErrors(errs);
+      return;
+    }
 
+    const ocRecs = recsPorOC.get(ocId);
+    const totalRecibido = ocRecs?.totalRecibido || 0;
+    const saldo = orden.cantidad - totalRecibido;
+
+    if (formCantidad > saldo) {
+      setFormErrors({ cantidad: `Cantidad excede el saldo disponible (${saldo})` });
+      return;
+    }
+
+    setFormErrors({});
     updateOrden(ocId, { estado: 'recibida' });
 
     const recibidoTotal = formCantidad;
@@ -110,7 +132,7 @@ export const EntradasAlmacenOC: React.FC = () => {
                   </td>
                   <td className="p-2 text-right">
                     {saldo > 0 ? (
-                      <button onClick={() => { setShowForm(oc.id); setFormCantidad(saldo); }}
+                      <button onClick={() => { setShowForm(oc.id); setFormCantidad(saldo); setFormErrors({}); }}
                         className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
                         + Recibir
                       </button>
@@ -150,9 +172,10 @@ export const EntradasAlmacenOC: React.FC = () => {
               <div>
                 <label className="text-xs text-gray-500">Cantidad a recibir</label>
                 <input type="number" inputMode="decimal" value={formCantidad}
-                  onChange={e => setFormCantidad(+e.target.value)}
+                  onChange={e => { setFormCantidad(+e.target.value); setFormErrors(prev => ({ ...prev, cantidad: '' })); }}
                   max={ordenes.find(o => o.id === showForm)?.cantidad || 0}
                   className="w-full px-3 py-2 border rounded text-sm" />
+                {formErrors.cantidad && <p className="text-xs text-red-500 mt-0.5">{formErrors.cantidad}</p>}
               </div>
               <div className="flex gap-2">
                 <button onClick={() => handleReception(showForm)}

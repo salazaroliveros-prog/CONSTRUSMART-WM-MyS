@@ -4,6 +4,18 @@ import { Modal, message } from 'antd';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { downloadBlob } from '../utils';
+import { z } from 'zod';
+
+const destajoSchema = z.object({
+  proyectoId: z.string().min(1, 'Proyecto requerido'),
+  renglonCodigo: z.string().min(1, 'Renglón requerido'),
+  cuadrilla: z.string().min(1, 'Cuadrilla requerida'),
+  fecha: z.string().min(1, 'Fecha requerida'),
+  cantidadEjecutada: z.number().min(0.01, 'Cantidad debe ser mayor a 0'),
+  unidad: z.string().min(1, 'Unidad requerida'),
+  horasTrabajadas: z.number().min(0, 'Horas inválidas'),
+  rendimientoTeorico: z.number().min(0, 'Rendimiento inválido'),
+});
 
 export const PlanillaDestajos: React.FC = () => {
   const { proyectos, destajos, addDestajo, deleteDestajo } = useErp();
@@ -19,6 +31,7 @@ export const PlanillaDestajos: React.FC = () => {
     return monday.toISOString().split('T')[0];
   });
   const [tasaPago, setTasaPago] = useState<Record<string, number>>({});
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -66,9 +79,16 @@ export const PlanillaDestajos: React.FC = () => {
   const totalPagar = planilla.reduce((a, p) => a + p.pagoSemanal, 0);
 
   const handleSubmitForm = () => {
-    if (!formData.proyectoId || !formData.renglonCodigo || !formData.cuadrilla) return;
+    const result = destajoSchema.safeParse(formData);
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.errors.forEach(err => { errs[err.path[0] as string] = err.message; });
+      setFormErrors(errs);
+      return;
+    }
+    setFormErrors({});
     const rendimientoReal = formData.horasTrabajadas > 0 ? formData.cantidadEjecutada / formData.horasTrabajadas : 0;
-    addDestajo({ ...formData, rendimientoReal });
+    addDestajo({ ...result.data, rendimientoReal });
     setFormData({
       proyectoId: '', renglonCodigo: '', cuadrilla: '',
       fecha: new Date().toISOString().split('T')[0],
@@ -102,7 +122,7 @@ export const PlanillaDestajos: React.FC = () => {
             {semanaInicio.toLocaleDateString()} — {semanaFin.toLocaleDateString()}
           </p>
         </div>
-        <button onClick={() => setShowForm(true)}
+        <button onClick={() => { setShowForm(true); setFormErrors({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">
           + Nuevo Destajo
         </button>
@@ -260,20 +280,44 @@ export const PlanillaDestajos: React.FC = () => {
           <div className="bg-white rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4">Nuevo Destajo</h3>
             <div className="grid gap-3">
-              <select value={formData.proyectoId} onChange={e => setFormData(p => ({ ...p, proyectoId: e.target.value }))} className={INPUT}>
-                <option value="">Seleccionar proyecto</option>
-                {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-              </select>
-              <input placeholder="Renglón código" value={formData.renglonCodigo} onChange={e => setFormData(p => ({ ...p, renglonCodigo: e.target.value }))} className={INPUT} />
-              <input placeholder="Cuadrilla" value={formData.cuadrilla} onChange={e => setFormData(p => ({ ...p, cuadrilla: e.target.value }))} className={INPUT} />
-              <input type="date" value={formData.fecha} onChange={e => setFormData(p => ({ ...p, fecha: e.target.value }))} className={INPUT} />
-              <div className="grid grid-cols-2 gap-2">
-                <input type="number" inputMode="decimal" placeholder="Cant. ejecutada" value={formData.cantidadEjecutada || ''} onChange={e => setFormData(p => ({ ...p, cantidadEjecutada: +e.target.value }))} className={INPUT} />
-                <input placeholder="Unidad" value={formData.unidad} onChange={e => setFormData(p => ({ ...p, unidad: e.target.value }))} className={INPUT} />
+              <div>
+                <select value={formData.proyectoId} onChange={e => { setFormData(p => ({ ...p, proyectoId: e.target.value })); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }} className={INPUT}>
+                  <option value="">Seleccionar proyecto</option>
+                  {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                </select>
+                {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
+              </div>
+              <div>
+                <input placeholder="Renglón código" value={formData.renglonCodigo} onChange={e => { setFormData(p => ({ ...p, renglonCodigo: e.target.value })); setFormErrors(prev => ({ ...prev, renglonCodigo: '' })); }} className={INPUT} />
+                {formErrors.renglonCodigo && <p className="text-xs text-red-500 mt-0.5">{formErrors.renglonCodigo}</p>}
+              </div>
+              <div>
+                <input placeholder="Cuadrilla" value={formData.cuadrilla} onChange={e => { setFormData(p => ({ ...p, cuadrilla: e.target.value })); setFormErrors(prev => ({ ...prev, cuadrilla: '' })); }} className={INPUT} />
+                {formErrors.cuadrilla && <p className="text-xs text-red-500 mt-0.5">{formErrors.cuadrilla}</p>}
+              </div>
+              <div>
+                <input type="date" value={formData.fecha} onChange={e => { setFormData(p => ({ ...p, fecha: e.target.value })); setFormErrors(prev => ({ ...prev, fecha: '' })); }} className={INPUT} />
+                {formErrors.fecha && <p className="text-xs text-red-500 mt-0.5">{formErrors.fecha}</p>}
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <input type="number" inputMode="decimal" placeholder="Horas trabajadas" value={formData.horasTrabajadas || ''} onChange={e => setFormData(p => ({ ...p, horasTrabajadas: +e.target.value }))} className={INPUT} />
-                <input type="number" inputMode="decimal" placeholder="Rend. teórico" value={formData.rendimientoTeorico || ''} onChange={e => setFormData(p => ({ ...p, rendimientoTeorico: +e.target.value }))} className={INPUT} />
+                <div>
+                  <input type="number" inputMode="decimal" placeholder="Cant. ejecutada" value={formData.cantidadEjecutada || ''} onChange={e => { setFormData(p => ({ ...p, cantidadEjecutada: +e.target.value })); setFormErrors(prev => ({ ...prev, cantidadEjecutada: '' })); }} className={INPUT} />
+                  {formErrors.cantidadEjecutada && <p className="text-xs text-red-500 mt-0.5">{formErrors.cantidadEjecutada}</p>}
+                </div>
+                <div>
+                  <input placeholder="Unidad" value={formData.unidad} onChange={e => { setFormData(p => ({ ...p, unidad: e.target.value })); setFormErrors(prev => ({ ...prev, unidad: '' })); }} className={INPUT} />
+                  {formErrors.unidad && <p className="text-xs text-red-500 mt-0.5">{formErrors.unidad}</p>}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <input type="number" inputMode="decimal" placeholder="Horas trabajadas" value={formData.horasTrabajadas || ''} onChange={e => { setFormData(p => ({ ...p, horasTrabajadas: +e.target.value })); setFormErrors(prev => ({ ...prev, horasTrabajadas: '' })); }} className={INPUT} />
+                  {formErrors.horasTrabajadas && <p className="text-xs text-red-500 mt-0.5">{formErrors.horasTrabajadas}</p>}
+                </div>
+                <div>
+                  <input type="number" inputMode="decimal" placeholder="Rend. teórico" value={formData.rendimientoTeorico || ''} onChange={e => { setFormData(p => ({ ...p, rendimientoTeorico: +e.target.value })); setFormErrors(prev => ({ ...prev, rendimientoTeorico: '' })); }} className={INPUT} />
+                  {formErrors.rendimientoTeorico && <p className="text-xs text-red-500 mt-0.5">{formErrors.rendimientoTeorico}</p>}
+                </div>
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSubmitForm}

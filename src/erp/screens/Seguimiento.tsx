@@ -10,6 +10,7 @@ import { CARD, CARD_TITLE, INPUT } from '../ui';
 import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X, CalendarClock } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
 import { Skeleton } from '@/components/ui/skeleton';
+import { z } from 'zod';
 
 type SeguimientoTab = 'resumen' | 'evm' | 'bitacora' | 'avances' | 'cronograma';
 
@@ -19,6 +20,15 @@ const safeNum = (value: unknown, fallback = 0) => {
 };
 
 const safePct = (value: unknown) => fmtPct(safeNum(value));
+
+const bitacoraSchema = z.object({
+  proyectoId: z.string().min(1, 'Proyecto requerido'),
+  clima: z.enum(['soleado', 'nublado', 'lluvia']),
+  personalPresente: z.number().int().min(1, 'Personal requerido'),
+  maquinaria: z.string().min(1, 'Maquinaria requerida'),
+  tareasRealizadas: z.string().min(1, 'Tareas requeridas'),
+  observaciones: z.string().optional().default(''),
+});
 
 const Seguimiento: React.FC = () => {
   const { proyectos, movimientos, bitacora, avances, hitos, seguimientoEVM, addBitacora, updateProyecto, updateBitacora, deleteBitacora } = useErp();
@@ -30,6 +40,7 @@ const Seguimiento: React.FC = () => {
   const [pendingProgress, setPendingProgress] = useState<Record<string, string>>({});
   const [editingBit, setEditingBit] = useState<BitacoraEntry | null>(null);
   const [loading, setLoading] = useState(true);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   useEffect(() => { setLoading(false); }, []);
 
   const { t } = useTranslation();
@@ -85,24 +96,43 @@ const Seguimiento: React.FC = () => {
       tareas: entry.tareasRealizadas,
       observaciones: entry.observaciones,
     });
+    setFormErrors({});
   };
 
   const cancelEditBitacora = () => {
     setEditingBit(null);
     setBit({ clima: 'soleado', personal: '12', maquinaria: 'Retroexcavadora', tareas: '', observaciones: '' });
+    setFormErrors({});
   };
 
   const guardarBit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selProy) return;
-    const payload = {
+    const result = bitacoraSchema.safeParse({
       proyectoId: selProy,
-      fecha: editingBit?.fecha || todayISO(),
       clima: bit.clima as 'soleado' | 'nublado' | 'lluvia',
       personalPresente: safeNum(bit.personal),
       maquinaria: bit.maquinaria,
       tareasRealizadas: bit.tareas,
       observaciones: bit.observaciones,
+    });
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach(err => {
+        const field = err.path[0] as string;
+        errors[field] = err.message;
+      });
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
+    const payload = {
+      proyectoId: selProy,
+      fecha: editingBit?.fecha || todayISO(),
+      clima: result.data.clima,
+      personalPresente: result.data.personalPresente,
+      maquinaria: result.data.maquinaria,
+      tareasRealizadas: result.data.tareasRealizadas,
+      observaciones: result.data.observaciones,
       fotos: editingBit?.fotos ?? [],
     };
 

@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { z } from 'zod';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { todayISO } from '../utils';
@@ -19,6 +20,12 @@ const MuroObra: React.FC = () => {
   const [proyectoFilter, setProyectoFilter] = useState('');
   const [nuevoTexto, setNuevoTexto] = useState('');
   const [nuevoTipo, setNuevoTipo] = useState<TipoPublicacion>('general');
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const publicacionSchema = z.object({
+    texto: z.string().min(1, 'Escribe algo para publicar'),
+    tipo: z.enum(['avance', 'calidad', 'seguridad', 'general'])
+  });
   const [comentarioInput, setComentarioInput] = useState('');
   const [comentando, setComentando] = useState<string | null>(null);
 
@@ -32,7 +39,16 @@ const MuroObra: React.FC = () => {
   }, [publicacionesMuro, proyectoFilter, filterTipo]);
 
   const handlePublicar = () => {
-    if (!nuevoTexto.trim()) { toast.error('Escribe algo para publicar'); return; }
+    const result = publicacionSchema.safeParse({ texto: nuevoTexto, tipo: nuevoTipo });
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach(e => {
+        if (e.path[0]) errors[e.path[0] as string] = e.message;
+      });
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
     addPublicacionMuro({
       proyectoId: proyectoFilter || proyectos[0]?.id || '',
       autor: user?.nombre || 'Anónimo',
@@ -74,7 +90,7 @@ const MuroObra: React.FC = () => {
         <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
           <MessageSquare className="w-6 h-6 text-indigo-500" /> Muro de Obra
         </h1>
-        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors" aria-label="Crear nueva publicación">
+        <button onClick={() => { setShowForm(!showForm); if (!showForm) setFormErrors({}); }} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors" aria-label="Crear nueva publicación">
           <Plus className="w-3.5 h-3.5" aria-hidden="true" /> Nueva Publicación
         </button>
       </div>

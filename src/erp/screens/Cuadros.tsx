@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_DANGER } from '../ui';
@@ -17,6 +18,16 @@ const Cuadros: React.FC = () => {
   const [editingCuadro, setEditingCuadro] = useState<CuadroComparativo | null>(null);
   const [formData, setFormData] = useState<Partial<CuadroComparativo>>({});
   const [loading, setLoading] = useState(true);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const cuadroSchema = z.object({
+    solicitud: z.string().min(1, 'Solicitud requerida'),
+    proyectoId: z.string().min(1, 'Proyecto requerido'),
+    estado: z.enum(['abierto', 'cerrado', 'adjudicado']),
+    fechaSolicitud: z.string().min(1, 'Fecha requerida'),
+    adjudicadoA: z.string().optional().default(''),
+    observaciones: z.string().optional().default(''),
+  });
 
   useEffect(() => { setLoading(false); }, []);
 
@@ -61,6 +72,7 @@ const Cuadros: React.FC = () => {
   }
 
   const handleOpenModal = (cuadro?: CuadroComparativo) => {
+    setFormErrors({});
     if (cuadro) {
       setEditingCuadro(cuadro);
       setFormData(cuadro);
@@ -78,6 +90,17 @@ const Cuadros: React.FC = () => {
   };
 
   const handleSave = async () => {
+    const validation = cuadroSchema.safeParse(formData);
+    if (!validation.success) {
+      const errors: Record<string, string> = {};
+      validation.error.errors.forEach((err) => {
+        if (err.path[0]) errors[err.path[0] as string] = err.message;
+      });
+      setFormErrors(errors);
+      toast.error('Corrige los errores en el formulario');
+      return;
+    }
+    setFormErrors({});
     try {
       if (editingCuadro) {
         await updateCuadro(editingCuadro.id, formData);
@@ -309,38 +332,41 @@ const Cuadros: React.FC = () => {
             <input
               type="text"
               value={formData.solicitud || ''}
-              onChange={(e) => setFormData({ ...formData, solicitud: e.target.value })}
+              onChange={(e) => { setFormData({ ...formData, solicitud: e.target.value }); setFormErrors(prev => ({ ...prev, solicitud: '' })); }}
               className={INPUT}
             />
+            {formErrors.solicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.solicitud}</p>}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">{t('cuadros.fecha_solicitud_label')}</label>
-              <input
-                type="date"
-                value={formData.fechaSolicitud || ''}
-                onChange={(e) => setFormData({ ...formData, fechaSolicitud: e.target.value })}
-                className={INPUT}
-              />
-            </div>
+            <label className="block text-sm font-medium mb-1">{t('cuadros.fecha_solicitud_label')}</label>
+            <input
+              type="date"
+              value={formData.fechaSolicitud || ''}
+              onChange={(e) => { setFormData({ ...formData, fechaSolicitud: e.target.value }); setFormErrors(prev => ({ ...prev, fechaSolicitud: '' })); }}
+              className={INPUT}
+            />
+            {formErrors.fechaSolicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.fechaSolicitud}</p>}
+          </div>
             <div>
               <label className="block text-sm font-medium mb-1">{t('cuadros.estado_label')}</label>
               <select
                 value={formData.estado || 'abierto'}
-                onChange={(e) => setFormData({ ...formData, estado: e.target.value as any })}
+                onChange={(e) => { setFormData({ ...formData, estado: e.target.value as any }); setFormErrors(prev => ({ ...prev, estado: '' })); }}
                 className={INPUT}
               >
                 <option value="abierto">{t('cuadros.estado_abierto')}</option>
                 <option value="cerrado">{t('cuadros.estado_cerrado')}</option>
                 <option value="adjudicado">{t('cuadros.estado_adjudicado')}</option>
               </select>
+              {formErrors.estado && <p className="text-xs text-red-500 mt-0.5">{formErrors.estado}</p>}
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">{t('cuadros.proyecto_label')}</label>
             <select
               value={formData.proyectoId || ''}
-              onChange={(e) => setFormData({ ...formData, proyectoId: e.target.value })}
+              onChange={(e) => { setFormData({ ...formData, proyectoId: e.target.value }); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }}
               className={INPUT}
             >
               <option value="">{t('cuadros.seleccionar_proyecto')}</option>
@@ -348,6 +374,7 @@ const Cuadros: React.FC = () => {
                 <option key={p.id} value={p.id}>{p.nombre}</option>
               ))}
             </select>
+            {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">{t('cuadros.fecha_cierre_label')}</label>

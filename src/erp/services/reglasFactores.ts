@@ -269,7 +269,17 @@ export class MotorReglasFactores {
         usuario_id: contexto.usuario_id,
       });
     } catch (error) {
-      safeLogger.error('Error registrando aplicación de regla:', error);
+      safeLogger.warn('[reglasFactores] Error registrando aplicación, encolando mutación:', error);
+      useErpStore.getState().enqueueMutation('addHistorialAplicacionRegla', {
+        proyecto_id: contexto.proyecto_id,
+        renglon_id: contexto.renglon_id,
+        regla_id: regla.id,
+        valor_original: valorOriginal,
+        valor_aplicado: valorAplicado,
+        factor_aplicado: factorAplicado,
+        contexto_aplicacion: contexto,
+        usuario_id: contexto.usuario_id,
+      });
     }
   }
 

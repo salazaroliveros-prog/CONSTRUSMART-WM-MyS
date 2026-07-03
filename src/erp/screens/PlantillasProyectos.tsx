@@ -600,7 +600,7 @@ const PlantillasProyectos: React.FC = () => {
       {plantillasDesactualizadas.length > 0 && (
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className={`w-5 h-5 ${COLOR_WARNING} flex-shrink-0 mt-0.5`} />
+            <AlertCircle className="w-5 h-5 COLOR_WARNING dark:text-amber-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <div className="font-semibold text-amber-900 dark:text-amber-100 mb-1">
                 {plantillasDesactualizadas.length} plantilla{plantillasDesactualizadas.length > 1 ? 's' : ''} desactualizada{plantillasDesactualizadas.length > 1 ? 's' : ''}
@@ -693,7 +693,7 @@ const PlantillasProyectos: React.FC = () => {
                       <div className="flex gap-1">
                         <button
                           onClick={() => toggleFavoritoPlantilla(plantilla.id)}
-                          className={`p-1 hover:bg-muted rounded ${plantilla.favorita ? COLOR_WARNING : 'text-muted-foreground'}`}
+                          className={`p-1 hover:bg-muted rounded ${plantilla.favorita ? 'COLOR_WARNING' : 'text-muted-foreground'}`}
                           title={plantilla.favorita ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                         >
                           <Star className={`h-4 w-4 ${plantilla.favorita ? 'fill-current' : ''}`} />
@@ -704,13 +704,13 @@ const PlantillasProyectos: React.FC = () => {
                         <button onClick={() => handleEdit(plantilla)} className="p-1 hover:bg-muted rounded" aria-label={`Editar ${plantilla.nombre}`}>
                           <Edit className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button onClick={() => handleClone(plantilla)} className={`p-1 hover:bg-muted rounded ${COLOR_INFO}`} aria-label={`Clonar ${plantilla.nombre}`}>
+                        <button onClick={() => handleClone(plantilla)} className="p-1 hover:bg-muted rounded COLOR_INFO dark:text-blue-400" aria-label={`Clonar ${plantilla.nombre}`}>
                           <Copy className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button onClick={() => handleCrearProyecto(plantilla.id)} className={`p-1 hover:bg-muted rounded ${COLOR_SUCCESS}`} aria-label={`Crear proyecto desde ${plantilla.nombre}`}>
+                        <button onClick={() => handleCrearProyecto(plantilla.id)} className="p-1 hover:bg-muted rounded COLOR_SUCCESS dark:text-emerald-400" aria-label={`Crear proyecto desde ${plantilla.nombre}`}>
                           <Copy className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button onClick={() => handleDelete(plantilla.id)} className={`p-1 hover:bg-muted rounded ${COLOR_DANGER}`} aria-label={`Eliminar ${plantilla.nombre}`}>
+                        <button onClick={() => handleDelete(plantilla.id)} className="p-1 hover:bg-muted rounded COLOR_DANGER dark:text-red-400" aria-label={`Eliminar ${plantilla.nombre}`}>
                           <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </button>
                       </div>
@@ -757,7 +757,7 @@ const PlantillasProyectos: React.FC = () => {
                   <div className="flex gap-1">
                     <button
                       onClick={() => toggleFavoritoPlantilla(plantilla.id)}
-                      className={`p-1 hover:bg-muted rounded transition-colors duration-150 ${plantilla.favorita ? COLOR_WARNING : 'text-muted-foreground'}`}
+                      className={`p-1 hover:bg-muted rounded transition-colors duration-150 ${plantilla.favorita ? 'COLOR_WARNING' : 'text-muted-foreground'}`}
                       title={plantilla.favorita ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                     >
                       <Star className={`h-4 w-4 ${plantilla.favorita ? 'fill-current' : ''}`} />
@@ -780,7 +780,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleEditStructure(plantilla)}
-                      className={`p-1 hover:bg-muted rounded ${COLOR_PRIMARY} transition-colors duration-150`}
+                      className="p-1 hover:bg-muted rounded COLOR_PRIMARY dark:text-indigo-400 transition-colors duration-150"
                       aria-label={`Editar estructura de ${plantilla.nombre}`}
                       title="Editar estructura completa"
                     >
@@ -788,7 +788,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleClone(plantilla)}
-                      className={`p-1 hover:bg-muted rounded ${COLOR_INFO} transition-colors duration-150`}
+                      className="p-1 hover:bg-muted rounded COLOR_INFO dark:text-blue-400 transition-colors duration-150"
                       aria-label={`Clonar ${plantilla.nombre}`}
                       title="Clonar"
                     >
@@ -796,7 +796,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleVerHistorial(plantilla)}
-                      className={`p-1 hover:bg-muted rounded ${COLOR_PRIMARY} transition-colors duration-150`}
+                      className="p-1 hover:bg-muted rounded COLOR_PRIMARY dark:text-purple-400 transition-colors duration-150"
                       aria-label={`Ver historial de ${plantilla.nombre}`}
                       title="Historial de versiones"
                     >
@@ -804,7 +804,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleCrearNuevaVersion(plantilla)}
-                      className={`p-1 hover:bg-muted rounded ${COLOR_WARNING} transition-colors duration-150`}
+                      className="p-1 hover:bg-muted rounded COLOR_WARNING dark:text-orange-400 transition-colors duration-150"
                       aria-label={`Crear nueva versión de ${plantilla.nombre}`}
                       title="Nueva versión"
                     >
@@ -812,7 +812,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleExport(plantilla)}
-                      className={`p-1 hover:bg-muted rounded ${COLOR_SUCCESS} transition-colors duration-150`}
+                      className="p-1 hover:bg-muted rounded COLOR_SUCCESS dark:text-green-400 transition-colors duration-150"
                       aria-label={`Exportar ${plantilla.nombre}`}
                       title="Exportar"
                     >
@@ -820,7 +820,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleDelete(plantilla.id)}
-                      className={`p-1 hover:bg-muted rounded ${COLOR_DANGER} transition-colors duration-150`}
+                      className="p-1 hover:bg-muted rounded COLOR_DANGER dark:text-red-400 transition-colors duration-150"
                       aria-label={`Eliminar ${plantilla.nombre}`}
                       title="Eliminar"
                     >
@@ -914,6 +914,7 @@ const PlantillasProyectos: React.FC = () => {
                   className="w-full px-3 py-2 border rounded-md"
                   required
                 />
+                {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Descripción</label>
@@ -923,6 +924,7 @@ const PlantillasProyectos: React.FC = () => {
                   className="w-full px-3 py-2 border rounded-md"
                   rows={3}
                 />
+                {formErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{formErrors.descripcion}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Categoría</label>
@@ -935,6 +937,7 @@ const PlantillasProyectos: React.FC = () => {
                     <option key={cat.key} value={cat.key}>{cat.label}</option>
                   ))}
                 </select>
+                {formErrors.categoria && <p className="text-xs text-red-500 mt-0.5">{formErrors.categoria}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Cliente (opcional)</label>
@@ -955,6 +958,7 @@ const PlantillasProyectos: React.FC = () => {
                     <option key={cliente} value={cliente}>{cliente}</option>
                   ))}
                 </select>
+                {formErrors.clienteId && <p className="text-xs text-red-500 mt-0.5">{formErrors.clienteId}</p>}
               </div>
               {!editingId && (
                 <div>
@@ -969,6 +973,7 @@ const PlantillasProyectos: React.FC = () => {
                       <option key={p.id} value={p.id}>{p.nombre}</option>
                     ))}
                   </select>
+                  {formErrors.proyectoOrigenId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoOrigenId}</p>}
                 </div>
               )}
               <div className="flex gap-2 pt-4">
@@ -1148,7 +1153,7 @@ const PlantillasProyectos: React.FC = () => {
                             {historial.snapshot && (
                               <button
                                 onClick={() => setVersionesComparar({ anterior: historial.snapshot, actual: previewPlantilla })}
-                                className={`px-3 py-1 text-xs bg-amber-50 ${COLOR_WARNING} rounded hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400`}
+                                className="px-3 py-1 text-xs bg-amber-50 COLOR_WARNING rounded hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
                               >
                                 Comparar
                               </button>

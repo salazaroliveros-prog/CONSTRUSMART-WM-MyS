@@ -1,7 +1,8 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useMemo, useState, useEffect } from 'react';
+import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import { CARD, INPUT, BUTTON_DARK } from '../ui';
+import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, BUTTON_DANGER, BUTTON_DARK, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, KPI_CARD, GRID_4, FLEX_ROW, FLEX_COL, FORM_LABEL, FORM_ERROR, FORM_GROUP, DIVIDER } from '../ui';
 import { Modal, message } from 'antd';
 import { toast } from 'sonner';
 
@@ -33,6 +34,12 @@ const Presupuestos: React.FC = () => {
   const [saved, setSaved] = useState(false);
   const [editingPresupuesto, setEditingPresupuesto] = useState<Presupuesto | null>(null);
   const [savedItemsCount, setSavedItemsCount] = useState(0);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const presupuestoFormSchema = z.object({
+    proyecto: z.string().min(1, 'Nombre del presupuesto requerido'),
+    projectId: z.string().min(1, 'Proyecto asociado requerido'),
+  });
 
   const hasUnsavedChanges = items.length > 0 && items.length !== savedItemsCount;
   const confirmDiscard = async (): Promise<boolean> => {
@@ -402,6 +409,18 @@ const Presupuestos: React.FC = () => {
       toast.warning('No hay renglones para guardar');
       return;
     }
+    const formDataToValidate = { proyecto, projectId };
+    const validation = presupuestoFormSchema.safeParse(formDataToValidate);
+    if (!validation.success) {
+      const errors: Record<string, string> = {};
+      validation.error.errors.forEach((err) => {
+        if (err.path[0]) errors[err.path[0] as string] = err.message;
+      });
+      setFormErrors(errors);
+      toast.error('Corrige los errores en el formulario');
+      return;
+    }
+    setFormErrors({});
     try {
       // Safety: ensure costoMateriales is synced from subRenglones before saving
       const itemsSeguros = items.map(r => {
@@ -626,14 +645,16 @@ const Presupuestos: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
             <label className="text-xs font-semibold text-slate-500">{t('presupuestos.nombre')}</label>
-            <input value={proyecto} onChange={e => setProyecto(e.target.value)} placeholder={t('presupuestos.nombre_placeholder')} className={INPUT} />
+            <input value={proyecto} onChange={e => { setProyecto(e.target.value); setFormErrors(prev => ({ ...prev, proyecto: '' })); }} placeholder={t('presupuestos.nombre_placeholder')} className={INPUT} />
+            {formErrors.proyecto && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyecto}</p>}
           </div>
           <div>
             <label className="text-xs font-semibold text-slate-500">{t('presupuestos.proyecto_asociado')}</label>
-            <select value={projectId} onChange={e => setProjectId(e.target.value)} className={INPUT}>
+            <select value={projectId} onChange={e => { setProjectId(e.target.value); setFormErrors(prev => ({ ...prev, projectId: '' })); }} className={INPUT}>
               <option value="">{t('presupuestos.seleccionar_proyecto')}</option>
               {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
+            {formErrors.projectId && <p className="text-xs text-red-500 mt-0.5">{formErrors.projectId}</p>}
           </div>
           <div>
             <label className="text-xs font-semibold text-slate-500">{t('presupuestos.tipologia_filtros')}</label>

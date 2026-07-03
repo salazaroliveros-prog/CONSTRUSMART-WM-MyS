@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { useErp } from '../store';
 import {
   Database, Search, Check, X, RefreshCw, Upload, Download,
@@ -50,6 +51,14 @@ const BasePrecios: React.FC = () => {
   const [nuevoUnidad, setNuevoUnidad] = useState('');
   const [nuevoRubro, setNuevoRubro] = useState('');
   const [showAgregar, setShowAgregar] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const insumoSchema = z.object({
+    nombre: z.string().min(1, 'Nombre requerido'),
+    precio: z.number().min(0.01, 'Precio debe ser mayor a 0'),
+    unidad: z.string().min(1, 'Unidad requerida'),
+    rubro: z.string().min(1, 'Rubro requerido')
+  });
 
   const rubros = useMemo(() => [...new Set(insumosBase.map(i => i.rubro))].sort(), [insumosBase]);
   const unidades = useMemo(() => [...new Set(insumosBase.map(i => i.unidad))].sort(), [insumosBase]);
@@ -159,8 +168,15 @@ const BasePrecios: React.FC = () => {
   };
 
   const handleAgregar = () => {
-    if (!nuevoNombre.trim()) { toast.error(t('baseprecios.nombre_requerido')); return; }
-    if (nuevoPrecio <= 0) { toast.error(t('baseprecios.precio_requerido')); return; }
+    const result = insumoSchema.safeParse({ nombre: nuevoNombre, precio: nuevoPrecio, unidad: nuevoUnidad, rubro: nuevoRubro });
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach(e => {
+        if (e.path[0]) errors[e.path[0] as string] = e.message;
+      });
+      setFormErrors(errors);
+      return;
+    }
     const codigo = `ib-new-${Date.now()}`;
     addInsumoBase({
       codigo,
@@ -174,6 +190,7 @@ const BasePrecios: React.FC = () => {
     toast.success(t('baseprecios.agregado'));
     setNuevoNombre(''); setNuevoPrecio(0); setNuevoUnidad(''); setNuevoRubro('');
     setShowAgregar(false);
+    setFormErrors({});
   };
 
   if (loading) {
@@ -213,7 +230,7 @@ const BasePrecios: React.FC = () => {
           <button onClick={() => setShowConvertir(!showConvertir)} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors">
             <ArrowUpDown className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.convertir')}
           </button>
-          <button onClick={() => { setShowAgregar(true); setNuevoNombre(''); setNuevoPrecio(0); setNuevoUnidad(''); setNuevoRubro(''); }} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">
+          <button onClick={() => { setShowAgregar(true); setFormErrors({}); setNuevoNombre(''); setNuevoPrecio(0); setNuevoUnidad(''); setNuevoRubro(''); }} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">
             <Plus className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.nuevo')}
           </button>
         </div>
@@ -273,12 +290,24 @@ const BasePrecios: React.FC = () => {
       {showAgregar && (
         <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mb-4">
           <h3 className="font-bold text-slate-700 text-sm mb-3">{t('baseprecios.nuevo_insumo')}</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} placeholder={t('baseprecios.nombre_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400" />
-            <input type="number" inputMode="decimal" value={nuevoPrecio || ''} onChange={e => setNuevoPrecio(+e.target.value)} placeholder={t('baseprecios.precio_placeholder')} min={0} step={0.01} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400" />
-            <input value={nuevoUnidad} onChange={e => setNuevoUnidad(e.target.value)} placeholder={t('baseprecios.unidad_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400" />
-            <input value={nuevoRubro} onChange={e => setNuevoRubro(e.target.value)} placeholder={t('baseprecios.rubro_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400" />
-          </div>
+<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+             <div>
+               <input value={nuevoNombre} onChange={e => { setNuevoNombre(e.target.value); setFormErrors(prev => ({ ...prev, nombre: '' })); }} placeholder={t('baseprecios.nombre_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400 w-full" />
+               {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
+             </div>
+             <div>
+               <input type="number" inputMode="decimal" value={nuevoPrecio || ''} onChange={e => { setNuevoPrecio(+e.target.value); setFormErrors(prev => ({ ...prev, precio: '' })); }} placeholder={t('baseprecios.precio_placeholder')} min={0} step={0.01} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400 w-full" />
+               {formErrors.precio && <p className="text-xs text-red-500 mt-0.5">{formErrors.precio}</p>}
+             </div>
+             <div>
+               <input value={nuevoUnidad} onChange={e => { setNuevoUnidad(e.target.value); setFormErrors(prev => ({ ...prev, unidad: '' })); }} placeholder={t('baseprecios.unidad_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400 w-full" />
+               {formErrors.unidad && <p className="text-xs text-red-500 mt-0.5">{formErrors.unidad}</p>}
+             </div>
+             <div>
+               <input value={nuevoRubro} onChange={e => { setNuevoRubro(e.target.value); setFormErrors(prev => ({ ...prev, rubro: '' })); }} placeholder={t('baseprecios.rubro_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400 w-full" />
+               {formErrors.rubro && <p className="text-xs text-red-500 mt-0.5">{formErrors.rubro}</p>}
+             </div>
+           </div>
           <div className="flex gap-2 mt-2">
             <button onClick={handleAgregar} className="text-xs px-4 py-1.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors font-medium">{t('baseprecios.agregar_btn')}</button>
             <button onClick={() => setShowAgregar(false)} className="text-xs px-4 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">{t('baseprecios.cancelar')}</button>
