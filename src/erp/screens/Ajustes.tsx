@@ -16,7 +16,7 @@ import {
   DownloadOutlined, UploadOutlined, DeleteOutlined,
   CheckCircleOutlined, ExperimentOutlined, ExportOutlined,
   UserOutlined, ImportOutlined,
-  SwapRightOutlined,
+
   CalendarOutlined, DollarOutlined, WarningOutlined,
   PlayCircleOutlined, FileTextOutlined, RiseOutlined,
 } from '@ant-design/icons';
@@ -611,69 +611,6 @@ const Ajustes: React.FC = () => {
       </Layout>
     );
   }
-
-  const sidebarSection = (
-    <Row gutter={[24, 24]}>
-      <Col xs={24} lg={12}>
-
-        <Card style={sectionCard} size="small">
-          <SettingRow
-            icon={<SwapRightOutlined style={{ fontSize: ICON_SIZE }} />}
-            title="Posición del Sidebar"
-            subtitle="Lado de la barra lateral y modo responsive"
-          >
-            <Select value={appSettings.sidebarPosition} onChange={v => updateAppSettings({ sidebarPosition: v as 'left' | 'right' | 'overlay' })} className="w-full sm:w-40 md:w-44" options={[
-              { value: 'left', label: 'Izquierda' },
-              { value: 'right', label: 'Derecha' },
-              { value: 'overlay', label: 'Overlay (móvil)' },
-            ]} />
-          </SettingRow>
-
-          <SettingRow
-            icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
-            title="Modo de Navegación"
-            subtitle="Comportamiento del sidebar"
-          >
-            <Select value={appSettings.sidebarMode} onChange={v => updateAppSettings({ sidebarMode: v as 'expanded' | 'collapsed' | 'hover-expand' | 'mini' })} className="w-full sm:w-40 md:w-44" options={[
-              { value: 'expanded', label: 'Expandido' },
-              { value: 'collapsed', label: 'Contraído' },
-              { value: 'hover-expand', label: 'Hover Expand' },
-              { value: 'mini', label: 'Mini' },
-            ]} />
-          </SettingRow>
-
-          <Row gutter={12}>
-            <Col span={12}>
-              <SettingRow
-                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Ancho Expandido"
-                subtitle="px"
-              >
-                <Select value={appSettings.sidebarWidth} onChange={v => updateAppSettings({ sidebarWidth: v as 240 | 280 | 320 })} className="w-full" options={[
-                  { value: 240, label: '240 px' },
-                  { value: 280, label: '280 px' },
-                  { value: 320, label: '320 px' },
-                ]} />
-              </SettingRow>
-            </Col>
-            <Col span={12}>
-              <SettingRow
-                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Ancho Mini"
-                subtitle="px"
-              >
-                <Select value={appSettings.sidebarMiniWidth} onChange={v => updateAppSettings({ sidebarMiniWidth: v as 64 | 72 | 80 })} className="w-full" options={[
-                  { value: 64, label: '64 px' },
-                  { value: 72, label: '72 px' },
-                  { value: 80, label: '80 px' },
-                ]} />
-              </SettingRow>
-            </Col>
-          </Row>
-        </Card>
-      </Col>
-    </Row>
-  );
 
   return (
     <Layout style={{ padding: 24, minHeight: '100%', background: 'transparent' }}>

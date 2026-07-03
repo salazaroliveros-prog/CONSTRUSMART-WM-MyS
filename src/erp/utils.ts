@@ -177,7 +177,6 @@ export const APP_SETTINGS_DEFAULTS: AppSettings = {
   breadcrumbsEnabled: true,
   footerEnabled: true,
   touchMode: false,
-  notificaciones: { stockCritico: true, ordenesCambio: true, avancesObra: true, desviaciones: true },
   empresaInfo: EMPRESA_DEFAULT,
 };
 

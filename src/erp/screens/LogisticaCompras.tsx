@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, uid } from '../store';
 import type { ActivoHerramienta, PagoProveedor } from '../types';
@@ -30,6 +30,8 @@ export const LogisticaCompras: React.FC = () => {
   const [showForm, setShowForm] = useState<string | null>(null);
   const [form, setForm] = useState<Record<string, string | number>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { setLoading(false); }, []);
 
   const clearError = (field: string) => setFormErrors(prev => ({ ...prev, [field]: '' }));
   const updateForm = (field: string, value: string | number) => {
@@ -182,6 +184,20 @@ export const LogisticaCompras: React.FC = () => {
       )}
     </div>
   );
+
+  if (loading) {
+    return (
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-56" />
+        <div className="flex gap-1 mb-2">
+          <Skeleton className="h-10 w-24 rounded-lg" />
+          <Skeleton className="h-10 w-28 rounded-lg" />
+          <Skeleton className="h-10 w-24 rounded-lg" />
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">

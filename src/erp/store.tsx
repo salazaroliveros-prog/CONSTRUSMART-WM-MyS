@@ -15,13 +15,14 @@ import {
    reglaFactorSchema, normativaDepartamentalSchema, escalaProduccionSchema, estacionalidadSchema,
    historialAplicacionReglaSchema,
 } from './store/schemas';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, compressDataAsync, decompressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, compressData, decompressData, compressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { hasSupabase, assertSupabase, supabase, hasServiceRole, getServiceClient } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
 import { sanitizarObjeto, getViewsByRole } from '@/lib/security';
 import { useAuth } from '@/hooks/useAuth';
 import { encryptionManager, migrateSecureStorage } from '@/lib/encryption';
+import type { Mutation } from './types';
 import { logErrorFromException, getErrorContext } from '@/lib/error-logger';
 const proyectoSchemaInline = z.object({
   id: z.string(), nombre: z.string(), ubicacion: z.string(),

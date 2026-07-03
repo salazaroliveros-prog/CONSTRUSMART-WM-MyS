@@ -29,7 +29,7 @@ type LicitacionFormData = z.infer<typeof licitacionFormSchema>;
 const ESTADOS = [
   { key: 'activa' as const, label: 'Activa', color: 'bg-blue-50 border-blue-300', icon: Clock, textColor: 'text-blue-600' },
   { key: 'adjudicada' as const, label: 'Adjudicada 🏆', color: 'bg-emerald-50 border-emerald-300', icon: CheckCircle, textColor: 'text-emerald-600' },
-  { key: 'perdida' as const, label: 'Perdida', color: 'bg-red-50 border-red-300', icon: Archive, textColor: 'COLOR_DANGER dark:text-red-400' },
+  { key: 'perdida' as const, label: 'Perdida', color: 'bg-red-50 border-red-300', icon: Archive, textColor: COLOR_DANGER },
   { key: 'cerrada' as const, label: 'Cerrada', color: 'bg-slate-100 border-slate-300', icon: Archive, textColor: 'text-slate-500' },
 ] as const;
 
@@ -206,25 +206,25 @@ const CRM: React.FC = () => {
         </div>
         <div className={KPI_CARD}>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-            <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 COLOR_SUCCESS" />
+            <DollarSign className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${COLOR_SUCCESS}`} />
             <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.total_pipeline')}</span>
           </div>
           <div className="text-lg sm:text-2xl font-bold text-foreground truncate">{fmtQ(totalMonto)}</div>
         </div>
         <div className={KPI_CARD}>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 COLOR_INFO" />
+            <TrendingUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${COLOR_INFO}`} />
             <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.pipeline_activo')}</span>
           </div>
-          <div className="text-lg sm:text-2xl font-bold COLOR_INFO truncate">{fmtQ(pipelineActivo)}</div>
+          <div className={`text-lg sm:text-2xl font-bold ${COLOR_INFO} truncate`}>{fmtQ(pipelineActivo)}</div>
           <div className="text-[10px] text-muted-foreground">{t('crm.oportunidades_activas')}</div>
         </div>
         <div className={KPI_CARD}>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-            <PieChart className="w-3.5 h-3.5 sm:w-4 sm:h-4 COLOR_WARNING" />
+            <PieChart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${COLOR_WARNING}`} />
             <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.conversion')}</span>
           </div>
-          <div className="text-xl sm:text-2xl font-bold COLOR_WARNING">{tasaConversion}%</div>
+          <div className={`text-xl sm:text-2xl font-bold ${COLOR_WARNING}`}>{tasaConversion}%</div>
           <div className="text-[10px] text-muted-foreground">{t('crm.ganadas_vs_decididas')}</div>
         </div>
       </div>
@@ -267,10 +267,10 @@ const CRM: React.FC = () => {
                   <div className="flex justify-between items-start mb-1">
                     <h4 className="font-semibold text-sm text-foreground truncate flex-1">{l.nombre}</h4>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1">
-<button onClick={() => openEdit(l)} className="p-1 text-slate-400 hover:COLOR_PRIMARY hover:bg-purple-50 rounded" aria-label={t('crm.editar_aria')}>
+                        <button onClick={() => openEdit(l)} className="p-1 text-slate-400 hover:text-primary hover:bg-primary/10 rounded" aria-label={t('crm.editar_aria')}>
                           <Pencil className="w-3 h-3" aria-hidden="true" />
                         </button>
-                        <button onClick={() => { deleteLicitacion(l.id); toast.success(t('crm.toast_eliminada')); }} className="p-1 text-slate-400 hover:COLOR_DANGER hover:bg-red-50 rounded" aria-label={t('crm.eliminar_aria')}>
+                        <button onClick={() => { deleteLicitacion(l.id); toast.success(t('crm.toast_eliminada')); }} className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded" aria-label={t('crm.eliminar_aria')}>
                           <Trash2 className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </div>
@@ -280,7 +280,7 @@ const CRM: React.FC = () => {
                     <span className="font-bold text-foreground">{fmtQ(l.monto)}</span>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                       l.probabilidad >= 70 ? 'bg-emerald-50 text-emerald-600' :
-                      l.probabilidad >= 40 ? 'bg-amber-50 COLOR_WARNING' :
+                      l.probabilidad >= 40 ? 'bg-amber-50 ' + COLOR_WARNING :
                       'bg-slate-50 text-slate-500'
                     }`}>
                       {l.probabilidad}%
@@ -298,7 +298,7 @@ const CRM: React.FC = () => {
                       </button>
                       <button
                         onClick={() => moveLicitacion(l.id, 'perdida')}
-                        className="flex-1 text-[8px] py-1 rounded font-medium COLOR_DANGER hover:bg-red-50"
+                        className={`flex-1 text-[8px] py-1 rounded font-medium ${COLOR_DANGER} hover:bg-red-50`}
                       >
                         {t('crm.perder_btn')}
                       </button>
@@ -341,7 +341,7 @@ const CRM: React.FC = () => {
                   placeholder="Ej. Edificio Comercial"
                   className={`w-full px-3.5 py-2.5 text-sm rounded-lg border outline-none bg-background text-foreground focus:border-primary ${formErrors.nombre ? 'border-destructive bg-destructive/5' : 'border-border'}`}
                 />
-                {formErrors.nombre && <p className="text-xs COLOR_DANGER mt-1">{formErrors.nombre}</p>}
+                {formErrors.nombre && <p className={`text-xs ${COLOR_DANGER} mt-1`}>{formErrors.nombre}</p>}
               </div>
               <div>
                 <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Proyecto</label>
@@ -359,7 +359,7 @@ const CRM: React.FC = () => {
                     placeholder="Nombre del cliente"
                     className={INPUT}
                   />
-                  {formErrors.cliente && <p className="text-xs COLOR_DANGER mt-1">{formErrors.cliente}</p>}
+                  {formErrors.cliente && <p className={`text-xs ${COLOR_DANGER} mt-1`}>{formErrors.cliente}</p>}
                 </div>
                 <div>
                   <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Monto Q</label>
@@ -370,7 +370,7 @@ const CRM: React.FC = () => {
                     placeholder="0.00"
                     className={INPUT}
                   />
-                  {formErrors.monto && <p className="text-xs COLOR_DANGER mt-1">{formErrors.monto}</p>}
+                  {formErrors.monto && <p className={`text-xs ${COLOR_DANGER} mt-1`}>{formErrors.monto}</p>}
                 </div>
               </div>
               <div>

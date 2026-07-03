@@ -1,10 +1,8 @@
 import React, { Suspense, lazy, useEffect, useState, createContext, useContext, useMemo, useRef } from 'react';
 import { ErpProvider, useErp } from '@/erp/store';
 import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
-import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { ErrorBoundary } from './ErrorBoundary';
 import { PageTransition } from './Animations';
-import { hasSupabase, hasServiceRole } from '@/lib/supabase';
 
 const Header = lazy(() => import('@/erp/components/Header'));
 const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
@@ -179,6 +177,8 @@ const Shell: React.FC = () => {
     plantillas:        <PlantillasProyectos />,
     'proveedor-analytics': <ProveedorAnalytics />,
     'error-log':       <ErrorLog />,
+    activos:           <Activos />,
+    cuadros:           <Cuadros />,
   }), []);
 
   const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter(key => allowedViews.includes(key as any)), [allowedViews]);

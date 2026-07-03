@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
-import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, BUTTON_DANGER, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, CARD, KPI_CARD, GRID_4, FLEX_ROW, FLEX_COL, FORM_LABEL, FORM_ERROR, FORM_GROUP, DIVIDER } from '../ui';
+import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, COLOR_DANGER } from '../ui';
 import { fmtQ } from '../utils';
 import { sanitizarObjeto } from '@/lib/security';
 import { exportCotizacionPDF } from '../export';
@@ -59,7 +59,6 @@ const Cotizaciones: React.FC = () => {
   const [showCalculadora, setShowCalculadora] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedCalculadora, setSelectedCalculadora] = useState<'pavimentos' | 'redesInfraestructura' | 'murosContencion' | null>(null);
-  const [calculando, setCalculando] = useState(false);
   const [formData, setFormData] = useState<CotizacionFormData>({
     proyectoId: '',
     tipo: 'construccion',
@@ -83,14 +82,6 @@ const Cotizaciones: React.FC = () => {
 
   const cotizacionesFiltradas = useMemo(() => {
     return [...cotizaciones].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [cotizaciones]);
-
-  const cotizacionesPorTipo = useMemo(() => {
-    const map: Record<string, number> = {};
-    cotizaciones.forEach(c => {
-      map[c.tipo] = (map[c.tipo] || 0) + 1;
-    });
-    return map;
   }, [cotizaciones]);
 
   const resetForm = () => {
@@ -351,7 +342,7 @@ const Cotizaciones: React.FC = () => {
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.nombre_razon')}</label>
                     <input value={formData.clienteNombre} onChange={e => setFormData(p => ({ ...p, clienteNombre: e.target.value }))} placeholder={t('common.nombre')} className={INPUT} />
-                    {formErrors.clienteNombre && <p className="text-xs COLOR_DANGER mt-0.5">{formErrors.clienteNombre}</p>}
+                    {formErrors.clienteNombre && <p className={`text-xs ${COLOR_DANGER} mt-0.5`}>{formErrors.clienteNombre}</p>}
                   </div>
                   <div>
                     <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.nit')}</label>

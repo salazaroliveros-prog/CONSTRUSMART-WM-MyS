@@ -12,7 +12,7 @@ import { obtenerSubtipologias } from '../services/motorCalculo';
 import { Progress } from '../components/Charts';
 import MapPicker from '../components/MapPicker';
 import HeatMap from '../components/HeatMap';
-import { INPUT, BUTTON_PRIMARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER, KPI_CARD, CARD_TITLE, SECTION_TITLE, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY } from '../ui';
+import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER, KPI_CARD, CARD_TITLE, SECTION_TITLE, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY } from '../ui';
 import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, AlertCircle, ChevronRight, Copy, Layout, Sparkles, Star, Search, ArrowUpDown, List, Grid3x3, DollarSign, ClipboardList, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import { proyectoSchemaObject as proyectoSchemaCanonico } from '../store/schemas/proyectos';
@@ -402,7 +402,7 @@ const Proyectos: React.FC = () => {
 
   const estadoBadgeClass = (estado: string) => {
     if (estado === 'ejecucion') return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
-    if (estado === 'pausado') return 'bg-amber-500/10 COLOR_WARNING dark:text-amber-400';
+    if (estado === 'pausado') return `bg-amber-500/10 ${COLOR_WARNING} dark:text-amber-400`;
     if (estado === 'finalizado') return 'bg-blue-500/10 text-blue-600 dark:text-blue-400';
     return 'bg-slate-500/10 text-slate-600 dark:text-slate-400';
   };
@@ -485,17 +485,17 @@ const Proyectos: React.FC = () => {
           <div className={CARD_TITLE}>{t('proyectos.total_proyectos')}</div>
         </div>
         <div className={KPI_CARD}>
-          <Play className="w-4 h-4 COLOR_SUCCESS" aria-hidden="true" />
+          <Play className={`w-4 h-4 ${COLOR_SUCCESS}`} aria-hidden="true" />
           <div className="text-lg font-black">{kpis.enEjecucion}</div>
           <div className={CARD_TITLE}>{t('proyectos.en_ejecucion')}</div>
         </div>
         <div className={KPI_CARD}>
-          <ClipboardList className="w-4 h-4 COLOR_INFO" aria-hidden="true" />
+          <ClipboardList className={`w-4 h-4 ${COLOR_INFO}`} aria-hidden="true" />
           <div className="text-lg font-black">{fmtQ(kpis.presupuestoTotal)}</div>
           <div className={CARD_TITLE}>{t('proyectos.total_presupuesto')}</div>
         </div>
         <div className={KPI_CARD}>
-          <DollarSign className="w-4 h-4 COLOR_SUCCESS" aria-hidden="true" />
+          <DollarSign className={`w-4 h-4 ${COLOR_SUCCESS}`} aria-hidden="true" />
           <div className="text-lg font-black">{fmtQ(kpis.contratoTotal)}</div>
           <div className={CARD_TITLE}>{t('proyectos.total_contratos')}</div>
         </div>
@@ -651,7 +651,7 @@ const Proyectos: React.FC = () => {
                 <span className="text-[10px] px-3 py-1.5 rounded-full bg-muted text-foreground font-medium min-h-[32px] flex items-center">{TIPOLOGIA_LABEL[p.tipologia]}</span>
                 <span className={`text-[10px] px-3 py-1.5 rounded-full font-medium transition-colors min-h-[32px] flex items-center ${estadoBadgeClass(p.estado)}`}>{estadoLabel[p.estado] || p.estado}</span>
                 {p.etapa && <span className="text-[10px] px-3 py-1.5 rounded-full bg-muted text-muted-foreground min-h-[32px] flex items-center">{etapaLabel[p.etapa] || p.etapa}</span>}
-                {p.estado === 'pausado' && p.motivoPausa && <span className="text-[10px] px-3 py-1.5 rounded-full bg-amber-500/10 COLOR_WARNING dark:text-amber-400 truncate max-w-[140px] min-h-[32px] flex items-center" title={p.motivoPausa}>{p.motivoPausa}</span>}
+                {p.estado === 'pausado' && p.motivoPausa && <span className={`text-[10px] px-3 py-1.5 rounded-full bg-amber-500/10 ${COLOR_WARNING} dark:text-amber-400 truncate max-w-[140px] min-h-[32px] flex items-center`} title={p.motivoPausa}>{p.motivoPausa}</span>}
                 {p.moneda && <span className="text-[10px] px-3 py-1.5 rounded-full bg-muted text-muted-foreground">{p.moneda}</span>}
               </div>
 
@@ -860,7 +860,7 @@ const Proyectos: React.FC = () => {
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2">
-                                    {p.favorita && <Star className="w-3 h-3 COLOR_WARNING fill-current" />}
+                  {p.favorita && <Star className={`w-3 h-3 ${COLOR_WARNING} fill-current`} />}
                                     <span className="font-medium text-sm">{p.nombre}</span>
                                   </div>
                                   <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
@@ -930,7 +930,7 @@ const Proyectos: React.FC = () => {
                                   <div className="flex items-start justify-between gap-2">
                                     <div className="flex-1">
                                       <div className="font-medium text-sm flex items-center gap-2">
-                                        {sugerencia.favorita && <Star className="w-3 h-3 COLOR_WARNING fill-current" />}
+                                        {sugerencia.favorita && <Star className={`w-3 h-3 ${COLOR_WARNING} fill-current`} />}
                                         {sugerencia.nombre}
                                       </div>
                                       <div className="text-xs text-muted-foreground mt-1">
@@ -977,7 +977,7 @@ const Proyectos: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="sm:col-span-2">
                     <input {...register('nombre')} placeholder={t('proyectos.nombre_placeholder')} className={INPUT} />
-                    {errors.nombre && <p className="text-xs COLOR_DANGER dark:text-red-400 mt-0.5">{errors.nombre.message}</p>}
+                    {errors.nombre && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-0.5`}>{errors.nombre.message}</p>}
                   </div>
                   <div className="sm:col-span-2">
                     <textarea {...register('descripcion')} placeholder={t('proyectos.descripcion_placeholder')} className={`${INPUT} min-h-[60px] resize-none`} rows={2} />
@@ -1014,13 +1014,13 @@ const Proyectos: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <input {...register('cliente')} placeholder={t('proyectos.cliente_placeholder')} className={INPUT} />
-                    {errors.cliente && <p className="text-xs COLOR_DANGER dark:text-red-400 mt-0.5">{errors.cliente.message}</p>}
+                    {errors.cliente && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-0.5`}>{errors.cliente.message}</p>}
                   </div>
                   <input {...register('clienteNit')} placeholder={t('proyectos.nit_placeholder')} className={INPUT} />
                   <input {...register('clienteTelefono')} placeholder={t('proyectos.telefono_placeholder')} className={INPUT} />
                   <div>
                     <input {...register('clienteEmail')} placeholder={t('proyectos.email_placeholder')} className={INPUT} />
-                    {errors.clienteEmail && <p className="text-xs COLOR_DANGER dark:text-red-400 mt-0.5">{errors.clienteEmail.message}</p>}
+                    {errors.clienteEmail && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-0.5`}>{errors.clienteEmail.message}</p>}
                   </div>
                 </div>
               </div>
@@ -1031,7 +1031,7 @@ const Proyectos: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
                   <div>
                     <input {...register('ubicacion')} placeholder={t('proyectos.ubicacion_placeholder')} className={INPUT} />
-                    {errors.ubicacion && <p className="text-xs COLOR_DANGER dark:text-red-400 mt-0.5">{errors.ubicacion.message}</p>}
+                    {errors.ubicacion && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-0.5`}>{errors.ubicacion.message}</p>}
                   </div>
                   <input {...register('direccion')} placeholder={t('proyectos.direccion_placeholder')} className={INPUT} />
                   <input {...register('ciudad')} placeholder={t('proyectos.ciudad_placeholder')} className={INPUT} />
@@ -1112,7 +1112,7 @@ const Proyectos: React.FC = () => {
                   </div>
                 </div>
                 {(errors.presupuestoTotal || errors.montoContrato || errors.fechaInicio || errors.fechaFin) && (
-                  <p className="text-xs COLOR_DANGER dark:text-red-400 mt-1">{t('proyectos.campos_requeridos')}</p>
+                  <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-1`}>{t('proyectos.campos_requeridos')}</p>
                 )}
               </div>
             </div>

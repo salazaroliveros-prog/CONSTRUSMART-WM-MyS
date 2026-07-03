@@ -7,13 +7,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const Login: React.FC = () => {
   const { signInWithGoogle, setView, user } = useErp();
-  const authError = '';
+  const [authError, setAuthError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
       await signInWithGoogle();
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : 'Error de autenticación');
     } finally {
       setLoading(false);
     }

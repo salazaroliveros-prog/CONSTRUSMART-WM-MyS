@@ -12,7 +12,7 @@ import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
 import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { INPUT_COMPACT, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY, SECTION_TITLE, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, BUTTON_DANGER, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
+import { INPUT_COMPACT, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL } from '../ui';
 
 const proveedorSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido'),
@@ -179,14 +179,14 @@ const Bodega: React.FC = () => {
           <div className="text-xs text-muted-foreground">{t('bodega.materiales')}</div>
         </div>
         <div className="bg-red-50 dark:bg-red-950/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-red-100 dark:border-red-900/50">
-          <div className="text-xl sm:text-2xl font-bold COLOR_DANGER dark:text-red-400 flex items-center gap-1">
+          <div className={`text-xl sm:text-2xl font-bold ${COLOR_DANGER} dark:text-red-400 flex items-center gap-1`}>
             <AlertTriangle className="w-5 h-5" aria-hidden="true" />{criticos.length}
           </div>
-          <div className="text-xs COLOR_DANGER dark:text-red-400">{t('bodega.stock_bajo_minimo')}</div>
+          <div className={`text-xs ${COLOR_DANGER} dark:text-red-400`}>{t('bodega.stock_bajo_minimo')}</div>
         </div>
         <div className="bg-amber-50 dark:bg-amber-950/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-amber-100 dark:border-amber-900/50">
-          <div className="text-xl sm:text-2xl font-bold COLOR_WARNING dark:text-amber-400">{pendientes.length}</div>
-          <div className="text-xs COLOR_WARNING dark:text-amber-400">{t('bodega.oc_por_aprobar')}</div>
+          <div className={`text-xl sm:text-2xl font-bold ${COLOR_WARNING} dark:text-amber-400`}>{pendientes.length}</div>
+          <div className={`text-xs ${COLOR_WARNING} dark:text-amber-400`}>{t('bodega.oc_por_aprobar')}</div>
         </div>
         <div className={KPI_CARD}>
           <div className="text-lg sm:text-2xl font-bold text-foreground truncate">{fmtQ(materiales.reduce((a, m) => a + m.stock * m.precio, 0))}</div>
@@ -236,13 +236,13 @@ const Bodega: React.FC = () => {
                   const planificado = m.cantidadPresupuestada ?? 0;
                   const desv = planificado > 0 ? ((m.stock - planificado) / Math.max(planificado, 1)) * 100 : 0;
                   const pct = (m.stock / Math.max(m.stockMinimo * 2, 1)) * 100;
-                  const claseDesv = Math.abs(desv) > 15 ? 'COLOR_DANGER dark:text-red-400' : Math.abs(desv) > 5 ? 'COLOR_WARNING dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400';
+                  const claseDesv = Math.abs(desv) > 15 ? `${COLOR_DANGER} dark:text-red-400` : Math.abs(desv) > 5 ? `${COLOR_WARNING} dark:text-amber-400` : 'text-emerald-600 dark:text-emerald-400';
                   return (
                     <tr key={m.id} className="hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="row">
                       <td className="px-3 py-2">
                         <div className="flex items-center gap-2">
                           <span className="truncate max-w-[180px]">{m.nombre}</span>
-                          {m.critico && <span className="text-[9px] bg-red-100 dark:bg-red-900/40 COLOR_DANGER dark:text-red-400 px-1.5 py-0.5 rounded-full">{t('bodega.critico')}</span>}
+                          {m.critico && <span className={`text-[9px] bg-red-100 dark:bg-red-900/40 ${COLOR_DANGER} dark:text-red-400 px-1.5 py-0.5 rounded-full`}>{t('bodega.critico')}</span>}
                         </div>
                       </td>
                       <td className="px-3 py-2 text-right">
@@ -298,7 +298,7 @@ const Bodega: React.FC = () => {
                         : o.estado === 'recibida'
                         ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
                         : o.estado === 'rechazado'
-                        ? 'bg-red-100 dark:bg-red-900/40 COLOR_DANGER dark:text-red-400'
+                        ? `bg-red-100 dark:bg-red-900/40 ${COLOR_DANGER} dark:text-red-400`
                         : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
                     }`}>{o.estado}</span>
                   </div>
@@ -348,7 +348,7 @@ const Bodega: React.FC = () => {
                 </button>
                 <button onClick={() => deleteProveedor(p.id)}
                   aria-label={t('bodega.eliminar_proveedor_aria', { nombre: p.nombre })}
-                  className="p-1 rounded text-muted-foreground hover:COLOR_DANGER hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:text-red-400 dark:hover:text-red-300">
+                  className="p-1 rounded text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:text-red-400 dark:hover:text-red-300">
                   <Trash2 className="w-3 h-3" aria-hidden="true" />
                 </button>
               </div>
@@ -370,11 +370,11 @@ const Bodega: React.FC = () => {
             </div>
             <div className="space-y-3">
               <input {...registerProv('nombre')} placeholder={t('common.nombre')} className={`${inp} ${errorsProv.nombre ? 'border-red-400' : ''}`} />
-              {errorsProv.nombre && <p className="text-xs COLOR_DANGER dark:text-red-400">{errorsProv.nombre.message}</p>}
+              {errorsProv.nombre && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400`}>{errorsProv.nombre.message}</p>}
               <input {...registerProv('contacto')} placeholder={t('bodega.contacto')} className={`${inp} ${errorsProv.contacto ? 'border-red-400' : ''}`} />
-              {errorsProv.contacto && <p className="text-xs COLOR_DANGER dark:text-red-400">{errorsProv.contacto.message}</p>}
+              {errorsProv.contacto && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400`}>{errorsProv.contacto.message}</p>}
               <input {...registerProv('rubro')} placeholder={t('bodega.rubro')} className={`${inp} ${errorsProv.rubro ? 'border-red-400' : ''}`} />
-              {errorsProv.rubro && <p className="text-xs COLOR_DANGER dark:text-red-400">{errorsProv.rubro.message}</p>}
+              {errorsProv.rubro && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400`}>{errorsProv.rubro.message}</p>}
               <select {...registerProv('calificacion', { valueAsNumber: true })} className={inp}>
                 {[0, 1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{t('bodega.estrellas', { n })}</option>)}
               </select>
