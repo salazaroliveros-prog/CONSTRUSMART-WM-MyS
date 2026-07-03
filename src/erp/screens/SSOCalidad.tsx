@@ -438,37 +438,39 @@ const SSOCalidad: React.FC = () => {
               <p className="text-sm">{t('sso_calidad.sin_datos_estadisticas', 'Sin datos de estadísticas')}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-              <div className="bg-white rounded-xl p-4 border border-slate-100">
-                <div className="text-[10px] text-slate-400">{t('sso_calidad.dias_sin_accidentes', 'Días Sin Accidentes')}</div>
-                <div className="text-xl sm:text-3xl font-black text-emerald-600">{diasSinAccidentes}</div>
-                <div className="text-[10px] text-slate-400 mt-1">{t('sso_calidad.dias', 'días')}</div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                <div className="bg-white rounded-xl p-4 border border-slate-100">
+                  <div className="text-[10px] text-slate-400">{t('sso_calidad.dias_sin_accidentes', 'Días Sin Accidentes')}</div>
+                  <div className="text-xl sm:text-3xl font-black text-emerald-600">{diasSinAccidentes}</div>
+                  <div className="text-[10px] text-slate-400 mt-1">{t('sso_calidad.dias', 'días')}</div>
+                </div>
+                <div className={`bg-white rounded-xl p-4 border ${totalIncidentes > 0 ? 'border-red-200' : 'border-slate-100'}`}>
+                  <div className="text-[10px] text-slate-400">{t('sso_calidad.total_incidentes', 'Total Incidentes')}</div>
+                  <div className={`text-xl sm:text-3xl font-black ${totalIncidentes > 0 ? 'text-red-600' : 'text-slate-800'}`}>{totalIncidentes}</div>
+                  <div className="text-[10px] text-slate-400 mt-1">{incidentesAbiertos} {t('sso_calidad.abiertos', 'abiertos')} · {totalIncidentes - incidentesAbiertos} {t('sso_calidad.cerrados', 'cerrados')}</div>
+                </div>
               </div>
-              <div className={`bg-white rounded-xl p-4 border ${totalIncidentes > 0 ? 'border-red-200' : 'border-slate-100'}`}>
-                <div className="text-[10px] text-slate-400">{t('sso_calidad.total_incidentes', 'Total Incidentes')}</div>
-                <div className={`text-xl sm:text-3xl font-black ${totalIncidentes > 0 ? 'text-red-600' : 'text-slate-800'}`}>{totalIncidentes}</div>
-                <div className="text-[10px] text-slate-400 mt-1">{incidentesAbiertos} {t('sso_calidad.abiertos', 'abiertos')} · {totalIncidentes - incidentesAbiertos} {t('sso_calidad.cerrados', 'cerrados')}</div>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-              <h3 className="font-bold text-xs text-slate-700 mb-3">{t('sso_calidad.incidentes_por_tipo', 'Incidentes por Tipo')}</h3>
-              <div className="space-y-2">
-                {(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro'] as const).map(tipo => {
-                  const count = incidentes.filter(i => i.tipo === tipo && (!selProyecto || i.proyectoId === selProyecto)).length;
-                  const maxCount = Math.max(1, ...(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro'] as const).map(t => incidentes.filter(i => i.tipo === t && (!selProyecto || i.proyectoId === selProyecto)).length));
-                  return (
-                    <div key={tipo} className="flex items-center gap-2">
-                      <span className="text-[10px] text-slate-500 w-28">{tipo.replace(/_/g, ' ')}</span>
-                      <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full ${tipo === 'accidente' ? 'bg-red-400' : tipo === 'cuasi-accidente' ? 'bg-amber-400' : 'bg-orange-400'}`}
-                          style={{ width: `${(count / maxCount) * 100}%` }} />
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+                <h3 className="font-bold text-xs text-slate-700 mb-3">{t('sso_calidad.incidentes_por_tipo', 'Incidentes por Tipo')}</h3>
+                <div className="space-y-2">
+                  {(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro'] as const).map(tipo => {
+                    const count = incidentes.filter(i => i.tipo === tipo && (!selProyecto || i.proyectoId === selProyecto)).length;
+                    const maxCount = Math.max(1, ...(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro'] as const).map(t => incidentes.filter(i => i.tipo === t && (!selProyecto || i.proyectoId === selProyecto)).length));
+                    return (
+                      <div key={tipo} className="flex items-center gap-2">
+                        <span className="text-[10px] text-slate-500 w-28">{tipo.replace(/_/g, ' ')}</span>
+                        <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${tipo === 'accidente' ? 'bg-red-400' : tipo === 'cuasi-accidente' ? 'bg-amber-400' : 'bg-orange-400'}`}
+                            style={{ width: `${(count / maxCount) * 100}%` }} />
+                        </div>
+                        <span className="text-xs font-semibold text-slate-600 w-8 text-right">{count}</span>
                       </div>
-                      <span className="text-xs font-semibold text-slate-600 w-8 text-right">{count}</span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
       )}
