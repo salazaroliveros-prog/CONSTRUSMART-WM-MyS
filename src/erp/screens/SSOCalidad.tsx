@@ -448,6 +448,8 @@ const SSOCalidad: React.FC = () => {
                 <div className="text-[10px] text-slate-400">{t('sso_calidad.total_incidentes', 'Total Incidentes')}</div>
                 <div className={`text-xl sm:text-3xl font-black ${totalIncidentes > 0 ? 'text-red-600' : 'text-slate-800'}`}>{totalIncidentes}</div>
                 <div className="text-[10px] text-slate-400 mt-1">{incidentesAbiertos} {t('sso_calidad.abiertos', 'abiertos')} · {totalIncidentes - incidentesAbiertos} {t('sso_calidad.cerrados', 'cerrados')}</div>
+              </div>
+            </div>
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
               <h3 className="font-bold text-xs text-slate-700 mb-3">{t('sso_calidad.incidentes_por_tipo', 'Incidentes por Tipo')}</h3>
               <div className="space-y-2">
