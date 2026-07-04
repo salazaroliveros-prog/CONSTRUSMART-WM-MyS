@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { VentaPaquete, Anticipo, AmortizacionItem, CajaChica } from '../types';
+import { Building2, DollarSign, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 
 const uid = () => Date.now().toString(36).substr(2, 9);
@@ -62,7 +63,7 @@ export const ComercialFinanzas: React.FC = () => {
   const renderVentas = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground">🏠 {t('comercial.ventas')}</h2>
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><Building2 className="w-4 h-4" /> {t('comercial.ventas')}</h2>
         <button onClick={() => { setShowForm('venta'); setForm({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">+ Nueva Venta</button>
       </div>
@@ -125,7 +126,7 @@ export const ComercialFinanzas: React.FC = () => {
   const renderAnticipos = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground">💰 {t('comercial.anticipos')}</h2>
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><DollarSign className="w-4 h-4" /> {t('comercial.anticipos')}</h2>
         <button onClick={() => { setShowForm('anticipo'); setForm({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">+ Nuevo Anticipo</button>
       </div>
@@ -191,7 +192,7 @@ export const ComercialFinanzas: React.FC = () => {
   const renderCajas = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground">💵 {t('comercial.cajas')}</h2>
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><Wallet className="w-4 h-4" /> {t('comercial.cajas')}</h2>
         <button onClick={() => { setShowForm('caja'); setForm({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">+ Nuevo Gasto</button>
       </div>
