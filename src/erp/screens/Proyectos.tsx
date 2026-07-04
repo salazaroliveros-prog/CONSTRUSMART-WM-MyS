@@ -469,7 +469,7 @@ const Proyectos: React.FC = () => {
           <div className="flex items-center gap-2 text-white mb-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
             <MapPin className="w-4 h-4 text-orange-200" /><span className="text-sm font-bold">{t('proyectos.mapa_calor')}</span>
           </div>
-          <div className="flex gap-3 text-[10px] text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+          <div className="flex gap-3 text-xs text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />{t('proyectos.en_tiempo')}</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" />{t('proyectos.riesgo')}</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" />{t('proyectos.desviado')}</span>
@@ -617,8 +617,8 @@ const Proyectos: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-foreground text-sm truncate">{p.nombre}</h3>
-                  <p className="text-[11px] text-muted-foreground truncate">{p.cliente}</p>
-                  {p.areaConstruccion && <p className="text-[10px] text-muted-foreground">{p.areaConstruccion.toLocaleString()} m² · {p.numPisos ? `${p.numPisos} ${t('proyectos.niveles')}` : ''}</p>}
+                  <p className="text-xs text-muted-foreground truncate">{p.cliente}</p>
+                  {p.areaConstruccion && <p className="text-xs text-muted-foreground">{p.areaConstruccion.toLocaleString()} m² · {p.numPisos ? `${p.numPisos} ${t('proyectos.niveles')}` : ''}</p>}
                 </div>
                 <div className="flex gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
                   <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={t('proyectos.editar_proyecto', { nombre: p.nombre })}>
