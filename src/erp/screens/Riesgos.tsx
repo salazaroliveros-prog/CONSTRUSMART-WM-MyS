@@ -128,11 +128,11 @@ const Riesgos: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-            <Shield className="w-6 h-6 text-amber-500" /> {t('riesgos.titulo', 'Gestión de Riesgos')}
-            {proyActual && <span className="text-base font-normal text-slate-400">— {proyActual.nombre}</span>}
+          <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
+            <Shield className="w-5 h-5 text-amber-500" /> {t('riesgos.titulo', 'Gestión de Riesgos')}
+            {proyActual && <span className="text-sm font-normal text-muted-foreground">— {proyActual.nombre}</span>}
           </h1>
-          <p className="text-sm text-slate-400">{t('riesgos.descripcion', 'Identificación, evaluación y mitigación de riesgos del proyecto')}</p>
+          <p className="text-xs text-muted-foreground">{t('riesgos.descripcion', 'Identificación, evaluación y mitigación de riesgos del proyecto')}</p>
         </div>
         <button onClick={() => setShowForm(true)} className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
           <Plus className="w-4 h-4" /> {t('riesgos.nuevo', 'Nuevo Riesgo')}
