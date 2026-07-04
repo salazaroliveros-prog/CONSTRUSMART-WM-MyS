@@ -237,7 +237,7 @@ const SSOCalidad: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+        <h1 className="text-lg sm:text-xl font-black text-slate-800 flex items-center gap-2">
           <Shield className="w-6 h-6 text-red-500" /> {t('sso_calidad.titulo', 'SSO & Control de Calidad')}
         </h1>
         <select
