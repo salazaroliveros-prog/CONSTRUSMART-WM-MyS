@@ -401,16 +401,16 @@ const Dashboard: React.FC = () => {
         <div className="min-w-0 flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
           <div>
             <h1 className={SECTION_TITLE}>{t('dashboard.tablero')}</h1>
-            <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">{t('dashboard.metricas_tiempo_real')}</p>
+            <p className="text-xs text-muted-foreground hidden sm:block">{t('dashboard.metricas_tiempo_real')}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 rounded-full px-2 py-0.5">
+            <div className="flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 rounded-full px-2 py-0.5">
             <span className={`w-1.5 h-1.5 rounded-full ${online ? 'bg-success animate-pulse' : 'bg-destructive'}`} />
             {online ? t('dashboard.en_vivo') : t('dashboard.offline')}
             <span className="text-muted-foreground/60">·</span>
             <span className={syncStatus === 'error' ? 'text-destructive' : 'text-primary'}>{syncStatus === 'synced' ? 'Supabase conectado' : syncStatus === 'loading' ? 'Leyendo Supabase' : syncStatus === 'error' ? syncError || 'Error sync' : mutationQueue.length > 0 ? `${mutationQueue.length} pendientes` : 'Supabase activo'}</span>
           </div>
           {lastSyncedAt && <div className="text-[9px] text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">Sync {new Date(lastSyncedAt).toLocaleTimeString()}</div>}
-          <button onClick={handleExportPdf} disabled={exportingPdf} className="text-[9px] text-primary hover:text-primary/80 font-medium flex items-center gap-0.5 bg-primary/10 rounded-full px-2 py-0.5 transition-colors disabled:opacity-60" title={t('dashboard.exportar_pdf')}>
+          <button onClick={handleExportPdf} disabled={exportingPdf} className="text-[10px] text-primary hover:text-primary/80 font-medium flex items-center gap-0.5 bg-primary/10 rounded-full px-2 py-0.5 transition-colors disabled:opacity-60" title={t('dashboard.exportar_pdf')}>
             {exportingPdf ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Download className="w-2.5 h-2.5" />}
             {exportingPdf ? 'Exportando...' : 'PDF'}
           </button>
@@ -503,8 +503,8 @@ const Dashboard: React.FC = () => {
                   <div className="flex justify-between"><span className="text-muted-foreground">Mayor desviación</span><b className="text-foreground truncate max-w-[120px] inline-block align-bottom text-right">{planVsReal.top?.nombre || (planVsReal.conPlan > 0 ? '-' : 'Sin datos')}</b></div>
                   {planVsReal.conPlan > 0 && (
                     <div className="pt-1">
-                      <div className="flex justify-between text-[9px] text-muted-foreground mb-0.5"><span>Registros</span><span>{planVsReal.conPlan}/{planVsReal.totalMateriales}</span></div>
-                      <div className="flex justify-between text-[9px] text-muted-foreground">
+                  <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5"><span>Registros</span><span>{planVsReal.conPlan}/{planVsReal.totalMateriales}</span></div>
+                      <div className="flex justify-between text-[10px] text-muted-foreground">
                         <span>Fuente</span>
                         <span>Supabase</span>
                       </div>
@@ -513,7 +513,7 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-center h-24 text-[10px] text-muted-foreground">
+              <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
                 Sin presupuestos cargados
               </div>
             )}
