@@ -7,6 +7,7 @@ import { errorReporter } from '@/lib/errorReporting';
 import { initMetrics } from '@/lib/metrics';
 import './index.css';
 import '@/lib/i18n';
+import { initSentry } from '@/lib/sentry';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
@@ -28,6 +29,17 @@ log('info', 'Main', 'Sistema de reporte de errores inicializado');
 // Inicializar sistema de métricas y monitoring
 initMetrics();
 log('info', 'Main', 'Sistema de métricas y monitoring inicializado');
+
+// Inicializar Sentry (si está configurado)
+initSentry().catch(() => {});
+
+// Captura global de errores no manejados
+window.addEventListener('error', (event) => {
+  console.error('[GlobalError]', event.error || event.message);
+});
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[UnhandledRejection]', event.reason);
+});
 
 root.render(
   <React.StrictMode>

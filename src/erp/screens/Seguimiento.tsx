@@ -473,7 +473,7 @@ const Seguimiento: React.FC = () => {
         <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2">
           <ClipboardCheck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" aria-hidden="true" /> {t('seguimiento.titulo_completo')}
         </h1>
-        <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{t('seguimiento.descripcion')}</p>
+        <p className="text-xs text-muted-foreground hidden sm:block">{t('seguimiento.descripcion')}</p>
       </div>
 
       <div className={`${CARD} p-1 mb-3 sm:mb-4`}>

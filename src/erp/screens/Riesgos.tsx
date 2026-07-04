@@ -139,22 +139,34 @@ const Riesgos: React.FC = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-        <div className="bg-card rounded-xl p-3 border border-border">
-          <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-amber-500" /><span className="text-xs text-muted-foreground">{t('riesgos.activos', 'Riesgos activos')}</span></div>
-          <div className="text-xl font-bold text-foreground">{matrizRiesgos}</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-primary" /><span className="text-xs text-muted-foreground">Total riesgos</span></div>
+          </div>
+          <div className="text-xl font-bold text-foreground mt-1">{riesgosFiltrados.length}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">{riesgosFiltrados.length > 0 ? `${Math.round((mitigados.length / riesgosFiltrados.length) * 100)}% mitigados` : '—'}</div>
         </div>
-        <div className="bg-card rounded-xl p-3 border border-border">
-          <div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-red-500" /><span className="text-xs text-muted-foreground">{t('riesgos.criticos_altos', 'Críticos/Altos')}</span></div>
-          <div className="text-xl font-bold text-red-600">{riesgosFiltrados.filter(r => r.nivel === 'critico' || r.nivel === 'alto').length}</div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /><span className="text-xs text-muted-foreground">Alto impacto</span></div>
+          </div>
+          <div className="text-xl font-bold text-red-600 mt-1">{altos.length}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">Requieren mitigación prioritaria</div>
         </div>
-        <div className="bg-card rounded-xl p-3 border border-border">
-          <div className="flex items-center gap-2"><TrendingDown className="w-4 h-4 text-emerald-500" /><span className="text-xs text-muted-foreground">{t('riesgos.mitigados', 'Mitigados')}</span></div>
-          <div className="text-xl font-bold text-emerald-600">{riesgosFiltrados.filter(r => r.estado === 'mitigado').length}</div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-amber-500" /><span className="text-xs text-muted-foreground">En seguimiento</span></div>
+          </div>
+          <div className="text-xl font-bold text-amber-600 mt-1">{enSeguimiento.length}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">En monitoreo activo</div>
         </div>
-        <div className="bg-card rounded-xl p-3 border border-border">
-          <div className="flex items-center gap-2"><TrendingDown className="w-4 h-4 text-red-500" /><span className="text-xs text-muted-foreground">{t('riesgos.costo_soporte', 'Costo soportado')}</span></div>
-          <div className="text-xl font-bold text-foreground">Q{costoSoportable.toLocaleString()}</div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-500" /><span className="text-xs text-muted-foreground">Mitigados</span></div>
+          </div>
+          <div className="text-xl font-bold text-emerald-600 mt-1">{mitigados.length}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">Controles aplicados</div>
         </div>
       </div>
 

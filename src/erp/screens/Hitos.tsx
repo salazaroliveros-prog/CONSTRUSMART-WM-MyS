@@ -145,22 +145,35 @@ const HitosScreen: React.FC = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-        <div className="bg-card rounded-xl p-3 border border-border">
-          <div className="flex items-center gap-2"><Flag className="w-4 h-4 text-blue-500" /><span className="text-xs text-muted-foreground">Total hitos</span></div>
-          <div className="text-xl font-bold text-foreground">{hitosFiltrados.length}</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><Flag className="w-4 h-4 text-blue-500" /><span className="text-xs text-muted-foreground">Total hitos</span></div>
+          </div>
+          <div className="text-xl font-bold text-foreground mt-1">{hitosFiltrados.length}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">{hitosFiltrados.length > 0 ? `${Math.round((completados.length / hitosFiltrados.length) * 100)}% completados` : '—'}</div>
         </div>
-        <div className="bg-card rounded-xl p-3 border border-border">
-          <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-500" /><span className="text-xs text-muted-foreground">Completados</span></div>
-          <div className="text-xl font-bold text-emerald-600">{completados.length}</div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-500" /><span className="text-xs text-muted-foreground">Completados</span></div>
+          </div>
+          <div className="text-xl font-bold text-emerald-600 mt-1">{completados.length}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">{completados.filter(h => h.estado === 'completado').length} a tiempo · {completados.filter(h => h.estado === 'retrasado').length} retrasados</div>
         </div>
-        <div className="bg-card rounded-xl p-3 border border-border">
-          <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-amber-500" /><span className="text-xs text-muted-foreground">Pendientes</span></div>
-          <div className="text-xl font-bold text-amber-600">{hitosFiltrados.length - completados.length}</div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-amber-500" /><span className="text-xs text-muted-foreground">Pendientes</span></div>
+          </div>
+          <div className="text-xl font-bold text-amber-600 mt-1">{hitosFiltrados.length - completados.length}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">{pendientesVencidos.length} vencidos · {(hitosFiltrados.length - completados.length - pendientesVencidos.length) > 0 ? (hitosFiltrados.length - completados.length - pendientesVencidos.length) + ' en plazo' : 'Sin pendientes saludables'}</div>
         </div>
-        <div className={`rounded-xl p-3 border ${pendientesVencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-card border-border'}`}>
-          <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /><span className="text-xs text-muted-foreground">Vencidos</span></div>
-          <div className="text-xl font-bold text-red-600">{pendientesVencidos.length}</div>
+        <div className={`rounded-xl border p-4 ${pendientesVencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-card border-border'}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /><span className="text-xs text-muted-foreground">Vencidos</span></div>
+            {pendientesVencidos.length > 0 && <span className="text-[10px] text-red-600 font-bold">ATENCIÓN</span>}
+          </div>
+          <div className="text-xl font-bold text-red-600 mt-1">{pendientesVencidos.length}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">{pendientesVencidos.length > 0 ? 'Requiere acción inmediata' : 'Sin vencidos'}</div>
         </div>
       </div>
 

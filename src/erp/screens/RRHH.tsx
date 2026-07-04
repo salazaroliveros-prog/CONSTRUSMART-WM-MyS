@@ -127,7 +127,7 @@ const RRHH: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4 flex-shrink-0">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t('rrhh.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('rrhh.description')}</p>
+          <p className="text-xs text-muted-foreground">{t('rrhh.description')}</p>
         </div>
         <button
           onClick={() => {
@@ -149,6 +149,7 @@ const RRHH: React.FC = () => {
             <span className="text-xs text-muted-foreground">{t('rrhh.totalEmployees')}</span>
           </div>
           <div className="text-2xl font-bold text-foreground">{empleadosFiltrados.length}</div>
+          <div className="text-[10px] text-muted-foreground">Activos registrados</div>
         </div>
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">

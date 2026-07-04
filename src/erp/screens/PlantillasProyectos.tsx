@@ -1068,16 +1068,19 @@ const PlantillasProyectos: React.FC = () => {
                 <h3 className="font-semibold mb-2">Contenido de la Plantilla</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="border rounded p-3">
-                    <div className="text-2xl font-bold">{previewPlantilla.estructuraPresupuesto?.length || 0}</div>
+                  <div className="text-2xl font-bold">{previewPlantilla.estructuraPresupuesto?.length || 0}</div>
                     <div className="text-sm text-muted-foreground">Renglones de presupuesto</div>
+                    <div className="text-[10px] text-muted-foreground">Incluye materiales y mano de obra</div>
                   </div>
                   <div className="border rounded p-3">
-                    <div className="text-2xl font-bold">{previewPlantilla.hitosTemplate?.length || 0}</div>
+                  <div className="text-2xl font-bold">{previewPlantilla.hitosTemplate?.length || 0}</div>
                     <div className="text-sm text-muted-foreground">Hitos</div>
+                    <div className="text-[10px] text-muted-foreground">Entregables controlados</div>
                   </div>
                   <div className="border rounded p-3">
-                    <div className="text-2xl font-bold">{previewPlantilla.riesgosTemplate?.length || 0}</div>
+                  <div className="text-2xl font-bold">{previewPlantilla.riesgosTemplate?.length || 0}</div>
                     <div className="text-sm text-muted-foreground">Riesgos predefinidos</div>
+                    <div className="text-[10px] text-muted-foreground">Mitigaciones incluidas</div>
                   </div>
                   <div className="border rounded p-3">
                     <div className="text-2xl font-bold">{previewPlantilla.checklistCalidad?.length || 0}</div>

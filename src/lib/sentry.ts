@@ -1,40 +1,27 @@
-// Placeholder para Sentry - implementación futura
-// Por ahora solo usa el sistema de error reporting local en errorReporting.ts
+import * as Sentry from '@sentry/react';
+export const { captureException, captureMessage } = Sentry;
 
 let sentryInitialized = false;
 
 export async function initSentry(): Promise<void> {
-  if (sentryInitialized) {
+  if (sentryInitialized) return;
+  const dsn = import.meta.env.VITE_SENTRY_DSN;
+  if (!dsn) {
+    console.warn('[Sentry] VITE_SENTRY_DSN no configurada. Sentry no se inicializará.');
     return;
   }
-  
-  console.log('[Sentry] Placeholder - Sentry será implementado cuando se configure DSN');
-  sentryInitialized = true;
-}
-
-export function captureException(error: Error, context?: Record<string, unknown>): void {
-  console.error('[Sentry Placeholder] Error capturado (usar errorReporting.ts):', error);
-}
-
-export function captureMessage(message: string, level: string = 'info', context?: Record<string, unknown>): void {
-  console.log(`[Sentry Placeholder] Mensaje: ${message}`);
-}
-
-export function setUser(user: { id: string; email?: string; username?: string }): void {
-  console.log('[Sentry Placeholder] Usuario:', user);
-}
-
-export function clearUser(): void {
-  console.log('[Sentry Placeholder] Usuario limpiado');
-}
-
-export function addBreadcrumb(breadcrumb: any): void {
-  console.log('[Sentry Placeholder] Breadcrumb:', breadcrumb);
-}
-
-export function startTransaction(name: string, op: string): any {
-  console.log('[Sentry Placeholder] Transaction:', name, op);
-  return undefined;
+  try {
+    Sentry.init({
+      dsn,
+      integrations: [Sentry.browserTracingIntegration()],
+      tracesSampleRate: 0.1,
+      environment: import.meta.env.MODE,
+    });
+    sentryInitialized = true;
+    console.info('[Sentry] Inicializado correctamente');
+  } catch (e) {
+    console.error('[Sentry] Error al inicializar:', e);
+  }
 }
 
 export function isSentryInitialized(): boolean {

@@ -170,6 +170,9 @@ const Bodega: React.FC = () => {
             className={`${BUTTON_SECONDARY} flex-1 sm:flex-none justify-center`}>
             <Plus className="w-4 h-4" aria-hidden="true" /> {t('bodega.proveedor')}
           </button>
+          <button onClick={handleExportStockPDF} disabled={!ctx || materiales.length === 0} className={`${BUTTON_SECONDARY} flex-1 sm:flex-none justify-center`}>
+            <TrendingUp className="w-4 h-4" aria-hidden="true" /> PDF
+          </button>
         </div>
       </div>
 

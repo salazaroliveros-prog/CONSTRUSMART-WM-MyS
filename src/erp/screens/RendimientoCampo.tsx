@@ -46,6 +46,7 @@ export const RendimientoCampo: React.FC = () => {
   const addPlantilla = (data: Omit<PlantillaSubrenglon, 'id'>) => savePlantillas([{ ...data, id: uid() }, ...plantillas]);
 
   const SELECT = 'text-xs px-2 py-1.5 border border-input rounded-lg outline-none focus:border-ring bg-background text-foreground';
+  const BTN = 'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors';
 
   const renderDestajos = () => {
     const filtrados = proyectoFilter ? destajos.filter(d => d.proyectoId === proyectoFilter) : destajos;
@@ -53,6 +54,7 @@ export const RendimientoCampo: React.FC = () => {
       <div>
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
           <h2 className="text-lg font-bold text-foreground">🏗️ {t('rendimiento_campo.destajos')}</h2>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Registro diario de producción y horas por cuadrilla</p>
           <div className="flex gap-2 flex-wrap">
             <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
             <button onClick={() => {
@@ -105,6 +107,7 @@ export const RendimientoCampo: React.FC = () => {
       <div>
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
           <h2 className="text-lg font-bold text-foreground">📊 {t('rendimiento_campo.capturas')}</h2>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Medición de rendimiento real vs teórico</p>
           <div className="flex gap-2">
             <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)} className={SELECT}>
               <option value="">Todos</option>
@@ -165,7 +168,8 @@ export const RendimientoCampo: React.FC = () => {
   const renderPlantillas = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground">📋 {t('rendimiento_campo.plantillas')}</h2>
+          <h2 className="text-lg font-bold text-foreground">📋 {t('rendimiento_campo.plantillas')}</h2>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Estandariza metas por renglón para control homogéneo</p>
         <p className="text-xs text-muted-foreground">Sin plantillas predefinidas — crea nuevas plantillas desde cero</p>
       </div>
       {plantillas.length > 0 ? (
@@ -181,7 +185,8 @@ export const RendimientoCampo: React.FC = () => {
   const renderVales = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground">📦 {t('rendimiento_campo.vales')}</h2>
+          <h2 className="text-lg font-bold text-foreground">📦 {t('rendimiento_campo.vales')}</h2>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Salidas de almacén asociadas a rendimiento de campo</p>
         <button disabled className="bg-primary/50 text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-medium cursor-not-allowed">+ Nuevo Vale (formulario próximamente)</button>
       </div>
       <div className="overflow-x-auto">

@@ -71,18 +71,50 @@ const CuentasCobrarScreen: React.FC = () => {
   }
   return (
     <div className="p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto">
-      <div className="flex items-center justify-between mb-4">
-        <div><h1 className="text-2xl font-black text-foreground flex items-center gap-2"><DollarSign className={`w-6 h-6 ${COLOR_SUCCESS}`} /> Cuentas por Cobrar</h1><p className="text-sm text-muted-foreground">Gestión de cuentas por cobrar a clientes</p></div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
+            <DollarSign className={`w-6 h-6 ${COLOR_SUCCESS}`} />
+            Cuentas por Cobrar
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">Seguimiento de cobros, vencimientos y saldos por cliente</p>
+        </div>
         <div className="flex items-center gap-2">
           <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} />
           <button onClick={() => setShowForm(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2"><Plus className="w-4 h-4" /> Nueva Cuenta</button>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-        <div className="bg-card rounded-xl p-3 border border-border"><div className="flex items-center gap-2"><DollarSign className={`w-4 h-4 ${COLOR_SUCCESS}`} /><span className="text-xs text-muted-foreground">Total por cobrar</span></div><div className={`text-xl font-bold ${COLOR_SUCCESS}`}>{fmtQ(totalPendiente)}</div></div>
-        <div className="bg-card rounded-xl p-3 border border-border"><div className="flex items-center gap-2"><TrendingUp className={`w-4 h-4 ${COLOR_INFO}`} /><span className="text-xs text-muted-foreground">Pendientes</span></div><div className="text-xl font-bold text-foreground">{pendientes.length}</div></div>
-        <div className="bg-card rounded-xl p-3 border border-border"><div className="flex items-center gap-2"><CalendarDays className={`w-4 h-4 ${COLOR_WARNING}`} /><span className="text-xs text-muted-foreground">Cobradas</span></div><div className={`text-xl font-bold ${COLOR_WARNING}`}>{filtradas.filter(c => c.estado === 'cobrado').length}</div></div>
-        <div className={`rounded-xl p-3 border ${vencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-card border-border'}`}><div className="flex items-center gap-2"><AlertTriangle className={`w-4 h-4 ${COLOR_DANGER}`} /><span className="text-xs text-muted-foreground">Vencidas</span></div><div className={`text-xl font-bold ${COLOR_DANGER}`}>{vencidos.length}</div></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><DollarSign className={`w-4 h-4 ${COLOR_SUCCESS}`} /><span className="text-xs text-muted-foreground">Total por cobrar</span></div>
+            <TrendingUp className="w-4 h-4 text-muted-foreground" />
+          </div>
+          <div className={`text-xl font-bold ${COLOR_SUCCESS} mt-1`}>{fmtQ(totalPendiente)}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">{pendientes.length} cuentas pendientes</div>
+        </div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><CalendarDays className={`w-4 h-4 ${COLOR_INFO}`} /><span className="text-xs text-muted-foreground">Cobradas</span></div>
+          </div>
+          <div className={`text-xl font-bold ${COLOR_INFO} mt-1`}>{filtradas.filter(c => c.estado === 'cobrado').length}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">{filtradas.length > 0 ? `${Math.round((filtradas.filter(c => c.estado === 'cobrado').length / filtradas.length) * 100)}% del total` : '—'}</div>
+        </div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><DollarSign className={`w-4 h-4 ${COLOR_WARNING}`} /><span className="text-xs text-muted-foreground">Vencidas</span></div>
+            {vencidos.length > 0 && <AlertTriangle className="w-4 h-4 text-red-500" />}
+          </div>
+          <div className={`text-xl font-bold ${vencidos.length > 0 ? COLOR_DANGER : 'text-foreground'} mt-1`}>{vencidos.length}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">{vencidos.length > 0 ? 'Requiere atención' : 'Sin vencidas'}</div>
+        </div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><TrendingUp className={`w-4 h-4 ${COLOR_INFO}`} /><span className="text-xs text-muted-foreground">Promedio por cuenta</span></div>
+          </div>
+          <div className={`text-xl font-bold text-foreground mt-1`}>{pendientes.length > 0 ? fmtQ(totalPendiente / pendientes.length) : 'Q0'}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">Saldo pendiente promedio</div>
+        </div>
       </div>
       {showForm && (
         <div className="bg-emerald-50 rounded-xl p-4 mb-4 border border-emerald-200 space-y-2">
@@ -115,24 +147,44 @@ const CuentasCobrarScreen: React.FC = () => {
           const vencida = c.estado === 'pendiente' && c.fechaVencimiento < todayISO();
           return (
             <div key={c.id} className={`bg-card rounded-xl border p-4 ${c.estado === 'cobrado' ? 'border-emerald-200 bg-emerald-50/30' : vencida ? 'border-red-200 bg-red-50/30' : 'border-border'}`}>
-              <div className="flex items-start justify-between">
+              <div className="flex gap-4">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${c.estado === 'cobrado' ? 'bg-emerald-100 text-emerald-600' : vencida ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>{c.estado}</span>
-                    <span className="text-xs text-muted-foreground">{proyectos.find(p => p.id === c.proyectoId)?.nombre || '—'}</span>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${c.estado === 'cobrado' ? 'bg-emerald-100 text-emerald-700' : vencida ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{c.estado.toUpperCase()}</span>
+                    <span className="text-[11px] text-muted-foreground font-medium">{proyectos.find(p => p.id === c.proyectoId)?.nombre || 'Sin proyecto'}</span>
+                    {c.saldoPendiente > 0 && c.estado !== 'cobrado' && <span className="text-[10px] text-red-500 font-bold ml-auto">• VENCIDA</span>}
                   </div>
-                  <p className="text-sm font-semibold text-foreground">{c.cliente}</p>
-                  <p className="text-xs text-muted-foreground">{c.concepto}</p>
-                  <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
-                    <span>💰 {fmtQ(c.monto)}</span>
-                    <span>📅 Vence: {c.fechaVencimiento}</span>
-                    {c.saldoPendiente > 0 && <span className="font-bold text-amber-600">Saldo: {fmtQ(c.saldoPendiente)}</span>}
-                    {c.fechaCobro && <span>✅ Cobrado: {c.fechaCobro}</span>}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-[10px] uppercase text-muted-foreground mb-0.5">Cliente</div>
+                      <div className="text-sm font-semibold text-foreground truncate">{c.cliente}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase text-muted-foreground mb-0.5">Concepto</div>
+                      <div className="text-xs text-foreground line-clamp-2">{c.concepto}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase text-muted-foreground mb-0.5">Monto Original</div>
+                      <div className="text-sm font-bold text-foreground">{fmtQ(c.monto)}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase text-muted-foreground mb-0.5">Saldo Pendiente</div>
+                      <div className={`text-sm font-bold ${c.saldoPendiente > 0 ? COLOR_DANGER : COLOR_SUCCESS}`}>{fmtQ(c.saldoPendiente)}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase text-muted-foreground mb-0.5">Emisión / Vencimiento</div>
+                      <div className="text-xs text-foreground">{c.fechaEmision} → {c.fechaVencimiento}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase text-muted-foreground mb-0.5">Cobro / Pago</div>
+                      <div className="text-xs text-foreground">{c.fechaCobro ? `✅ ${c.fechaCobro}` : '⏳ Pendiente'}</div>
+                    </div>
                   </div>
+                  {c.notas && <div className="mt-2 text-xs text-muted-foreground border-t border-border pt-2">📝 {c.notas}</div>}
                 </div>
-                <div className="flex gap-1 shrink-0 ml-2">
-                  {c.estado !== 'cobrado' && <button onClick={() => cobrar(c.id)} className="px-4 py-2.5 bg-emerald-500 text-white rounded text-xs hover:bg-emerald-600 active:bg-emerald-700 active:scale-95 min-h-[44px] transition-all">Cobrar</button>}
-                  <button onClick={() => eliminar(c.id)} className="p-2 text-slate-300 hover:text-red-500 active:text-red-600 active:scale-95 min-h-[44px] min-w-[44px] flex items-center justify-center transition-all"><X className="w-4 h-4" /></button>
+                <div className="flex flex-col gap-2 shrink-0">
+                  {c.estado !== 'cobrado' && <button onClick={() => cobrar(c.id)} className="px-3 py-2 bg-emerald-500 text-white rounded-lg text-xs font-semibold hover:bg-emerald-600 active:bg-emerald-700 active:scale-95 min-h-[44px] transition-all">Cobrar</button>}
+                  <button onClick={() => eliminar(c.id)} className="p-2 text-slate-300 hover:text-red-500 active:text-red-600 active:scale-95 min-h-[44px] min-w-[44px] flex items-center justify-center transition-all rounded-lg border border-transparent hover:border-red-200"><X className="w-4 h-4" /></button>
                 </div>
               </div>
             </div>

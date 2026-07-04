@@ -203,6 +203,7 @@ const CRM: React.FC = () => {
           <div className="text-[10px] text-muted-foreground">
             {t('crm.ganadas_perdidas', { ganadas: licitacionesFiltradas.filter(l => l.estado === 'adjudicada').length, perdidas: licitacionesFiltradas.filter(l => l.estado === 'perdida').length })}
           </div>
+          <div className="text-[10px] text-muted-foreground">Activas y en seguimiento</div>
         </div>
         <div className={KPI_CARD}>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
