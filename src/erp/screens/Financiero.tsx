@@ -91,7 +91,7 @@ const Financiero: React.FC = () => {
 
   return (
     <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
-      <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2 mb-2"><Wallet className={`w-5 h-5 sm:w-6 sm:h-6 ${COLOR_PRIMARY}`} aria-hidden="true" /> Control Financiero y Caja</h1>
+      <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2 mb-2"><Wallet className={`w-5 h-5 sm:w-6 sm:h-6 ${COLOR_PRIMARY}`} aria-hidden="true" /> Control Financiero y Caja</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
         <div className="bg-emerald-500 text-white rounded-xl sm:rounded-2xl p-3 sm:p-4"><TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2" aria-hidden="true" /><div className="text-xl sm:text-2xl font-bold">{fmtQ(ingresos)}</div><div className="text-xs opacity-80">Ingresos Totales</div></div>
@@ -140,7 +140,7 @@ const Financiero: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <Donut size={130} data={porCategoria.length ? porCategoria : [{ label: '-', value: 1, color: '#e2e8f0' }]} />
-            <div className="text-[11px] space-y-1 flex-1 max-h-32 overflow-y-auto">
+            <div className="text-xs space-y-1 flex-1 max-h-32 overflow-y-auto">
               {porCategoria.length > 0 ? porCategoria.map((c, i) => <div key={c.label || `cat-${i}`} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full" style={{ background: c.color }} />{c.label || 'Otros'}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>) : <p className="text-muted-foreground text-center py-2">Sin gastos registrados</p>}
             </div>
           </div>
@@ -169,7 +169,7 @@ const Financiero: React.FC = () => {
                     {lista.length > 0 ? lista.map(m => (
                       <tr key={m.id} className="border-b border-border/50 hover:bg-muted/40 transition-colors">
                         <td className="p-2"><div className="font-semibold text-foreground">{m.descripcion}</div><div className="text-muted-foreground">{CATEGORIA_LABEL[m.categoria] || m.categoria} · {proyectos.find(p => p.id === m.proyectoId)?.nombre || 'Operativo'} · {m.fecha}</div></td>
-                        <td className={`p-2 text-right font-bold ${m.tipo === 'ingreso' ? 'text-emerald-600 dark:text-emerald-400' : COLOR_DANGER}`}>{m.tipo === 'ingreso' ? '+' : '-'}{fmtQ(m.costoTotal ?? m.monto)}</td>
+                        <td className={`p-2 text-right font-bold ${m.tipo === 'ingreso' ? COLOR_SUCCESS : COLOR_DANGER}`}>{m.tipo === 'ingreso' ? '+' : '-'}{fmtQ(m.costoTotal ?? m.monto)}</td>
                         <td className="p-2 w-8">
                           <button onClick={() => deleteMovimiento(m.id)} aria-label={`Eliminar movimiento ${m.descripcion}`}
                             className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
@@ -197,7 +197,7 @@ const Financiero: React.FC = () => {
                     </td>
                     <td className="py-1.5 text-muted-foreground capitalize">{c.tipo}</td>
                     <td className="text-right text-muted-foreground">{fmtQ(c.presupuesto)}</td>
-                    <td className="text-right text-emerald-600 dark:text-emerald-400">{fmtQ(c.ing)}</td>
+                    <td className={`text-right ${COLOR_SUCCESS}`}>{fmtQ(c.ing)}</td>
                     <td className={`text-right ${COLOR_DANGER}`}>{fmtQ(c.gas)}</td>
                     <td className={`text-right font-bold ${c.margen >= 0 ? 'text-foreground' : COLOR_DANGER}`}>{fmtQ(c.margen)}</td>
                   </tr>
