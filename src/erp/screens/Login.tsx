@@ -23,7 +23,7 @@ const Login: React.FC = () => {
   };
 
   const btn =
-    'w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 shadow-sm border border-gray-200 hover:shadow-sm transition-all disabled:opacity-60 active:scale-[0.98]';
+    'w-full bg-card hover:bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 shadow-sm border border-gray-200 hover:shadow-sm transition-all disabled:opacity-60 active:scale-[0.98]';
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -70,10 +70,10 @@ const Login: React.FC = () => {
           }}
         />
         <div className="w-full max-w-sm relative z-10">
-          <div className="rounded-3xl bg-white/25 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_rgba(15,23,42,0.18)] p-6">
+          <div className="rounded-3xl bg-card/25 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_rgba(15,23,42,0.18)] p-6">
             {loading && (<div className="space-y-3 mb-6"><Skeleton className="h-8 w-40 mx-auto" /><Skeleton className="h-4 w-56 mx-auto" /></div>)}
             {!loading && (<div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800">Iniciar Sesión</h2>
+              <h2 className="text-2xl font-bold text-foreground">Iniciar Sesión</h2>
               <p className="text-xs text-amber-500 mt-1">Acceso solo para administrador</p>
             </div>)}
 
@@ -122,4 +122,5 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
 
