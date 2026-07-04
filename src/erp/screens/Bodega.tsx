@@ -158,7 +158,7 @@ const Bodega: React.FC = () => {
   return (
     <div className="p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-2">
-        <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground flex items-center gap-2 mb-0">
+          <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2 mb-0">
           <Warehouse className={`w-5 h-5 sm:w-6 sm:h-6 ${COLOR_INFO}`} aria-hidden="true" /> <span className="hidden sm:inline">{t('bodega.title_full')}</span><span className="sm:hidden">{t('bodega.titulo')}</span>
         </h1>
         <div className="flex gap-2">
@@ -175,11 +175,11 @@ const Bodega: React.FC = () => {
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2 mb-2">
         <div className={KPI_CARD}>
-          <div className="text-xl sm:text-2xl font-bold text-foreground">{materiales.length}</div>
+              <div className="text-xl sm:text-2xl font-black text-foreground">{materiales.length}</div>
           <div className="text-xs text-muted-foreground">{t('bodega.materiales')}</div>
         </div>
         <div className="bg-red-50 dark:bg-red-950/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-red-100 dark:border-red-900/50">
-          <div className={`text-xl sm:text-2xl font-bold ${COLOR_DANGER} dark:text-red-400 flex items-center gap-1`}>
+              <div className={`text-xl sm:text-2xl font-black ${COLOR_DANGER} flex items-center gap-1`}>
             <AlertTriangle className="w-5 h-5" aria-hidden="true" />{criticos.length}
           </div>
           <div className={`text-xs ${COLOR_DANGER} dark:text-red-400`}>{t('bodega.stock_bajo_minimo')}</div>
