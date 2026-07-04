@@ -134,11 +134,11 @@ const HitosScreen: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-            <Flag className="w-6 h-6 text-emerald-500" /> Hitos
-            {proyActual && <span className="text-base font-normal text-slate-400">— {proyActual.nombre}</span>}
+          <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
+            <Flag className="w-5 h-5 text-emerald-500" /> Hitos
+            {proyActual && <span className="text-sm font-normal text-muted-foreground">— {proyActual.nombre}</span>}
           </h1>
-          <p className="text-sm text-slate-400">Milestones y fases críticas del cronograma</p>
+          <p className="text-xs text-muted-foreground">Milestones y fases críticas del cronograma</p>
         </div>
         <button onClick={() => { setShowForm(true); setFormErrors({}); }} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
           <Plus className="w-4 h-4" /> Nuevo Hito
