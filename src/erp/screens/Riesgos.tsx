@@ -140,28 +140,28 @@ const Riesgos: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-amber-500" /><span className="text-xs text-slate-500">{t('riesgos.activos', 'Riesgos activos')}</span></div>
-          <div className="text-xl font-bold text-slate-800">{matrizRiesgos}</div>
+        <div className="bg-card rounded-xl p-3 border border-border">
+          <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-amber-500" /><span className="text-xs text-muted-foreground">{t('riesgos.activos', 'Riesgos activos')}</span></div>
+          <div className="text-xl font-bold text-foreground">{matrizRiesgos}</div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-red-500" /><span className="text-xs text-slate-500">{t('riesgos.criticos_altos', 'Críticos/Altos')}</span></div>
+        <div className="bg-card rounded-xl p-3 border border-border">
+          <div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-red-500" /><span className="text-xs text-muted-foreground">{t('riesgos.criticos_altos', 'Críticos/Altos')}</span></div>
           <div className="text-xl font-bold text-red-600">{riesgosFiltrados.filter(r => r.nivel === 'critico' || r.nivel === 'alto').length}</div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="flex items-center gap-2"><TrendingDown className="w-4 h-4 text-emerald-500" /><span className="text-xs text-slate-500">{t('riesgos.mitigados', 'Mitigados')}</span></div>
+        <div className="bg-card rounded-xl p-3 border border-border">
+          <div className="flex items-center gap-2"><TrendingDown className="w-4 h-4 text-emerald-500" /><span className="text-xs text-muted-foreground">{t('riesgos.mitigados', 'Mitigados')}</span></div>
           <div className="text-xl font-bold text-emerald-600">{riesgosFiltrados.filter(r => r.estado === 'mitigado').length}</div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="flex items-center gap-2"><TrendingDown className="w-4 h-4 text-red-500" /><span className="text-xs text-slate-500">{t('riesgos.costo_soporte', 'Costo soportado')}</span></div>
-          <div className="text-xl font-bold text-slate-800">Q{costoSoportable.toLocaleString()}</div>
+        <div className="bg-card rounded-xl p-3 border border-border">
+          <div className="flex items-center gap-2"><TrendingDown className="w-4 h-4 text-red-500" /><span className="text-xs text-muted-foreground">{t('riesgos.costo_soporte', 'Costo soportado')}</span></div>
+          <div className="text-xl font-bold text-foreground">Q{costoSoportable.toLocaleString()}</div>
         </div>
       </div>
 
       {/* Filtro global por proyecto */}
       {proyectos.length > 0 && (
         <div className="flex items-center gap-2 mb-3">
-          <Filter className="w-4 h-4 text-slate-400" />
+          <Filter className="w-4 h-4 text-muted-foreground" />
           <select value={selectedProyectoId || ''} onChange={e => setSelectedProyectoId(e.target.value || null)} className={`${INPUT} max-w-xs`}>
             <option value="">{t('riesgos.todos_proyectos', 'Todos los proyectos')}</option>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
@@ -169,9 +169,9 @@ const Riesgos: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl p-4 border border-slate-100 mb-4">
+      <div className="bg-card rounded-xl p-4 border border-border mb-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">🎯 {t('riesgos.matriz_calor', 'Matriz de Calor (Probabilidad × Impacto)')}</h3>
+          <h3 className="text-sm font-bold text-muted-foreground flex items-center gap-2">🎯 {t('riesgos.matriz_calor', 'Matriz de Calor (Probabilidad × Impacto)')}</h3>
           <div className="flex gap-2 text-[10px]">
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />{t('riesgos.bajo', 'Bajo')}</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" />{t('riesgos.medio', 'Medio')}</span>
@@ -181,7 +181,7 @@ const Riesgos: React.FC = () => {
         </div>
         <div className="flex gap-4 items-start">
           <div className="flex-shrink-0">
-            <div className="text-[10px] text-slate-400 text-center mb-1">Impacto →</div>
+            <div className="text-[10px] text-muted-foreground text-center mb-1">Impacto →</div>
             <div className="overflow-x-auto -mx-1 px-1">
               <div className="grid grid-cols-5 gap-0.5" style={{ gridTemplateColumns: 'repeat(5, 44px)' }}>
               {[5,4,3,2,1].map(prob => 
@@ -192,7 +192,7 @@ const Riesgos: React.FC = () => {
                   const riesgosEnCelda = riesgosFiltrados.filter(r => r.probabilidad === prob && r.impacto === imp && r.estado !== 'mitigado');
                   return (
                     <div key={`${prob}-${imp}`} className={`w-[44px] h-[44px] rounded relative ${colorMap[nivel]} flex items-center justify-center font-bold text-[10px]`}>
-                      <span className="text-slate-500">{prob * imp}</span>
+                      <span className="text-muted-foreground">{prob * imp}</span>
                       {riesgosEnCelda.length > 0 && (
                         <div className="absolute -top-1 -right-1 bg-slate-800 text-white text-[8px] rounded-full w-4 h-4 flex items-center justify-center font-bold shadow">
                           {riesgosEnCelda.length}
@@ -211,10 +211,10 @@ const Riesgos: React.FC = () => {
               )}
               </div>
             </div>
-            <div className="text-[10px] text-slate-400 text-center mt-1">← {t('riesgos.probabilidad_leyenda', 'Probabilidad (1-5 arriba a abajo)')}</div>
+            <div className="text-[10px] text-muted-foreground text-center mt-1">← {t('riesgos.probabilidad_leyenda', 'Probabilidad (1-5 arriba a abajo)')}</div>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-slate-500 mb-2">{t('riesgos.riesgos_por_nivel', 'Riesgos por nivel:')}</p>
+            <p className="text-xs text-muted-foreground mb-2">{t('riesgos.riesgos_por_nivel', 'Riesgos por nivel:')}</p>
             <div className="space-y-1.5">
               {(['critico', 'alto', 'medio', 'bajo'] as const).map(nivel => {
                 const count = riesgosFiltrados.filter(r => r.nivel === nivel && r.estado !== 'mitigado').length;
@@ -228,7 +228,7 @@ const Riesgos: React.FC = () => {
               })}
             </div>
             {riesgosFiltrados.filter(r => r.estado !== 'mitigado').length === 0 && (
-              <p className="text-xs text-slate-400 text-center py-2">{t('riesgos.sin_riesgos_activos', 'Sin riesgos activos')}</p>
+              <p className="text-xs text-muted-foreground text-center py-2">{t('riesgos.sin_riesgos_activos', 'Sin riesgos activos')}</p>
             )}
           </div>
         </div>
@@ -254,11 +254,11 @@ const Riesgos: React.FC = () => {
               <option value="otro">{t('riesgos.tipo_otro', 'Otro')}</option>
             </select>
             <div className="flex items-center gap-2">
-              <label className="text-xs text-slate-500">{t('riesgos.probabilidad', 'Probabilidad')} (1-5)</label>
+              <label className="text-xs text-muted-foreground">{t('riesgos.probabilidad', 'Probabilidad')} (1-5)</label>
               <input type="number" inputMode="decimal" min={1} max={5} value={form.probabilidad} onChange={e => setForm(p => ({ ...p, probabilidad: Math.min(5, Math.max(1, +e.target.value)) as RProb }))} className={INPUT} />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-xs text-slate-500">{t('riesgos.impacto', 'Impacto')} (1-5)</label>
+              <label className="text-xs text-muted-foreground">{t('riesgos.impacto', 'Impacto')} (1-5)</label>
               <input type="number" inputMode="decimal" min={1} max={5} value={form.impacto} onChange={e => setForm(p => ({ ...p, impacto: Math.min(5, Math.max(1, +e.target.value)) as RImp }))} className={INPUT} />
             </div>
           </div>
@@ -272,35 +272,35 @@ const Riesgos: React.FC = () => {
           </div>
           <div className="flex gap-2">
             <button onClick={agregar} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg text-xs font-semibold">{t('riesgos.registrar', 'Registrar Riesgo')}</button>
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">{t('riesgos.cancelar', 'Cancelar')}</button>
+            <button onClick={() => setShowForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground">{t('riesgos.cancelar', 'Cancelar')}</button>
           </div>
         </div>
       )}
 
       <div className="space-y-2">
         {riesgosFiltrados.length === 0 ? (
-          <div className="text-center py-10 text-slate-400">
+          <div className="text-center py-10 text-muted-foreground">
             <Shield className="w-10 h-10 mx-auto mb-2 text-slate-300" />
             <p className="text-sm">{t('riesgos.sin_riesgos_filtro', 'Sin riesgos para')} {proyActual?.nombre || t('riesgos.filtro_actual', 'el filtro actual')}. {t('riesgos.identifica_primero', 'Identifica el primero')}</p>
           </div>
         ) : riesgosFiltrados.map(r => (
-          <div key={r.id} className={`bg-white rounded-xl border p-4 ${nivelColor(r.nivel).split(' ')[0]} bg-opacity-20`}>
+          <div key={r.id} className={`bg-card rounded-xl border p-4 ${nivelColor(r.nivel).split(' ')[0]} bg-opacity-20`}>
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${nivelColor(r.nivel)}`}>{r.nivel.toUpperCase()}</span>
-                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">{r.tipo}</span>
-                  <span className="text-xs text-slate-400">{proyectos.find(p => p.id === r.proyectoId)?.nombre || '—'}</span>
+                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{r.tipo}</span>
+                  <span className="text-xs text-muted-foreground">{proyectos.find(p => p.id === r.proyectoId)?.nombre || '—'}</span>
                 </div>
-                <p className="text-sm font-semibold text-slate-800">{r.nombre}</p>
-                {r.descripcion && <p className="text-xs text-slate-500 mt-0.5">{r.descripcion}</p>}
-                <div className="flex gap-3 mt-2 text-xs text-slate-400">
+                <p className="text-sm font-semibold text-foreground">{r.nombre}</p>
+                {r.descripcion && <p className="text-xs text-muted-foreground mt-0.5">{r.descripcion}</p>}
+                <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
                   <span>🎲 P:{r.probabilidad} I:{r.impacto} = {r.probabilidad * r.impacto}pts</span>
                   {r.responsable && <span>👤 {r.responsable}</span>}
                   {r.costoSoporte ? <span>💰 Q{r.costoSoporte.toLocaleString()}</span> : null}
                   <span>📅 {r.fechaIdentificacion}</span>
                 </div>
-                {r.planMitigacion && <div className="mt-1 text-xs text-slate-500 italic">🛡️ {r.planMitigacion}</div>}
+                {r.planMitigacion && <div className="mt-1 text-xs text-muted-foreground italic">🛡️ {r.planMitigacion}</div>}
               </div>
               <div className="flex gap-1 shrink-0 ml-2">
                 <select value={r.estado} onChange={e => actualizarEstado(r.id, e.target.value as REstado)}
@@ -321,3 +321,4 @@ const Riesgos: React.FC = () => {
 };
 
 export default Riesgos;
+

@@ -291,28 +291,28 @@ export default function ErrorLog() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-1">
             <DatabaseOutlined className="text-blue-500" />
             <span className="text-sm text-gray-500">{t('error_log.total_errores')}</span>
           </div>
           <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</div>
         </div>
-        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-1">
             <ExclamationCircleOutlined className="text-amber-500" />
             <span className="text-sm text-gray-500">{t('error_log.abiertos')}</span>
           </div>
           <div className="text-2xl font-bold text-orange-600">{stats.open}</div>
         </div>
-        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-1">
             <CheckCircleOutlined className="text-green-500" />
             <span className="text-sm text-gray-500">{t('error_log.resueltos')}</span>
           </div>
           <div className="text-2xl font-bold text-green-600">{stats.resolved}</div>
         </div>
-        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-1">
             <WarningOutlined className="text-red-500" />
             <span className="text-sm text-gray-500">{t('error_log.criticos')}</span>
@@ -387,7 +387,7 @@ export default function ErrorLog() {
       />
 
       {errorTypeStats.length > 0 && (
-        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h3 className="text-sm font-semibold mb-3">{t('error_log.grafico_errores_titulo')}</h3>
           <div className="space-y-2">
             {errorTypeStats.map(([type, count]) => {
@@ -565,3 +565,4 @@ export default function ErrorLog() {
     </div>
   );
 }
+

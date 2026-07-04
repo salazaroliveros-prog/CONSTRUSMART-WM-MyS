@@ -102,7 +102,7 @@ export const Impuestos: React.FC = () => {
 
       {/* Resumen del período */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <div className="bg-white border rounded-lg p-4">
+        <div className="bg-card border rounded-lg p-4">
           <h3 className="text-sm font-semibold text-gray-500 mb-3">{t('impuestos.resumen_periodo')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="p-3 bg-green-50 rounded-lg">
@@ -122,7 +122,7 @@ export const Impuestos: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white border rounded-lg p-4">
+        <div className="bg-card border rounded-lg p-4">
           <h3 className="text-sm font-semibold text-gray-500 mb-3">{t('impuestos.impuestos_periodo')}</h3>
           <div className="space-y-3">
             <div className="p-3 bg-yellow-50 rounded-lg">
@@ -161,7 +161,7 @@ export const Impuestos: React.FC = () => {
       </div>
 
       {/* Base de cálculo detallada */}
-      <div className="bg-white border rounded-lg p-4 mb-6">
+      <div className="bg-card border rounded-lg p-4 mb-6">
         <h3 className="text-sm font-semibold text-gray-500 mb-3">📋 {t('impuestos.detalle_calculo')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-sm">
           <div>
@@ -186,7 +186,7 @@ export const Impuestos: React.FC = () => {
       </div>
 
       {/* Movimientos del período */}
-      <div className="bg-white border rounded-lg p-4">
+      <div className="bg-card border rounded-lg p-4">
         <h3 className="text-sm font-semibold text-gray-500 mb-3">
           {t('impuestos.movimientos_periodo')} ({movimientosFiltrados.length} {t('impuestos.registros')})
         </h3>

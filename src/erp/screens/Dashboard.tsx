@@ -627,7 +627,7 @@ const Dashboard: React.FC = () => {
                   <div key={p.id} className="group cursor-pointer" onClick={() => setSelectedProyectoId(p.id)}>
                     <div className="flex items-center justify-between text-[10px] mb-0.5">
                       <span className="flex items-center gap-1 truncate">
-                        <Icono className={`w-2.5 h-2.5 ${i === 0 ? COLOR_WARNING : i === 1 ? COLOR_INFO : 'text-slate-500 dark:text-slate-400'}`} />
+                        <Icono className={`w-2.5 h-2.5 ${i === 0 ? COLOR_WARNING : i === 1 ? COLOR_INFO : 'text-muted-foreground dark:text-muted-foreground'}`} />
                         <span className="text-foreground font-medium truncate max-w-[90px]">{p.nombre}</span>
                       </span>
                       <span className="flex items-center gap-1 text-muted-foreground">
@@ -843,3 +843,4 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+

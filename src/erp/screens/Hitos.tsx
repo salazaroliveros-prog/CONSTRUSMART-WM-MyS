@@ -146,20 +146,20 @@ const HitosScreen: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="flex items-center gap-2"><Flag className="w-4 h-4 text-blue-500" /><span className="text-xs text-slate-500">Total hitos</span></div>
-          <div className="text-xl font-bold text-slate-800">{hitosFiltrados.length}</div>
+        <div className="bg-card rounded-xl p-3 border border-border">
+          <div className="flex items-center gap-2"><Flag className="w-4 h-4 text-blue-500" /><span className="text-xs text-muted-foreground">Total hitos</span></div>
+          <div className="text-xl font-bold text-foreground">{hitosFiltrados.length}</div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-500" /><span className="text-xs text-slate-500">Completados</span></div>
+        <div className="bg-card rounded-xl p-3 border border-border">
+          <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-500" /><span className="text-xs text-muted-foreground">Completados</span></div>
           <div className="text-xl font-bold text-emerald-600">{completados.length}</div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-amber-500" /><span className="text-xs text-slate-500">Pendientes</span></div>
+        <div className="bg-card rounded-xl p-3 border border-border">
+          <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-amber-500" /><span className="text-xs text-muted-foreground">Pendientes</span></div>
           <div className="text-xl font-bold text-amber-600">{hitosFiltrados.length - completados.length}</div>
         </div>
-        <div className={`rounded-xl p-3 border ${pendientesVencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-100'}`}>
-          <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /><span className="text-xs text-slate-500">Vencidos</span></div>
+        <div className={`rounded-xl p-3 border ${pendientesVencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-card border-border'}`}>
+          <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /><span className="text-xs text-muted-foreground">Vencidos</span></div>
           <div className="text-xl font-bold text-red-600">{pendientesVencidos.length}</div>
         </div>
       </div>
@@ -167,7 +167,7 @@ const HitosScreen: React.FC = () => {
       {/* Filtro global por proyecto */}
       {proyectos.length > 0 && (
         <div className="flex items-center gap-2 mb-3">
-          <Filter className="w-4 h-4 text-slate-400" />
+          <Filter className="w-4 h-4 text-muted-foreground" />
           <select value={selectedProyectoId || ''} onChange={e => setSelectedProyectoId(e.target.value || null)} className={`${INPUT} max-w-xs`}>
             <option value="">Todos los proyectos</option>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
@@ -218,7 +218,7 @@ const HitosScreen: React.FC = () => {
             const hitosMismoProy = hitos.filter(h => h.proyectoId === form.proyectoId);
             return hitosMismoProy.length > 0 ? (
               <div>
-                <label className="text-xs text-slate-500 font-semibold mb-1 block">🔗 Dependencias (predecesores)</label>
+                <label className="text-xs text-muted-foreground font-semibold mb-1 block">🔗 Dependencias (predecesores)</label>
                 <div className="flex flex-wrap gap-1.5">
                   {hitosMismoProy.map(h => (
                     <button
@@ -232,30 +232,30 @@ const HitosScreen: React.FC = () => {
                       className={`px-2 py-1 rounded-lg text-xs border transition-colors ${
                         form.dependeDe.includes(h.id)
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold'
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-200'
+                          : 'bg-card text-muted-foreground border-border hover:border-emerald-200'
                       }`}
                     >
                       {h.nombre}
                     </button>
                   ))}
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">Selecciona los hitos que deben completarse ANTES de este</p>
+                <p className="text-[10px] text-muted-foreground mt-1">Selecciona los hitos que deben completarse ANTES de este</p>
               </div>
             ) : (
-              <p className="text-xs text-slate-400 italic">Crea otros hitos primero para asignar dependencias</p>
+              <p className="text-xs text-muted-foreground italic">Crea otros hitos primero para asignar dependencias</p>
             );
           })()}
 
           <div className="flex gap-2">
             <button onClick={agregar} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-semibold">Crear Hito</button>
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">Cancelar</button>
+            <button onClick={() => setShowForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground">Cancelar</button>
           </div>
         </div>
       )}
 
       <div className="flex gap-2 mb-3">
-        <button onClick={() => setVista('lista')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${vista === 'lista' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>📋 Lista</button>
-        <button onClick={() => setVista('calendario')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${vista === 'calendario' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>📅 Calendario</button>
+        <button onClick={() => setVista('lista')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${vista === 'lista' ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted'}`}>📋 Lista</button>
+        <button onClick={() => setVista('calendario')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${vista === 'calendario' ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted'}`}>📅 Calendario</button>
       </div>
 
       {vista === 'calendario' && (() => {
@@ -270,27 +270,27 @@ const HitosScreen: React.FC = () => {
         for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
         return (
-          <div className="bg-white rounded-xl border border-slate-100 p-4 mb-4">
+          <div className="bg-card rounded-xl border border-border p-4 mb-4">
             <div className="flex items-center justify-between mb-3">
-              <button onClick={() => setMesCalendario(m => m.month === 0 ? { year: m.year - 1, month: 11 } : { ...m, month: m.month - 1 })} className="text-slate-400 hover:text-slate-600">◀</button>
-              <h3 className="text-sm font-bold text-slate-700">{monthNames[month]} {year}</h3>
-              <button onClick={() => setMesCalendario(m => m.month === 11 ? { year: m.year + 1, month: 0 } : { ...m, month: m.month + 1 })} className="text-slate-400 hover:text-slate-600">▶</button>
+              <button onClick={() => setMesCalendario(m => m.month === 0 ? { year: m.year - 1, month: 11 } : { ...m, month: m.month - 1 })} className="text-muted-foreground hover:text-muted-foreground">◀</button>
+              <h3 className="text-sm font-bold text-muted-foreground">{monthNames[month]} {year}</h3>
+              <button onClick={() => setMesCalendario(m => m.month === 11 ? { year: m.year + 1, month: 0 } : { ...m, month: m.month + 1 })} className="text-muted-foreground hover:text-muted-foreground">▶</button>
             </div>
             <div className="grid grid-cols-7 gap-0.5 text-center">
-              {dayNames.map(d => <div key={d} className="text-[10px] text-slate-400 font-semibold py-1">{d}</div>)}
+              {dayNames.map(d => <div key={d} className="text-[10px] text-muted-foreground font-semibold py-1">{d}</div>)}
               {cells.map((day, i) => {
                 if (day === null) return <div key={`empty-${i}`} />;
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const hitosDelDia = hitosFiltrados.filter(h => h.fecha === dateStr);
                 const isToday = dateStr === hoy;
                 return (
-                  <div key={day} className={`min-h-[48px] p-0.5 rounded text-xs ${isToday ? 'bg-emerald-50 ring-1 ring-emerald-300' : 'hover:bg-slate-50'}`}>
-                    <div className={`text-xs font-bold ${isToday ? 'text-emerald-600' : 'text-slate-600'}`}>{day}</div>
+                  <div key={day} className={`min-h-[48px] p-0.5 rounded text-xs ${isToday ? 'bg-emerald-50 ring-1 ring-emerald-300' : 'hover:bg-accent'}`}>
+                    <div className={`text-xs font-bold ${isToday ? 'text-emerald-600' : 'text-muted-foreground'}`}>{day}</div>
                     {hitosDelDia.slice(0, 2).map(h => {
                       const tipoColor: Record<string, string> = { inicio: 'bg-blue-100 text-blue-600', hito: 'bg-amber-100 text-amber-600', entrega: 'bg-purple-100 text-blue-600', cierre: 'bg-red-100 text-red-600' };
-                      return <div key={h.id} className={`text-[8px] px-0.5 py-px rounded truncate ${tipoColor[h.tipo] || 'bg-slate-100 text-slate-600'}`}>{h.nombre}</div>;
+                      return <div key={h.id} className={`text-[8px] px-0.5 py-px rounded truncate ${tipoColor[h.tipo] || 'bg-muted text-muted-foreground'}`}>{h.nombre}</div>;
                     })}
-                    {hitosDelDia.length > 2 && <div className="text-[8px] text-slate-400">+{hitosDelDia.length - 2}</div>}
+                    {hitosDelDia.length > 2 && <div className="text-[8px] text-muted-foreground">+{hitosDelDia.length - 2}</div>}
                   </div>
                 );
               })}
@@ -301,7 +301,7 @@ const HitosScreen: React.FC = () => {
 
       <div className="space-y-2">
         {hitosFiltrados.length === 0 ? (
-          <div className="text-center py-10 text-slate-400">
+          <div className="text-center py-10 text-muted-foreground">
             <Flag className="w-10 h-10 mx-auto mb-2 text-slate-300" />
             <p className="text-sm">Sin hitos para {proyActual?.nombre || 'el filtro actual'}. Crea el primero.</p>
           </div>
@@ -312,25 +312,25 @@ const HitosScreen: React.FC = () => {
           const depsCompletadas = dependencias.every(d => d?.estado === 'completado');
           const bloqueado = h.estado === 'pendiente' && dependencias.length > 0 && !depsCompletadas;
           return (
-            <div key={h.id} className={`bg-white rounded-xl border p-4 ${h.estado === 'completado' ? 'border-emerald-200 bg-emerald-50/30' : esVencido ? 'border-red-200 bg-red-50/30' : bloqueado ? 'border-slate-200 bg-slate-50/50' : 'border-slate-100'}`}>
+            <div key={h.id} className={`bg-card rounded-xl border p-4 ${h.estado === 'completado' ? 'border-emerald-200 bg-emerald-50/30' : esVencido ? 'border-red-200 bg-red-50/30' : bloqueado ? 'border-border bg-muted/30/50' : 'border-border'}`}>
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`w-2 h-2 rounded-full ${h.estado === 'completado' ? 'bg-emerald-500' : esVencido ? 'bg-red-500' : bloqueado ? 'bg-slate-400' : 'bg-amber-400'}`} />
-                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">{h.tipo}</span>
-                    <span className="text-xs text-slate-400">{proy?.nombre || '—'}</span>
-                    {bloqueado && <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-500">🔒 Bloqueado</span>}
+                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{h.tipo}</span>
+                    <span className="text-xs text-muted-foreground">{proy?.nombre || '—'}</span>
+                    {bloqueado && <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">🔒 Bloqueado</span>}
                   </div>
-                  <p className="text-sm font-semibold text-slate-800">{h.nombre}</p>
-                  {h.descripcion && <p className="text-xs text-slate-500 mt-0.5">{h.descripcion}</p>}
-                  <div className="flex gap-3 mt-1 text-xs text-slate-400">
+                  <p className="text-sm font-semibold text-foreground">{h.nombre}</p>
+                  {h.descripcion && <p className="text-xs text-muted-foreground mt-0.5">{h.descripcion}</p>}
+                  <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
                     <span>📅 {h.fecha}</span>
                     {h.responsable && <span>👤 {h.responsable}</span>}
                     {h.completadoEn && <span>✅ Completado: {h.completadoEn}</span>}
                   </div>
                   {dependencias.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1.5">
-                      <span className="text-[10px] text-slate-400">🔗 Requiere:</span>
+                      <span className="text-[10px] text-muted-foreground">🔗 Requiere:</span>
                       {dependencias.map(d => (
                         <span key={d!.id} className={`text-[10px] px-1.5 py-0.5 rounded ${d!.estado === 'completado' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
                           {d!.nombre} {d!.estado === 'completado' ? '✅' : '⏳'}
@@ -344,7 +344,7 @@ const HitosScreen: React.FC = () => {
                     <button
                       onClick={() => completar(h.id)}
                       disabled={bloqueado}
-                      className={`px-2 py-1 rounded text-xs ${esVencido ? 'bg-orange-500 text-white' : bloqueado ? 'bg-slate-300 text-slate-500' : 'bg-emerald-500 text-white'} ${bloqueado ? 'cursor-not-allowed' : 'hover:opacity-80'}`}
+                      className={`px-2 py-1 rounded text-xs ${esVencido ? 'bg-orange-500 text-white' : bloqueado ? 'bg-slate-300 text-muted-foreground' : 'bg-emerald-500 text-white'} ${bloqueado ? 'cursor-not-allowed' : 'hover:opacity-80'}`}
                     >
                       {bloqueado ? '🔒' : esVencido ? 'Completar (retrasado)' : 'Completar'}
                     </button>
@@ -361,5 +361,6 @@ const HitosScreen: React.FC = () => {
 };
 
 export default HitosScreen;
+
 
 

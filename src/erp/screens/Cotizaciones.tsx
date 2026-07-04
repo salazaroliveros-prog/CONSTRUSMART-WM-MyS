@@ -43,7 +43,7 @@ const TIPOS_COTIZACION: { value: CotizacionTipo; label: string; icon: string }[]
 ];
 
 const ESTADOS_COTIZACION = [
-  { key: 'borrador', label: 'Borrador', color: 'bg-slate-100 text-slate-600', icon: FileText },
+  { key: 'borrador', label: 'Borrador', color: 'bg-muted text-muted-foreground', icon: FileText },
   { key: 'enviada', label: 'Enviada', color: 'bg-blue-50 text-blue-600', icon: Send },
   { key: 'aprobada', label: 'Aprobada', color: 'bg-emerald-50 text-emerald-600', icon: CheckCircle2 },
   { key: 'rechazada', label: 'Rechazada', color: 'bg-red-50 text-red-600', icon: X },
@@ -252,7 +252,7 @@ const Cotizaciones: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded text-foreground/70">{c.numero}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-slate-100 text-slate-600">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-muted text-muted-foreground">
                           {TIPOS_COTIZACION.find(t => t.value === c.tipo)?.icon} {TIPOS_COTIZACION.find(t => t.value === c.tipo)?.label}
                         </span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1 ${estadoInfo?.color}`}>
@@ -508,3 +508,4 @@ const Cotizaciones: React.FC = () => {
 };
 
 export default Cotizaciones;
+

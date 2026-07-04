@@ -277,7 +277,7 @@ export const PlanillaDestajos: React.FC = () => {
       {/* Modal Nuevo Destajo */}
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+          <div className="bg-card rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4">Nuevo Destajo</h3>
             <div className="grid gap-3">
               <div>
@@ -338,3 +338,4 @@ export const PlanillaDestajos: React.FC = () => {
 };
 
 export default PlanillaDestajos;
+

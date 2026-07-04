@@ -474,7 +474,7 @@ const PlantillasProyectos: React.FC = () => {
           <div className="flex gap-2">
             <button
               onClick={handleBulkExport}
-              className="flex items-center gap-1 px-3 py-1 bg-white text-primary rounded text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex items-center gap-1 px-3 py-1 bg-card text-primary rounded text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <Download className="h-3 w-3" /> Exportar
             </button>
@@ -1224,5 +1224,6 @@ const PlantillasProyectos: React.FC = () => {
 };
 
 export default PlantillasProyectos;
+
 
 

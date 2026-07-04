@@ -72,17 +72,17 @@ const CuentasPagarScreen: React.FC = () => {
   return (
     <div className="p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <div><h1 className="text-2xl font-black text-slate-800 flex items-center gap-2"><TrendingDown className={`w-6 h-6 ${COLOR_DANGER}`} /> Cuentas por Pagar</h1><p className="text-sm text-slate-400">Gestión de cuentas por pagar a proveedores</p></div>
+        <div><h1 className="text-2xl font-black text-foreground flex items-center gap-2"><TrendingDown className={`w-6 h-6 ${COLOR_DANGER}`} /> Cuentas por Pagar</h1><p className="text-sm text-muted-foreground">Gestión de cuentas por pagar a proveedores</p></div>
         <div className="flex items-center gap-2">
           <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} />
           <button onClick={() => setShowForm(true)} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2"><Plus className="w-4 h-4" /> Nueva Cuenta</button>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><DollarSign className={`w-4 h-4 ${COLOR_DANGER}`} /><span className="text-xs text-slate-500">Total por pagar</span></div><div className={`text-xl font-bold ${COLOR_DANGER}`}>{fmtQ(totalPendiente)}</div></div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><TrendingDown className={`w-4 h-4 ${COLOR_INFO}`} /><span className="text-xs text-slate-500">Pendientes</span></div><div className="text-xl font-bold text-slate-800">{pendientes.length}</div></div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100"><div className="flex items-center gap-2"><CheckCircle className={`w-4 h-4 ${COLOR_SUCCESS}`} /><span className="text-xs text-slate-500">Pagadas</span></div><div className={`text-xl font-bold ${COLOR_SUCCESS}`}>{filtradas.filter(c => c.estado === 'pagado').length}</div></div>
-        <div className={`rounded-xl p-3 border ${vencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-100'}`}><div className="flex items-center gap-2"><AlertTriangle className={`w-4 h-4 ${COLOR_DANGER}`} /><span className="text-xs text-slate-500">Vencidas</span></div><div className={`text-xl font-bold ${COLOR_DANGER}`}>{vencidos.length}</div></div>
+        <div className="bg-card rounded-xl p-3 border border-border"><div className="flex items-center gap-2"><DollarSign className={`w-4 h-4 ${COLOR_DANGER}`} /><span className="text-xs text-muted-foreground">Total por pagar</span></div><div className={`text-xl font-bold ${COLOR_DANGER}`}>{fmtQ(totalPendiente)}</div></div>
+        <div className="bg-card rounded-xl p-3 border border-border"><div className="flex items-center gap-2"><TrendingDown className={`w-4 h-4 ${COLOR_INFO}`} /><span className="text-xs text-muted-foreground">Pendientes</span></div><div className="text-xl font-bold text-foreground">{pendientes.length}</div></div>
+        <div className="bg-card rounded-xl p-3 border border-border"><div className="flex items-center gap-2"><CheckCircle className={`w-4 h-4 ${COLOR_SUCCESS}`} /><span className="text-xs text-muted-foreground">Pagadas</span></div><div className={`text-xl font-bold ${COLOR_SUCCESS}`}>{filtradas.filter(c => c.estado === 'pagado').length}</div></div>
+        <div className={`rounded-xl p-3 border ${vencidos.length > 0 ? 'bg-red-50 border-red-200' : 'bg-card border-border'}`}><div className="flex items-center gap-2"><AlertTriangle className={`w-4 h-4 ${COLOR_DANGER}`} /><span className="text-xs text-muted-foreground">Vencidas</span></div><div className={`text-xl font-bold ${COLOR_DANGER}`}>{vencidos.length}</div></div>
       </div>
       {showForm && (
         <div className="bg-red-50 rounded-xl p-4 mb-4 border border-red-200 space-y-2">
@@ -106,24 +106,24 @@ const CuentasPagarScreen: React.FC = () => {
           </div>
           <select value={form.proyectoId} onChange={e => set({ proyectoId: e.target.value })} className={INPUT}><option value="">Sin proyecto</option>{proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}</select>
           <input value={form.facturaUrl} onChange={e => set({ facturaUrl: e.target.value })} placeholder="URL de factura (opcional)" className={INPUT} />
-          <div className="flex gap-2"><button onClick={agregar} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-semibold">Registrar</button><button onClick={() => setShowForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">Cancelar</button></div>
+          <div className="flex gap-2"><button onClick={agregar} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-semibold">Registrar</button><button onClick={() => setShowForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground">Cancelar</button></div>
         </div>
       )}
       <div className="space-y-2">
-        {filtradas.length === 0 ? <div className="text-center py-10 text-slate-400"><TrendingDown className="w-10 h-10 mx-auto mb-2 text-slate-300" /><p className="text-sm">Sin cuentas por pagar</p></div>
+        {filtradas.length === 0 ? <div className="text-center py-10 text-muted-foreground"><TrendingDown className="w-10 h-10 mx-auto mb-2 text-slate-300" /><p className="text-sm">Sin cuentas por pagar</p></div>
         : [...filtradas].sort((a, b) => a.fechaVencimiento.localeCompare(b.fechaVencimiento)).map(c => {
           const vencida = c.estado === 'pendiente' && c.fechaVencimiento < todayISO();
           return (
-            <div key={c.id} className={`bg-white rounded-xl border p-4 ${c.estado === 'pagado' ? 'border-emerald-200 bg-emerald-50/30' : vencida ? 'border-red-200 bg-red-50/30' : 'border-slate-100'}`}>
+            <div key={c.id} className={`bg-card rounded-xl border p-4 ${c.estado === 'pagado' ? 'border-emerald-200 bg-emerald-50/30' : vencida ? 'border-red-200 bg-red-50/30' : 'border-border'}`}>
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`text-xs px-1.5 py-0.5 rounded-full ${c.estado === 'pagado' ? 'bg-emerald-100 text-emerald-600' : vencida ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>{c.estado}</span>
-                    <span className="text-xs text-slate-400">{proyectos.find(p => p.id === c.proyectoId)?.nombre || '—'}</span>
+                    <span className="text-xs text-muted-foreground">{proyectos.find(p => p.id === c.proyectoId)?.nombre || '—'}</span>
                   </div>
-                  <p className="text-sm font-semibold text-slate-800">{c.proveedor}</p>
-                  <p className="text-xs text-slate-500">{c.concepto}</p>
-                  <div className="flex gap-3 mt-1 text-xs text-slate-400">
+                  <p className="text-sm font-semibold text-foreground">{c.proveedor}</p>
+                  <p className="text-xs text-muted-foreground">{c.concepto}</p>
+                  <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
                     <span>💰 {fmtQ(c.monto)}</span>
                     <span>📅 Vence: {c.fechaVencimiento}</span>
                     {c.saldoPendiente > 0 && <span className="font-bold text-red-600">Saldo: {fmtQ(c.saldoPendiente)}</span>}
@@ -143,3 +143,4 @@ const CuentasPagarScreen: React.FC = () => {
   );
 };
 export default CuentasPagarScreen;
+

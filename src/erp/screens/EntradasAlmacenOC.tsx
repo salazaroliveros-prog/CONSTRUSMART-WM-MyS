@@ -87,7 +87,7 @@ export const EntradasAlmacenOC: React.FC = () => {
           {(['todas', 'pendientes', 'aprobadas'] as const).map(f => (
             <button key={f} onClick={() => setOcFilter(f)}
               className={`px-3 py-1.5 rounded text-xs font-medium ${
-                ocFilter === f ? 'bg-white shadow text-blue-700' : 'text-gray-500'
+                ocFilter === f ? 'bg-card shadow text-blue-700' : 'text-gray-500'
               }`}>
               {f === 'todas' ? 'Todas' : f === 'pendientes' ? 'Pendientes' : 'Aprobadas'}
             </button>
@@ -163,7 +163,7 @@ export const EntradasAlmacenOC: React.FC = () => {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+          <div className="bg-card rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4">Registrar Recepción</h3>
             <p className="text-sm text-gray-500 mb-3">
               OC: {ordenes.find(o => o.id === showForm)?.material} — {ordenes.find(o => o.id === showForm)?.proveedor}
@@ -193,7 +193,7 @@ export const EntradasAlmacenOC: React.FC = () => {
       )}
 
       {historialRecepciones.length > 0 && (
-        <div className="bg-white border rounded-lg p-4">
+        <div className="bg-card border rounded-lg p-4">
           <h3 className="text-sm font-semibold text-gray-500 mb-3">
             📋 Historial de Recepciones ({historialRecepciones.length})
           </h3>
@@ -238,3 +238,4 @@ export const EntradasAlmacenOC: React.FC = () => {
 };
 
 export default EntradasAlmacenOC;
+
