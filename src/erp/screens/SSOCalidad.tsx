@@ -508,7 +508,7 @@ const SSOCalidad: React.FC = () => {
               className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-bold text-xs shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center flex-col"
             >
               <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 mb-1" />
-              <span className="text-[9px] sm:text-[10px] font-semibold">{t('sso_calidad.emergencia_boton', 'EMERGENCIA')}</span>
+              <span className="text-[10px] sm:text-[10px] font-semibold">{t('sso_calidad.emergencia_boton', 'EMERGENCIA')}</span>
             </button>
               <p className="text-[10px] text-muted-foreground">{t('sso_calidad.emergencia_aviso', 'Se compartirá tu ubicación con los equipos de respuesta')}</p>
           </div>

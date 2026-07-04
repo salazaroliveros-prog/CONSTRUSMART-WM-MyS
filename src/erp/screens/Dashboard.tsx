@@ -409,7 +409,7 @@ const Dashboard: React.FC = () => {
             <span className="text-muted-foreground/60">·</span>
             <span className={syncStatus === 'error' ? 'text-destructive' : 'text-primary'}>{syncStatus === 'synced' ? 'Supabase conectado' : syncStatus === 'loading' ? 'Leyendo Supabase' : syncStatus === 'error' ? syncError || 'Error sync' : mutationQueue.length > 0 ? `${mutationQueue.length} pendientes` : 'Supabase activo'}</span>
           </div>
-          {lastSyncedAt && <div className="text-[9px] text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">Sync {new Date(lastSyncedAt).toLocaleTimeString()}</div>}
+          {lastSyncedAt && <div className="text-[10px] text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">Sync {new Date(lastSyncedAt).toLocaleTimeString()}</div>}
           <button onClick={handleExportPdf} disabled={exportingPdf} className="text-[10px] text-primary hover:text-primary/80 font-medium flex items-center gap-0.5 bg-primary/10 rounded-full px-2 py-0.5 transition-colors disabled:opacity-60" title={t('dashboard.exportar_pdf')}>
             {exportingPdf ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Download className="w-2.5 h-2.5" />}
             {exportingPdf ? 'Exportando...' : 'PDF'}
@@ -539,10 +539,10 @@ const Dashboard: React.FC = () => {
                 <b className={avanceFinProm < 30 ? COLOR_DANGER : avanceFinProm < 70 ? COLOR_WARNING : COLOR_SUCCESS}>{fmtPct(avanceFinProm)}</b>
               </div>
               <Progress value={Math.min(avanceFinProm, 100)} color={avanceFinProm < 30 ? '#ef4444' : avanceFinProm < 70 ? '#f59e0b' : '#10b981'} />
-              <div className="flex justify-between text-[9px] text-muted-foreground pt-0.5">
+              <div className="flex justify-between text-[10px] text-muted-foreground pt-0.5">
                 <span>{t('dashboard.registros_avance')}</span><span className="text-foreground font-medium">{avances.length}</span>
               </div>
-              <div className="flex justify-between text-[9px] text-muted-foreground">
+              <div className="flex justify-between text-[10px] text-muted-foreground">
                 <span>{t('dashboard.proy_ejecucion')}</span><span className="text-foreground font-medium">{activos.length}</span>
               </div>
             </div>
@@ -560,7 +560,7 @@ const Dashboard: React.FC = () => {
                 { label: t('dashboard.stock_critico'), value: stockData.criticos, color: '#ef4444' },
                 { label: 'OK', value: stockData.ok, color: '#10b981' },
               ]} />
-              <span className="text-[9px] text-muted-foreground mt-0.5">
+              <span className="text-[10px] text-muted-foreground mt-0.5">
                 {stockData.criticos > 0 ? `${stockData.criticos} críticos` : `${stockData.total} mats`}
               </span>
             </div>
@@ -574,15 +574,15 @@ const Dashboard: React.FC = () => {
                   <div className="bg-success transition-all" style={{ width: rhData.total > 0 ? `${(rhData.disponibles / rhData.total) * 100}%` : '50%' }} title={`Disp: ${rhData.disponibles}`} />
                   <div className="bg-warning transition-all" style={{ width: rhData.total > 0 ? `${(rhData.ocupados / rhData.total) * 100}%` : '50%' }} title={`Ocup: ${rhData.ocupados}`} />
                 </div>
-                <div className="flex justify-between text-[9px] text-muted-foreground mt-0.5">
+                <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5">
                   <span>{rhData.disponibles} disp.</span><span>{rhData.ocupados} ocup.</span>
                 </div>
               </div>
               {stockData.items.length > 0 && (
                 <div className="space-y-0.5">
-                  <span className="text-[9px] text-destructive font-medium">{t('dashboard.stock_critico')}</span>
+                  <span className="text-[10px] text-destructive font-medium">{t('dashboard.stock_critico')}</span>
                   {stockData.items.map((item, i) => (
-                    <div key={i} className="flex justify-between text-[9px]">
+                    <div key={i} className="flex justify-between text-[10px]">
                       <span className="truncate max-w-[100px] text-muted-foreground">{item.nombre}</span>
                       <span className="text-destructive font-medium">{item.stock}/{item.minimo}</span>
                     </div>
@@ -625,7 +625,7 @@ const Dashboard: React.FC = () => {
                 const Icono = i === 0 ? TrendingUp : i === 1 ? Activity : TrendingDown;
                 return (
                   <div key={p.id} className="group cursor-pointer" onClick={() => setSelectedProyectoId(p.id)}>
-                    <div className="flex items-center justify-between text-[9px] mb-0.5">
+                    <div className="flex items-center justify-between text-[10px] mb-0.5">
                       <span className="flex items-center gap-1 truncate">
                         <Icono className={`w-2.5 h-2.5 ${i === 0 ? COLOR_WARNING : i === 1 ? COLOR_INFO : 'text-slate-500 dark:text-slate-400'}`} />
                         <span className="text-foreground font-medium truncate max-w-[90px]">{p.nombre}</span>
@@ -654,7 +654,7 @@ const Dashboard: React.FC = () => {
                 <span className="text-[8px] font-normal text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">{licitacionesData.count}</span>
               </h3>
               <div className="flex items-center gap-3 mb-1">
-                <div className="flex-1 text-[9px] space-y-0.5">
+                <div className="flex-1 text-[10px] space-y-0.5">
                   <div className="flex justify-between"><span className="text-muted-foreground">{t('dashboard.pendiente')}</span><b className="text-primary">{licitacionesData.abiertas}</b></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">{t('dashboard.aprobada')}</span><b className={COLOR_SUCCESS}>{licitacionesData.ganadas}</b></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">{t('dashboard.monto_total')}</span><b className="text-foreground">{fmtQ(licitacionesData.totalMonto)}</b></div>
@@ -663,7 +663,7 @@ const Dashboard: React.FC = () => {
               {licitacionesData.top.length > 0 && (
                 <div className="space-y-0.5 border-t border-border pt-1">
                   {licitacionesData.top.map((l: Licitacion, i: number) => (
-                    <div key={l.id || i} className="flex justify-between text-[9px]">
+                    <div key={l.id || i} className="flex justify-between text-[10px]">
                       <span className="truncate text-muted-foreground max-w-[100px]">{l.nombre || l.cliente || `Licitación ${i + 1}`}</span>
                       <span className="text-primary font-medium">{l.probabilidad || 0}%</span>
                     </div>
@@ -682,7 +682,7 @@ const Dashboard: React.FC = () => {
                 <span className="text-[8px] font-normal text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">{riesgosActivos.total}</span>
               </h3>
               <div className="flex items-center gap-2 mb-1">
-                <div className="flex-1 text-[9px] space-y-0.5">
+                <div className="flex-1 text-[10px] space-y-0.5">
                   <div className="flex justify-between"><span className="text-destructive">{t('dashboard.riesgo_alto')}</span><b className="text-destructive">{riesgosActivos.alto}</b></div>
                   <div className="flex justify-between"><span className={COLOR_WARNING}>{t('dashboard.riesgo_medio')}</span><b className={COLOR_WARNING}>{riesgosActivos.medio}</b></div>
                   <div className="flex justify-between"><span className={COLOR_SUCCESS}>{t('dashboard.riesgo_bajo')}</span><b className={COLOR_SUCCESS}>{riesgosActivos.bajo}</b></div>
@@ -701,7 +701,7 @@ const Dashboard: React.FC = () => {
             {ocPendientes.length > 0 ? (
               <div className="space-y-1">
                 {ocPendientes.map(oc => (
-                  <div key={oc.id} className="flex justify-between text-[9px] p-1 rounded-lg bg-yellow-500/5 border border-yellow-500/10">
+                  <div key={oc.id} className="flex justify-between text-[10px] p-1 rounded-lg bg-yellow-500/5 border border-yellow-500/10">
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-medium text-foreground">{oc.proveedor}</div>
                       <div className="truncate text-muted-foreground">{oc.material} x{oc.cantidad}</div>
@@ -770,9 +770,9 @@ const Dashboard: React.FC = () => {
               <div className="space-y-1.5">
                 {supplierPerformanceData.topPerformers.length > 0 && (
                   <div>
-                    <span className={`text-[9px] ${COLOR_SUCCESS} font-medium`}>Top Desempeño</span>
+                    <span className={`text-[10px] ${COLOR_SUCCESS} font-medium`}>Top Desempeño</span>
                     {supplierPerformanceData.topPerformers.slice(0, 2).map((s, i) => (
-                      <div key={s.id} className="flex justify-between items-center text-[9px] mt-0.5">
+                      <div key={s.id} className="flex justify-between items-center text-[10px] mt-0.5">
                         <span className="truncate text-muted-foreground max-w-[100px]">{s.nombre}</span>
                         <span className={COLOR_SUCCESS + ' font-medium'}>{fmtPct(s.puntajeGeneral)}</span>
                       </div>
@@ -781,9 +781,9 @@ const Dashboard: React.FC = () => {
                 )}
                 {supplierPerformanceData.atRisk.length > 0 && (
                   <div className="border-t border-border pt-1">
-                    <span className="text-[9px] text-destructive font-medium">En Riesgo</span>
+                    <span className="text-[10px] text-destructive font-medium">En Riesgo</span>
                     {supplierPerformanceData.atRisk.slice(0, 2).map((s, i) => (
-                      <div key={s.id} className="flex justify-between items-center text-[9px] mt-0.5">
+                      <div key={s.id} className="flex justify-between items-center text-[10px] mt-0.5">
                         <span className="truncate text-muted-foreground max-w-[100px]">{s.nombre}</span>
                         <span className="text-destructive font-medium">{fmtPct(s.puntajeGeneral)}</span>
                       </div>
@@ -792,7 +792,7 @@ const Dashboard: React.FC = () => {
                 )}
                 <button
                   onClick={() => setView('proveedor-analytics' as View)}
-                  className="w-full mt-1 flex items-center justify-center gap-1 text-[9px] text-primary hover:text-primary/80 bg-primary/10 rounded-lg py-1 transition-colors"
+                  className="w-full mt-1 flex items-center justify-center gap-1 text-[10px] text-primary hover:text-primary/80 bg-primary/10 rounded-lg py-1 transition-colors"
                 >
                   Ver Analytics Completo
                   <ArrowRight className="w-2.5 h-2.5" />
@@ -817,12 +817,12 @@ const Dashboard: React.FC = () => {
           <div className={`${CARD} flex flex-col p-2 sm:p-3`}>
             <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
               <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
-              {t('dashboard.gastos')} <span className="text-muted-foreground font-normal text-[9px]">vs {t('dashboard.ingresos')}</span>
+              {t('dashboard.gastos')} <span className="text-muted-foreground font-normal text-[10px]">vs {t('dashboard.ingresos')}</span>
             </h3>
             <div className="h-16 sm:h-20">
               <BarChart data={movPorCategoria.length > 0 ? movPorCategoria.map(d => ({ label: d.label, value: d.value, color: d.color })) : []} height={60} />
             </div>
-            <div className="mt-1 flex items-center justify-between text-[9px]">
+            <div className="mt-1 flex items-center justify-between text-[10px]">
               <span className={COLOR_SUCCESS + ' font-medium flex items-center gap-1'}>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> {t('dashboard.ingresos')}
               </span>

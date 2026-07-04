@@ -261,7 +261,7 @@ const DashboardPredictivo: React.FC = () => {
             {riesgosAltos.length > 0 && (
               <div className="mt-3 bg-red-50 rounded-xl p-4 border border-red-200">
                 <h3 className="text-xs font-bold text-red-700 mb-2">🔴 Acciones Recomendadas</h3>
-                <ul className="text-[11px] text-red-700 space-y-1">
+                <ul className="text-xs text-red-700 space-y-1">
                   {riesgosAltos.slice(0, 3).map(r => (
                     <li key={r.id} className="flex items-start gap-1.5">
                       <span>•</span>

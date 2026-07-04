@@ -242,7 +242,7 @@ const Bodega: React.FC = () => {
                       <td className="px-3 py-2">
                         <div className="flex items-center gap-2">
                           <span className="truncate max-w-[180px]">{m.nombre}</span>
-                          {m.critico && <span className={`text-[9px] bg-red-100 dark:bg-red-900/40 ${COLOR_DANGER} dark:text-red-400 px-1.5 py-0.5 rounded-full`}>{t('bodega.critico')}</span>}
+                          {m.critico && <span className={`text-[10px] bg-red-100 dark:bg-red-900/40 ${COLOR_DANGER} dark:text-red-400 px-1.5 py-0.5 rounded-full`}>{t('bodega.critico')}</span>}
                         </div>
                       </td>
                       <td className="px-3 py-2 text-right">
@@ -428,3 +428,4 @@ const Bodega: React.FC = () => {
 };
 
 export default Bodega;
+

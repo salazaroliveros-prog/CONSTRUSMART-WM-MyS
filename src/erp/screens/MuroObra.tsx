@@ -149,7 +149,7 @@ const MuroObra: React.FC = () => {
                   <div className="text-sm font-semibold text-slate-700 truncate">{pub.autor}</div>
                   <div className="text-xs text-slate-400 flex items-center gap-1">
                     <Calendar className="w-3 h-3" /> {pub.createdAt.slice(0, 10)}
-                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
+                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                   </div>
                 </div>
               </div>
@@ -206,4 +206,5 @@ const MuroObra: React.FC = () => {
 };
 
 export default MuroObra;
+
 

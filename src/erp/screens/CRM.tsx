@@ -286,7 +286,7 @@ const CRM: React.FC = () => {
                       {l.probabilidad}%
                     </span>
                   </div>
-                  {l.notas && <p className="text-[9px] text-muted-foreground italic line-clamp-2">{l.notas}</p>}
+                  {l.notas && <p className="text-[10px] text-muted-foreground italic line-clamp-2">{l.notas}</p>}
                   
                   {l.estado === 'activa' && (
                     <div className="flex gap-1 mt-2 pt-2 border-t border-slate-100">
@@ -381,7 +381,7 @@ const CRM: React.FC = () => {
                   onChange={e => setFormData(p => ({ ...p, probabilidad: +e.target.value }))}
                   className="w-full accent-purple-500"
                 />
-                <div className="flex justify-between text-[9px] text-slate-400">
+                <div className="flex justify-between text-[10px] text-slate-400">
                   <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
                 </div>
               </div>
@@ -416,3 +416,4 @@ const CRM: React.FC = () => {
 };
 
 export default CRM;
+

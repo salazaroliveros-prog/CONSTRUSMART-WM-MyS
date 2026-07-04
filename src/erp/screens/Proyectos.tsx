@@ -657,7 +657,7 @@ const Proyectos: React.FC = () => {
 
               <div className="space-y-2.5 mb-4">
                 <div>
-                  <div className="flex justify-between text-[11px] mb-1.5">
+                  <div className="flex justify-between text-xs mb-1.5">
                     <span className="text-muted-foreground">{t('proyectos.avance_fisico')}</span>
                     <span className="font-semibold text-foreground">{fmtPct(p.avanceFisico)}</span>
                   </div>
@@ -667,7 +667,7 @@ const Proyectos: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <div className="flex justify-between text-[11px] mb-1.5">
+                  <div className="flex justify-between text-xs mb-1.5">
                     <span className="text-muted-foreground">{t('proyectos.avance_financiero')}</span>
                     <span className="font-semibold text-foreground">{fmtPct(p.avanceFinanciero)}</span>
                   </div>
@@ -732,7 +732,7 @@ const Proyectos: React.FC = () => {
                 )}
                 <button
                   onClick={() => openDetail(p)}
-                  className="text-[11px] px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 active:bg-muted text-muted-foreground hover:text-foreground font-medium flex items-center justify-center gap-1 transition-all active:scale-95"
+                  className="text-xs px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 active:bg-muted text-muted-foreground hover:text-foreground font-medium flex items-center justify-center gap-1 transition-all active:scale-95"
                 >
                   <ChevronRight className="w-3 h-3" /> {t('proyectos.detalle')}
                 </button>
@@ -787,7 +787,7 @@ const Proyectos: React.FC = () => {
               <button onClick={confirmarPausa} className={BUTTON_PRIMARY + ' flex-1 justify-center active:scale-[0.98]'}>
                 <Pause className="w-4 h-4" /> {t('proyectos.confirmar_pausa')}
               </button>
-              <button onClick={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }} className="flex-1 text-[11px] px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 active:bg-muted text-muted-foreground font-medium transition-all">
+              <button onClick={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }} className="flex-1 text-xs px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 active:bg-muted text-muted-foreground font-medium transition-all">
                 {t('common.cancelar')}
               </button>
             </div>
@@ -1128,3 +1128,4 @@ const Proyectos: React.FC = () => {
 };
 
 export default Proyectos;
+
