@@ -187,9 +187,9 @@ export default function Notificaciones() {
                 <p className="text-sm font-medium text-gray-900">{notif.titulo}</p>
                 <p className="text-xs text-gray-600 mt-0.5">{notif.mensaje}</p>
                 <div className="flex items-center gap-2 mt-1.5">
-                  <span className="text-[10px] text-gray-400">{formatDate(notif.createdAt)}</span>
+                  <span className="text-xs text-gray-400">{formatDate(notif.createdAt)}</span>
                   {notif.proyectoId && (
-                    <span className="text-[10px] text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded">
+                    <span className="text-xs text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded">
                       {getProyectoNombre(notif.proyectoId)}
                     </span>
                   )}
