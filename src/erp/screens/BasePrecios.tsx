@@ -238,19 +238,19 @@ const BasePrecios: React.FC = () => {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
         <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-[10px] text-slate-400">{t('baseprecios.total_insumos')}</div>
+          <div className="text-xs text-slate-400">{t('baseprecios.total_insumos')}</div>
           <div className="text-lg font-bold text-slate-800">{insumosBase.length}</div>
         </div>
         <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-[10px] text-slate-400">{t('baseprecios.zona')}</div>
+          <div className="text-xs text-slate-400">{t('baseprecios.zona')}</div>
           <div className="text-lg font-bold text-slate-800">{zonaSeleccionada}</div>
         </div>
         <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-[10px] text-slate-400">{t('baseprecios.factor_zona')}</div>
+          <div className="text-xs text-slate-400">{t('baseprecios.factor_zona')}</div>
           <div className="text-lg font-bold text-teal-600">x{factorZona.toFixed(2)}</div>
         </div>
         <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-[10px] text-slate-400">{t('baseprecios.inactivos')}</div>
+          <div className="text-xs text-slate-400">{t('baseprecios.inactivos')}</div>
           <div className="text-lg font-bold text-red-600">{insumosBase.filter(i => !i.activo).length}</div>
         </div>
       </div>
@@ -278,7 +278,7 @@ const BasePrecios: React.FC = () => {
               <input type="number" inputMode="decimal" value={convCantidad} onChange={e => setConvCantidad(Math.max(0, +e.target.value))} min={0} className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none" />
             </div>
             <div className="bg-white rounded-lg p-2 text-center border border-slate-200">
-              <div className="text-[9px] text-slate-400">{t('baseprecios.resultado')}</div>
+              <div className="text-[10px] text-slate-400">{t('baseprecios.resultado')}</div>
               <div className="text-lg font-bold text-indigo-600">
                 {resultadoConversion ? `${resultadoConversion.resultado} ${convA}` : '—'}
               </div>
@@ -366,7 +366,7 @@ const BasePrecios: React.FC = () => {
                       ) : ins.nombre}
                     </td>
                     <td className="py-2 px-2">
-                      <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-medium ${
+                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
                         ins.categoria === 'material' ? 'bg-blue-50 text-blue-600' :
                         ins.categoria === 'mano_obra' ? 'bg-emerald-50 text-emerald-600' :
                         ins.categoria === 'equipo' ? 'bg-purple-50 text-purple-600' :
@@ -386,7 +386,7 @@ const BasePrecios: React.FC = () => {
                     </td>
                     <td className="py-2 px-2 text-slate-500">{ins.rubro}</td>
                     <td className="py-2 px-2">
-                      <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-medium ${ins.activo ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${ins.activo ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
                         {ins.activo ? t('baseprecios.activo') : t('baseprecios.inactivo')}
                       </span>
                     </td>
@@ -412,8 +412,8 @@ const BasePrecios: React.FC = () => {
           </table>
         </div>
         <div className="p-2 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-          <span className="text-[10px] text-slate-400">{filtered.length} {t('baseprecios.insumos')} · {t('baseprecios.precio_base_total')}: Q{totalValor.toFixed(2)}</span>
-          <span className="text-[10px] text-teal-500 font-medium">{t('baseprecios.zona')}: {zonaSeleccionada} (x{factorZona})</span>
+          <span className="text-xs text-slate-400">{filtered.length} {t('baseprecios.insumos')} · {t('baseprecios.precio_base_total')}: Q{totalValor.toFixed(2)}</span>
+          <span className="text-xs text-teal-500 font-medium">{t('baseprecios.zona')}: {zonaSeleccionada} (x{factorZona})</span>
         </div>
       </div>
     </div>

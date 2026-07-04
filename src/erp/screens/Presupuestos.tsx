@@ -689,7 +689,7 @@ const Presupuestos: React.FC = () => {
               }} className="bg-slate-900 text-white px-3 py-2 rounded-xl text-xs">+ {t('presupuestos.agregar_proveedor_btn')}</button>
             </div>
             {proveedores.length === 0 && (
-              <p className="text-[10px] text-amber-600 mt-1">{t('presupuestos.agregar_proveedores_aviso')}</p>
+              <p className="text-xs text-amber-600 mt-1">{t('presupuestos.agregar_proveedores_aviso')}</p>
             )}
           </div>
         </div>
@@ -709,7 +709,7 @@ const Presupuestos: React.FC = () => {
                   <button onClick={() => toggleExpand(r.id)} className="text-muted-foreground" aria-label="Expandir">
                     {r.expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </button>
-                  <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded text-foreground/70">{r.codigo}</span>
+                  <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded text-foreground/70">{r.codigo}</span>
                   <span className="flex-1 text-sm font-semibold text-foreground truncate">{idx + 1}. {r.nombre}</span>
                   <div className="hidden sm:flex items-center gap-1 text-xs">
                     <span className="text-muted-foreground">{t('presupuestos.cantidad_abrev')}</span>
@@ -726,21 +726,21 @@ const Presupuestos: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 text-xs">
                       <div><label className="text-slate-400 block mb-0.5">Rendimiento/día</label><input type="number" inputMode="decimal" value={r.rendimientoCuadrilla} onChange={e => upd(r.id, { rendimientoCuadrilla: +e.target.value })} placeholder="Rendimiento/día" className={ninp} /></div>
-                      <div><label className="text-slate-400 block mb-0.5">Materiales Q {(r.subRenglones?.length ?? 0) > 0 && <span className="text-orange-400 text-[9px]">(auto)</span>}</label><input type="number" inputMode="decimal" value={r.costoMateriales} onChange={e => upd(r.id, { costoMateriales: +e.target.value })} placeholder="Materiales Q" className={ninp} readOnly={(r.subRenglones?.length ?? 0) > 0} /></div>
+                      <div><label className="text-slate-400 block mb-0.5">Materiales Q {(r.subRenglones?.length ?? 0) > 0 && <span className="text-orange-400 text-[10px]">(auto)</span>}</label><input type="number" inputMode="decimal" value={r.costoMateriales} onChange={e => upd(r.id, { costoMateriales: +e.target.value })} placeholder="Materiales Q" className={ninp} readOnly={(r.subRenglones?.length ?? 0) > 0} /></div>
                       <div><label className="text-slate-400 block mb-0.5">Mano Obra Q</label><input type="number" inputMode="decimal" value={r.costoManoObra} onChange={e => upd(r.id, { costoManoObra: +e.target.value })} placeholder="Mano Obra Q" className={ninp} /></div>
                       <div><label className="text-slate-400 block mb-0.5">Equipo Q</label><input type="number" inputMode="decimal" value={r.costoEquipo} onChange={e => upd(r.id, { costoEquipo: +e.target.value })} placeholder="Equipo Q" className={ninp} /></div>
                       <div><label className="text-slate-400 block mb-0.5">Duración (días)</label><div className={ninp + ' bg-white text-slate-600'}>{c.dur}</div></div>
                     </div>
 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 text-xs">
-                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">{t('presupuestos.costo_directo_unit')}</div><b className="text-slate-700">{fmtQ(c.cd)}</b></div>
-                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">{t('presupuestos.precio_unit_venta')}</div><b className="text-orange-600">{fmtQ(c.pv)}</b></div>
-                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-[10px]">{t('presupuestos.total_renglon')}</div><b className="text-emerald-600">{fmtQ(c.total)}</b></div>
+                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-xs">{t('presupuestos.costo_directo_unit')}</div><b className="text-slate-700">{fmtQ(c.cd)}</b></div>
+                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-xs">{t('presupuestos.precio_unit_venta')}</div><b className="text-orange-600">{fmtQ(c.pv)}</b></div>
+                       <div className="bg-white rounded-lg p-2 text-center"><div className="text-slate-400 text-xs">{t('presupuestos.total_renglon')}</div><b className="text-emerald-600">{fmtQ(c.total)}</b></div>
                      </div>
 
                     {/* Sub-renglones de materiales */}
                     <div className="mt-3 border-t pt-3">
                       <div className="flex justify-between items-center mb-2">
-                      <div className="text-[10px] font-semibold text-slate-500">
+                      <div className="text-xs font-semibold text-slate-500">
                         📦 Desglose de Materiales por Renglón
                         {ACTIVIDAD_POR_RENGLON[r.codigo] && (
                           <span className="text-orange-500 ml-1">({ACTIVIDAD_POR_RENGLON[r.codigo]} sugerido)</span>
@@ -755,14 +755,14 @@ const Presupuestos: React.FC = () => {
                               setActividadSeleccionada(null);
                             }
                           }}
-                          className="text-[10px] px-3 py-2 rounded border border-orange-200 outline-none focus:border-orange-400 bg-white"
+                          className="text-xs px-3 py-2 rounded border border-orange-200 outline-none focus:border-orange-400 bg-white"
                         >
                            <option value="">{t('presupuestos.tipo_actividad')}</option>
                              {ACTIVIDADES_TIPICAS.map(act => (
                                <option key={act} value={act}>{act.charAt(0).toUpperCase() + act.slice(1)} ({MATERIALES_POR_ACTIVIDAD[act].length} materiales)</option>
                              ))}
                            </select>
-                           <button onClick={() => addSubRenglon(r.id)} className="text-[10px] bg-orange-100 text-orange-600 px-3 py-2 rounded flex items-center gap-1 hover:bg-orange-200">
+                           <button onClick={() => addSubRenglon(r.id)} className="text-xs bg-orange-100 text-orange-600 px-3 py-2 rounded flex items-center gap-1 hover:bg-orange-200">
                              <Plus className="w-4 h-4" /> {t('presupuestos.manual')}
                            </button>
                          </div>
@@ -788,7 +788,7 @@ const Presupuestos: React.FC = () => {
                                    placeholder={t('presupuestos.cant_u')}
                                    className="w-12 px-3 py-2 rounded border border-slate-200 text-right text-xs"
                                  />
-                                 <span className="text-slate-500 text-[10px] w-14 text-right">{(sub.cantidadUnitaria * r.cantidad).toFixed(2)}</span>
+                                 <span className="text-slate-500 text-xs w-14 text-right">{(sub.cantidadUnitaria * r.cantidad).toFixed(2)}</span>
                                  <select 
                                    value={sub.unidad} 
                                    onChange={e => updSubRenglon(r.id, sub.id, { unidad: e.target.value })}
@@ -817,20 +817,20 @@ const Presupuestos: React.FC = () => {
                            })}
                          </div>
                        ) : (
-                         <div className="text-[10px] text-slate-400 italic py-2">{t('presupuestos.sin_desglose')}</div>
+                         <div className="text-xs text-slate-400 italic py-2">{t('presupuestos.sin_desglose')}</div>
                        )}
                        <div className="mt-3 flex gap-2">
-                         <button onClick={() => handleRegistrarGastoRenglon(r)} className="text-[11px] bg-indigo-600 text-white px-3 py-1.5 rounded-lg">{t('presupuestos.gasto_renglon_btn')}</button>
-                         <button onClick={() => handleCrearOCDesdeRenglon(r)} className="text-[11px] bg-amber-500 text-white px-3 py-1.5 rounded-lg">{t('presupuestos.crear_oc_btn')}</button>
-                         <button onClick={() => { navigator.clipboard?.writeText(`${r.codigo} · ${r.nombre}`); }} className="text-[11px] bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg">{t('common.copiar')}</button>
+                         <button onClick={() => handleRegistrarGastoRenglon(r)} className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg">{t('presupuestos.gasto_renglon_btn')}</button>
+                         <button onClick={() => handleCrearOCDesdeRenglon(r)} className="text-xs bg-amber-500 text-white px-3 py-1.5 rounded-lg">{t('presupuestos.crear_oc_btn')}</button>
+                         <button onClick={() => { navigator.clipboard?.writeText(`${r.codigo} · ${r.nombre}`); }} className="text-xs bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg">{t('common.copiar')}</button>
                        </div>
                     </div>
 
 <div className="mt-2">
-                       <div className="text-[10px] font-semibold text-slate-500 mb-1">{t('presupuestos.desglose_apu')}</div>
+                       <div className="text-xs font-semibold text-slate-500 mb-1">{t('presupuestos.desglose_apu')}</div>
                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                          {r.insumos.map(ins => (
-                           <div key={ins.id} className="flex justify-between bg-white rounded px-3 py-2 text-[11px]">
+                           <div key={ins.id} className="flex justify-between bg-white rounded px-3 py-2 text-xs">
                              <span className="text-slate-600 truncate">{ins.nombre}</span>
                              <span className="text-slate-400">{ins.tipo} · {fmtQ(ins.precio)}</span>
                            </div>
@@ -840,27 +840,27 @@ const Presupuestos: React.FC = () => {
 
                     {/* Cuadrilla de Mano de Obra */}
                     <div className="mt-3 border-t pt-3">
-                      <div className="text-[10px] font-semibold text-slate-500 mb-2">👷 Cuadrilla de Mano de Obra</div>
+                      <div className="text-xs font-semibold text-slate-500 mb-2">👷 Cuadrilla de Mano de Obra</div>
                       <div className="bg-white rounded-lg p-2 border border-slate-100">
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                           <div>
-                            <label className="text-slate-400 text-[9px]">Jornal Unitario</label>
-                            <input type="number" inputMode="decimal" value={r.costoManoObra} onChange={e => upd(r.id, { costoManoObra: +e.target.value })} className="w-full px-3 py-2 rounded border border-slate-200 text-right text-[11px]" />
+                            <label className="text-slate-400 text-[10px]">Jornal Unitario</label>
+                            <input type="number" inputMode="decimal" value={r.costoManoObra} onChange={e => upd(r.id, { costoManoObra: +e.target.value })} className="w-full px-3 py-2 rounded border border-slate-200 text-right text-xs" />
                           </div>
                           <div>
-                            <label className="text-slate-400 text-[9px]">Rendimiento/día</label>
-                            <input type="number" inputMode="decimal" value={r.rendimientoCuadrilla} onChange={e => upd(r.id, { rendimientoCuadrilla: +e.target.value })} className="w-full px-3 py-2 rounded border border-slate-200 text-right text-[11px]" />
+                            <label className="text-slate-400 text-[10px]">Rendimiento/día</label>
+                            <input type="number" inputMode="decimal" value={r.rendimientoCuadrilla} onChange={e => upd(r.id, { rendimientoCuadrilla: +e.target.value })} className="w-full px-3 py-2 rounded border border-slate-200 text-right text-xs" />
                           </div>
                           <div>
-                            <label className="text-slate-400 text-[9px]">Días Estimados</label>
-                            <div className="px-3 py-2 rounded bg-slate-50 text-right text-[11px] text-slate-600">{getManoObraRenglon(r).diasEstimados}</div>
+                            <label className="text-slate-400 text-[10px]">Días Estimados</label>
+                            <div className="px-3 py-2 rounded bg-slate-50 text-right text-xs text-slate-600">{getManoObraRenglon(r).diasEstimados}</div>
                           </div>
                           <div>
-                            <label className="text-slate-400 text-[9px]">Trabajadores</label>
-                            <div className="px-3 py-2 rounded bg-slate-50 text-right text-[11px] text-slate-600">{getManoObraRenglon(r).trabajadores}</div>
+                            <label className="text-slate-400 text-[10px]">Trabajadores</label>
+                            <div className="px-3 py-2 rounded bg-slate-50 text-right text-xs text-slate-600">{getManoObraRenglon(r).trabajadores}</div>
                           </div>
                         </div>
-                        <div className="mt-2 flex justify-between text-[10px] text-slate-500">
+                        <div className="mt-2 flex justify-between text-xs text-slate-500">
                           <span>Total Mano Obra: <b className="text-blue-600">{fmtQ(r.costoManoObra * r.cantidad)}</b></span>
                           <span>Costo Directo Unit.: <b className="text-slate-700">{fmtQ(c.cd)}</b></span>
                         </div>
@@ -870,17 +870,17 @@ const Presupuestos: React.FC = () => {
                     {/* Resumen de Explosión de Materiales por Tipo */}
                     {explosionPorTipo.length > 0 && (
                       <div className="mt-3 border-t pt-3">
-                        <div className="text-[10px] font-semibold text-slate-500 mb-2">📊 Explosión de Materiales por Tipo</div>
+                        <div className="text-xs font-semibold text-slate-500 mb-2">📊 Explosión de Materiales por Tipo</div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                           {explosionPorTipo.map((t, i) => (
-                            <div key={i} className="bg-white rounded p-1.5 border border-slate-100 text-[10px]">
+                            <div key={i} className="bg-white rounded p-1.5 border border-slate-100 text-xs">
                               <div className="font-semibold text-slate-700">{t.tipo}</div>
                               <div className="text-slate-500">{t.cantidad.toFixed(2)} {t.unidad}</div>
                               <div className="font-bold text-emerald-600">{fmtQ(t.total)}</div>
                             </div>
                           ))}
                         </div>
-                        <div className="mt-1 text-[10px] text-slate-600">
+                        <div className="mt-1 text-xs text-slate-600">
                           Total materiales: <b>{fmtQ(resumenMateriales.reduce((a, m) => a + m.total, 0))}</b> · {resumenMateriales.length} tipos
                         </div>
                       </div>
@@ -914,28 +914,28 @@ const Presupuestos: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
             <div className="bg-card text-card-foreground rounded-xl border border-border p-4">
-              <div className="text-[10px] uppercase text-muted-foreground mb-2">Gasto real del proyecto</div>
+              <div className="text-xs uppercase text-muted-foreground mb-2">Gasto real del proyecto</div>
               <div className="text-2xl font-bold text-foreground">{fmtQ(gastoReal)}</div>
               <div className="text-xs text-muted-foreground mt-1">Solo egresos registrados</div>
             </div>
             <div className="bg-card text-card-foreground rounded-xl border border-border p-4">
-              <div className="text-[10px] uppercase text-muted-foreground mb-2">Presupuesto vigente</div>
+              <div className="text-xs uppercase text-muted-foreground mb-2">Presupuesto vigente</div>
               <div className="text-2xl font-bold text-foreground">{presupuestoActual ? fmtQ(presupuestoActual.totalCalculado) : 'N/A'}</div>
               <div className="text-xs text-muted-foreground mt-1">Última versión disponible</div>
             </div>
             <div className={`rounded-xl border p-4 ${variacionReal > 0 ? 'border-destructive/30 bg-destructive/10' : 'border-success/30 bg-success/10'}`}>
-              <div className="text-[10px] uppercase text-muted-foreground mb-2">Variación real vs presupuesto</div>
+              <div className="text-xs uppercase text-muted-foreground mb-2">Variación real vs presupuesto</div>
               <div className="text-2xl font-bold text-foreground">{fmtQ(variacionReal)}</div>
               <div className="text-xs text-muted-foreground mt-1">{variacionReal > 0 ? 'Sobre presupuesto' : 'Bajo presupuesto'}</div>
             </div>
           </div>
           <div className="bg-primary text-primary-foreground rounded-xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-2 sticky bottom-2">
             <div className="flex gap-3 sm:gap-6 text-xs sm:text-sm">
-              <div><span className="text-primary-foreground/70 text-[10px] sm:text-xs block">Costo Directo</span><b>{fmtQ(granDir)}</b></div>
-              <div><span className="text-primary-foreground/70 text-[10px] sm:text-xs block">Renglones</span><b>{items.length}</b></div>
+              <div><span className="text-primary-foreground/70 text-xs sm:text-xs block">Costo Directo</span><b>{fmtQ(granDir)}</b></div>
+              <div><span className="text-primary-foreground/70 text-xs sm:text-xs block">Renglones</span><b>{items.length}</b></div>
             </div>
             <div className="text-right">
-              <span className="text-primary-foreground/80 text-[10px] sm:text-xs block">TOTAL (c/ indirectos)</span>
+              <span className="text-primary-foreground/80 text-xs sm:text-xs block">TOTAL (c/ indirectos)</span>
               <b className="text-lg sm:text-2xl">{fmtQ(granTotal)}</b>
             </div>
           </div>
@@ -948,3 +948,4 @@ const Presupuestos: React.FC = () => {
 };
 
 export default Presupuestos;
+

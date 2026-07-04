@@ -411,7 +411,7 @@ const ExportacionInteligente: React.FC = () => {
           <Table className={`w-8 h-8 ${exportando === 'xlsx' ? 'text-emerald-500' : 'text-emerald-400'}`} />
           <div className="text-left">
             <p className="text-sm font-bold text-slate-700">{t('exportacion.excel', 'Exportar Excel')}</p>
-            <p className="text-[10px] text-slate-400">{t('exportacion.excel_desc', '6 hojas con formato profesional .xlsx')}</p>
+            <p className="text-xs text-slate-400">{t('exportacion.excel_desc', '6 hojas con formato profesional .xlsx')}</p>
           </div>
         </button>
 
@@ -423,7 +423,7 @@ const ExportacionInteligente: React.FC = () => {
           <FileJson className={`w-8 h-8 ${exportando === 'json' ? 'text-blue-500' : 'text-blue-400'}`} />
           <div className="text-left">
             <p className="text-sm font-bold text-slate-700">{t('exportacion.json', 'Exportar JSON')}</p>
-            <p className="text-[10px] text-slate-400">{t('exportacion.json_desc', 'Datos completos del ERP en formato JSON')}</p>
+            <p className="text-xs text-slate-400">{t('exportacion.json_desc', 'Datos completos del ERP en formato JSON')}</p>
           </div>
         </button>
 
@@ -435,7 +435,7 @@ const ExportacionInteligente: React.FC = () => {
           <FileSpreadsheet className={`w-8 h-8 ${exportando === 'csv' ? 'text-green-500' : 'text-green-400'}`} />
           <div className="text-left">
             <p className="text-sm font-bold text-slate-700">{t('exportacion.csv', 'Exportar CSV')}</p>
-            <p className="text-[10px] text-slate-400">{t('exportacion.csv_desc', 'Tablas planas para Excel/Sheets')}</p>
+            <p className="text-xs text-slate-400">{t('exportacion.csv_desc', 'Tablas planas para Excel/Sheets')}</p>
           </div>
         </button>
 
@@ -447,7 +447,7 @@ const ExportacionInteligente: React.FC = () => {
           <FileText className={`w-8 h-8 ${exportando === 'pdf' ? 'text-red-500' : 'text-red-400'}`} />
           <div className="text-left">
             <p className="text-sm font-bold text-slate-700">{t('exportacion.pdf', 'Reporte PDF')}</p>
-            <p className="text-[10px] text-slate-400">{t('exportacion.pdf_desc', 'Reporte ejecutivo profesional con membrete')}</p>
+            <p className="text-xs text-slate-400">{t('exportacion.pdf_desc', 'Reporte ejecutivo profesional con membrete')}</p>
           </div>
         </button>
       </div>
@@ -503,11 +503,11 @@ const ExportacionInteligente: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-medium text-slate-700">{r.nombre}</span>
-                    <button onClick={() => toggleReporte(r.id)} className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${r.activo ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+                    <button onClick={() => toggleReporte(r.id)} className={`px-1.5 py-0.5 rounded text-xs font-medium ${r.activo ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
                       {r.activo ? t('exportacion.activo', 'Activo') : t('exportacion.pausado', 'Pausado')}
                     </button>
                   </div>
-                  <div className="flex gap-2 text-[10px] text-slate-400">
+                  <div className="flex gap-2 text-xs text-slate-400">
                     <span>📄 {r.tipo}</span>
                     <span>💾 {r.formato.toUpperCase()}</span>
                     <span>🔄 {r.frecuencia}</span>
@@ -516,7 +516,7 @@ const ExportacionInteligente: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0 ml-2">
-                  <button onClick={() => ejecutarReporteAhora(r)} className="px-2 py-1 bg-blue-500 text-white rounded text-[10px] hover:bg-blue-600 flex items-center gap-1">
+                  <button onClick={() => ejecutarReporteAhora(r)} className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 flex items-center gap-1">
                     <Send className="w-3 h-3" /> {t('exportacion.ejecutar', 'Ejecutar')}
                   </button>
                   <button onClick={() => eliminarReporte(r.id)} aria-label={t('exportacion.eliminar_reporte', 'Eliminar reporte')} className="p-1 text-slate-400 hover:text-red-500">
@@ -532,7 +532,7 @@ const ExportacionInteligente: React.FC = () => {
       {/* Instrucciones */}
       <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
         <h3 className="text-xs font-bold text-slate-600 mb-2">📋 {t('exportacion.guia', 'Guía de Exportación')}</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[10px] text-slate-500">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-500">
           <div>
             <p className="font-semibold text-slate-700">JSON</p>
             <p>{t('exportacion.guia_json', 'Exporta todos los datos del ERP en un único archivo JSON estructurado. Ideal para integraciones API, backup o análisis externo.')}</p>

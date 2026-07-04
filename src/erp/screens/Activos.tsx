@@ -100,10 +100,10 @@ const Activos: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <div className="p-3 bg-indigo-50 rounded-lg text-center"><p className="text-[10px] text-indigo-600">{t('activos.total')}</p><p className="text-xl font-bold text-indigo-700">{activos.length}</p></div>
-        <div className="p-3 bg-emerald-50 rounded-lg text-center"><p className="text-[10px] text-emerald-600">{t('activos.disponibles')}</p><p className="text-xl font-bold text-emerald-700">{activos.filter(a => a.estado === 'disponible').length}</p></div>
-        <div className="p-3 bg-amber-50 rounded-lg text-center"><p className="text-[10px] text-amber-600">{t('activos.asignados')}</p><p className="text-xl font-bold text-amber-700">{activos.filter(a => a.estado === 'asignado').length}</p></div>
-        <div className="p-3 bg-slate-50 rounded-lg text-center"><p className="text-[10px] text-slate-600">{t('activos.valor_total')}</p><p className="text-xl font-bold text-slate-800">Q{activos.reduce((s, a) => s + (Number(a.valor) || 0), 0).toLocaleString()}</p></div>
+        <div className="p-3 bg-indigo-50 rounded-lg text-center"><p className="text-xs text-indigo-600">{t('activos.total')}</p><p className="text-xl font-bold text-indigo-700">{activos.length}</p></div>
+        <div className="p-3 bg-emerald-50 rounded-lg text-center"><p className="text-xs text-emerald-600">{t('activos.disponibles')}</p><p className="text-xl font-bold text-emerald-700">{activos.filter(a => a.estado === 'disponible').length}</p></div>
+        <div className="p-3 bg-amber-50 rounded-lg text-center"><p className="text-xs text-amber-600">{t('activos.asignados')}</p><p className="text-xl font-bold text-amber-700">{activos.filter(a => a.estado === 'asignado').length}</p></div>
+        <div className="p-3 bg-slate-50 rounded-lg text-center"><p className="text-xs text-slate-600">{t('activos.valor_total')}</p><p className="text-xl font-bold text-slate-800">Q{activos.reduce((s, a) => s + (Number(a.valor) || 0), 0).toLocaleString()}</p></div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-x-auto">
@@ -123,7 +123,7 @@ const Activos: React.FC = () => {
                 <td className="p-2 font-mono text-slate-600">{a.codigo}</td>
                 <td className="p-2 font-medium text-slate-700">{a.nombre}</td>
                 <td className="p-2 text-slate-500">{TIPO_LABEL[a.tipo] || a.tipo}</td>
-                <td className="p-2"><span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${a.estado === 'disponible' ? 'bg-emerald-50 text-emerald-600' : a.estado === 'asignado' ? 'bg-amber-50 text-amber-600' : a.estado === 'mantenimiento' ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'}`}>{ESTADO_LABEL[a.estado] || a.estado}</span></td>
+                <td className="p-2"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.estado === 'disponible' ? 'bg-emerald-50 text-emerald-600' : a.estado === 'asignado' ? 'bg-amber-50 text-amber-600' : a.estado === 'mantenimiento' ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'}`}>{ESTADO_LABEL[a.estado] || a.estado}</span></td>
                 <td className="p-2 text-slate-500">{proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}</td>
                 <td className="p-2 font-mono">Q{Number(a.valor || 0).toLocaleString()}</td>
                 <td className="p-2 text-right">

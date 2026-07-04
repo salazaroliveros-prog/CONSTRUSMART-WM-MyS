@@ -85,15 +85,15 @@ const OrdenesCambio: React.FC = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-100">
-          <div className="text-[10px] text-slate-400">Total Órdenes</div>
+          <div className="text-xs text-slate-400">Total Órdenes</div>
           <div className="text-lg font-bold text-slate-800">{ordenesCambio.length}</div>
         </div>
         <div className="bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200">
-          <div className="text-[10px] text-amber-600">Pendientes</div>
+          <div className="text-xs text-amber-600">Pendientes</div>
           <div className="text-lg font-bold text-amber-600">{pendientes}</div>
         </div>
         <div className="bg-emerald-50 rounded-xl p-3 sm:p-4 border border-emerald-200">
-          <div className="text-[10px] text-emerald-600">Costo Aprobado</div>
+          <div className="text-xs text-emerald-600">Costo Aprobado</div>
           <div className="text-lg font-bold text-emerald-600">{fmtQ(costoTotal)}</div>
         </div>
       </div>
@@ -106,11 +106,11 @@ const OrdenesCambio: React.FC = () => {
             <textarea value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Descripción detallada del cambio..." rows={2} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-amber-400 resize-none" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
-                <label className="text-[10px] text-slate-500 mb-0.5 block">Impacto Costo (Q)</label>
+                <label className="text-xs text-slate-500 mb-0.5 block">Impacto Costo (Q)</label>
                 <input type="number" inputMode="decimal" value={fCosto || ''} onChange={e => setFCosto(+e.target.value)} min={0} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-200 outline-none" />
               </div>
               <div>
-                <label className="text-[10px] text-slate-500 mb-0.5 block">Impacto Plazo (días)</label>
+                <label className="text-xs text-slate-500 mb-0.5 block">Impacto Plazo (días)</label>
                 <input type="number" inputMode="decimal" value={fPlazo || ''} onChange={e => setFPlazo(+e.target.value)} min={0} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-200 outline-none" />
               </div>
             </div>
@@ -138,14 +138,14 @@ const OrdenesCambio: React.FC = () => {
                 <div className={`w-2 h-2 rounded-full shrink-0 ${oc.estado === 'aprobado' ? 'bg-emerald-400' : oc.estado === 'rechazado' ? 'bg-red-400' : oc.estado === 'revision' ? 'bg-blue-400' : 'bg-amber-400'}`} />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-slate-700 truncate">{oc.titulo}</div>
-                  <div className="text-[10px] text-slate-400 flex items-center gap-1">
+                  <div className="text-xs text-slate-400 flex items-center gap-1">
                     <Clock className="w-3 h-3" /> {oc.createdAt?.slice(0, 10)} · {oc.solicitante}
-                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
+                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                   </div>
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-xs font-semibold text-slate-700">{fmtQ(oc.impactoCosto)}</div>
-                  <div className="text-[9px] text-slate-400">+{oc.impactoPlazo} días</div>
+                  <div className="text-[10px] text-slate-400">+{oc.impactoPlazo} días</div>
                 </div>
                 {isOpen ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />}
               </button>
@@ -154,7 +154,7 @@ const OrdenesCambio: React.FC = () => {
                 <div className="px-4 pb-4 border-t border-slate-100 pt-3">
                   <p className="text-xs text-slate-600 mb-3">{oc.descripcion}</p>
                   {oc.aprobador && (
-                    <div className="text-[10px] text-slate-400 mb-2">
+                    <div className="text-xs text-slate-400 mb-2">
                       Aprobado por: <span className="font-medium text-slate-600">{oc.aprobador}</span> — {oc.fechaAprobacion}
                     </div>
                   )}
@@ -179,3 +179,4 @@ const OrdenesCambio: React.FC = () => {
 };
 
 export default OrdenesCambio;
+

@@ -110,7 +110,7 @@ const Administracion: React.FC = () => {
                       Q{saldo.toLocaleString()}
                     </td>
                     <td className="p-2 text-right">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${pct > 90 ? 'bg-destructive/10 text-destructive' : pct > 70 ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'}`}>
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${pct > 90 ? 'bg-destructive/10 text-destructive' : pct > 70 ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'}`}>
                         {pct.toFixed(1)}%
                       </span>
                     </td>

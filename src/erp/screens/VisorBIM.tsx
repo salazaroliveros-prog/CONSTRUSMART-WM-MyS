@@ -157,7 +157,7 @@ export default function VisorBIM() {
                 <Card key={el.id} className="p-3 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium">{el.nombre}</p>
-                    <p className="text-[10px] text-gray-500">{el.tipo} · {el.cantidad} {el.unidad}</p>
+                    <p className="text-xs text-gray-500">{el.tipo} · {el.cantidad} {el.unidad}</p>
                   </div>
                   <div className="flex gap-2">
                     {vinculaciones[el.id] ? (
@@ -221,11 +221,11 @@ export default function VisorBIM() {
             <p className="text-xs text-gray-500">Comparativa entre avance modelado en BIM y avance físico registrado en campo.</p>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="p-4 bg-blue-50 rounded-lg">
-                <p className="text-[10px] text-blue-600 font-bold">MODELADO (BIM)</p>
+                <p className="text-xs text-blue-600 font-bold">MODELADO (BIM)</p>
                 <p className="text-2xl font-bold text-blue-700">78%</p>
               </div>
               <div className="p-4 bg-emerald-50 rounded-lg">
-                <p className="text-[10px] text-emerald-600 font-bold">CAMPO (ERP)</p>
+                <p className="text-xs text-emerald-600 font-bold">CAMPO (ERP)</p>
                 <p className="text-2xl font-bold text-emerald-700">72%</p>
               </div>
             </div>

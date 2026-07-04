@@ -447,7 +447,7 @@ const APUAvanzado: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="text-[10px] text-muted-foreground mb-2">
+            <div className="text-xs text-muted-foreground mb-2">
               {filteredInsumos.length} insumos · Precios de referencia INSIVUMEH / MOP
             </div>
             <div className="overflow-x-auto">
@@ -467,7 +467,7 @@ const APUAvanzado: React.FC = () => {
                     <tr key={ins.id} className="border-b border-border hover:bg-muted">
                       <td className="py-2 px-2 font-medium text-foreground">{ins.nombre}</td>
                       <td className="py-2 px-2">
-                        <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-medium ${
+                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
                           ins.categoria === 'material' ? 'bg-info/10 text-info' :
                           ins.categoria === 'mano_obra' ? 'bg-success/10 text-success' :
                           ins.categoria === 'equipo' ? 'bg-accent/10 text-accent' :
@@ -569,8 +569,8 @@ const APUAvanzado: React.FC = () => {
                 { key: 'utilidad', label: 'Utilidad', desc: 'Margen de ganancia' },
               ] as const).map(item => (
                 <div key={item.key} className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                  <div className="text-[10px] text-slate-400 mb-1">{item.label}</div>
-                  <div className="text-[10px] text-slate-300 mb-1">{item.desc}</div>
+                  <div className="text-xs text-slate-400 mb-1">{item.label}</div>
+                  <div className="text-xs text-slate-300 mb-1">{item.desc}</div>
                   {editFactor ? (
                     <input
                       type="number" inputMode="decimal"
@@ -624,7 +624,7 @@ const APUAvanzado: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Resistencia</label>
+                <label className="text-xs text-slate-500 mb-1 block">Resistencia</label>
                 <select
                   value={dosificacion.resistencia}
                   onChange={e => setDosificacion(d => ({ ...d, resistencia: e.target.value as any }))}
@@ -641,7 +641,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Tipo de Elemento</label>
+                <label className="text-xs text-slate-500 mb-1 block">Tipo de Elemento</label>
                 <select
                   value={dosificacion.tipo}
                   onChange={e => setDosificacion(d => ({ ...d, tipo: e.target.value as any }))}
@@ -656,7 +656,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Tamaño de Agregado</label>
+                <label className="text-xs text-slate-500 mb-1 block">Tamaño de Agregado</label>
                 <select
                   value={dosificacion.tamañoAgregado}
                   onChange={e => setDosificacion(d => ({ ...d, tamañoAgregado: e.target.value as any }))}
@@ -670,7 +670,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Aditivos</label>
+                <label className="text-xs text-slate-500 mb-1 block">Aditivos</label>
                 <select
                   value={dosificacion.aditivos}
                   onChange={e => setDosificacion(d => ({ ...d, aditivos: e.target.value as any }))}
@@ -685,7 +685,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Tipo de Curado</label>
+                <label className="text-xs text-slate-500 mb-1 block">Tipo de Curado</label>
                 <select
                   value={dosificacion.curado}
                   onChange={e => setDosificacion(d => ({ ...d, curado: e.target.value as any }))}
@@ -698,7 +698,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Volumen (m³)</label>
+                <label className="text-xs text-slate-500 mb-1 block">Volumen (m³)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={volumen}
@@ -710,7 +710,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Departamento (opcional)</label>
+                <label className="text-xs text-slate-500 mb-1 block">Departamento (opcional)</label>
                 <select
                   value={departamento}
                   onChange={e => setDepartamento(e.target.value)}
@@ -741,19 +741,19 @@ const APUAvanzado: React.FC = () => {
                   <h3 className="font-bold text-slate-700 text-xs mb-3">Cantidades Calculadas</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-                      <div className="text-[10px] text-blue-600 mb-1">Cemento</div>
+                      <div className="text-xs text-blue-600 mb-1">Cemento</div>
                       <div className="text-lg font-bold text-blue-700">{resultadoDosificacion.cementoSacos.toFixed(1)} sacos</div>
                     </div>
                     <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
-                      <div className="text-[10px] text-amber-600 mb-1">Arena</div>
+                      <div className="text-xs text-amber-600 mb-1">Arena</div>
                       <div className="text-lg font-bold text-amber-700">{resultadoDosificacion.arenaM3.toFixed(2)} m³</div>
                     </div>
                     <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
-                      <div className="text-[10px] text-stone-600 mb-1">Piedra</div>
+                      <div className="text-xs text-stone-600 mb-1">Piedra</div>
                       <div className="text-lg font-bold text-stone-700">{resultadoDosificacion.piedraM3.toFixed(2)} m³</div>
                     </div>
                     <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
-                      <div className="text-[10px] text-cyan-600 mb-1">Agua</div>
+                      <div className="text-xs text-cyan-600 mb-1">Agua</div>
                       <div className="text-lg font-bold text-cyan-700">{resultadoDosificacion.aguaLt.toFixed(0)} lt</div>
                     </div>
                   </div>
@@ -762,11 +762,11 @@ const APUAvanzado: React.FC = () => {
                 <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-white/80">Costo Total</span>
+                      <span className="text-xs text-white/80">Costo Total</span>
                       <div className="text-2xl font-bold text-white">Q{resultadoDosificacion.costoTotal.toFixed(2)}</div>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] text-white/80">Factor Ajuste</span>
+                      <span className="text-xs text-white/80">Factor Ajuste</span>
                       <div className="text-lg font-bold text-white">x{resultadoDosificacion.factorAjuste.toFixed(2)}</div>
                     </div>
                   </div>
@@ -774,7 +774,7 @@ const APUAvanzado: React.FC = () => {
 
                 <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                   <h3 className="font-bold text-slate-700 text-xs mb-2">Desglose de Costos</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                     <div className="flex justify-between">
                       <span className="text-slate-500">Cemento:</span>
                       <span className="font-medium text-slate-700">Q{resultadoDosificacion.desgloseCostos.cemento.toFixed(2)}</span>
@@ -846,7 +846,7 @@ const APUAvanzado: React.FC = () => {
                 <div>
                   <span className="text-xs text-white/80">Precio de Venta (PV)</span>
                   <div className="text-2xl font-bold text-white">Q{calculos.precioVenta.toFixed(2)}</div>
-                  <span className="text-[10px] text-white/60">por unidad de obra</span>
+                  <span className="text-xs text-white/60">por unidad de obra</span>
                 </div>
                 <div className="text-right">
                   <span className="text-xs text-white/80">Factor</span>
@@ -878,7 +878,7 @@ const APUAvanzado: React.FC = () => {
                   const hPct = (h.cemento / maxVal) * 100;
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                      <span className="text-[9px] text-slate-400 font-medium">{h.cemento}</span>
+                      <span className="text-[10px] text-slate-400 font-medium">{h.cemento}</span>
                       <div
                         className="w-full bg-orange-400 rounded-t transition-all"
                         style={{ height: `${hPct}%`, minHeight: 8 }}
@@ -888,7 +888,7 @@ const APUAvanzado: React.FC = () => {
                   );
                 })}
               </div>
-              <div className="absolute top-2 left-3 text-[10px] text-slate-400">Cemento UGC (Q/saco)</div>
+              <div className="absolute top-2 left-3 text-xs text-slate-400">Cemento UGC (Q/saco)</div>
             </div>
 
             {/* Tabla histórica */}
@@ -920,31 +920,31 @@ const APUAvanzado: React.FC = () => {
             {/* Tendencia */}
             <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <div className="text-[10px] text-slate-500">Cemento</div>
+                <div className="text-xs text-slate-500">Cemento</div>
                 <div className="text-sm font-bold text-orange-600">
                   Q{historial[historial.length-1].cemento.toFixed(0)}
-                  <span className="text-[10px] ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].cemento - historial[0].cemento) / historial[0].cemento * 100).toFixed(1)}%</span>
+                  <span className="text-xs ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].cemento - historial[0].cemento) / historial[0].cemento * 100).toFixed(1)}%</span>
                 </div>
               </div>
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <div className="text-[10px] text-slate-500">Hierro 3/8&quot;</div>
+                <div className="text-xs text-slate-500">Hierro 3/8&quot;</div>
                 <div className="text-sm font-bold text-blue-600">
                   Q{historial[historial.length-1].hierro.toFixed(0)}
-                  <span className="text-[10px] ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].hierro - historial[0].hierro) / historial[0].hierro * 100).toFixed(1)}%</span>
+                  <span className="text-xs ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].hierro - historial[0].hierro) / historial[0].hierro * 100).toFixed(1)}%</span>
                 </div>
               </div>
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <div className="text-[10px] text-slate-500">Arena</div>
+                <div className="text-xs text-slate-500">Arena</div>
                 <div className="text-sm font-bold text-emerald-600">
                   Q{historial[historial.length-1].arena.toFixed(0)}
-                  <span className="text-[10px] ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].arena - historial[0].arena) / historial[0].arena * 100).toFixed(1)}%</span>
+                  <span className="text-xs ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].arena - historial[0].arena) / historial[0].arena * 100).toFixed(1)}%</span>
                 </div>
               </div>
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <div className="text-[10px] text-slate-500">Block</div>
+                <div className="text-xs text-slate-500">Block</div>
                 <div className="text-sm font-bold text-purple-600">
                   Q{historial[historial.length-1].block.toFixed(0)}
-                  <span className="text-[10px] ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].block - historial[0].block) / historial[0].block * 100).toFixed(1)}%</span>
+                  <span className="text-xs ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].block - historial[0].block) / historial[0].block * 100).toFixed(1)}%</span>
                 </div>
               </div>
             </div>
@@ -960,7 +960,7 @@ const APUAvanzado: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Elemento</label>
+                <label className="text-xs text-slate-500 mb-1 block">Elemento</label>
                 <select
                   value={acero.elemento}
                   onChange={e => setAcero(d => ({ ...d, elemento: e.target.value as any }))}
@@ -974,7 +974,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Grado</label>
+                <label className="text-xs text-slate-500 mb-1 block">Grado</label>
                 <select
                   value={acero.grado}
                   onChange={e => setAcero(d => ({ ...d, grado: parseInt(e.target.value) as any }))}
@@ -986,7 +986,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Estribos</label>
+                <label className="text-xs text-slate-500 mb-1 block">Estribos</label>
                 <select
                   value={acero.estribos}
                   onChange={e => setAcero(d => ({ ...d, estribos: e.target.value as any }))}
@@ -999,7 +999,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Volumen (m³)</label>
+                <label className="text-xs text-slate-500 mb-1 block">Volumen (m³)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={acero.volumenM3}
@@ -1030,10 +1030,10 @@ const APUAvanzado: React.FC = () => {
                     {resultadoAcero.desglose?.map((item: any, index: number) => (
                       <div key={index} className="bg-blue-50 rounded-lg p-3 border border-blue-100">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] text-blue-600">Diámetro {item.diametro}</span>
+                          <span className="text-xs text-blue-600">Diámetro {item.diametro}</span>
                           <span className="text-lg font-bold text-blue-700">{item.cantidadKg.toFixed(2)} kg</span>
                         </div>
-                        <div className="text-[10px] text-slate-500 mt-1">
+                        <div className="text-xs text-slate-500 mt-1">
                           Costo: Q{item.costoTotal.toFixed(2)} | Precio: Q{item.precioUnitarioKg.toFixed(2)}/kg
                         </div>
                       </div>
@@ -1044,7 +1044,7 @@ const APUAvanzado: React.FC = () => {
                 <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-white/80">Costo Total</span>
+                      <span className="text-xs text-white/80">Costo Total</span>
                       <div className="text-2xl font-bold text-white">Q{resultadoAcero.costoTotal?.toFixed(2) || '0.00'}</div>
                     </div>
                   </div>
@@ -1063,7 +1063,7 @@ const APUAvanzado: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Tipo</label>
+                <label className="text-xs text-slate-500 mb-1 block">Tipo</label>
                 <select
                   value={movimientoTierra.tipo}
                   onChange={e => setMovimientoTierra(d => ({ ...d, tipo: e.target.value as any }))}
@@ -1076,7 +1076,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Suelo</label>
+                <label className="text-xs text-slate-500 mb-1 block">Suelo</label>
                 <select
                   value={movimientoTierra.suelo}
                   onChange={e => setMovimientoTierra(d => ({ ...d, suelo: e.target.value as any }))}
@@ -1091,7 +1091,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Profundidad</label>
+                <label className="text-xs text-slate-500 mb-1 block">Profundidad</label>
                 <select
                   value={movimientoTierra.profundidad}
                   onChange={e => setMovimientoTierra(d => ({ ...d, profundidad: e.target.value as any }))}
@@ -1105,7 +1105,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Acceso</label>
+                <label className="text-xs text-slate-500 mb-1 block">Acceso</label>
                 <select
                   value={movimientoTierra.acceso}
                   onChange={e => setMovimientoTierra(d => ({ ...d, acceso: e.target.value as any }))}
@@ -1118,7 +1118,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Drenaje</label>
+                <label className="text-xs text-slate-500 mb-1 block">Drenaje</label>
                 <select
                   value={movimientoTierra.drenaje}
                   onChange={e => setMovimientoTierra(d => ({ ...d, drenaje: e.target.value as any }))}
@@ -1131,7 +1131,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Volumen (m³)</label>
+                <label className="text-xs text-slate-500 mb-1 block">Volumen (m³)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={movimientoTierra.volumenM3}
@@ -1160,19 +1160,19 @@ const APUAvanzado: React.FC = () => {
                   <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-                      <div className="text-[10px] text-blue-600 mb-1">Costo Unitario</div>
+                      <div className="text-xs text-blue-600 mb-1">Costo Unitario</div>
                       <div className="text-lg font-bold text-blue-700">Q{resultadoMovimientoTierra.costoUnitario?.toFixed(2) || '0.00'}/m³</div>
                     </div>
                     <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
-                      <div className="text-[10px] text-amber-600 mb-1">Costo Total</div>
+                      <div className="text-xs text-amber-600 mb-1">Costo Total</div>
                       <div className="text-lg font-bold text-amber-700">Q{resultadoMovimientoTierra.costoTotal?.toFixed(2) || '0.00'}</div>
                     </div>
                     <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
-                      <div className="text-[10px] text-stone-600 mb-1">Tiempo Estimado</div>
+                      <div className="text-xs text-stone-600 mb-1">Tiempo Estimado</div>
                       <div className="text-lg font-bold text-stone-700">{resultadoMovimientoTierra.tiempoEstimadoDias?.toFixed(1) || '0'} días</div>
                     </div>
                     <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
-                      <div className="text-[10px] text-cyan-600 mb-1">Factor Ajuste</div>
+                      <div className="text-xs text-cyan-600 mb-1">Factor Ajuste</div>
                       <div className="text-lg font-bold text-cyan-700">x{resultadoMovimientoTierra.factorAjusteTotal?.toFixed(2) || '1.00'}</div>
                     </div>
                   </div>
@@ -1182,7 +1182,7 @@ const APUAvanzado: React.FC = () => {
                   <h3 className="font-bold text-slate-700 text-xs mb-2">Equipo Requerido</h3>
                   <div className="flex flex-wrap gap-2">
                     {resultadoMovimientoTierra.equipoRequerido?.map((eq: string, idx: number) => (
-                      <span key={idx} className="text-[10px] px-2 py-1 bg-slate-200 rounded-full">{eq}</span>
+                      <span key={idx} className="text-xs px-2 py-1 bg-slate-200 rounded-full">{eq}</span>
                     ))}
                   </div>
                 </div>
@@ -1200,7 +1200,7 @@ const APUAvanzado: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Departamento</label>
+                <label className="text-xs text-slate-500 mb-1 block">Departamento</label>
                 <select
                   value={parametrosClimaticos.departamentoCodigo}
                   onChange={e => setParametrosClimaticos(d => ({ ...d, departamentoCodigo: e.target.value }))}
@@ -1214,7 +1214,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Mes (opcional)</label>
+                <label className="text-xs text-slate-500 mb-1 block">Mes (opcional)</label>
                 <select
                   value={parametrosClimaticos.mes}
                   onChange={e => setParametrosClimaticos(d => ({ ...d, mes: e.target.value }))}
@@ -1254,15 +1254,15 @@ const APUAvanzado: React.FC = () => {
                   <h3 className="font-bold text-slate-700 text-xs mb-3">Factores Climáticos</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-                      <div className="text-[10px] text-blue-600 mb-1">Factor Curado</div>
+                      <div className="text-xs text-blue-600 mb-1">Factor Curado</div>
                       <div className="text-lg font-bold text-blue-700">x{resultadoClimaticos.factorCurado?.toFixed(2) || '1.00'}</div>
                     </div>
                     <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
-                      <div className="text-[10px] text-amber-600 mb-1">Factor Rendimiento</div>
+                      <div className="text-xs text-amber-600 mb-1">Factor Rendimiento</div>
                       <div className="text-lg font-bold text-amber-700">x{resultadoClimaticos.factorRendimiento?.toFixed(2) || '1.00'}</div>
                     </div>
                     <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
-                      <div className="text-[10px] text-stone-600 mb-1">Factor Protección</div>
+                      <div className="text-xs text-stone-600 mb-1">Factor Protección</div>
                       <div className="text-lg font-bold text-stone-700">x{resultadoClimaticos.factorProteccion?.toFixed(2) || '1.00'}</div>
                     </div>
                   </div>
@@ -1271,11 +1271,11 @@ const APUAvanzado: React.FC = () => {
                 <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-white/80">Ajuste Estacional</span>
+                      <span className="text-xs text-white/80">Ajuste Estacional</span>
                       <div className="text-2xl font-bold text-white">x{resultadoClimaticos.factorAjusteEstacional?.toFixed(2) || '1.00'}</div>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] text-white/80">Observaciones</span>
+                      <span className="text-xs text-white/80">Observaciones</span>
                       <div className="text-sm font-bold text-white">{resultadoClimaticos.observaciones || ''}</div>
                     </div>
                   </div>
@@ -1294,7 +1294,7 @@ const APUAvanzado: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Uso</label>
+                <label className="text-xs text-slate-500 mb-1 block">Uso</label>
                 <select
                   value={pavimento.uso}
                   onChange={e => setPavimento(d => ({ ...d, uso: e.target.value as any }))}
@@ -1308,7 +1308,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Tipo</label>
+                <label className="text-xs text-slate-500 mb-1 block">Tipo</label>
                 <select
                   value={pavimento.tipo}
                   onChange={e => setPavimento(d => ({ ...d, tipo: e.target.value as any }))}
@@ -1323,7 +1323,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Tipo Base</label>
+                <label className="text-xs text-slate-500 mb-1 block">Tipo Base</label>
                 <select
                   value={pavimento.tipoBase}
                   onChange={e => setPavimento(d => ({ ...d, tipoBase: e.target.value as any }))}
@@ -1337,7 +1337,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Tipo Sello</label>
+                <label className="text-xs text-slate-500 mb-1 block">Tipo Sello</label>
                 <select
                   value={pavimento.tipoSello}
                   onChange={e => setPavimento(d => ({ ...d, tipoSello: e.target.value as any }))}
@@ -1351,7 +1351,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Área (m²)</label>
+                <label className="text-xs text-slate-500 mb-1 block">Área (m²)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={pavimento.areaM2}
@@ -1380,19 +1380,19 @@ const APUAvanzado: React.FC = () => {
                   <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-                      <div className="text-[10px] text-blue-600 mb-1">Espesor</div>
+                      <div className="text-xs text-blue-600 mb-1">Espesor</div>
                       <div className="text-lg font-bold text-blue-700">{resultadoPavimento.espesorCm?.toFixed(1) || '0'} cm</div>
                     </div>
                     <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
-                      <div className="text-[10px] text-amber-600 mb-1">Costo Total/m²</div>
+                      <div className="text-xs text-amber-600 mb-1">Costo Total/m²</div>
                       <div className="text-lg font-bold text-amber-700">Q{resultadoPavimento.costoTotalM2?.toFixed(2) || '0.00'}</div>
                     </div>
                     <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
-                      <div className="text-[10px] text-stone-600 mb-1">Costo Total</div>
+                      <div className="text-xs text-stone-600 mb-1">Costo Total</div>
                       <div className="text-lg font-bold text-stone-700">Q{resultadoPavimento.costoTotal?.toFixed(2) || '0.00'}</div>
                     </div>
                     <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
-                      <div className="text-[10px] text-cyan-600 mb-1">Volumen Base</div>
+                      <div className="text-xs text-cyan-600 mb-1">Volumen Base</div>
                       <div className="text-lg font-bold text-cyan-700">{resultadoPavimento.volumenBaseM3?.toFixed(2) || '0'} m³</div>
                     </div>
                   </div>
@@ -1400,7 +1400,7 @@ const APUAvanzado: React.FC = () => {
 
                 <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                   <h3 className="font-bold text-slate-700 text-xs mb-2">Desglose de Costos</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                     <div className="flex justify-between">
                       <span className="text-slate-500">Superficie:</span>
                       <span className="font-medium text-slate-700">Q{resultadoPavimento.costoSuperficieM2?.toFixed(2) || '0.00'}/m²</span>
@@ -1419,7 +1419,7 @@ const APUAvanzado: React.FC = () => {
                 <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-white/80">Referencia Normativa</span>
+                      <span className="text-xs text-white/80">Referencia Normativa</span>
                       <div className="text-lg font-bold text-white">{resultadoPavimento.referenciaNorma || ''}</div>
                     </div>
                   </div>
@@ -1438,7 +1438,7 @@ const APUAvanzado: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Tipo</label>
+                <label className="text-xs text-slate-500 mb-1 block">Tipo</label>
                 <select
                   value={redInfraestructura.tipo}
                   onChange={e => setRedInfraestructura(d => ({ ...d, tipo: e.target.value as any }))}
@@ -1451,7 +1451,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Diámetro (pulgadas)</label>
+                <label className="text-xs text-slate-500 mb-1 block">Diámetro (pulgadas)</label>
                 <select
                   value={redInfraestructura.diametroPulgadas}
                   onChange={e => setRedInfraestructura(d => ({ ...d, diametroPulgadas: parseFloat(e.target.value) }))}
@@ -1468,7 +1468,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Material</label>
+                <label className="text-xs text-slate-500 mb-1 block">Material</label>
                 <select
                   value={redInfraestructura.material}
                   onChange={e => setRedInfraestructura(d => ({ ...d, material: e.target.value as any }))}
@@ -1484,7 +1484,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Presión</label>
+                <label className="text-xs text-slate-500 mb-1 block">Presión</label>
                 <select
                   value={redInfraestructura.presion}
                   onChange={e => setRedInfraestructura(d => ({ ...d, presion: e.target.value as any }))}
@@ -1497,7 +1497,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Longitud (ml)</label>
+                <label className="text-xs text-slate-500 mb-1 block">Longitud (ml)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={redInfraestructura.longitudMl}
@@ -1526,19 +1526,19 @@ const APUAvanzado: React.FC = () => {
                   <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-                      <div className="text-[10px] text-blue-600 mb-1">Costo Unitario</div>
+                      <div className="text-xs text-blue-600 mb-1">Costo Unitario</div>
                       <div className="text-lg font-bold text-blue-700">Q{resultadoRedInfraestructura.costoUnitarioMl?.toFixed(2) || '0.00'}/ml</div>
                     </div>
                     <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
-                      <div className="text-[10px] text-amber-600 mb-1">Costo Total</div>
+                      <div className="text-xs text-amber-600 mb-1">Costo Total</div>
                       <div className="text-lg font-bold text-amber-700">Q{resultadoRedInfraestructura.costoTotal?.toFixed(2) || '0.00'}</div>
                     </div>
                     <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
-                      <div className="text-[10px] text-stone-600 mb-1">Factor Material</div>
+                      <div className="text-xs text-stone-600 mb-1">Factor Material</div>
                       <div className="text-lg font-bold text-stone-700">x{resultadoRedInfraestructura.factorAjusteMaterial?.toFixed(2) || '1.00'}</div>
                     </div>
                     <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
-                      <div className="text-[10px] text-cyan-600 mb-1">Normativa</div>
+                      <div className="text-xs text-cyan-600 mb-1">Normativa</div>
                       <div className="text-sm font-bold text-cyan-700">{resultadoRedInfraestructura.referenciaNorma || ''}</div>
                     </div>
                   </div>
@@ -1547,11 +1547,11 @@ const APUAvanzado: React.FC = () => {
                 <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-white/80">Costo Total Instalado</span>
+                      <span className="text-xs text-white/80">Costo Total Instalado</span>
                       <div className="text-2xl font-bold text-white">Q{resultadoRedInfraestructura.costoTotal?.toFixed(2) || '0.00'}</div>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] text-white/80">Incluye factor material</span>
+                      <span className="text-xs text-white/80">Incluye factor material</span>
                       <div className="text-lg font-bold text-white">x{resultadoRedInfraestructura.factorAjusteMaterial?.toFixed(2) || '1.00'}</div>
                     </div>
                   </div>
@@ -1570,7 +1570,7 @@ const APUAvanzado: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Altura (m)</label>
+                <label className="text-xs text-slate-500 mb-1 block">Altura (m)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={muroContencion.alturaM}
@@ -1583,7 +1583,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Tipo de Muro</label>
+                <label className="text-xs text-slate-500 mb-1 block">Tipo de Muro</label>
                 <select
                   value={muroContencion.tipo}
                   onChange={e => setMuroContencion(d => ({ ...d, tipo: e.target.value as any }))}
@@ -1598,7 +1598,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Cimentación</label>
+                <label className="text-xs text-slate-500 mb-1 block">Cimentación</label>
                 <select
                   value={muroContencion.tipoCimentacion}
                   onChange={e => setMuroContencion(d => ({ ...d, tipoCimentacion: e.target.value as any }))}
@@ -1611,7 +1611,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Tipo de Suelo</label>
+                <label className="text-xs text-slate-500 mb-1 block">Tipo de Suelo</label>
                 <select
                   value={muroContencion.tipoSuelo}
                   onChange={e => setMuroContencion(d => ({ ...d, tipoSuelo: e.target.value as any }))}
@@ -1626,7 +1626,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Drenaje</label>
+                <label className="text-xs text-slate-500 mb-1 block">Drenaje</label>
                 <select
                   value={muroContencion.tipoDrenaje}
                   onChange={e => setMuroContencion(d => ({ ...d, tipoDrenaje: e.target.value as any }))}
@@ -1640,7 +1640,7 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Longitud (m)</label>
+                <label className="text-xs text-slate-500 mb-1 block">Longitud (m)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={muroContencion.longitudM}
@@ -1669,19 +1669,19 @@ const APUAvanzado: React.FC = () => {
                   <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-                      <div className="text-[10px] text-blue-600 mb-1">Costo Unitario</div>
+                      <div className="text-xs text-blue-600 mb-1">Costo Unitario</div>
                       <div className="text-lg font-bold text-blue-700">Q{resultadoMuroContencion.costoUnitarioM2?.toFixed(2) || '0.00'}/m²</div>
                     </div>
                     <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
-                      <div className="text-[10px] text-amber-600 mb-1">Costo Total</div>
+                      <div className="text-xs text-amber-600 mb-1">Costo Total</div>
                       <div className="text-lg font-bold text-amber-700">Q{resultadoMuroContencion.costoTotal?.toFixed(2) || '0.00'}</div>
                     </div>
                     <div className="bg-stone-50 rounded-lg p-3 border border-stone-100">
-                      <div className="text-[10px] text-stone-600 mb-1">Factor Ajuste</div>
+                      <div className="text-xs text-stone-600 mb-1">Factor Ajuste</div>
                       <div className="text-lg font-bold text-stone-700">x{resultadoMuroContencion.factorAjusteTotal?.toFixed(2) || '1.00'}</div>
                     </div>
                     <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
-                      <div className="text-[10px] text-cyan-600 mb-1">Volumen Concreto</div>
+                      <div className="text-xs text-cyan-600 mb-1">Volumen Concreto</div>
                       <div className="text-lg font-bold text-cyan-700">{resultadoMuroContencion.volumenConcretoM3?.toFixed(2) || '0'} m³</div>
                     </div>
                   </div>
@@ -1690,11 +1690,11 @@ const APUAvanzado: React.FC = () => {
                 <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-white/80">Costo Total Instalado</span>
+                      <span className="text-xs text-white/80">Costo Total Instalado</span>
                       <div className="text-2xl font-bold text-white">Q{resultadoMuroContencion.costoTotal?.toFixed(2) || '0.00'}</div>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] text-white/80">Referencia Normativa</span>
+                      <span className="text-xs text-white/80">Referencia Normativa</span>
                       <div className="text-sm font-bold text-white">{resultadoMuroContencion.referenciaNorma || ''}</div>
                     </div>
                   </div>

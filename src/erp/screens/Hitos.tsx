@@ -218,7 +218,7 @@ const HitosScreen: React.FC = () => {
             const hitosMismoProy = hitos.filter(h => h.proyectoId === form.proyectoId);
             return hitosMismoProy.length > 0 ? (
               <div>
-                <label className="text-[10px] text-slate-500 font-semibold mb-1 block">🔗 Dependencias (predecesores)</label>
+                <label className="text-xs text-slate-500 font-semibold mb-1 block">🔗 Dependencias (predecesores)</label>
                 <div className="flex flex-wrap gap-1.5">
                   {hitosMismoProy.map(h => (
                     <button
@@ -229,7 +229,7 @@ const HitosScreen: React.FC = () => {
                           : [...form.dependeDe, h.id];
                         setForm(p => ({ ...p, dependeDe: newDep }));
                       }}
-                      className={`px-2 py-1 rounded-lg text-[10px] border transition-colors ${
+                      className={`px-2 py-1 rounded-lg text-xs border transition-colors ${
                         form.dependeDe.includes(h.id)
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold'
                           : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-200'
@@ -239,10 +239,10 @@ const HitosScreen: React.FC = () => {
                     </button>
                   ))}
                 </div>
-                <p className="text-[9px] text-slate-400 mt-1">Selecciona los hitos que deben completarse ANTES de este</p>
+                <p className="text-[10px] text-slate-400 mt-1">Selecciona los hitos que deben completarse ANTES de este</p>
               </div>
             ) : (
-              <p className="text-[10px] text-slate-400 italic">Crea otros hitos primero para asignar dependencias</p>
+              <p className="text-xs text-slate-400 italic">Crea otros hitos primero para asignar dependencias</p>
             );
           })()}
 
@@ -277,15 +277,15 @@ const HitosScreen: React.FC = () => {
               <button onClick={() => setMesCalendario(m => m.month === 11 ? { year: m.year + 1, month: 0 } : { ...m, month: m.month + 1 })} className="text-slate-400 hover:text-slate-600">▶</button>
             </div>
             <div className="grid grid-cols-7 gap-0.5 text-center">
-              {dayNames.map(d => <div key={d} className="text-[9px] text-slate-400 font-semibold py-1">{d}</div>)}
+              {dayNames.map(d => <div key={d} className="text-[10px] text-slate-400 font-semibold py-1">{d}</div>)}
               {cells.map((day, i) => {
                 if (day === null) return <div key={`empty-${i}`} />;
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const hitosDelDia = hitosFiltrados.filter(h => h.fecha === dateStr);
                 const isToday = dateStr === hoy;
                 return (
-                  <div key={day} className={`min-h-[48px] p-0.5 rounded text-[10px] ${isToday ? 'bg-emerald-50 ring-1 ring-emerald-300' : 'hover:bg-slate-50'}`}>
-                    <div className={`text-[10px] font-bold ${isToday ? 'text-emerald-600' : 'text-slate-600'}`}>{day}</div>
+                  <div key={day} className={`min-h-[48px] p-0.5 rounded text-xs ${isToday ? 'bg-emerald-50 ring-1 ring-emerald-300' : 'hover:bg-slate-50'}`}>
+                    <div className={`text-xs font-bold ${isToday ? 'text-emerald-600' : 'text-slate-600'}`}>{day}</div>
                     {hitosDelDia.slice(0, 2).map(h => {
                       const tipoColor: Record<string, string> = { inicio: 'bg-blue-100 text-blue-600', hito: 'bg-amber-100 text-amber-600', entrega: 'bg-purple-100 text-purple-600', cierre: 'bg-red-100 text-red-600' };
                       return <div key={h.id} className={`text-[8px] px-0.5 py-px rounded truncate ${tipoColor[h.tipo] || 'bg-slate-100 text-slate-600'}`}>{h.nombre}</div>;
@@ -317,22 +317,22 @@ const HitosScreen: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`w-2 h-2 rounded-full ${h.estado === 'completado' ? 'bg-emerald-500' : esVencido ? 'bg-red-500' : bloqueado ? 'bg-slate-400' : 'bg-amber-400'}`} />
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">{h.tipo}</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">{h.tipo}</span>
                     <span className="text-xs text-slate-400">{proy?.nombre || '—'}</span>
-                    {bloqueado && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-500">🔒 Bloqueado</span>}
+                    {bloqueado && <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-500">🔒 Bloqueado</span>}
                   </div>
                   <p className="text-sm font-semibold text-slate-800">{h.nombre}</p>
                   {h.descripcion && <p className="text-xs text-slate-500 mt-0.5">{h.descripcion}</p>}
-                  <div className="flex gap-3 mt-1 text-[10px] text-slate-400">
+                  <div className="flex gap-3 mt-1 text-xs text-slate-400">
                     <span>📅 {h.fecha}</span>
                     {h.responsable && <span>👤 {h.responsable}</span>}
                     {h.completadoEn && <span>✅ Completado: {h.completadoEn}</span>}
                   </div>
                   {dependencias.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1.5">
-                      <span className="text-[9px] text-slate-400">🔗 Requiere:</span>
+                      <span className="text-[10px] text-slate-400">🔗 Requiere:</span>
                       {dependencias.map(d => (
-                        <span key={d!.id} className={`text-[9px] px-1.5 py-0.5 rounded ${d!.estado === 'completado' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+                        <span key={d!.id} className={`text-[10px] px-1.5 py-0.5 rounded ${d!.estado === 'completado' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
                           {d!.nombre} {d!.estado === 'completado' ? '✅' : '⏳'}
                         </span>
                       ))}
@@ -344,7 +344,7 @@ const HitosScreen: React.FC = () => {
                     <button
                       onClick={() => completar(h.id)}
                       disabled={bloqueado}
-                      className={`px-2 py-1 rounded text-[10px] ${esVencido ? 'bg-orange-500 text-white' : bloqueado ? 'bg-slate-300 text-slate-500' : 'bg-emerald-500 text-white'} ${bloqueado ? 'cursor-not-allowed' : 'hover:opacity-80'}`}
+                      className={`px-2 py-1 rounded text-xs ${esVencido ? 'bg-orange-500 text-white' : bloqueado ? 'bg-slate-300 text-slate-500' : 'bg-emerald-500 text-white'} ${bloqueado ? 'cursor-not-allowed' : 'hover:opacity-80'}`}
                     >
                       {bloqueado ? '🔒' : esVencido ? 'Completar (retrasado)' : 'Completar'}
                     </button>
@@ -361,3 +361,4 @@ const HitosScreen: React.FC = () => {
 };
 
 export default HitosScreen;
+

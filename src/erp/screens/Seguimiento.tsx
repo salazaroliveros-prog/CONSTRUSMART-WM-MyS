@@ -188,7 +188,7 @@ const Seguimiento: React.FC = () => {
               <tr key={p.id} className="border-t border-border/50 hover:bg-muted/40 transition-colors">
                 <td className="p-3">
                   <div className="font-semibold text-foreground">{p.nombre}</div>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                     p.estado === 'ejecucion'
                       ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
                       : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
@@ -322,7 +322,7 @@ const Seguimiento: React.FC = () => {
               <div className="flex justify-between items-start gap-2">
                 <div>
                   <div className="font-semibold text-foreground">{proyectos.find(p => p.id === b.proyectoId)?.nombre}</div>
-                  <div className="text-muted-foreground text-[10px]">{b.fecha}</div>
+                  <div className="text-muted-foreground text-xs">{b.fecha}</div>
                 </div>
                 <div className="flex items-center gap-1">
                   <button type="button" onClick={() => startEditBitacora(b)}
@@ -484,7 +484,7 @@ const Seguimiento: React.FC = () => {
               <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)}
                 className={`rounded-lg px-3 py-2 text-left transition-colors ${active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}>
                 <span className="block text-xs sm:text-sm font-bold">{tab.label}</span>
-                <span className={`hidden sm:block text-[10px] ${active ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>{tab.description}</span>
+                <span className={`hidden sm:block text-xs ${active ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>{tab.description}</span>
               </button>
             );
           })}
@@ -501,3 +501,4 @@ const Seguimiento: React.FC = () => {
 };
 
 export default Seguimiento;
+

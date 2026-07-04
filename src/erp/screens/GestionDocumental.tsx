@@ -227,15 +227,15 @@ const GestionDocumental: React.FC = () => {
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
-          <div className="text-[10px] text-muted-foreground">{t('gestion_documental.kpi_planos', 'Planos')}</div>
+          <div className="text-xs text-muted-foreground">{t('gestion_documental.kpi_planos', 'Planos')}</div>
           <div className="text-lg font-bold text-foreground">{planos.filter(p => !selProyecto || p.proyectoId === selProyecto).length}</div>
         </div>
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
-          <div className="text-[10px] text-muted-foreground">{t('gestion_documental.kpi_rfis', 'RFIs Activos')}</div>
+          <div className="text-xs text-muted-foreground">{t('gestion_documental.kpi_rfis', 'RFIs Activos')}</div>
           <div className="text-lg font-bold text-warning">{rfis.filter(r => r.estado !== 'cerrado' && (!selProyecto || r.proyectoId === selProyecto)).length}</div>
         </div>
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
-          <div className="text-[10px] text-muted-foreground">{t('gestion_documental.kpi_submittals', 'Submittals Pendientes')}</div>
+          <div className="text-xs text-muted-foreground">{t('gestion_documental.kpi_submittals', 'Submittals Pendientes')}</div>
           <div className="text-lg font-bold text-info">{submittals.filter(s => s.estado === 'pendiente' && (!selProyecto || s.proyectoId === selProyecto)).length}</div>
         </div>
       </div>
@@ -306,13 +306,13 @@ const GestionDocumental: React.FC = () => {
           {/* Historial de versiones */}
           {Object.keys(versiones).length > 0 && (
             <div className="mb-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase mb-2">{t('gestion_documental.historial_versiones', 'Historial de Versiones')}</h3>
+              <h3 className="text-xs font-bold text-slate-500 uppercase mb-2">{t('gestion_documental.historial_versiones', 'Historial de Versiones')}</h3>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(versiones).map(([planoId, vers]) => {
                   const plano = planos.find(p => p.id === planoId);
                   if (!plano) return null;
                   return (
-                    <div key={planoId} className="text-[10px] bg-white border border-slate-200 rounded px-2 py-1">
+                    <div key={planoId} className="text-xs bg-white border border-slate-200 rounded px-2 py-1">
                       <span className="font-semibold text-slate-700">{plano.nombre}</span>: {vers.join(' → ')}
                     </div>
                   );
@@ -333,22 +333,22 @@ const GestionDocumental: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-info/10 text-info font-medium">{p.disciplina}</span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-info/10 text-info font-medium">{p.disciplina}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
                           p.estado === 'vigente' ? 'bg-success/10 text-success' : p.estado === 'obsoleto' ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning'
                         }`}>{p.estado}</span>
                       </div>
                       <p className="text-sm font-medium text-foreground">{p.nombre}</p>
-                      <div className="flex gap-2 mt-1 text-[10px] text-muted-foreground">
+                      <div className="flex gap-2 mt-1 text-xs text-muted-foreground">
                         <span>📄 v{p.version}</span>
                         <span>📅 {p.fechaSubida}</span>
                         <span>👤 {p.subidoPor}</span>
                       </div>
-                      {p.descripcion && <p className="text-[10px] text-muted-foreground mt-1">{p.descripcion}</p>}
+                      {p.descripcion && <p className="text-xs text-muted-foreground mt-1">{p.descripcion}</p>}
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2">
-                      <button onClick={() => addVersionPlano(p.id)} className="px-2 py-1 bg-blue-500 text-white rounded text-[10px] hover:bg-blue-600" title={t('gestion_documental.nueva_version', 'Nueva versión')}>+v</button>
-                      <button onClick={() => togglePlanoEstado(p.id)} className={`px-2 py-1 rounded text-[10px] ${p.estado === 'vigente' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}>
+                      <button onClick={() => addVersionPlano(p.id)} className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600" title={t('gestion_documental.nueva_version', 'Nueva versión')}>+v</button>
+                      <button onClick={() => togglePlanoEstado(p.id)} className={`px-2 py-1 rounded text-xs ${p.estado === 'vigente' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}>
                         {p.estado === 'vigente' ? t('gestion_documental.obsoleto', 'Obsoleto') : t('gestion_documental.activar', 'Activar')}
                       </button>
                     </div>
@@ -405,21 +405,21 @@ const GestionDocumental: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-bold text-warning bg-warning/10 px-1.5 py-0.5 rounded">{r.numero}</span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                        <span className="text-xs font-bold text-warning bg-warning/10 px-1.5 py-0.5 rounded">{r.numero}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                           r.estado === 'abierto' ? 'bg-destructive/10 text-destructive' : r.estado === 'en_respuesta' ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
                         }`}>{r.estado.replace(/_/g, ' ')}</span>
                       </div>
                       <p className="text-sm font-medium text-foreground">{r.titulo}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">{r.descripcion}</p>
-                      <div className="flex gap-2 mt-1 text-[10px] text-muted-foreground">
+                      <div className="flex gap-2 mt-1 text-xs text-muted-foreground">
                         <span>📅 {r.fechaSolicitud}</span>
                         <span>👤 {r.solicitante}</span>
                         <span>📬 → {r.destino}</span>
                       </div>
                       {r.respuesta && (
                         <div className="mt-2 p-2 bg-success/10 rounded-lg border border-success/30">
-                          <p className="text-[10px] font-bold text-success mb-0.5">{t('gestion_documental.respuesta_label', 'Respuesta')} ({r.fechaRespuesta}):</p>
+                          <p className="text-xs font-bold text-success mb-0.5">{t('gestion_documental.respuesta_label', 'Respuesta')} ({r.fechaRespuesta}):</p>
                           <p className="text-xs text-foreground">{r.respuesta}</p>
                         </div>
                       )}
@@ -429,10 +429,10 @@ const GestionDocumental: React.FC = () => {
                         <button onClick={() => {
                           const resp = prompt(t('gestion_documental.escribe_respuesta', 'Escribe la respuesta:'));
                           if (resp) actualizarRFI(r.id, 'en_respuesta', resp);
-                        }} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">{t('gestion_documental.responder', 'Responder')}</button>
+                        }} className="px-2 py-1 bg-amber-500 text-white rounded text-xs hover:bg-amber-600">{t('gestion_documental.responder', 'Responder')}</button>
                       )}
                       {r.estado === 'en_respuesta' && (
-                        <button onClick={() => actualizarRFI(r.id, 'cerrado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('gestion_documental.cerrar', 'Cerrar')}</button>
+                        <button onClick={() => actualizarRFI(r.id, 'cerrado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-xs hover:bg-emerald-600">{t('gestion_documental.cerrar', 'Cerrar')}</button>
                       )}
                     </div>
                   </div>
@@ -499,24 +499,24 @@ const GestionDocumental: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600 font-medium">{s.categoria}</span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600 font-medium">{s.categoria}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                           s.estado === 'aprobado' ? 'bg-emerald-50 text-emerald-600' : s.estado === 'rechazado' ? 'bg-red-50 text-red-500' : s.estado === 'con_comentarios' ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-500'
                         }`}>{s.estado.replace(/_/g, ' ')}</span>
                       </div>
                       <p className="text-sm font-medium text-slate-700">{s.titulo}</p>
-                      <div className="flex gap-2 mt-1 text-[10px] text-slate-400">
+                      <div className="flex gap-2 mt-1 text-xs text-slate-400">
                         <span>📅 {s.fechaEnvio}</span>
                         <span>🏭 {s.proveedor}</span>
                       </div>
-                      {s.descripcion && <p className="text-[10px] text-slate-500 mt-0.5">{s.descripcion}</p>}
+                      {s.descripcion && <p className="text-xs text-slate-500 mt-0.5">{s.descripcion}</p>}
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {s.estado === 'pendiente' && (
                         <>
-                          <button onClick={() => actualizarSubmittal(s.id, 'aprobado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('gestion_documental.aprobar', 'Aprobar')}</button>
-                          <button onClick={() => { const c = prompt(t('gestion_documental.comentarios_prompt', 'Comentarios:')); if (c) actualizarSubmittal(s.id, 'con_comentarios'); }} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">{t('gestion_documental.comentar', 'Comentar')}</button>
-                          <button onClick={() => actualizarSubmittal(s.id, 'rechazado')} className="px-2 py-1 bg-red-500 text-white rounded text-[10px] hover:bg-red-600">{t('gestion_documental.rechazar', 'Rechazar')}</button>
+                          <button onClick={() => actualizarSubmittal(s.id, 'aprobado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-xs hover:bg-emerald-600">{t('gestion_documental.aprobar', 'Aprobar')}</button>
+                          <button onClick={() => { const c = prompt(t('gestion_documental.comentarios_prompt', 'Comentarios:')); if (c) actualizarSubmittal(s.id, 'con_comentarios'); }} className="px-2 py-1 bg-amber-500 text-white rounded text-xs hover:bg-amber-600">{t('gestion_documental.comentar', 'Comentar')}</button>
+                          <button onClick={() => actualizarSubmittal(s.id, 'rechazado')} className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">{t('gestion_documental.rechazar', 'Rechazar')}</button>
                         </>
                       )}
                     </div>
