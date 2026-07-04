@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { Package } from 'lucide-react';
 import { useErp } from '../store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
@@ -79,7 +80,7 @@ export const EntradasAlmacenOC: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       {loading && (<div className="space-y-4"><Skeleton className="h-8 w-72" /><div className="grid grid-cols-1 md:grid-cols-2 gap-4"><Skeleton className="h-32 rounded-xl" /><Skeleton className="h-32 rounded-xl" /></div><Skeleton className="h-64 rounded-2xl" /></div>)}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-bold">📦 Entradas de Almacén vs Órdenes de Compra</h1>
+        <h1 className="text-lg sm:text-xl font-bold flex items-center gap-2"><Package className="w-5 h-5" /> Entradas de Almacén vs Órdenes de Compra</h1>
       </div>
 
       <div className="flex flex-wrap gap-3 mb-4">

@@ -2,6 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
+import { BarChart3, FileText } from 'lucide-react';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { CATEGORIA_LABEL, fmtQ } from '../utils';
 
@@ -87,7 +88,7 @@ export const Impuestos: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-bold">📊 {t('impuestos.titulo')}</h1>
+        <h1 className="text-lg sm:text-xl font-bold flex items-center gap-2"><BarChart3 className="w-5 h-5" /> {t('impuestos.titulo')}</h1>
         <div className="text-xs text-gray-500">
           {t('impuestos.subtitulo')}
         </div>
@@ -162,7 +163,7 @@ export const Impuestos: React.FC = () => {
 
       {/* Base de cálculo detallada */}
       <div className="bg-card border rounded-lg p-4 mb-6">
-        <h3 className="text-sm font-semibold text-gray-500 mb-3">📋 {t('impuestos.detalle_calculo')}</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-1.5"><FileText className="w-4 h-4" /> {t('impuestos.detalle_calculo')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-sm">
           <div>
             <h4 className="font-medium mb-2">{t('impuestos.calculo_isr')}</h4>

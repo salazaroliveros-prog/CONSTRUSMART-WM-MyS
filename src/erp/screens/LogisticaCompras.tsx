@@ -2,6 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, uid } from '../store';
+import { Wrench, BarChart3, DollarSign } from 'lucide-react';
 import type { ActivoHerramienta, PagoProveedor } from '../types';
 import { z } from 'zod';
 import { toast } from 'sonner';
@@ -61,7 +62,7 @@ export const LogisticaCompras: React.FC = () => {
   const renderActivos = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold">🔧 {t('logistica.activos')}</h2>
+        <h2 className="text-lg font-bold flex items-center gap-1.5"><Wrench className="w-4 h-4" /> {t('logistica.activos')}</h2>
         <button onClick={() => { setShowForm('activo'); setForm({}); setFormErrors({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded text-xs hover:bg-primary/90">{t('logistica.nuevo_activo', 'Nuevo Activo')}</button>
       </div>
@@ -100,7 +101,7 @@ export const LogisticaCompras: React.FC = () => {
   const renderCuadros = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold">📊 {t('logistica.cuadros', 'Cuadros Comparativos')}</h2>
+        <h2 className="text-lg font-bold flex items-center gap-1.5"><BarChart3 className="w-4 h-4" /> {t('logistica.cuadros', 'Cuadros Comparativos')}</h2>
         <button onClick={() => { setShowForm('cuadro'); setForm({}); setFormErrors({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded text-xs hover:bg-primary/90">{t('logistica.nueva_solicitud', 'Nueva Solicitud')}</button>
       </div>
@@ -149,7 +150,7 @@ export const LogisticaCompras: React.FC = () => {
   const renderPagos = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold">💰 {t('logistica.pagos', 'Pagos Proveedores')}</h2>
+        <h2 className="text-lg font-bold flex items-center gap-1.5"><DollarSign className="w-4 h-4" /> {t('logistica.pagos', 'Pagos Proveedores')}</h2>
         <button onClick={() => { setShowForm('pago'); setForm({}); setFormErrors({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded text-xs hover:bg-primary/90">+ {t('logistica.nuevo_pago', 'Nuevo Pago')}</button>
       </div>
