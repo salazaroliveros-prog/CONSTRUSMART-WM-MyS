@@ -485,7 +485,7 @@ const Dashboard: React.FC = () => {
 
       {/* ─── ROW 2: Presupuesto + Avance + Recursos ────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-1.5 sm:gap-2 mb-2 flex-shrink-0">
-          <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 hover:shadow-[0_0_15px_hsl(var(--primary)/0.1)] transition-all`}>
+            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 hover:shadow-[0_0_15px_hsl(var(--primary)/0.1)] transition-all duration-200`}>
             <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
               <Calculator className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
               {t('dashboard.planif')} vs {t('dashboard.real')}
