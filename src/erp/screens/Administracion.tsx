@@ -224,7 +224,7 @@ const Administracion: React.FC = () => {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
-          <form onSubmit={handleSubmit(onAddCentroCosto)} onClick={e => e.stopPropagation()} className="bg-card rounded-lg p-6 w-full max-w-md shadow-lg">
+          <form onSubmit={handleSubmit(onAddCentroCosto)} onClick={e => e.stopPropagation()} className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm">
             <h3 className="font-bold mb-4 text-foreground">{t('admin.nuevo_centro')}</h3>
             <div className="grid gap-3">
               <div>
@@ -264,3 +264,4 @@ const Administracion: React.FC = () => {
 };
 
 export default Administracion;
+

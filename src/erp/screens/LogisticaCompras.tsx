@@ -220,7 +220,7 @@ export const LogisticaCompras: React.FC = () => {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={t('logistica.formulario', 'Formulario')}>
-          <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-lg" onClick={e => e.stopPropagation()}>
+          <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4">
               {showForm === 'activo' && t('logistica.nuevo_activo', 'Nuevo Activo / Herramienta')}
               {showForm === 'cuadro' && t('logistica.nueva_solicitud_cotizacion', 'Nueva Solicitud de Cotización')}

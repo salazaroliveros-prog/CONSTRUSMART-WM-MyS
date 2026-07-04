@@ -499,7 +499,7 @@ const GestionDocumental: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600 font-medium">{s.categoria}</span>
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-blue-600 font-medium">{s.categoria}</span>
                         <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                           s.estado === 'aprobado' ? 'bg-emerald-50 text-emerald-600' : s.estado === 'rechazado' ? 'bg-red-50 text-red-500' : s.estado === 'con_comentarios' ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-500'
                         }`}>{s.estado.replace(/_/g, ' ')}</span>
@@ -532,3 +532,4 @@ const GestionDocumental: React.FC = () => {
 };
 
 export default GestionDocumental;
+

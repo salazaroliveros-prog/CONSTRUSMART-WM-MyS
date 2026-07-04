@@ -276,7 +276,7 @@ const DashboardPredictivo: React.FC = () => {
           {/* Quema de horas hombre */}
           <div className="bg-white rounded-xl p-4 border border-slate-100">
             <h3 className="text-xs font-bold text-slate-600 mb-2 flex items-center gap-1.5">
-              <Activity className="w-4 h-4 text-orange-500" /> Quema de Horas Hombre
+              <Activity className="w-4 h-4 text-amber-500" /> Quema de Horas Hombre
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <div>
@@ -300,3 +300,4 @@ const DashboardPredictivo: React.FC = () => {
 };
 
 export default DashboardPredictivo;
+

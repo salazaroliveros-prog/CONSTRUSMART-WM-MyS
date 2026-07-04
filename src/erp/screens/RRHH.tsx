@@ -160,7 +160,7 @@ const RRHH: React.FC = () => {
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs text-muted-foreground">{t('rrhh.totalFSR')}</span>
           </div>
-          <div className="text-2xl font-bold text-orange-500">{fmtQ(totalFSR)}</div>
+          <div className="text-2xl font-bold text-amber-500">{fmtQ(totalFSR)}</div>
         </div>
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">
@@ -223,7 +223,7 @@ const RRHH: React.FC = () => {
                     <td className="p-3 text-right font-mono">{fmtQ(empleado.salarioDiario)}</td>
                     <td className="p-3 text-right font-mono">{empleado.diasTrabajados}</td>
                     <td className="p-3 text-right font-mono">{fmtQ(pago(empleado))}</td>
-                    <td className="p-3 text-right font-mono text-orange-500">{fmtQ(pagoFSR(empleado))}</td>
+                    <td className="p-3 text-right font-mono text-amber-500">{fmtQ(pagoFSR(empleado))}</td>
                     <td className="p-3 text-center">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         empleado.tipo === 'destajo'
@@ -327,3 +327,4 @@ const RRHH: React.FC = () => {
 };
 
 export default RRHH;
+

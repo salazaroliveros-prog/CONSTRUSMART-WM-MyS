@@ -224,7 +224,7 @@ const Cotizaciones: React.FC = () => {
           { label: t('cotizaciones.total'), value: cotizaciones.length, color: 'bg-blue-50 text-blue-600' },
           { label: t('cotizaciones.enviadas'), value: cotizaciones.filter(c => c.estado === 'enviada').length, color: 'bg-amber-50 text-amber-600' },
           { label: t('cotizaciones.aprobadas'), value: cotizaciones.filter(c => c.estado === 'aprobada').length, color: 'bg-emerald-50 text-emerald-600' },
-          { label: t('cotizaciones.monto_aprobado'), value: fmtQ(cotizaciones.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.precioVentaTotal, 0)), color: 'bg-purple-50 text-purple-600' },
+          { label: t('cotizaciones.monto_aprobado'), value: fmtQ(cotizaciones.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.precioVentaTotal, 0)), color: 'bg-purple-50 text-blue-600' },
         ].map((kpi, i) => (
           <div key={i} className={`${kpi.color} rounded-xl p-3 border`}>
             <div className="text-xs font-medium opacity-70 mb-1">{kpi.label}</div>
@@ -247,7 +247,7 @@ const Cotizaciones: React.FC = () => {
               const estadoInfo = ESTADOS_COTIZACION.find(e => e.key === c.estado);
               const EstadoIcon = estadoInfo?.icon || FileText;
               return (
-                <div key={c.id} className="bg-card rounded-xl shadow-sm border border-border p-4 hover:shadow-md transition-shadow">
+                <div key={c.id} className="bg-card rounded-xl shadow-sm border border-border p-4 hover:shadow-sm transition-shadow">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">

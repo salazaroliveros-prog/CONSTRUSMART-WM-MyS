@@ -300,7 +300,7 @@ export default function ErrorLog() {
         </div>
         <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-1">
-            <ExclamationCircleOutlined className="text-orange-500" />
+            <ExclamationCircleOutlined className="text-amber-500" />
             <span className="text-sm text-gray-500">{t('error_log.abiertos')}</span>
           </div>
           <div className="text-2xl font-bold text-orange-600">{stats.open}</div>

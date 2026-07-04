@@ -258,7 +258,7 @@ const CRM: React.FC = () => {
                   <span className="text-xs">{t('crm.sin_oportunidades')}</span>
                 </div>
               ) : col.items.map(l => (
-                <div key={l.id} className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md active:shadow-sm transition-all group focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="button" aria-label={t('crm.licitacion_card_aria', { nombre: l.nombre })} onKeyDown={(e) => {
+                <div key={l.id} className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-sm active:shadow-sm transition-all group focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="button" aria-label={t('crm.licitacion_card_aria', { nombre: l.nombre })} onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     openEdit(l);
@@ -374,7 +374,7 @@ const CRM: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Probabilidad <span className="font-bold text-purple-600">{formData.probabilidad}%</span></label>
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Probabilidad <span className="font-bold text-blue-600">{formData.probabilidad}%</span></label>
                 <input
                   type="range" min="0" max="100" step="5"
                   value={formData.probabilidad}
@@ -416,4 +416,5 @@ const CRM: React.FC = () => {
 };
 
 export default CRM;
+
 

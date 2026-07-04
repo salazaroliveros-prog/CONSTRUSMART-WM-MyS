@@ -12,6 +12,7 @@ const Login: React.FC = () => {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
+    setAuthError('');
     try {
       await signInWithGoogle();
     } catch (err) {
@@ -22,7 +23,7 @@ const Login: React.FC = () => {
   };
 
   const btn =
-    'w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 shadow-md border border-gray-200 hover:shadow-lg transition-all disabled:opacity-60 active:scale-[0.98]';
+    'w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 shadow-sm border border-gray-200 hover:shadow-sm transition-all disabled:opacity-60 active:scale-[0.98]';
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -39,7 +40,7 @@ const Login: React.FC = () => {
             alt="WM"
             className="w-32 h-32 object-contain drop-shadow-[0_0_12px_rgba(249,115,22,0.45)] mb-6"
           />
-          <h1 className="text-4xl font-black leading-tight text-white drop-shadow-md">{EMPRESA.nombre}</h1>
+          <h1 className="text-4xl font-black leading-tight text-white drop-shadow-sm">{EMPRESA.nombre}</h1>
           <p className="mt-6 text-xl font-bold text-yellow-600"
              style={{ textShadow: '0 0 18px rgba(59,130,246,0.85), 0 0 6px rgba(59,130,246,0.7)' }}>
             EDIFICANDO EL FUTURO
@@ -73,7 +74,7 @@ const Login: React.FC = () => {
             {loading && (<div className="space-y-3 mb-6"><Skeleton className="h-8 w-40 mx-auto" /><Skeleton className="h-4 w-56 mx-auto" /></div>)}
             {!loading && (<div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-slate-800">Iniciar Sesión</h2>
-              <p className="text-xs text-orange-500 mt-1">Acceso solo para administrador</p>
+              <p className="text-xs text-amber-500 mt-1">Acceso solo para administrador</p>
             </div>)}
 
             {authError && (
@@ -109,7 +110,7 @@ const Login: React.FC = () => {
                   </>
                 )}
               </button>
-              <p className="text-center text-[10px] text-orange-500 mt-4">
+              <p className="text-center text-[10px] text-amber-500 mt-4">
                 Solo el correo autorizado puede acceder
               </p>
             </div>
@@ -121,3 +122,4 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+

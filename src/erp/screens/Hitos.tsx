@@ -287,7 +287,7 @@ const HitosScreen: React.FC = () => {
                   <div key={day} className={`min-h-[48px] p-0.5 rounded text-xs ${isToday ? 'bg-emerald-50 ring-1 ring-emerald-300' : 'hover:bg-slate-50'}`}>
                     <div className={`text-xs font-bold ${isToday ? 'text-emerald-600' : 'text-slate-600'}`}>{day}</div>
                     {hitosDelDia.slice(0, 2).map(h => {
-                      const tipoColor: Record<string, string> = { inicio: 'bg-blue-100 text-blue-600', hito: 'bg-amber-100 text-amber-600', entrega: 'bg-purple-100 text-purple-600', cierre: 'bg-red-100 text-red-600' };
+                      const tipoColor: Record<string, string> = { inicio: 'bg-blue-100 text-blue-600', hito: 'bg-amber-100 text-amber-600', entrega: 'bg-purple-100 text-blue-600', cierre: 'bg-red-100 text-red-600' };
                       return <div key={h.id} className={`text-[8px] px-0.5 py-px rounded truncate ${tipoColor[h.tipo] || 'bg-slate-100 text-slate-600'}`}>{h.nombre}</div>;
                     })}
                     {hitosDelDia.length > 2 && <div className="text-[8px] text-slate-400">+{hitosDelDia.length - 2}</div>}
@@ -361,4 +361,5 @@ const HitosScreen: React.FC = () => {
 };
 
 export default HitosScreen;
+
 

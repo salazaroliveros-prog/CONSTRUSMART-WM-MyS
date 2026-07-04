@@ -8,7 +8,7 @@ import { Bell, Check, CheckCheck, AlertTriangle, ClipboardList, Package, Trendin
 const MAPA_ICONOS: Record<string, React.ReactNode> = {
   checklist_rechazado: <AlertTriangle className="w-5 h-5 text-red-500" />,
   orden_cambio_pendiente: <ClipboardList className="w-5 h-5 text-amber-500" />,
-  stock_critico: <Package className="w-5 h-5 text-orange-500" />,
+  stock_critico: <Package className="w-5 h-5 text-amber-500" />,
   desviacion_rendimiento: <TrendingDown className="w-5 h-5 text-red-500" />,
   avance_registrado: <Activity className="w-5 h-5 text-green-500" />,
   general: <Bell className="w-5 h-5 text-blue-500" />,
@@ -211,3 +211,4 @@ export default function Notificaciones() {
     </div>
   );
 }
+

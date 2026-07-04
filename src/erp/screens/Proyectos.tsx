@@ -559,7 +559,7 @@ const Proyectos: React.FC = () => {
           {proyectosFiltrados.map((p, i) => (
             <div
               key={p.id}
-              className="group bg-card text-card-foreground rounded-xl shadow-sm hover:shadow-md active:shadow-sm transition-all duration-200 border border-border p-4 flex flex-wrap items-center gap-3 focus:outline-none focus:ring-2 focus:ring-ring"
+              className="group bg-card text-card-foreground rounded-xl shadow-sm hover:shadow-sm active:shadow-sm transition-all duration-200 border border-border p-4 flex flex-wrap items-center gap-3 focus:outline-none focus:ring-2 focus:ring-ring"
               tabIndex={0}
               role="row"
               aria-label={t('proyectos.aria_card', { nombre: p.nombre })}
@@ -595,7 +595,7 @@ const Proyectos: React.FC = () => {
         {proyectosFiltrados.map((p, i) => (
           <div
             key={p.id}
-            className="group bg-card text-card-foreground rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-border hover:-translate-y-1 animate-enter focus:outline-none focus:ring-2 focus:ring-ring"
+            className="group bg-card text-card-foreground rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border hover:-translate-y-1 animate-enter focus:outline-none focus:ring-2 focus:ring-ring"
             style={{ animationDelay: `${i * 0.04}s` }}
             tabIndex={0}
             role="button"
@@ -1128,4 +1128,5 @@ const Proyectos: React.FC = () => {
 };
 
 export default Proyectos;
+
 

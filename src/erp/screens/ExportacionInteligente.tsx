@@ -406,7 +406,7 @@ const ExportacionInteligente: React.FC = () => {
         <button
           onClick={exportarXLSX}
           disabled={exportando === 'xlsx'}
-          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'xlsx' ? 'bg-emerald-50 border-emerald-300 animate-pulse' : 'bg-white border-slate-100 hover:border-emerald-300 hover:shadow-md'}`}
+          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'xlsx' ? 'bg-emerald-50 border-emerald-300 animate-pulse' : 'bg-white border-slate-100 hover:border-emerald-300 hover:shadow-sm'}`}
         >
           <Table className={`w-8 h-8 ${exportando === 'xlsx' ? 'text-emerald-500' : 'text-emerald-400'}`} />
           <div className="text-left">
@@ -418,7 +418,7 @@ const ExportacionInteligente: React.FC = () => {
         <button
           onClick={exportarJSON}
           disabled={exportando === 'json'}
-          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'json' ? 'bg-blue-50 border-blue-300 animate-pulse' : 'bg-white border-slate-100 hover:border-blue-300 hover:shadow-md'}`}
+          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'json' ? 'bg-blue-50 border-blue-300 animate-pulse' : 'bg-white border-slate-100 hover:border-blue-300 hover:shadow-sm'}`}
         >
           <FileJson className={`w-8 h-8 ${exportando === 'json' ? 'text-blue-500' : 'text-blue-400'}`} />
           <div className="text-left">
@@ -430,7 +430,7 @@ const ExportacionInteligente: React.FC = () => {
         <button
           onClick={exportarCSV}
           disabled={exportando === 'csv'}
-          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'csv' ? 'bg-green-50 border-green-300 animate-pulse' : 'bg-white border-slate-100 hover:border-green-300 hover:shadow-md'}`}
+          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'csv' ? 'bg-green-50 border-green-300 animate-pulse' : 'bg-white border-slate-100 hover:border-green-300 hover:shadow-sm'}`}
         >
           <FileSpreadsheet className={`w-8 h-8 ${exportando === 'csv' ? 'text-green-500' : 'text-green-400'}`} />
           <div className="text-left">
@@ -442,7 +442,7 @@ const ExportacionInteligente: React.FC = () => {
         <button
           onClick={generarPDF}
           disabled={exportando === 'pdf'}
-          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'pdf' ? 'bg-red-50 border-red-300 animate-pulse' : 'bg-white border-slate-100 hover:border-red-300 hover:shadow-md'}`}
+          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'pdf' ? 'bg-red-50 border-red-300 animate-pulse' : 'bg-white border-slate-100 hover:border-red-300 hover:shadow-sm'}`}
         >
           <FileText className={`w-8 h-8 ${exportando === 'pdf' ? 'text-red-500' : 'text-red-400'}`} />
           <div className="text-left">
@@ -552,3 +552,4 @@ const ExportacionInteligente: React.FC = () => {
 };
 
 export default ExportacionInteligente;
+

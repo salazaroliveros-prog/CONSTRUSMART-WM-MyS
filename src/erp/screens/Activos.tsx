@@ -139,7 +139,7 @@ const Activos: React.FC = () => {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl p-5 w-full max-w-md shadow-lg">
+          <div className="bg-white rounded-xl p-5 w-full max-w-md shadow-sm">
             <h3 className="font-bold mb-3">{editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}</h3>
             <div className="grid gap-2">
               <input value={form.nombre} onChange={e => set('nombre', e.target.value)} placeholder={t('activos.columna_nombre')} className="px-3 py-2 border rounded-lg text-sm" />
@@ -161,3 +161,4 @@ const Activos: React.FC = () => {
   );
 };
 export default Activos;
+

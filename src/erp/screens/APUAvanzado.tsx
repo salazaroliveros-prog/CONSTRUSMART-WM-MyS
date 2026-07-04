@@ -759,7 +759,7 @@ const APUAvanzado: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs text-white/80">Costo Total</span>
@@ -820,7 +820,7 @@ const APUAvanzado: React.FC = () => {
               <div className="bg-purple-50 rounded-xl p-4 border border-purple-100">
                 <div className="flex items-center gap-1.5 mb-1">
                   <Settings className="w-3.5 h-3.5 text-purple-500" />
-                  <span className="text-xs font-medium text-purple-600">Equipo</span>
+                  <span className="text-xs font-medium text-blue-600">Equipo</span>
                 </div>
                 <div className="text-xl font-bold text-purple-700">Q{calculos.cd.equipo.toFixed(2)}</div>
               </div>
@@ -841,7 +841,7 @@ const APUAvanzado: React.FC = () => {
             </div>
 
             {/* Precio de Venta */}
-            <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+            <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs text-white/80">Precio de Venta (PV)</span>
@@ -942,7 +942,7 @@ const APUAvanzado: React.FC = () => {
               </div>
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                 <div className="text-xs text-slate-500">Block</div>
-                <div className="text-sm font-bold text-purple-600">
+                <div className="text-sm font-bold text-blue-600">
                   Q{historial[historial.length-1].block.toFixed(0)}
                   <span className="text-xs ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].block - historial[0].block) / historial[0].block * 100).toFixed(1)}%</span>
                 </div>
@@ -1041,7 +1041,7 @@ const APUAvanzado: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs text-white/80">Costo Total</span>
@@ -1268,7 +1268,7 @@ const APUAvanzado: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs text-white/80">Ajuste Estacional</span>
@@ -1416,7 +1416,7 @@ const APUAvanzado: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs text-white/80">Referencia Normativa</span>
@@ -1544,7 +1544,7 @@ const APUAvanzado: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs text-white/80">Costo Total Instalado</span>
@@ -1687,7 +1687,7 @@ const APUAvanzado: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-lg">
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs text-white/80">Costo Total Instalado</span>
@@ -1709,3 +1709,4 @@ const APUAvanzado: React.FC = () => {
 };
 
 export default APUAvanzado;
+

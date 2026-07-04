@@ -505,7 +505,7 @@ const SSOCalidad: React.FC = () => {
                   addNotificacion('general', '🚨 Emergencia en obra', 'Se ha activado el botón de emergencia', selProyecto);
                 }
               }}
-              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-bold text-xs shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center flex-col"
+              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-bold text-xs shadow-sm shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center flex-col"
             >
               <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 mb-1" />
               <span className="text-[10px] sm:text-[10px] font-semibold">{t('sso_calidad.emergencia_boton', 'EMERGENCIA')}</span>
@@ -582,7 +582,7 @@ const SSOCalidad: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-600 font-medium">{p.tipo}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-blue-600 font-medium">{p.tipo}</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                           p.resultado === 'pasa' ? 'bg-emerald-50 text-emerald-600' : p.resultado === 'no_pasa' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600'
                         }`}>{p.resultado.replace(/_/g, ' ')}</span>
@@ -803,3 +803,4 @@ const SSOCalidad: React.FC = () => {
 };
 
 export default SSOCalidad;
+

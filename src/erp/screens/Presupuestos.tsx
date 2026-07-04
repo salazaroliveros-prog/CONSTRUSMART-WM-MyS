@@ -743,7 +743,7 @@ const Presupuestos: React.FC = () => {
                       <div className="text-xs font-semibold text-slate-500">
                         📦 Desglose de Materiales por Renglón
                         {ACTIVIDAD_POR_RENGLON[r.codigo] && (
-                          <span className="text-orange-500 ml-1">({ACTIVIDAD_POR_RENGLON[r.codigo]} sugerido)</span>
+                          <span className="text-amber-500 ml-1">({ACTIVIDAD_POR_RENGLON[r.codigo]} sugerido)</span>
                         )}
                       </div>
                       <div className="flex gap-1 items-center">
@@ -948,4 +948,5 @@ const Presupuestos: React.FC = () => {
 };
 
 export default Presupuestos;
+
 

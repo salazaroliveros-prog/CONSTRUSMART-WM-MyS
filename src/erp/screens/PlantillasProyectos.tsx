@@ -47,7 +47,7 @@ const CATEGORIAS = [
   { key: 'residencial' as const, label: 'Residencial', icon: Home, color: 'bg-blue-50 border-blue-300', textColor: 'text-blue-600' },
   { key: 'comercial' as const, label: 'Comercial', icon: Building2, color: 'bg-emerald-50 border-emerald-300', textColor: 'text-emerald-600' },
   { key: 'industrial' as const, label: 'Industrial', icon: Factory, color: 'bg-orange-50 border-orange-300', textColor: 'text-orange-600' },
-  { key: 'civil' as const, label: 'Civil', icon: Building, color: 'bg-purple-50 border-purple-300', textColor: 'text-purple-600' },
+  { key: 'civil' as const, label: 'Civil', icon: Building, color: 'bg-purple-50 border-purple-300', textColor: 'text-blue-600' },
   { key: 'publica' as const, label: 'Pública', icon: Landmark, color: 'bg-rose-50 border-rose-300', textColor: 'text-rose-600' },
 ] as const;
 
@@ -729,7 +729,7 @@ const PlantillasProyectos: React.FC = () => {
             return (
               <div
                 key={plantilla.id}
-                className="border rounded-lg p-4 hover:shadow-md active:shadow-sm transition-all duration-200 hover:scale-[1.02] cursor-default relative focus:outline-none focus:ring-2 focus:ring-ring"
+                className="border rounded-lg p-4 hover:shadow-sm active:shadow-sm transition-all duration-200 hover:scale-[1.02] cursor-default relative focus:outline-none focus:ring-2 focus:ring-ring"
                 tabIndex={0}
                 role="button"
                 aria-label={`Plantilla ${plantilla.nombre}`}
@@ -757,14 +757,14 @@ const PlantillasProyectos: React.FC = () => {
                   <div className="flex gap-1">
                     <button
                       onClick={() => toggleFavoritoPlantilla(plantilla.id)}
-                      className={`p-1 hover:bg-muted rounded transition-colors duration-150 ${plantilla.favorita ? 'COLOR_WARNING' : 'text-muted-foreground'}`}
+                      className={`p-1 hover:bg-muted rounded transition-colors duration-200 ${plantilla.favorita ? 'COLOR_WARNING' : 'text-muted-foreground'}`}
                       title={plantilla.favorita ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                     >
                       <Star className={`h-4 w-4 ${plantilla.favorita ? 'fill-current' : ''}`} />
                     </button>
                     <button
                       onClick={() => handlePreview(plantilla)}
-                      className="p-1 hover:bg-muted rounded transition-colors duration-150"
+                      className="p-1 hover:bg-muted rounded transition-colors duration-200"
                       aria-label={`Ver detalles de ${plantilla.nombre}`}
                       title="Ver detalles"
                     >
@@ -772,7 +772,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleEdit(plantilla)}
-                      className="p-1 hover:bg-muted rounded transition-colors duration-150"
+                      className="p-1 hover:bg-muted rounded transition-colors duration-200"
                       aria-label={`Editar ${plantilla.nombre}`}
                       title="Editar datos básicos"
                     >
@@ -780,7 +780,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleEditStructure(plantilla)}
-                      className="p-1 hover:bg-muted rounded COLOR_PRIMARY dark:text-indigo-400 transition-colors duration-150"
+                      className="p-1 hover:bg-muted rounded COLOR_PRIMARY dark:text-indigo-400 transition-colors duration-200"
                       aria-label={`Editar estructura de ${plantilla.nombre}`}
                       title="Editar estructura completa"
                     >
@@ -788,7 +788,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleClone(plantilla)}
-                      className="p-1 hover:bg-muted rounded COLOR_INFO dark:text-blue-400 transition-colors duration-150"
+                      className="p-1 hover:bg-muted rounded COLOR_INFO dark:text-blue-400 transition-colors duration-200"
                       aria-label={`Clonar ${plantilla.nombre}`}
                       title="Clonar"
                     >
@@ -796,7 +796,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleVerHistorial(plantilla)}
-                      className="p-1 hover:bg-muted rounded COLOR_PRIMARY dark:text-purple-400 transition-colors duration-150"
+                      className="p-1 hover:bg-muted rounded COLOR_PRIMARY dark:text-purple-400 transition-colors duration-200"
                       aria-label={`Ver historial de ${plantilla.nombre}`}
                       title="Historial de versiones"
                     >
@@ -804,7 +804,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleCrearNuevaVersion(plantilla)}
-                      className="p-1 hover:bg-muted rounded COLOR_WARNING dark:text-orange-400 transition-colors duration-150"
+                      className="p-1 hover:bg-muted rounded COLOR_WARNING dark:text-orange-400 transition-colors duration-200"
                       aria-label={`Crear nueva versión de ${plantilla.nombre}`}
                       title="Nueva versión"
                     >
@@ -812,7 +812,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleExport(plantilla)}
-                      className="p-1 hover:bg-muted rounded COLOR_SUCCESS dark:text-green-400 transition-colors duration-150"
+                      className="p-1 hover:bg-muted rounded COLOR_SUCCESS dark:text-green-400 transition-colors duration-200"
                       aria-label={`Exportar ${plantilla.nombre}`}
                       title="Exportar"
                     >
@@ -820,7 +820,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleDelete(plantilla.id)}
-                      className="p-1 hover:bg-muted rounded COLOR_DANGER dark:text-red-400 transition-colors duration-150"
+                      className="p-1 hover:bg-muted rounded COLOR_DANGER dark:text-red-400 transition-colors duration-200"
                       aria-label={`Eliminar ${plantilla.nombre}`}
                       title="Eliminar"
                     >
@@ -1224,4 +1224,5 @@ const PlantillasProyectos: React.FC = () => {
 };
 
 export default PlantillasProyectos;
+
 
