@@ -26,7 +26,7 @@ const Login: React.FC = () => {
     'w-full bg-card hover:bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 shadow-sm border border-gray-200 hover:shadow-sm transition-all disabled:opacity-60 active:scale-[0.98]';
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col sm:flex-row lg:flex-row">
       <div className="hidden lg:flex flex-1 bg-slate-900 relative overflow-hidden items-center justify-center p-12">
         <div
           className="absolute inset-0 opacity-60"
