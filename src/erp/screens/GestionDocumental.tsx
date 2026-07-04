@@ -305,15 +305,15 @@ const GestionDocumental: React.FC = () => {
 
           {/* Historial de versiones */}
           {Object.keys(versiones).length > 0 && (
-            <div className="mb-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <h3 className="text-xs font-bold text-slate-500 uppercase mb-2">{t('gestion_documental.historial_versiones', 'Historial de Versiones')}</h3>
+            <div className="mb-3 p-3 bg-muted/30 rounded-lg border border-border">
+              <h3 className="text-xs font-bold text-muted-foreground uppercase mb-2">{t('gestion_documental.historial_versiones', 'Historial de Versiones')}</h3>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(versiones).map(([planoId, vers]) => {
                   const plano = planos.find(p => p.id === planoId);
                   if (!plano) return null;
                   return (
-                    <div key={planoId} className="text-xs bg-white border border-slate-200 rounded px-2 py-1">
-                      <span className="font-semibold text-slate-700">{plano.nombre}</span>: {vers.join(' → ')}
+                    <div key={planoId} className="text-xs bg-card border border-border rounded px-2 py-1">
+                      <span className="font-semibold text-muted-foreground">{plano.nombre}</span>: {vers.join(' → ')}
                     </div>
                   );
                 })}
@@ -489,27 +489,27 @@ const GestionDocumental: React.FC = () => {
 
           <div className="space-y-2">
             {submittals.filter(s => !selProyecto || s.proyectoId === selProyecto).length === 0 ? (
-              <div className="text-center py-8 text-slate-400">
+              <div className="text-center py-8 text-muted-foreground">
                 <Package className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p className="text-sm">{t('gestion_documental.sin_submittals', 'Sin submittals registrados')}</p>
               </div>
             ) : (
               submittals.filter(s => !selProyecto || s.proyectoId === selProyecto).map(s => (
-                <div key={s.id} className={`p-3 rounded-lg border ${s.estado === 'aprobado' ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100'}`}>
+                <div key={s.id} className={`p-3 rounded-lg border ${s.estado === 'aprobado' ? 'bg-emerald-50 border-emerald-200' : 'bg-card border-border'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-blue-600 font-medium">{s.categoria}</span>
                         <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                          s.estado === 'aprobado' ? 'bg-emerald-50 text-emerald-600' : s.estado === 'rechazado' ? 'bg-red-50 text-red-500' : s.estado === 'con_comentarios' ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-500'
+                          s.estado === 'aprobado' ? 'bg-emerald-50 text-emerald-600' : s.estado === 'rechazado' ? 'bg-red-50 text-red-500' : s.estado === 'con_comentarios' ? 'bg-amber-50 text-amber-600' : 'bg-muted text-muted-foreground'
                         }`}>{s.estado.replace(/_/g, ' ')}</span>
                       </div>
-                      <p className="text-sm font-medium text-slate-700">{s.titulo}</p>
-                      <div className="flex gap-2 mt-1 text-xs text-slate-400">
+                      <p className="text-sm font-medium text-muted-foreground">{s.titulo}</p>
+                      <div className="flex gap-2 mt-1 text-xs text-muted-foreground">
                         <span>📅 {s.fechaEnvio}</span>
                         <span>🏭 {s.proveedor}</span>
                       </div>
-                      {s.descripcion && <p className="text-xs text-slate-500 mt-0.5">{s.descripcion}</p>}
+                      {s.descripcion && <p className="text-xs text-muted-foreground mt-0.5">{s.descripcion}</p>}
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {s.estado === 'pendiente' && (
@@ -532,4 +532,5 @@ const GestionDocumental: React.FC = () => {
 };
 
 export default GestionDocumental;
+
 

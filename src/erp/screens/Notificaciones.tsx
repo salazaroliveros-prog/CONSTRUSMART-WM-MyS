@@ -103,7 +103,7 @@ export default function Notificaciones() {
           onClick={() => setTab('alertas')}
           className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
             tab === 'alertas'
-              ? 'bg-white text-gray-900 shadow-sm'
+              ? 'bg-card text-gray-900 shadow-sm'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -113,7 +113,7 @@ export default function Notificaciones() {
           onClick={() => setTab('historial')}
           className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
             tab === 'historial'
-              ? 'bg-white text-gray-900 shadow-sm'
+              ? 'bg-card text-gray-900 shadow-sm'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -198,7 +198,7 @@ export default function Notificaciones() {
               {!notif.leido && (
                 <button
                   onClick={(e) => { e.stopPropagation(); markNotificacionLeida(notif.id); }}
-                  className="p-1.5 hover:bg-white/50 rounded-full transition-colors shrink-0"
+                  className="p-1.5 hover:bg-card/50 rounded-full transition-colors shrink-0"
                   title={t('notificaciones.marcar_leida', 'Marcar como leída')}
                 >
                   <Check className="w-4 h-4 text-gray-400" />
@@ -211,4 +211,5 @@ export default function Notificaciones() {
     </div>
   );
 }
+
 

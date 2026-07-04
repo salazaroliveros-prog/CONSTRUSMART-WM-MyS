@@ -208,14 +208,14 @@ const BasePrecios: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
           <Database className="w-6 h-6 text-teal-500" /> {t('baseprecios.titulo')}
         </h1>
         <div className="flex gap-2 flex-wrap">
           <select
             value={zonaSeleccionada}
             onChange={e => setZonaSeleccionada(e.target.value)}
-            className="text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none bg-white"
+            className="text-xs px-3 py-2 rounded-lg border border-border outline-none bg-card"
           >
             {zonas.map(z => (
               <option key={z} value={z}>{z} {FACTORES_ZONA[z] > 1 ? `(+${((FACTORES_ZONA[z]-1)*100).toFixed(0)}%)` : ''}</option>
@@ -237,48 +237,48 @@ const BasePrecios: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-xs text-slate-400">{t('baseprecios.total_insumos')}</div>
-          <div className="text-lg font-bold text-slate-800">{insumosBase.length}</div>
+        <div className="bg-card rounded-xl p-3 border border-border">
+          <div className="text-xs text-muted-foreground">{t('baseprecios.total_insumos')}</div>
+          <div className="text-lg font-bold text-foreground">{insumosBase.length}</div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-xs text-slate-400">{t('baseprecios.zona')}</div>
-          <div className="text-lg font-bold text-slate-800">{zonaSeleccionada}</div>
+        <div className="bg-card rounded-xl p-3 border border-border">
+          <div className="text-xs text-muted-foreground">{t('baseprecios.zona')}</div>
+          <div className="text-lg font-bold text-foreground">{zonaSeleccionada}</div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-xs text-slate-400">{t('baseprecios.factor_zona')}</div>
+        <div className="bg-card rounded-xl p-3 border border-border">
+          <div className="text-xs text-muted-foreground">{t('baseprecios.factor_zona')}</div>
           <div className="text-lg font-bold text-teal-600">x{factorZona.toFixed(2)}</div>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-slate-100">
-          <div className="text-xs text-slate-400">{t('baseprecios.inactivos')}</div>
+        <div className="bg-card rounded-xl p-3 border border-border">
+          <div className="text-xs text-muted-foreground">{t('baseprecios.inactivos')}</div>
           <div className="text-lg font-bold text-red-600">{insumosBase.filter(i => !i.activo).length}</div>
         </div>
       </div>
 
       {showConvertir && (
         <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-4">
-          <h3 className="font-bold text-slate-700 text-sm mb-3">{t('baseprecios.conversor')}</h3>
+          <h3 className="font-bold text-muted-foreground text-sm mb-3">{t('baseprecios.conversor')}</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
             <div>
-              <label className="text-xs text-slate-500 mb-1 block">{t('baseprecios.desde')}</label>
-              <select value={convDe} onChange={e => setConvDe(e.target.value)} className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 bg-white outline-none">
+              <label className="text-xs text-muted-foreground mb-1 block">{t('baseprecios.desde')}</label>
+              <select value={convDe} onChange={e => setConvDe(e.target.value)} className="w-full text-xs px-2 py-1.5 rounded-lg border border-border bg-card outline-none">
                 <option value="">— {t('baseprecios.unidad')} —</option>
                 {unidades.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-500 mb-1 block">{t('baseprecios.hasta')}</label>
-              <select value={convA} onChange={e => setConvA(e.target.value)} className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 bg-white outline-none">
+              <label className="text-xs text-muted-foreground mb-1 block">{t('baseprecios.hasta')}</label>
+              <select value={convA} onChange={e => setConvA(e.target.value)} className="w-full text-xs px-2 py-1.5 rounded-lg border border-border bg-card outline-none">
                 <option value="">— {t('baseprecios.unidad')} —</option>
                 {unidades.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs text-slate-500 mb-1 block">{t('baseprecios.cantidad')}</label>
-              <input type="number" inputMode="decimal" value={convCantidad} onChange={e => setConvCantidad(Math.max(0, +e.target.value))} min={0} className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none" />
+              <label className="text-xs text-muted-foreground mb-1 block">{t('baseprecios.cantidad')}</label>
+              <input type="number" inputMode="decimal" value={convCantidad} onChange={e => setConvCantidad(Math.max(0, +e.target.value))} min={0} className="w-full text-xs px-2 py-1.5 rounded-lg border border-border outline-none" />
             </div>
-            <div className="bg-white rounded-lg p-2 text-center border border-slate-200">
-              <div className="text-[10px] text-slate-400">{t('baseprecios.resultado')}</div>
+            <div className="bg-card rounded-lg p-2 text-center border border-border">
+              <div className="text-[10px] text-muted-foreground">{t('baseprecios.resultado')}</div>
               <div className="text-lg font-bold text-indigo-600">
                 {resultadoConversion ? `${resultadoConversion.resultado} ${convA}` : '—'}
               </div>
@@ -289,47 +289,47 @@ const BasePrecios: React.FC = () => {
 
       {showAgregar && (
         <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mb-4">
-          <h3 className="font-bold text-slate-700 text-sm mb-3">{t('baseprecios.nuevo_insumo')}</h3>
+          <h3 className="font-bold text-muted-foreground text-sm mb-3">{t('baseprecios.nuevo_insumo')}</h3>
 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
              <div>
-               <input value={nuevoNombre} onChange={e => { setNuevoNombre(e.target.value); setFormErrors(prev => ({ ...prev, nombre: '' })); }} placeholder={t('baseprecios.nombre_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400 w-full" />
+               <input value={nuevoNombre} onChange={e => { setNuevoNombre(e.target.value); setFormErrors(prev => ({ ...prev, nombre: '' })); }} placeholder={t('baseprecios.nombre_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-emerald-400 w-full" />
                {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
              </div>
              <div>
-               <input type="number" inputMode="decimal" value={nuevoPrecio || ''} onChange={e => { setNuevoPrecio(+e.target.value); setFormErrors(prev => ({ ...prev, precio: '' })); }} placeholder={t('baseprecios.precio_placeholder')} min={0} step={0.01} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400 w-full" />
+               <input type="number" inputMode="decimal" value={nuevoPrecio || ''} onChange={e => { setNuevoPrecio(+e.target.value); setFormErrors(prev => ({ ...prev, precio: '' })); }} placeholder={t('baseprecios.precio_placeholder')} min={0} step={0.01} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-emerald-400 w-full" />
                {formErrors.precio && <p className="text-xs text-red-500 mt-0.5">{formErrors.precio}</p>}
              </div>
              <div>
-               <input value={nuevoUnidad} onChange={e => { setNuevoUnidad(e.target.value); setFormErrors(prev => ({ ...prev, unidad: '' })); }} placeholder={t('baseprecios.unidad_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400 w-full" />
+               <input value={nuevoUnidad} onChange={e => { setNuevoUnidad(e.target.value); setFormErrors(prev => ({ ...prev, unidad: '' })); }} placeholder={t('baseprecios.unidad_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-emerald-400 w-full" />
                {formErrors.unidad && <p className="text-xs text-red-500 mt-0.5">{formErrors.unidad}</p>}
              </div>
              <div>
-               <input value={nuevoRubro} onChange={e => { setNuevoRubro(e.target.value); setFormErrors(prev => ({ ...prev, rubro: '' })); }} placeholder={t('baseprecios.rubro_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-emerald-400 w-full" />
+               <input value={nuevoRubro} onChange={e => { setNuevoRubro(e.target.value); setFormErrors(prev => ({ ...prev, rubro: '' })); }} placeholder={t('baseprecios.rubro_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-emerald-400 w-full" />
                {formErrors.rubro && <p className="text-xs text-red-500 mt-0.5">{formErrors.rubro}</p>}
              </div>
            </div>
           <div className="flex gap-2 mt-2">
             <button onClick={handleAgregar} className="text-xs px-4 py-1.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors font-medium">{t('baseprecios.agregar_btn')}</button>
-            <button onClick={() => setShowAgregar(false)} className="text-xs px-4 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">{t('baseprecios.cancelar')}</button>
+            <button onClick={() => setShowAgregar(false)} className="text-xs px-4 py-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-muted transition-colors">{t('baseprecios.cancelar')}</button>
           </div>
         </div>
       )}
 
       <div className="flex flex-wrap gap-2 mb-3">
         <div className="relative flex-1 min-w-[150px]">
-          <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400" />
+          <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-muted-foreground" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={t('baseprecios.buscar')}
-            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 outline-none focus:border-teal-400"
+            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-border outline-none focus:border-teal-400"
           />
         </div>
-        <select value={rubroFilter} onChange={e => setRubroFilter(e.target.value)} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none">
+        <select value={rubroFilter} onChange={e => setRubroFilter(e.target.value)} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none">
           <option value="">{t('baseprecios.todos_rubros')}</option>
           {rubros.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
-        <select value={categoriaFilter} onChange={e => setCategoriaFilter(e.target.value)} className="text-xs px-2 py-1.5 rounded-lg border border-slate-200 outline-none">
+        <select value={categoriaFilter} onChange={e => setCategoriaFilter(e.target.value)} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none">
           <option value="">{t('baseprecios.todas_categorias')}</option>
           <option value="material">Material</option>
           <option value="mano_obra">{t('baseprecios.mano_obra')}</option>
@@ -338,11 +338,11 @@ const BasePrecios: React.FC = () => {
         </select>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-xs" role="table">
             <thead>
-              <tr className="border-b border-slate-100 text-slate-400 bg-slate-50">
+              <tr className="border-b border-border text-muted-foreground bg-muted/30">
                 <th className="text-left py-2 px-2 font-medium" scope="col">{t('baseprecios.insumo')}</th>
                 <th className="text-left py-2 px-2 font-medium" scope="col">{t('baseprecios.categoria')}</th>
                 <th className="text-left py-2 px-2 font-medium" scope="col">{t('baseprecios.unidad')}</th>
@@ -359,8 +359,8 @@ const BasePrecios: React.FC = () => {
                 const precioZona = +(costoBase * factorZona).toFixed(2);
                 const inactivo = !ins.activo;
                 return (
-                  <tr key={ins.id} className={`border-b border-slate-50 hover:bg-slate-50 ${inactivo ? 'opacity-50' : ''}`}>
-                    <td className="py-2 px-2 font-medium text-slate-700">
+                  <tr key={ins.id} className={`border-b border-slate-50 hover:bg-accent ${inactivo ? 'opacity-50' : ''}`}>
+                    <td className="py-2 px-2 font-medium text-muted-foreground">
                       {editando === ins.id ? (
                         <input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} className="w-full text-xs px-1 py-0.5 rounded border border-teal-300 outline-none" />
                       ) : ins.nombre}
@@ -375,8 +375,8 @@ const BasePrecios: React.FC = () => {
                         {ins.categoria}
                       </span>
                     </td>
-                    <td className="py-2 px-2 text-slate-500">{ins.unidad}</td>
-                    <td className="py-2 px-2 text-right font-semibold text-slate-700">
+                    <td className="py-2 px-2 text-muted-foreground">{ins.unidad}</td>
+                    <td className="py-2 px-2 text-right font-semibold text-muted-foreground">
                       {editando === ins.id ? (
                         <input type="number" inputMode="decimal" value={nuevoPrecio} onChange={e => setNuevoPrecio(+e.target.value)} className="w-20 text-xs px-1 py-0.5 rounded border border-teal-300 text-right outline-none" />
                       ) : `Q${costoBase.toFixed(2)}`}
@@ -384,7 +384,7 @@ const BasePrecios: React.FC = () => {
                     <td className="py-2 px-2 text-right font-bold text-teal-600">
                       Q{precioZona.toFixed(2)}
                     </td>
-                    <td className="py-2 px-2 text-slate-500">{ins.rubro}</td>
+                    <td className="py-2 px-2 text-muted-foreground">{ins.rubro}</td>
                     <td className="py-2 px-2">
                       <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${ins.activo ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
                         {ins.activo ? t('baseprecios.activo') : t('baseprecios.inactivo')}
@@ -394,11 +394,11 @@ const BasePrecios: React.FC = () => {
                       {editando === ins.id ? (
                         <div className="flex justify-center gap-1">
                           <button onClick={() => handleGuardarEdicion(ins.id)} className="p-1 text-emerald-500 hover:text-emerald-600" aria-label={t('baseprecios.guardar')}><Check className="w-3 h-3" aria-hidden="true" /></button>
-                          <button onClick={() => setEditando(null)} className="p-1 text-slate-400 hover:text-slate-600" aria-label={t('baseprecios.cancelar_edicion')}><X className="w-3 h-3" aria-hidden="true" /></button>
+                          <button onClick={() => setEditando(null)} className="p-1 text-muted-foreground hover:text-muted-foreground" aria-label={t('baseprecios.cancelar_edicion')}><X className="w-3 h-3" aria-hidden="true" /></button>
                         </div>
                       ) : (
                         <div className="flex justify-center gap-1">
-                          <button onClick={() => { setEditando(ins.id); setNuevoNombre(ins.nombre); setNuevoPrecio(costoBase); setNuevoUnidad(ins.unidad); setNuevoRubro(ins.rubro); }} className="p-1 text-slate-400 hover:text-teal-500" aria-label={t('baseprecios.editar')}><Edit3 className="w-3 h-3" aria-hidden="true" /></button>
+                          <button onClick={() => { setEditando(ins.id); setNuevoNombre(ins.nombre); setNuevoPrecio(costoBase); setNuevoUnidad(ins.unidad); setNuevoRubro(ins.rubro); }} className="p-1 text-muted-foreground hover:text-teal-500" aria-label={t('baseprecios.editar')}><Edit3 className="w-3 h-3" aria-hidden="true" /></button>
                           <button onClick={() => handleActivarDesactivar(ins.id)} className={`p-1 ${inactivo ? 'text-emerald-400' : 'text-red-400 hover:text-red-500'}`} aria-label={inactivo ? t('baseprecios.activar_btn') : t('baseprecios.eliminar_btn')}>
                             {inactivo ? <RefreshCw className="w-3 h-3" aria-hidden="true" /> : <Trash2 className="w-3 h-3" aria-hidden="true" />}
                           </button>
@@ -411,8 +411,8 @@ const BasePrecios: React.FC = () => {
             </tbody>
           </table>
         </div>
-        <div className="p-2 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-          <span className="text-xs text-slate-400">{filtered.length} {t('baseprecios.insumos')} · {t('baseprecios.precio_base_total')}: Q{totalValor.toFixed(2)}</span>
+        <div className="p-2 bg-muted/30 border-t border-border flex justify-between items-center">
+          <span className="text-xs text-muted-foreground">{filtered.length} {t('baseprecios.insumos')} · {t('baseprecios.precio_base_total')}: Q{totalValor.toFixed(2)}</span>
           <span className="text-xs text-teal-500 font-medium">{t('baseprecios.zona')}: {zonaSeleccionada} (x{factorZona})</span>
         </div>
       </div>
@@ -421,4 +421,5 @@ const BasePrecios: React.FC = () => {
 };
 
 export default BasePrecios;
+
 

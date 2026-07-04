@@ -79,7 +79,7 @@ const MuroObra: React.FC = () => {
     avance: { color: 'text-blue-600', bg: 'bg-blue-50', label: 'Avance', icon: CheckCircle2 },
     calidad: { color: 'text-emerald-600', bg: 'bg-emerald-50', label: 'Calidad', icon: Shield },
     seguridad: { color: 'text-amber-600', bg: 'bg-amber-50', label: 'Seguridad', icon: AlertTriangle },
-    general: { color: 'text-slate-600', bg: 'bg-slate-50', label: 'General', icon: MessageSquare },
+    general: { color: 'text-muted-foreground', bg: 'bg-muted/30', label: 'General', icon: MessageSquare },
   };
 
   if (loading) return <div className="p-4 sm:p-6 max-w-[1000px] mx-auto space-y-4"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 rounded-2xl" /><Skeleton className="h-64 rounded-2xl" /></div>;
@@ -87,7 +87,7 @@ const MuroObra: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1000px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
           <MessageSquare className="w-6 h-6 text-indigo-500" /> Muro de Obra
         </h1>
         <button onClick={() => { setShowForm(!showForm); if (!showForm) setFormErrors({}); }} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors" aria-label="Crear nueva publicación">
@@ -98,7 +98,7 @@ const MuroObra: React.FC = () => {
       <div className="flex flex-wrap gap-2 mb-4">
         <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
         {(['todos', 'avance', 'calidad', 'seguridad', 'general'] as const).map(t => (
-          <button key={t} onClick={() => setFilterTipo(t)} className={`px-2.5 py-1.5 text-xs rounded-lg font-medium transition-colors ${filterTipo === t ? 'bg-indigo-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`} aria-label={`Filtrar por ${t === 'todos' ? 'Todos' : tipoConfig[t].label}`}>
+          <button key={t} onClick={() => setFilterTipo(t)} className={`px-2.5 py-1.5 text-xs rounded-lg font-medium transition-colors ${filterTipo === t ? 'bg-indigo-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted'}`} aria-label={`Filtrar por ${t === 'todos' ? 'Todos' : tipoConfig[t].label}`}>
             {t === 'todos' ? 'Todos' : tipoConfig[t].label}
           </button>
         ))}
@@ -108,23 +108,23 @@ const MuroObra: React.FC = () => {
         <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-4">
           <div className="flex items-center gap-2 mb-3">
             <User className="w-4 h-4 text-indigo-500" />
-            <span className="text-sm font-semibold text-slate-700">{user?.nombre || 'Anónimo'}</span>
-            <span className="text-xs text-slate-400">— {todayISO()}</span>
+            <span className="text-sm font-semibold text-muted-foreground">{user?.nombre || 'Anónimo'}</span>
+            <span className="text-xs text-muted-foreground">— {todayISO()}</span>
           </div>
-          <textarea value={nuevoTexto} onChange={e => setNuevoTexto(e.target.value)} placeholder="¿Qué hay de nuevo en la obra?" rows={3} className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-indigo-400 resize-none mb-3" />
+          <textarea value={nuevoTexto} onChange={e => setNuevoTexto(e.target.value)} placeholder="¿Qué hay de nuevo en la obra?" rows={3} className="w-full px-3 py-2 text-sm rounded-lg border border-border outline-none focus:border-indigo-400 resize-none mb-3" />
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex gap-1">
               {(['avance', 'calidad', 'seguridad', 'general'] as const).map(t => {
                 const cfg = tipoConfig[t];
                 return (
-                  <button key={t} onClick={() => setNuevoTipo(t)} className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full font-medium transition-colors ${nuevoTipo === t ? `${cfg.bg} ${cfg.color}` : 'bg-white text-slate-400 border border-slate-200'}`}>
+                  <button key={t} onClick={() => setNuevoTipo(t)} className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full font-medium transition-colors ${nuevoTipo === t ? `${cfg.bg} ${cfg.color}` : 'bg-card text-muted-foreground border border-border'}`}>
                     <cfg.icon className="w-3 h-3" aria-hidden="true" /> {cfg.label}
                   </button>
                 );
               })}
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setShowForm(false)} className="text-xs px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600">Cancelar</button>
+              <button onClick={() => setShowForm(false)} className="text-xs px-3 py-1.5 rounded-lg bg-card border border-border text-muted-foreground">Cancelar</button>
               <button onClick={handlePublicar} className="text-xs px-3 py-1.5 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 font-medium">Publicar</button>
             </div>
           </div>
@@ -133,30 +133,30 @@ const MuroObra: React.FC = () => {
 
       <div className="space-y-3">
         {publicacionesFiltradas.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center text-sm text-slate-400 border border-slate-100">
+          <div className="bg-card rounded-2xl p-8 text-center text-sm text-muted-foreground border border-border">
             <MessageSquare className="w-8 h-8 mx-auto mb-2 text-slate-300" />
             Sin publicaciones aún. ¡Sé el primero en publicar!
           </div>
         ) : publicacionesFiltradas.map(pub => {
           const cfg = tipoConfig[pub.tipo];
           return (
-            <div key={pub.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+            <div key={pub.id} className="bg-card rounded-2xl shadow-sm border border-border p-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
                   {pub.autor.split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-slate-700 truncate">{pub.autor}</div>
-                  <div className="text-xs text-slate-400 flex items-center gap-1">
+                  <div className="text-sm font-semibold text-muted-foreground truncate">{pub.autor}</div>
+                  <div className="text-xs text-muted-foreground flex items-center gap-1">
                     <Calendar className="w-3 h-3" /> {pub.createdAt.slice(0, 10)}
                     <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                   </div>
                 </div>
               </div>
 
-              <p className="text-sm text-slate-600 mb-3 leading-relaxed">{pub.contenido}</p>
+              <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{pub.contenido}</p>
 
-              <div className="flex items-center gap-3 text-xs text-slate-400">
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <button onClick={() => likePublicacionMuro(pub.id)} className="flex items-center gap-1 hover:text-red-500 transition-colors" aria-label={`Me gusta ${pub.likes}`}>
                   <Heart className="w-3.5 h-3.5" aria-hidden="true" /> {pub.likes}
                 </button>
@@ -166,16 +166,16 @@ const MuroObra: React.FC = () => {
               </div>
 
               {pub.comentarios.length > 0 && (
-                <div className="mt-2 border-t border-slate-100 pt-2 space-y-1.5">
+                <div className="mt-2 border-t border-border pt-2 space-y-1.5">
                   {pub.comentarios.map(c => (
                     <div key={c.id} className="flex gap-2">
-                      <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-500 shrink-0 mt-0.5">
+                      <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[8px] font-bold text-muted-foreground shrink-0 mt-0.5">
                         {c.autor.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </div>
                       <div>
-                        <span className="text-xs font-semibold text-slate-600">{c.autor}</span>
-                        <span className="text-xs text-slate-400 ml-1">{c.createdAt.slice(0, 10)}</span>
-                        <p className="text-xs text-slate-600">{c.contenido}</p>
+                        <span className="text-xs font-semibold text-muted-foreground">{c.autor}</span>
+                        <span className="text-xs text-muted-foreground ml-1">{c.createdAt.slice(0, 10)}</span>
+                        <p className="text-xs text-muted-foreground">{c.contenido}</p>
                       </div>
                     </div>
                   ))}
@@ -189,7 +189,7 @@ const MuroObra: React.FC = () => {
                     onChange={e => setComentarioInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleComentar(pub.id)}
                     placeholder="Escribe un comentario..."
-                    className="flex-1 text-xs px-3 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-indigo-400"
+                    className="flex-1 text-xs px-3 py-1.5 rounded-lg border border-border outline-none focus:border-indigo-400"
                     autoFocus
                   />
                   <button onClick={() => handleComentar(pub.id)} className="px-2 py-1.5 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors">
@@ -206,5 +206,6 @@ const MuroObra: React.FC = () => {
 };
 
 export default MuroObra;
+
 
 

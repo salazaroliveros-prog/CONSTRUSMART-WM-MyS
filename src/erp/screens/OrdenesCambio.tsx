@@ -72,7 +72,7 @@ const OrdenesCambio: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1000px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
           <GitBranch className="w-6 h-6 text-amber-500" /> Órdenes de Cambio
         </h1>
         <div className="flex flex-wrap gap-2">
@@ -84,9 +84,9 @@ const OrdenesCambio: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-100">
-          <div className="text-xs text-slate-400">Total Órdenes</div>
-          <div className="text-lg font-bold text-slate-800">{ordenesCambio.length}</div>
+        <div className="bg-card rounded-xl p-3 sm:p-4 border border-border">
+          <div className="text-xs text-muted-foreground">Total Órdenes</div>
+          <div className="text-lg font-bold text-foreground">{ordenesCambio.length}</div>
         </div>
         <div className="bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200">
           <div className="text-xs text-amber-600">Pendientes</div>
@@ -100,23 +100,23 @@ const OrdenesCambio: React.FC = () => {
 
       {showForm && (
         <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-4">
-          <h3 className="font-bold text-sm text-slate-700 mb-3">📝 Nueva Solicitud de Cambio</h3>
+          <h3 className="font-bold text-sm text-muted-foreground mb-3">📝 Nueva Solicitud de Cambio</h3>
           <div className="space-y-2">
-            <input value={fTitulo} onChange={e => setFTitulo(e.target.value)} placeholder="Título del cambio *" className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-amber-400" />
-            <textarea value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Descripción detallada del cambio..." rows={2} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-amber-400 resize-none" />
+            <input value={fTitulo} onChange={e => setFTitulo(e.target.value)} placeholder="Título del cambio *" className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border outline-none focus:border-amber-400" />
+            <textarea value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Descripción detallada del cambio..." rows={2} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border outline-none focus:border-amber-400 resize-none" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
-                <label className="text-xs text-slate-500 mb-0.5 block">Impacto Costo (Q)</label>
-                <input type="number" inputMode="decimal" value={fCosto || ''} onChange={e => setFCosto(+e.target.value)} min={0} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-200 outline-none" />
+                <label className="text-xs text-muted-foreground mb-0.5 block">Impacto Costo (Q)</label>
+                <input type="number" inputMode="decimal" value={fCosto || ''} onChange={e => setFCosto(+e.target.value)} min={0} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border outline-none" />
               </div>
               <div>
-                <label className="text-xs text-slate-500 mb-0.5 block">Impacto Plazo (días)</label>
-                <input type="number" inputMode="decimal" value={fPlazo || ''} onChange={e => setFPlazo(+e.target.value)} min={0} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-200 outline-none" />
+                <label className="text-xs text-muted-foreground mb-0.5 block">Impacto Plazo (días)</label>
+                <input type="number" inputMode="decimal" value={fPlazo || ''} onChange={e => setFPlazo(+e.target.value)} min={0} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border outline-none" />
               </div>
             </div>
             <div className="flex gap-2">
               <button onClick={handleCrear} className="text-xs px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 font-medium">Enviar Solicitud</button>
-              <button onClick={() => setShowForm(false)} className="text-xs px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-600">Cancelar</button>
+              <button onClick={() => setShowForm(false)} className="text-xs px-4 py-2 rounded-lg bg-card border border-border text-muted-foreground">Cancelar</button>
             </div>
           </div>
         </div>
@@ -124,7 +124,7 @@ const OrdenesCambio: React.FC = () => {
 
       <div className="space-y-2">
         {filtered.length === 0 && (
-          <div className="text-center py-10 text-slate-400">
+          <div className="text-center py-10 text-muted-foreground">
             <GitBranch className="w-10 h-10 mx-auto mb-2 text-slate-300" />
             <p className="text-sm">Sin órdenes de cambio</p>
           </div>
@@ -133,29 +133,29 @@ const OrdenesCambio: React.FC = () => {
           const cfg = estadoConfig[oc.estado];
           const isOpen = expanded === oc.id;
           return (
-            <div key={oc.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-              <button onClick={() => setExpanded(isOpen ? null : oc.id)} className="w-full flex items-center gap-3 p-4 text-left hover:bg-slate-50 transition-colors">
+            <div key={oc.id} className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
+              <button onClick={() => setExpanded(isOpen ? null : oc.id)} className="w-full flex items-center gap-3 p-4 text-left hover:bg-accent transition-colors">
                 <div className={`w-2 h-2 rounded-full shrink-0 ${oc.estado === 'aprobado' ? 'bg-emerald-400' : oc.estado === 'rechazado' ? 'bg-red-400' : oc.estado === 'revision' ? 'bg-blue-400' : 'bg-amber-400'}`} />
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-slate-700 truncate">{oc.titulo}</div>
-                  <div className="text-xs text-slate-400 flex items-center gap-1">
+                  <div className="text-sm font-semibold text-muted-foreground truncate">{oc.titulo}</div>
+                  <div className="text-xs text-muted-foreground flex items-center gap-1">
                     <Clock className="w-3 h-3" /> {oc.createdAt?.slice(0, 10)} · {oc.solicitante}
                     <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-xs font-semibold text-slate-700">{fmtQ(oc.impactoCosto)}</div>
-                  <div className="text-[10px] text-slate-400">+{oc.impactoPlazo} días</div>
+                  <div className="text-xs font-semibold text-muted-foreground">{fmtQ(oc.impactoCosto)}</div>
+                  <div className="text-[10px] text-muted-foreground">+{oc.impactoPlazo} días</div>
                 </div>
-                {isOpen ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />}
+                {isOpen ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
               </button>
 
               {isOpen && (
-                <div className="px-4 pb-4 border-t border-slate-100 pt-3">
-                  <p className="text-xs text-slate-600 mb-3">{oc.descripcion}</p>
+                <div className="px-4 pb-4 border-t border-border pt-3">
+                  <p className="text-xs text-muted-foreground mb-3">{oc.descripcion}</p>
                   {oc.aprobador && (
-                    <div className="text-xs text-slate-400 mb-2">
-                      Aprobado por: <span className="font-medium text-slate-600">{oc.aprobador}</span> — {oc.fechaAprobacion}
+                    <div className="text-xs text-muted-foreground mb-2">
+                      Aprobado por: <span className="font-medium text-muted-foreground">{oc.aprobador}</span> — {oc.fechaAprobacion}
                     </div>
                   )}
                   {(oc.estado === 'solicitud' || oc.estado === 'revision') && (user?.rol === 'Administrador' || user?.rol === 'Gerente') && (
@@ -179,4 +179,5 @@ const OrdenesCambio: React.FC = () => {
 };
 
 export default OrdenesCambio;
+
 

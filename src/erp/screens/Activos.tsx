@@ -78,7 +78,7 @@ const Activos: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
           <Wrench className="w-6 h-6 text-indigo-500" /> {t('activos.titulo')}
         </h1>
         <button onClick={openCreate} className="px-3 py-2 rounded-lg bg-indigo-500 text-white text-xs font-medium hover:bg-indigo-600">{t('activos.nuevo_activo')}</button>
@@ -86,14 +86,14 @@ const Activos: React.FC = () => {
 
       <div className="flex flex-wrap gap-2 mb-4">
         <div className="relative">
-          <Search className="w-4 h-4 absolute left-2 top-2 text-slate-400" />
-          <input value={q} onChange={e => setQ(e.target.value)} placeholder={t('activos.buscar_placeholder')} className="pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-white outline-none" />
+          <Search className="w-4 h-4 absolute left-2 top-2 text-muted-foreground" />
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder={t('activos.buscar_placeholder')} className="pl-8 pr-3 py-2 text-xs rounded-lg border border-border bg-card outline-none" />
         </div>
-        <select value={tipo} onChange={e => setTipo(e.target.value)} className="text-xs px-3 py-2 rounded-lg border border-slate-200 bg-white">
+        <select value={tipo} onChange={e => setTipo(e.target.value)} className="text-xs px-3 py-2 rounded-lg border border-border bg-card">
           <option value="todos">{t('activos.todos_tipos')}</option>
           {TIPOS.map(tp => <option key={tp} value={tp}>{TIPO_LABEL[tp]}</option>)}
         </select>
-        <select value={estado} onChange={e => setEstado(e.target.value)} className="text-xs px-3 py-2 rounded-lg border border-slate-200 bg-white">
+        <select value={estado} onChange={e => setEstado(e.target.value)} className="text-xs px-3 py-2 rounded-lg border border-border bg-card">
           <option value="todos">{t('activos.todos_estados')}</option>
           {ESTADOS.map(e => <option key={e} value={e}>{ESTADO_LABEL[e]}</option>)}
         </select>
@@ -103,12 +103,12 @@ const Activos: React.FC = () => {
         <div className="p-3 bg-indigo-50 rounded-lg text-center"><p className="text-xs text-indigo-600">{t('activos.total')}</p><p className="text-xl font-bold text-indigo-700">{activos.length}</p></div>
         <div className="p-3 bg-emerald-50 rounded-lg text-center"><p className="text-xs text-emerald-600">{t('activos.disponibles')}</p><p className="text-xl font-bold text-emerald-700">{activos.filter(a => a.estado === 'disponible').length}</p></div>
         <div className="p-3 bg-amber-50 rounded-lg text-center"><p className="text-xs text-amber-600">{t('activos.asignados')}</p><p className="text-xl font-bold text-amber-700">{activos.filter(a => a.estado === 'asignado').length}</p></div>
-        <div className="p-3 bg-slate-50 rounded-lg text-center"><p className="text-xs text-slate-600">{t('activos.valor_total')}</p><p className="text-xl font-bold text-slate-800">Q{activos.reduce((s, a) => s + (Number(a.valor) || 0), 0).toLocaleString()}</p></div>
+        <div className="p-3 bg-muted/30 rounded-lg text-center"><p className="text-xs text-muted-foreground">{t('activos.valor_total')}</p><p className="text-xl font-bold text-foreground">Q{activos.reduce((s, a) => s + (Number(a.valor) || 0), 0).toLocaleString()}</p></div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-x-auto">
+      <div className="bg-card rounded-2xl shadow-sm border border-border overflow-x-auto">
         <table className="w-full text-xs">
-          <thead><tr className="bg-slate-50">
+          <thead><tr className="bg-muted/30">
             <th className="text-left p-2">{t('activos.columna_codigo')}</th>
             <th className="text-left p-2">{t('activos.columna_nombre')}</th>
             <th className="text-left p-2">{t('activos.columna_tipo')}</th>
@@ -119,27 +119,27 @@ const Activos: React.FC = () => {
           </tr></thead>
           <tbody>
             {filtered.map(a => (
-              <tr key={a.id} className="border-t hover:bg-slate-50">
-                <td className="p-2 font-mono text-slate-600">{a.codigo}</td>
-                <td className="p-2 font-medium text-slate-700">{a.nombre}</td>
-                <td className="p-2 text-slate-500">{TIPO_LABEL[a.tipo] || a.tipo}</td>
-                <td className="p-2"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.estado === 'disponible' ? 'bg-emerald-50 text-emerald-600' : a.estado === 'asignado' ? 'bg-amber-50 text-amber-600' : a.estado === 'mantenimiento' ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'}`}>{ESTADO_LABEL[a.estado] || a.estado}</span></td>
-                <td className="p-2 text-slate-500">{proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}</td>
+              <tr key={a.id} className="border-t hover:bg-accent">
+                <td className="p-2 font-mono text-muted-foreground">{a.codigo}</td>
+                <td className="p-2 font-medium text-muted-foreground">{a.nombre}</td>
+                <td className="p-2 text-muted-foreground">{TIPO_LABEL[a.tipo] || a.tipo}</td>
+                <td className="p-2"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.estado === 'disponible' ? 'bg-emerald-50 text-emerald-600' : a.estado === 'asignado' ? 'bg-amber-50 text-amber-600' : a.estado === 'mantenimiento' ? 'bg-red-50 text-red-600' : 'bg-muted text-muted-foreground'}`}>{ESTADO_LABEL[a.estado] || a.estado}</span></td>
+                <td className="p-2 text-muted-foreground">{proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}</td>
                 <td className="p-2 font-mono">Q{Number(a.valor || 0).toLocaleString()}</td>
                 <td className="p-2 text-right">
-                  <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-slate-100"><Edit2 className="w-4 h-4 text-slate-500" /></button>
-                  <button onClick={() => Modal.confirm({ title: t('activos.confirmar_eliminar'), onOk: () => remove(a.id), okText: 'Eliminar', cancelText: 'Cancelar', okButtonProps: { danger: true } })} className="p-1.5 rounded hover:bg-slate-100"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                  <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-accent"><Edit2 className="w-4 h-4 text-muted-foreground" /></button>
+                  <button onClick={() => Modal.confirm({ title: t('activos.confirmar_eliminar'), onOk: () => remove(a.id), okText: 'Eliminar', cancelText: 'Cancelar', okButtonProps: { danger: true } })} className="p-1.5 rounded hover:bg-accent"><Trash2 className="w-4 h-4 text-red-500" /></button>
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-slate-400">{t('activos.sin_activos')}</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">{t('activos.sin_activos')}</td></tr>}
           </tbody>
         </table>
       </div>
 
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl p-5 w-full max-w-md shadow-sm">
+          <div className="bg-card rounded-xl p-5 w-full max-w-md shadow-sm">
             <h3 className="font-bold mb-3">{editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}</h3>
             <div className="grid gap-2">
               <input value={form.nombre} onChange={e => set('nombre', e.target.value)} placeholder={t('activos.columna_nombre')} className="px-3 py-2 border rounded-lg text-sm" />
@@ -152,7 +152,7 @@ const Activos: React.FC = () => {
               </select>
               <input type="number" inputMode="decimal" value={form.valor} onChange={e => set('valor', Number(e.target.value))} placeholder={t('activos.columna_valor')} className="px-3 py-2 border rounded-lg text-sm" />
               <button onClick={save} className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm">{t('common.guardar')}</button>
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 border rounded-lg text-xs text-slate-600">{t('common.cancelar')}</button>
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 border rounded-lg text-xs text-muted-foreground">{t('common.cancelar')}</button>
             </div>
           </div>
         </div>
@@ -161,4 +161,5 @@ const Activos: React.FC = () => {
   );
 };
 export default Activos;
+
 

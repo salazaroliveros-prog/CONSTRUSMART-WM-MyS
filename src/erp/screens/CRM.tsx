@@ -30,7 +30,7 @@ const ESTADOS = [
   { key: 'activa' as const, label: 'Activa', color: 'bg-blue-50 border-blue-300', icon: Clock, textColor: 'text-blue-600' },
   { key: 'adjudicada' as const, label: 'Adjudicada 🏆', color: 'bg-emerald-50 border-emerald-300', icon: CheckCircle, textColor: 'text-emerald-600' },
   { key: 'perdida' as const, label: 'Perdida', color: 'bg-red-50 border-red-300', icon: Archive, textColor: COLOR_DANGER },
-  { key: 'cerrada' as const, label: 'Cerrada', color: 'bg-slate-100 border-slate-300', icon: Archive, textColor: 'text-slate-500' },
+  { key: 'cerrada' as const, label: 'Cerrada', color: 'bg-muted border-slate-300', icon: Archive, textColor: 'text-muted-foreground' },
 ] as const;
 
 const ESTADO_SIGUIENTE: Record<string, string> = {
@@ -238,12 +238,12 @@ const CRM: React.FC = () => {
                   <col.icon className={`w-4 h-4 ${col.textColor}`} />
                   <h3 className={`font-bold text-sm ${col.textColor}`}>{t(`crm.col_${col.key}`)}</h3>
                 </div>
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full bg-white/80 ${col.textColor}`}>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full bg-card/80 ${col.textColor}`}>
                   {col.items.length}
                 </span>
               </div>
               {col.items.length > 0 && (
-                <div className="text-[10px] text-slate-500 mt-1">
+                <div className="text-[10px] text-muted-foreground mt-1">
                   {t('common.total')}: {fmtQ(col.items.reduce((a, l) => a + l.monto, 0))}
                 </div>
               )}
@@ -267,10 +267,10 @@ const CRM: React.FC = () => {
                   <div className="flex justify-between items-start mb-1">
                     <h4 className="font-semibold text-sm text-foreground truncate flex-1">{l.nombre}</h4>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1">
-                        <button onClick={() => openEdit(l)} className="p-1 text-slate-400 hover:text-primary hover:bg-primary/10 rounded" aria-label={t('crm.editar_aria')}>
+                        <button onClick={() => openEdit(l)} className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded" aria-label={t('crm.editar_aria')}>
                           <Pencil className="w-3 h-3" aria-hidden="true" />
                         </button>
-                        <button onClick={() => { deleteLicitacion(l.id); toast.success(t('crm.toast_eliminada')); }} className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded" aria-label={t('crm.eliminar_aria')}>
+                        <button onClick={() => { deleteLicitacion(l.id); toast.success(t('crm.toast_eliminada')); }} className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded" aria-label={t('crm.eliminar_aria')}>
                           <Trash2 className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </div>
@@ -281,7 +281,7 @@ const CRM: React.FC = () => {
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                       l.probabilidad >= 70 ? 'bg-emerald-50 text-emerald-600' :
                       l.probabilidad >= 40 ? 'bg-amber-50 ' + COLOR_WARNING :
-                      'bg-slate-50 text-slate-500'
+                      'bg-muted/30 text-muted-foreground'
                     }`}>
                       {l.probabilidad}%
                     </span>
@@ -289,7 +289,7 @@ const CRM: React.FC = () => {
                   {l.notas && <p className="text-[10px] text-muted-foreground italic line-clamp-2">{l.notas}</p>}
                   
                   {l.estado === 'activa' && (
-                    <div className="flex gap-1 mt-2 pt-2 border-t border-slate-100">
+                    <div className="flex gap-1 mt-2 pt-2 border-t border-border">
                       <button
                         onClick={() => moveLicitacion(l.id, 'adjudicada')}
                         className="flex-1 text-[8px] py-1 rounded font-medium text-emerald-600 hover:bg-emerald-50"
@@ -305,10 +305,10 @@ const CRM: React.FC = () => {
                     </div>
                   )}
                   {(l.estado === 'adjudicada' || l.estado === 'perdida') && (
-                    <div className="flex gap-1 mt-2 pt-2 border-t border-slate-100">
+                    <div className="flex gap-1 mt-2 pt-2 border-t border-border">
                       <button
                         onClick={() => moveLicitacion(l.id, 'cerrada')}
-                        className="flex-1 text-[8px] py-1 rounded font-medium text-slate-500 hover:bg-slate-100"
+                        className="flex-1 text-[8px] py-1 rounded font-medium text-muted-foreground hover:bg-accent"
                       >
                         {t('crm.cerrar_btn')}
                       </button>
@@ -381,7 +381,7 @@ const CRM: React.FC = () => {
                   onChange={e => setFormData(p => ({ ...p, probabilidad: +e.target.value }))}
                   className="w-full accent-purple-500"
                 />
-                <div className="flex justify-between text-[10px] text-slate-400">
+                <div className="flex justify-between text-[10px] text-muted-foreground">
                   <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
                 </div>
               </div>
@@ -416,5 +416,6 @@ const CRM: React.FC = () => {
 };
 
 export default CRM;
+
 
 

@@ -244,7 +244,7 @@ const ProveedorAnalytics: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {riesgos.slice(0, 6).map((riesgo, i) => (
-              <div key={i} className="bg-white dark:bg-red-950/30 rounded-lg p-2 border border-red-200 dark:border-red-800">
+              <div key={i} className="bg-card dark:bg-red-950/30 rounded-lg p-2 border border-red-200 dark:border-red-800">
                 <div className="font-medium text-sm text-red-700 dark:text-red-300">{riesgo.proveedor}</div>
                 <div className="text-xs text-red-600 dark:text-red-400 mt-1">{riesgo.riesgo}</div>
                 <div className={`text-xs font-bold mt-1 ${
@@ -267,7 +267,7 @@ const ProveedorAnalytics: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {recomendaciones.map((rec, i) => (
-              <div key={i} className="bg-white dark:bg-emerald-950/30 rounded-lg p-2 border border-emerald-200 dark:border-emerald-800">
+              <div key={i} className="bg-card dark:bg-emerald-950/30 rounded-lg p-2 border border-emerald-200 dark:border-emerald-800">
                 <div className="font-medium text-sm text-emerald-700 dark:text-emerald-300">{rec.proveedor}</div>
                 <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{rec.razon}</div>
                 <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1">{rec.puntaje} pts</div>

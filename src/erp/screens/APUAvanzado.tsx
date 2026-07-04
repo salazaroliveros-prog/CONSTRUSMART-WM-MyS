@@ -491,21 +491,21 @@ const APUAvanzado: React.FC = () => {
         {tab === 'rendimientos' && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold text-slate-700 text-sm">Rendimientos por Cuadrilla</h2>
+              <h2 className="font-bold text-muted-foreground text-sm">Rendimientos por Cuadrilla</h2>
               <div className="relative">
-                <Search className="absolute left-2 top-1.5 w-3.5 h-3.5 text-slate-400" />
+                <Search className="absolute left-2 top-1.5 w-3.5 h-3.5 text-muted-foreground" />
                 <input
                   value={searchRend}
                   onChange={e => setSearchRend(e.target.value)}
                   placeholder="Buscar actividad..."
-                  className="pl-7 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 outline-none focus:border-orange-400 w-full sm:w-44"
+                  className="pl-7 pr-3 py-1.5 text-xs rounded-lg border border-border outline-none focus:border-orange-400 w-full sm:w-44"
                 />
               </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 text-slate-400">
+                  <tr className="border-b border-border text-muted-foreground">
                     <th className="text-left py-2 px-2 font-medium">Actividad</th>
                     <th className="text-left py-2 px-2 font-medium">Cuadrilla</th>
                     <th className="text-right py-2 px-2 font-medium">Rendimiento</th>
@@ -514,11 +514,11 @@ const APUAvanzado: React.FC = () => {
                 </thead>
                 <tbody>
                   {filteredRendimientos.map(r => (
-                    <tr key={r.id} className="border-b border-slate-50 hover:bg-slate-50">
-                      <td className="py-2 px-2 font-medium text-slate-700">{r.actividad}</td>
-                      <td className="py-2 px-2 text-slate-500">{r.cuadrilla}</td>
-                      <td className="py-2 px-2 text-right font-semibold text-slate-700">{r.rendimientoDiario}</td>
-                      <td className="py-2 px-2 text-slate-500">{r.unidad}</td>
+                    <tr key={r.id} className="border-b border-slate-50 hover:bg-accent">
+                      <td className="py-2 px-2 font-medium text-muted-foreground">{r.actividad}</td>
+                      <td className="py-2 px-2 text-muted-foreground">{r.cuadrilla}</td>
+                      <td className="py-2 px-2 text-right font-semibold text-muted-foreground">{r.rendimientoDiario}</td>
+                      <td className="py-2 px-2 text-muted-foreground">{r.unidad}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -530,10 +530,10 @@ const APUAvanzado: React.FC = () => {
         {tab === 'sobrecosto' && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold text-slate-700 text-sm">Factor de Sobrecosto</h2>
+              <h2 className="font-bold text-muted-foreground text-sm">Factor de Sobrecosto</h2>
               <button
                 onClick={() => setEditFactor(!editFactor)}
-                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-muted transition-colors"
               >
                 <Edit3 className="w-3 h-3" /> {editFactor ? 'Cancelar' : 'Editar'}
               </button>
@@ -541,7 +541,7 @@ const APUAvanzado: React.FC = () => {
 
             {/* Selector de proyecto */}
             <div className="mb-4">
-              <label className="text-xs text-slate-500 mb-1 block font-medium">Aplicar a proyecto</label>
+              <label className="text-xs text-muted-foreground mb-1 block font-medium">Aplicar a proyecto</label>
               <select
                 value={proyectoId}
                 onChange={e => {
@@ -549,7 +549,7 @@ const APUAvanzado: React.FC = () => {
                   const p = proyectos.find(pr => pr.id === e.target.value);
                   if (p?.factorSobrecosto) setFactor(p.factorSobrecosto);
                 }}
-                className="w-full max-w-xs px-3 py-2 text-sm rounded-lg border border-slate-200 outline-none focus:border-orange-400"
+                className="w-full max-w-xs px-3 py-2 text-sm rounded-lg border border-border outline-none focus:border-orange-400"
               >
                 <option value="">— Sin proyecto (referencia general) —</option>
                 {proyectos.map(p => (
@@ -568,8 +568,8 @@ const APUAvanzado: React.FC = () => {
                 { key: 'imprevistos', label: 'Imprevistos', desc: 'Contingencias' },
                 { key: 'utilidad', label: 'Utilidad', desc: 'Margen de ganancia' },
               ] as const).map(item => (
-                <div key={item.key} className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                  <div className="text-xs text-slate-400 mb-1">{item.label}</div>
+                <div key={item.key} className="bg-muted/30 rounded-xl p-3 border border-border">
+                  <div className="text-xs text-muted-foreground mb-1">{item.label}</div>
                   <div className="text-xs text-slate-300 mb-1">{item.desc}</div>
                   {editFactor ? (
                     <input
@@ -578,10 +578,10 @@ const APUAvanzado: React.FC = () => {
                       onChange={e => setFactor(f => ({ ...f, [item.key]: Math.max(0, +e.target.value) }))}
                       min={0}
                       max={100}
-                      className="w-full px-2 py-1 text-sm font-bold text-right rounded border border-slate-200 outline-none focus:border-orange-400"
+                      className="w-full px-2 py-1 text-sm font-bold text-right rounded border border-border outline-none focus:border-orange-400"
                     />
                   ) : (
-                    <div className="text-lg font-bold text-slate-800">{factor[item.key]}%</div>
+                    <div className="text-lg font-bold text-foreground">{factor[item.key]}%</div>
                   )}
                 </div>
               ))}
@@ -617,18 +617,18 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'dosificacion' && (
           <div>
-            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Dosificación de Concreto</h2>
-            <p className="text-xs text-slate-400 mb-4">
+            <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Dosificación de Concreto</h2>
+            <p className="text-xs text-muted-foreground mb-4">
               Cálculo paramétrico de materiales basado en resistencia, tipo y condiciones ambientales
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Resistencia</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Resistencia</label>
                 <select
                   value={dosificacion.resistencia}
                   onChange={e => setDosificacion(d => ({ ...d, resistencia: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="2000psi">2000 psi</option>
                   <option value="2500psi">2500 psi</option>
@@ -641,11 +641,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Tipo de Elemento</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Tipo de Elemento</label>
                 <select
                   value={dosificacion.tipo}
                   onChange={e => setDosificacion(d => ({ ...d, tipo: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="cimentacion">Cimentación</option>
                   <option value="estructura">Estructura</option>
@@ -656,11 +656,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Tamaño de Agregado</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Tamaño de Agregado</label>
                 <select
                   value={dosificacion.tamañoAgregado}
                   onChange={e => setDosificacion(d => ({ ...d, tamañoAgregado: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="3/4&quot;">3/4&quot;</option>
                   <option value="1&quot;">1&quot;</option>
@@ -670,11 +670,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Aditivos</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Aditivos</label>
                 <select
                   value={dosificacion.aditivos}
                   onChange={e => setDosificacion(d => ({ ...d, aditivos: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="ninguno">Ninguno</option>
                   <option value="acelerador">Acelerador</option>
@@ -685,11 +685,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Tipo de Curado</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Tipo de Curado</label>
                 <select
                   value={dosificacion.curado}
                   onChange={e => setDosificacion(d => ({ ...d, curado: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="normal">Normal</option>
                   <option value="acelerado">Acelerado</option>
@@ -698,23 +698,23 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Volumen (m³)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Volumen (m³)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={volumen}
                   onChange={e => setVolumen(Math.max(0.1, parseFloat(e.target.value) || 1))}
                   min={0.1}
                   step={0.1}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 />
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Departamento (opcional)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Departamento (opcional)</label>
                 <select
                   value={departamento}
                   onChange={e => setDepartamento(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="">Sin ajuste regional</option>
                   {departamentos.map(dep => (
@@ -737,8 +737,8 @@ const APUAvanzado: React.FC = () => {
 
             {resultadoDosificacion && (
               <div className="mt-4 space-y-3">
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <h3 className="font-bold text-slate-700 text-xs mb-3">Cantidades Calculadas</h3>
+                <div className="bg-muted/30 rounded-xl p-4 border border-border">
+                  <h3 className="font-bold text-muted-foreground text-xs mb-3">Cantidades Calculadas</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
                       <div className="text-xs text-blue-600 mb-1">Cemento</div>
@@ -772,20 +772,20 @@ const APUAvanzado: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                  <h3 className="font-bold text-slate-700 text-xs mb-2">Desglose de Costos</h3>
+                <div className="bg-muted/30 rounded-xl p-3 border border-border">
+                  <h3 className="font-bold text-muted-foreground text-xs mb-2">Desglose de Costos</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Cemento:</span>
-                      <span className="font-medium text-slate-700">Q{resultadoDosificacion.desgloseCostos.cemento.toFixed(2)}</span>
+                      <span className="text-muted-foreground">Cemento:</span>
+                      <span className="font-medium text-muted-foreground">Q{resultadoDosificacion.desgloseCostos.cemento.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Arena:</span>
-                      <span className="font-medium text-slate-700">Q{resultadoDosificacion.desgloseCostos.arena.toFixed(2)}</span>
+                      <span className="text-muted-foreground">Arena:</span>
+                      <span className="font-medium text-muted-foreground">Q{resultadoDosificacion.desgloseCostos.arena.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Piedra:</span>
-                      <span className="font-medium text-slate-700">Q{resultadoDosificacion.desgloseCostos.piedra.toFixed(2)}</span>
+                      <span className="text-muted-foreground">Piedra:</span>
+                      <span className="font-medium text-muted-foreground">Q{resultadoDosificacion.desgloseCostos.piedra.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -796,8 +796,8 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'calculo' && (
           <div>
-            <h2 className="font-bold text-slate-700 text-sm mb-3">Cálculo Automático: CD → PV</h2>
-            <p className="text-xs text-slate-400 mb-4">
+            <h2 className="font-bold text-muted-foreground text-sm mb-3">Cálculo Automático: CD → PV</h2>
+            <p className="text-xs text-muted-foreground mb-4">
               Ejemplo con renglón: <strong>Concreto en cimientos</strong> (1 m³)
             </p>
 
@@ -830,11 +830,11 @@ const APUAvanzado: React.FC = () => {
             <div className="bg-slate-900 rounded-xl p-4 mb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-slate-400">Costo Directo (CD)</span>
+                  <span className="text-xs text-muted-foreground">Costo Directo (CD)</span>
                   <div className="text-xl font-bold text-white">Q{calculos.costoDirecto.toFixed(2)}</div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-slate-400">Sobrecosto</span>
+                  <span className="text-xs text-muted-foreground">Sobrecosto</span>
                   <div className="text-lg font-bold text-orange-400">{calculos.pctTotal}%</div>
                 </div>
               </div>
@@ -856,8 +856,8 @@ const APUAvanzado: React.FC = () => {
             </div>
 
             {/* Fórmula */}
-            <div className="mt-4 bg-slate-50 rounded-xl p-3 text-xs text-slate-500 font-mono">
-              <div className="font-semibold text-slate-700 mb-1">Fórmula:</div>
+            <div className="mt-4 bg-muted/30 rounded-xl p-3 text-xs text-muted-foreground font-mono">
+              <div className="font-semibold text-muted-foreground mb-1">Fórmula:</div>
               <div>CD = Materiales + MO + Equipo = Q{calculos.cd.materiales.toFixed(2)} + Q{calculos.cd.manoObra.toFixed(2)} + Q{calculos.cd.equipo.toFixed(2)} = Q{calculos.costoDirecto.toFixed(2)}</div>
               <div>PV = CD × (1 + (Indirectos + Admin + Imprevistos + Utilidad) / 100)</div>
               <div>PV = Q{calculos.costoDirecto.toFixed(2)} × (1 + {calculos.pctTotal} / 100) = Q{calculos.precioVenta.toFixed(2)}</div>
@@ -867,35 +867,35 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'historico' && (
           <div>
-            <h2 className="font-bold text-slate-700 text-sm mb-3">Histórico de Precios por Insumo</h2>
-            <p className="text-xs text-slate-400 mb-4">Evolución de precios de referencia — Guatemala 2025–2026</p>
+            <h2 className="font-bold text-muted-foreground text-sm mb-3">Histórico de Precios por Insumo</h2>
+            <p className="text-xs text-muted-foreground mb-4">Evolución de precios de referencia — Guatemala 2025–2026</p>
 
             {/* Mini gráfica de tendencia */}
-            <div className="relative h-40 mb-4 bg-slate-50 rounded-xl p-3 border border-slate-100">
+            <div className="relative h-40 mb-4 bg-muted/30 rounded-xl p-3 border border-border">
               <div className="flex items-end gap-1 h-full">
                 {historial.map((h, i) => {
                   const maxVal = Math.max(...historial.map(x => x.cemento));
                   const hPct = (h.cemento / maxVal) * 100;
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                      <span className="text-[10px] text-slate-400 font-medium">{h.cemento}</span>
+                      <span className="text-[10px] text-muted-foreground font-medium">{h.cemento}</span>
                       <div
                         className="w-full bg-orange-400 rounded-t transition-all"
                         style={{ height: `${hPct}%`, minHeight: 8 }}
                       />
-                      <span className="text-[8px] text-slate-400">{h.fecha.slice(2)}</span>
+                      <span className="text-[8px] text-muted-foreground">{h.fecha.slice(2)}</span>
                     </div>
                   );
                 })}
               </div>
-              <div className="absolute top-2 left-3 text-xs text-slate-400">Cemento UGC (Q/saco)</div>
+              <div className="absolute top-2 left-3 text-xs text-muted-foreground">Cemento UGC (Q/saco)</div>
             </div>
 
             {/* Tabla histórica */}
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 text-slate-400">
+                  <tr className="border-b border-border text-muted-foreground">
                     <th className="text-left py-2 px-2 font-medium">Fecha</th>
                     <th className="text-right py-2 px-2 font-medium">Cemento</th>
                     <th className="text-right py-2 px-2 font-medium">Hierro 3/8&quot;</th>
@@ -905,8 +905,8 @@ const APUAvanzado: React.FC = () => {
                 </thead>
                 <tbody>
                   {historial.map((h, i) => (
-                    <tr key={i} className="border-b border-slate-50 hover:bg-slate-50">
-                      <td className="py-2 px-2 font-medium text-slate-700">{h.fecha}</td>
+                    <tr key={i} className="border-b border-slate-50 hover:bg-accent">
+                      <td className="py-2 px-2 font-medium text-muted-foreground">{h.fecha}</td>
                       <td className="py-2 px-2 text-right">Q{h.cemento}</td>
                       <td className="py-2 px-2 text-right">Q{h.hierro}</td>
                       <td className="py-2 px-2 text-right">Q{h.arena}</td>
@@ -919,29 +919,29 @@ const APUAvanzado: React.FC = () => {
 
             {/* Tendencia */}
             <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <div className="text-xs text-slate-500">Cemento</div>
+              <div className="bg-muted/30 rounded-xl p-3 border border-border">
+                <div className="text-xs text-muted-foreground">Cemento</div>
                 <div className="text-sm font-bold text-orange-600">
                   Q{historial[historial.length-1].cemento.toFixed(0)}
                   <span className="text-xs ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].cemento - historial[0].cemento) / historial[0].cemento * 100).toFixed(1)}%</span>
                 </div>
               </div>
-              <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <div className="text-xs text-slate-500">Hierro 3/8&quot;</div>
+              <div className="bg-muted/30 rounded-xl p-3 border border-border">
+                <div className="text-xs text-muted-foreground">Hierro 3/8&quot;</div>
                 <div className="text-sm font-bold text-blue-600">
                   Q{historial[historial.length-1].hierro.toFixed(0)}
                   <span className="text-xs ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].hierro - historial[0].hierro) / historial[0].hierro * 100).toFixed(1)}%</span>
                 </div>
               </div>
-              <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <div className="text-xs text-slate-500">Arena</div>
+              <div className="bg-muted/30 rounded-xl p-3 border border-border">
+                <div className="text-xs text-muted-foreground">Arena</div>
                 <div className="text-sm font-bold text-emerald-600">
                   Q{historial[historial.length-1].arena.toFixed(0)}
                   <span className="text-xs ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].arena - historial[0].arena) / historial[0].arena * 100).toFixed(1)}%</span>
                 </div>
               </div>
-              <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <div className="text-xs text-slate-500">Block</div>
+              <div className="bg-muted/30 rounded-xl p-3 border border-border">
+                <div className="text-xs text-muted-foreground">Block</div>
                 <div className="text-sm font-bold text-blue-600">
                   Q{historial[historial.length-1].block.toFixed(0)}
                   <span className="text-xs ml-1 text-red-500 dark:text-red-400">↑ {((historial[historial.length-1].block - historial[0].block) / historial[0].block * 100).toFixed(1)}%</span>
@@ -953,18 +953,18 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'acero' && (
           <div>
-            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Desglose de Acero</h2>
-            <p className="text-xs text-slate-400 mb-4">
+            <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Desglose de Acero</h2>
+            <p className="text-xs text-muted-foreground mb-4">
               Cálculo paramétrico de acero por diámetro basado en elemento, grado y tipo de estribo
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Elemento</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Elemento</label>
                 <select
                   value={acero.elemento}
                   onChange={e => setAcero(d => ({ ...d, elemento: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="columna">Columna</option>
                   <option value="viga">Viga</option>
@@ -974,11 +974,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Grado</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Grado</label>
                 <select
                   value={acero.grado}
                   onChange={e => setAcero(d => ({ ...d, grado: parseInt(e.target.value) as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="40">Grado 40</option>
                   <option value="60">Grado 60</option>
@@ -986,11 +986,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Estribos</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Estribos</label>
                 <select
                   value={acero.estribos}
                   onChange={e => setAcero(d => ({ ...d, estribos: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="estribos">Estribos</option>
                   <option value="espiral">Espiral</option>
@@ -999,14 +999,14 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Volumen (m³)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Volumen (m³)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={acero.volumenM3}
                   onChange={e => setAcero(d => ({ ...d, volumenM3: Math.max(0.1, parseFloat(e.target.value) || 1) }))}
                   min={0.1}
                   step={0.1}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 />
               </div>
 
@@ -1024,8 +1024,8 @@ const APUAvanzado: React.FC = () => {
 
             {resultadoAcero && (
               <div className="mt-4 space-y-3">
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <h3 className="font-bold text-slate-700 text-xs mb-3">Desglose por Diámetro</h3>
+                <div className="bg-muted/30 rounded-xl p-4 border border-border">
+                  <h3 className="font-bold text-muted-foreground text-xs mb-3">Desglose por Diámetro</h3>
                   <div className="space-y-2">
                     {resultadoAcero.desglose?.map((item: any, index: number) => (
                       <div key={index} className="bg-blue-50 rounded-lg p-3 border border-blue-100">
@@ -1033,7 +1033,7 @@ const APUAvanzado: React.FC = () => {
                           <span className="text-xs text-blue-600">Diámetro {item.diametro}</span>
                           <span className="text-lg font-bold text-blue-700">{item.cantidadKg.toFixed(2)} kg</span>
                         </div>
-                        <div className="text-xs text-slate-500 mt-1">
+                        <div className="text-xs text-muted-foreground mt-1">
                           Costo: Q{item.costoTotal.toFixed(2)} | Precio: Q{item.precioUnitarioKg.toFixed(2)}/kg
                         </div>
                       </div>
@@ -1056,18 +1056,18 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'movimientoTierra' && (
           <div>
-            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Movimientos de Tierra</h2>
-            <p className="text-xs text-slate-400 mb-4">
+            <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Movimientos de Tierra</h2>
+            <p className="text-xs text-muted-foreground mb-4">
               Cálculo paramétrico de costos y tiempos basado en tipo, suelo, profundidad y condiciones
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Tipo</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Tipo</label>
                 <select
                   value={movimientoTierra.tipo}
                   onChange={e => setMovimientoTierra(d => ({ ...d, tipo: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="excavacion">Excavación</option>
                   <option value="relleno">Relleno</option>
@@ -1076,11 +1076,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Suelo</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Suelo</label>
                 <select
                   value={movimientoTierra.suelo}
                   onChange={e => setMovimientoTierra(d => ({ ...d, suelo: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="relleno">Relleno</option>
                   <option value="arcilla">Arcilla</option>
@@ -1091,11 +1091,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Profundidad</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Profundidad</label>
                 <select
                   value={movimientoTierra.profundidad}
                   onChange={e => setMovimientoTierra(d => ({ ...d, profundidad: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="menos_1m">Menos de 1m</option>
                   <option value="1_2m">1-2m</option>
@@ -1105,11 +1105,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Acceso</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Acceso</label>
                 <select
                   value={movimientoTierra.acceso}
                   onChange={e => setMovimientoTierra(d => ({ ...d, acceso: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="retroexcavadora">Retroexcavadora</option>
                   <option value="cargador">Cargador Frontal</option>
@@ -1118,11 +1118,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Drenaje</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Drenaje</label>
                 <select
                   value={movimientoTierra.drenaje}
                   onChange={e => setMovimientoTierra(d => ({ ...d, drenaje: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="seco">Seco</option>
                   <option value="agua">Con Agua</option>
@@ -1131,14 +1131,14 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Volumen (m³)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Volumen (m³)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={movimientoTierra.volumenM3}
                   onChange={e => setMovimientoTierra(d => ({ ...d, volumenM3: Math.max(0.1, parseFloat(e.target.value) || 1) }))}
                   min={0.1}
                   step={0.1}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 />
               </div>
 
@@ -1156,8 +1156,8 @@ const APUAvanzado: React.FC = () => {
 
             {resultadoMovimientoTierra && (
               <div className="mt-4 space-y-3">
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
+                <div className="bg-muted/30 rounded-xl p-4 border border-border">
+                  <h3 className="font-bold text-muted-foreground text-xs mb-3">Resultados Calculados</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
                       <div className="text-xs text-blue-600 mb-1">Costo Unitario</div>
@@ -1178,11 +1178,11 @@ const APUAvanzado: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                  <h3 className="font-bold text-slate-700 text-xs mb-2">Equipo Requerido</h3>
+                <div className="bg-muted/30 rounded-xl p-3 border border-border">
+                  <h3 className="font-bold text-muted-foreground text-xs mb-2">Equipo Requerido</h3>
                   <div className="flex flex-wrap gap-2">
                     {resultadoMovimientoTierra.equipoRequerido?.map((eq: string, idx: number) => (
-                      <span key={idx} className="text-xs px-2 py-1 bg-slate-200 rounded-full">{eq}</span>
+                      <span key={idx} className="text-xs px-2 py-1 bg-muted rounded-full">{eq}</span>
                     ))}
                   </div>
                 </div>
@@ -1193,18 +1193,18 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'parametrosClimaticos' && (
           <div>
-            <h2 className="font-bold text-slate-700 text-sm mb-3">Parámetros Climáticos por Departamento</h2>
-            <p className="text-xs text-slate-400 mb-4">
+            <h2 className="font-bold text-muted-foreground text-sm mb-3">Parámetros Climáticos por Departamento</h2>
+            <p className="text-xs text-muted-foreground mb-4">
               Factores de ajuste por clima para curado de concreto y rendimiento de mano de obra
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Departamento</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Departamento</label>
                 <select
                   value={parametrosClimaticos.departamentoCodigo}
                   onChange={e => setParametrosClimaticos(d => ({ ...d, departamentoCodigo: e.target.value }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="">Seleccione departamento</option>
                   {departamentos.map(dep => (
@@ -1214,11 +1214,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Mes (opcional)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Mes (opcional)</label>
                 <select
                   value={parametrosClimaticos.mes}
                   onChange={e => setParametrosClimaticos(d => ({ ...d, mes: e.target.value }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="">Sin estacionalidad</option>
                   <option value="enero">Enero</option>
@@ -1250,8 +1250,8 @@ const APUAvanzado: React.FC = () => {
 
             {resultadoClimaticos && (
               <div className="mt-4 space-y-3">
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <h3 className="font-bold text-slate-700 text-xs mb-3">Factores Climáticos</h3>
+                <div className="bg-muted/30 rounded-xl p-4 border border-border">
+                  <h3 className="font-bold text-muted-foreground text-xs mb-3">Factores Climáticos</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
                       <div className="text-xs text-blue-600 mb-1">Factor Curado</div>
@@ -1287,18 +1287,18 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'pavimentos' && (
           <div>
-            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Pavimentos</h2>
-            <p className="text-xs text-slate-400 mb-4">
+            <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Pavimentos</h2>
+            <p className="text-xs text-muted-foreground mb-4">
               Cálculo paramétrico de pavimentos basado en uso, tipo, base y sello
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Uso</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Uso</label>
                 <select
                   value={pavimento.uso}
                   onChange={e => setPavimento(d => ({ ...d, uso: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="peatonal">Peatonal</option>
                   <option value="vehicular_liviano">Vehicular Liviano</option>
@@ -1308,11 +1308,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Tipo</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Tipo</label>
                 <select
                   value={pavimento.tipo}
                   onChange={e => setPavimento(d => ({ ...d, tipo: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="adoquinado">Adoquinado</option>
                   <option value="concreto">Concreto</option>
@@ -1323,11 +1323,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Tipo Base</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Tipo Base</label>
                 <select
                   value={pavimento.tipoBase}
                   onChange={e => setPavimento(d => ({ ...d, tipoBase: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="c4">C4</option>
                   <option value="piedra_picada">Piedra Picada</option>
@@ -1337,11 +1337,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Tipo Sello</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Tipo Sello</label>
                 <select
                   value={pavimento.tipoSello}
                   onChange={e => setPavimento(d => ({ ...d, tipoSello: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="arena">Arena</option>
                   <option value="cemento">Cemento</option>
@@ -1351,14 +1351,14 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Área (m²)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Área (m²)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={pavimento.areaM2}
                   onChange={e => setPavimento(d => ({ ...d, areaM2: Math.max(1, parseFloat(e.target.value) || 1) }))}
                   min={1}
                   step={1}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 />
               </div>
 
@@ -1376,8 +1376,8 @@ const APUAvanzado: React.FC = () => {
 
             {resultadoPavimento && (
               <div className="mt-4 space-y-3">
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
+                <div className="bg-muted/30 rounded-xl p-4 border border-border">
+                  <h3 className="font-bold text-muted-foreground text-xs mb-3">Resultados Calculados</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
                       <div className="text-xs text-blue-600 mb-1">Espesor</div>
@@ -1398,20 +1398,20 @@ const APUAvanzado: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                  <h3 className="font-bold text-slate-700 text-xs mb-2">Desglose de Costos</h3>
+                <div className="bg-muted/30 rounded-xl p-3 border border-border">
+                  <h3 className="font-bold text-muted-foreground text-xs mb-2">Desglose de Costos</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Superficie:</span>
-                      <span className="font-medium text-slate-700">Q{resultadoPavimento.costoSuperficieM2?.toFixed(2) || '0.00'}/m²</span>
+                      <span className="text-muted-foreground">Superficie:</span>
+                      <span className="font-medium text-muted-foreground">Q{resultadoPavimento.costoSuperficieM2?.toFixed(2) || '0.00'}/m²</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Base:</span>
-                      <span className="font-medium text-slate-700">Q{resultadoPavimento.costoBaseM3?.toFixed(2) || '0.00'}/m³</span>
+                      <span className="text-muted-foreground">Base:</span>
+                      <span className="font-medium text-muted-foreground">Q{resultadoPavimento.costoBaseM3?.toFixed(2) || '0.00'}/m³</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Sello:</span>
-                      <span className="font-medium text-slate-700">Q{resultadoPavimento.costoSelloM2?.toFixed(2) || '0.00'}/m²</span>
+                      <span className="text-muted-foreground">Sello:</span>
+                      <span className="font-medium text-muted-foreground">Q{resultadoPavimento.costoSelloM2?.toFixed(2) || '0.00'}/m²</span>
                     </div>
                   </div>
                 </div>
@@ -1431,18 +1431,18 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'redesInfraestructura' && (
           <div>
-            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Redes de Infraestructura</h2>
-            <p className="text-xs text-slate-400 mb-4">
+            <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Redes de Infraestructura</h2>
+            <p className="text-xs text-muted-foreground mb-4">
               Cálculo paramétrico de redes basado en tipo, diámetro, material y presión
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Tipo</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Tipo</label>
                 <select
                   value={redInfraestructura.tipo}
                   onChange={e => setRedInfraestructura(d => ({ ...d, tipo: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="agua_potable">Agua Potable</option>
                   <option value="alcantarillado_sanitario">Alcantarillado Sanitario</option>
@@ -1451,11 +1451,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Diámetro (pulgadas)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Diámetro (pulgadas)</label>
                 <select
                   value={redInfraestructura.diametroPulgadas}
                   onChange={e => setRedInfraestructura(d => ({ ...d, diametroPulgadas: parseFloat(e.target.value) }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="0.5">0.5&quot;</option>
                   <option value="1.0">1.0&quot;</option>
@@ -1468,11 +1468,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Material</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Material</label>
                 <select
                   value={redInfraestructura.material}
                   onChange={e => setRedInfraestructura(d => ({ ...d, material: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="pvc">PVC</option>
                   <option value="cpvc">CPVC</option>
@@ -1484,11 +1484,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Presión</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Presión</label>
                 <select
                   value={redInfraestructura.presion}
                   onChange={e => setRedInfraestructura(d => ({ ...d, presion: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="baja">Baja</option>
                   <option value="media">Media</option>
@@ -1497,14 +1497,14 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Longitud (ml)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Longitud (ml)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={redInfraestructura.longitudMl}
                   onChange={e => setRedInfraestructura(d => ({ ...d, longitudMl: Math.max(1, parseFloat(e.target.value) || 1) }))}
                   min={1}
                   step={1}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 />
               </div>
 
@@ -1522,8 +1522,8 @@ const APUAvanzado: React.FC = () => {
 
             {resultadoRedInfraestructura && (
               <div className="mt-4 space-y-3">
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
+                <div className="bg-muted/30 rounded-xl p-4 border border-border">
+                  <h3 className="font-bold text-muted-foreground text-xs mb-3">Resultados Calculados</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
                       <div className="text-xs text-blue-600 mb-1">Costo Unitario</div>
@@ -1563,14 +1563,14 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'murosContencion' && (
           <div>
-            <h2 className="font-bold text-slate-700 text-sm mb-3">Motor de Muros de Contención</h2>
-            <p className="text-xs text-slate-400 mb-4">
+            <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Muros de Contención</h2>
+            <p className="text-xs text-muted-foreground mb-4">
               Cálculo paramétrico de muros basado en altura, tipo, cimentación, suelo y drenaje
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Altura (m)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Altura (m)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={muroContencion.alturaM}
@@ -1578,16 +1578,16 @@ const APUAvanzado: React.FC = () => {
                   min={1}
                   max={10}
                   step={0.5}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 />
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Tipo de Muro</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Tipo de Muro</label>
                 <select
                   value={muroContencion.tipo}
                   onChange={e => setMuroContencion(d => ({ ...d, tipo: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="gravedad">Gravedad</option>
                   <option value="cantiliver">Cantilever</option>
@@ -1598,11 +1598,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Cimentación</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Cimentación</label>
                 <select
                   value={muroContencion.tipoCimentacion}
                   onChange={e => setMuroContencion(d => ({ ...d, tipoCimentacion: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="zapata_corrida">Zapata Corrida</option>
                   <option value="pilotes">Pilotes</option>
@@ -1611,11 +1611,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Tipo de Suelo</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Tipo de Suelo</label>
                 <select
                   value={muroContencion.tipoSuelo}
                   onChange={e => setMuroContencion(d => ({ ...d, tipoSuelo: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="arcilla">Arcilla</option>
                   <option value="arena">Arena</option>
@@ -1626,11 +1626,11 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Drenaje</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Drenaje</label>
                 <select
                   value={muroContencion.tipoDrenaje}
                   onChange={e => setMuroContencion(d => ({ ...d, tipoDrenaje: e.target.value as any }))}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 >
                   <option value="sin_drenaje">Sin Drenaje</option>
                   <option value="drenaje_superficial">Drenaje Superficial</option>
@@ -1640,14 +1640,14 @@ const APUAvanzado: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">Longitud (m)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Longitud (m)</label>
                 <input
                   type="number" inputMode="decimal"
                   value={muroContencion.longitudM}
                   onChange={e => setMuroContencion(d => ({ ...d, longitudM: Math.max(1, parseFloat(e.target.value) || 1) }))}
                   min={1}
                   step={1}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-orange-400 bg-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"
                 />
               </div>
 
@@ -1665,8 +1665,8 @@ const APUAvanzado: React.FC = () => {
 
             {resultadoMuroContencion && (
               <div className="mt-4 space-y-3">
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <h3 className="font-bold text-slate-700 text-xs mb-3">Resultados Calculados</h3>
+                <div className="bg-muted/30 rounded-xl p-4 border border-border">
+                  <h3 className="font-bold text-muted-foreground text-xs mb-3">Resultados Calculados</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
                       <div className="text-xs text-blue-600 mb-1">Costo Unitario</div>
@@ -1709,4 +1709,5 @@ const APUAvanzado: React.FC = () => {
 };
 
 export default APUAvanzado;
+
 

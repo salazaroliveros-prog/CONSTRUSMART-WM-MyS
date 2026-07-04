@@ -396,8 +396,8 @@ const ExportacionInteligente: React.FC = () => {
       <div className="flex items-center gap-2 mb-4">
         <Download className="w-6 h-6 text-blue-500" />
         <div>
-          <h1 className="text-2xl font-black text-slate-800">{t('exportacion.titulo', 'Exportación Inteligente')}</h1>
-          <p className="text-xs text-slate-500">{t('exportacion.subtitulo', 'Exporta datos a Excel, JSON, CSV o PDF y programa reportes automáticos')}</p>
+          <h1 className="text-lg sm:text-xl font-black text-foreground">{t('exportacion.titulo', 'Exportación Inteligente')}</h1>
+          <p className="text-xs text-muted-foreground">{t('exportacion.subtitulo', 'Exporta datos a Excel, JSON, CSV o PDF y programa reportes automáticos')}</p>
         </div>
       </div>
 
@@ -406,56 +406,56 @@ const ExportacionInteligente: React.FC = () => {
         <button
           onClick={exportarXLSX}
           disabled={exportando === 'xlsx'}
-          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'xlsx' ? 'bg-emerald-50 border-emerald-300 animate-pulse' : 'bg-white border-slate-100 hover:border-emerald-300 hover:shadow-sm'}`}
+          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'xlsx' ? 'bg-emerald-50 border-emerald-300 animate-pulse' : 'bg-card border-border hover:border-emerald-300 hover:shadow-sm'}`}
         >
           <Table className={`w-8 h-8 ${exportando === 'xlsx' ? 'text-emerald-500' : 'text-emerald-400'}`} />
           <div className="text-left">
-            <p className="text-sm font-bold text-slate-700">{t('exportacion.excel', 'Exportar Excel')}</p>
-            <p className="text-xs text-slate-400">{t('exportacion.excel_desc', '6 hojas con formato profesional .xlsx')}</p>
+            <p className="text-sm font-bold text-muted-foreground">{t('exportacion.excel', 'Exportar Excel')}</p>
+            <p className="text-xs text-muted-foreground">{t('exportacion.excel_desc', '6 hojas con formato profesional .xlsx')}</p>
           </div>
         </button>
 
         <button
           onClick={exportarJSON}
           disabled={exportando === 'json'}
-          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'json' ? 'bg-blue-50 border-blue-300 animate-pulse' : 'bg-white border-slate-100 hover:border-blue-300 hover:shadow-sm'}`}
+          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'json' ? 'bg-blue-50 border-blue-300 animate-pulse' : 'bg-card border-border hover:border-blue-300 hover:shadow-sm'}`}
         >
           <FileJson className={`w-8 h-8 ${exportando === 'json' ? 'text-blue-500' : 'text-blue-400'}`} />
           <div className="text-left">
-            <p className="text-sm font-bold text-slate-700">{t('exportacion.json', 'Exportar JSON')}</p>
-            <p className="text-xs text-slate-400">{t('exportacion.json_desc', 'Datos completos del ERP en formato JSON')}</p>
+            <p className="text-sm font-bold text-muted-foreground">{t('exportacion.json', 'Exportar JSON')}</p>
+            <p className="text-xs text-muted-foreground">{t('exportacion.json_desc', 'Datos completos del ERP en formato JSON')}</p>
           </div>
         </button>
 
         <button
           onClick={exportarCSV}
           disabled={exportando === 'csv'}
-          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'csv' ? 'bg-green-50 border-green-300 animate-pulse' : 'bg-white border-slate-100 hover:border-green-300 hover:shadow-sm'}`}
+          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'csv' ? 'bg-green-50 border-green-300 animate-pulse' : 'bg-card border-border hover:border-green-300 hover:shadow-sm'}`}
         >
           <FileSpreadsheet className={`w-8 h-8 ${exportando === 'csv' ? 'text-green-500' : 'text-green-400'}`} />
           <div className="text-left">
-            <p className="text-sm font-bold text-slate-700">{t('exportacion.csv', 'Exportar CSV')}</p>
-            <p className="text-xs text-slate-400">{t('exportacion.csv_desc', 'Tablas planas para Excel/Sheets')}</p>
+            <p className="text-sm font-bold text-muted-foreground">{t('exportacion.csv', 'Exportar CSV')}</p>
+            <p className="text-xs text-muted-foreground">{t('exportacion.csv_desc', 'Tablas planas para Excel/Sheets')}</p>
           </div>
         </button>
 
         <button
           onClick={generarPDF}
           disabled={exportando === 'pdf'}
-          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'pdf' ? 'bg-red-50 border-red-300 animate-pulse' : 'bg-white border-slate-100 hover:border-red-300 hover:shadow-sm'}`}
+          className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${exportando === 'pdf' ? 'bg-red-50 border-red-300 animate-pulse' : 'bg-card border-border hover:border-red-300 hover:shadow-sm'}`}
         >
           <FileText className={`w-8 h-8 ${exportando === 'pdf' ? 'text-red-500' : 'text-red-400'}`} />
           <div className="text-left">
-            <p className="text-sm font-bold text-slate-700">{t('exportacion.pdf', 'Reporte PDF')}</p>
-            <p className="text-xs text-slate-400">{t('exportacion.pdf_desc', 'Reporte ejecutivo profesional con membrete')}</p>
+            <p className="text-sm font-bold text-muted-foreground">{t('exportacion.pdf', 'Reporte PDF')}</p>
+            <p className="text-xs text-muted-foreground">{t('exportacion.pdf_desc', 'Reporte ejecutivo profesional con membrete')}</p>
           </div>
         </button>
       </div>
 
       {/* Reportes programados */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+      <div className="bg-card rounded-2xl shadow-sm border border-border p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-slate-700 text-sm flex items-center gap-1.5">
+          <h2 className="font-bold text-muted-foreground text-sm flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-purple-500" /> {t('exportacion.reportes_programados', 'Reportes Programados')}
           </h2>
           <button onClick={() => setShowForm(true)} className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-medium hover:bg-purple-600">
@@ -489,25 +489,25 @@ const ExportacionInteligente: React.FC = () => {
             <input value={form.destinatarios} onChange={e => setForm(prev => ({ ...prev, destinatarios: e.target.value }))} placeholder={t('exportacion.destinatarios', 'Destinatarios (email separados por coma)')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
             <div className="flex gap-2">
               <button onClick={agregarReporte} className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-semibold">{t('exportacion.programar', 'Programar')}</button>
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-600">{t('common.cancelar', 'Cancelar')}</button>
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground">{t('common.cancelar', 'Cancelar')}</button>
             </div>
           </div>
         )}
 
         {reportes.length === 0 ? (
-          <p className="text-xs text-slate-400 text-center py-6">{t('exportacion.sin_reportes', 'Sin reportes programados. Crea uno para recibirlo periódicamente.')}</p>
+          <p className="text-xs text-muted-foreground text-center py-6">{t('exportacion.sin_reportes', 'Sin reportes programados. Crea uno para recibirlo periódicamente.')}</p>
         ) : (
           <div className="space-y-2">
             {reportes.map(r => (
-              <div key={r.id} className={`flex items-start justify-between p-3 rounded-lg border ${r.activo ? 'bg-white border-slate-100' : 'bg-slate-50 border-slate-200 opacity-60'}`}>
+              <div key={r.id} className={`flex items-start justify-between p-3 rounded-lg border ${r.activo ? 'bg-card border-border' : 'bg-muted/30 border-border opacity-60'}`}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium text-slate-700">{r.nombre}</span>
-                    <button onClick={() => toggleReporte(r.id)} className={`px-1.5 py-0.5 rounded text-xs font-medium ${r.activo ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+                    <span className="text-sm font-medium text-muted-foreground">{r.nombre}</span>
+                    <button onClick={() => toggleReporte(r.id)} className={`px-1.5 py-0.5 rounded text-xs font-medium ${r.activo ? 'bg-emerald-50 text-emerald-600' : 'bg-muted text-muted-foreground'}`}>
                       {r.activo ? t('exportacion.activo', 'Activo') : t('exportacion.pausado', 'Pausado')}
                     </button>
                   </div>
-                  <div className="flex gap-2 text-xs text-slate-400">
+                  <div className="flex gap-2 text-xs text-muted-foreground">
                     <span>📄 {r.tipo}</span>
                     <span>💾 {r.formato.toUpperCase()}</span>
                     <span>🔄 {r.frecuencia}</span>
@@ -519,7 +519,7 @@ const ExportacionInteligente: React.FC = () => {
                   <button onClick={() => ejecutarReporteAhora(r)} className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 flex items-center gap-1">
                     <Send className="w-3 h-3" /> {t('exportacion.ejecutar', 'Ejecutar')}
                   </button>
-                  <button onClick={() => eliminarReporte(r.id)} aria-label={t('exportacion.eliminar_reporte', 'Eliminar reporte')} className="p-1 text-slate-400 hover:text-red-500">
+                  <button onClick={() => eliminarReporte(r.id)} aria-label={t('exportacion.eliminar_reporte', 'Eliminar reporte')} className="p-1 text-muted-foreground hover:text-red-500">
                     <Trash2 className="w-3 h-3" />
                   </button>
                 </div>
@@ -530,19 +530,19 @@ const ExportacionInteligente: React.FC = () => {
       </div>
 
       {/* Instrucciones */}
-      <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-        <h3 className="text-xs font-bold text-slate-600 mb-2">📋 {t('exportacion.guia', 'Guía de Exportación')}</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-500">
+      <div className="bg-muted/30 rounded-xl p-4 border border-border">
+        <h3 className="text-xs font-bold text-muted-foreground mb-2">📋 {t('exportacion.guia', 'Guía de Exportación')}</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-muted-foreground">
           <div>
-            <p className="font-semibold text-slate-700">JSON</p>
+            <p className="font-semibold text-muted-foreground">JSON</p>
             <p>{t('exportacion.guia_json', 'Exporta todos los datos del ERP en un único archivo JSON estructurado. Ideal para integraciones API, backup o análisis externo.')}</p>
           </div>
           <div>
-            <p className="font-semibold text-slate-700">CSV</p>
+            <p className="font-semibold text-muted-foreground">CSV</p>
             <p>{t('exportacion.guia_csv', 'Exporta tablas planas separadas por proyectos, movimientos, empleados y materiales. Compatible con Excel, Google Sheets y herramientas BI.')}</p>
           </div>
           <div>
-            <p className="font-semibold text-slate-700">PDF</p>
+            <p className="font-semibold text-muted-foreground">PDF</p>
             <p>{t('exportacion.guia_pdf', 'Reporte ejecutivo profesional con membrete de CONSTRUCTORA WM, tabla de proyectos y KPIs. Listo para imprimir o compartir.')}</p>
           </div>
         </div>
@@ -552,4 +552,5 @@ const ExportacionInteligente: React.FC = () => {
 };
 
 export default ExportacionInteligente;
+
 

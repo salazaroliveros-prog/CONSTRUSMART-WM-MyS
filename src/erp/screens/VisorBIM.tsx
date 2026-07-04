@@ -104,12 +104,12 @@ export default function VisorBIM() {
       </div>
 
       {/* Selector de proyecto */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-3">
+      <div className="bg-card rounded-xl shadow-sm border border-border p-3">
         <Label className="text-xs text-gray-600">Proyecto</Label>
         <select
           value={selectedProyectoId || ''}
           onChange={e => setSelectedProyectoId(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
         >
           <option value="">Selecciona un proyecto</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
@@ -126,7 +126,7 @@ export default function VisorBIM() {
 
         {/* Visor 3D simulado */}
         <TabsContent value="visor" className="space-y-3">
-          <Card className="p-6 bg-slate-50 border-slate-200">
+          <Card className="p-6 bg-muted/30 border-border">
             <div className="aspect-video bg-slate-900 rounded-lg flex items-center justify-center relative overflow-hidden">
               <div className="text-white text-center">
                 <Maximize className="w-16 h-16 mx-auto mb-3 opacity-30" />
@@ -142,7 +142,7 @@ export default function VisorBIM() {
         {/* Vincular */}
         <TabsContent value="vincular" className="space-y-3">
           <Card className="p-4">
-            <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+            <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
               <Construction className="w-5 h-5" /> Elementos del Modelo BIM
             </h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
@@ -180,7 +180,7 @@ export default function VisorBIM() {
         <TabsContent value="cubicacion" className="space-y-3">
           <Card className="p-4">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-slate-800">Cubicación</h3>
+              <h3 className="font-bold text-foreground">Cubicación</h3>
               <Button size="sm" onClick={generarCubicacion}>
                 <Ruler className="w-4 h-4 mr-1" /> Generar
               </Button>
@@ -217,7 +217,7 @@ export default function VisorBIM() {
         {/* Avance vs Campo */}
         <TabsContent value="avance" className="space-y-3">
           <Card className="p-4">
-            <h3 className="font-bold text-slate-800 mb-3">Avance vs Campo</h3>
+            <h3 className="font-bold text-foreground mb-3">Avance vs Campo</h3>
             <p className="text-xs text-gray-500">Comparativa entre avance modelado en BIM y avance físico registrado en campo.</p>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="p-4 bg-blue-50 rounded-lg">
@@ -235,3 +235,4 @@ export default function VisorBIM() {
     </div>
   );
 }
+
