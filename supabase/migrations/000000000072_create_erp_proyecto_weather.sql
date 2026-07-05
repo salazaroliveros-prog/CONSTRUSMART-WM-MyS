@@ -37,30 +37,46 @@ CREATE INDEX IF NOT EXISTS idx_proyecto_weather_last_updated ON erp_proyecto_wea
 -- Enable RLS
 ALTER TABLE erp_proyecto_weather ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies
--- Allow authenticated users to read weather data
-CREATE POLICY "Allow authenticated read" ON erp_proyecto_weather
+-- Grant permissions to authenticated role
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE erp_proyecto_weather TO authenticated;
+
+-- RLS Policies - Following the application's security pattern
+-- Allow authenticated users to read weather data for projects they have access to
+CREATE POLICY "weather_read_by_project" ON erp_proyecto_weather
   FOR SELECT
   TO authenticated
-  USING (true);
+  USING (
+    public.get_current_user_role() = 'Administrador'
+    OR proyecto_id IN (SELECT unnest(ARRAY(SELECT public.get_accessible_proyectos())))
+  );
 
--- Allow authenticated users to insert weather data
-CREATE POLICY "Allow authenticated insert" ON erp_proyecto_weather
+-- Allow authenticated users to insert weather data for projects they can write to
+CREATE POLICY "weather_insert_by_project" ON erp_proyecto_weather
   FOR INSERT
   TO authenticated
-  WITH CHECK (true);
+  WITH CHECK (
+    public.get_current_user_role() IN ('Administrador','Gerente','Residente')
+    AND proyecto_id IN (SELECT unnest(ARRAY(SELECT public.get_accessible_proyectos())))
+  );
 
--- Allow authenticated users to update weather data
-CREATE POLICY "Allow authenticated update" ON erp_proyecto_weather
+-- Allow authenticated users to update weather data for projects they can write to
+CREATE POLICY "weather_update_by_project" ON erp_proyecto_weather
   FOR UPDATE
   TO authenticated
-  USING (true);
+  USING (
+    public.get_current_user_role() IN ('Administrador','Gerente','Residente')
+    AND proyecto_id IN (SELECT unnest(ARRAY(SELECT public.get_accessible_proyectos())))
+  )
+  WITH CHECK (
+    public.get_current_user_role() IN ('Administrador','Gerente','Residente')
+    AND proyecto_id IN (SELECT unnest(ARRAY(SELECT public.get_accessible_proyectos())))
+  );
 
--- Allow authenticated users to delete weather data
-CREATE POLICY "Allow authenticated delete" ON erp_proyecto_weather
+-- Allow only administrators to delete weather data
+CREATE POLICY "weather_delete_admin" ON erp_proyecto_weather
   FOR DELETE
   TO authenticated
-  USING (true);
+  USING (public.get_current_user_role() = 'Administrador');
 
 -- Enable realtime for weather data
 ALTER PUBLICATION supabase_realtime ADD TABLE erp_proyecto_weather;
@@ -83,7 +99,7 @@ CREATE TRIGGER trigger_update_proyecto_weather_updated_at
 CREATE TRIGGER trigger_audit_proyecto_weather
   AFTER INSERT OR UPDATE OR DELETE ON erp_proyecto_weather
   FOR EACH ROW
-  EXECUTE FUNCTION audit_log();
+  EXECUTE FUNCTION audit_trigger_func();
 
 -- Comment
 COMMENT ON TABLE erp_proyecto_weather IS 'Weather and environmental conditions data for construction projects';
