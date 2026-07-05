@@ -8,7 +8,7 @@ export const TABLE_MAP: Record<string, string> = {
   erp_publicaciones_muro:'publicacionesMuro',erp_planos:'planos',erp_rfis:'rfis',
   erp_submittals:'submittals',erp_activos:'activos',erp_cuadros:'cuadros',
   erp_pagos_proveedor:'pagosProveedor',erp_destajos:'destajos',
-  recepciones_almacen:'recepciones',erp_centros_costo:'centrosCosto',
+  erp_recepciones:'recepciones',erp_centros_costo:'centrosCosto',
   erp_seguimiento:'seguimientoEVM',erp_bitacora:'bitacora',
   erp_plantillas_proyectos:'plantillas',
   erp_presupuestos:'presupuestos',erp_avances:'avances',

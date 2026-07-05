@@ -16,7 +16,7 @@ type TableName =
   | 'erp_planos' | 'erp_rfis' | 'erp_submittals'
   | 'erp_activos' | 'erp_cuadros' | 'ventas_paquetes' | 'pagos_proveedores'
   | 'erp_cotizaciones_negocio'
-  | 'destajos' | 'recepciones_almacen';
+  | 'destajos' | 'erp_recepciones';
 
 type ChangeType = 'INSERT' | 'UPDATE' | 'DELETE';
 
@@ -25,7 +25,7 @@ const TABLAS_POR_ROL: Record<Rol, TableName[]> = {
     'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
     'erp_notificaciones', 'erp_publicaciones_muro',
     'erp_presupuestos', 'erp_ordenes_compra', 'erp_avances', 'erp_vales_salida',
-    'erp_cotizaciones_negocio', 'erp_licitaciones', 'destajos', 'recepciones_almacen',
+    'erp_cotizaciones_negocio', 'erp_licitaciones', 'destajos', 'erp_recepciones',
     'erp_hitos', 'erp_riesgos', 'erp_ordenes_cambio',
     'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_no_conformidades',
     'erp_incidentes', 'erp_pruebas_laboratorio', 'erp_liberaciones_partida',
@@ -51,10 +51,10 @@ const TABLAS_POR_ROL: Record<Rol, TableName[]> = {
   ],
   Compras: [
     'erp_proyectos', 'erp_materiales', 'erp_ordenes_compra',
-    'erp_notificaciones', 'erp_vales_salida', 'destajos', 'recepciones_almacen',
+    'erp_notificaciones', 'erp_vales_salida', 'destajos', 'erp_recepciones',
   ],
   Bodeguero: [
-    'erp_materiales', 'erp_vales_salida', 'recepciones_almacen',
+    'erp_materiales', 'erp_vales_salida', 'erp_recepciones',
   ],
 };
 

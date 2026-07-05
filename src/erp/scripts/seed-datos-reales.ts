@@ -261,9 +261,9 @@ await upsert('destajos', [
   { id: 'de200000-0000-0000-0000-000000000001', proyecto_id: 'a2000000-0000-0000-0000-000000000001', renglon_codigo: 'H-002', cuadrilla: 'Estructura A', fecha: d(-7), cantidad_ejecutada: 86, unidad: 'm3', horas_trabajadas: 72, rendimiento_teorico: 88, observaciones: 'Buen rendimiento en colado losa' },
   { id: 'de200000-0000-0000-0000-000000000002', proyecto_id: 'a2000000-0000-0000-0000-000000000003', renglon_codigo: 'T-001', cuadrilla: 'Mampostería B', fecha: d(-6), cantidad_ejecutada: 142, unidad: 'm2', horas_trabajadas: 64, rendimiento_teorico: 160, observaciones: 'Rendimiento bajo por lluvia' },
 ]);
-await upsert('recepciones_almacen', [
-  { id: '6a000000-0000-0000-0000-000000000001', oc_id: '5d000000-0000-0000-0000-000000000001', fecha: `${d(-130)}T14:00:00Z`, cantidad_recibida: 120, cantidad_oc: 120, diferencia: 0, material: 'Varilla corrugada #4', proveedor: 'Aceros Industriales GT' },
-  { id: '6a000000-0000-0000-0000-000000000002', oc_id: '5d000000-0000-0000-0000-000000000003', fecha: `${d(-33)}T09:30:00Z`, cantidad_recibida: 980, cantidad_oc: 1000, diferencia: -20, material: 'Block 14x19x39', proveedor: 'Materiales San Marcos' },
+await upsert('erp_recepciones', [
+  { id: '6a000000-0000-0000-0000-000000000001', oc_id: '5d000000-0000-0000-0000-000000000001', proveedor: 'Aceros Industriales GT', fecha_recepcion: d(-130), items: [{ material: 'Varilla corrugada #4', cantidad: 120 }], observaciones: 'Cantidad recibida completa, sin diferencias' },
+  { id: '6a000000-0000-0000-0000-000000000002', oc_id: '5d000000-0000-0000-0000-000000000003', proveedor: 'Materiales San Marcos', fecha_recepcion: d(-33), items: [{ material: 'Block 14x19x39', cantidad: 980 }], observaciones: 'Faltan 20 unidades según OC' },
 ]);
 await upsert('erp_eventos_calendario', [
   { id: '4c000000-0000-0000-0000-000000000001', proyecto_id: 'a2000000-0000-0000-0000-000000000001', fecha: d(2), hora: '09:00', titulo: 'Inspección cimentación hospital', descripcion: 'Revisión con interventoría', tipo: 'Reunión', completado: false },
