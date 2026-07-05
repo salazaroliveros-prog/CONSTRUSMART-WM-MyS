@@ -549,7 +549,7 @@ const QuickActionsFab: React.FC = () => {
 
     const currentActions = viewActions[view as string] || [];
     return [...currentActions, ...commonActions];
-  }, [view, t]);
+  }, [view, t, setView]);
 
   if (actions.length === 0) return null;
 

@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Riesgo } from '../types';
-import { AlertTriangle, Shield, Plus, X, TrendingUp, TrendingDown, Filter } from 'lucide-react';
+import { AlertTriangle, Shield, Plus, X, TrendingUp, TrendingDown, Filter, Clock, CheckCircle } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { Modal } from 'antd';
