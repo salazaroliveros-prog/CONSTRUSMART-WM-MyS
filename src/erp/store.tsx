@@ -552,37 +552,34 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
      return () => window.removeEventListener('online', handleOnline);
    }, [forceSync]);
 
-   useEffect(() => {
-    const STORAGE_KEY = 'wm_erp_data';
-    let timer: ReturnType<typeof setTimeout>;
+    useEffect(() => {
+     let timer: ReturnType<typeof setTimeout>;
     const unsub = useErpStore.subscribe(() => {
       clearTimeout(timer);
       timer = setTimeout(async () => {
         try {
-          const s = useErpStore.getState();
-          const map: Record<string, any> = {
-            proyectos: s.proyectos, movimientos: s.movimientos, empleados: s.empleados, materiales: s.materiales,
-            ordenes: s.ordenes, proveedores: s.proveedores, eventos: s.eventos, presupuestos: s.presupuestos,
-            avances: s.avances, cuentasCobrar: s.cuentasCobrar, cuentasPagar: s.cuentasPagar,
-            ordenesCambio: s.ordenesCambio, hitos: s.hitos, riesgos: s.riesgos, licitaciones: s.licitaciones,
-            cotizacionesNegocio: s.cotizacionesNegocio, bitacora: s.bitacora,
-            pruebas: s.pruebas, no_conformidades: s.ncs, vales_salida: s.valesSalida,
+     const s = useErpStore.getState();
+     const map: Record<string, any> = {
+       proyectos: s.proyectos, movimientos: s.movimientos, empleados: s.empleados, materiales: s.materiales,
+       ordenes: s.ordenes, proveedores: s.proveedores, eventos: s.eventos, presupuestos: s.presupuestos,
+       avances: s.avances, cuentasCobrar: s.cuentasCobrar, cuentasPagar: s.cuentasPagar,
+       ordenesCambio: s.ordenesCambio, hitos: s.hitos, riesgos: s.riesgos, licitaciones: s.licitaciones,
+       cotizacionesNegocio: s.cotizacionesNegocio,
           seguimiento_evm: s.seguimientoEVM, incidentes: s.incidentes, publicacionesMuro: s.publicacionesMuro,
           liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
           activos: s.activos, cuadros: s.cuadros, pagosProveedor: s.pagosProveedor,
           destajos: s.destajos, calculosProyecto: s.calculosProyecto, recepciones: s.recepciones, centrosCosto: s.centrosCosto,
-          plantillas: s.plantillas, insumos_base: s.insumosBase, proyectoWeather: s.proyectoWeather, errorLogs: s.errorLogs,
-          reglasFactores: s.reglasFactores, normativasDepartamentales: s.normativasDepartamentales,
+       plantillas: s.plantillas, insumos_base: s.insumosBase,
           escalasProduccion: s.escalasProduccion, estacionalidad: s.estacionalidad, historialReglas: s.historialReglas,
           };
           const quotaCritical = isStorageQuotaCritical();
           for (const [k, v] of Object.entries(map)) {
-            try { const value = await compressDataAsync(v); safeSetItem(`${STORAGE_KEY}_${k}`, value, `${STORAGE_KEY}_${k}`); } catch {}
+            try { const value = await compressDataAsync(v); safeSetItem(`${BASE_STORAGE_KEY}_${k}`, value, `${BASE_STORAGE_KEY}_${k}`); } catch {}
           }
-          safeSetItem(`${STORAGE_KEY}_settings`, JSON.stringify(s.appSettings));
+          safeSetItem(`${BASE_STORAGE_KEY}_settings`, JSON.stringify(s.appSettings));
           try { const q = await compressDataAsync(s.mutationQueue); safeSetItem('wm_erp_queue', q); } catch {}
-          try { const n = await compressDataAsync(s.notificaciones); safeSetItem(`${STORAGE_KEY}_notificaciones`, n); } catch {}
-          try { const a = await compressDataAsync(s.auditLog); safeSetItem(`${STORAGE_KEY}_audit_log`, a); } catch {}
+          try { const n = await compressDataAsync(s.notificaciones); safeSetItem(`${BASE_STORAGE_KEY}_notificaciones`, n); } catch {}
+          try { const a = await compressDataAsync(s.auditLog); safeSetItem(`${BASE_STORAGE_KEY}_audit_log`, a); } catch {}
           
           encryptionManager.encryptItem(AUDIT_KEY, s.auditLog, user?.id || 'default')
             .then(() => safeLogger.log('[Encryption] auditLog encrypted'))

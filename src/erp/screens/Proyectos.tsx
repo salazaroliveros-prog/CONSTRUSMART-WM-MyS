@@ -13,7 +13,7 @@ import { Progress } from '../components/Charts';
 import MapPicker from '../components/MapPicker';
 import HeatMap from '../components/HeatMap';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, BUTTON_ICON, BUTTON_DANGER, KPI_CARD, CARD_TITLE, SECTION_TITLE, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY } from '../ui';
-import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, AlertCircle, ChevronRight, Copy, Layout, Sparkles, Star, Search, ArrowUpDown, List, Grid3x3, DollarSign, ClipboardList, Activity } from 'lucide-react';
+import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, ChevronRight, Copy, Layout, Sparkles, Star, Search, ArrowUpDown, List, Grid3x3, DollarSign, ClipboardList, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import { proyectoSchemaObject as proyectoSchemaCanonico } from '../store/schemas/proyectos';
 
@@ -404,7 +404,7 @@ const Proyectos: React.FC = () => {
     if (estado === 'ejecucion') return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
     if (estado === 'pausado') return `bg-amber-500/10 ${COLOR_WARNING} dark:text-amber-400`;
     if (estado === 'finalizado') return 'bg-blue-500/10 text-blue-600 dark:text-blue-400';
-    return 'bg-muted/300/10 text-muted-foreground dark:text-muted-foreground';
+    return 'bg-muted/10 text-muted-foreground dark:text-muted-foreground';
   };
 
   const limpiarProyectos = async () => {
