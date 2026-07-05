@@ -99,6 +99,7 @@ export const weatherDataSchema = z.object({
 });
 
 export const proyectoWeatherSchema = z.object({
+  id: z.string().uuid().optional(),
   proyectoId: z.string(),
   weatherData: weatherDataSchema.optional(),
   impact: weatherImpactSchema.optional(),
@@ -106,6 +107,8 @@ export const proyectoWeatherSchema = z.object({
   schedulingWindows: z.array(schedulingWindowSchema).optional(),
   historicalImpact: historicalWeatherImpactSchema.optional(),
   lastUpdated: z.string().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
   enabled: z.boolean().default(true),
   autoRefresh: z.boolean().default(true),
   refreshInterval: z.number().default(60),

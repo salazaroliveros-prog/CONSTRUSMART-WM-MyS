@@ -369,6 +369,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_plantillas_proyectos',
       'erp_destajos','erp_recepciones','erp_pagos_proveedor',
       'erp_centros_costo','erp_error_logs','erp_insumos_base',
+      'erp_proyecto_weather',
     ] as const;
 
     const isGuestMode = hasServiceRole && !localStorage.getItem('sb-neygzluxugodiwcuctbj-auth-token');
@@ -1717,13 +1718,15 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'crear_proyecto_desde_plantilla', entidad: 'proyecto', entidadId: nuevoProyectoId, valoresNuevos: { plantillaId: plantillaId, nombre: proyectoBase.nombre } });
   },
 
-  updateProyectoWeather: (proyectoId, weatherData, impact) => {
+  updateProyectoWeather: (proyectoId, weatherData, impactData) => {
     const existing = get().proyectoWeather.find(pw => pw.proyectoId === proyectoId);
     const updated: ProyectoWeather = {
       proyectoId,
       weatherData,
-      impact,
-      lastUpdated: new Date().toISOString(),
+      impact: impactData.impact,
+      constructionMetrics: impactData.constructionMetrics,
+      schedulingWindows: impactData.schedulingWindows,
+      lastUpdated: impactData.lastUpdated || new Date().toISOString(),
       enabled: true,
     };
 

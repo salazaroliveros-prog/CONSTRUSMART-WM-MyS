@@ -17,4 +17,5 @@ export const TABLE_MAP: Record<string, string> = {
   erp_pruebas_laboratorio:'pruebas',
   erp_liberaciones_partida:'liberaciones',erp_error_logs:'errorLogs',
   erp_comentarios_muro:'comentariosMuro',
+  erp_proyecto_weather:'proyectoWeather',
 };

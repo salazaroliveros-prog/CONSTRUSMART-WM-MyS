@@ -17,7 +17,9 @@ import {
   calculateWeatherImpact,
   calculateConstructionMetrics,
   calculateSchedulingWindows,
-  getHistoricalWeatherImpact
+  getHistoricalWeatherImpact,
+  saveWeatherToSupabase,
+  loadWeatherFromSupabase
 } from '../services/weatherService';
 import { CARD, CARD_TITLE, SECTION_TITLE, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, KPI_CARD } from '../ui';
 import { toast } from 'sonner';
@@ -73,6 +75,8 @@ const Weather: React.FC = () => {
           lastUpdated: new Date().toISOString()
         });
 
+        await saveWeatherToSupabase(proyecto.id, weatherData, impact, constructionMetrics, schedulingWindows);
+
         if (impact.level === 'critical' || impact.level === 'high') {
           addNotificacion('general', `Alerta climática: ${impact.level}`, `${impact.factors.length} factores adversos en ${proyecto.nombre}`, proyecto.id);
         }
@@ -92,6 +96,28 @@ const Weather: React.FC = () => {
       refreshWeather();
     }
   }, [weather, autoRefresh, refreshWeather]);
+
+  useEffect(() => {
+    const loadWeatherFromStorage = async () => {
+      if (!proyecto?.id) return;
+      
+      try {
+        const savedWeather = await loadWeatherFromSupabase(proyecto.id);
+        if (savedWeather) {
+          updateProyectoWeather(proyecto.id, savedWeather.weather_data, {
+            ...savedWeather.impact,
+            constructionMetrics: savedWeather.construction_metrics,
+            schedulingWindows: savedWeather.scheduling_windows,
+            lastUpdated: savedWeather.last_updated
+          });
+        }
+      } catch (error) {
+        console.error('Error loading weather from Supabase:', error);
+      }
+    };
+
+    loadWeatherFromStorage();
+  }, [proyecto?.id, updateProyectoWeather]);
 
   const currentWeather = weather?.weatherData?.current;
   const forecast = useMemo(() => weather?.weatherData?.forecast || [], [weather?.weatherData?.forecast]);

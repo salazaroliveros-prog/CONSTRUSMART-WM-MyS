@@ -6,6 +6,7 @@ import { fmtQ, fmtPct, calculateSupplierPerformance } from '../utils';
 import GaugeKpi from '../components/GaugeKpi';
 import MovimientoForm from '../components/MovimientoForm';
 import AlertasPanel from '../components/AlertasPanel';
+import WeatherWidget from '../components/WeatherWidget';
 import CompactCalendar from '../components/CompactCalendar';
 import { BarChart, Donut, Progress, Gauge } from '../components/Charts';
 import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, ClipboardCheck, Activity, TrendingDown, Download, Zap, BarChart3, Shield, Loader2, Database, Award, ArrowRight } from 'lucide-react';
@@ -813,6 +814,7 @@ const Dashboard: React.FC = () => {
           <div><AlertasPanel /></div>
         </div>
         <div className="grid grid-cols-1 gap-1.5">
+          <WeatherWidget />
           {/* Ingresos vs Gastos con BarChart — siempre visible aunque vacío */}
           <div className={`${CARD} flex flex-col p-2 sm:p-3`}>
             <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>

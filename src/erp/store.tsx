@@ -530,7 +530,7 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
           liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
           activos: s.activos, cuadros: s.cuadros, pagosProveedor: s.pagosProveedor,
           destajos: s.destajos, calculosProyecto: s.calculosProyecto, recepciones: s.recepciones, centrosCosto: s.centrosCosto,
-       plantillas: s.plantillas, insumos_base: s.insumosBase,
+       plantillas: s.plantillas, insumos_base: s.insumosBase, proyecto_weather: s.proyectoWeather,
           escalasProduccion: s.escalasProduccion, estacionalidad: s.estacionalidad, historialReglas: s.historialReglas,
           };
           const quotaCritical = isStorageQuotaCritical();
@@ -625,6 +625,7 @@ const ctxValue = useMemo(() => ({
           'public:erp_avances',
           'public:erp_muro',
           'public:ventas_paquetes',
+          'public:erp_proyecto_weather',
         ]);
         
         // Suscribirse a cada canal público
