@@ -767,7 +767,7 @@ const Presupuestos: React.FC = () => {
                            {r.subRenglones.map((sub, subIdx) => {
                              const subTotal = (sub.cantidadUnitaria * r.cantidad * sub.precioUnitario);
                              return (
-                               <div key={sub.id} className="bg-card rounded p-2 border border-slate-150 flex items-center gap-1.5 text-xs">
+                               <div key={sub.id} className="bg-card rounded p-2 border border-border flex items-center gap-1.5 text-xs">
                                  <span className="text-muted-foreground w-6">{subIdx + 1}.</span>
                                  <input 
                                    type="text" 
@@ -943,6 +943,8 @@ const Presupuestos: React.FC = () => {
 };
 
 export default Presupuestos;
+
+
 
 
 

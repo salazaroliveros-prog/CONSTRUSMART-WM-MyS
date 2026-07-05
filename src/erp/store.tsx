@@ -76,17 +76,8 @@ export const clearAllData = () => {
   }
 };
 
-export interface AppSettings {
-  uiMode: UIMode; appTheme: AppThemeMode; primaryColor: string; language: 'es' | 'en';
-  dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD'; currency: 'GTQ' | 'USD';
-  sidebarCollapsed: boolean; sidebarPosition: 'left' | 'right' | 'overlay';
-  sidebarMode: 'expanded' | 'collapsed' | 'hover-expand' | 'mini';
-  sidebarWidth: 240 | 280 | 320; sidebarMiniWidth: 64 | 72 | 80;
-  animationsEnabled: boolean; compactMode: boolean;
-  fontSize: 'small' | 'medium' | 'large';
-  notificaciones: { stockCritico: boolean; ordenesCambio: boolean; avancesObra: boolean; desviaciones: boolean };
-  empresaInfo?: { nombre: string; nit: string; telefono: string; email: string; direccion: string; ciudad: string; pais: string; };
-}
+import type { AppSettings, Mutation } from './types';
+
 
 export type LogAuditoria = {
   id: string; usuarioId?: string; usuarioNombre: string;
