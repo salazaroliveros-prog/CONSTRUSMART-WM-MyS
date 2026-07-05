@@ -12,8 +12,9 @@ export const TABLE_MAP: Record<string, string> = {
   erp_seguimiento:'seguimientoEVM',erp_bitacora:'bitacora',
   erp_plantillas_proyectos:'plantillas',
   erp_presupuestos:'presupuestos',erp_avances:'avances',
-  erp_eventos_calendario:'eventos',ventas_paquetes:'ventasPaquetes',
+  erp_eventos_calendario:'eventos',erp_ventas_paquetes:'ventasPaquetes',
   erp_notificaciones:'notificaciones',erp_ordenes_cambio:'ordenesCambio',
   erp_pruebas_laboratorio:'pruebas',
   erp_liberaciones_partida:'liberaciones',erp_error_logs:'errorLogs',
+  erp_comentarios_muro:'comentariosMuro',
 };
