@@ -11,24 +11,9 @@ import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X, Calen
 import GanttChart from '../components/GanttChart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
+import { bitacoraSchema } from '../store/schemas/calendario';
 
-type SeguimientoTab = 'resumen' | 'evm' | 'bitacora' | 'avances' | 'cronograma';
-
-const safeNum = (value: unknown, fallback = 0) => {
-  const n = typeof value === 'number' ? value : Number(value);
-  return Number.isFinite(n) ? n : fallback;
-};
-
-const safePct = (value: unknown) => fmtPct(safeNum(value));
-
-const bitacoraSchema = z.object({
-  proyectoId: z.string().min(1, 'Proyecto requerido'),
-  clima: z.enum(['soleado', 'nublado', 'lluvia']),
-  personalPresente: z.number().int().min(1, 'Personal requerido'),
-  maquinaria: z.string().min(1, 'Maquinaria requerida'),
-  tareasRealizadas: z.string().min(1, 'Tareas requeridas'),
-  observaciones: z.string().optional().default(''),
-});
+type BitacoraFormData = z.infer<typeof bitacoraSchema>;
 
 const Seguimiento: React.FC = () => {
   const { proyectos, movimientos, bitacora, avances, hitos, seguimientoEVM, addBitacora, updateProyecto, updateBitacora, deleteBitacora } = useErp();

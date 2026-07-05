@@ -14,6 +14,8 @@ export const empleadoSchema = z.object({
   fechaAsignacion: z.string().optional().default(''),
 });
 
+export const empleadoFormSchema = empleadoSchema.omit({ id: true, proyectoIds: true, activo: true, telefono: true, fechaAsignacion: true });
+
 export const incidenteSchema = z.object({
   id: z.string(),
   proyectoId: z.string(),

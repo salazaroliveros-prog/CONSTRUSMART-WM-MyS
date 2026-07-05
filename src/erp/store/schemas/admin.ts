@@ -10,6 +10,11 @@ export const centroCostoSchema = z.object({
   tipo: z.enum(['directo', 'indirecto', 'administrativo'] as const).default('directo'),
 });
 
+export const centroCostoFormSchema = centroCostoSchema.omit({ id: true, gastoActual: true }).extend({
+  codigo: z.string().min(1, 'Código requerido').regex(/^CC-\d{3,}$/, 'Formato: CC-000'),
+  presupuestoAsignado: z.coerce.number().min(0).max(999_999_999),
+});
+
 export const auditLogSchema = z.object({
   id: z.string(),
   usuarioId: z.string().optional(),

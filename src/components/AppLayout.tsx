@@ -214,15 +214,6 @@ const Shell: React.FC = () => {
         <Header onMenu={toggleSidebar} />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar open={sidebarOpen} onClose={closeSidebar} />
-          {appSettings.showBreadcrumbs !== false && (
-            <nav aria-label="breadcrumb" className="px-3 sm:px-4 lg:px-6 pt-2 flex-shrink-0">
-              <ol className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                <li className="cursor-pointer hover:text-foreground" onClick={() => setView('dashboard')}>Inicio</li>
-                <li>/</li>
-                <li className="text-foreground font-medium capitalize">{String(view).replace(/-/g, ' ')}</li>
-              </ol>
-            </nav>
-          )}
           <main
             id="main-content"
             className={`flex-1 min-w-0 overflow-auto transition-all duration-300 pb-16 md:pb-0 ${sidebarCollapsed ? 'lg:ml-0' : ''}`}

@@ -12,17 +12,9 @@ import { BarChart } from '../components/Charts';
 import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
 import ProyectoFilter from '../components/ProyectoFilter';
+import { empleadoFormSchema } from '../store/schemas/rrhh';
 
-const empleadoSchema = z.object({
-  nombre: z.string().min(1, 'Nombre requerido'),
-  puesto: z.string().min(1, 'Puesto requerido'),
-  salarioDiario: z.coerce.number().min(0, 'Salario requerido'),
-  proyectoId: z.string().optional(),
-  tipo: z.enum(['planilla', 'destajo']),
-  diasTrabajados: z.coerce.number().min(0).max(31, 'Días inválidos'),
-});
-
-type EmpleadoFormData = z.infer<typeof empleadoSchema>;
+type EmpleadoFormData = z.infer<typeof empleadoFormSchema>;
 
 const RRHH: React.FC = () => {
   const { t } = useTranslation();

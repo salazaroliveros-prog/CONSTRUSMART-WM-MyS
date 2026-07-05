@@ -8,25 +8,9 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { centroCostoFormSchema } from '../store/schemas/admin';
 
-const Administracion: React.FC = () => {
-  const { t } = useTranslation();
-  const { proyectos, auditLog, centrosCosto, setCentrosCosto } = useErp();
-  const [tab, setTab] = useState<'centros' | 'logs' | 'validacion'>('centros');
-  const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => { setLoading(false); }, []);
-  const [filtroProyecto, setFiltroProyecto] = useState('');
-
-  const centroCostoSchema = z.object({
-    proyectoId: z.string().min(1, t('admin.proyecto_requerido')),
-    codigo: z.string().min(1, t('admin.codigo_requerido')).regex(/^CC-\d{3,}$/, t('admin.formato_codigo')),
-    nombre: z.string().min(1, t('admin.nombre_requerido')).max(100, t('admin.max_nombre')),
-    presupuestoAsignado: z.coerce.number().min(0, t('admin.presupuesto_min')).max(999_999_999, t('admin.presupuesto_max')),
-    tipo: z.enum(['directo', 'indirecto', 'administrativo']),
-  });
-  type CentroCostoForm = z.infer<typeof centroCostoSchema>;
+type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
 
   const uid = () => Date.now().toString(36).substr(2, 9);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CentroCostoForm>({
