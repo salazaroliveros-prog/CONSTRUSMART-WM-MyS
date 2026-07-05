@@ -80,3 +80,57 @@ export const SkeletonDetail: React.FC<{ className?: string }> = ({ className = '
     <SkeletonCard />
   </div>
 );
+
+export const SkeletonWeather: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <div className={`p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4 ${className}`}>
+    <Skeleton.Input active size="large" className="w-48 mb-4" />
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="p-4 bg-card rounded-lg shadow-sm border">
+          <Skeleton.Input active size="small" className="w-1/2 mb-2" />
+          <Skeleton.Input active size="large" className="w-1/3 mb-1" />
+          <Skeleton.Input active size="small" className="w-2/3" />
+        </div>
+      ))}
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+      <div className="p-4 bg-card rounded-lg shadow-sm border">
+        <Skeleton.Input active size="small" className="w-1/3 mb-3" />
+        <div className="grid grid-cols-2 gap-4">
+          <Skeleton.Input active size="small" className="w-full" />
+          <Skeleton.Input active size="small" className="w-full" />
+        </div>
+      </div>
+      <div className="p-4 bg-card rounded-lg shadow-sm border">
+        <Skeleton.Input active size="small" className="w-1/3 mb-3" />
+        <div className="space-y-3">
+          <Skeleton.Input active size="small" className="w-full" />
+          <Skeleton.Input active size="small" className="w-full" />
+        </div>
+      </div>
+    </div>
+    <div className="p-4 bg-card rounded-lg shadow-sm border">
+      <Skeleton.Input active size="small" className="w-1/3 mb-4" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <Skeleton.Input active size="small" className="w-1/2 mb-2" />
+            <Skeleton.Input active size="small" className="w-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+    <div className="p-4 bg-card rounded-lg shadow-sm border">
+      <Skeleton.Input active size="small" className="w-1/3 mb-4" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {Array.from({ length: 7 }).map((_, i) => (
+          <div key={i} className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <Skeleton.Input active size="small" className="w-1/2 mb-2" />
+            <Skeleton.Input active size="small" className="w-full mb-1" />
+            <Skeleton.Input active size="small" className="w-1/3" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);

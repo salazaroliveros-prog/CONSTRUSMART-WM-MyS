@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
+import { SkeletonWeather } from '@/components/SkeletonScreens';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
@@ -6,7 +7,7 @@ import {
   Cloud, Sun, CloudRain, Wind, Thermometer, Droplets, AlertTriangle, 
   Calendar, RefreshCw, Settings, MapPin, Clock, Activity, Shield, 
   ChevronDown, ChevronUp, Zap, TrendingUp, TrendingDown, CheckCircle, 
-  X, Eye, EyeOff, Bell, BellOff, ExternalLink
+  X, Eye, EyeOff, Bell, BellOff, ExternalLink, Download
 } from 'lucide-react';
 import { 
   getWeatherIconUrl, 
@@ -21,6 +22,9 @@ import {
 import { CARD, CARD_TITLE, SECTION_TITLE, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, KPI_CARD } from '../ui';
 import { toast } from 'sonner';
 import { todayISO } from '../utils';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import type { ProyectoWeather, ConstructionMetrics, SchedulingWindow, WeatherImpact } from '../store/schemas/weather';
 
 const Weather: React.FC = () => {
@@ -93,7 +97,7 @@ const Weather: React.FC = () => {
   const forecast = useMemo(() => weather?.weatherData?.forecast || [], [weather?.weatherData?.forecast]);
   const impact = weather?.impact;
   const metrics = weather?.constructionMetrics;
-  const scheduling = weather?.schedulingWindows || [];
+  const scheduling = useMemo(() => weather?.schedulingWindows || [], [weather?.schedulingWindows]);
 
   const groupedForecast = useMemo(() => {
     const days: Map<string, typeof forecast> = new Map();
@@ -138,29 +142,179 @@ const Weather: React.FC = () => {
     return suitable ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
   };
 
-  const formatDate = (dateStr: string) => {
+  const formatDate = useCallback((dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('es-GT', { weekday: 'short', day: 'numeric', month: 'short' });
-  };
+  }, []);
 
   const shouldAlert = (level: string) => {
     const levels = ['low', 'medium', 'high', 'critical'];
     return levels.indexOf(level) >= levels.indexOf(alertThreshold);
   };
 
+  const handleKeyDown = (callback: () => void) => (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      callback();
+    }
+  };
+
+  const exportToPDF = useCallback(() => {
+    if (!weather || !proyecto) return;
+
+    const doc = new jsPDF();
+    const title = `${t('weather.title', 'Clima y Condiciones Ambientales')} - ${proyecto.nombre}`;
+    
+    doc.setFontSize(18);
+    doc.text(title, 14, 22);
+    doc.setFontSize(10);
+    doc.text(`${t('weather.location', 'Ubicación')}: ${proyecto.ubicacion}`, 14, 30);
+    doc.text(`${t('weather.last_update', 'Última actualización')}: ${weather.lastUpdated ? new Date(weather.lastUpdated).toLocaleString() : '-'}`, 14, 36);
+
+    if (currentWeather) {
+      const currentData = [
+        [t('weather.temperature', 'Temperatura'), `${Math.round(currentWeather.temp)}°C`],
+        [t('weather.feels_like', 'Sensación'), `${Math.round(currentWeather.feels_like)}°C`],
+        [t('weather.humidity', 'Humedad'), `${currentWeather.humidity}%`],
+        [t('weather.wind', 'Viento'), `${Math.round(currentWeather.wind_speed)} m/s`],
+        [t('weather.visibility', 'Visibilidad'), `${Math.round(currentWeather.visibility / 1000)} km`],
+      ];
+
+      autoTable(doc, {
+        startY: 44,
+        head: [[t('weather.current_conditions', 'Condiciones Actuales'), '']],
+        body: currentData,
+        theme: 'grid',
+        headStyles: { fillColor: [59, 130, 246] },
+      });
+    }
+
+    if (impact) {
+      const impactData = [
+        [t('weather.level', 'Nivel'), t(`weather.level.${impact.level}`)],
+        [t('weather.score', 'Puntuación'), `${impact.score}/100`],
+        [t('weather.factors', 'Factores'), impact.factors.join(', ')],
+        [t('weather.recommendations', 'Recomendaciones'), impact.recommendations.join(', ')],
+      ];
+
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [[t('weather.impact_analysis', 'Análisis de Impacto'), '']],
+        body: impactData,
+        theme: 'grid',
+        headStyles: { fillColor: [249, 115, 22] },
+      });
+    }
+
+    if (metrics) {
+      const metricsData = [
+        [t('weather.concrete_curing', 'Curado de Concreto'), metrics.concreteCuring.suitable ? t('weather.suitable', 'Adecuado') : t('weather.not_suitable', 'No adecuado')],
+        [t('weather.workforce_safety', 'Seguridad de Mano de Obra'), t(`weather.heat_stress.${metrics.workforceSafety.heatStressRisk}`)],
+        [t('weather.equipment_operation', 'Operación de Equipos'), metrics.equipmentOperation.cranes.suitable ? t('weather.suitable', 'Adecuado') : t('weather.not_suitable', 'No adecuado')],
+        [t('weather.material_protection', 'Protección de Materiales'), metrics.materialProtection.protectionRequired ? t('weather.required', 'Requerido') : t('weather.not_required', 'No requerido')],
+      ];
+
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [[t('weather.construction_metrics', 'Métricas de Construcción'), '']],
+        body: metricsData,
+        theme: 'grid',
+        headStyles: { fillColor: [16, 185, 129] },
+      });
+    }
+
+    if (scheduling.length > 0) {
+      const schedulingData = scheduling.map(window => [
+        formatDate(window.date),
+        window.suitable ? t('weather.suitable', 'Adecuado') : t('weather.not_suitable', 'No adecuado'),
+        `${window.score}/100`,
+        window.conditions.slice(0, 2).join(', '),
+      ]);
+
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [[t('weather.date', 'Fecha'), t('weather.suitability', 'Adecuado'), t('weather.score', 'Puntuación'), t('weather.conditions', 'Condiciones')]],
+        body: schedulingData,
+        theme: 'grid',
+        headStyles: { fillColor: [139, 92, 246] },
+      });
+    }
+
+    doc.save(`weather-report-${proyecto.nombre}-${todayISO()}.pdf`);
+    toast.success(t('weather.export_pdf_success', 'Reporte PDF exportado exitosamente'));
+  }, [weather, proyecto, currentWeather, impact, metrics, scheduling, t, formatDate]);
+
+  const exportToExcel = useCallback(() => {
+    if (!weather || !proyecto) return;
+
+    const workbook = XLSX.utils.book_new();
+
+    const summaryData = [
+      [t('weather.project', 'Proyecto'), proyecto.nombre],
+      [t('weather.location', 'Ubicación'), proyecto.ubicacion],
+      [t('weather.last_update', 'Última actualización'), weather.lastUpdated ? new Date(weather.lastUpdated).toLocaleString() : '-'],
+    ];
+
+    if (currentWeather) {
+      summaryData.push(
+        [t('weather.temperature', 'Temperatura'), `${Math.round(currentWeather.temp)}°C`],
+        [t('weather.feels_like', 'Sensación'), `${Math.round(currentWeather.feels_like)}°C`],
+        [t('weather.humidity', 'Humedad'), `${currentWeather.humidity}%`],
+        [t('weather.wind', 'Viento'), `${Math.round(currentWeather.wind_speed)} m/s`],
+        [t('weather.visibility', 'Visibilidad'), `${Math.round(currentWeather.visibility / 1000)} km`],
+      );
+    }
+
+    const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(workbook, summarySheet, t('weather.summary', 'Resumen'));
+
+    if (impact) {
+      const impactData = [
+        [t('weather.level', 'Nivel'), t(`weather.level.${impact.level}`)],
+        [t('weather.score', 'Puntuación'), impact.score],
+        [t('weather.factors', 'Factores'), ...impact.factors],
+        [t('weather.recommendations', 'Recomendaciones'), ...impact.recommendations],
+      ];
+      const impactSheet = XLSX.utils.aoa_to_sheet(impactData);
+      XLSX.utils.book_append_sheet(workbook, impactSheet, t('weather.impact', 'Impacto'));
+    }
+
+    if (metrics) {
+      const metricsData = [
+        [t('weather.concrete_curing', 'Curado de Concreto'), metrics.concreteCuring.suitable ? t('weather.suitable', 'Adecuado') : t('weather.not_suitable', 'No adecuado'), metrics.concreteCuring.tempRange, metrics.concreteCuring.humidityRange],
+        [t('weather.workforce_safety', 'Seguridad de Mano de Obra'), t(`weather.heat_stress.${metrics.workforceSafety.heatStressRisk}`), `${Math.round(metrics.workforceSafety.heatIndex)}°F`, metrics.workforceSafety.workScheduleAdjustment],
+        [t('weather.equipment_operation', 'Operación de Equipos'), '', '', ''],
+        ['', t('weather.cranes', 'Grúas'), metrics.equipmentOperation.cranes.suitable ? t('weather.suitable', 'Adecuado') : t('weather.not_suitable', 'No adecuado'), metrics.equipmentOperation.cranes.reason],
+        ['', t('weather.excavators', 'Excavadoras'), metrics.equipmentOperation.excavators.suitable ? t('weather.suitable', 'Adecuado') : t('weather.not_suitable', 'No adecuado'), metrics.equipmentOperation.excavators.reason],
+        ['', t('weather.welding', 'Soldadura'), metrics.equipmentOperation.welding.suitable ? t('weather.suitable', 'Adecuado') : t('weather.not_suitable', 'No adecuado'), metrics.equipmentOperation.welding.reason],
+        [t('weather.material_protection', 'Protección de Materiales'), metrics.materialProtection.protectionRequired ? t('weather.required', 'Requerido') : t('weather.not_required', 'No requerido'), t(`weather.urgency.${metrics.materialProtection.urgency}`), metrics.materialProtection.materialsToProtect.join(', ')],
+      ];
+      const metricsSheet = XLSX.utils.aoa_to_sheet(metricsData);
+      XLSX.utils.book_append_sheet(workbook, metricsSheet, t('weather.metrics', 'Métricas'));
+    }
+
+    if (scheduling.length > 0) {
+      const schedulingData = [
+        [t('weather.date', 'Fecha'), t('weather.suitability', 'Adecuado'), t('weather.score', 'Puntuación'), t('weather.conditions', 'Condiciones'), t('weather.best_activities', 'Mejores Actividades'), t('weather.avoid_activities', 'Evitar')],
+        ...scheduling.map(window => [
+          formatDate(window.date),
+          window.suitable ? t('weather.suitable', 'Adecuado') : t('weather.not_suitable', 'No adecuado'),
+          window.score,
+          window.conditions.join(', '),
+          window.bestActivities.join(', '),
+          window.avoidActivities.join(', '),
+        ]),
+      ];
+      const schedulingSheet = XLSX.utils.aoa_to_sheet(schedulingData);
+      XLSX.utils.book_append_sheet(workbook, schedulingSheet, t('weather.scheduling', 'Programación'));
+    }
+
+    XLSX.writeFile(workbook, `weather-report-${proyecto.nombre}-${todayISO()}.xlsx`);
+    toast.success(t('weather.export_excel_success', 'Reporte Excel exportado exitosamente'));
+  }, [weather, proyecto, currentWeather, impact, metrics, scheduling, t, formatDate]);
+
   if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Skeleton className="h-32 rounded-xl" />
-          <Skeleton className="h-32 rounded-xl" />
-          <Skeleton className="h-32 rounded-xl" />
-          <Skeleton className="h-32 rounded-xl" />
-        </div>
-        <Skeleton className="h-64 rounded-xl" />
-      </div>
-    );
+    return <SkeletonWeather />;
   }
 
   if (!proyecto) {
@@ -200,11 +354,29 @@ const Weather: React.FC = () => {
           <button
             onClick={refreshWeather}
             disabled={refreshing}
-            className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 disabled:opacity-50 transition-colors"
+            className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
             aria-label="Refresh weather"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
           </button>
+          {weather?.weatherData && (
+            <>
+              <button
+                onClick={exportToPDF}
+                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
+                aria-label="Export to PDF"
+              >
+                <Download className="w-4 h-4" aria-hidden="true" />
+              </button>
+              <button
+                onClick={exportToExcel}
+                className="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400"
+                aria-label="Export to Excel"
+              >
+                <Download className="w-4 h-4" aria-hidden="true" />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -215,7 +387,7 @@ const Weather: React.FC = () => {
           <p className="text-sm mb-4">{t('weather.click_refresh', 'Haz clic en actualizar para obtener datos')}</p>
           <button
             onClick={refreshWeather}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             {t('weather.refresh_now', 'Actualizar ahora')}
           </button>
@@ -226,7 +398,7 @@ const Weather: React.FC = () => {
             <KPI_CARD className="relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">{t('weather.temperature', 'Temperatura')}</span>
-                <Thermometer className="w-4 h-4 text-orange-500" />
+                <Thermometer className="w-4 h-4 text-orange-500" aria-hidden="true" />
               </div>
               <div className="text-2xl font-bold">{Math.round(currentWeather?.temp || 0)}°C</div>
               <div className="text-xs text-muted-foreground">
@@ -237,7 +409,7 @@ const Weather: React.FC = () => {
             <KPI_CARD className="relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">{t('weather.humidity', 'Humedad')}</span>
-                <Droplets className="w-4 h-4 text-blue-500" />
+                <Droplets className="w-4 h-4 text-blue-500" aria-hidden="true" />
               </div>
               <div className="text-2xl font-bold">{currentWeather?.humidity || 0}%</div>
               <div className="text-xs text-muted-foreground">
@@ -248,7 +420,7 @@ const Weather: React.FC = () => {
             <KPI_CARD className="relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">{t('weather.wind', 'Viento')}</span>
-                <Wind className="w-4 h-4 text-teal-500" />
+                <Wind className="w-4 h-4 text-teal-500" aria-hidden="true" />
               </div>
               <div className="text-2xl font-bold">{Math.round(currentWeather?.wind_speed || 0)} m/s</div>
               <div className="text-xs text-muted-foreground">
@@ -311,14 +483,14 @@ const Weather: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-2">
-                  <Sun className="w-4 h-4 text-yellow-500" />
+                  <Sun className="w-4 h-4 text-yellow-500" aria-hidden="true" />
                   <div>
                     <div className="text-xs text-muted-foreground">{t('weather.condition', 'Condición')}</div>
                     <div className="font-medium">{formatWeatherDescription(currentWeather?.weather[0]?.description || '')}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-blue-500" />
+                  <Clock className="w-4 h-4 text-blue-500" aria-hidden="true" />
                   <div>
                     <div className="text-xs text-muted-foreground">{t('weather.last_update', 'Última actualización')}</div>
                     <div className="font-medium">{weather.lastUpdated ? new Date(weather.lastUpdated).toLocaleTimeString() : '-'}</div>
@@ -330,16 +502,17 @@ const Weather: React.FC = () => {
             <CARD>
               <div className="flex items-center justify-between mb-4">
                 <h3 className={CARD_TITLE}>{t('weather.settings', 'Configuración')}</h3>
-                <Settings className="w-4 h-4 text-muted-foreground" />
+                <Settings className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">{t('weather.auto_refresh', 'Actualización automática')}</span>
                   <button
                     onClick={() => setAutoRefresh(!autoRefresh)}
-                    className={`p-2 rounded-lg transition-colors ${autoRefresh ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}
+                    className={`p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 ${autoRefresh ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}
+                    aria-label={autoRefresh ? 'Disable auto refresh' : 'Enable auto refresh'}
                   >
-                    {autoRefresh ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+                    {autoRefresh ? <Bell className="w-4 h-4" aria-hidden="true" /> : <BellOff className="w-4 h-4" aria-hidden="true" />}
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
@@ -347,7 +520,8 @@ const Weather: React.FC = () => {
                   <select
                     value={alertThreshold}
                     onChange={(e) => setAlertThreshold(e.target.value as any)}
-                    className="text-xs px-2 py-1 rounded border border-border bg-card"
+                    className="text-xs px-2 py-1 rounded border border-border bg-card focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    aria-label="Alert threshold"
                   >
                     <option value="low">{t('weather.level.low', 'Bajo')}</option>
                     <option value="medium">{t('weather.level.medium', 'Medio')}</option>
@@ -365,16 +539,16 @@ const Weather: React.FC = () => {
                 <h3 className={CARD_TITLE}>{t('weather.construction_metrics', 'Métricas de Construcción')}</h3>
                 <button
                   onClick={() => setShowConstruction(!showConstruction)}
-                  className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
                   aria-label="Toggle construction metrics"
                 >
-                  {showConstruction ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {showConstruction ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
                   <div className="flex items-center gap-2 mb-2">
-                    <Shield className="w-4 h-4 text-purple-500" />
+                    <Shield className="w-4 h-4 text-purple-500" aria-hidden="true" />
                     <span className="font-medium">{t('weather.concrete_curing', 'Curado de Concreto')}</span>
                   </div>
                   <div className={`text-sm font-medium ${getSuitabilityColor(metrics.concreteCuring.suitable)}`}>
@@ -394,7 +568,7 @@ const Weather: React.FC = () => {
 
                 <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
                   <div className="flex items-center gap-2 mb-2">
-                    <Activity className="w-4 h-4 text-orange-500" />
+                    <Activity className="w-4 h-4 text-orange-500" aria-hidden="true" />
                     <span className="font-medium">{t('weather.workforce_safety', 'Seguridad de Mano de Obra')}</span>
                   </div>
                   <div className="text-sm font-medium capitalize">
@@ -410,7 +584,7 @@ const Weather: React.FC = () => {
 
                 <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
                   <div className="flex items-center gap-2 mb-2">
-                    <Zap className="w-4 h-4 text-yellow-500" />
+                    <Zap className="w-4 h-4 text-yellow-500" aria-hidden="true" />
                     <span className="font-medium">{t('weather.equipment_operation', 'Operación de Equipos')}</span>
                   </div>
                   <div className="space-y-1 text-xs">
@@ -437,7 +611,7 @@ const Weather: React.FC = () => {
 
                 <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
                   <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <CheckCircle className="w-4 h-4 text-green-500" aria-hidden="true" />
                     <span className="font-medium">{t('weather.material_protection', 'Protección de Materiales')}</span>
                   </div>
                   {metrics.materialProtection.materialsToProtect.length > 0 ? (
@@ -452,7 +626,7 @@ const Weather: React.FC = () => {
                       </ul>
                     </>
                   ) : (
-                    <div className="text-sm text-green-600">{t('weather.no_protection_needed', 'No se requiere protección')}</div>
+                    <div className="text-sm text-green-600 dark:text-green-400">{t('weather.no_protection_needed', 'No se requiere protección')}</div>
                   )}
                 </div>
               </div>
@@ -465,10 +639,10 @@ const Weather: React.FC = () => {
                 <h3 className={CARD_TITLE}>{t('weather.scheduling_windows', 'Ventanas de Programación')}</h3>
                 <button
                   onClick={() => setShowScheduling(!showScheduling)}
-                  className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
                   aria-label="Toggle scheduling windows"
                 >
-                  {showScheduling ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {showScheduling ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
                 </button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -480,16 +654,19 @@ const Weather: React.FC = () => {
                   return (
                     <div
                       key={date}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
+                      tabIndex={0}
+                      role="button"
+                      className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 ${
                         window.suitable 
                           ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800' 
                           : 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800'
                       }`}
                       onClick={() => setSelectedDay(index)}
+                      onKeyDown={handleKeyDown(() => setSelectedDay(index))}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-medium text-sm">{formatDate(date)}</span>
-                        <div className={`w-2 h-2 rounded-full ${window.suitable ? 'bg-green-500' : 'bg-red-500'}`} />
+                        <div className={`w-2 h-2 rounded-full ${window.suitable ? 'bg-green-500' : 'bg-red-500'}`} aria-hidden="true" />
                       </div>
                       <div className="text-xs text-muted-foreground mb-2">
                         {window.conditions.slice(0, 2).join(', ')}
@@ -497,9 +674,9 @@ const Weather: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-medium">{t('weather.score', 'Puntuación')}: {window.score}</span>
                         {window.suitable ? (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <CheckCircle className="w-4 h-4 text-green-500" aria-hidden="true" />
                         ) : (
-                          <X className="w-4 h-4 text-red-500" />
+                          <X className="w-4 h-4 text-red-500" aria-hidden="true" />
                         )}
                       </div>
                     </div>
@@ -515,10 +692,10 @@ const Weather: React.FC = () => {
                 <h3 className={CARD_TITLE}>{t('weather.forecast', 'Pronóstico')}</h3>
                 <button
                   onClick={() => setShowDetails(!showDetails)}
-                  className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
                   aria-label="Toggle forecast details"
                 >
-                  {showDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {showDetails ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
                 </button>
               </div>
               <div className="space-y-3">

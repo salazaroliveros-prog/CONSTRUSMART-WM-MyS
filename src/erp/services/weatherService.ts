@@ -86,6 +86,82 @@ interface SchedulingWindow {
 
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
+const CACHE_PREFIX = 'weather_cache_';
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+
+function isOnline(): boolean {
+  if (typeof navigator === 'undefined') return true;
+  return navigator.onLine;
+}
+
+function getCachedData(lat: number, lon: number): WeatherData | null {
+  try {
+    const cacheKey = `${CACHE_PREFIX}${lat}_${lon}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (!cached) return null;
+    
+    const data = JSON.parse(cached) as WeatherData;
+    const age = Date.now() - data.fetched_at;
+    
+    if (age > CACHE_DURATION) {
+      localStorage.removeItem(cacheKey);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    safeLogger.error('Error reading weather cache:', error);
+    return null;
+  }
+}
+
+function setCachedData(data: WeatherData): void {
+  try {
+    const cacheKey = `${CACHE_PREFIX}${data.lat}_${data.lon}`;
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+  } catch (error) {
+    safeLogger.error('Error writing weather cache:', error);
+  }
+}
+
+function clearWeatherCache(): void {
+  try {
+    Object.keys(localStorage)
+      .filter(key => key.startsWith(CACHE_PREFIX))
+      .forEach(key => localStorage.removeItem(key));
+  } catch (error) {
+    safeLogger.error('Error clearing weather cache:', error);
+  }
+}
+
+async function fetchWithRetry(url: string, retries = 3, delay = 1000): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) return response;
+      
+      if (response.status === 401) {
+        throw new Error('Invalid API key - check VITE_OPENWEATHER_API_KEY');
+      }
+      if (response.status === 429) {
+        throw new Error('API rate limit exceeded - please try again later');
+      }
+      if (response.status >= 500) {
+        if (i < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
+          continue;
+        }
+      }
+      
+      throw new Error(`Weather API error: ${response.status}`);
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      if (!isOnline()) throw new Error('No internet connection');
+      await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
+    }
+  }
+  throw new Error('Max retries exceeded');
+}
 
 export async function getCurrentWeather(lat: number, lon: number): Promise<CurrentWeather | null> {
   if (!API_KEY) {
@@ -93,14 +169,16 @@ export async function getCurrentWeather(lat: number, lon: number): Promise<Curre
     return null;
   }
 
+  if (!isOnline()) {
+    safeLogger.warn('Offline mode - using cached data if available');
+    const cached = getCachedData(lat, lon);
+    return cached?.current || null;
+  }
+
   try {
-    const response = await fetch(
+    const response = await fetchWithRetry(
       `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=es`
     );
-    
-    if (!response.ok) {
-      throw new Error(`Weather API error: ${response.status}`);
-    }
 
     const data = await response.json();
     return {
@@ -114,6 +192,11 @@ export async function getCurrentWeather(lat: number, lon: number): Promise<Curre
     };
   } catch (error) {
     safeLogger.error('Error fetching current weather:', error);
+    const cached = getCachedData(lat, lon);
+    if (cached) {
+      safeLogger.info('Using cached weather data');
+      return cached.current;
+    }
     return null;
   }
 }
@@ -124,32 +207,51 @@ export async function getForecast(lat: number, lon: number, days: number = 7): P
     return null;
   }
 
+  if (!isOnline()) {
+    safeLogger.warn('Offline mode - using cached data if available');
+    const cached = getCachedData(lat, lon);
+    return cached?.forecast || null;
+  }
+
   try {
-    const response = await fetch(
+    const response = await fetchWithRetry(
       `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=es&cnt=${days * 8}`
     );
-    
-    if (!response.ok) {
-      throw new Error(`Weather API error: ${response.status}`);
-    }
 
     const data = await response.json();
     return data.list;
   } catch (error) {
     safeLogger.error('Error fetching forecast:', error);
+    const cached = getCachedData(lat, lon);
+    if (cached) {
+      safeLogger.info('Using cached forecast data');
+      return cached.forecast;
+    }
     return null;
   }
 }
 
 export async function getCompleteWeatherData(lat: number, lon: number, location: string): Promise<WeatherData | null> {
+  const cached = getCachedData(lat, lon);
+  if (cached && !isWeatherDataStale(cached, 30)) {
+    safeLogger.info('Using cached weather data (still fresh)');
+    return cached;
+  }
+
   const [current, forecast] = await Promise.all([
     getCurrentWeather(lat, lon),
     getForecast(lat, lon),
   ]);
 
-  if (!current || !forecast) return null;
+  if (!current || !forecast) {
+    if (cached) {
+      safeLogger.info('API failed, returning cached data');
+      return cached;
+    }
+    return null;
+  }
 
-  return {
+  const weatherData: WeatherData = {
     current,
     forecast,
     location,
@@ -157,7 +259,12 @@ export async function getCompleteWeatherData(lat: number, lon: number, location:
     lon,
     fetched_at: Date.now(),
   };
+
+  setCachedData(weatherData);
+  return weatherData;
 }
+
+export { clearWeatherCache };
 
 export function calculateWeatherImpact(weather: WeatherData): WeatherImpact {
   const factors: string[] = [];
