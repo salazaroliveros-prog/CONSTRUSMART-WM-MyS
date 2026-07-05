@@ -855,7 +855,10 @@
     "porcentaje": "Percentage",
     "sin_hitos": "No milestones registered",
     "logro": "Achievement",
-    "observaciones": "Observations"
+    "observaciones": "Observations",
+    "eliminar": "Delete",
+    "confirmar_eliminar_titulo": "Confirm deletion",
+    "confirmar_eliminar_contenido": "Delete this milestone?"
   },
   "riesgos": {
     "titulo": "Risk Management",
@@ -872,7 +875,9 @@
     "abierto": "Open",
     "cerrado": "Closed",
     "en_seguimiento": "Under Review",
-    "sin_riesgos": "No risks registered"
+    "sin_riesgos": "No risks registered",
+    "eliminar": "Delete",
+    "confirmar_eliminar": "Delete this risk?"
   },
   "notificaciones": {
     "titulo": "Notifications",
@@ -941,6 +946,42 @@
     "vista_frente": "Front View",
     "vista_lateral": "Side View"
   },
+  "activos": {
+    "titulo": "Assets and Tools",
+    "subtitulo": "Asset, tool and equipment management",
+    "nuevo_activo": "New Asset",
+    "editar_activo": "Edit Asset",
+    "total": "Total",
+    "disponibles": "Available",
+    "asignados": "Assigned",
+    "valor_total": "Total Value",
+    "buscar_placeholder": "Search by name or code...",
+    "todos_tipos": "All types",
+    "tipo_herramienta": "Tool",
+    "tipo_equipo": "Equipment",
+    "tipo_vehiculo": "Vehicle",
+    "tipo_accesorio": "Accessory",
+    "todos_estados": "All states",
+    "estado_disponible": "Available",
+    "estado_asignado": "Assigned",
+    "estado_mantenimiento": "In Maintenance",
+    "estado_baja": "Retired",
+    "columna_codigo": "Code",
+    "columna_nombre": "Name",
+    "columna_tipo": "Type",
+    "columna_estado": "Status",
+    "columna_ubicacion": "Location",
+    "columna_asignado": "Assigned To",
+    "columna_valor": "Value",
+    "columna_fecha": "Acquisition Date",
+    "columna_acciones": "Actions",
+    "sin_activos": "No assets registered",
+    "confirmar_eliminar": "Delete this asset?",
+    "eliminar": "Delete",
+    "editar": "Edit",
+    "eliminar_exito": "Asset deleted",
+    "guardar_exito": "Asset saved"
+  },
   "exportacion": {
     "titulo": "Smart Export",
     "exportar_pdf": "Export to PDF",
@@ -951,6 +992,37 @@
     "incluir_tablas": "Include Tables",
     "formato": "Export Format",
     "exportar": "Export"
+  },
+  "plantillas": {
+    "titulo": "Project Templates",
+    "subtitulo": "Manage templates to quickly create projects",
+    "bulk_delete_titulo": "Delete templates",
+    "bulk_delete_contenido": "Delete {{count}} template?",
+    "confirmar_eliminar_titulo": "Delete template",
+    "confirmar_eliminar_contenido": "Are you sure you want to delete this template?",
+    "restaurar_version_titulo": "Restore version",
+    "restaurar_version_contenido": "Are you sure you want to restore version {{version}}? A new version will be created based on this restoration.",
+    "restaurar_ok": "Yes, restore",
+    "eliminada": "Template deleted",
+    "clonada": "Template cloned successfully",
+    "exportada": "Template exported successfully",
+    "importada": "Template imported successfully",
+    "version_creada": "New version created successfully",
+    "version_restaurada": "Version restored successfully",
+    "proyecto_creado": "Project created from template",
+    "creada_desde_proyecto": "Template created from project",
+    "confirmar_eliminar": "Confirm deletion",
+    "vista_cuadricula": "Grid view",
+    "vista_lista": "List view",
+    "agregar_favoritos": "Add to favorites",
+    "quitar_favoritos": "Remove from favorites",
+    "no_hay_plantillas": "No templates",
+    "crear_plantilla": "Create Template",
+    "error_exportar": "Error exporting template",
+    "error_leer_archivo": "Error reading file",
+    "error_integridad_titulo": "Template has integrity errors",
+    "nombre_clonada": "Name for the cloned template:",
+    "nombre_nueva_version": "Describe the changes for this new version:"
   },
   "logistica": {
     "titulo": "Logistics & Procurement",
@@ -975,7 +1047,9 @@
     "descuentos": "Deductions",
     "total_pagar": "Total to Pay",
     "generar_planilla": "Generate Payroll",
-    "sin_registros": "No payroll records"
+    "sin_registros": "No payroll records",
+    "confirmar_eliminar_titulo": "Delete task",
+    "confirmar_eliminar_contenido": "Delete task for \"{{cuadrilla}}\" ({{codigo}})?"
   },
   "impuestos": {
     "titulo": "Taxes",
@@ -1032,7 +1106,11 @@
     "avances_obra": "Work Progress",
     "avances_obra_sub": "Physical progress recording",
     "ordenes_cambio": "Change Orders",
-    "ordenes_cambio_sub": "Notify pending change orders"
+    "ordenes_cambio_sub": "Notify pending change orders",
+    "restablecer_titulo": "Factory reset",
+    "restablecer": "Reset",
+    "restablecer_alerta_titulo": "Are you sure?",
+    "restablecer_alerta_desc": "This action will delete all local data and restore default settings. Cloud data will not be affected."
   },
   "baseprecios": {
     "titulo": "Price Database",
@@ -1142,7 +1220,11 @@
     "vencida": "Overdue",
     "por_vencer": "Due Soon",
     "pagado": "Paid",
-    "sin_registros": "No accounts registered"
+    "sin_registros": "No accounts registered",
+    "cobrar_confirmar_eliminar_titulo": "Confirm deletion",
+    "cobrar_confirmar_eliminar_contenido": "Delete this receivable account?",
+    "pagar_confirmar_eliminar_titulo": "Confirm deletion",
+    "pagar_confirmar_eliminar_contenido": "Delete this payable account?"
   },
   "almacen": {
     "titulo": "Warehouse Receipts",

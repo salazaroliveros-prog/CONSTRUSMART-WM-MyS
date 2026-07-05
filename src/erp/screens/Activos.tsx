@@ -127,8 +127,8 @@ const Activos: React.FC = () => {
                 <td className="p-2 text-muted-foreground">{proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}</td>
                 <td className="p-2 font-mono">Q{Number(a.valor || 0).toLocaleString()}</td>
                 <td className="p-2 text-right">
-                  <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-accent"><Edit2 className="w-4 h-4 text-muted-foreground" /></button>
-                  <button onClick={() => Modal.confirm({ title: t('activos.confirmar_eliminar'), onOk: () => remove(a.id), okText: 'Eliminar', cancelText: 'Cancelar', okButtonProps: { danger: true } })} className="p-1.5 rounded hover:bg-accent"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                  <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-accent" aria-label={t('activos.editar')}><Edit2 className="w-4 h-4 text-muted-foreground" aria-hidden="true" /></button>
+                  <button onClick={() => Modal.confirm({ title: t('activos.confirmar_eliminar'), onOk: () => remove(a.id), okText: 'Eliminar', cancelText: 'Cancelar', okButtonProps: { danger: true } })} className="p-1.5 rounded hover:bg-accent" aria-label={t('activos.eliminar')}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
                 </td>
               </tr>
             ))}

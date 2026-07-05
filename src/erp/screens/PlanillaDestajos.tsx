@@ -1,9 +1,11 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, message } from 'antd';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { downloadBlob } from '../utils';
+import { CheckCircle, ClipboardList, Download } from 'lucide-react';
 import { z } from 'zod';
 
 const destajoSchema = z.object({
@@ -18,6 +20,7 @@ const destajoSchema = z.object({
 });
 
 export const PlanillaDestajos: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, destajos, addDestajo, deleteDestajo } = useErp();
 
   const [proyectoFilter, setProyectoFilter] = useState('');
@@ -117,7 +120,7 @@ export const PlanillaDestajos: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
         <div>
-          <h1 className="text-xl font-bold text-foreground">📋 Planilla de Destajos — Pago Semanal</h1>
+          <h1 className="text-xl font-bold text-foreground"><ClipboardList className="w-5 h-5 inline" aria-hidden="true" /> Planilla de Destajos — Pago Semanal</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             {semanaInicio.toLocaleDateString()} — {semanaFin.toLocaleDateString()}
           </p>
@@ -203,7 +206,7 @@ export const PlanillaDestajos: React.FC = () => {
       {/* Detalle de Destajos Individuales */}
       {destajosSemana.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-sm font-semibold text-foreground mb-3">📋 Detalle de Destajos Individuales</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-3"><ClipboardList className="w-4 h-4 inline" aria-hidden="true" /> Detalle de Destajos Individuales</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -229,11 +232,11 @@ export const PlanillaDestajos: React.FC = () => {
                         onClick={async () => {
                           try {
                             await Modal.confirm({
-                              title: 'Eliminar destajo',
-                              content: `¿Eliminar destajo de "${d.cuadrilla}" (${d.renglonCodigo})?`,
+                              title: t('destajos.confirmar_eliminar_titulo'),
+                              content: t('destajos.confirmar_eliminar_contenido', { cuadrilla: d.cuadrilla, codigo: d.renglonCodigo }),
                               centered: true,
-                              okText: 'Sí, eliminar',
-                              cancelText: 'Cancelar',
+                              okText: t('common.si'),
+                              cancelText: t('common.cancelar'),
                               okType: 'danger',
                             });
                             deleteDestajo(d.id);
@@ -269,7 +272,7 @@ export const PlanillaDestajos: React.FC = () => {
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             downloadBlob(blob, `planilla_destajos_${semanaFilter}.csv`);
           }} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">
-            📥 Exportar CSV
+            <Download className="w-4 h-4" aria-hidden="true" /> Exportar CSV
           </button>
         </div>
       )}
@@ -322,7 +325,7 @@ export const PlanillaDestajos: React.FC = () => {
               <div className="flex gap-2">
                 <button onClick={handleSubmitForm}
                   className="flex-1 bg-green-600 text-white py-2 rounded text-sm hover:bg-green-700">
-                  ✅ Guardar Destajo
+                  <CheckCircle className="w-4 h-4" aria-hidden="true" /> Guardar Destajo
                 </button>
                 <button onClick={() => setShowForm(false)}
                   className="px-4 py-2 border rounded text-sm hover:bg-gray-50">

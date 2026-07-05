@@ -60,7 +60,7 @@ export const TABLE_CELL = `p-[var(--density-selected,var(--density-table-cell,8p
 export const TABLE_ROW = 'hover:bg-muted/30 transition-colors';
 
 // === TYPOGRAPHY ===
-export const SECTION_TITLE = 'text-lg sm:text-xl font-bold text-foreground mb-3 flex items-center gap-2';
+export const SECTION_TITLE = 'text-lg sm:text-xl font-black text-foreground mb-3 flex items-center gap-2';
 export const SECTION_SUBTITLE = 'text-sm text-muted-foreground mb-4';
 
 // === COLORS ===

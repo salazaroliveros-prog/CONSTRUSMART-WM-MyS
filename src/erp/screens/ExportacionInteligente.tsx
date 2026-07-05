@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
-import { Download, FileJson, FileSpreadsheet, FileText, Plus, Trash2, Clock, Send, Table } from 'lucide-react';
+import { Download, FileJson, FileSpreadsheet, FileText, Plus, Trash2, Clock, Send, Table, CheckCircle, Save, RefreshCw, Mail, ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
 import { fmtQ, todayISO, downloadBlob } from '../utils';
 import { sanitizarTexto } from '@/lib/security';
@@ -508,11 +508,11 @@ const ExportacionInteligente: React.FC = () => {
                     </button>
                   </div>
                   <div className="flex gap-2 text-xs text-muted-foreground">
-                    <span>📄 {r.tipo}</span>
-                    <span>💾 {r.formato.toUpperCase()}</span>
-                    <span>🔄 {r.frecuencia}</span>
-                    {r.destinatarios && <span>📬 {r.destinatarios}</span>}
-                    {r.ultimoEnvio && <span>✅ {t('exportacion.ultimo_envio', 'Último')}: {r.ultimoEnvio}</span>}
+                    <span className="flex items-center gap-1"><FileText className="w-3 h-3" aria-hidden="true" /> {r.tipo}</span>
+                    <span className="flex items-center gap-1"><Save className="w-3 h-3" aria-hidden="true" /> {r.formato.toUpperCase()}</span>
+                    <span className="flex items-center gap-1"><RefreshCw className="w-3 h-3" aria-hidden="true" /> {r.frecuencia}</span>
+                    {r.destinatarios && <span className="flex items-center gap-1"><Mail className="w-3 h-3" aria-hidden="true" /> {r.destinatarios}</span>}
+                    {r.ultimoEnvio && <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3" aria-hidden="true" /> {t('exportacion.ultimo_envio', 'Último')}: {r.ultimoEnvio}</span>}
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0 ml-2">
@@ -531,7 +531,7 @@ const ExportacionInteligente: React.FC = () => {
 
       {/* Instrucciones */}
       <div className="bg-muted/30 rounded-xl p-4 border border-border">
-        <h3 className="text-xs font-bold text-muted-foreground mb-2">📋 {t('exportacion.guia', 'Guía de Exportación')}</h3>
+        <h3 className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-1"><ClipboardList className="w-3 h-3" aria-hidden="true" /> {t('exportacion.guia', 'Guía de Exportación')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-muted-foreground">
           <div>
             <p className="font-semibold text-muted-foreground">JSON</p>

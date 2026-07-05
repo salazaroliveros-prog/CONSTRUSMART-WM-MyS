@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Riesgo } from '../types';
-import { AlertTriangle, Shield, Plus, X, TrendingUp, TrendingDown, Filter, Clock, CheckCircle } from 'lucide-react';
+import { AlertTriangle, Shield, Plus, X, TrendingUp, TrendingDown, Filter, Clock, CheckCircle, Crosshair, DollarSign, Calendar, User } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { Modal } from 'antd';
@@ -183,7 +183,7 @@ const Riesgos: React.FC = () => {
 
       <div className="bg-card rounded-xl p-4 border border-border mb-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-muted-foreground flex items-center gap-2">🎯 {t('riesgos.matriz_calor', 'Matriz de Calor (Probabilidad × Impacto)')}</h3>
+          <h3 className="text-sm font-bold text-muted-foreground flex items-center gap-2"><Crosshair className="w-4 h-4 text-red-500" aria-hidden="true" /> {t('riesgos.matriz_calor', 'Matriz de Calor (Probabilidad × Impacto)')}</h3>
           <div className="flex gap-2 text-[10px]">
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" />{t('riesgos.bajo', 'Bajo')}</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" />{t('riesgos.medio', 'Medio')}</span>
@@ -307,12 +307,12 @@ const Riesgos: React.FC = () => {
                 <p className="text-sm font-semibold text-foreground">{r.nombre}</p>
                 {r.descripcion && <p className="text-xs text-muted-foreground mt-0.5">{r.descripcion}</p>}
                 <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
-                  <span>🎲 P:{r.probabilidad} I:{r.impacto} = {r.probabilidad * r.impacto}pts</span>
-                  {r.responsable && <span>👤 {r.responsable}</span>}
-                  {r.costoSoporte ? <span>💰 Q{r.costoSoporte.toLocaleString()}</span> : null}
-                  <span>📅 {r.fechaIdentificacion}</span>
+                  <span>P:{r.probabilidad} I:{r.impacto} = {r.probabilidad * r.impacto}pts</span>
+                  {r.responsable && <span className="flex items-center gap-1"><User className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {r.responsable}</span>}
+                  {r.costoSoporte ? <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> Q{r.costoSoporte.toLocaleString()}</span> : null}
+                  <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {r.fechaIdentificacion}</span>
                 </div>
-                {r.planMitigacion && <div className="mt-1 text-xs text-muted-foreground italic">🛡️ {r.planMitigacion}</div>}
+                {r.planMitigacion && <div className="mt-1 text-xs text-muted-foreground italic flex items-center gap-1"><Shield className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {r.planMitigacion}</div>}
               </div>
               <div className="flex gap-1 shrink-0 ml-2">
                 <select value={r.estado} onChange={e => actualizarEstado(r.id, e.target.value as REstado)}
@@ -322,7 +322,7 @@ const Riesgos: React.FC = () => {
                   <option value="mitigado">{t('riesgos.estado_mitigado', 'Mitigado')}</option>
                   <option value="materializado">{t('riesgos.estado_materializado', 'Materializado')}</option>
                 </select>
-                <button onClick={() => eliminar(r.id)} className="p-1 text-slate-300 hover:text-red-500"><X className="w-3 h-3" /></button>
+                 <button onClick={() => eliminar(r.id)} className="p-1 text-slate-300 hover:text-red-500" aria-label={t('riesgos.eliminar')}><X className="w-3 h-3" aria-hidden="true" /></button>
               </div>
             </div>
           </div>

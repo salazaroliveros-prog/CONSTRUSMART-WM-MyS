@@ -285,15 +285,18 @@ export const ComercialFinanzas: React.FC = () => {
       {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto">
         {[
-          { key: 'ventas',    label: `🏠 ${t('comercial.ventas')}` },
-          { key: 'anticipos', label: `💰 ${t('comercial.anticipos')}` },
-          { key: 'cajas',     label: `💵 ${t('comercial.cajas')}` },
-        ].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
-            className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              tab === t.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
-            }`}>{t.label}</button>
-        ))}
+          { key: 'ventas',    label: t('comercial.ventas'), icon: Building2 },
+          { key: 'anticipos', label: t('comercial.anticipos'), icon: DollarSign },
+          { key: 'cajas',     label: t('comercial.cajas'), icon: Wallet },
+        ].map(item => {
+          const Icon = item.icon;
+          return (
+            <button key={item.key} onClick={() => setTab(item.key as typeof tab)}
+              className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-1.5 ${
+                tab === item.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+              }`}><Icon className="w-4 h-4" aria-hidden="true" /> {item.label}</button>
+          );
+        })}
       </div>
 
       {tab === 'ventas'    && renderVentas()}

@@ -3,7 +3,7 @@ import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { OrdenCambio } from '../types';
 import { fmtQ, todayISO } from '../utils';
-import { GitBranch, Plus, Check, X, Clock, ChevronRight, ChevronDown } from 'lucide-react';
+import { GitBranch, Plus, Check, X, Clock, ChevronRight, ChevronDown, FileText } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
@@ -100,7 +100,7 @@ const OrdenesCambio: React.FC = () => {
 
       {showForm && (
         <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-4">
-          <h3 className="font-bold text-sm text-muted-foreground mb-3">📝 Nueva Solicitud de Cambio</h3>
+          <h3 className="font-bold text-sm text-muted-foreground mb-3"><FileText className="w-4 h-4 inline-block align-text-bottom" aria-hidden="true" /> Nueva Solicitud de Cambio</h3>
           <div className="space-y-2">
             <input value={fTitulo} onChange={e => setFTitulo(e.target.value)} placeholder="Título del cambio *" className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border outline-none focus:border-amber-400" />
             <textarea value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Descripción detallada del cambio..." rows={2} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border outline-none focus:border-amber-400 resize-none" />

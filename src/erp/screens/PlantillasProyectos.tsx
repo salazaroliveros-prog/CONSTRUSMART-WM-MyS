@@ -3,6 +3,7 @@ import { Modal, message } from 'antd';
 import { useErp } from '../store';
 import { safeLogger } from '@/lib/safeLogger';
 import { fmtQ } from '../utils';
+import { useTranslation } from 'react-i18next';
 import type { Plantilla } from '../store/schemas/plantillas';
 import type { Proyecto } from '../types';
 import {
@@ -52,6 +53,7 @@ const CATEGORIAS = [
 ] as const;
 
 const PlantillasProyectos: React.FC = () => {
+  const { t } = useTranslation();
   const { plantillas, proyectos, addPlantilla, updatePlantilla, deletePlantilla, clonarPlantilla, exportarPlantilla, importarPlantilla, crearProyectoDesdePlantilla, crearNuevaVersionPlantilla, restaurarVersionPlantilla, validarIntegridadPlantilla, toggleFavoritoPlantilla } = useErp();
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -199,11 +201,11 @@ const PlantillasProyectos: React.FC = () => {
     if (seleccionMultiple.size === 0) return;
     try {
       await Modal.confirm({
-        title: 'Eliminar plantillas',
-        content: `¿Eliminar ${seleccionMultiple.size} plantilla${seleccionMultiple.size > 1 ? 's' : ''}?`,
+        title: t('plantillas.bulk_delete_titulo', 'Eliminar plantillas'),
+        content: t('plantillas.bulk_delete_contenido', { count: seleccionMultiple.size }),
         centered: true,
-        okText: 'Sí, eliminar',
-        cancelText: 'Cancelar',
+        okText: t('common.si'),
+        cancelText: t('common.cancelar'),
         okType: 'danger',
       });
       seleccionMultiple.forEach(id => deletePlantilla(id));
@@ -244,23 +246,23 @@ const PlantillasProyectos: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await Modal.confirm({
-        title: 'Eliminar plantilla',
-        content: '¿Está seguro de eliminar esta plantilla?',
+        title: t('plantillas.confirmar_eliminar_titulo', 'Eliminar plantilla'),
+        content: t('plantillas.confirmar_eliminar_contenido', '¿Está seguro de eliminar esta plantilla?'),
         centered: true,
-        okText: 'Sí, eliminar',
-        cancelText: 'Cancelar',
+        okText: t('common.si'),
+        cancelText: t('common.cancelar'),
         okType: 'danger',
       });
       deletePlantilla(id);
-      toast.success('Plantilla eliminada');
+        toast.success(t('plantillas.eliminada'));
     } catch {}
   };
 
   const handleClone = (plantilla: Plantilla) => {
-    const nuevoNombre = prompt('Nombre para la plantilla clonada:', `${plantilla.nombre} (Copia)`);
+    const nuevoNombre = prompt(t('plantillas.nombre_clonada', 'Nombre para la plantilla clonada:'), `${plantilla.nombre} (Copia)`);
     if (nuevoNombre && nuevoNombre.trim()) {
       clonarPlantilla(plantilla.id, nuevoNombre.trim());
-      toast.success('Plantilla clonada correctamente');
+      toast.success(t('plantillas.clonada'));
     }
   };
 
@@ -268,7 +270,7 @@ const PlantillasProyectos: React.FC = () => {
     try {
       const json = exportarPlantilla(plantilla.id);
       if (!json) {
-        toast.error('Error al exportar plantilla');
+        toast.error(t('plantillas.error_exportar', 'Error al exportar plantilla'));
         return;
       }
 
@@ -298,11 +300,11 @@ const PlantillasProyectos: React.FC = () => {
       const json = event.target?.result as string;
       if (json) {
         importarPlantilla(json);
-        toast.success('Plantilla importada correctamente');
+        toast.success(t('plantillas.importada'));
       }
     };
     reader.onerror = () => {
-      toast.error('Error al leer el archivo');
+      toast.error(t('plantillas.error_leer_archivo', 'Error al leer el archivo'));
     };
     reader.readAsText(file);
 
@@ -310,10 +312,10 @@ const PlantillasProyectos: React.FC = () => {
   };
 
   const handleCrearNuevaVersion = (plantilla: Plantilla) => {
-    const cambios = prompt('Describe los cambios de esta nueva versión:');
+    const cambios = prompt(t('plantillas.nombre_nueva_version', 'Describe los cambios de esta nueva versión:'));
     if (cambios && cambios.trim()) {
       crearNuevaVersionPlantilla(plantilla.id, cambios.trim());
-      toast.success('Nueva versión creada correctamente');
+      toast.success(t('plantillas.version_creada'));
     }
   };
 
@@ -326,11 +328,11 @@ const PlantillasProyectos: React.FC = () => {
     if (!previewPlantilla) return;
     try {
       await Modal.confirm({
-        title: 'Restaurar versión',
-        content: `¿Está seguro de restaurar la versión ${version}? Se creará una nueva versión basada en esta restauración.`,
+        title: t('plantillas.restaurar_version_titulo', 'Restaurar versión'),
+        content: t('plantillas.restaurar_version_contenido', { version }),
         centered: true,
-        okText: 'Sí, restaurar',
-        cancelText: 'Cancelar',
+        okText: t('plantillas.restaurar_ok', 'Sí, restaurar'),
+        cancelText: t('common.cancelar'),
         okType: 'primary',
       });
       restaurarVersionPlantilla(previewPlantilla.id, version);
@@ -350,7 +352,7 @@ const PlantillasProyectos: React.FC = () => {
 
     const validacion = validarIntegridadPlantilla(plantillaId);
     if (!validacion.valido) {
-      toast.error('Plantilla tiene errores de integridad', {
+      toast.error(t('plantillas.error_integridad_titulo', 'Plantilla tiene errores de integridad'), {
         description: validacion.errores.join(', '),
       });
       return;
@@ -365,7 +367,7 @@ const PlantillasProyectos: React.FC = () => {
     };
 
     crearProyectoDesdePlantilla(plantillaId, proyectoData);
-    toast.success('Proyecto creado desde plantilla');
+    toast.success(t('plantillas.proyecto_creado'));
   };
 
   const handleCrearDesdeProyecto = (proyectoId: string) => {
@@ -388,7 +390,7 @@ const PlantillasProyectos: React.FC = () => {
     };
 
     addPlantilla(nuevaPlantilla);
-    toast.success('Plantilla creada desde proyecto');
+    toast.success(t('plantillas.creada_desde_proyecto'));
   };
 
   if (loading) {
@@ -432,7 +434,7 @@ const PlantillasProyectos: React.FC = () => {
           <button
             onClick={() => setVistaLista(!vistaLista)}
             className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-muted"
-            title={vistaLista ? 'Vista de cuadrícula' : 'Vista de lista'}
+            title={vistaLista ? t('plantillas.vista_cuadricula') : t('plantillas.vista_lista')}
           >
             {vistaLista ? <Grid3x3 className="h-4 w-4" /> : <List className="h-4 w-4" />}
           </button>
@@ -600,7 +602,7 @@ const PlantillasProyectos: React.FC = () => {
       {plantillasDesactualizadas.length > 0 && (
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 COLOR_WARNING dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <AlertCircle className={`w-5 h-5 ${COLOR_WARNING} dark:text-amber-400 flex-shrink-0 mt-0.5`} />
             <div className="flex-1">
               <div className="font-semibold text-amber-900 dark:text-amber-100 mb-1">
                 {plantillasDesactualizadas.length} plantilla{plantillasDesactualizadas.length > 1 ? 's' : ''} desactualizada{plantillasDesactualizadas.length > 1 ? 's' : ''}
@@ -693,7 +695,7 @@ const PlantillasProyectos: React.FC = () => {
                       <div className="flex gap-1">
                         <button
                           onClick={() => toggleFavoritoPlantilla(plantilla.id)}
-                          className={`p-1 hover:bg-muted rounded ${plantilla.favorita ? 'COLOR_WARNING' : 'text-muted-foreground'}`}
+                          className={`p-1 hover:bg-muted rounded ${plantilla.favorita ? COLOR_WARNING : 'text-muted-foreground'}`}
                           title={plantilla.favorita ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                         >
                           <Star className={`h-4 w-4 ${plantilla.favorita ? 'fill-current' : ''}`} />
@@ -704,13 +706,13 @@ const PlantillasProyectos: React.FC = () => {
                         <button onClick={() => handleEdit(plantilla)} className="p-1 hover:bg-muted rounded" aria-label={`Editar ${plantilla.nombre}`}>
                           <Edit className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button onClick={() => handleClone(plantilla)} className="p-1 hover:bg-muted rounded COLOR_INFO dark:text-blue-400" aria-label={`Clonar ${plantilla.nombre}`}>
+                        <button onClick={() => handleClone(plantilla)} className={`p-1 hover:bg-muted rounded ${COLOR_INFO} dark:text-blue-400`} aria-label={`Clonar ${plantilla.nombre}`}>
                           <Copy className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button onClick={() => handleCrearProyecto(plantilla.id)} className="p-1 hover:bg-muted rounded COLOR_SUCCESS dark:text-emerald-400" aria-label={`Crear proyecto desde ${plantilla.nombre}`}>
+                        <button onClick={() => handleCrearProyecto(plantilla.id)} className={`p-1 hover:bg-muted rounded ${COLOR_SUCCESS} dark:text-emerald-400`} aria-label={`Crear proyecto desde ${plantilla.nombre}`}>
                           <Copy className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button onClick={() => handleDelete(plantilla.id)} className="p-1 hover:bg-muted rounded COLOR_DANGER dark:text-red-400" aria-label={`Eliminar ${plantilla.nombre}`}>
+                        <button onClick={() => handleDelete(plantilla.id)} className={`p-1 hover:bg-muted rounded ${COLOR_DANGER} dark:text-red-400`} aria-label={`Eliminar ${plantilla.nombre}`}>
                           <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </button>
                       </div>
@@ -757,7 +759,7 @@ const PlantillasProyectos: React.FC = () => {
                   <div className="flex gap-1">
                     <button
                       onClick={() => toggleFavoritoPlantilla(plantilla.id)}
-                      className={`p-1 hover:bg-muted rounded transition-colors duration-200 ${plantilla.favorita ? 'COLOR_WARNING' : 'text-muted-foreground'}`}
+                      className={`p-1 hover:bg-muted rounded transition-colors duration-200 ${plantilla.favorita ? COLOR_WARNING : 'text-muted-foreground'}`}
                       title={plantilla.favorita ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                     >
                       <Star className={`h-4 w-4 ${plantilla.favorita ? 'fill-current' : ''}`} />
@@ -796,7 +798,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleVerHistorial(plantilla)}
-                      className="p-1 hover:bg-muted rounded COLOR_PRIMARY dark:text-purple-400 transition-colors duration-200"
+                      className={`p-1 hover:bg-muted rounded ${COLOR_PRIMARY} dark:text-purple-400 transition-colors duration-200`}
                       aria-label={`Ver historial de ${plantilla.nombre}`}
                       title="Historial de versiones"
                     >
@@ -804,7 +806,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleCrearNuevaVersion(plantilla)}
-                      className="p-1 hover:bg-muted rounded COLOR_WARNING dark:text-orange-400 transition-colors duration-200"
+                      className={`p-1 hover:bg-muted rounded ${COLOR_WARNING} dark:text-orange-400 transition-colors duration-200`}
                       aria-label={`Crear nueva versión de ${plantilla.nombre}`}
                       title="Nueva versión"
                     >
@@ -812,7 +814,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleExport(plantilla)}
-                      className="p-1 hover:bg-muted rounded COLOR_SUCCESS dark:text-green-400 transition-colors duration-200"
+                      className={`p-1 hover:bg-muted rounded ${COLOR_SUCCESS} dark:text-green-400 transition-colors duration-200`}
                       aria-label={`Exportar ${plantilla.nombre}`}
                       title="Exportar"
                     >
@@ -820,7 +822,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleDelete(plantilla.id)}
-                      className="p-1 hover:bg-muted rounded COLOR_DANGER dark:text-red-400 transition-colors duration-200"
+                      className={`p-1 hover:bg-muted rounded ${COLOR_DANGER} dark:text-red-400 transition-colors duration-200`}
                       aria-label={`Eliminar ${plantilla.nombre}`}
                       title="Eliminar"
                     >
@@ -1156,7 +1158,7 @@ const PlantillasProyectos: React.FC = () => {
                             {historial.snapshot && (
                               <button
                                 onClick={() => setVersionesComparar({ anterior: historial.snapshot, actual: previewPlantilla })}
-                                className="px-3 py-1 text-xs bg-amber-50 COLOR_WARNING rounded hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                                className={`px-3 py-1 text-xs bg-amber-50 ${COLOR_WARNING} rounded hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400`}
                               >
                                 Comparar
                               </button>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // ─── Color Palettes ──────────────────────────────────────────────────
 export const PALETTES: Record<string, string[]> = {
@@ -319,14 +319,14 @@ export const Gauge: React.FC<{
 Gauge.displayName = 'Gauge';
 
 export const Progress: React.FC<{
-  value: number; color?: string; bg?: string;
-}> = React.memo(({ value, color = 'hsl(var(--primary))', bg = 'hsl(var(--border))' }) => {
+  value: number; color?: string; bg?: string; className?: string;
+}> = React.memo(({ value, color = 'hsl(var(--primary))', bg = 'hsl(var(--border))', className }) => {
   const p = useAnimIn(600);
   const animVal = value * p;
   const safeColor = color.endsWith('cc') ? color : color.endsWith('66') ? color : `${color}cc`;
   const safeShadow = color.endsWith('66') ? color : `${color}66`;
   return (
-    <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: bg }}>
+    <div className={"w-full h-2.5 rounded-full overflow-hidden" + (className ? ` ${className}` : '')} style={{ background: bg }}>
       <div className="h-full rounded-full"
         style={{
           width: `${Math.min(100, Math.max(0, animVal))}%`,

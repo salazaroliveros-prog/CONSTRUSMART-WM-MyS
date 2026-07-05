@@ -56,6 +56,8 @@
     "columna_acciones": "Acciones",
     "sin_activos": "No hay activos registrados",
     "confirmar_eliminar": "¿Eliminar este activo?",
+    "eliminar": "Eliminar",
+    "editar": "Editar",
     "eliminar_exito": "Activo eliminado",
     "guardar_exito": "Activo guardado"
   },
@@ -938,6 +940,37 @@
     "estimaciones": "Estimaciones",
     "centro_costo": "Centro de Costo"
   },
+  "plantillas": {
+    "titulo": "Plantillas de Proyectos",
+    "subtitulo": "Gestiona plantillas para crear proyectos rápidamente",
+    "bulk_delete_titulo": "Eliminar plantillas",
+    "bulk_delete_contenido": "¿Eliminar {{count}} plantilla?",
+    "confirmar_eliminar_titulo": "Eliminar plantilla",
+    "confirmar_eliminar_contenido": "¿Está seguro de eliminar esta plantilla?",
+    "restaurar_version_titulo": "Restaurar versión",
+    "restaurar_version_contenido": "¿Está seguro de restaurar la versión {{version}}? Se creará una nueva versión basada en esta restauración.",
+    "restaurar_ok": "Sí, restaurar",
+    "eliminada": "Plantilla eliminada",
+    "clonada": "Plantilla clonada correctamente",
+    "exportada": "Plantilla exportada correctamente",
+    "importada": "Plantilla importada correctamente",
+    "version_creada": "Nueva versión creada correctamente",
+    "version_restaurada": "Versión restaurada correctamente",
+    "proyecto_creado": "Proyecto creado desde plantilla",
+    "creada_desde_proyecto": "Plantilla creada desde proyecto",
+    "confirmar_eliminar": "Confirmar eliminación",
+    "vista_cuadricula": "Vista de cuadrícula",
+    "vista_lista": "Vista de lista",
+    "agregar_favoritos": "Agregar a favoritos",
+    "quitar_favoritos": "Quitar de favoritos",
+    "no_hay_plantillas": "No hay plantillas",
+    "crear_plantilla": "Crear Plantilla",
+    "error_exportar": "Error al exportar plantilla",
+    "error_leer_archivo": "Error al leer el archivo",
+    "error_integridad_titulo": "Plantilla tiene errores de integridad",
+    "nombre_clonada": "Nombre para la plantilla clonada:",
+    "nombre_nueva_version": "Describe los cambios de esta nueva versión:"
+  },
   "rrhh": {
     "titulo": "Recursos Humanos",
     "empleados": "Empleados",
@@ -1087,7 +1120,10 @@
     "porcentaje": "Porcentaje",
     "sin_hitos": "Sin hitos registrados",
     "logro": "Logro",
-    "observaciones": "Observaciones"
+    "observaciones": "Observaciones",
+    "eliminar": "Eliminar",
+    "confirmar_eliminar_titulo": "Confirmar eliminación",
+    "confirmar_eliminar_contenido": "¿Eliminar este hito?"
   },
   "riesgos": {
     "titulo": "Gestión de Riesgos",
@@ -1147,7 +1183,8 @@
     "estado_identificado": "Identificado",
     "estado_en_mitigacion": "En mitigación",
     "estado_mitigado": "Mitigado",
-    "estado_materializado": "Materializado"
+    "estado_materializado": "Materializado",
+    "eliminar": "Eliminar"
   },
   "notificaciones": {
     "titulo": "Notificaciones",
@@ -1402,7 +1439,9 @@
     "descuentos": "Descuentos",
     "total_pagar": "Total a Pagar",
     "generar_planilla": "Generar Planilla",
-    "sin_registros": "Sin registros de planilla"
+    "sin_registros": "Sin registros de planilla",
+    "confirmar_eliminar_titulo": "Eliminar destajo",
+    "confirmar_eliminar_contenido": "¿Eliminar destajo de \"{{cuadrilla}}\" ({{codigo}})?"
   },
   "impuestos": {
     "titulo": "Impuestos",
@@ -1448,7 +1487,11 @@
     "avances_obra": "Avances de Obra",
     "avances_obra_sub": "Registro de avances físicos",
     "ordenes_cambio": "Órdenes de Cambio",
-    "ordenes_cambio_sub": "Notificar OC pendientes de revisión"
+    "ordenes_cambio_sub": "Notificar OC pendientes de revisión",
+    "restablecer_titulo": "Restablecer datos de fábrica",
+    "restablecer": "Restablecer",
+    "restablecer_alerta_titulo": "¿Estás seguro?",
+    "restablecer_alerta_desc": "Esta acción eliminará todos los datos locales y restaurará la configuración predeterminada. Los datos en la nube no se verán afectados."
   },
   "baseprecios": {
     "titulo": "Base de Precios",
@@ -1634,7 +1677,11 @@
     "vencida": "Vencida",
     "por_vencer": "Por Vencer",
     "pagado": "Pagado",
-    "sin_registros": "Sin cuentas registradas"
+    "sin_registros": "Sin cuentas registradas",
+    "cobrar_confirmar_eliminar_titulo": "Confirmar eliminación",
+    "cobrar_confirmar_eliminar_contenido": "¿Eliminar esta cuenta por cobrar?",
+    "pagar_confirmar_eliminar_titulo": "Confirmar eliminación",
+    "pagar_confirmar_eliminar_contenido": "¿Eliminar esta cuenta por pagar?"
   },
   "almacen": {
     "titulo": "Entradas Almacén",

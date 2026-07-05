@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Package } from 'lucide-react';
+import { Package, CheckCircle, AlertTriangle, ClipboardList } from 'lucide-react';
 import { useErp } from '../store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
@@ -138,7 +138,7 @@ export const EntradasAlmacenOC: React.FC = () => {
                         + Recibir
                       </button>
                     ) : (
-                      <span className="text-green-600 text-xs font-bold">✅ Completa</span>
+                      <span className="text-green-600 text-xs font-bold"><CheckCircle className="w-3 h-3 inline" aria-hidden="true" /> Completa</span>
                     )}
                   </td>
                   <td className="p-2 text-right">
@@ -148,7 +148,7 @@ export const EntradasAlmacenOC: React.FC = () => {
                           {totalRecibido}/{oc.cantidad}
                         </span>
                         {totalRecibido > oc.cantidad && (
-                          <span className="ml-1 text-red-600 font-bold">⚠️ Excede</span>
+                          <span className="ml-1 text-red-600 font-bold"><AlertTriangle className="w-3 h-3 inline" aria-hidden="true" /> Excede</span>
                         )}
                       </div>
                     ) : (
@@ -181,7 +181,7 @@ export const EntradasAlmacenOC: React.FC = () => {
               <div className="flex gap-2">
                 <button onClick={() => handleReception(showForm)}
                   className="flex-1 bg-green-600 text-white py-2 rounded text-sm hover:bg-green-700">
-                  ✅ Confirmar Recepción
+                  <CheckCircle className="w-4 h-4" aria-hidden="true" /> Confirmar Recepción
                 </button>
                 <button onClick={() => setShowForm(null)}
                   className="px-4 py-2 border rounded text-sm hover:bg-gray-50">
@@ -196,7 +196,7 @@ export const EntradasAlmacenOC: React.FC = () => {
       {historialRecepciones.length > 0 && (
         <div className="bg-card border rounded-lg p-4">
           <h3 className="text-sm font-semibold text-gray-500 mb-3">
-            📋 Historial de Recepciones ({historialRecepciones.length})
+            <ClipboardList className="w-4 h-4 inline" aria-hidden="true" /> Historial de Recepciones ({historialRecepciones.length})
           </h3>
           <div className="overflow-x-auto max-h-48 overflow-y-auto">
             <table className="w-full text-sm">

@@ -3,13 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { useErp } from '../store';
 import { CuentaCobrar } from '../types';
 import ProyectoFilter from '../components/ProyectoFilter';
-import { DollarSign, Plus, X, TrendingUp, CalendarDays, AlertTriangle } from 'lucide-react';
+import { DollarSign, Plus, X, TrendingUp, CalendarDays, AlertTriangle, CheckCircle, Clock, FileText } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { INPUT, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO } from '../ui';
 import { toast } from 'sonner';
 import { Modal } from 'antd';
 import { todayISO, fmtQ } from '../utils';
 
 const CuentasCobrarScreen: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, cuentasCobrar, addCuentaCobrar, updateCuentaCobrar, deleteCuentaCobrar } = useErp();
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -45,7 +47,7 @@ const CuentasCobrarScreen: React.FC = () => {
 
   const eliminar = async (id: string) => {
     try {
-      await Modal.confirm({ title: 'Confirmar eliminación', content: '¿Eliminar esta cuenta por cobrar?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
+      await Modal.confirm({ title: t('cuentas_cobrar.confirmar_eliminar_titulo', 'Confirmar eliminación'), content: t('cuentas_cobrar.confirmar_eliminar_contenido', '¿Eliminar esta cuenta por cobrar?'), centered: true, okText: t('common.si'), cancelText: t('common.cancelar') });
       deleteCuentaCobrar(id);
       toast.success('Cuenta por cobrar eliminada');
     } catch {}
@@ -177,14 +179,14 @@ const CuentasCobrarScreen: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-[10px] uppercase text-muted-foreground mb-0.5">Cobro / Pago</div>
-                      <div className="text-xs text-foreground">{c.fechaCobro ? `✅ ${c.fechaCobro}` : '⏳ Pendiente'}</div>
+                      <div className="text-xs text-foreground">{c.fechaCobro ? <><CheckCircle className="w-3 h-3 inline text-emerald-500" aria-hidden="true" /> {c.fechaCobro}</> : <><Clock className="w-3 h-3 inline text-amber-500" aria-hidden="true" /> Pendiente</>}</div>
                     </div>
                   </div>
-                  {c.notas && <div className="mt-2 text-xs text-muted-foreground border-t border-border pt-2">📝 {c.notas}</div>}
+                  {c.notas && <div className="mt-2 text-xs text-muted-foreground border-t border-border pt-2"><FileText className="w-3.5 h-3.5 inline-block align-text-bottom" aria-hidden="true" /> {c.notas}</div>}
                 </div>
                 <div className="flex flex-col gap-2 shrink-0">
                   {c.estado !== 'cobrado' && <button onClick={() => cobrar(c.id)} className="px-3 py-2 bg-emerald-500 text-white rounded-lg text-xs font-semibold hover:bg-emerald-600 active:bg-emerald-700 active:scale-95 min-h-[44px] transition-all">Cobrar</button>}
-                  <button onClick={() => eliminar(c.id)} className="p-2 text-slate-300 hover:text-red-500 active:text-red-600 active:scale-95 min-h-[44px] min-w-[44px] flex items-center justify-center transition-all rounded-lg border border-transparent hover:border-red-200"><X className="w-4 h-4" /></button>
+                  <button onClick={() => eliminar(c.id)} className="p-2 text-slate-300 hover:text-red-500 active:text-red-600 active:scale-95 min-h-[44px] min-w-[44px] flex items-center justify-center transition-all rounded-lg border border-transparent hover:border-red-200" aria-label={t('cuentas_cobrar.eliminar')}><X className="w-4 h-4" aria-hidden="true" /></button>
                 </div>
               </div>
             </div>

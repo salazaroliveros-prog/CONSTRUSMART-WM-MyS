@@ -2,7 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { z } from 'zod';
 import { useErp } from '../store';
 import { Hito } from '../types';
-import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter } from 'lucide-react';
+import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter, Link2, List, CalendarDays, Lock, Check, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { Modal } from 'antd';
@@ -11,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { hitoFormSchema } from '../store/schemas/calendario';
 
 const HitosScreen: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, updateProyecto, selectedProyectoId, setSelectedProyectoId, hitos, addHito, updateHito, deleteHito, addNotificacion } = useErp();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
@@ -89,11 +91,11 @@ const HitosScreen: React.FC = () => {
       updateProyecto(hito.proyectoId, { estado: 'finalizado' });
       addNotificacion('general', 'Proyecto finalizado', `"${hito.nombre}" completó el proyecto.`, hito.proyectoId);
     }
-    toast.success(retrasado ? '⚠️ Hito completado con retraso' : '✅ Hito completado');
+    toast.success(retrasado ? 'Hito completado con retraso' : 'Hito completado');
   };
 
   const eliminar = async (id: string) => {
-  await Modal.confirm({ title: 'Confirmar eliminación', content: '¿Eliminar este hito?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
+    await Modal.confirm({ title: t('hitos.confirmar_eliminar_titulo', 'Confirmar eliminación'), content: t('hitos.confirmar_eliminar_contenido', '¿Eliminar este hito?'), centered: true, okText: t('common.si'), cancelText: t('common.cancelar') });
   deleteHito(id);
 };
 
@@ -223,7 +225,7 @@ const HitosScreen: React.FC = () => {
             const hitosMismoProy = hitos.filter(h => h.proyectoId === form.proyectoId);
             return hitosMismoProy.length > 0 ? (
               <div>
-                <label className="text-xs text-muted-foreground font-semibold mb-1 block">🔗 Dependencias (predecesores)</label>
+                <label className="text-xs text-muted-foreground font-semibold mb-1 block flex items-center gap-1"><Link2 className="w-3 h-3" aria-hidden="true" /> Dependencias (predecesores)</label>
                 <div className="flex flex-wrap gap-1.5">
                   {hitosMismoProy.map(h => (
                     <button
@@ -259,8 +261,8 @@ const HitosScreen: React.FC = () => {
       )}
 
       <div className="flex gap-2 mb-3">
-        <button onClick={() => setVista('lista')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${vista === 'lista' ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted'}`}>📋 Lista</button>
-        <button onClick={() => setVista('calendario')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${vista === 'calendario' ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted'}`}>📅 Calendario</button>
+        <button onClick={() => setVista('lista')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 ${vista === 'lista' ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted'}`}><List className="w-3.5 h-3.5" aria-hidden="true" /> Lista</button>
+        <button onClick={() => setVista('calendario')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 ${vista === 'calendario' ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted'}`}><CalendarDays className="w-3.5 h-3.5" aria-hidden="true" /> Calendario</button>
       </div>
 
       {vista === 'calendario' && (() => {
@@ -324,21 +326,21 @@ const HitosScreen: React.FC = () => {
                     <span className={`w-2 h-2 rounded-full ${h.estado === 'completado' ? 'bg-emerald-500' : esVencido ? 'bg-red-500' : bloqueado ? 'bg-slate-400' : 'bg-amber-400'}`} />
                     <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{h.tipo}</span>
                     <span className="text-xs text-muted-foreground">{proy?.nombre || '—'}</span>
-                    {bloqueado && <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">🔒 Bloqueado</span>}
+                    {bloqueado && <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground flex items-center gap-1"><Lock className="w-3 h-3" aria-hidden="true" /> Bloqueado</span>}
                   </div>
                   <p className="text-sm font-semibold text-foreground">{h.nombre}</p>
                   {h.descripcion && <p className="text-xs text-muted-foreground mt-0.5">{h.descripcion}</p>}
                   <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
-                    <span>📅 {h.fecha}</span>
-                    {h.responsable && <span>👤 {h.responsable}</span>}
-                    {h.completadoEn && <span>✅ Completado: {h.completadoEn}</span>}
+                    <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {h.fecha}</span>
+                    {h.responsable && <span className="flex items-center gap-1"><User className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {h.responsable}</span>}
+                    {h.completadoEn && <span className="flex items-center gap-1"><Check className="w-3 h-3 text-emerald-500" aria-hidden="true" /> Completado: {h.completadoEn}</span>}
                   </div>
                   {dependencias.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1.5">
-                      <span className="text-[10px] text-muted-foreground">🔗 Requiere:</span>
+                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5"><Link2 className="w-3 h-3" aria-hidden="true" /> Requiere:</span>
                       {dependencias.map(d => (
                         <span key={d!.id} className={`text-[10px] px-1.5 py-0.5 rounded ${d!.estado === 'completado' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
-                          {d!.nombre} {d!.estado === 'completado' ? '✅' : '⏳'}
+                          {d!.nombre} {d!.estado === 'completado' ? <Check className="w-3 h-3 inline text-emerald-500" aria-hidden="true" /> : <Clock className="w-3 h-3 inline text-amber-500" aria-hidden="true" />}
                         </span>
                       ))}
                     </div>
@@ -351,10 +353,10 @@ const HitosScreen: React.FC = () => {
                       disabled={bloqueado}
                       className={`px-2 py-1 rounded text-xs ${esVencido ? 'bg-orange-500 text-white' : bloqueado ? 'bg-slate-300 text-muted-foreground' : 'bg-emerald-500 text-white'} ${bloqueado ? 'cursor-not-allowed' : 'hover:opacity-80'}`}
                     >
-                      {bloqueado ? '🔒' : esVencido ? 'Completar (retrasado)' : 'Completar'}
+                      {bloqueado ? <><Lock className="w-3 h-3 inline" aria-hidden="true" /> Bloqueado</> : esVencido ? 'Completar (retrasado)' : 'Completar'}
                     </button>
                   )}
-                  <button onClick={() => eliminar(h.id)} className="p-1 text-slate-300 hover:text-red-500"><X className="w-3 h-3" /></button>
+                  <button onClick={() => eliminar(h.id)} className="p-1 text-slate-300 hover:text-red-500" aria-label={t('hitos.eliminar')}><X className="w-3 h-3" aria-hidden="true" /></button>
                 </div>
               </div>
             </div>

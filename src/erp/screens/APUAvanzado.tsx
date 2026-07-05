@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useErp } from '../store';
 import {
   Receipt, Search, DollarSign, Users, Wrench, Save, Edit3,
-  BarChart3, Table as TableIcon, Settings, RefreshCw, Calculator,
+  BarChart3, Table as TableIcon, Settings, RefreshCw, Calculator, CheckCircle,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
@@ -554,7 +554,7 @@ const APUAvanzado: React.FC = () => {
                 <option value="">— Sin proyecto (referencia general) —</option>
                 {proyectos.map(p => (
                   <option key={p.id} value={p.id}>
-                    {p.nombre} {p.factorSobrecosto ? '✅' : ''}
+                    {p.nombre} {p.factorSobrecosto ? <CheckCircle className="w-3.5 h-3.5 inline text-emerald-500" aria-hidden="true" /> : ''}
                   </option>
                 ))}
               </select>

@@ -113,7 +113,7 @@ const Shell: React.FC = () => {
       'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
       'erp_notificaciones', 'erp_publicaciones_muro',
       'erp_presupuestos', 'erp_ordenes_compra', 'erp_avances', 'erp_vales_salida',
-      'erp_cotizaciones_negocio', 'erp_licitaciones', 'destajos', 'erp_recepciones',
+      'erp_cotizaciones_negocio', 'erp_licitaciones', 'erp_destajos', 'erp_recepciones',
       'erp_hitos', 'erp_riesgos', 'erp_ordenes_cambio',
       'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_no_conformidades',
       'erp_incidentes', 'erp_pruebas_laboratorio', 'erp_liberaciones_partida',

@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import React, { useMemo, useState, useEffect } from 'react';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
-import { Calendar, AlertTriangle, DollarSign, Activity, Zap } from 'lucide-react';
+import { Calendar, AlertTriangle, DollarSign, Activity, Zap, CheckCircle } from 'lucide-react';
 
 const DashboardPredictivo: React.FC = () => {
   const { proyectos, movimientos, presupuestos, avances, empleados } = useErp();
@@ -117,13 +117,13 @@ const DashboardPredictivo: React.FC = () => {
               <div className={`rounded-xl p-4 border ${sobrecosto > 0 ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200'}`}>
                 <div className="text-[10px] text-muted-foreground">Costo Final Estimado (EAC)</div>
                 <div className="text-lg font-bold text-foreground">{fmtQ(EAC)}</div>
-                {sobrecosto > 0 && <div className="text-[10px] text-red-600 mt-1">⚠️ +{fmtQ(sobrecosto)} sobre presupuesto</div>}
-                {sobrecosto <= 0 && <div className="text-[10px] text-emerald-600 mt-1">✅ Debajo de presupuesto</div>}
+                {sobrecosto > 0 && <div className="text-[10px] text-red-600 mt-1"><AlertTriangle className="w-3 h-3 inline text-red-600" aria-hidden="true" /> +{fmtQ(sobrecosto)} sobre presupuesto</div>}
+                {sobrecosto <= 0 && <div className="text-[10px] text-emerald-600 mt-1"><CheckCircle className="w-3 h-3 inline text-emerald-600" aria-hidden="true" /> Debajo de presupuesto</div>}
               </div>
               <div className="bg-card rounded-xl p-4 border border-border">
                 <div className="text-[10px] text-muted-foreground">CPI (Rend. Costo)</div>
                 <div className="text-lg font-bold text-foreground">{CPI.toFixed(2)}</div>
-                <div className="text-[10px] text-muted-foreground mt-1">{CPI >= 1 ? '✅ Eficiente' : '⚠️ Sobre costo'}</div>
+                <div className="text-[10px] text-muted-foreground mt-1">{CPI >= 1 ? <><CheckCircle className="w-3 h-3 inline text-emerald-600" aria-hidden="true" /> Eficiente</> : <><AlertTriangle className="w-3 h-3 inline text-red-400" aria-hidden="true" /> Sobre costo</>}</div>
               </div>
             </div>
             {/* Barra de progreso EAC vs BAC */}
@@ -156,8 +156,8 @@ const DashboardPredictivo: React.FC = () => {
               <div className={`rounded-xl p-4 border ${desviacionDias > 30 ? 'bg-red-50 border-red-200' : desviacionDias > 0 ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200'}`}>
                 <div className="text-[10px] text-muted-foreground">Fecha Estimada</div>
                 <div className="text-sm font-bold text-foreground">{fechaEstimadaFin.toLocaleDateString('es-GT')}</div>
-                {desviacionDias > 0 && <div className="text-[10px] text-red-600 mt-1">⚠️ +{Math.round(desviacionDias)} días de retraso</div>}
-                {desviacionDias <= 0 && <div className="text-[10px] text-emerald-600 mt-1">✅ Adelantado</div>}
+                {desviacionDias > 0 && <div className="text-[10px] text-red-600 mt-1"><AlertTriangle className="w-3 h-3 inline text-red-600" aria-hidden="true" /> +{Math.round(desviacionDias)} días de retraso</div>}
+                {desviacionDias <= 0 && <div className="text-[10px] text-emerald-600 mt-1"><CheckCircle className="w-3 h-3 inline text-emerald-600" aria-hidden="true" /> Adelantado</div>}
               </div>
               <div className="bg-card rounded-xl p-4 border border-border">
                 <div className="text-[10px] text-muted-foreground">Avance Físico</div>
@@ -215,17 +215,17 @@ const DashboardPredictivo: React.FC = () => {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
               <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-                <div className="text-[10px] text-red-600 font-medium">🔴 Alto Riesgo</div>
+                <div className="text-[10px] text-red-600 font-medium">Alto Riesgo</div>
                 <div className="text-2xl font-black text-red-600">{riesgosAltos.length}</div>
                 <div className="text-[10px] text-red-500">{'Actividades con desviación < -20%'}</div>
               </div>
               <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-                <div className="text-[10px] text-amber-600 font-medium">🟡 Riesgo Medio</div>
+                <div className="text-[10px] text-amber-600 font-medium">Riesgo Medio</div>
                 <div className="text-2xl font-black text-amber-600">{riesgosMedios.length}</div>
                 <div className="text-[10px] text-amber-500">Desviación entre -10% y -20%</div>
               </div>
               <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
-                <div className="text-[10px] text-emerald-600 font-medium">🟢 Saludable</div>
+                <div className="text-[10px] text-emerald-600 font-medium">Saludable</div>
                 <div className="text-2xl font-black text-emerald-600">{actividadesSaludables.length}</div>
                 <div className="text-[10px] text-emerald-500">Actividades dentro de lo esperado</div>
               </div>
@@ -260,7 +260,7 @@ const DashboardPredictivo: React.FC = () => {
 
             {riesgosAltos.length > 0 && (
               <div className="mt-3 bg-red-50 rounded-xl p-4 border border-red-200">
-                <h3 className="text-xs font-bold text-red-700 mb-2">🔴 Acciones Recomendadas</h3>
+                <h3 className="text-xs font-bold text-red-700 mb-2">Acciones Recomendadas</h3>
                 <ul className="text-xs text-red-700 space-y-1">
                   {riesgosAltos.slice(0, 3).map(r => (
                     <li key={r.id} className="flex items-start gap-1.5">

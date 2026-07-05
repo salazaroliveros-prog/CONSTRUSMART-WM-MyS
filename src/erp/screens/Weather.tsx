@@ -634,19 +634,19 @@ const Weather: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span>{t('weather.cranes', 'Grúas')}</span>
                       <span className={getSuitabilityColor(metrics.equipmentOperation.cranes.suitable)}>
-                        {metrics.equipmentOperation.cranes.suitable ? t('weather.suitable_short', '✓') : t('weather.not_suitable_short', '✗')}
+                        {metrics.equipmentOperation.cranes.suitable ? t('weather.suitable_short', 'Idóneo') : t('weather.not_suitable_short', 'No')}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>{t('weather.excavators', 'Excavadoras')}</span>
                       <span className={getSuitabilityColor(metrics.equipmentOperation.excavators.suitable)}>
-                        {metrics.equipmentOperation.excavators.suitable ? t('weather.suitable_short', '✓') : t('weather.not_suitable_short', '✗')}
+                        {metrics.equipmentOperation.excavators.suitable ? t('weather.suitable_short', 'Idóneo') : t('weather.not_suitable_short', 'No')}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>{t('weather.welding', 'Soldadura')}</span>
                       <span className={getSuitabilityColor(metrics.equipmentOperation.welding.suitable)}>
-                        {metrics.equipmentOperation.welding.suitable ? t('weather.suitable_short', '✓') : t('weather.not_suitable_short', '✗')}
+                        {metrics.equipmentOperation.welding.suitable ? t('weather.suitable_short', 'Idóneo') : t('weather.not_suitable_short', 'No')}
                       </span>
                     </div>
                   </div>

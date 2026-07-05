@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
+import { HardHat, BarChart3, AlertTriangle, Pickaxe, Trash2, ClipboardList, Package } from 'lucide-react';
 import type { Destajo, CapturaRendimiento, PlantillaSubrenglon, ValeSalidaRenglon } from '../types';
 
 const uid = () => Date.now().toString(36).substr(2, 9);
@@ -53,8 +54,10 @@ export const RendimientoCampo: React.FC = () => {
     return (
       <div>
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-          <h2 className="text-lg font-bold text-foreground">🏗️ {t('rendimiento_campo.destajos')}</h2>
-          <p className="text-[11px] text-muted-foreground mt-0.5">Registro diario de producción y horas por cuadrilla</p>
+          <div>
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><HardHat className="w-5 h-5 text-amber-500" aria-hidden="true" /> {t('rendimiento_campo.destajos')}</h2>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Registro diario de producción y horas por cuadrilla</p>
+          </div>
           <div className="flex gap-2 flex-wrap">
             <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
             <button onClick={() => {
@@ -106,8 +109,10 @@ export const RendimientoCampo: React.FC = () => {
     return (
       <div>
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-          <h2 className="text-lg font-bold text-foreground">📊 {t('rendimiento_campo.capturas')}</h2>
-          <p className="text-[11px] text-muted-foreground mt-0.5">Medición de rendimiento real vs teórico</p>
+          <div>
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><BarChart3 className="w-5 h-5 text-blue-500" aria-hidden="true" /> {t('rendimiento_campo.capturas')}</h2>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Medición de rendimiento real vs teórico</p>
+          </div>
           <div className="flex gap-2">
             <select value={proyectoFilter} onChange={e => setProyectoFilter(e.target.value)} className={SELECT}>
               <option value="">Todos</option>
@@ -150,10 +155,10 @@ export const RendimientoCampo: React.FC = () => {
                   <td className="p-2 text-right font-mono">{c.rendimientoTeorico}</td>
                   <td className="p-2 text-right font-mono">{c.rendimientoReal.toFixed(1)}</td>
                   <td className={`p-2 text-right font-bold ${getEficienciaColor(c.eficiencia)}`}>
-                    {c.eficiencia.toFixed(0)}%{c.eficiencia < 80 && <span className="ml-1">⚠️</span>}
+                    {c.eficiencia.toFixed(0)}%{c.eficiencia < 80 && <AlertTriangle className="w-3.5 h-3.5 ml-1 inline text-warning" aria-hidden="true" />}
                   </td>
                   <td className="p-2">
-                    <button onClick={() => deleteCaptura(c.id)} className="text-destructive hover:text-destructive/80 text-xs" aria-label="Eliminar">🗑</button>
+                    <button onClick={() => deleteCaptura(c.id)} className="text-destructive hover:text-destructive/80 text-xs" aria-label="Eliminar"><Trash2 className="w-3.5 h-3.5 inline" aria-hidden="true" /></button>
                   </td>
                 </tr>
               ))}
@@ -168,8 +173,10 @@ export const RendimientoCampo: React.FC = () => {
   const renderPlantillas = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold text-foreground">📋 {t('rendimiento_campo.plantillas')}</h2>
+        <div>
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><ClipboardList className="w-5 h-5 text-purple-500" aria-hidden="true" /> {t('rendimiento_campo.plantillas')}</h2>
           <p className="text-[11px] text-muted-foreground mt-0.5">Estandariza metas por renglón para control homogéneo</p>
+        </div>
         <p className="text-xs text-muted-foreground">Sin plantillas predefinidas — crea nuevas plantillas desde cero</p>
       </div>
       {plantillas.length > 0 ? (
@@ -185,8 +192,10 @@ export const RendimientoCampo: React.FC = () => {
   const renderVales = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold text-foreground">📦 {t('rendimiento_campo.vales')}</h2>
+        <div>
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><Package className="w-5 h-5 text-orange-500" aria-hidden="true" /> {t('rendimiento_campo.vales')}</h2>
           <p className="text-[11px] text-muted-foreground mt-0.5">Salidas de almacén asociadas a rendimiento de campo</p>
+        </div>
         <button disabled className="bg-primary/50 text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-medium cursor-not-allowed">+ Nuevo Vale (formulario próximamente)</button>
       </div>
       <div className="overflow-x-auto">
@@ -231,20 +240,20 @@ export const RendimientoCampo: React.FC = () => {
   }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <h1 className="text-2xl font-black text-foreground mb-4">⛏️ {t('rendimiento_campo.titulo')}</h1>
+      <h1 className="text-2xl font-black text-foreground mb-4 flex items-center gap-2"><Pickaxe className="w-6 h-6 text-amber-500" aria-hidden="true" /> {t('rendimiento_campo.titulo')}</h1>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto">
         {[
-          { key: 'destajos',   label: '🏗️ Destajos' },
-          { key: 'capturas',   label: '📊 Rendimiento' },
-          { key: 'plantillas', label: '📋 Plantillas' },
-          { key: 'vales',      label: '📦 Vales x Renglón' },
+          { key: 'destajos',   label: 'Destajos', icon: HardHat },
+          { key: 'capturas',   label: 'Rendimiento', icon: BarChart3 },
+          { key: 'plantillas', label: 'Plantillas', icon: ClipboardList },
+          { key: 'vales',      label: 'Vales x Renglón', icon: Package },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
-            className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
               tab === t.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
-            }`}>{t.label}</button>
+            }`}><t.icon className="w-4 h-4" aria-hidden="true" />{t.label}</button>
         ))}
       </div>
 

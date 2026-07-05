@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { toast } from 'sonner';
-import { FileText, Plus, Upload, Send, MessageSquare, Package } from 'lucide-react';
+import { FileText, Plus, Upload, Send, MessageSquare, Package, Calendar, User, Mail, Factory } from 'lucide-react';
 import { INPUT } from '../ui';
 import { todayISO } from '../utils';
 import { z } from 'zod';

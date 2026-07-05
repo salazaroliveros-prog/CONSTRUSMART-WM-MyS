@@ -6,7 +6,7 @@ import type { Incidente, PruebaLaboratorio, NoConformidad, LiberacionPartida } f
 import { toast } from 'sonner';
 import {
   Shield, AlertTriangle, FlaskConical, ClipboardList, CheckCircle, XCircle, Plus, MapPin,
-  User, Activity, Check, Layers,
+  User, Activity, Check, Layers, HardHat, BarChart3, Calendar, Users, Search,
 } from 'lucide-react';
 import { todayISO } from '../utils';
 import { z } from 'zod';
@@ -300,7 +300,7 @@ const SSOCalidad: React.FC = () => {
                   {ssFormErrors.tipo && <p className="text-xs text-red-500 mt-1">{ssFormErrors.tipo}</p>}
                 </div>
                 <button onClick={capturarGeoIncidente} className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-dashed border-red-300 text-xs text-red-600 hover:border-red-500">
-                  <MapPin className="w-3.5 h-3.5" /> {incForm.lat ? `📍 ${incForm.lat.toFixed(4)}` : t('sso_calidad.geolocalizar', 'Geolocalizar')}
+                  <MapPin className="w-3.5 h-3.5" /> {incForm.lat ? <><MapPin className="w-3.5 h-3.5 inline text-red-500" aria-hidden="true" /> {incForm.lat.toFixed(4)}</> : t('sso_calidad.geolocalizar', 'Geolocalizar')}
                 </button>
               </div>
               <textarea
@@ -360,10 +360,10 @@ const SSOCalidad: React.FC = () => {
                         </div>
                         <p className="text-sm font-medium text-muted-foreground">{inc.descripcion}</p>
                         <div className="flex flex-wrap gap-2 mt-1 text-[10px] text-muted-foreground">
-                          <span>📅 {inc.fecha} {inc.hora}</span>
-                          <span>👤 {inc.reportadoPor}</span>
-                          {inc.lat && <span>📍 {inc.lat.toFixed(4)}, {inc.lng?.toFixed(4)}</span>}
-                          {inc.afectados && <span>👥 {inc.afectados}</span>}
+                          <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {inc.fecha} {inc.hora}</span>
+                          <span className="flex items-center gap-1"><User className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {inc.reportadoPor}</span>
+                          {inc.lat && <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {inc.lat.toFixed(4)}, {inc.lng?.toFixed(4)}</span>}
+                          {inc.afectados && <span className="flex items-center gap-1"><Users className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {inc.afectados}</span>}
                           {proy && <span className="text-indigo-500">{proy.nombre}</span>}
                         </div>
                         {inc.accionesInmediatas && <p className="text-xs text-muted-foreground mt-1 italic">{t('sso_calidad.acciones_colon', 'Acciones:')} {inc.accionesInmediatas}</p>}
@@ -395,17 +395,17 @@ const SSOCalidad: React.FC = () => {
           <div className="bg-card rounded-2xl shadow-sm border border-border p-4">
             <div className="space-y-2">
               {[
-                { id: 'epi', label: '🧢 Todo el personal usa EPP completo (casco, chaleco, botas)' },
-                { id: 'senalizacion', label: '⚠️ Señalización de seguridad visible en áreas de riesgo' },
-                { id: 'extintores', label: '🧯 Extintores en sitio, con carga vigente' },
-                { id: 'botiquin', label: '🩹 Botiquín de primeros auxilios completo' },
-                { id: 'andamios', label: '🏗️ Andamios/plataformas estables con barandas' },
-                { id: 'electrica', label: '⚡ Instalaciones eléctricas protegidas (no cables expuestos)' },
-                { id: 'orden', label: '🧹 Área de trabajo ordenada y libre de obstáculos' },
-                { id: 'excavacion', label: '🕳️ Excavaciones con apuntalamiento y señalización' },
-                { id: 'alturas', label: '🔝 Trabajos en altura con arnés y línea de vida' },
-                { id: 'herramientas', label: '🔧 Herramientas manuales y eléctricas en buen estado' },
-                { id: 'induccion', label: '📋 Inducción SSO firmada por todo el personal nuevo' },
+                { id: 'epi', label: 'Todo el personal usa EPP completo (casco, chaleco, botas)' },
+                { id: 'senalizacion', label: 'Señalización de seguridad visible en áreas de riesgo' },
+                { id: 'extintores', label: 'Extintores en sitio, con carga vigente' },
+                { id: 'botiquin', label: 'Botiquín de primeros auxilios completo' },
+                { id: 'andamios', label: 'Andamios/plataformas estables con barandas' },
+                { id: 'electrica', label: 'Instalaciones eléctricas protegidas (no cables expuestos)' },
+                { id: 'orden', label: 'Área de trabajo ordenada y libre de obstáculos' },
+                { id: 'excavacion', label: 'Excavaciones con apuntalamiento y señalización' },
+                { id: 'alturas', label: 'Trabajos en altura con arnés y línea de vida' },
+                { id: 'herramientas', label: 'Herramientas manuales y eléctricas en buen estado' },
+                { id: 'induccion', label: 'Inducción SSO firmada por todo el personal nuevo' },
               ].map(item => (
                 <label key={item.id} className="flex items-center gap-2 p-2 hover:bg-accent rounded-lg cursor-pointer">
                   <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-amber-500 focus:ring-amber-400" />
@@ -418,7 +418,7 @@ const SSOCalidad: React.FC = () => {
                 <User className="w-4 h-4 text-muted-foreground" />
                 <input placeholder={t('sso_calidad.supervisor_placeholder', 'Nombre del supervisor')} className="px-3 py-1.5 text-xs rounded-lg border border-border outline-none focus:border-amber-400" />
               </div>
-              <button onClick={() => toast.success('✅ Checklist SSO registrado')} className="px-4 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-600">
+              <button onClick={() => toast.success('Checklist SSO registrado')} className="px-4 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-600">
                 <Check className="w-3.5 h-3.5 inline mr-1" /> {t('sso_calidad.registrar_checklist', 'Registrar')}
               </button>
             </div>
@@ -490,19 +490,19 @@ const SSOCalidad: React.FC = () => {
                 if (navigator.geolocation) {
                   navigator.geolocation.getCurrentPosition(
                     (pos) => {
-                      const msg = `🚨 EMERGENCIA en ${proyectoActual?.nombre || 'obra'} - Ubicación: https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                      const msg = `EMERGENCIA en ${proyectoActual?.nombre || 'obra'} - Ubicación: https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
                       toast.error(msg, { duration: 10000 });
-                      addNotificacion('general', `🚨 Emergencia: ${proyectoActual?.nombre || 'Obra'}`, `¡Emergencia reportada! Ubicación: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`, selProyecto);
+                      addNotificacion('general', `Emergencia: ${proyectoActual?.nombre || 'Obra'}`, `¡Emergencia reportada! Ubicación: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`, selProyecto);
                     },
                     () => {
-                      toast.error('🚨 EMERGENCIA reportada (sin ubicación)', { duration: 10000 });
-                      addNotificacion('general', '🚨 Emergencia en obra', 'Se ha activado el botón de emergencia', selProyecto);
+                      toast.error('EMERGENCIA reportada (sin ubicación)', { duration: 10000 });
+                      addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', selProyecto);
                     },
                     { enableHighAccuracy: true, timeout: 10000 }
                   );
                 } else {
-                  toast.error('🚨 EMERGENCIA reportada', { duration: 10000 });
-                  addNotificacion('general', '🚨 Emergencia en obra', 'Se ha activado el botón de emergencia', selProyecto);
+                  toast.error('EMERGENCIA reportada', { duration: 10000 });
+                  addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', selProyecto);
                 }
               }}
               className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-bold text-xs shadow-sm shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center flex-col"
@@ -589,9 +589,9 @@ const SSOCalidad: React.FC = () => {
                       </div>
                       <p className="text-sm font-medium text-muted-foreground">{p.descripcion}</p>
                       <div className="flex gap-2 mt-1 text-[10px] text-muted-foreground">
-                        <span>📅 {t('sso_calidad.muestra_label', 'Muestra')}: {p.fechaMuestra}</span>
-                        {p.fechaResultado && <span>📊 {t('sso_calidad.resultado_label', 'Resultado')}: {p.fechaResultado}</span>}
-                        <span>👤 {p.responsable}</span>
+                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {t('sso_calidad.muestra_label', 'Muestra')}: {p.fechaMuestra}</span>
+                        {p.fechaResultado && <span className="flex items-center gap-1"><BarChart3 className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {t('sso_calidad.resultado_label', 'Resultado')}: {p.fechaResultado}</span>}
+                        <span className="flex items-center gap-1"><User className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {p.responsable}</span>
                       </div>
                     </div>
                     {p.resultado === 'pendiente' && (
@@ -684,10 +684,10 @@ const SSOCalidad: React.FC = () => {
                       </div>
                       <p className="text-sm font-medium text-muted-foreground">{nc.descripcion}</p>
                       <div className="flex gap-2 mt-1 text-[10px] text-muted-foreground">
-                        <span>📅 {nc.fechaDeteccion}</span>
-                        <span>👤 {nc.detectadoPor}</span>
+                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {nc.fechaDeteccion}</span>
+                        <span className="flex items-center gap-1"><User className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {nc.detectadoPor}</span>
                       </div>
-                      {nc.planAccion && <p className="text-xs text-muted-foreground mt-1">📋 {t('sso_calidad.plan_colon', 'Plan:')} {nc.planAccion}</p>}
+                      {nc.planAccion && <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1"><ClipboardList className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {t('sso_calidad.plan_colon', 'Plan:')} {nc.planAccion}</p>}
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {nc.estado === 'detectado' && (
@@ -773,14 +773,14 @@ const SSOCalidad: React.FC = () => {
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                           l.estado === 'liberado' ? 'bg-emerald-100 text-emerald-600' : l.estado === 'rechazado' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
                         }`}>{l.estado}</span>
-                        {l.checklistAprobado && <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">✅ Checklist OK</span>}
+                        {l.checklistAprobado && <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded flex items-center gap-0.5"><CheckCircle className="w-3 h-3" aria-hidden="true" /> Checklist OK</span>}
                       </div>
                       <p className="text-sm font-medium text-muted-foreground">{l.renglonNombre}</p>
                       <div className="flex gap-2 mt-1 text-[10px] text-muted-foreground">
-                        <span>📅 {t('sso_calidad.solicitud_label', 'Sol')}: {l.fechaSolicitud}</span>
-                        {l.fechaLiberacion && <span>✅ {t('sso_calidad.liberacion_label', 'Lib')}: {l.fechaLiberacion}</span>}
-                        <span>👤 {l.solicitante}</span>
-                        {l.supervisor && <span>🔍 {l.supervisor}</span>}
+                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {t('sso_calidad.solicitud_label', 'Sol')}: {l.fechaSolicitud}</span>
+                        {l.fechaLiberacion && <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" aria-hidden="true" /> {t('sso_calidad.liberacion_label', 'Lib')}: {l.fechaLiberacion}</span>}
+                        <span className="flex items-center gap-1"><User className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {l.solicitante}</span>
+                        {l.supervisor && <span className="flex items-center gap-1"><Search className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {l.supervisor}</span>}
                       </div>
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">

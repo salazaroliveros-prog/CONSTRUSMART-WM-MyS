@@ -148,12 +148,12 @@ const Ajustes: React.FC = () => {
                 >
                   <Tooltip title="Estilo actual con Tailwind + Shadcn">
                     <Radio.Button value="shadcn">
-                      <Space><span>🎨</span> Clásico</Space>
+                      <Space><BgColorsOutlined /> Clásico</Space>
                     </Radio.Button>
                   </Tooltip>
                   <Tooltip title="Ant Design - Diseño moderno profesional">
                     <Radio.Button value="antd">
-                      <Space><span>✨</span> Moderno</Space>
+                      <Space><ExperimentOutlined /> Moderno</Space>
                     </Radio.Button>
                   </Tooltip>
                 </Radio.Group>
@@ -638,21 +638,21 @@ const Ajustes: React.FC = () => {
       </Card>
 
       <Modal
-        title="Restablecer datos de fábrica"
+        title={t('ajustes.restablecer_titulo', 'Restablecer datos de fábrica')}
         open={resetModal}
         onOk={() => {
           clearAllData();
           setResetModal(false);
         }}
         onCancel={() => setResetModal(false)}
-        okText="Restablecer"
-        cancelText="Cancelar"
+        okText={t('ajustes.restablecer')}
+        cancelText={t('common.cancelar')}
         okButtonProps={{ danger: true, style: { minHeight: 44 } }}
         style={{ width: '95vw', maxWidth: 520 }}
       >
         <Alert
-          message="¿Estás seguro?"
-          description="Esta acción eliminará todos los datos locales y restaurará la configuración predeterminada. Los datos en la nube no se verán afectados."
+          message={t('ajustes.restablecer_alerta_titulo', '¿Estás seguro?')}
+          description={t('ajustes.restablecer_alerta_desc', 'Esta acción eliminará todos los datos locales y restaurará la configuración predeterminada. Los datos en la nube no se verán afectados.')}
           type="warning"
           showIcon
         />

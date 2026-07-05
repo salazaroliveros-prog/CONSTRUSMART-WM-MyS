@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   Plus, X, Target, TrendingUp, DollarSign,
   Briefcase, CheckCircle, Clock, Archive,
-  Pencil, Trash2, PieChart
+  Pencil, Trash2, PieChart, Clipboard
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -28,7 +28,7 @@ type LicitacionFormData = z.infer<typeof licitacionFormSchema>;
 
 const ESTADOS = [
   { key: 'activa' as const, label: 'Activa', color: 'bg-blue-50 border-blue-300', icon: Clock, textColor: 'text-blue-600' },
-  { key: 'adjudicada' as const, label: 'Adjudicada 🏆', color: 'bg-emerald-50 border-emerald-300', icon: CheckCircle, textColor: 'text-emerald-600' },
+  { key: 'adjudicada' as const, label: 'Adjudicada', color: 'bg-emerald-50 border-emerald-300', icon: CheckCircle, textColor: 'text-emerald-600' },
   { key: 'perdida' as const, label: 'Perdida', color: 'bg-red-50 border-red-300', icon: Archive, textColor: COLOR_DANGER },
   { key: 'cerrada' as const, label: 'Cerrada', color: 'bg-muted border-slate-300', icon: Archive, textColor: 'text-muted-foreground' },
 ] as const;
@@ -249,7 +249,7 @@ const CRM: React.FC = () => {
             >
               {col.items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-32 text-slate-300">
-                  <span className="text-2xl mb-1">📋</span>
+                  <Clipboard className="w-8 h-8 mx-auto mb-1" aria-hidden="true" />
                   <span className="text-xs">{t('crm.sin_oportunidades')}</span>
                 </div>
               ) : col.items.map(l => (

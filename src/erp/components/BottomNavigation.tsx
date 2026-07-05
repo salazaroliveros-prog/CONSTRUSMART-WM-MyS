@@ -8,7 +8,7 @@ interface BottomNavigationProps {
 }
 
 const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentView, onViewChange }) => {
-  const { sidebarOpen } = useAppContext();
+  useAppContext();
 
   const navItems = [
     { key: 'dashboard', icon: LayoutGrid, label: 'Dashboard' },

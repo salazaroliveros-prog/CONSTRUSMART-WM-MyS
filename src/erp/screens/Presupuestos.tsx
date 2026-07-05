@@ -10,7 +10,7 @@ import { Tipologia, RenglonPresupuesto, SubRenglon, Presupuesto, Proyecto } from
 import { generarRenglones } from '../data';
 import { fmtQ, TIPOLOGIA_LABEL, costoDirectoUnitario, precioUnitarioVenta, precioUnitarioVentaConFactores, duracionPorRendimiento, HERRAMIENTA_MENOR, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD } from '../utils';
 import { exportCSV, exportPDF, exportXLSX } from '../export';
-import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X, BarChart3, ClipboardList, Package, Users, CheckCircle } from 'lucide-react';
 import PresupuestosList from '../components/PresupuestosList';
 import { MATERIALES_POR_ACTIVIDAD, PERSONAL_POR_ACTIVIDAD, ACTIVIDADES_TIPICAS, ACTIVIDAD_POR_RENGLON } from '../data/catalogos-presupuestos';
 import { presupuestoFormSchema } from '../store/schemas/presupuestos';
@@ -594,7 +594,7 @@ const Presupuestos: React.FC = () => {
                 : 'text-muted-foreground border-transparent hover:text-foreground'
             }`}
           >
-            ➕ {editingPresupuesto ? t('presupuestos.editar') : t('presupuestos.nuevo')}
+            <Plus className="w-4 h-4 inline-block align-text-bottom" aria-hidden="true" /> {editingPresupuesto ? t('presupuestos.editar') : t('presupuestos.nuevo')}
           </button>
           <button 
             onClick={async () => { if (!(await confirmDiscard())) return; setTab('guardados'); }}
@@ -604,7 +604,7 @@ const Presupuestos: React.FC = () => {
                 : 'text-muted-foreground border-transparent hover:text-foreground'
             }`}
           >
-            📋 {t('presupuestos.guardados_con_count', { count: presupuestosDelProyecto.length })}
+            <ClipboardList className="w-4 h-4 inline-block align-text-bottom" aria-hidden="true" /> {t('presupuestos.guardados_con_count', { count: presupuestosDelProyecto.length })}
           </button>
       </div>
 
@@ -627,7 +627,7 @@ const Presupuestos: React.FC = () => {
               {editingPresupuesto && <p className="text-xs text-orange-600 font-semibold">{editingPresupuesto && t('presupuestos.editando_version', { version: editingPresupuesto.versionPresupuesto })}</p>}
             </div>
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <button onClick={save} className={`${BUTTON_DARK} text-xs sm:text-sm px-2 sm:px-3`} disabled={!items.length || !projectId}><Save className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">{saved ? t('presupuestos.guardado') : editingPresupuesto ? t('presupuestos.guardar_cambios') : t('presupuestos.guardar')}</span><span className="sm:hidden">{saved ? '✓' : '💾'}</span></button>
+              <button onClick={save} className={`${BUTTON_DARK} text-xs sm:text-sm px-2 sm:px-3`} disabled={!items.length || !projectId}><Save className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">{saved ? t('presupuestos.guardado') : editingPresupuesto ? t('presupuestos.guardar_cambios') : t('presupuestos.guardar')}</span><span className="sm:hidden">{saved ? <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" /> : <Save className="w-3.5 h-3.5" aria-hidden="true" />}</span></button>
               <button onClick={handleRegistrarGastoTotal} disabled={!projectId || !granTotal} className="bg-indigo-600 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><span className="hidden sm:inline">{t('presupuestos.registrar_gasto')}</span><span className="sm:hidden">Gasto</span></button>
               <button disabled={!items.length} onClick={() => exportPDF(items, proyecto, tipologia)} className="bg-red-500 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><FileText className="w-3.5 h-3.5" /> PDF</button>
               <button disabled={!items.length} onClick={() => exportCSV(items, proyecto, tipologia)} className="bg-emerald-600 disabled:opacity-40 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center gap-1"><FileSpreadsheet className="w-3.5 h-3.5" /> CSV</button>
@@ -736,7 +736,7 @@ const Presupuestos: React.FC = () => {
                     <div className="mt-3 border-t pt-3">
                       <div className="flex justify-between items-center mb-2">
                       <div className="text-xs font-semibold text-muted-foreground">
-                        📦 Desglose de Materiales por Renglón
+                        <Package className="w-4 h-4 inline-block align-text-bottom" aria-hidden="true" /> Desglose de Materiales por Renglón
                         {ACTIVIDAD_POR_RENGLON[r.codigo] && (
                           <span className="text-amber-500 ml-1">({ACTIVIDAD_POR_RENGLON[r.codigo]} sugerido)</span>
                         )}
@@ -835,7 +835,7 @@ const Presupuestos: React.FC = () => {
 
                     {/* Cuadrilla de Mano de Obra */}
                     <div className="mt-3 border-t pt-3">
-                      <div className="text-xs font-semibold text-muted-foreground mb-2">👷 Cuadrilla de Mano de Obra</div>
+                      <div className="text-xs font-semibold text-muted-foreground mb-2"><Users className="w-4 h-4 inline-block align-text-bottom" aria-hidden="true" /> Cuadrilla de Mano de Obra</div>
                       <div className="bg-card rounded-lg p-2 border border-border">
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                           <div>
@@ -865,7 +865,7 @@ const Presupuestos: React.FC = () => {
                     {/* Resumen de Explosión de Materiales por Tipo */}
                     {explosionPorTipo.length > 0 && (
                       <div className="mt-3 border-t pt-3">
-                        <div className="text-xs font-semibold text-muted-foreground mb-2">📊 Explosión de Materiales por Tipo</div>
+                        <div className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1"><BarChart3 className="w-3.5 h-3.5" aria-hidden="true" /> Explosión de Materiales por Tipo</div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                           {explosionPorTipo.map((t, i) => (
                             <div key={i} className="bg-card rounded p-1.5 border border-border text-xs">
@@ -889,7 +889,7 @@ const Presupuestos: React.FC = () => {
           {/* Resumen de Materiales */}
           {resumenMateriales.length > 0 && (
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border-2 border-emerald-200 p-4">
-              <div className="text-sm font-bold text-emerald-900 mb-3">📊 Resumen de Materiales a Utilizar</div>
+              <div className="text-sm font-bold text-emerald-900 mb-3 flex items-center gap-1"><BarChart3 className="w-4 h-4" aria-hidden="true" /> Resumen de Materiales a Utilizar</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
                 {resumenMateriales.map((mat, idx) => (
                   <div key={idx} className="bg-card rounded-lg p-2.5 border border-emerald-100">

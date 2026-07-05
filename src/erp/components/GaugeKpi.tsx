@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Database } from 'lucide-react';
 
 interface GaugeKpiProps {
@@ -59,7 +59,6 @@ const GaugeKpi: React.FC<GaugeKpiProps> = ({
   const r = 65;
 
   const arcStart = -180;
-  const arcEnd = 0;
 
   if (!hasData) {
     return (
@@ -84,14 +83,6 @@ const GaugeKpi: React.FC<GaugeKpiProps> = ({
   const needleRad = (angle * Math.PI) / 180;
   const nx = cx + (r - 8) * Math.cos(needleRad);
   const ny = cy + (r - 8) * Math.sin(needleRad);
-
-  const getStatusColor = () => {
-    if (max === 0) return 'text-muted-foreground';
-    const pct = (value - min) / (max - min || 1);
-    if (pct < 0.3) return 'text-destructive';
-    if (pct < 0.7) return 'text-warning';
-    return 'text-success';
-  };
 
   return (
     <div
