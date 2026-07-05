@@ -463,10 +463,10 @@ const Proyectos: React.FC = () => {
         </div>
       </div>
 
-      <div className="relative mb-4 isolate">
+      <div className="relative mb-4 rounded-2xl overflow-hidden border border-border">
         <HeatMap proyectos={proyectos} />
-        <div className="absolute top-0 left-0 right-0 z-20 p-4">
-          <div className="flex items-center gap-2 text-white mb-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+        <div className="absolute top-0 left-0 right-0 z-20 p-3 sm:p-4">
+          <div className="flex items-center gap-2 text-white mb-1 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
             <MapPin className="w-4 h-4 text-orange-200" /><span className="text-sm font-bold">{t('proyectos.mapa_calor')}</span>
           </div>
           <div className="flex gap-3 text-xs text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
@@ -478,7 +478,7 @@ const Proyectos: React.FC = () => {
       </div>
 
       {/* KPI metrics bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-[var(--density-gap)] mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
         <div className={KPI_CARD}>
           <Activity className="w-4 h-4 text-primary" aria-hidden="true" />
           <div className="text-lg font-black">{kpis.total}</div>
@@ -972,9 +972,12 @@ const Proyectos: React.FC = () => {
               )}
 
               {/* Informacion General */}
-              <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.informacion_general')}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      {t('proyectos.informacion_general')}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="sm:col-span-2">
                     <input {...register('nombre')} placeholder={t('proyectos.nombre_placeholder')} className={INPUT} />
                     {errors.nombre && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-0.5`}>{errors.nombre.message}</p>}
@@ -1009,9 +1012,12 @@ const Proyectos: React.FC = () => {
               </div>
 
               {/* Cliente */}
-              <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.cliente')}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      {t('proyectos.cliente')}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <input {...register('cliente')} placeholder={t('proyectos.cliente_placeholder')} className={INPUT} />
                     {errors.cliente && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-0.5`}>{errors.cliente.message}</p>}
@@ -1026,9 +1032,12 @@ const Proyectos: React.FC = () => {
               </div>
 
               {/* Ubicacion y Mapa */}
-              <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.ubicacion')}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+                  <div>
+                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      {t('proyectos.ubicacion')}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
                   <div>
                     <input {...register('ubicacion')} placeholder={t('proyectos.ubicacion_placeholder')} className={INPUT} />
                     {errors.ubicacion && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-0.5`}>{errors.ubicacion.message}</p>}
@@ -1049,9 +1058,12 @@ const Proyectos: React.FC = () => {
               </div>
 
               {/* Responsables */}
-              <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.responsables')}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      {t('proyectos.responsables')}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <input {...register('ingenieroResidente')} placeholder={t('proyectos.ingeniero_placeholder')} className={INPUT} />
                   <input {...register('supervisor')} placeholder={t('proyectos.supervisor_placeholder')} className={INPUT} />
                   <input {...register('arquitecto')} placeholder={t('proyectos.arquitecto_placeholder')} className={INPUT + ' sm:col-span-2'} />
@@ -1059,18 +1071,24 @@ const Proyectos: React.FC = () => {
               </div>
 
               {/* Documentacion */}
-              <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.documentacion')}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      {t('proyectos.documentacion')}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <input {...register('numeroExpediente')} placeholder={t('proyectos.expediente_placeholder')} className={INPUT} />
                   <input {...register('numeroLicencia')} placeholder={t('proyectos.licencia_placeholder')} className={INPUT} />
                 </div>
               </div>
 
               {/* Estado y Etapa */}
-              <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.estado_proyecto')}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      {t('proyectos.estado_proyecto')}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.estado')}</label>
                     <select {...register('estado')} className={INPUT}>
@@ -1087,9 +1105,12 @@ const Proyectos: React.FC = () => {
               </div>
 
               {/* Presupuesto y Fechas */}
-              <div>
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('proyectos.presupuesto_plazos')}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      {t('proyectos.presupuesto_plazos')}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.presupuesto_total')}</label>
                     <input type="number" inputMode="decimal" {...register('presupuestoTotal')} placeholder={t('proyectos.presupuesto_placeholder')} className={INPUT} />
