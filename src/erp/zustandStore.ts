@@ -1720,12 +1720,25 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
 
   updateProyectoWeather: (proyectoId, weatherData, impactData) => {
     const existing = get().proyectoWeather.find(pw => pw.proyectoId === proyectoId);
+    const impact = {
+      score: impactData.score ?? 0,
+      level: impactData.level ?? ('low' as const),
+      factors: impactData.factors ?? [],
+      recommendations: impactData.recommendations ?? [],
+    };
+    const existingHistory = existing?.history || [];
+    const newHistory = impactData.history
+      ? [...existingHistory, ...impactData.history].slice(-60)
+      : existingHistory;
     const updated: ProyectoWeather = {
+      ...(existing || {}),
       proyectoId,
       weatherData,
-      impact: impactData.impact,
+      impact,
       constructionMetrics: impactData.constructionMetrics,
       schedulingWindows: impactData.schedulingWindows,
+      historicalImpact: impactData.historicalImpact || existing?.historicalImpact,
+      history: newHistory,
       lastUpdated: impactData.lastUpdated || new Date().toISOString(),
       enabled: true,
     };

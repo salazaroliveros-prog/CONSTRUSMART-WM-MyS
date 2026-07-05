@@ -98,6 +98,20 @@ export const weatherDataSchema = z.object({
   fetched_at: z.number(),
 });
 
+export const weatherHistoryItemSchema = z.object({
+  date: z.string(),
+  temp: z.number(),
+  tempMin: z.number(),
+  tempMax: z.number(),
+  humidity: z.number(),
+  windSpeed: z.number(),
+  condition: z.string(),
+  icon: z.string(),
+  precipitation: z.number().default(0),
+  impactScore: z.number().default(0),
+  impactLevel: z.enum(['low', 'medium', 'high', 'critical']).default('low'),
+});
+
 export const proyectoWeatherSchema = z.object({
   id: z.string().uuid().optional(),
   proyectoId: z.string(),
@@ -106,6 +120,7 @@ export const proyectoWeatherSchema = z.object({
   constructionMetrics: constructionMetricsSchema.optional(),
   schedulingWindows: z.array(schedulingWindowSchema).optional(),
   historicalImpact: historicalWeatherImpactSchema.optional(),
+  history: z.array(weatherHistoryItemSchema).default([]),
   lastUpdated: z.string().optional(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
@@ -120,5 +135,6 @@ export type WeatherImpact = z.infer<typeof weatherImpactSchema>;
 export type ConstructionMetrics = z.infer<typeof constructionMetricsSchema>;
 export type SchedulingWindow = z.infer<typeof schedulingWindowSchema>;
 export type HistoricalWeatherImpact = z.infer<typeof historicalWeatherImpactSchema>;
+export type WeatherHistoryItem = z.infer<typeof weatherHistoryItemSchema>;
 export type ProyectoWeather = z.infer<typeof proyectoWeatherSchema>;
 export type ProyectoWeatherStore = ProyectoWeather[];

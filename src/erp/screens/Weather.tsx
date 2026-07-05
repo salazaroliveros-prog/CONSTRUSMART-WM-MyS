@@ -27,7 +27,7 @@ import { todayISO } from '../utils';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import type { ProyectoWeather, ConstructionMetrics, SchedulingWindow, WeatherImpact } from '../store/schemas/weather';
+import type { ProyectoWeather, ConstructionMetrics, SchedulingWindow, WeatherImpact, WeatherHistoryItem } from '../store/schemas/weather';
 
 const Weather: React.FC = () => {
   const { t } = useTranslation();
@@ -46,6 +46,7 @@ const Weather: React.FC = () => {
   const [showDetails, setShowDetails] = useState(true);
   const [showScheduling, setShowScheduling] = useState(true);
   const [showConstruction, setShowConstruction] = useState(true);
+  const [showHistory, setShowHistory] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [alertThreshold, setAlertThreshold] = useState<'low' | 'medium' | 'high' | 'critical'>('high');
 
@@ -68,14 +69,29 @@ const Weather: React.FC = () => {
         const constructionMetrics = calculateConstructionMetrics(weatherData);
         const schedulingWindows = calculateSchedulingWindows(weatherData, 7);
 
+        const historySnapshot: WeatherHistoryItem = {
+          date: todayISO(),
+          temp: weatherData.current.temp,
+          tempMin: Math.min(...weatherData.forecast.slice(0, 4).map(f => f.main.temp_min)),
+          tempMax: Math.max(...weatherData.forecast.slice(0, 4).map(f => f.main.temp_max)),
+          humidity: weatherData.current.humidity,
+          windSpeed: weatherData.current.wind_speed,
+          condition: weatherData.current.weather[0]?.main || 'Unknown',
+          icon: weatherData.current.weather[0]?.icon || '01d',
+          precipitation: weatherData.forecast.slice(0, 4).reduce((sum, f) => sum + (f.rain?.['3h'] || 0), 0),
+          impactScore: impact.score,
+          impactLevel: impact.level,
+        };
+
         updateProyectoWeather(proyecto.id, weatherData, {
           ...impact,
           constructionMetrics,
           schedulingWindows,
+          history: [historySnapshot],
           lastUpdated: new Date().toISOString()
         });
 
-        await saveWeatherToSupabase(proyecto.id, weatherData, impact, constructionMetrics, schedulingWindows);
+        await saveWeatherToSupabase(proyecto.id, weatherData, impact, constructionMetrics, schedulingWindows, [historySnapshot]);
 
         if (impact.level === 'critical' || impact.level === 'high') {
           addNotificacion('general', `Alerta climática: ${impact.level}`, `${impact.factors.length} factores adversos en ${proyecto.nombre}`, proyecto.id);
@@ -108,6 +124,7 @@ const Weather: React.FC = () => {
             ...savedWeather.impact,
             constructionMetrics: savedWeather.construction_metrics,
             schedulingWindows: savedWeather.scheduling_windows,
+            history: savedWeather.history,
             lastUpdated: savedWeather.last_updated
           });
         }
@@ -659,6 +676,22 @@ const Weather: React.FC = () => {
             </CARD>
           )}
 
+          {showHistory && weather?.history && weather.history.length > 1 && (
+            <CARD>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className={CARD_TITLE}>{t('weather.history_chart', 'Historial Climático')}</h3>
+                <button
+                  onClick={() => setShowHistory(!showHistory)}
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  aria-label="Toggle history chart"
+                >
+                  {showHistory ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
+                </button>
+              </div>
+              <WeatherHistoryChart history={weather.history} />
+            </CARD>
+          )}
+
           {showScheduling && scheduling.length > 0 && (
             <CARD>
               <div className="flex items-center justify-between mb-4">
@@ -761,6 +794,65 @@ const Weather: React.FC = () => {
           )}
         </>
       )}
+    </div>
+  );
+};
+
+const WeatherHistoryChart: React.FC<{ history: WeatherHistoryItem[] }> = ({ history }) => {
+  const { t } = useTranslation();
+  const recent = history.slice(-14);
+
+  const maxTemp = Math.max(...recent.map(h => h.tempMax), 0);
+  const minTemp = Math.min(...recent.map(h => h.tempMin), 0);
+  const tempRange = maxTemp - minTemp || 1;
+  const maxPrecip = Math.max(...recent.map(h => h.precipitation), 0.1);
+  const precipScale = (val: number) => Math.max(2, (val / maxPrecip) * 25);
+  const barWidth = Math.max(20, Math.min(40, 600 / recent.length));
+
+  const getTempColor = (temp: number) => {
+    if (temp > 35) return '#ef4444';
+    if (temp > 25) return '#f97316';
+    if (temp > 15) return '#3b82f6';
+    return '#06b6d4';
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="overflow-x-auto">
+        <svg width={Math.max(300, recent.length * (barWidth + 4))} height="160" className="min-w-full">
+          {recent.map((item, i) => {
+            const x = i * (barWidth + 4) + 8;
+            const highY = 10 + (1 - (item.tempMax - minTemp) / tempRange) * 100;
+            const barH = Math.max(3, ((item.tempMax - item.tempMin) / tempRange) * 100);
+            const avgY = 10 + (1 - (item.temp - minTemp) / tempRange) * 100;
+
+            return (
+              <g key={`${item.date}-${i}`}>
+                <rect x={x} y={highY} width={barWidth} height={barH} rx="3" fill={getTempColor(item.temp)} opacity="0.7">
+                  <title>{item.date}: {Math.round(item.temp)}°C ({Math.round(item.tempMin)}-{Math.round(item.tempMax)})</title>
+                </rect>
+                {item.precipitation > 0 && (
+                  <rect x={x} y={125 - precipScale(item.precipitation)} width={barWidth} height={precipScale(item.precipitation)} rx="2" fill="#60a5fa" opacity="0.5">
+                    <title>{t('weather.precipitation', 'Precipitación')}: {item.precipitation.toFixed(1)}mm</title>
+                  </rect>
+                )}
+                {recent.length > 0 && (
+                  <text x={x + barWidth / 2} y="148" textAnchor="middle" className="fill-muted-foreground text-[9px]">
+                    {new Date(item.date).getDate()}
+                  </text>
+                )}
+                <line x1={x + barWidth / 2} y1={avgY} x2={x + barWidth / 2} y2={avgY + 4} stroke={getTempColor(item.temp)} strokeWidth="2" />
+              </g>
+            );
+          })}
+          <line x1="0" y1="110" x2={recent.length * (barWidth + 4) + 8} y2="110" stroke="#e5e7eb" strokeWidth="1" />
+        </svg>
+      </div>
+      <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-orange-500 inline-block" aria-hidden="true" /> {t('weather.temperature', 'Temperatura')}</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-400 opacity-50 inline-block" aria-hidden="true" /> {t('weather.precipitation_short', 'Precip.')}</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full border-2 border-muted-foreground inline-block" aria-hidden="true" /> {t('weather.avg_temp', 'Temp. promedio')}</span>
+      </div>
     </div>
   );
 };

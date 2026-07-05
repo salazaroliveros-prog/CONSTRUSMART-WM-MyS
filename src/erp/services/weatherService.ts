@@ -1,12 +1,8 @@
 import { safeLogger } from '@/lib/safeLogger';
 import { supabase } from '@/lib/supabase';
-
-interface WeatherCondition {
-  id: number;
-  main: string;
-  description: string;
-  icon: string;
-}
+import type {
+  WeatherData, WeatherImpact, ConstructionMetrics, SchedulingWindow, WeatherHistoryItem
+} from '../store/schemas/weather';
 
 interface CurrentWeather {
   temp: number;
@@ -15,74 +11,16 @@ interface CurrentWeather {
   wind_speed: number;
   wind_deg: number;
   visibility: number;
-  weather: WeatherCondition[];
+  weather: { id: number; main: string; description: string; icon: string }[];
 }
 
 interface ForecastItem {
   dt: number;
-  main: {
-    temp: number;
-    temp_min: number;
-    temp_max: number;
-    humidity: number;
-  };
-  weather: WeatherCondition[];
-  wind: {
-    speed: number;
-    deg: number;
-  };
+  main: { temp: number; temp_min: number; temp_max: number; humidity: number };
+  weather: { id: number; main: string; description: string; icon: string }[];
+  wind: { speed: number; deg: number };
   rain?: { '3h': number };
   snow?: { '3h': number };
-}
-
-interface WeatherData {
-  current: CurrentWeather;
-  forecast: ForecastItem[];
-  location: string;
-  lat: number;
-  lon: number;
-  fetched_at: number;
-}
-
-interface WeatherImpact {
-  score: number;
-  level: 'low' | 'medium' | 'high' | 'critical';
-  factors: string[];
-  recommendations: string[];
-}
-
-interface ConstructionMetrics {
-  concreteCuring: {
-    suitable: boolean;
-    tempRange: string;
-    humidityRange: string;
-    recommendations: string[];
-  };
-  equipmentOperation: {
-    cranes: { suitable: boolean; reason: string };
-    excavators: { suitable: boolean; reason: string };
-    welding: { suitable: boolean; reason: string };
-  };
-  workforceSafety: {
-    heatIndex: number;
-    heatStressRisk: 'low' | 'moderate' | 'high' | 'extreme';
-    hydrationRequired: boolean;
-    workScheduleAdjustment: string;
-  };
-  materialProtection: {
-    materialsToProtect: string[];
-    protectionRequired: boolean;
-    urgency: 'low' | 'medium' | 'high';
-  };
-}
-
-interface SchedulingWindow {
-  date: string;
-  suitable: boolean;
-  conditions: string[];
-  score: number;
-  bestActivities: string[];
-  avoidActivities: string[];
 }
 
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
@@ -406,16 +344,17 @@ export function calculateConstructionMetrics(weather: WeatherData): Construction
   const materialProtection = {
     materialsToProtect,
     protectionRequired: materialsToProtect.length > 0,
-    urgency: next24HoursRain ? 'high' : materialsToProtect.length > 2 ? 'medium' : 'low'
+    urgency: (next24HoursRain ? 'high' : materialsToProtect.length > 2 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
   };
   
   return { concreteCuring, equipmentOperation, workforceSafety, materialProtection };
 }
 
-function calculateHeatIndex(temp: number, humidity: number): number {
-  if (temp < 27) return temp;
+function calculateHeatIndex(tempC: number, humidity: number): number {
+  const tempF = tempC * 9 / 5 + 32;
+  if (tempF < 80) return tempC;
   
-  const T = temp;
+  const T = tempF;
   const RH = humidity;
   
   let HI = 0.5 * (T + 61.0 + ((T - 68.0) * 1.2) + (RH * 0.094));
@@ -427,7 +366,7 @@ function calculateHeatIndex(temp: number, humidity: number): number {
          + 0.00085282 * T * RH * RH - 0.00000199 * T * T * RH * RH;
   }
   
-  return HI;
+  return (HI - 32) * 5 / 9;
 }
 
 export function calculateSchedulingWindows(weather: WeatherData, days: number = 7): SchedulingWindow[] {
@@ -561,7 +500,8 @@ export async function saveWeatherToSupabase(
   weatherData: WeatherData,
   impact: WeatherImpact,
   constructionMetrics: ConstructionMetrics,
-  schedulingWindows: SchedulingWindow[]
+  schedulingWindows: SchedulingWindow[],
+  history?: WeatherHistoryItem[]
 ): Promise<void> {
   try {
     const { error } = await supabase
@@ -572,6 +512,7 @@ export async function saveWeatherToSupabase(
         impact,
         construction_metrics: constructionMetrics,
         scheduling_windows: schedulingWindows,
+        history,
         last_updated: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }, {
