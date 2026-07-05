@@ -65,7 +65,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
           </button>
         )}
         <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg shrink-0 bg-primary flex items-center justify-center ring-1 ring-primary/30">
-          <img src="/logo.png" alt="WM" className="w-full h-full object-contain" />
+          <img src="/logo.webp" alt="WM" className="w-full h-full object-contain" />
         </div>
         <div className="min-w-0 hidden sm:block">
           <div className="font-bold text-xs sm:text-sm leading-tight truncate">{title || EMPRESA.nombre}</div>

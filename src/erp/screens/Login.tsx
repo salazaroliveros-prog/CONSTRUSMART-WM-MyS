@@ -30,13 +30,13 @@ const Login: React.FC = () => {
       <div className="hidden lg:flex flex-1 bg-slate-900 relative overflow-hidden items-center justify-center p-12">
         <div
           className="absolute inset-0 opacity-60"
-          style={{ backgroundImage: 'url(/empresa_b.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+          style={{ backgroundImage: 'url(/empresa_b.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}
         />
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/40 via-slate-900/30 to-black/80" />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
         <div className="relative z-10 text-white max-w-md text-center flex flex-col items-center">
           <img
-            src="/logo.png"
+            src="/logo.webp"
             alt="WM"
             className="w-32 h-32 object-contain drop-shadow-[0_0_12px_rgba(249,115,22,0.45)] mb-6"
           />
