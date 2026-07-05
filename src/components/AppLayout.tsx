@@ -83,8 +83,9 @@ const ErrorLog            = lazy(() => import('@/erp/screens/ErrorLog'));
 const Activos             = lazy(() => import('@/erp/screens/Activos'));
 const Cuadros             = lazy(() => import('@/erp/screens/Cuadros'));
 const ProfitabilityAnalytics = lazy(() => import('@/erp/screens/ProfitabilityAnalytics'));
+const Weather             = lazy(() => import('@/erp/screens/Weather'));
 
-const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability'] as const;
+const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability','weather'] as const;
 
 const SCREEN_SET = new Set<string>(SCREEN_KEYS as readonly string[]);
 
@@ -181,6 +182,7 @@ const Shell: React.FC = () => {
     activos:           <Activos />,
     cuadros:           <Cuadros />,
     profitability:     <ProfitabilityAnalytics />,
+    weather:           <Weather />,
   }), []);
 
   const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter(key => allowedViews.includes(key as any)), [allowedViews]);

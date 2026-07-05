@@ -9,7 +9,7 @@ import {
   HardHat, DollarSign, Settings, Flag,
   CreditCard, Landmark, Percent, TriangleAlert,
   ClipboardList, Cpu, Truck, FileCog, Package,
-  FileText, Copy, Award, Wrench, TrendingUp,
+  FileText, Copy, Award, Wrench, TrendingUp, Cloud,
 } from 'lucide-react';
 
 interface NavItem { id: View; labelKey: string; icon: React.ElementType; group: string }
@@ -33,6 +33,7 @@ const ITEMS: NavItem[] = [
   { id: 'ordenes-cambio',    labelKey: 'ordenes-cambio',  icon: GitPullRequest,  group: 'Ejecución'    },
   { id: 'documentos',        labelKey: 'documentos',      icon: FolderOpen,      group: 'Ejecución'    },
   { id: 'visor-bim',         labelKey: 'visor-bim',       icon: Cpu,             group: 'Ejecución'    },
+  { id: 'weather',           labelKey: 'weather',         icon: Cloud,           group: 'Ejecución'    },
   { id: 'bodega',            labelKey: 'bodega',          icon: Warehouse,       group: 'Suministro'   },
   { id: 'logistica',         labelKey: 'logistica',       icon: Truck,           group: 'Suministro'   },
   { id: 'entradas-almacen',  labelKey: 'entradas-almacen', icon: Package,        group: 'Suministro'   },
