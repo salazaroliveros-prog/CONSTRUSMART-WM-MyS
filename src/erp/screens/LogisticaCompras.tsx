@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, uid } from '../store';
-import { Wrench, BarChart3, DollarSign } from 'lucide-react';
+import { Wrench, BarChart3, DollarSign, CheckCircle, Trash2 } from 'lucide-react';
 import type { ActivoHerramienta, PagoProveedor } from '../types';
 import { z } from 'zod';
 import { toast } from 'sonner';
@@ -87,7 +87,7 @@ export const LogisticaCompras: React.FC = () => {
                 <td className="p-2 text-xs">{a.tipo}</td>
                 <td className="p-2 text-right font-mono">Q{a.valorAdquisicion.toFixed(2)}</td>
                 <td className="p-2">
-                  <button onClick={() => deleteActivo(a.id)} className="text-destructive hover:text-destructive/80 text-xs" aria-label={t('logistica.eliminar_activo', 'Eliminar activo')}>🗑</button>
+                  <button onClick={() => deleteActivo(a.id)} className="text-destructive hover:text-destructive/80 text-xs" aria-label={t('logistica.eliminar_activo', 'Eliminar activo')}><Trash2 className="w-3 h-3" /></button>
                 </td>
               </tr>
             ))}
@@ -135,7 +135,7 @@ export const LogisticaCompras: React.FC = () => {
                         {t('logistica.adjudicar', 'Adjudicar')}
                       </button>
                     )}
-                    {ct.seleccionada && <span className="text-success font-bold">✅ Adjudicada</span>}
+                    {ct.seleccionada && <span className="text-success font-bold"><CheckCircle className="w-3 h-3 inline" aria-hidden="true" /> Adjudicada</span>}
                   </div>
                 ))}
               </div>
@@ -203,16 +203,19 @@ export const LogisticaCompras: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto">
-        {[
-          { key: 'activos', label: t('logistica.tab_activos', '🔧 Activos') },
-          { key: 'cuadros', label: t('logistica.tab_cuadros', '📊 Cotizaciones') },
-          { key: 'pagos', label: t('logistica.tab_pagos', '💰 Pagos') },
-        ].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key as 'activos' | 'cuadros' | 'pagos')}
-            className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              tab === t.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
-            }`}>{t.label}</button>
-        ))}
+        {([
+          { key: 'activos', label: t('logistica.tab_activos', 'Activos'), icon: Wrench },
+          { key: 'cuadros', label: t('logistica.tab_cuadros', 'Cotizaciones'), icon: BarChart3 },
+          { key: 'pagos', label: t('logistica.tab_pagos', 'Pagos'), icon: DollarSign },
+        ] as const).map(tabDef => {
+          const TabIcon = tabDef.icon;
+          return (
+            <button key={tabDef.key} onClick={() => setTab(tabDef.key as 'activos' | 'cuadros' | 'pagos')}
+              className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
+                tab === tabDef.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+              }`}><TabIcon className="w-4 h-4" aria-hidden="true" /> {tabDef.label}</button>
+          );
+        })}
       </div>
 
       {tab === 'activos' && renderActivos()}

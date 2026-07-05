@@ -6,7 +6,7 @@ import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MO
 import { fmtQ } from '../utils';
 import { sanitizarObjeto } from '@/lib/security';
 import { exportCotizacionPDF } from '../export';
-import { Plus, X, Send, FileText, Trash2, Pencil, Copy, CheckCircle2, Clock, Calculator } from 'lucide-react';
+import { Plus, X, Send, FileText, Trash2, Pencil, Copy, CheckCircle2, Clock, Calculator, HardHat, Landmark, Building, Ruler, Home, CalendarDays, Droplets, Box } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import type { CotizacionCliente, CotizacionTipo } from '../types';
@@ -34,12 +34,12 @@ const cotizacionFormSchema = z.object({
 
 type CotizacionFormData = z.infer<typeof cotizacionFormSchema>;
 
-const TIPOS_COTIZACION: { value: CotizacionTipo; label: string; icon: string }[] = [
-  { value: 'construccion', label: 'Presupuesto de Construcción', icon: '🏗️' },
-  { value: 'planos_registro', label: 'Planos de Registro', icon: '📐' },
-  { value: 'estudio_planificacion', label: 'Estudio de Planificación (Entidades Públicas)', icon: '🏛️' },
-  { value: 'diseno_urbanistico', label: 'Diseño Urbanístico', icon: '🏙️' },
-  { value: 'anteproyecto_residencial', label: 'Anteproyecto Residencial', icon: '🏠' },
+const TIPOS_COTIZACION: { value: CotizacionTipo; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { value: 'construccion', label: 'Presupuesto de Construcción', icon: HardHat },
+  { value: 'planos_registro', label: 'Planos de Registro', icon: Ruler },
+  { value: 'estudio_planificacion', label: 'Estudio de Planificación (Entidades Públicas)', icon: Landmark },
+  { value: 'diseno_urbanistico', label: 'Diseño Urbanístico', icon: Building },
+  { value: 'anteproyecto_residencial', label: 'Anteproyecto Residencial', icon: Home },
 ];
 
 const ESTADOS_COTIZACION = [
@@ -246,14 +246,16 @@ const Cotizaciones: React.FC = () => {
             {cotizacionesFiltradas.map(c => {
               const estadoInfo = ESTADOS_COTIZACION.find(e => e.key === c.estado);
               const EstadoIcon = estadoInfo?.icon || FileText;
+              const tipoInfo = TIPOS_COTIZACION.find(t => t.value === c.tipo);
+              const TipoIcon = tipoInfo?.icon;
               return (
                 <div key={c.id} className="bg-card rounded-xl shadow-sm border border-border p-4 hover:shadow-sm transition-shadow">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded text-foreground/70">{c.numero}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-muted text-muted-foreground">
-                          {TIPOS_COTIZACION.find(t => t.value === c.tipo)?.icon} {TIPOS_COTIZACION.find(t => t.value === c.tipo)?.label}
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-muted text-muted-foreground flex items-center gap-1">
+                          {TipoIcon && <TipoIcon className="w-3 h-3" aria-hidden="true" />} {tipoInfo?.label}
                         </span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1 ${estadoInfo?.color}`}>
                           <EstadoIcon className="w-3 h-3" /> {estadoInfo?.label}
@@ -262,9 +264,9 @@ const Cotizaciones: React.FC = () => {
                       <h3 className="text-sm font-semibold text-foreground truncate">{c.clienteNombre}</h3>
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{c.descripcion || c.alcance}</p>
                       <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
-                        <span>📅 {c.fecha}</span>
-                        {c.fechaVencimiento && <span>⏳ Vence: {c.fechaVencimiento}</span>}
-                        {c.clienteNit && <span>📄 NIT: {c.clienteNit}</span>}
+                        <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" aria-hidden="true" /> {c.fecha}</span>
+                        {c.fechaVencimiento && <span className="flex items-center gap-1"><Clock className="w-3 h-3" aria-hidden="true" /> Vence: {c.fechaVencimiento}</span>}
+                        {c.clienteNit && <span className="flex items-center gap-1"><FileText className="w-3 h-3" aria-hidden="true" /> NIT: {c.clienteNit}</span>}
                         <span className="font-semibold text-emerald-600">{fmtQ(c.precioVentaTotal)}</span>
                       </div>
                     </div>
@@ -311,7 +313,7 @@ const Cotizaciones: React.FC = () => {
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.tipo_cotizacion')}</label>
                   <select value={formData.tipo} onChange={e => setFormData(p => ({ ...p, tipo: e.target.value as CotizacionTipo }))} className={INPUT}>
-                    {TIPOS_COTIZACION.map(t => <option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}
+                    {TIPOS_COTIZACION.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
                 </div>
                 {formData.tipo === 'construccion' && (
@@ -422,7 +424,7 @@ const Cotizaciones: React.FC = () => {
                   onClick={() => setSelectedCalculadora('pavimentos')}
                   className={`p-6 rounded-xl border-2 transition-all ${selectedCalculadora === 'pavimentos' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
                 >
-                  <div className="text-2xl mb-2">🏗️</div>
+                  <div className="text-2xl mb-2"><HardHat className="w-8 h-8 mx-auto" aria-hidden="true" /></div>
                   <div className="font-semibold text-sm">{t('cotizaciones.pavimentos')}</div>
                   <div className="text-xs text-muted-foreground">{t('cotizaciones.pavimentos')}</div>
                 </button>
@@ -432,7 +434,7 @@ const Cotizaciones: React.FC = () => {
                   onClick={() => setSelectedCalculadora('redesInfraestructura')}
                   className={`p-6 rounded-xl border-2 transition-all ${selectedCalculadora === 'redesInfraestructura' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
                 >
-                  <div className="text-2xl mb-2">💧</div>
+                  <div className="text-2xl mb-2"><Droplets className="w-8 h-8 mx-auto" aria-hidden="true" /></div>
                   <div className="font-semibold text-sm">{t('cotizaciones.redes_infraestructura')}</div>
                   <div className="text-xs text-muted-foreground">{t('cotizaciones.redes_infraestructura')}</div>
                 </button>
@@ -442,7 +444,7 @@ const Cotizaciones: React.FC = () => {
                   onClick={() => setSelectedCalculadora('murosContencion')}
                   className={`p-6 rounded-xl border-2 transition-all ${selectedCalculadora === 'murosContencion' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
                 >
-                  <div className="text-2xl mb-2">🧱</div>
+                  <div className="text-2xl mb-2"><Box className="w-8 h-8 mx-auto" aria-hidden="true" /></div>
                   <div className="font-semibold text-sm">{t('cotizaciones.muros_contencion')}</div>
                   <div className="text-xs text-muted-foreground">{t('cotizaciones.muros_contencion')}</div>
                 </button>
