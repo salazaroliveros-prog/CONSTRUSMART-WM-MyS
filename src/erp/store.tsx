@@ -24,38 +24,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { encryptionManager, migrateSecureStorage } from '@/lib/encryption';
 import type { Mutation } from './types';
 import { logErrorFromException, getErrorContext } from '@/lib/error-logger';
-const proyectoSchemaInline = z.object({
-  id: z.string(), nombre: z.string(), ubicacion: z.string(),
-  tipologia: z.enum(['residencial','comercial','industrial','civil','publica']),
-  presupuestoTotal: z.number().default(0), montoContrato: z.number().default(0),
-  cliente: z.string().default(''), presupuestoActualId: z.string().nullable().optional(),
-  fechaInicio: z.string().default(''), fechaFin: z.string().default(''),
-  fechaInicioReal: z.string().optional().default(''), fechaFinEstimada: z.string().optional().default(''),
-  avanceFisico: z.number().default(0), avanceFinanciero: z.number().default(0),
-  estado: z.enum(['planeacion','ejecucion','pausado','finalizado']).default('planeacion'),
-  descripcion: z.string().optional().default(''),
-  tipoObra: z.enum(['nueva','remodelacion','ampliacion']).optional().default('nueva'),
-  clienteNit: z.string().optional().default(''), clienteTelefono: z.string().optional().default(''),
-  clienteEmail: z.string().optional().default(''), direccion: z.string().optional().default(''),
-  ciudad: z.string().optional().default(''), departamento: z.string().optional().default(''),
-  codigoPostal: z.string().optional().default(''), pais: z.string().optional().default('Guatemala'),
-  areaConstruccion: z.number().optional(), numPisos: z.number().optional(),
-  plazoSemanas: z.number().optional(), ingenieroResidente: z.string().optional().default(''),
-  supervisor: z.string().optional().default(''), arquitecto: z.string().optional().default(''),
-  numeroExpediente: z.string().optional().default(''), numeroLicencia: z.string().optional().default(''),
-  margenUtilidadObjetivo: z.number().optional(),
-  moneda: z.enum(['GTQ','USD']).optional().default('GTQ'),
-  etapa: z.enum(['planificacion','diseno','preconstruccion','construccion','cierre']).optional().default('planificacion'),
-  lat: z.number().nullable().optional(), lng: z.number().nullable().optional(),
-  latitud: z.number().nullable().optional(), longitud: z.number().nullable().optional(),
-  factorSobrecosto: z.object({ indirectos: z.number(), administracion: z.number(), imprevistos: z.number(), utilidad: z.number() }).optional(),
-  motivoPausa: z.string().optional().default(''),
-  pausadoPor: z.string().optional().default(''),
-  fechaPausa: z.string().optional().default(''),
-  fechaReanudacionEstimada: z.string().optional().default(''),
-  version: z.number().optional(),
-}).transform(d => ({ ...d }));
-
 const BASE_STORAGE_KEY = 'wm_erp_data';
 const QUEUE_KEY = 'wm_erp_queue';
 const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
@@ -96,7 +64,6 @@ function loadObjectFromStorage<T>(key: string, schema: z.ZodTypeAny, fallback: T
 export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'baseprecios' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'proveedor-analytics' | 'error-log' | 'activos' | 'cuadros';
 export type UIMode = 'shadcn' | 'antd';
 export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
-export type Reporte = 'cubicacion' | 'rendimientos' | 'ejecutivo';
 
 export const ALL_VIEWS: View[] = [
   'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros'
@@ -164,7 +131,7 @@ function stripAppOnlyFields<T extends Record<string, unknown>>(obj: T): T {
   return result;
 }
 
-export const MUTATION_TABLE_MAP: Record<string, string> = {
+const MUTATION_TABLE_MAP: Record<string, string> = {
   addProyecto:'erp_proyectos',updateProyecto:'erp_proyectos',deleteProyecto:'erp_proyectos',
   addMovimiento:'erp_movimientos',updateMovimiento:'erp_movimientos',deleteMovimiento:'erp_movimientos',
   addEmpleado:'erp_empleados',updateEmpleado:'erp_empleados',deleteEmpleado:'erp_empleados',
@@ -229,7 +196,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     window.location.reload();
   }, [realLogout]);
 
-   const zustandUser = useErpStore(s => (s as any).user);
    const user = useMemo(() => {
      if (authUser) {
        const avatar = authUser.avatar || null;
@@ -244,9 +210,8 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
          avatar,
        };
      }
-     if (zustandUser) return zustandUser;
      return null;
-   }, [authUser, zustandUser]);
+   }, [authUser]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
