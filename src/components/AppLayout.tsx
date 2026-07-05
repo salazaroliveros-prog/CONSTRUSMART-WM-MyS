@@ -185,7 +185,8 @@ const Shell: React.FC = () => {
     weather:           <Weather />,
   }), []);
 
-  const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter(key => allowedViews.includes(key as any)), [allowedViews]);
+  type ScreenKey = (typeof SCREEN_KEYS)[number];
+  const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter((key): key is ScreenKey => allowedViews.includes(key)), [allowedViews]);
 
   const setViewRef = useRef<ReturnType<typeof setView>>(setView);
   setViewRef.current = setView;

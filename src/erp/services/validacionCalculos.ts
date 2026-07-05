@@ -81,7 +81,7 @@ export class ValidacionCalculos {
         recomendaciones,
       };
     } catch (error) {
-      console.error('Error validando consistencia:', error);
+      safeLogger.error('Error validando consistencia:', error);
       return {
         valido: false,
         alertas: [],
@@ -389,7 +389,7 @@ export class ValidacionCalculos {
         }
       }
     } catch (error) {
-      console.error('Error en validaciones cruzadas:', error);
+      safeLogger.error('Error en validaciones cruzadas:', error);
     }
 
     return alertas;
@@ -489,7 +489,7 @@ export class ValidacionCalculos {
       if (error) throw error;
       return data?.map(c => c.id) || [];
     } catch (error) {
-      console.error('Error obteniendo cálculos por validar:', error);
+      safeLogger.error('Error obteniendo cálculos por validar:', error);
       return [];
     }
   }
@@ -689,7 +689,7 @@ export function mostrarValidaciones(alertas: any[]): boolean {
   
   const criticas = alertas.filter((a: any) => a.tipo === 'critica');
   if (criticas.length > 0) {
-    console.error('Validaciones críticas:', criticas);
+    safeLogger.warn('Validaciones críticas:', criticas);
     return false;
   }
   

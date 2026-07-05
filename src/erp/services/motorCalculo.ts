@@ -35,7 +35,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener dosificaciones:', error);
+      safeLogger.error('Error al obtener dosificaciones:', error);
       throw error;
     }
   }
@@ -98,7 +98,7 @@ export class ServicioMotorCalculo {
         },
       };
     } catch (error) {
-      console.error('Error al calcular dosificación:', error);
+      safeLogger.error('Error al calcular dosificación:', error);
       throw error;
     }
   }
@@ -156,7 +156,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener departamentos:', error);
+      safeLogger.error('Error al obtener departamentos:', error);
       throw error;
     }
   }
@@ -175,7 +175,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener municipios:', error);
+      safeLogger.error('Error al obtener municipios:', error);
       throw error;
     }
   }
@@ -197,7 +197,7 @@ export class ServicioMotorCalculo {
       }
       return data;
     } catch (error) {
-      console.error('Error al obtener municipio:', error);
+      safeLogger.error('Error al obtener municipio:', error);
       throw error;
     }
   }
@@ -219,7 +219,7 @@ export class ServicioMotorCalculo {
       }
       return data;
     } catch (error) {
-      console.error('Error al obtener departamento:', error);
+      safeLogger.error('Error al obtener departamento:', error);
       throw error;
     }
   }
@@ -232,7 +232,7 @@ export class ServicioMotorCalculo {
       const municipio = await this.obtenerMunicipio(codigoMunicipio);
       return municipio?.factor_costo || 1.0;
     } catch (error) {
-      console.error('Error al obtener factor costo municipio:', error);
+      safeLogger.error('Error al obtener factor costo municipio:', error);
       return 1.0;
     }
   }
@@ -245,7 +245,7 @@ export class ServicioMotorCalculo {
       const municipio = await this.obtenerMunicipio(codigoMunicipio);
       return municipio?.factor_rendimiento || 1.0;
     } catch (error) {
-      console.error('Error al obtener factor rendimiento municipio:', error);
+      safeLogger.error('Error al obtener factor rendimiento municipio:', error);
       return 1.0;
     }
   }
@@ -280,7 +280,7 @@ export class ServicioMotorCalculo {
         mesesCriticos: data[0].meses_criticos,
       };
     } catch (error) {
-      console.error('Error al obtener parámetros climáticos:', error);
+      safeLogger.error('Error al obtener parámetros climáticos:', error);
       throw error;
     }
   }
@@ -302,7 +302,7 @@ export class ServicioMotorCalculo {
         observaciones: data[0].observaciones,
       };
     } catch (error) {
-      console.error('Error al obtener factor climático:', error);
+      safeLogger.error('Error al obtener factor climático:', error);
       throw error;
     }
   }
@@ -316,7 +316,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener factor temperatura:', error);
+      safeLogger.error('Error al obtener factor temperatura:', error);
       return 1.0;
     }
   }
@@ -330,7 +330,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener factor humedad:', error);
+      safeLogger.error('Error al obtener factor humedad:', error);
       return 1.0;
     }
   }
@@ -360,7 +360,7 @@ export class ServicioMotorCalculo {
         factorAjusteTotal: data[0].factor_ajuste_total,
       };
     } catch (error) {
-      console.error('Error al calcular movimiento de tierra:', error);
+      safeLogger.error('Error al calcular movimiento de tierra:', error);
       throw error;
     }
   }
@@ -381,7 +381,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener parámetros de movimiento de tierra:', error);
+      safeLogger.error('Error al obtener parámetros de movimiento de tierra:', error);
       throw error;
     }
   }
@@ -409,7 +409,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener subtipologías:', error);
+      safeLogger.error('Error al obtener subtipologías:', error);
       throw error;
     }
   }
@@ -433,7 +433,7 @@ export class ServicioMotorCalculo {
       }
       return data;
     } catch (error) {
-      console.error('Error al obtener subtipología:', error);
+      safeLogger.error('Error al obtener subtipología:', error);
       throw error;
     }
   }
@@ -465,7 +465,7 @@ export class ServicioMotorCalculo {
         referenciaNorma: data[0].referencia_norma
       };
     } catch (error) {
-      console.error('Error al calcular pavimento:', error);
+      safeLogger.error('Error al calcular pavimento:', error);
       throw error;
     }
   }
@@ -493,7 +493,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener parámetros de pavimentos:', error);
+      safeLogger.error('Error al obtener parámetros de pavimentos:', error);
       throw error;
     }
   }
@@ -521,7 +521,7 @@ export class ServicioMotorCalculo {
         referenciaNorma: data[0].referencia_norma
       };
     } catch (error) {
-      console.error('Error al calcular red de infraestructura:', error);
+      safeLogger.error('Error al calcular red de infraestructura:', error);
       throw error;
     }
   }
@@ -549,7 +549,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener parámetros de redes de infraestructura:', error);
+      safeLogger.error('Error al obtener parámetros de redes de infraestructura:', error);
       throw error;
     }
   }
@@ -579,7 +579,7 @@ export class ServicioMotorCalculo {
         referenciaNorma: data[0].referencia_norma
       };
     } catch (error) {
-      console.error('Error al calcular muro de contención:', error);
+      safeLogger.error('Error al calcular muro de contención:', error);
       throw error;
     }
   }
@@ -607,7 +607,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener parámetros de muros de contención:', error);
+      safeLogger.error('Error al obtener parámetros de muros de contención:', error);
       throw error;
     }
   }
@@ -705,7 +705,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener snapshots:', error);
+      safeLogger.error('Error al obtener snapshots:', error);
       throw error;
     }
   }
@@ -724,7 +724,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al obtener comparaciones:', error);
+      safeLogger.error('Error al obtener comparaciones:', error);
       throw error;
     }
   }
@@ -770,7 +770,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error al comparar cálculos:', error);
+      safeLogger.error('Error al comparar cálculos:', error);
       throw error;
     }
   }
@@ -816,7 +816,7 @@ export class ServicioMotorCalculo {
     try {
       return await motorReglasFactores.aplicarReglasViaRPC(valor, tipoFactor, contexto);
     } catch (error) {
-      console.error('Error aplicando reglas de factores:', error);
+      safeLogger.error('Error aplicando reglas de factores:', error);
       // Fallback a cálculo local si RPC falla
       return await motorReglasFactores.aplicarReglas(valor, tipoFactor, contexto);
     }
@@ -870,7 +870,7 @@ export class ServicioMotorCalculo {
         },
       };
     } catch (error) {
-      console.error('Error calculando costo con reglas:', error);
+      safeLogger.error('Error calculando costo con reglas:', error);
       return {
         costoFinal: costoBase,
         desgloseFactores: {
