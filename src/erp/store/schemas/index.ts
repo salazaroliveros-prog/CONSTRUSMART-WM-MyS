@@ -24,3 +24,5 @@ export { calculoProyectoSchema, snapshotCalculoSchema, comparacionCalculosSchema
 export type { CalculoProyecto, SnapshotCalculo, ComparacionCalculos, HistorialAplicacionRegla, ReglaFactorSchema, NormativaDepartamentalSchema, EscalaProduccionSchema, EstacionalidadSchema } from './calculos';
 export { errorLogSchema } from './errorLog';
 export type { ErrorLogEntry } from './errorLog';
+export { projectProfitabilitySchema, clientProfitabilitySchema, profitabilityForecastSchema, resourceEfficiencySchema, profitabilityTrendSchema, pricingOptimizationSchema } from './profitability';
+export type { ProjectProfitability, ClientProfitability, ProfitabilityForecast, ResourceEfficiency, ProfitabilityTrend, PricingOptimization } from './profitability';

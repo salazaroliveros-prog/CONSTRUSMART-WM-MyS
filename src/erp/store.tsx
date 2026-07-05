@@ -13,7 +13,7 @@ import {
    destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema, insumosBaseSchema,
    auditLogSchema, appSettingsSchema, proyectoWeatherSchema, errorLogSchema, calculoProyectoSchema,
    reglaFactorSchema, normativaDepartamentalSchema, escalaProduccionSchema, estacionalidadSchema,
-   historialAplicacionReglaSchema,
+   historialAplicacionReglaSchema, projectProfitabilitySchema, clientProfitabilitySchema, resourceEfficiencySchema, profitabilityTrendSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, decompressData, compressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -36,6 +36,7 @@ const NORMATIVAS_KEY = BASE_STORAGE_KEY + '_normativas';
 const ESCALAS_KEY = BASE_STORAGE_KEY + '_escalas';
 const ESTACIONALIDAD_KEY = BASE_STORAGE_KEY + '_estacionalidad';
 const HISTORIAL_REGLAS_KEY = BASE_STORAGE_KEY + '_historial_reglas';
+const PROFITABILITY_KEY = BASE_STORAGE_KEY + '_profitability';
 
 function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   try {
@@ -61,12 +62,12 @@ function loadObjectFromStorage<T>(key: string, schema: z.ZodTypeAny, fallback: T
   return fallback;
 }
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'baseprecios' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'proveedor-analytics' | 'error-log' | 'activos' | 'cuadros';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'baseprecios' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'proveedor-analytics' | 'error-log' | 'activos' | 'cuadros' | 'profitability';
 export type UIMode = 'shadcn' | 'antd';
 export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
 
 export const ALL_VIEWS: View[] = [
-  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros'
+  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability'
 ];
 
 export const clearAllData = () => {
@@ -277,6 +278,10 @@ calculosProyecto: loadFromStorage(BASE_STORAGE_KEY + '_calculos_proyecto', calcu
        escalasProduccion: loadFromStorage(ESCALAS_KEY, escalaProduccionSchema),
        estacionalidad: loadFromStorage(ESTACIONALIDAD_KEY, estacionalidadSchema),
        historialReglas: loadFromStorage(HISTORIAL_REGLAS_KEY, historialAplicacionReglaSchema),
+       projectProfitabilities: loadFromStorage(PROFITABILITY_KEY + '_projects', projectProfitabilitySchema),
+       clientProfitabilities: loadFromStorage(PROFITABILITY_KEY + '_clients', clientProfitabilitySchema),
+       resourceEfficiencies: loadFromStorage(PROFITABILITY_KEY + '_resources', resourceEfficiencySchema),
+       profitabilityTrends: loadFromStorage(PROFITABILITY_KEY + '_trends', profitabilityTrendSchema),
       mutationQueue: (() => { try { const r = localStorage.getItem(QUEUE_KEY); if (!r) return []; const d = decompressData(r); return Array.isArray(d) ? d as Mutation[] : []; } catch { return []; } })(),
       notificaciones: loadFromStorage(NOTIF_KEY, notificacionSchema),
       auditLog: loadFromStorage(AUDIT_KEY, auditLogSchema),
@@ -536,6 +541,10 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
           try { const q = await compressDataAsync(s.mutationQueue); safeSetItem('wm_erp_queue', q); } catch {}
           try { const n = await compressDataAsync(s.notificaciones); safeSetItem(`${BASE_STORAGE_KEY}_notificaciones`, n); } catch {}
           try { const a = await compressDataAsync(s.auditLog); safeSetItem(`${BASE_STORAGE_KEY}_audit_log`, a); } catch {}
+          try { const pp = await compressDataAsync(s.projectProfitabilities); safeSetItem(`${PROFITABILITY_KEY}_projects`, pp); } catch {}
+          try { const cp = await compressDataAsync(s.clientProfitabilities); safeSetItem(`${PROFITABILITY_KEY}_clients`, cp); } catch {}
+          try { const re = await compressDataAsync(s.resourceEfficiencies); safeSetItem(`${PROFITABILITY_KEY}_resources`, re); } catch {}
+          try { const pt = await compressDataAsync(s.profitabilityTrends); safeSetItem(`${PROFITABILITY_KEY}_trends`, pt); } catch {}
           
           encryptionManager.encryptItem(AUDIT_KEY, s.auditLog, user?.id || 'default')
             .then(() => safeLogger.log('[Encryption] auditLog encrypted'))

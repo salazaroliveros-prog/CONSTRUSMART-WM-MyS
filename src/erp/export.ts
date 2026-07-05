@@ -4,6 +4,7 @@ import { EMPRESA, fmtQ, costoDirectoUnitario, precioUnitarioVenta, TIPOLOGIA_LAB
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import type { ProjectProfitability, ClientProfitability, ResourceEfficiency, ProfitabilityTrend, PricingOptimization } from './store/schemas/profitability';
 
 const calcRow = (r: RenglonPresupuesto) => {
   const cd = costoDirectoUnitario(r.costoMateriales, r.costoManoObra, r.costoEquipo);
@@ -744,4 +745,310 @@ export const exportCotizacionPDF = (cotizacion: CotizacionCliente) => {
 
   addFooter();
   doc.save(`Cotizacion_${cotizacion.numero.replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`);
+};
+
+export const exportProfitabilityPDF = (
+  projectProfitabilities: ProjectProfitability[],
+  clientProfitabilities: ClientProfitability[],
+  resourceEfficiencies: ResourceEfficiency[],
+  trends: ProfitabilityTrend[]
+) => {
+  const doc = new jsPDF();
+  const margin = 14;
+  let y = 20;
+
+  const DARK = [30, 41, 59];
+  const GRAY = [100, 116, 139];
+
+  const addHeader = () => {
+    doc.setFillColor(249, 115, 22);
+    doc.rect(0, 0, 210, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text(EMPRESA.nombre, margin, 25);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Reporte de Rentabilidad y Análisis de Proyectos', margin, 32);
+    doc.setFontSize(8);
+    doc.text(`Fecha: ${new Date().toLocaleDateString('es-GT')}`, margin, 38);
+  };
+
+  const addFooter = () => {
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+      doc.text(
+        `${EMPRESA.nombre} - Página ${i} de ${pageCount}`,
+        margin,
+        285
+      );
+    }
+  };
+
+  const checkPage = (spaceNeeded: number) => {
+    if (y + spaceNeeded > 280) {
+      doc.addPage();
+      y = 20;
+    }
+  };
+
+  addHeader();
+  y = 50;
+
+  doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('RESUMEN EJECUTIVO', margin, y);
+  y += 8;
+
+  const totalUtilidad = projectProfitabilities.reduce((sum, p) => sum + p.utilidadBruta, 0);
+  const avgMargen = projectProfitabilities.length > 0 
+    ? projectProfitabilities.reduce((sum, p) => sum + p.margenBruto, 0) / projectProfitabilities.length 
+    : 0;
+  const proyectosRiesgosos = projectProfitabilities.filter(p => p.estadoRentabilidad === 'riesgoso' || p.estadoRentabilidad === 'critico').length;
+  const proyectosExcelentes = projectProfitabilities.filter(p => p.estadoRentabilidad === 'excelente').length;
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Utilidad Total: ${fmtQ(totalUtilidad)}`, margin, y);
+  y += 5;
+  doc.text(`Margen Promedio: ${fmtPct(avgMargen)}`, margin, y);
+  y += 5;
+  doc.text(`Proyectos Riesgosos: ${proyectosRiesgosos}`, margin, y);
+  y += 5;
+  doc.text(`Proyectos Excelentes: ${proyectosExcelentes}`, margin, y);
+  y += 10;
+
+  checkPage(20);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('RENTABILIDAD POR PROYECTO', margin, y);
+  y += 8;
+
+  const projectTableBody = projectProfitabilities.map(p => [
+    p.proyectoId.substring(0, 20),
+    fmtQ(p.presupuestoTotal),
+    fmtQ(p.costoReal),
+    fmtQ(p.ingresoReal),
+    fmtQ(p.utilidadBruta),
+    fmtPct(p.margenBruto),
+    p.estadoRentabilidad.charAt(0).toUpperCase() + p.estadoRentabilidad.slice(1),
+    fmtPct(p.scoreEficiencia),
+  ]);
+
+  autoTable(doc, {
+    startY: y,
+    head: [['Proyecto', 'Presupuesto', 'Costo Real', 'Ingreso Real', 'Utilidad', 'Margen', 'Estado', 'Eficiencia']],
+    body: projectTableBody,
+    theme: 'grid',
+    headStyles: { fillColor: [59, 130, 246], fontSize: 8 },
+    bodyStyles: { fontSize: 7 },
+    columnStyles: {
+      0: { cellWidth: 40 },
+      1: { cellWidth: 25, halign: 'right' },
+      2: { cellWidth: 25, halign: 'right' },
+      3: { cellWidth: 25, halign: 'right' },
+      4: { cellWidth: 25, halign: 'right' },
+      5: { cellWidth: 15, halign: 'right' },
+      6: { cellWidth: 20 },
+      7: { cellWidth: 15, halign: 'right' },
+    },
+    margin: { left: margin, right: margin },
+  });
+  y = (doc as any).lastAutoTable.finalY + 10;
+
+  checkPage(20);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('RENTABILIDAD POR CLIENTE', margin, y);
+  y += 8;
+
+  const clientTableBody = clientProfitabilities.map(c => [
+    c.cliente.substring(0, 25),
+    c.proyectosCount.toString(),
+    fmtQ(c.valorTotalContratos),
+    fmtQ(c.utilidadTotal),
+    fmtPct(c.margenPromedio),
+    c.segmento.toUpperCase(),
+    fmtPct(c.probabilidadRetencion),
+  ]);
+
+  autoTable(doc, {
+    startY: y,
+    head: [['Cliente', 'Proyectos', 'Valor Contratos', 'Utilidad Total', 'Margen Promedio', 'Segmento', 'Probabilidad Retención']],
+    body: clientTableBody,
+    theme: 'grid',
+    headStyles: { fillColor: [16, 185, 129], fontSize: 8 },
+    bodyStyles: { fontSize: 7 },
+    columnStyles: {
+      0: { cellWidth: 50 },
+      1: { cellWidth: 15, halign: 'center' },
+      2: { cellWidth: 25, halign: 'right' },
+      3: { cellWidth: 25, halign: 'right' },
+      4: { cellWidth: 20, halign: 'right' },
+      5: { cellWidth: 20 },
+      6: { cellWidth: 20, halign: 'right' },
+    },
+    margin: { left: margin, right: margin },
+  });
+  y = (doc as any).lastAutoTable.finalY + 10;
+
+  checkPage(20);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('EFICIENCIA DE RECURSOS', margin, y);
+  y += 8;
+
+  const resourceTableBody = resourceEfficiencies.map(r => [
+    r.tipoRecurso.charAt(0).toUpperCase() + r.tipoRecurso.slice(1),
+    fmtQ(r.costoPlaneado),
+    fmtQ(r.costoReal),
+    fmtPct(r.eficiencia),
+    fmtPct(r.desperdicio),
+    r.alertaDesviacion ? 'ALERTA' : 'OK',
+  ]);
+
+  autoTable(doc, {
+    startY: y,
+    head: [['Recurso', 'Costo Planeado', 'Costo Real', 'Eficiencia', 'Desperdicio', 'Estado']],
+    body: resourceTableBody,
+    theme: 'grid',
+    headStyles: { fillColor: [245, 158, 11], fontSize: 8 },
+    bodyStyles: { fontSize: 7 },
+    columnStyles: {
+      0: { cellWidth: 25 },
+      1: { cellWidth: 30, halign: 'right' },
+      2: { cellWidth: 30, halign: 'right' },
+      3: { cellWidth: 20, halign: 'right' },
+      4: { cellWidth: 20, halign: 'right' },
+      5: { cellWidth: 20, halign: 'center' },
+    },
+    margin: { left: margin, right: margin },
+  });
+  y = (doc as any).lastAutoTable.finalY + 10;
+
+  checkPage(20);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('TENDENCIAS Y ALERTAS', margin, y);
+  y += 8;
+
+  trends.forEach(trend => {
+    checkPage(30);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Análisis: ${trend.tipoAnalisis === 'rentabilidad_global' ? 'Global' : trend.tipoAnalisis}`, margin, y);
+    y += 5;
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Proyectos Activos: ${trend.proyectosActivos}`, margin, y);
+    y += 4;
+    doc.text(`Rentabilidad Promedio: ${fmtPct(trend.rentabilidadPromedio)}`, margin, y);
+    y += 4;
+
+    if (trend.alertas.length > 0) {
+      doc.setTextColor(239, 68, 68);
+      doc.text('Alertas:', margin, y);
+      y += 4;
+      trend.alertas.slice(0, 3).forEach(alerta => {
+        doc.text(`• ${alerta}`, margin + 5, y);
+        y += 3;
+      });
+      doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+    }
+
+    if (trend.oportunidades.length > 0) {
+      doc.setTextColor(16, 185, 129);
+      doc.text('Oportunidades:', margin, y);
+      y += 4;
+      trend.oportunidades.slice(0, 3).forEach(oportunidad => {
+        doc.text(`• ${oportunidad}`, margin + 5, y);
+        y += 3;
+      });
+      doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+    }
+    y += 5;
+  });
+
+  addFooter();
+  doc.save(`Reporte_Rentabilidad_${new Date().toISOString().split('T')[0]}.pdf`);
+};
+
+export const exportProfitabilityExcel = (
+  projectProfitabilities: ProjectProfitability[],
+  clientProfitabilities: ClientProfitability[],
+  resourceEfficiencies: ResourceEfficiency[],
+  trends: ProfitabilityTrend[]
+) => {
+  const wb = XLSX.utils.book_new();
+
+  const projectData = projectProfitabilities.map(p => ({
+    'Proyecto ID': p.proyectoId,
+    'Periodo': p.periodo,
+    'Presupuesto Total': p.presupuestoTotal,
+    'Costo Real': p.costoReal,
+    'Ingreso Real': p.ingresoReal,
+    'Utilidad Bruta': p.utilidadBruta,
+    'Margen Bruto (%)': p.margenBruto,
+    'Variación Presupuesto (%)': p.variacionPresupuesto,
+    'Estado Rentabilidad': p.estadoRentabilidad,
+    'Eficiencia Labor (%)': p.eficienciaLabor,
+    'Desperdicio Materiales (%)': p.desperdicioMateriales,
+    'Utilización Equipo (%)': p.utilizacionEquipo,
+    'Score Eficiencia (%)': p.scoreEficiencia,
+  }));
+
+  const clientData = clientProfitabilities.map(c => ({
+    'Cliente': c.cliente,
+    'Cliente NIT': c.clienteNit,
+    'Número Proyectos': c.proyectosCount,
+    'Valor Total Contratos': c.valorTotalContratos,
+    'Costo Total Real': c.costoTotalReal,
+    'Utilidad Total': c.utilidadTotal,
+    'Margen Promedio (%)': c.margenPromedio,
+    'Proyecto Más Rentable': c.proyectoMasRentable,
+    'Proyecto Menos Rentable': c.proyectoMenosRentable,
+    'Valor Vida Cliente': c.valorVidaCliente,
+    'Probabilidad Retención (%)': c.probabilidadRetencion,
+    'Segmento': c.segmento,
+  }));
+
+  const resourceData = resourceEfficiencies.map(r => ({
+    'Proyecto ID': r.proyectoId,
+    'Tipo Recurso': r.tipoRecurso,
+    'Costo Planeado': r.costoPlaneado,
+    'Costo Real': r.costoReal,
+    'Eficiencia (%)': r.eficiencia,
+    'Desperdicio (%)': r.desperdicio,
+    'Productividad (%)': r.productividad,
+    'Unidades Producidas': r.unidadesProducidas,
+    'Unidades Planeadas': r.unidadesPlaneadas,
+    'Alerta Desviación': r.alertaDesviacion ? 'Sí' : 'No',
+  }));
+
+  const trendData = trends.flatMap(trend => 
+    Object.entries(trend.tendencias).map(([key, value]) => ({
+      'Tipo Análisis': trend.tipoAnalisis,
+      'Agrupador': trend.agrupador || key,
+      'Categoría': key,
+      'Valor': value,
+      'Proyectos Activos': trend.proyectosActivos,
+      'Rentabilidad Promedio (%)': trend.rentabilidadPromedio,
+    }))
+  );
+
+  const wsProjects = XLSX.utils.json_to_sheet(projectData);
+  const wsClients = XLSX.utils.json_to_sheet(clientData);
+  const wsResources = XLSX.utils.json_to_sheet(resourceData);
+  const wsTrends = XLSX.utils.json_to_sheet(trendData);
+
+  XLSX.utils.book_append_sheet(wb, wsProjects, 'Proyectos');
+  XLSX.utils.book_append_sheet(wb, wsClients, 'Clientes');
+  XLSX.utils.book_append_sheet(wb, wsResources, 'Recursos');
+  XLSX.utils.book_append_sheet(wb, wsTrends, 'Tendencias');
+
+  XLSX.writeFile(wb, `Reporte_Rentabilidad_${new Date().toISOString().split('T')[0]}.xlsx`);
 };

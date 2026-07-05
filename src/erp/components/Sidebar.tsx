@@ -9,7 +9,7 @@ import {
   HardHat, DollarSign, Settings, Flag,
   CreditCard, Landmark, Percent, TriangleAlert,
   ClipboardList, Cpu, Truck, FileCog, Package,
-  FileText, Copy, Award, Wrench,
+  FileText, Copy, Award, Wrench, TrendingUp,
 } from 'lucide-react';
 
 interface NavItem { id: View; labelKey: string; icon: React.ElementType; group: string }
@@ -47,6 +47,7 @@ const ITEMS: NavItem[] = [
   { id: 'cuentas-pagar',     labelKey: 'cuentas-pagar',   icon: Landmark,        group: 'Finanzas'     },
   { id: 'impuestos',         labelKey: 'impuestos',       icon: Percent,         group: 'Finanzas'     },
   { id: 'predictivo',        labelKey: 'predictivo',      icon: BarChart3,       group: 'Análisis BI'  },
+  { id: 'profitability',     labelKey: 'profitability',   icon: TrendingUp,      group: 'Análisis BI'  },
   { id: 'exportacion',       labelKey: 'exportacion',     icon: Download,        group: 'Análisis BI'  },
   { id: 'notificaciones',    labelKey: 'notificaciones',  icon: Bell,            group: 'Sistema'      },
   { id: 'error-log',         labelKey: 'error-log',       icon: TriangleAlert,   group: 'Sistema'      },

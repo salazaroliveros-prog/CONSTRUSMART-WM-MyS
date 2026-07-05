@@ -91,7 +91,7 @@ export function getViewsByRole(rol: RolSistema): View[] {
     'comercial-fin','admin-sistema','planilla-destajos',
     'impuestos','entradas-almacen','ajustes',
     'hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones',
-    'plantillas','proveedor-analytics','error-log','activos','cuadros'
+    'plantillas','proveedor-analytics','error-log','activos','cuadros','profitability'
   ];
 
   switch (rol) {
@@ -99,7 +99,7 @@ export function getViewsByRole(rol: RolSistema): View[] {
     case 'Gerente': return ALL;
     case 'Residente': return ['dashboard','proyectos','presupuestos','seguimiento','apu',
       'rendimiento-campo','baseprecios','muro',
-      'ordenes-cambio','notificaciones','sso-calidad','documentos'];
+      'ordenes-cambio','notificaciones','sso-calidad','documentos','profitability'];
     case 'Compras': return ['dashboard','bodega','proyectos'];
     case 'Bodeguero': return ['dashboard','bodega'];
     default: return [];

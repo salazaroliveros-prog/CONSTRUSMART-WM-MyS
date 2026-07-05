@@ -19,6 +19,7 @@ import type { Plantilla } from './store/schemas/plantillas';
 import type { ErrorLogEntry } from './store/schemas/errorLog';
 import type { AppSettings, Mutation, LogAuditoria } from './types';
 import type { ProyectoWeather } from './store/schemas/weather';
+import type { ProjectProfitability, ClientProfitability, ResourceEfficiency, ProfitabilityTrend } from './store/schemas/profitability';
 
 const RATE_LIMIT_MS = 100;
 const lastMutationCall: Record<string, number> = {};
@@ -98,6 +99,10 @@ interface ErpData {
   destajos: Destajo[]; calculosProyecto: CalculoProyecto[]; recepciones: RecepcionAlmacen[]; centrosCosto: CentroCosto[];
   plantillas: Plantilla[];
   insumosBase: InsumoBase[];
+  projectProfitabilities: ProjectProfitability[];
+  clientProfitabilities: ClientProfitability[];
+  resourceEfficiencies: ResourceEfficiency[];
+  profitabilityTrends: ProfitabilityTrend[];
   reglasFactores: ReglaFactor[]; normativasDepartamentales: NormativaDepartamental[];
   escalasProduccion: EscalaProduccion[]; estacionalidad: Estacionalidad[];
   historialReglas: HistorialAplicacionRegla[];
