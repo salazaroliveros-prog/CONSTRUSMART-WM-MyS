@@ -7,6 +7,8 @@ import {
   IVA,
   COSTOS_INDIRECTOS,
   HERRAMIENTA_MENOR,
+  ADMINISTRACION,
+  IMPREVISTOS,
 } from '../erp/utils';
 
 describe('Calculation Engine — Edge Cases', () => {
