@@ -65,7 +65,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
 
   const handleExportReport = useCallback(() => {
     if (!profitabilityData) return;
-    
+
     try {
       if (exportFormat === 'pdf') {
         exportProfitabilityPDF(
@@ -88,7 +88,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
       toast.error('Error al exportar reporte');
       console.error('Export error:', error);
     }
-  }, [profitabilityData, exportFormat, t]);
+  }, [profitabilityData, exportFormat]);
 
   if (loading) {
     return (
