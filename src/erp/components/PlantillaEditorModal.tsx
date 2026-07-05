@@ -10,12 +10,14 @@ interface PlantillaEditorModalProps {
 
 interface RenglonTemplate {
   nombre: string;
+  descripcion: string;
+  codigo: string;
   unidad: string;
   cantidad: number;
   costoMateriales: number;
   costoManoObra: number;
   costoEquipo: number;
-  descripcion: string;
+  costoSubcontrato: number;
   tempId?: number;
 }
 
@@ -58,7 +60,7 @@ const PlantillaEditorModal: React.FC<PlantillaEditorModalProps> = ({ plantilla, 
     plantilla.checklistCalidad?.map((c, i: number) => ({ ...c, tempId: i })) || []
   );
 
-  const [newRenglon, setNewRenglon] = useState({ nombre: '', unidad: '', cantidad: 0, costoMateriales: 0, costoManoObra: 0, costoEquipo: 0, descripcion: '' });
+  const [newRenglon, setNewRenglon] = useState({ nombre: '', descripcion: '', codigo: '', unidad: '', cantidad: 0, costoMateriales: 0, costoManoObra: 0, costoEquipo: 0, costoSubcontrato: 0 });
   const [newHito, setNewHito] = useState({ nombre: '', descripcion: '', diasDesdeInicio: 0, estado: 'pendiente' as const });
   const [newRiesgo, setNewRiesgo] = useState({ categoria: '', descripcion: '', nivel: 'medio' as const, mitigation: '' });
   const [newChecklist, setNewChecklist] = useState({ categoria: '', item: '', requerido: true });
@@ -66,7 +68,7 @@ const PlantillaEditorModal: React.FC<PlantillaEditorModalProps> = ({ plantilla, 
   const addRenglon = () => {
     if (newRenglon.nombre && newRenglon.unidad) {
       setEstructuraPresupuesto([...estructuraPresupuesto, { ...newRenglon, tempId: Date.now() }]);
-      setNewRenglon({ nombre: '', unidad: '', cantidad: 0, costoMateriales: 0, costoManoObra: 0, costoEquipo: 0, descripcion: '' });
+      setNewRenglon({ nombre: '', descripcion: '', codigo: '', unidad: '', cantidad: 0, costoMateriales: 0, costoManoObra: 0, costoEquipo: 0, costoSubcontrato: 0 });
     }
   };
 

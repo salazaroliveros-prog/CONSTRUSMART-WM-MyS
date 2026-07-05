@@ -76,3 +76,15 @@ export const proveedorSchema = z.object({
   telefono: d.telefono ?? '',
   email: d.email ?? '',
 }));
+
+export const proveedorFormSchema = proveedorSchema.omit({ id: true, proyectoId: true, createdAt: true, updatedAt: true });
+
+export const ordenFormSchema = ordenSchema.omit({ id: true, fecha: true, estado: true, total: true, items: true, stockActualizado: true, version: true }).extend({
+  proveedor: z.string().min(1, 'Proveedor requerido'),
+  proveedorId: z.string().optional().default(''),
+  material: z.string().min(1, 'Material requerido'),
+  categoria: z.string().optional().default('materiales'),
+  cantidad: z.coerce.number().min(1, 'Cantidad requerida'),
+  monto: z.coerce.number().min(0, 'Monto requerido'),
+  proyectoId: z.string().optional().default(''),
+});

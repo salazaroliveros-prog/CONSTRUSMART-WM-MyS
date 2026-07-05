@@ -1,6 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useMemo, useState, useEffect } from 'react';
-import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, BUTTON_DANGER, BUTTON_DARK, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, KPI_CARD, GRID_4, FLEX_ROW, FLEX_COL, FORM_LABEL, FORM_ERROR, FORM_GROUP, DIVIDER } from '../ui';
 import { Modal, message } from 'antd';
@@ -14,6 +13,7 @@ import { exportCSV, exportPDF, exportXLSX } from '../export';
 import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Calculator, Save, X } from 'lucide-react';
 import PresupuestosList from '../components/PresupuestosList';
 import { MATERIALES_POR_ACTIVIDAD, PERSONAL_POR_ACTIVIDAD, ACTIVIDADES_TIPICAS, ACTIVIDAD_POR_RENGLON } from '../data/catalogos-presupuestos';
+import { presupuestoFormSchema } from '../store/schemas/presupuestos';
 
 const Presupuestos: React.FC = () => {
   const { t } = useTranslation();
@@ -35,11 +35,6 @@ const Presupuestos: React.FC = () => {
   const [editingPresupuesto, setEditingPresupuesto] = useState<Presupuesto | null>(null);
   const [savedItemsCount, setSavedItemsCount] = useState(0);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-
-  const presupuestoFormSchema = z.object({
-    proyecto: z.string().min(1, 'Nombre del presupuesto requerido'),
-    projectId: z.string().min(1, 'Proyecto asociado requerido'),
-  });
 
   const hasUnsavedChanges = items.length > 0 && items.length !== savedItemsCount;
   const confirmDiscard = async (): Promise<boolean> => {

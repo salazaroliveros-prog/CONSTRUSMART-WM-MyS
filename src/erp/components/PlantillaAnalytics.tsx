@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useErp } from '../store';
-import { BarChart3, TrendingUp, CheckCircle2, Clock, AlertCircle, Activity, Target, Zap } from 'lucide-react';
+import { TrendingUp, CheckCircle2, Clock, AlertCircle, Activity, Target, Zap } from 'lucide-react';
 import { Progress } from './Charts';
 
 const PlantillaAnalytics: React.FC<{ plantillaId: string }> = ({ plantillaId }) => {
@@ -76,7 +76,7 @@ const PlantillaAnalytics: React.FC<{ plantillaId: string }> = ({ plantillaId }) 
           </div>
           <div className="text-3xl font-bold mb-1">{Math.round(m.exitoPromedio || 50)}%</div>
           <div className="text-xs font-medium">{getExitoLabel(m.exitoPromedio || 50)}</div>
-          <Progress value={m.exitoPromedio || 50} className="mt-2" />
+          <Progress value={m.exitoPromedio || 50} color="text-emerald-600" bg="bg-emerald-100" className="mt-2" />
         </div>
 
         <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
@@ -87,7 +87,7 @@ const PlantillaAnalytics: React.FC<{ plantillaId: string }> = ({ plantillaId }) 
           <div className="text-3xl font-bold text-slate-700 dark:text-slate-300 mb-1">
             {Math.round(m.avgAvanceProyectos || 0)}%
           </div>
-          <Progress value={m.avgAvanceProyectos || 0} className="mt-2" />
+          <Progress value={m.avgAvanceProyectos || 0} color="text-blue-600" bg="bg-blue-100" className="mt-2" />
         </div>
 
         <div className="p-4 bg-orange-50 dark:bg-orange-950/30 rounded-lg">
@@ -98,7 +98,7 @@ const PlantillaAnalytics: React.FC<{ plantillaId: string }> = ({ plantillaId }) 
           <div className="text-3xl font-bold text-orange-700 dark:text-orange-300 mb-1">
             {Math.round(m.avgMargenProyectos || 0)}%
           </div>
-          <Progress value={m.avgMargenProyectos || 0} className="mt-2" />
+          <Progress value={m.avgMargenProyectos || 0} color="text-orange-600" bg="bg-orange-100" className="mt-2" />
         </div>
       </div>
 

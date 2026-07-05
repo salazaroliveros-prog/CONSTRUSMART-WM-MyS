@@ -10,29 +10,14 @@ import { exportStockPDF } from '../export';
 import { Progress, BarChart } from '../components/Charts';
 import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
-import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2 } from 'lucide-react';
+import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT_COMPACT, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL } from '../ui';
 
-const proveedorSchema = z.object({
-  nombre: z.string().min(1, 'Nombre requerido'),
-  contacto: z.string().min(1, 'Contacto requerido'),
-  rubro: z.string().min(1, 'Rubro requerido'),
-  calificacion: z.coerce.number().min(0).max(5),
-});
+import { proveedorFormSchema, ordenFormSchema } from '../store/schemas/bodega';
 
-const ordenSchema = z.object({
-  proyectoId: z.string().optional().default(''),
-  proveedor: z.string().min(1, 'Proveedor requerido'),
-  proveedorId: z.string().optional().default(''),
-  material: z.string().min(1, 'Material requerido'),
-  categoria: z.string().optional().default('materiales'),
-  cantidad: z.coerce.number().min(1, 'Cantidad requerida'),
-  monto: z.coerce.number().min(0, 'Monto requerido'),
-});
-
-type ProveedorFormData = z.infer<typeof proveedorSchema>;
-type OrdenFormData = z.infer<typeof ordenSchema>;
+type ProveedorFormData = z.infer<typeof proveedorFormSchema>;
+type OrdenFormData = z.infer<typeof ordenFormSchema>;
 type ProveedorOption = { id: string; nombre: string };
 
 
@@ -89,7 +74,7 @@ const Bodega: React.FC = () => {
     setValue,
     formState: { errors: errorsProv },
   } = useForm<ProveedorFormData>({
-    resolver: zodResolver(proveedorSchema),
+    resolver: zodResolver(proveedorFormSchema),
     defaultValues: { nombre: '', contacto: '', rubro: '', calificacion: 3 },
   });
 
@@ -100,7 +85,7 @@ const Bodega: React.FC = () => {
     watch: watchOrd,
     formState: { errors: errorsOrd },
   } = useForm<OrdenFormData>({
-    resolver: zodResolver(ordenSchema),
+    resolver: zodResolver(ordenFormSchema),
     defaultValues: { proveedor: '', proyectoId: '', proveedorId: '', material: '', categoria: 'materiales', cantidad: 1, monto: 0 },
   });
 

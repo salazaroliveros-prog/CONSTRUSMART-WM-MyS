@@ -1,4 +1,3 @@
-import React from 'react'
 import { motion } from 'framer-motion'
 import { Cloud, CloudOff, RefreshCw, Check, AlertTriangle } from 'lucide-react'
 import { useErp } from '../erp/store'
@@ -11,7 +10,7 @@ export function SyncStatusBadge() {
 
   const getStatus = (): SyncStatus => {
     if (!isOnline) return 'offline'
-    if (syncStatus === 'syncing') return 'syncing'
+    if (syncStatus === 'loading') return 'syncing'
     if (syncStatus === 'error') return 'error'
     if (pendingCount > 0) return 'pending'
     return 'synced'

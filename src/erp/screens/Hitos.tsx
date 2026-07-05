@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Modal } from 'antd';
 import { todayISO } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { hitoFormSchema } from '../store/schemas/calendario';
 
 const HitosScreen: React.FC = () => {
   const { proyectos, updateProyecto, selectedProyectoId, setSelectedProyectoId, hitos, addHito, updateHito, deleteHito, addNotificacion } = useErp();
@@ -20,15 +21,6 @@ const HitosScreen: React.FC = () => {
   });
   const [form, setForm] = useState({ proyectoId: '', nombre: '', descripcion: '', fecha: '', tipo: 'hito' as Hito['tipo'], responsable: '', dependeDe: [] as string[] });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-
-  const hitoSchema = z.object({
-    proyectoId: z.string().min(1, 'Proyecto requerido'),
-    nombre: z.string().min(1, 'Nombre requerido'),
-    descripcion: z.string().optional().default(''),
-    fecha: z.string().min(1, 'Fecha requerida'),
-    tipo: z.enum(['inicio', 'hito', 'entrega', 'cierre']),
-    responsable: z.string().optional().default('')
-  });
 
   useEffect(() => {
     if (selectedProyectoId && !form.proyectoId) {
@@ -46,7 +38,7 @@ const HitosScreen: React.FC = () => {
   };
 
   const agregar = () => {
-    const result = hitoSchema.safeParse(form);
+    const result = hitoFormSchema.safeParse(form);
     if (!result.success) {
       const errors: Record<string, string> = {};
       result.error.errors.forEach(e => {

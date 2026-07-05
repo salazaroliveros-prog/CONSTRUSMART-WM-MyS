@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -138,7 +138,7 @@ const HeatMap: React.FC<{ proyectos: Proyecto[] }> = ({ proyectos }) => {
   };
 
   const estados = ['todos', ...new Set(proyectos.map(p => p.estado))];
-  const categorias = ['todos', ...new Set(proyectos.map(p => p.categoria).filter(Boolean))];
+  const categorias = ['todos', ...new Set(proyectos.map(p => (p as any).categoria).filter(Boolean))];
 
   return (
     <div className="space-y-4">
@@ -284,8 +284,8 @@ const HeatMap: React.FC<{ proyectos: Proyecto[] }> = ({ proyectos }) => {
                     ? calculateDistance(p1.lat, p1.lng, p2.lat, p2.lng)
                     : Infinity,
                 }))
-                .filter(p => p.distancia < 100)
-                .sort((a, b) => a.distancia - b.distancia)
+                .filter((p: { distancia: number }) => p.distancia < 100)
+                .sort((a: { distancia: number }, b: { distancia: number }) => a.distancia - b.distancia)
                 .slice(0, 3);
 
               if (nearby.length === 0) return null;

@@ -36,3 +36,19 @@ export const bitacoraSchema = z.object({
   weatherDataTimestamp: z.string().nullable().optional(),
   createdAt: z.string().default(new Date().toISOString()),
 });
+
+export const hitoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string().min(1, 'Proyecto requerido'),
+  nombre: z.string().min(1, 'Nombre requerido'),
+  descripcion: z.string().optional().default(''),
+  fecha: z.string().min(1, 'Fecha requerida'),
+  tipo: z.enum(['inicio', 'hito', 'entrega', 'cierre']),
+  responsable: z.string().optional().default(''),
+  estado: z.enum(['pendiente', 'completado', 'retrasado']),
+  dependeDe: z.array(z.string()).optional(),
+  completadoEn: z.string().optional(),
+  createdAt: z.string(),
+});
+
+export const hitoFormSchema = hitoSchema.omit({ id: true, estado: true, dependeDe: true, completadoEn: true, createdAt: true });

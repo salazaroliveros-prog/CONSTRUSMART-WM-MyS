@@ -60,8 +60,6 @@ const CRM: React.FC = () => {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-
-
   const columns = useMemo(() => {
     return ESTADOS.map(est => ({
       ...est,
@@ -109,7 +107,6 @@ const CRM: React.FC = () => {
         fieldErrors[field] = err.message;
       });
       setFormErrors(fieldErrors);
-      
       return;
     }
     setFormErrors({});
@@ -172,19 +169,19 @@ const CRM: React.FC = () => {
 
   return (
     <div className="p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-2">
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2 mb-2">
-              <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> {t('crm.heading')}
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{t('crm.subtitulo')}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <select value={filtroProyecto} onChange={e => setFiltroProyecto(e.target.value)} className="px-2 py-1.5 rounded-lg text-xs outline-none focus:ring-2 focus:ring-ring bg-background border border-input text-foreground">
-              <option value="">{t('crm.todos_proyectos')}</option>
-              {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-            </select>
-            <button 
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-2">
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2 mb-2">
+            <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> {t('crm.heading')}
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{t('crm.subtitulo')}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <select value={filtroProyecto} onChange={e => setFiltroProyecto(e.target.value)} className="px-2 py-1.5 rounded-lg text-xs outline-none focus:ring-2 focus:ring-ring bg-background border border-input text-foreground">
+            <option value="">{t('crm.todos_proyectos')}</option>
+            {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+          </select>
+          <button
             onClick={() => { resetForm(); setShowForm(true); }}
             className="bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
@@ -203,7 +200,6 @@ const CRM: React.FC = () => {
           <div className="text-[10px] text-muted-foreground">
             {t('crm.ganadas_perdidas', { ganadas: licitacionesFiltradas.filter(l => l.estado === 'adjudicada').length, perdidas: licitacionesFiltradas.filter(l => l.estado === 'perdida').length })}
           </div>
-          <div className="text-[10px] text-muted-foreground">Activas y en seguimiento</div>
         </div>
         <div className={KPI_CARD}>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
@@ -218,7 +214,6 @@ const CRM: React.FC = () => {
             <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.pipeline_activo')}</span>
           </div>
           <div className={`text-lg sm:text-2xl font-bold ${COLOR_INFO} truncate`}>{fmtQ(pipelineActivo)}</div>
-          <div className="text-[10px] text-muted-foreground">{t('crm.oportunidades_activas')}</div>
         </div>
         <div className={KPI_CARD}>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
@@ -226,7 +221,6 @@ const CRM: React.FC = () => {
             <span className="text-[10px] sm:text-xs text-muted-foreground">{t('crm.conversion')}</span>
           </div>
           <div className={`text-xl sm:text-2xl font-bold ${COLOR_WARNING}`}>{tasaConversion}%</div>
-          <div className="text-[10px] text-muted-foreground">{t('crm.ganadas_vs_decididas')}</div>
         </div>
       </div>
 
@@ -268,11 +262,11 @@ const CRM: React.FC = () => {
                   <div className="flex justify-between items-start mb-1">
                     <h4 className="font-semibold text-sm text-foreground truncate flex-1">{l.nombre}</h4>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1">
-                        <button onClick={() => openEdit(l)} className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded" aria-label={t('crm.editar_aria')}>
-                          <Pencil className="w-3 h-3" aria-hidden="true" />
-                        </button>
-                        <button onClick={() => { deleteLicitacion(l.id); toast.success(t('crm.toast_eliminada')); }} className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded" aria-label={t('crm.eliminar_aria')}>
-                          <Trash2 className="w-3 h-3" aria-hidden="true" />
+                      <button onClick={() => openEdit(l)} className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded" aria-label={t('crm.editar_aria')}>
+                        <Pencil className="w-3 h-3" aria-hidden="true" />
+                      </button>
+                      <button onClick={() => { deleteLicitacion(l.id); toast.success(t('crm.toast_eliminada')); }} className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded" aria-label={t('crm.eliminar_aria')}>
+                        <Trash2 className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </div>
                   </div>
@@ -281,14 +275,14 @@ const CRM: React.FC = () => {
                     <span className="font-bold text-foreground">{fmtQ(l.monto)}</span>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                       l.probabilidad >= 70 ? 'bg-emerald-50 text-emerald-600' :
-                      l.probabilidad >= 40 ? 'bg-amber-50 ' + COLOR_WARNING :
+                      l.probabilidad >= 40 ? 'bg-amber-50 text-amber-600' :
                       'bg-muted/30 text-muted-foreground'
                     }`}>
                       {l.probabilidad}%
                     </span>
                   </div>
                   {l.notas && <p className="text-[10px] text-muted-foreground italic line-clamp-2">{l.notas}</p>}
-                  
+
                   {l.estado === 'activa' && (
                     <div className="flex gap-1 mt-2 pt-2 border-t border-border">
                       <button
@@ -299,7 +293,7 @@ const CRM: React.FC = () => {
                       </button>
                       <button
                         onClick={() => moveLicitacion(l.id, 'perdida')}
-                        className={`flex-1 text-[8px] py-1 rounded font-medium ${COLOR_DANGER} hover:bg-red-50`}
+                        className="flex-1 text-[8px] py-1 rounded font-medium text-red-600 hover:bg-red-50"
                       >
                         {t('crm.perder_btn')}
                       </button>
@@ -329,41 +323,41 @@ const CRM: React.FC = () => {
               <h2 className="font-bold text-lg text-foreground">
                 {editingId ? t('crm.editar_oportunidad') : t('crm.nueva_licitacion')}
               </h2>
-              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} aria-label={t('common.cerrar')} className={`${BUTTON_ICON} min-h-[44px] min-w-[44px]`}>
+              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} aria-label={t('common.cerrar')} className="p-2 hover:bg-muted rounded-lg">
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Nombre *</label>
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('crm.nombre')} *</label>
                 <input
                   value={formData.nombre}
                   onChange={e => { setFormData(p => ({ ...p, nombre: e.target.value })); setFormErrors(prev => ({ ...prev, nombre: '' })); }}
                   placeholder="Ej. Edificio Comercial"
                   className={`w-full px-3.5 py-2.5 text-sm rounded-lg border outline-none bg-background text-foreground focus:border-primary ${formErrors.nombre ? 'border-destructive bg-destructive/5' : 'border-border'}`}
                 />
-                {formErrors.nombre && <p className={`text-xs ${COLOR_DANGER} mt-1`}>{formErrors.nombre}</p>}
+                {formErrors.nombre && <p className="text-xs text-destructive mt-1">{formErrors.nombre}</p>}
               </div>
               <div>
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Proyecto</label>
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('crm.proyecto')}</label>
                 <select value={formData.proyectoId} onChange={e => setFormData(p => ({ ...p, proyectoId: e.target.value }))} className="w-full px-3.5 py-2.5 text-sm rounded-lg border outline-none bg-background text-foreground focus:border-primary border-border">
-                  <option value="">Sin proyecto</option>
+                  <option value="">{t('crm.sin_proyecto')}</option>
                   {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Cliente *</label>
-  <input
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('crm.cliente')} *</label>
+                  <input
                     value={formData.cliente}
                     onChange={e => { setFormData(p => ({ ...p, cliente: e.target.value })); setFormErrors(prev => ({ ...prev, cliente: '' })); }}
-                    placeholder="Nombre del cliente"
+                    placeholder={t('crm.cliente_placeholder')}
                     className={INPUT}
                   />
-                  {formErrors.cliente && <p className={`text-xs ${COLOR_DANGER} mt-1`}>{formErrors.cliente}</p>}
+                  {formErrors.cliente && <p className="text-xs text-destructive mt-1">{formErrors.cliente}</p>}
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Monto Q</label>
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('crm.monto')} Q</label>
                   <input
                     type="number" inputMode="decimal"
                     value={formData.monto}
@@ -371,23 +365,23 @@ const CRM: React.FC = () => {
                     placeholder="0.00"
                     className={INPUT}
                   />
-                  {formErrors.monto && <p className={`text-xs ${COLOR_DANGER} mt-1`}>{formErrors.monto}</p>}
+                  {formErrors.monto && <p className="text-xs text-destructive mt-1">{formErrors.monto}</p>}
                 </div>
               </div>
               <div>
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Probabilidad <span className="font-bold text-blue-600">{formData.probabilidad}%</span></label>
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('crm.probabilidad')} <span className="font-bold text-blue-600">{formData.probabilidad}%</span></label>
                 <input
                   type="range" min="0" max="100" step="5"
                   value={formData.probabilidad}
                   onChange={e => setFormData(p => ({ ...p, probabilidad: +e.target.value }))}
-                  className="w-full accent-purple-500"
+                  className="w-full accent-primary"
                 />
                 <div className="flex justify-between text-[10px] text-muted-foreground">
                   <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
                 </div>
               </div>
               <div>
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Fecha Límite</label>
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('crm.fecha_limite')}</label>
                 <input
                   type="date"
                   value={formData.fechaLimite}
@@ -396,19 +390,19 @@ const CRM: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">Notas</label>
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('crm.notas')}</label>
                 <textarea
                   value={formData.notas}
                   onChange={e => setFormData(p => ({ ...p, notas: e.target.value }))}
-                  placeholder="Notas internas..."
+                  placeholder={t('crm.notas_placeholder')}
                   rows={2}
                   className={INPUT}
                 />
               </div>
             </div>
-          <button type="submit" className={`${BUTTON_PRIMARY} mt-4 w-full justify-center`}>
-            {editingId ? 'Guardar Cambios' : 'Crear Oportunidad'}
-          </button>
+            <button type="submit" className={BUTTON_PRIMARY + ' mt-4 w-full justify-center'}>
+              {editingId ? t('common.guardar') : t('crm.crear_oportunidad')}
+            </button>
           </form>
         </div>
       )}
@@ -417,6 +411,3 @@ const CRM: React.FC = () => {
 };
 
 export default CRM;
-
-
-

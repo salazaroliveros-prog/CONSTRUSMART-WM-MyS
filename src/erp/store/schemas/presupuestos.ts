@@ -69,6 +69,11 @@ export const presupuestoSchema = z.object({
   notas: z.string().nullable().optional(),
 });
 
+export const presupuestoFormSchema = z.object({
+  proyecto: z.string().min(1, 'Nombre del presupuesto requerido'),
+  projectId: z.string().min(1, 'Proyecto asociado requerido'),
+});
+
 export const cotizacionSchema = z.object({
   id: z.string(),
   proyectoId: z.string().min(1, 'proyectoId es requerido'),

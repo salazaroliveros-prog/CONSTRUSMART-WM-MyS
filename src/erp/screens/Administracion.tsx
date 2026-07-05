@@ -12,9 +12,23 @@ import { centroCostoFormSchema } from '../store/schemas/admin';
 
 type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
 
+const Administracion: React.FC = () => {
+  const { proyectos, t } = useErp();
+  const [tab, setTab] = useState<'centros' | 'logs' | 'validacion'>('centros');
+  const [centrosCosto, setCentrosCosto] = useState<CentroCosto[]>([]);
+  const [auditLog, setAuditLog] = useState<LogAuditoria[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [filtroProyecto, setFiltroProyecto] = useState('');
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 300);
+    return () => clearTimeout(t);
+  }, []);
+
   const uid = () => Date.now().toString(36).substr(2, 9);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CentroCostoForm>({
-    resolver: zodResolver(centroCostoSchema),
+    resolver: zodResolver(centroCostoFormSchema),
     defaultValues: { proyectoId: '', codigo: '', nombre: '', presupuestoAsignado: 0, tipo: 'directo' },
   });
 
@@ -248,4 +262,3 @@ type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
 };
 
 export default Administracion;
-

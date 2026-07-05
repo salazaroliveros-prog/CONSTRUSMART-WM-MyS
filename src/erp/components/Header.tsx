@@ -53,7 +53,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
   };
 
   const avatarSrc = customPhoto || user?.avatar;
-  const initials = (user?.nombre || 'WM').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const initials = (user?.nombre || 'WM').split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
 
   return (
     <header className="bg-primary/80 backdrop-blur-md text-primary-foreground h-[50px] sm:h-[60px] px-2 sm:px-4 lg:px-6 py-1.5 sm:py-2 flex items-center justify-between gap-1 sm:gap-2 lg:gap-3 sticky top-0 z-30 shadow-lg">

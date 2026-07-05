@@ -51,7 +51,7 @@ const QuickActionsFab: React.FC = () => {
       },
     ];
 
-    const viewActions: Record<View, QuickAction[]> = {
+    const viewActions: Record<string, QuickAction[]> = {
       dashboard: [
         {
           id: 'new-project',
@@ -547,9 +547,9 @@ const QuickActionsFab: React.FC = () => {
       login: [],
     };
 
-    const contextActions = viewActions[view] || [];
-    return [...contextActions, ...commonActions];
-  }, [view, setView, t]);
+    const currentActions = viewActions[view as string] || [];
+    return [...currentActions, ...commonActions];
+  }, [view, t]);
 
   if (actions.length === 0) return null;
 
