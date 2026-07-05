@@ -514,7 +514,7 @@ const APUAvanzado: React.FC = () => {
                 </thead>
                 <tbody>
                   {filteredRendimientos.map(r => (
-                    <tr key={r.id} className="border-b border-slate-50 hover:bg-accent">
+                    <tr key={r.id} className="border-b border-border hover:bg-accent">
                       <td className="py-2 px-2 font-medium text-muted-foreground">{r.actividad}</td>
                       <td className="py-2 px-2 text-muted-foreground">{r.cuadrilla}</td>
                       <td className="py-2 px-2 text-right font-semibold text-muted-foreground">{r.rendimientoDiario}</td>

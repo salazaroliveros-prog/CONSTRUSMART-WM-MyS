@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Modal, message } from 'antd';
+import { Modal } from 'antd';
 import { useErp } from '../store';
 import { fmtQ, fmtPct, todayISO } from '../utils';
 import { useTranslation } from 'react-i18next';

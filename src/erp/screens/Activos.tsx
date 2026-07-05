@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
-import { Search, Wrench, Truck, Package, AlertTriangle, Edit2, Trash2 } from 'lucide-react';
+import { Search, Wrench, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Modal } from 'antd';
 
