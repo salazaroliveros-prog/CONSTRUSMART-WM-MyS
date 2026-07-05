@@ -22,7 +22,6 @@ import { safeLogger } from '@/lib/safeLogger';
 import { sanitizarObjeto, getViewsByRole } from '@/lib/security';
 import { useAuth } from '@/hooks/useAuth';
 import { encryptionManager, migrateSecureStorage } from '@/lib/encryption';
-import type { Mutation } from './types';
 import { logErrorFromException } from '@/lib/error-logger';
 const BASE_STORAGE_KEY = 'wm_erp_data';
 const QUEUE_KEY = 'wm_erp_queue';
