@@ -670,6 +670,7 @@ const ctxValue = useMemo(() => ({
             const channel = client.channel(table);
             channel
               .on(
+                'postgres_changes',
                 { event: '*', schema: 'public', table },
                 payload => {
                   // Manejar eventos de inserción, actualización y eliminación
@@ -736,7 +737,7 @@ const ctxValue = useMemo(() => ({
         supabaseSubscriptionsRef.current = true;
       };
       
-      subscribeToRealtime();
+      subscribeToRealtime().catch(() => {});
     }, [isOnline]);
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
