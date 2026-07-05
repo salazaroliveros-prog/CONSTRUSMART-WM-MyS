@@ -1226,7 +1226,7 @@ Para soporte técnico o dudas sobre esta guía:
 
 - **Email**: salazaroliveros@gmail.com
 - **GitHub**: https://github.com/salazaroliveros-prog/CONSTRUSMART-WM-MyS
-- **Vercel**: https://construsmart.vercel.app
+- **Vercel**: https://construsmart-wm2026.vercel.app
 - **Supabase**: Panel de administración en https://supabase.com/dashboard
 
 ---

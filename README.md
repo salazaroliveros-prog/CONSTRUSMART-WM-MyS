@@ -275,10 +275,10 @@ Ver `SUPABASE_GOOGLE_OAUTH_SETUP.md` (archivo eliminado — contenido consolidad
 
 ### Supabase Dashboard
 - **Site URL:** `http://localhost:8080`
-- **Redirect URLs:** `http://localhost:8080`, `http://localhost:8080/**`, `https://erp-construsmart-wm.vercel.app`, `https://construsmart-wm2026.vercel.app/**`
+- **Redirect URLs:** `http://localhost:8080`, `http://localhost:8080/**`, `https://construsmart-wm2026.vercel.app/**`
 
 ### Google Cloud Console
-- **Authorized JavaScript origins:** `http://localhost:8080`, `http://localhost`, `https://erp-construsmart-wm.vercel.app`
+- **Authorized JavaScript origins:** `http://localhost:8080`, `http://localhost`, `https://construsmart-wm2026.vercel.app`
 - **Authorized redirect URIs:** `https://neygzluxugodiwcuctbj.supabase.co/auth/v1/callback?provider=google`
 
 ### Troubleshooting

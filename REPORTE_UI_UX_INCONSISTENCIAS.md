@@ -322,7 +322,7 @@
 
 ### ✅ Vercel Deploy
 - **Build**: ✅ Exitoso
-- **Production**: https://construsmart-wm2026-fgjgas8w5-proyectoswm.vercel.app
+- **Production**: https://construsmart-wm2026.vercel.app
 - **Warnings**: Solo npm engine warning (no crítico)
 
 ### ✅ Supabase
