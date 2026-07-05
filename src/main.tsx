@@ -7,6 +7,7 @@ import { errorReporter } from '@/lib/errorReporting';
 import { initMetrics } from '@/lib/metrics';
 import './index.css';
 import '@/lib/i18n';
+import '@/antd-global.css';
 import { initSentry } from '@/lib/sentry';
 
 const container = document.getElementById('root');

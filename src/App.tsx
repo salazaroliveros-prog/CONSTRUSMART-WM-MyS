@@ -24,7 +24,11 @@ function getIsDark(): boolean {
       const parsed = JSON.parse(s);
       return parsed?.appTheme === 'dark' || parsed?.appTheme === 'dark-pro';
     }
-  } catch { /* silent */ }
+  } catch (e) {
+    console.warn('[Theme] Error leyendo preferencia de tema, usando system default:', e);
+    localStorage.removeItem('wm_erp_theme');
+    localStorage.removeItem('wm_erp_data_settings');
+  }
   return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
