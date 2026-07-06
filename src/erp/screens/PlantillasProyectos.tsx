@@ -782,7 +782,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleEditStructure(plantilla)}
-                      className="p-1 hover:bg-muted rounded COLOR_PRIMARY dark:text-indigo-400 transition-colors duration-200"
+                      className={`p-1 hover:bg-muted rounded ${COLOR_PRIMARY} dark:text-indigo-400 transition-colors duration-200`}
                       aria-label={`Editar estructura de ${plantilla.nombre}`}
                       title="Editar estructura completa"
                     >
@@ -790,7 +790,7 @@ const PlantillasProyectos: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleClone(plantilla)}
-                      className="p-1 hover:bg-muted rounded COLOR_INFO dark:text-blue-400 transition-colors duration-200"
+                      className={`p-1 hover:bg-muted rounded ${COLOR_INFO} dark:text-blue-400 transition-colors duration-200`}
                       aria-label={`Clonar ${plantilla.nombre}`}
                       title="Clonar"
                     >
