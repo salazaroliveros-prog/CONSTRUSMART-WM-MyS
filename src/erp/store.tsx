@@ -134,7 +134,7 @@ const MUTATION_TABLE_MAP: Record<string, string> = {
   addPresupuesto:'erp_presupuestos',updatePresupuesto:'erp_presupuestos',deletePresupuesto:'erp_presupuestos',
   addLicitacion:'erp_licitaciones',updateLicitacion:'erp_licitaciones',deleteLicitacion:'erp_licitaciones',
   addCotizacion:'erp_cotizaciones_negocio',updateCotizacion:'erp_cotizaciones_negocio',deleteCotizacion:'erp_cotizaciones_negocio',
-  addVentaPaquete:'ventas_paquetes',updateVentaPaquete:'ventas_paquetes',deleteVentaPaquete:'ventas_paquetes',
+  addVentaPaquete:'erp_ventas_paquetes',updateVentaPaquete:'erp_ventas_paquetes',deleteVentaPaquete:'erp_ventas_paquetes',
   addAvance:'erp_avances',updateAvance:'erp_avances',deleteAvance:'erp_avances',
   addCuentaCobrar:'erp_cuentas_cobrar',updateCuentaCobrar:'erp_cuentas_cobrar',deleteCuentaCobrar:'erp_cuentas_cobrar',
   addCuentaPagar:'erp_cuentas_pagar',updateCuentaPagar:'erp_cuentas_pagar',deleteCuentaPagar:'erp_cuentas_pagar',
@@ -622,7 +622,7 @@ const ctxValue = useMemo(() => ({
           'public:erp_presupuestos',
           'public:erp_avances',
           'public:erp_muro',
-          'public:ventas_paquetes',
+           'public:erp_ventas_paquetes',
           'public:erp_proyecto_weather',
         ]);
         

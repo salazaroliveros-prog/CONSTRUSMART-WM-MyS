@@ -27,7 +27,7 @@ const CATEGORIA_MAP = [
   { id: 'ejecucion', label: 'Ejecución', targetView: 'seguimiento', modules: ['Seguimiento', 'Rendimiento Campo', 'SSO', 'Muro', 'Órdenes Cambio', 'Documentos', 'BIM'], tables: ['erp_seguimiento', 'erp_avances', 'erp_rendimientos_cuadrilla', 'erp_no_conformidades', 'erp_muro', 'erp_ordenes_cambio', 'erp_planos', 'erp_rfis', 'erp_submittals'] },
   { id: 'suministro', label: 'Suministro', targetView: 'bodega', modules: ['Bodega', 'Logística', 'Entradas Almacén'], tables: ['erp_materiales', 'erp_ordenes_compra', 'erp_vales_salida', 'erp_recepciones', 'erp_proveedores'] },
   { id: 'rrhh', label: 'RRHH', targetView: 'rrhh', modules: ['Recursos Humanos', 'Planilla Destajos'], tables: ['erp_empleados', 'destajos'] },
-  { id: 'finanzas', label: 'Finanzas', targetView: 'financiero', modules: ['Financiero', 'Comercial', 'Cuentas Cobrar', 'Cuentas Pagar', 'Impuestos'], tables: ['erp_movimientos', 'ventas_paquetes', 'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'pagos_proveedores'] },
+  { id: 'finanzas', label: 'Finanzas', targetView: 'financiero', modules: ['Financiero', 'Comercial', 'Cuentas Cobrar', 'Cuentas Pagar', 'Impuestos'],     tables: ['erp_movimientos', 'erp_ventas_paquetes', 'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_pagos_proveedor'] },
   { id: 'bi', label: 'Análisis BI', targetView: 'predictivo', modules: ['Dashboard BI', 'Exportación', 'Reportes Técnicos'], tables: ['erp_seguimiento', 'erp_avances', 'erp_movimientos', 'erp_presupuestos'] },
   { id: 'sistema', label: 'Sistema', targetView: 'notificaciones', modules: ['Notificaciones', 'Administración', 'Ajustes'], tables: ['erp_notificaciones'] },
 ];
@@ -367,10 +367,10 @@ const Dashboard: React.FC = () => {
     erp_empleados: empleados || [],
     destajos: destajos || [],
     erp_movimientos: movimientos || [],
-    ventas_paquetes: ventasPaquetes || [],
+    erp_ventas_paquetes: ventasPaquetes || [],
     erp_cuentas_cobrar: cuentasCobrar || [],
     erp_cuentas_pagar: cuentasPagar || [],
-    pagos_proveedores: pagosProveedor || [],
+    erp_pagos_proveedor: pagosProveedor || [],
     erp_notificaciones: notificaciones || [],
   }), [proyectos, licitaciones, cotizacionesNegocio, presupuestos, hitos, riesgos, seguimientoEVM, avances, ncs, publicacionesMuro, ordenesCambio, planos, rfis, submittals, materiales, ordenes, valesSalida, recepciones, empleados, destajos, movimientos, cuentasCobrar, cuentasPagar, pagosProveedor, notificaciones, proveedores, ventasPaquetes]);
 

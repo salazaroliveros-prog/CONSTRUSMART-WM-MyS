@@ -166,11 +166,11 @@ await upsert('erp_cuentas_pagar', [
   { id: '62000000-0000-0000-0000-000000000001', proyecto_id: 'a2000000-0000-0000-0000-000000000001', proveedor: 'Aceros Industriales GT', concepto: 'Saldo acero estructural', monto: 38000, saldo_pendiente: 38000, fecha_emision: d(-130), fecha_vencimiento: d(-10), estado: 'vencido', factura_url: '' },
   { id: '62000000-0000-0000-0000-000000000002', proyecto_id: 'a2000000-0000-0000-0000-000000000003', proveedor: 'Materiales San Marcos', concepto: 'Block y arena', monto: 185000, saldo_pendiente: 92500, fecha_emision: d(-35), fecha_vencimiento: d(10), estado: 'parcial', factura_url: '' },
 ]);
-await upsert('ventas_paquetes', [
+await upsert('erp_ventas_paquetes', [
   { id: '3c000000-0000-0000-0000-000000000001', proyecto_id: 'a2000000-0000-0000-0000-000000000003', tipo: 'unidad', identificador: 'TORRE-A-APT-301', precio_venta: 1250000, precio_contrato: 1180000, estado: 'reservado', cliente: 'Lic. Mario Pérez', fecha_reserva: d(-12), fecha_venta: null, plan_pago: 'Cuota inicial 20%, saldo financiamiento bancario', notas: 'Reserva con promoción lanzamiento' },
   { id: '3c000000-0000-0000-0000-000000000002', proyecto_id: 'a2000000-0000-0000-0000-000000000003', tipo: 'unidad', identificador: 'TORRE-B-APT-502', precio_venta: 1320000, precio_contrato: 1250000, estado: 'disponible', cliente: '', fecha_reserva: null, fecha_venta: null, plan_pago: 'Contado o financiamiento', notas: '' },
 ]);
-await upsert('pagos_proveedores', [
+await upsert('erp_pagos_proveedor', [
   { id: '63000000-0000-0000-0000-000000000001', proyecto_id: 'a2000000-0000-0000-0000-000000000001', proveedor_id: '5f000000-0000-0000-0000-000000000002', monto: 38000, concepto: 'Saldo acero estructural', fecha_emision: d(-130), fecha_vencimiento: d(-10), fecha_pago: null, estado: 'vencido', factura_url: '' },
   { id: '63000000-0000-0000-0000-000000000002', proyecto_id: 'a2000000-0000-0000-0000-000000000002', proveedor_id: '5f000000-0000-0000-0000-000000000003', monto: 170000, concepto: 'Renta compactadora', fecha_emision: d(-70), fecha_vencimiento: d(5), fecha_pago: null, estado: 'pendiente', factura_url: '' },
 ]);
