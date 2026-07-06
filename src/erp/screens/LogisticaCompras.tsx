@@ -3,30 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, uid } from '../store';
 import { Wrench, BarChart3, DollarSign, CheckCircle, Trash2 } from 'lucide-react';
-import type { ActivoHerramienta, PagoProveedor } from '../types';
-import { z } from 'zod';
-import { toast } from 'sonner';
-const activoSchema = z.object({
-  nombre: z.string().min(1, 'Nombre requerido').max(100, 'Máximo 100 caracteres'),
-  codigoInventario: z.string().min(1, 'Código requerido').max(50, 'Máximo 50 caracteres'),
-  tipo: z.enum(['herramienta', 'equipo', 'vehiculo', 'accesorio']),
-  valorAdquisicion: z.coerce.number().min(0, 'Debe ser ≥ 0').max(9_999_999, 'Monto muy alto'),
-});
+import type { ActivoHerramienta } from '../types';
+import { todayISO } from '../utils';
 
-const cuadroSchema = z.object({
-  solicitud: z.string().min(3, 'Mínimo 3 caracteres').max(200, 'Máximo 200 caracteres'),
-});
-
-const pagoSchema = z.object({
-  proveedorNombre: z.string().min(1, 'Proveedor requerido').max(100, 'Máximo 100 caracteres'),
-  concepto: z.string().min(1, 'Concepto requerido').max(200, 'Máximo 200 caracteres'),
-  monto: z.coerce.number().min(1, 'Debe ser ≥ Q1').max(99_999_999, 'Monto muy alto'),
-  fechaVencimiento: z.string().min(1, 'Fecha requerida'),
-});
+const formControlClass = (hasError = false) =>
+  `w-full px-3 py-2 border rounded-lg text-sm outline-none transition ${hasError ? 'border-destructive focus:border-destructive focus:ring-destructive/20' : 'border-input focus:border-ring focus:ring-ring/20'}`;
 
 export const LogisticaCompras: React.FC = () => {
   const { t } = useTranslation();
-  const { activos, addActivo, updateActivo, deleteActivo, cuadros, addCuadro, updateCuadro, pagosProveedor, addPagoProveedor, updatePagoProveedor } = useErp();
+  const { activos, addActivo, deleteActivo, cuadros, addCuadro, updateCuadro, deleteCuadro, pagosProveedor, addPagoProveedor, deletePagoProveedor } = useErp();
   const [tab, setTab] = useState<'activos' | 'cuadros' | 'pagos'>('activos');
   const [showForm, setShowForm] = useState<string | null>(null);
   const [form, setForm] = useState<Record<string, string | number>>({});
@@ -38,6 +23,92 @@ export const LogisticaCompras: React.FC = () => {
   const updateForm = (field: string, value: string | number) => {
     setForm(prev => ({ ...prev, [field]: value }));
     clearError(field);
+  };
+
+  const validateActivo = () => {
+    const errors: Record<string, string> = {};
+    if (!String(form.nombre || '').trim()) errors.nombre = t('logistica.error_nombre', 'Nombre requerido');
+    if (!String(form.codigoInventario || '').trim()) errors.codigoInventario = t('logistica.error_codigo_inventario', 'Código de inventario requerido');
+    const valor = Number(form.valorAdquisicion);
+    if (!form.valorAdquisicion || Number.isNaN(valor) || valor < 0) errors.valorAdquisicion = t('logistica.error_valor_adquisicion', 'Valor válido requerido');
+    return errors;
+  };
+
+  const validateCuadro = () => {
+    const errors: Record<string, string> = {};
+    if (!String(form.solicitud || '').trim() || String(form.solicitud || '').trim().length < 3) {
+      errors.solicitud = t('logistica.error_solicitud', 'Descripción de la solicitud requerida (mínimo 3 caracteres)');
+    }
+    return errors;
+  };
+
+  const validatePago = () => {
+    const errors: Record<string, string> = {};
+    if (!String(form.proveedorNombre || '').trim()) errors.proveedorNombre = t('logistica.error_proveedor', 'Nombre del proveedor requerido');
+    if (!String(form.concepto || '').trim()) errors.concepto = t('logistica.error_concepto', 'Concepto requerido');
+    const monto = Number(form.monto);
+    if (!form.monto || Number.isNaN(monto) || monto <= 0) errors.monto = t('logistica.error_monto', 'Monto válido requerido');
+    if (!String(form.fechaVencimiento || '').trim()) errors.fechaVencimiento = t('logistica.error_fecha_vencimiento', 'Fecha de vencimiento requerida');
+    return errors;
+  };
+
+  const saveActivo = () => {
+    const errors = validateActivo();
+    if (Object.keys(errors).length) {
+      setFormErrors(errors);
+      return;
+    }
+
+    addActivo({
+      nombre: String(form.nombre).trim(),
+      codigoInventario: String(form.codigoInventario).trim(),
+      tipo: (form.tipo || 'herramienta') as ActivoHerramienta['tipo'],
+      valorAdquisicion: Number(form.valorAdquisicion),
+      estado: 'disponible',
+      fechaAdquisicion: todayISO(),
+    });
+    setShowForm(null);
+    setForm({});
+    setFormErrors({});
+  };
+
+  const saveCuadro = () => {
+    const errors = validateCuadro();
+    if (Object.keys(errors).length) {
+      setFormErrors(errors);
+      return;
+    }
+
+    addCuadro({
+      solicitud: String(form.solicitud).trim(),
+      fechaSolicitud: todayISO(),
+      estado: 'abierto',
+      cotizaciones: [],
+    });
+    setShowForm(null);
+    setForm({});
+    setFormErrors({});
+  };
+
+  const savePago = () => {
+    const errors = validatePago();
+    if (Object.keys(errors).length) {
+      setFormErrors(errors);
+      return;
+    }
+
+    addPagoProveedor({
+      proveedorId: uid(),
+      proveedorNombre: String(form.proveedorNombre).trim(),
+      concepto: String(form.concepto).trim(),
+      monto: Number(form.monto),
+      fechaEmision: todayISO(),
+      fechaVencimiento: String(form.fechaVencimiento),
+      estado: 'pendiente',
+    });
+    setShowForm(null);
+    setForm({});
+    setFormErrors({});
   };
 
   const addCotizacion = (cuadroId: string, data: any) => {
@@ -118,7 +189,10 @@ export const LogisticaCompras: React.FC = () => {
                   c.estado === 'cerrado' ? 'bg-muted text-muted-foreground' : 'bg-success/10 text-success'
                 }`}>{c.estado}</span>
               </div>
-              <span className="text-xs text-muted-foreground">{new Date(c.fechaSolicitud).toLocaleDateString()}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">{new Date(c.fechaSolicitud).toLocaleDateString()}</span>
+                <button onClick={() => deleteCuadro(c.id)} className="text-destructive hover:text-destructive/80 text-xs" aria-label={t('logistica.eliminar_cuadro', 'Eliminar cuadro')}><Trash2 className="w-3 h-3" /></button>
+              </div>
             </div>
             {c.estado === 'abierto' && (
               <div className="mt-2">
@@ -233,16 +307,16 @@ export const LogisticaCompras: React.FC = () => {
             {showForm === 'activo' && (
               <div className="grid gap-3">
                 <div>
-                  <input placeholder={t('logistica.nombre_activo_placeholder', 'Nombre del activo *')} className={fc('nombre')}
+                  <input placeholder={t('logistica.nombre_activo_placeholder', 'Nombre del activo *')} className={formControlClass(Boolean(formErrors.nombre))}
                     value={form.nombre || ''} onChange={e => updateForm('nombre', e.target.value)} />
                   {formErrors.nombre && <p className="text-xs text-destructive mt-1">{formErrors.nombre}</p>}
                 </div>
                 <div>
-                  <input placeholder={t('logistica.codigo_inventario_placeholder', 'Código de inventario *')} className={fc('codigoInventario')}
+                  <input placeholder={t('logistica.codigo_inventario_placeholder', 'Código de inventario *')} className={formControlClass(Boolean(formErrors.codigoInventario))}
                     value={form.codigoInventario || ''} onChange={e => updateForm('codigoInventario', e.target.value)} />
                   {formErrors.codigoInventario && <p className="text-xs text-destructive mt-1">{formErrors.codigoInventario}</p>}
                 </div>
-                <select className="w-full px-3 py-2 border rounded text-sm border-input outline-none focus:border-ring"
+                <select className={formControlClass(false)}
                   value={form.tipo || 'herramienta'} onChange={e => updateForm('tipo', e.target.value)}>
                   <option value="herramienta">Herramienta</option>
                   <option value="equipo">Equipo</option>
@@ -250,46 +324,55 @@ export const LogisticaCompras: React.FC = () => {
                   <option value="accesorio">Accesorio</option>
                 </select>
                 <div>
-                  <input placeholder={t('logistica.valor_adquisicion_placeholder', 'Valor de adquisición Q *')} type="number" inputMode="decimal" className={fc('valorAdquisicion')}
+                  <input placeholder={t('logistica.valor_adquisicion_placeholder', 'Valor de adquisición Q *')} type="number" inputMode="decimal" className={formControlClass(Boolean(formErrors.valorAdquisicion))}
                     value={form.valorAdquisicion || ''} onChange={e => updateForm('valorAdquisicion', e.target.value)} />
                   {formErrors.valorAdquisicion && <p className="text-xs text-destructive mt-1">{formErrors.valorAdquisicion}</p>}
                 </div>
-                <button onClick={() => { setShowForm(null); setFormErrors({}); }} className="mt-2 w-full px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted">{t('common.cancelar')}</button>
+                <div className="flex gap-2">
+                  <button onClick={saveActivo} className="mt-2 w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg text-xs hover:bg-primary/90">{t('common.guardar', 'Guardar')}</button>
+                  <button onClick={() => { setShowForm(null); setFormErrors({}); }} className="mt-2 w-full px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted">{t('common.cancelar')}</button>
+                </div>
               </div>
             )}
             {showForm === 'cuadro' && (
               <div className="grid gap-3">
                 <div>
-                  <input placeholder={t('logistica.solicitud_placeholder', 'Descripción de lo que se cotiza *')} className={fc('solicitud')}
+                  <input placeholder={t('logistica.solicitud_placeholder', 'Descripción de lo que se cotiza *')} className={formControlClass(Boolean(formErrors.solicitud))}
                     value={form.solicitud || ''} onChange={e => updateForm('solicitud', e.target.value)} />
                   {formErrors.solicitud && <p className="text-xs text-destructive mt-1">{formErrors.solicitud}</p>}
                 </div>
-                <button onClick={() => { setShowForm(null); setFormErrors({}); }} className="mt-2 w-full px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted">{t('common.cancelar')}</button>
+                <div className="flex gap-2">
+                  <button onClick={saveCuadro} className="mt-2 w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg text-xs hover:bg-primary/90">{t('common.guardar', 'Guardar')}</button>
+                  <button onClick={() => { setShowForm(null); setFormErrors({}); }} className="mt-2 w-full px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted">{t('common.cancelar')}</button>
+                </div>
               </div>
             )}
             {showForm === 'pago' && (
               <div className="grid gap-3">
                 <div>
-                  <input placeholder={t('logistica.proveedor_nombre_placeholder', 'Nombre del proveedor *')} className={fc('proveedorNombre')}
+                  <input placeholder={t('logistica.proveedor_nombre_placeholder', 'Nombre del proveedor *')} className={formControlClass(Boolean(formErrors.proveedorNombre))}
                     value={form.proveedorNombre || ''} onChange={e => updateForm('proveedorNombre', e.target.value)} />
                   {formErrors.proveedorNombre && <p className="text-xs text-destructive mt-1">{formErrors.proveedorNombre}</p>}
                 </div>
                 <div>
-                  <input placeholder={t('logistica.concepto_placeholder', 'Concepto *')} className={fc('concepto')}
+                  <input placeholder={t('logistica.concepto_placeholder', 'Concepto *')} className={formControlClass(Boolean(formErrors.concepto))}
                     value={form.concepto || ''} onChange={e => updateForm('concepto', e.target.value)} />
                   {formErrors.concepto && <p className="text-xs text-destructive mt-1">{formErrors.concepto}</p>}
                 </div>
                 <div>
-                  <input placeholder={t('logistica.monto_placeholder', 'Monto Q *')} type="number" inputMode="decimal" className={fc('monto')}
+                  <input placeholder={t('logistica.monto_placeholder', 'Monto Q *')} type="number" inputMode="decimal" className={formControlClass(Boolean(formErrors.monto))}
                     value={form.monto || ''} onChange={e => updateForm('monto', e.target.value)} />
                   {formErrors.monto && <p className="text-xs text-destructive mt-1">{formErrors.monto}</p>}
                 </div>
                 <div>
-                  <input placeholder={t('logistica.fecha_vencimiento_placeholder', 'Fecha de vencimiento *')} type="date" className={fc('fechaVencimiento')}
+                  <input placeholder={t('logistica.fecha_vencimiento_placeholder', 'Fecha de vencimiento *')} type="date" className={formControlClass(Boolean(formErrors.fechaVencimiento))}
                     value={form.fechaVencimiento || ''} onChange={e => updateForm('fechaVencimiento', e.target.value)} />
                   {formErrors.fechaVencimiento && <p className="text-xs text-destructive mt-1">{formErrors.fechaVencimiento}</p>}
                 </div>
-                <button onClick={() => { setShowForm(null); setFormErrors({}); }} className="mt-2 w-full px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted">{t('common.cancelar')}</button>
+                <div className="flex gap-2">
+                  <button onClick={savePago} className="mt-2 w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg text-xs hover:bg-primary/90">{t('common.guardar', 'Guardar')}</button>
+                  <button onClick={() => { setShowForm(null); setFormErrors({}); }} className="mt-2 w-full px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted">{t('common.cancelar')}</button>
+                </div>
               </div>
             )}
           </div>
