@@ -7,7 +7,7 @@ import { chromium } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://neygzluxugodiwcuctbj.supabase.co';
-const SERVICE_KEY = 'SERVICE_ROLE_KEY_REVOKED';
+const SERVICE_KEY = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || 'SERVICE_ROLE_KEY_PLACEHOLDER';
 const PROD_URL = 'https://construsmart-wm2026.vercel.app';
 
 async function main() {

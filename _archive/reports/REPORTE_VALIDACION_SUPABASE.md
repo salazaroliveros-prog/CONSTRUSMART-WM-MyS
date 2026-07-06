@@ -180,10 +180,10 @@ A pesar de ejecutar migraciones 80 y 81 que intentan insertar datos iniciales, l
 ### 7. VARIABLES DE ENTORNO
 
 #### .env.local
-- **VITE_SUPABASE_URL**: https://neygzluxugodiwcuctbj.supabase.co ✅
-- **VITE_SUPABASE_KEY**: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... ✅ (anon key)
-- **VITE_SUPABASE_SERVICE_ROLE_KEY**: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... ✅ (service_role key)
-- **VITE_CONNECTION_STRING**: postgresql://postgres:DB_PASSWORD_REVOKED@db.neygzluxugodiwcuctbj.supabase.co:5432/postgres ✅
+- **VITE_SUPABASE_URL**: https://[project].supabase.co ✅
+- **VITE_SUPABASE_KEY**: [anon-key] ✅ (anon key)
+- **VITE_SUPABASE_SERVICE_ROLE_KEY**: [service-role-key] ✅ (service_role key)
+- **VITE_CONNECTION_STRING**: postgresql://postgres:[password]@db.[project].supabase.co:5432/postgres ✅
 
 #### .env.production
 - **VITE_SUPABASE_URL**: https://neygzluxugodiwcuctbj.supabase.co ✅
