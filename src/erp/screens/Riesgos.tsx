@@ -214,7 +214,7 @@ const Riesgos: React.FC = () => {
                       )}
                       {riesgosEnCelda.length > 0 && riesgosEnCelda.length <= 3 && (
                         <div className="absolute inset-0 flex items-center justify-center gap-0.5">
-                          {riesgosEnCelda.slice(0, 3).map((r, i) => (
+                          {riesgosEnCelda.slice(0, 3).map((_, i) => (
                             <span key={i} className={`w-2 h-2 rounded-full ${dotColorMap[nivel]} shadow-sm border border-white`} />
                           ))}
                         </div>

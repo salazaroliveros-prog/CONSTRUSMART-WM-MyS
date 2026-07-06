@@ -4,7 +4,6 @@ import {
   Receipt, Search, DollarSign, Users, Wrench, Save, Edit3,
   BarChart3, Table as TableIcon, Settings, RefreshCw, Calculator,
 } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { safeLogger } from '@/lib/safeLogger';
 import { FactorSobrecosto, DosificacionConcreto, MovimientoTierra, Pavimento, RedInfraestructura, MuroContencion } from '../types';
@@ -185,7 +184,7 @@ const APUAvanzado: React.FC = () => {
     setCalculandoPavimento(true);
     try {
       const resultado = await ServicioMotorCalculo.calcularPavimento(pavimento);
-      const validaciones = ServicioValidacionCalculos.validarPavimento(pavimento as any, resultado);
+      const validaciones = await ServicioValidacionCalculos.validarPavimento(pavimento as any, resultado as any);
       const esValido = await mostrarValidaciones(validaciones);
       if (!esValido) toast.warning('Cálculo tiene errores de validación');
       setResultadoPavimento(resultado);
@@ -205,7 +204,7 @@ const APUAvanzado: React.FC = () => {
     setCalculandoRedInfraestructura(true);
     try {
       const resultado = await ServicioMotorCalculo.calcularRedInfraestructura(redInfraestructura);
-      const validaciones = ServicioValidacionCalculos.validarRedInfraestructura(redInfraestructura as any, resultado);
+      const validaciones = await ServicioValidacionCalculos.validarRedInfraestructura(redInfraestructura as any, resultado as any);
       const esValido = mostrarValidaciones(validaciones);
       if (!esValido) toast.warning('Cálculo tiene errores de validación');
       setResultadoRedInfraestructura(resultado);
@@ -225,7 +224,7 @@ const APUAvanzado: React.FC = () => {
     setCalculandoMuroContencion(true);
     try {
       const resultado = await ServicioMotorCalculo.calcularMuroContencion(muroContencion);
-      const validaciones = ServicioValidacionCalculos.validarMuroContencion(muroContencion as any, resultado);
+      const validaciones = await ServicioValidacionCalculos.validarMuroContencion(muroContencion as any, resultado as any);
       const esValido = mostrarValidaciones(validaciones);
       if (!esValido) toast.warning('Cálculo tiene errores de validación');
       setResultadoMuroContencion(resultado);
@@ -560,7 +559,7 @@ const APUAvanzado: React.FC = () => {
             <h2 className="font-bold text-muted-foreground text-sm mb-3">Parámetros Climáticos por Departamento</h2>
             <p className="text-xs text-muted-foreground mb-4">Factores de ajuste por clima para curado de concreto y rendimiento de mano de obra</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-              <div><label className="text-xs text-muted-foreground mb-1 block">Departamento</label><select value={parametrosClimaticos.departamentoCodigo} onChange={e => setParametrosClimaticos(d => ({ ...d, departamentoCodigo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">Seleccione departamento</option>{departamentos.map(dep => (<option key={dep.codigo} value={dep.codigo}>{dep.nombre}</option>))}</select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Departamento</label><select value={parametrosClimaticos.departamentoCodigo} onChange={e => setParametrosClimaticos((d: any) => ({ ...d, departamentoCodigo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">Seleccione departamento</option>{departamentos.map(dep => (<option key={dep.codigo} value={dep.codigo}>{dep.nombre}</option>))}</select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">Mes (opcional)</label><select value={(parametrosClimaticos as any).mes || ''} onChange={e => setParametrosClimaticos((d: any) => ({ ...d, mes: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">Sin estacionalidad</option><option value="enero">Enero</option><option value="febrero">Febrero</option><option value="marzo">Marzo</option><option value="abril">Abril</option><option value="mayo">Mayo</option><option value="junio">Junio</option><option value="julio">Julio</option><option value="agosto">Agosto</option><option value="septiembre">Septiembre</option><option value="octubre">Octubre</option><option value="noviembre">Noviembre</option><option value="diciembre">Diciembre</option></select></div>
               <div className="sm:col-span-2"><button onClick={handleCalcularParametrosClimaticos} disabled={calculandoClimaticos} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoClimaticos ? 'Calculando...' : 'Calcular Parámetros Climáticos'}</button></div>
             </div>
