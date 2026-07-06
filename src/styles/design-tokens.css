@@ -1,0 +1,418 @@
+/* ============================================================================
+   CONSTRUSMART ERP — Design Tokens Unificados
+   Sistema de tokens de diseño que unifica colores, sombras, elevación,
+   tipografía, espaciados y motion en un solo lugar.
+   ============================================================================ */
+
+@layer base {
+  :root {
+    /* === ELEVATION / SHADOW SYSTEM === */
+    --elevation-0: none;
+    --elevation-1: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+    --elevation-2: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+    --elevation-3: 0 6px 16px -8px rgba(0, 0, 0, 0.08), 0 9px 28px 0 rgba(0, 0, 0, 0.05), 0 12px 48px 16px rgba(0, 0, 0, 0.03);
+    --elevation-4: 0 8px 24px -6px rgba(0, 0, 0, 0.12), 0 12px 32px -4px rgba(0, 0, 0, 0.08), 0 16px 48px 8px rgba(0, 0, 0, 0.04);
+    --elevation-5: 0 12px 32px -8px rgba(0, 0, 0, 0.15), 0 16px 40px -4px rgba(0, 0, 0, 0.1), 0 24px 64px 8px rgba(0, 0, 0, 0.06);
+
+    /* === CARD ELEVATION PRESETS === */
+    --card-elevation-rest: var(--elevation-1);
+    --card-elevation-hover: var(--elevation-3);
+    --card-elevation-active: var(--elevation-2);
+    --card-elevation-dialog: var(--elevation-5);
+    --card-elevation-dropdown: var(--elevation-4);
+
+    /* === MOTION DURATIONS === */
+    --motion-duration-instant: 0ms;
+    --motion-duration-fast: 150ms;
+    --motion-duration-normal: 250ms;
+    --motion-duration-slow: 350ms;
+    --motion-duration-slower: 500ms;
+
+    /* === MOTION EASINGS === */
+    --motion-easing-linear: linear;
+    --motion-easing-in: cubic-bezier(0.4, 0, 1, 1);
+    --motion-easing-out: cubic-bezier(0, 0, 0.2, 1);
+    --motion-easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --motion-easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --motion-easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* === MOTION TRANSFORMS === */
+    --motion-scale-active: 0.97;
+    --motion-scale-hover: 1.02;
+    --motion-translate-hover: -2px;
+    --motion-translate-active: 0px;
+
+    /* === TYPOGRAPHY SCALE === */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+
+    --leading-none: 1;
+    --leading-tight: 1.25;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+    --leading-loose: 2;
+
+    --tracking-tighter: -0.05em;
+    --tracking-tight: -0.025em;
+    --tracking-normal: 0em;
+    --tracking-wide: 0.025em;
+    --tracking-wider: 0.05em;
+
+    /* === SPACING SCALE === */
+    --space-0: 0px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    /* === BORDER RADIUS SCALE === */
+    --radius-none: 0px;
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-base: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    --radius-3xl: 24px;
+    --radius-full: 9999px;
+
+    /* === OVERLAY === */
+    --overlay-light: rgba(0, 0, 0, 0.04);
+    --overlay-medium: rgba(0, 0, 0, 0.08);
+    --overlay-heavy: rgba(0, 0, 0, 0.12);
+    --overlay-modal: rgba(0, 0, 0, 0.45);
+    --overlay-dark: rgba(0, 0, 0, 0.65);
+
+    /* === Z-INDEX SCALE === */
+    --z-base: 0;
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 300;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-popover: 600;
+    --z-tooltip: 700;
+    --z-toast: 800;
+  }
+}
+
+/* ============================================================================
+   ELEVATION UTILITY CLASSES
+   ============================================================================ */
+@layer utilities {
+  .elevation-0 { box-shadow: var(--elevation-0); }
+  .elevation-1 { box-shadow: var(--elevation-1); }
+  .elevation-2 { box-shadow: var(--elevation-2); }
+  .elevation-3 { box-shadow: var(--elevation-3); }
+  .elevation-4 { box-shadow: var(--elevation-4); }
+  .elevation-5 { box-shadow: var(--elevation-5); }
+
+  /* Card elevation with hover transition */
+  .card-elevation {
+    box-shadow: var(--card-elevation-rest);
+    transition: box-shadow var(--motion-duration-normal) var(--motion-easing-in-out),
+                transform var(--motion-duration-normal) var(--motion-easing-in-out);
+  }
+  .card-elevation:hover {
+    box-shadow: var(--card-elevation-hover);
+    transform: translateY(var(--motion-translate-hover));
+  }
+  .card-elevation:active {
+    box-shadow: var(--card-elevation-active);
+    transform: translateY(var(--motion-translate-active)) scale(var(--motion-scale-active));
+  }
+
+  /* Interactive card with full feedback */
+  .card-interactive {
+    box-shadow: var(--card-elevation-rest);
+    transition: box-shadow var(--motion-duration-normal) var(--motion-easing-in-out),
+                transform var(--motion-duration-normal) var(--motion-easing-in-out),
+                border-color var(--motion-duration-normal) var(--motion-easing-in-out);
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .card-interactive:hover {
+    box-shadow: var(--card-elevation-hover);
+    transform: translateY(var(--motion-translate-hover));
+    border-color: hsl(var(--primary) / 0.2);
+  }
+  .card-interactive:active {
+    box-shadow: var(--card-elevation-active);
+    transform: translateY(var(--motion-translate-active)) scale(var(--motion-scale-active));
+  }
+
+  /* KPI Card - elevated with subtle gradient */
+  .card-kpi {
+    box-shadow: var(--card-elevation-rest);
+    transition: box-shadow var(--motion-duration-normal) var(--motion-easing-in-out),
+                transform var(--motion-duration-normal) var(--motion-easing-in-out);
+    background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--card) / 0.85));
+    position: relative;
+    overflow: hidden;
+  }
+  .card-kpi::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.5));
+    opacity: 0;
+    transition: opacity var(--motion-duration-normal) var(--motion-easing-in-out);
+  }
+  .card-kpi:hover {
+    box-shadow: var(--card-elevation-hover);
+    transform: translateY(var(--motion-translate-hover));
+  }
+  .card-kpi:hover::before {
+    opacity: 1;
+  }
+
+  /* Dialog / Modal elevation */
+  .elevation-dialog {
+    box-shadow: var(--card-elevation-dialog);
+  }
+
+  /* Dropdown / Popover elevation */
+  .elevation-dropdown {
+    box-shadow: var(--card-elevation-dropdown);
+  }
+}
+
+/* ============================================================================
+   MOTION UTILITY CLASSES
+   ============================================================================ */
+@layer utilities {
+  /* Base transition presets */
+  .motion-safe {
+    transition-duration: var(--motion-duration-normal);
+    transition-timing-function: var(--motion-easing-in-out);
+  }
+  .motion-fast {
+    transition-duration: var(--motion-duration-fast);
+    transition-timing-function: var(--motion-easing-out);
+  }
+  .motion-slow {
+    transition-duration: var(--motion-duration-slow);
+    transition-timing-function: var(--motion-easing-in-out);
+  }
+  .motion-spring {
+    transition-duration: var(--motion-duration-slow);
+    transition-timing-function: var(--motion-easing-spring);
+  }
+
+  /* Stagger animation delays */
+  .stagger-1 { animation-delay: 50ms; }
+  .stagger-2 { animation-delay: 100ms; }
+  .stagger-3 { animation-delay: 150ms; }
+  .stagger-4 { animation-delay: 200ms; }
+  .stagger-5 { animation-delay: 250ms; }
+  .stagger-6 { animation-delay: 300ms; }
+  .stagger-7 { animation-delay: 350ms; }
+  .stagger-8 { animation-delay: 400ms; }
+
+  /* Hover scale effect */
+  .hover-scale {
+    transition: transform var(--motion-duration-fast) var(--motion-easing-out);
+  }
+  .hover-scale:hover {
+    transform: scale(var(--motion-scale-hover));
+  }
+  .hover-scale:active {
+    transform: scale(var(--motion-scale-active));
+  }
+
+  /* Hover lift (elevation) */
+  .hover-lift-enhanced {
+    transition: transform var(--motion-duration-normal) var(--motion-easing-in-out),
+                box-shadow var(--motion-duration-normal) var(--motion-easing-in-out);
+  }
+  .hover-lift-enhanced:hover {
+    transform: translateY(var(--motion-translate-hover));
+    box-shadow: var(--elevation-3);
+  }
+
+  /* Glow effect on hover */
+  .hover-glow-enhanced {
+    transition: box-shadow var(--motion-duration-normal) var(--motion-easing-in-out);
+  }
+  .hover-glow-enhanced:hover {
+    box-shadow: 0 0 24px hsl(var(--primary) / 0.25), 0 0 48px hsl(var(--primary) / 0.1);
+  }
+
+  /* Border accent on hover */
+  .hover-border-accent {
+    transition: border-color var(--motion-duration-normal) var(--motion-easing-in-out);
+    border-color: transparent;
+  }
+  .hover-border-accent:hover {
+    border-color: hsl(var(--primary) / 0.3);
+  }
+
+  /* Skeleton shimmer enhanced */
+  .shimmer-enhanced {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted) / 0.3) 0%,
+      hsl(var(--muted) / 0.6) 40%,
+      hsl(var(--muted) / 0.3) 80%,
+      hsl(var(--muted) / 0.3) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmerEnhanced 2s ease-in-out infinite;
+  }
+
+  @keyframes shimmerEnhanced {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+}
+
+/* ============================================================================
+   TYPOGRAPHY UTILITY CLASSES
+   ============================================================================ */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  /* Truncation */
+  .truncate-1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ============================================================================
+   LAYOUT UTILITY CLASSES
+   ============================================================================ */
+@layer utilities {
+  .content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .content-grid {
+      gap: var(--space-5);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .content-grid {
+      gap: var(--space-6);
+    }
+  }
+
+  /* Dashboard grid */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* Section spacing */
+  .section-spacing {
+    padding: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .section-spacing {
+      padding: var(--space-6);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .section-spacing {
+      padding: var(--space-8);
+    }
+  }
+}
+
+/* ============================================================================
+   PREFERS-REDUCED-MOTION SAFETY
+   ============================================================================ */
+@layer utilities {
+  @media (prefers-reduced-motion: reduce) {
+    .card-elevation,
+    .card-interactive,
+    .card-kpi,
+    .hover-scale,
+    .hover-lift-enhanced,
+    .hover-glow-enhanced,
+    .hover-border-accent {
+      transition: none !important;
+    }
+    .card-elevation:hover,
+    .card-interactive:hover,
+    .card-kpi:hover {
+      transform: none !important;
+    }
+    .shimmer-enhanced {
+      animation: none !important;
+    }
+    .stagger-1, .stagger-2, .stagger-3, .stagger-4,
+    .stagger-5, .stagger-6, .stagger-7, .stagger-8 {
+      animation-delay: 0ms !important;
+    }
+  }
+
+  /* Disable animations when app setting is off */
+  .animations-disabled .card-elevation,
+  .animations-disabled .card-interactive,
+  .animations-disabled .card-kpi,
+  .animations-disabled .hover-scale,
+  .animations-disabled .hover-lift-enhanced,
+  .animations-disabled .hover-glow-enhanced {
+    transition: none !important;
+  }
+  .animations-disabled .card-elevation:hover,
+  .animations-disabled .card-interactive:hover,
+  .animations-disabled .card-kpi:hover {
+    transform: none !important;
+  }
+}

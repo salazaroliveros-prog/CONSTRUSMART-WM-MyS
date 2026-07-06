@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Riesgo } from '../types';
-import { AlertTriangle, Shield, Plus, X, TrendingUp, TrendingDown, Filter, Clock, CheckCircle, Crosshair, DollarSign, Calendar, User } from 'lucide-react';
+import { AlertTriangle, Shield, Plus, X, Filter, Clock, CheckCircle, Crosshair, DollarSign, Calendar, User } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { Modal } from 'antd';
@@ -107,8 +107,10 @@ const Riesgos: React.FC = () => {
   }, [riesgos, selectedProyectoId]);
 
   const proyActual = selectedProyectoId ? proyectos.find(p => p.id === selectedProyectoId) : null;
-  const matrizRiesgos = riesgosFiltrados.filter(r => r.estado !== 'mitigado').length;
-  const costoSoportable = riesgosFiltrados.filter(r => r.estado === 'materializado').reduce((a, r) => a + (r.costoSoporte || 0), 0);
+  const mitigados = useMemo(() => riesgosFiltrados.filter((r: Riesgo) => r.estado === 'mitigado'), [riesgosFiltrados]);
+  const altos = useMemo(() => riesgosFiltrados.filter(r => r.nivel === 'alto' || r.nivel === 'critico'), [riesgosFiltrados]);
+  const enSeguimiento = useMemo(() => riesgosFiltrados.filter(r => r.estado === 'en_mitigacion'), [riesgosFiltrados]);
+  
 
 
   if (loading) {

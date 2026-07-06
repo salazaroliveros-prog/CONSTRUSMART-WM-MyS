@@ -421,74 +421,82 @@ const Dashboard: React.FC = () => {
 
       {/* ─── KPI Row: Velocímetros animados ────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-2 flex-shrink-0" style={{ opacity: s1, transform: `translateY(${(1 - s1) * 12}px)`, transition: 'all 0.4s ease-out' }}>
-        <GaugeKpi
-          label={t('dashboard.proyectos')}
-          sublabel={`${activos.length} activos · ${proyectos.length} total`}
-          value={activos.length}
-          displayValue={String(activos.length)}
-          max={Math.max(proyectos.length, 1)}
-          color="from-blue-500 to-indigo-500"
-          icon={<Building2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
-          hasData={hasData}
-          delay={0}
-          sparkData={proyTrend}
-          zones={[
-            { from: 0, to: Math.max(proyectos.length, 1) * 0.3, color: '#6366f1' },
-            { from: Math.max(proyectos.length, 1) * 0.3, to: Math.max(proyectos.length, 1) * 0.7, color: '#3b82f6' },
-            { from: Math.max(proyectos.length, 1) * 0.7, to: Math.max(proyectos.length, 1), color: '#10b981' },
-          ]}
-        />
-        <GaugeKpi
-          label={t('dashboard.presupuesto')}
-          sublabel={fmtQ(presupuestoTotal)}
-          value={presupuestoTotal}
-          displayValue={presupuestoTotal > 0 ? `Q ${(presupuestoTotal / 1000000).toFixed(1)}M` : 'Q 0'}
-          max={Math.max(presupuestoTotal * 1.5, 1000000)}
-          color="from-orange-500 to-amber-500"
-          icon={<DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
-          hasData={hasData}
-          delay={100}
-          sparkData={gastoTrend}
-        />
-        <GaugeKpi
-          label={t('dashboard.margen_util')}
-          sublabel={margenProm > 0 ? t('dashboard.sano') : t('dashboard.riesgo')}
-          value={Math.max(0, margenProm)}
-          displayValue={fmtPct(margenProm)}
-          max={50}
-          color="from-emerald-500 to-teal-500"
-          icon={<TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
-          hasData={hasData && presupuestoTotal > 0}
-          delay={200}
-          zones={[
-            { from: 0, to: 10, color: '#ef4444' },
-            { from: 10, to: 25, color: '#f59e0b' },
-            { from: 25, to: 50, color: '#10b981' },
-          ]}
-        />
-        <GaugeKpi
-          label={t('dashboard.desviacion')}
-          sublabel={Math.abs(desviacion) > 15 ? t('dashboard.riesgo') : t('dashboard.sano')}
-          value={Math.max(0, Math.min(100, 50 + desviacion * 2))}
-          displayValue={fmtPct(desviacion)}
-          max={100}
-          color={Math.abs(desviacion) > 15 ? 'from-red-500 to-rose-500' : 'from-amber-500 to-yellow-500'}
-          icon={<AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
-          hasData={hasData && proyectosSel.length > 0}
-          delay={300}
-          zones={[
-            { from: 0, to: 30, color: '#10b981' },
-            { from: 30, to: 70, color: '#f59e0b' },
-            { from: 70, to: 100, color: '#ef4444' },
-          ]}
-        />
+        <div className="card-kpi rounded-xl p-3 sm:p-4">
+          <GaugeKpi
+            label={t('dashboard.proyectos')}
+            sublabel={`${activos.length} activos · ${proyectos.length} total`}
+            value={activos.length}
+            displayValue={String(activos.length)}
+            max={Math.max(proyectos.length, 1)}
+            color="from-blue-500 to-indigo-500"
+            icon={<Building2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+            hasData={hasData}
+            delay={0}
+            sparkData={proyTrend}
+            zones={[
+              { from: 0, to: Math.max(proyectos.length, 1) * 0.3, color: '#6366f1' },
+              { from: Math.max(proyectos.length, 1) * 0.3, to: Math.max(proyectos.length, 1) * 0.7, color: '#3b82f6' },
+              { from: Math.max(proyectos.length, 1) * 0.7, to: Math.max(proyectos.length, 1), color: '#10b981' },
+            ]}
+          />
+        </div>
+        <div className="card-kpi rounded-xl p-3 sm:p-4">
+          <GaugeKpi
+            label={t('dashboard.presupuesto')}
+            sublabel={fmtQ(presupuestoTotal)}
+            value={presupuestoTotal}
+            displayValue={presupuestoTotal > 0 ? `Q ${(presupuestoTotal / 1000000).toFixed(1)}M` : 'Q 0'}
+            max={Math.max(presupuestoTotal * 1.5, 1000000)}
+            color="from-orange-500 to-amber-500"
+            icon={<DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+            hasData={hasData}
+            delay={100}
+            sparkData={gastoTrend}
+          />
+        </div>
+        <div className="card-kpi rounded-xl p-3 sm:p-4">
+          <GaugeKpi
+            label={t('dashboard.margen_util')}
+            sublabel={margenProm > 0 ? t('dashboard.sano') : t('dashboard.riesgo')}
+            value={Math.max(0, margenProm)}
+            displayValue={fmtPct(margenProm)}
+            max={50}
+            color="from-emerald-500 to-teal-500"
+            icon={<TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+            hasData={hasData && presupuestoTotal > 0}
+            delay={200}
+            zones={[
+              { from: 0, to: 10, color: '#ef4444' },
+              { from: 10, to: 25, color: '#f59e0b' },
+              { from: 25, to: 50, color: '#10b981' },
+            ]}
+          />
+        </div>
+        <div className="card-kpi rounded-xl p-3 sm:p-4">
+          <GaugeKpi
+            label={t('dashboard.desviacion')}
+            sublabel={Math.abs(desviacion) > 15 ? t('dashboard.riesgo') : t('dashboard.sano')}
+            value={Math.max(0, Math.min(100, 50 + desviacion * 2))}
+            displayValue={fmtPct(desviacion)}
+            max={100}
+            color={Math.abs(desviacion) > 15 ? 'from-red-500 to-rose-500' : 'from-amber-500 to-yellow-500'}
+            icon={<AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+            hasData={hasData && proyectosSel.length > 0}
+            delay={300}
+            zones={[
+              { from: 0, to: 30, color: '#10b981' },
+              { from: 30, to: 70, color: '#f59e0b' },
+              { from: 70, to: 100, color: '#ef4444' },
+            ]}
+          />
+        </div>
       </div>
 
       {/* ─── ROW 2: Presupuesto + Avance + Recursos ────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-1.5 sm:gap-2 mb-2 flex-shrink-0">
-            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 hover:shadow-[0_0_15px_hsl(var(--primary)/0.1)] transition-all duration-200`}>
-            <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
-              <Calculator className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-3 mb-2 flex-shrink-0">
+            <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`} onClick={() => setView('presupuestos')} role="button" tabIndex={0}>
+            <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1.5`}>
+              <Calculator className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
               {t('dashboard.planif')} vs {t('dashboard.real')}
             </h3>
             {(planVsReal.conPlan > 0 || planVsReal.costoPlanificado > 0 || planVsReal.costoReal > 0) ? (
@@ -520,9 +528,9 @@ const Dashboard: React.FC = () => {
             )}
           </div>
 
-        <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 hover:shadow-[0_0_15px_hsl(var(--primary)/0.1)] transition-all`}>
-          <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
-            <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
+        <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
+          <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1.5`}>
+            <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
             {t('dashboard.avance_general')}
           </h3>
           <div className="flex items-center gap-3">
@@ -550,9 +558,9 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 hover:shadow-[0_0_15px_hsl(var(--primary)/0.1)] transition-all`}>
-          <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
-            <Package className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
+        <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
+          <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1.5`}>
+            <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
             {t('dashboard.recursos') || 'Recursos'}
           </h3>
           <div className="flex gap-3">
@@ -597,7 +605,7 @@ const Dashboard: React.FC = () => {
 
       {/* ─── ROW 3: Gantt + Top Proyectos + Licitaciones + Riesgos ──── */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-1.5 sm:gap-2 min-h-0">
-        <div className={`${CARD} lg:col-span-2 flex flex-col p-2 sm:p-3 min-h-0 hover:border-primary/30 transition-all`}>
+        <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4 min-h-0`}>
           <div className="flex-1 overflow-y-auto min-h-0">
             {ganttData.length > 0 ? (
               <GanttChart
@@ -615,7 +623,7 @@ const Dashboard: React.FC = () => {
 
         <div className="overflow-hidden flex flex-col gap-1.5 sm:gap-2">
           {/* Top 3 Proyectos */}
-          <div className={`${CARD} p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+          <div className={`${CARD} card-interactive p-3 sm:p-4`}>
             <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
               <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
               {t('dashboard.top_proyectos')}
@@ -648,7 +656,7 @@ const Dashboard: React.FC = () => {
 
           {/* Licitaciones / CRM */}
           {licitacionesData.count > 0 && (
-            <div className={`${CARD} p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+            <div className={`${CARD} card-interactive p-3 sm:p-4`}>
               <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
                 <Zap className={`w-3 h-3 sm:w-4 sm:h-4 ${COLOR_WARNING}`} aria-hidden="true" />
                 {t('dashboard.licitaciones_pipeline')}
@@ -676,7 +684,7 @@ const Dashboard: React.FC = () => {
 
           {/* Riesgos activos */}
           {riesgosActivos.total > 0 && (
-            <div className={`${CARD} p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+            <div className={`${CARD} card-interactive p-3 sm:p-4`}>
               <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
                 <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-destructive" aria-hidden="true" />
                 {t('dashboard.riesgos_activos')}
@@ -693,7 +701,7 @@ const Dashboard: React.FC = () => {
           )}
 
           {/* OC Pendientes */}
-          <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+          <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
             <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
               <ClipboardCheck className={`w-3 h-3 sm:w-4 sm:h-4 ${COLOR_WARNING}`} aria-hidden="true" />
               {t('dashboard.oc_pendientes')}
@@ -715,7 +723,7 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Data Integrity Card */}
-          <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+          <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
             <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
               <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
               {t('dashboard.integridad_titulo')}
@@ -739,7 +747,7 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Query Performance Card */}
-          <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+          <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
             <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
               <Database className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
               {t('dashboard.performance_titulo')}
@@ -762,7 +770,7 @@ const Dashboard: React.FC = () => {
 
           {/* Supplier Analytics Widget */}
           {supplierPerformanceData.total > 0 && (
-            <div className={`${CARD} flex flex-col p-2 sm:p-3 hover:border-primary/30 transition-all`}>
+            <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
               <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
                 <Award className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
                 Analytics Proveedores
@@ -816,7 +824,7 @@ const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 gap-1.5">
           <WeatherWidget />
           {/* Ingresos vs Gastos con BarChart — siempre visible aunque vacío */}
-          <div className={`${CARD} flex flex-col p-2 sm:p-3`}>
+          <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
             <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}>
               <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />
               {t('dashboard.gastos')} <span className="text-muted-foreground font-normal text-[10px]">vs {t('dashboard.ingresos')}</span>

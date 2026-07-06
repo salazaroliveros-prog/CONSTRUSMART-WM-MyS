@@ -9,7 +9,7 @@ const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
 const Login = lazy(() => import('@/erp/screens/Login'));
 const QuickActionsFab = lazy(() => import('@/erp/components/QuickActionsFab'));
 const BottomNavigation = lazy(() => import('@/erp/components/BottomNavigation'));
-import { applyThemeToDocument } from '@/lib/themes';
+import { syncAllVisualSettings } from '@/lib/themes';
 import { EMPRESA } from '@/erp/utils';
 import '@/styles/theme-variables.css';
 
@@ -128,19 +128,34 @@ const Shell: React.FC = () => {
     },
   });
 
+  // Sync ALL visual preferences to DOM in one unified effect
   useEffect(() => {
-    const savedTheme = localStorage.getItem('wm_erp_theme') || 'ant-design';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    const isDark = savedTheme === 'dark-pro';
-    document.documentElement.classList.toggle('dark', isDark);
-
-    applyThemeToDocument({
+    syncAllVisualSettings({
       appTheme: appSettings.appTheme,
       compactMode: appSettings.compactMode,
       primaryColor: appSettings.primaryColor,
       uiMode: appSettings.uiMode,
+      animationsEnabled: appSettings.animationsEnabled,
+      fontSize: appSettings.fontSize,
+      fontFamily: appSettings.fontFamily,
+      borderRadius: appSettings.borderRadius,
+      spacingScale: appSettings.spacingScale,
+      densityTable: appSettings.densityTable,
+      sidebarPosition: appSettings.sidebarPosition,
+      sidebarMode: appSettings.sidebarMode,
+      sidebarWidth: appSettings.sidebarWidth,
+      breadcrumbsEnabled: appSettings.breadcrumbsEnabled,
+      footerEnabled: appSettings.footerEnabled,
+      touchMode: appSettings.touchMode,
     });
-  }, [appSettings.appTheme, appSettings.compactMode, appSettings.primaryColor, appSettings.uiMode]);
+  }, [
+    appSettings.appTheme, appSettings.compactMode, appSettings.primaryColor,
+    appSettings.uiMode, appSettings.animationsEnabled, appSettings.fontSize,
+    appSettings.fontFamily, appSettings.borderRadius, appSettings.spacingScale,
+    appSettings.densityTable, appSettings.sidebarPosition, appSettings.sidebarMode,
+    appSettings.sidebarWidth, appSettings.breadcrumbsEnabled, appSettings.footerEnabled,
+    appSettings.touchMode,
+  ]);
 
   const viewName = typeof view === 'string' ? view.split(':')[0] : 'dashboard';
 

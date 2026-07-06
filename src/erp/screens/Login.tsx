@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
 import { hasSupabase } from '@/lib/supabase';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, Building2, HardHat, Shield } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ElevatedCard } from '@/components/ui/elevated-card';
 
 const Login: React.FC = () => {
   const { signInWithGoogle, setView, user } = useErp();
@@ -23,81 +24,122 @@ const Login: React.FC = () => {
   };
 
   const btn =
-    'w-full bg-card hover:bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl flex items-center justify-center gap-3 shadow-sm border border-gray-200 hover:shadow-sm transition-all disabled:opacity-60 active:scale-[0.98]';
+    'w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3.5 rounded-xl flex items-center justify-center gap-3 shadow-sm border border-gray-200 hover:shadow-md hover:border-primary/30 transition-all duration-200 disabled:opacity-60 active:scale-[0.97]';
 
   return (
-    <div className="min-h-screen flex flex-col sm:flex-row lg:flex-row">
-      <div className="hidden lg:flex flex-1 bg-slate-900 relative overflow-hidden items-center justify-center p-12">
+    <div className="min-h-screen flex flex-col sm:flex-row lg:flex-row bg-background">
+      {/* Left Panel - Branding */}
+      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden items-center justify-center p-12">
+        {/* Decorative grid pattern */}
+        <div className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+          }}
+        />
+        {/* Radial glow */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse-soft" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px]" />
+        {/* Background image overlay */}
         <div
-          className="absolute inset-0 opacity-60"
+          className="absolute inset-0 opacity-40 mix-blend-overlay"
           style={{ backgroundImage: 'url(/empresa_b.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/40 via-slate-900/30 to-black/80" />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
-        <div className="relative z-10 text-white max-w-md text-center flex flex-col items-center">
-          <img
-            src="/logo.webp"
-            alt="WM"
-            className="w-32 h-32 object-contain drop-shadow-[0_0_12px_rgba(249,115,22,0.45)] mb-6"
-          />
-          <h1 className="text-4xl font-black leading-tight text-white drop-shadow-sm">{EMPRESA.nombre}</h1>
-          <p className="mt-6 text-xl font-bold text-yellow-600"
-             style={{ textShadow: '0 0 18px rgba(59,130,246,0.85), 0 0 6px rgba(59,130,246,0.7)' }}>
-            EDIFICANDO EL FUTURO
-          </p>
-          <p className="mt-3 text-sm text-gray-200"
-             style={{ textShadow: '0 0 14px rgba(59,130,246,0.75), 0 0 5px rgba(59,130,246,0.6)' }}>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent" />
+
+        <div className="relative z-10 text-white max-w-md text-center flex flex-col items-center animate-fade-in-up">
+          <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 backdrop-blur-sm border border-white/10 flex items-center justify-center mb-6 shadow-lg shadow-primary/20">
+            <img
+              src="/logo.webp"
+              alt="WM"
+              className="w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(249,115,22,0.5)]"
+            />
+          </div>
+          <h1 className="text-4xl font-black leading-tight text-white drop-shadow-lg">
+            {EMPRESA.nombre}
+          </h1>
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 text-primary-foreground">
+            <HardHat className="w-4 h-4" />
+            <span className="text-sm font-bold tracking-widest">EDIFICANDO EL FUTURO</span>
+          </div>
+          <p className="mt-6 text-sm text-gray-300 max-w-xs leading-relaxed">
             La satisfacción de nuestros clientes es nuestra prioridad
           </p>
+          <div className="mt-8 flex gap-4">
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Gestión Integral</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <Shield className="w-3.5 h-3.5" />
+              <span>Datos Seguros</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div
-        className="flex-1 flex items-center justify-center p-6 relative"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 20% 30%, rgba(0,0,0,0.08) 0%, transparent 45%), radial-gradient(circle at 75% 70%, rgba(255,255,255,0.35) 0%, transparent 50%), linear-gradient(160deg, #cbd5e1 0%, #e2e8f0 45%, #ffffff 100%)',
-        }}
-      >
-        <div
-          className="absolute inset-0 opacity-[0.35]"
+      {/* Right Panel - Login Form */}
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 relative bg-gradient-to-br from-muted/50 via-background to-muted/30">
+        {/* Decorative background */}
+        <div className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage:
-              'repeating-linear-gradient(45deg, rgba(0,0,0,0.18) 0, rgba(0,0,0,0.18) 1px, transparent 1px, transparent 10px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 1px, transparent 1px, transparent 10px)',
-            backgroundSize: '20px 20px',
-            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0))',
-            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0))',
+            backgroundImage: 'radial-gradient(circle at 20% 30%, currentColor 0%, transparent 45%), radial-gradient(circle at 75% 70%, currentColor 0%, transparent 50%)',
+            color: 'hsl(var(--primary))',
           }}
         />
-        <div className="w-full max-w-sm relative z-10">
-          <div className="rounded-3xl bg-card/25 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_rgba(15,23,42,0.18)] p-6">
-            {loading && (<div className="space-y-3 mb-6"><Skeleton className="h-8 w-40 mx-auto" /><Skeleton className="h-4 w-56 mx-auto" /></div>)}
-            {!loading && (<div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-foreground">Iniciar Sesión</h2>
-              <p className="text-xs text-amber-500 mt-1">Acceso solo para administrador</p>
-            </div>)}
+
+        <div className="w-full max-w-sm relative z-10 animate-scale-in">
+          {/* Logo mobile */}
+          <div className="lg:hidden flex flex-col items-center mb-8">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-3">
+              <img src="/logo.webp" alt="WM" className="w-12 h-12 object-contain" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground">{EMPRESA.nombre}</h2>
+            <p className="text-xs text-muted-foreground mt-1">Inicia sesión para continuar</p>
+          </div>
+
+          <ElevatedCard variant="glass" padding="lg" className="w-full">
+            {loading ? (
+              <div className="space-y-4">
+                <Skeleton className="h-8 w-40 mx-auto rounded-lg" />
+                <Skeleton className="h-4 w-56 mx-auto rounded-md" />
+              </div>
+            ) : (
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-foreground">Iniciar Sesión</h2>
+                <p className="text-xs text-muted-foreground mt-1.5">Acceso solo para administrador</p>
+              </div>
+            )}
 
             {authError && (
-              <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                <p className="text-xs text-red-600">{authError}</p>
+              <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 animate-fade-in">
+                <p className="text-xs text-destructive">{authError}</p>
               </div>
             )}
 
             {!hasSupabase && (
-              <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+              <div className="mb-4 p-3 rounded-lg bg-warning/10 border border-warning/20 animate-fade-in">
                 <div className="flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
-                  <p className="text-xs text-amber-700">
+                  <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
+                  <p className="text-xs text-warning-foreground">
                     Supabase no está configurado. El administrador debe configurar VITE_SUPABASE_URL y VITE_SUPABASE_KEY en el archivo .env
                   </p>
                 </div>
               </div>
             )}
 
-            <div className="flex flex-col items-center space-y-3">
-              <button type="button" onClick={handleGoogleLogin} disabled={loading || !hasSupabase} className={btn}>
+            <div className="flex flex-col items-center space-y-4">
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={loading || !hasSupabase}
+                className={btn}
+              >
                 {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                    <span className="text-gray-500">Iniciando sesión...</span>
+                  </>
                 ) : (
                   <>
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -110,11 +152,16 @@ const Login: React.FC = () => {
                   </>
                 )}
               </button>
-              <p className="text-center text-[10px] text-amber-500 mt-4">
+              <p className="text-center text-[10px] text-muted-foreground">
                 Solo el correo autorizado puede acceder
               </p>
             </div>
-          </div>
+          </ElevatedCard>
+
+          {/* Footer info */}
+          <p className="text-center text-xs text-muted-foreground/60 mt-6">
+            &copy; {new Date().getFullYear()} {EMPRESA.nombre} &mdash; Todos los derechos reservados
+          </p>
         </div>
       </div>
     </div>
@@ -122,5 +169,3 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-
-

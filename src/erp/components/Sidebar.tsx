@@ -138,21 +138,31 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
         title={effectivelyCollapsed ? t('nav.items.' + it.labelKey) : undefined}
         aria-label={t('nav.items.' + it.labelKey)}
         aria-current={active ? 'page' : undefined}
-        className={`relative w-full flex items-center gap-3 rounded-xl transition-all duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1
+        className={`group relative w-full flex items-center gap-3 rounded-xl transition-all duration-200 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1
           ${effectivelyCollapsed
             ? 'justify-center p-3'
             : 'px-2.5 py-[7px] text-xs font-medium'}
           ${active
-            ? 'bg-primary text-primary-foreground shadow-sm'
+            ? 'bg-primary text-primary-foreground shadow-sm hover-glow-enhanced'
             : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
       >
-        <Icon className={`shrink-0 ${effectivelyCollapsed ? 'w-[17px] h-[17px]' : 'w-[15px] h-[15px]'}`} aria-hidden="true" />
-        {!effectivelyCollapsed && <span className="truncate leading-tight">{t('nav.items.' + it.labelKey)}</span>}
+        <Icon className={`shrink-0 transition-transform duration-200 group-hover:scale-110 ${effectivelyCollapsed ? 'w-[17px] h-[17px]' : 'w-[15px] h-[15px]'} ${active ? 'drop-shadow-sm' : ''}`} aria-hidden="true" />
+        {!effectivelyCollapsed && (
+          <span className="truncate leading-tight transition-opacity duration-200">
+            {t('nav.items.' + it.labelKey)}
+          </span>
+        )}
+        {/* Tooltip on hover for collapsed mode */}
+        {effectivelyCollapsed && (
+          <span className="absolute left-full ml-2 px-2 py-1 rounded-md bg-popover text-popover-foreground text-[11px] font-medium shadow-lg border border-border whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-x-[-4px] group-hover:translate-x-0 z-[70] pointer-events-none">
+            {t('nav.items.' + it.labelKey)}
+          </span>
+        )}
         {badge && effectivelyCollapsed && (
-          <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full border border-background" />
+          <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full border border-background animate-pulse-soft" />
         )}
         {badge && !effectivelyCollapsed && (
-          <span className="ml-auto shrink-0 min-w-[16px] h-4 text-[9px] font-bold bg-destructive text-destructive-foreground rounded-full flex items-center justify-center px-1">
+          <span className="ml-auto shrink-0 min-w-[16px] h-4 text-[9px] font-bold bg-destructive text-destructive-foreground rounded-full flex items-center justify-center px-1 animate-scale-in">
             {notificacionesNoLeidas > 9 ? '9+' : notificacionesNoLeidas}
           </span>
         )}
@@ -160,7 +170,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-background animate-pulse" />
         )}
         {errBadge && !effectivelyCollapsed && (
-          <span className="ml-auto shrink-0 min-w-[16px] h-4 text-[9px] font-bold bg-red-500 text-white rounded-full flex items-center justify-center px-1">
+          <span className="ml-auto shrink-0 min-w-[16px] h-4 text-[9px] font-bold bg-red-500 text-white rounded-full flex items-center justify-center px-1 animate-scale-in">
             {unresolvedErrors > 9 ? '9+' : unresolvedErrors}
           </span>
         )}

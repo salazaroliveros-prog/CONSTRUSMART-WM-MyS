@@ -143,3 +143,83 @@ export function applyThemeToDocument(config: Partial<ThemeConfig>): void {
     document.documentElement.style.setProperty('--primary', hsl);
   }
 }
+
+/**
+ * Sincroniza el estado de animaciones con el DOM
+ * Añade/remueve la clase .animations-disabled en <html>
+ */
+export function syncAnimationsSetting(enabled: boolean): void {
+  document.documentElement.classList.toggle('animations-disabled', !enabled);
+}
+
+/**
+ * Sincroniza TODAS las preferencias visuales desde AppSettings al DOM en un solo llamado.
+ * Usado por AppLayout para mantener el DOM siempre consistente con la configuración.
+ */
+export function syncAllVisualSettings(settings: {
+  appTheme?: string;
+  compactMode?: boolean;
+  primaryColor?: string;
+  uiMode?: string;
+  animationsEnabled?: boolean;
+  fontSize?: string;
+  fontFamily?: string;
+  borderRadius?: string;
+  spacingScale?: string;
+  densityTable?: string;
+  sidebarPosition?: string;
+  sidebarMode?: string;
+  sidebarWidth?: number;
+  breadcrumbsEnabled?: boolean;
+  footerEnabled?: boolean;
+  touchMode?: boolean;
+}): void {
+  if (settings.appTheme) {
+    document.documentElement.setAttribute('data-theme', settings.appTheme);
+    document.documentElement.classList.toggle('dark', settings.appTheme === 'dark-pro');
+  }
+  if (settings.compactMode !== undefined) {
+    document.documentElement.classList.toggle('compact', settings.compactMode);
+  }
+  if (settings.primaryColor) {
+    const hsl = hexToHSL(settings.primaryColor);
+    document.documentElement.style.setProperty('--primary-hue', hsl);
+    document.documentElement.style.setProperty('--primary', hsl);
+  }
+  if (settings.animationsEnabled !== undefined) {
+    syncAnimationsSetting(settings.animationsEnabled);
+  }
+  if (settings.fontSize) {
+    document.documentElement.setAttribute('data-font-size', settings.fontSize);
+  }
+  if (settings.fontFamily) {
+    document.documentElement.setAttribute('data-font-family', settings.fontFamily);
+  }
+  if (settings.borderRadius) {
+    document.documentElement.setAttribute('data-border-radius', settings.borderRadius);
+  }
+  if (settings.spacingScale) {
+    document.documentElement.setAttribute('data-spacing-scale', settings.spacingScale);
+  }
+  if (settings.densityTable) {
+    document.documentElement.setAttribute('data-density-table', settings.densityTable);
+  }
+  if (settings.sidebarPosition) {
+    document.documentElement.setAttribute('data-sidebar-position', settings.sidebarPosition);
+  }
+  if (settings.sidebarMode) {
+    document.documentElement.setAttribute('data-sidebar-mode', settings.sidebarMode);
+  }
+  if (settings.sidebarWidth) {
+    document.documentElement.setAttribute('data-sidebar-width', String(settings.sidebarWidth));
+  }
+  if (settings.breadcrumbsEnabled !== undefined) {
+    document.documentElement.setAttribute('data-breadcrumbs-enabled', String(settings.breadcrumbsEnabled));
+  }
+  if (settings.footerEnabled !== undefined) {
+    document.documentElement.setAttribute('data-footer-enabled', String(settings.footerEnabled));
+  }
+  if (settings.touchMode !== undefined) {
+    document.documentElement.setAttribute('data-touch-mode', String(settings.touchMode));
+  }
+}

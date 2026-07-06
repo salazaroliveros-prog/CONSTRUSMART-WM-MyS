@@ -2,13 +2,14 @@
  * CONSTRUSMART ERP — Componentes UI Unificados
  * 
  * Sistema de clases CSS compartidas que responden a las variables del tema.
+ * Usa el sistema de elevación y motion de design-tokens.css para consistencia visual.
  * La densidad se ajusta automáticamente según la clase `.compact` en el DOM.
  */
 
 // === CARDS ===
-export const CARD = 'bg-card rounded-[var(--radius-selected,var(--radius-base,8px))] p-[var(--density-padding)] shadow-sm border border-border/40 transition-shadow hover:shadow-md';
+export const CARD = 'bg-card rounded-[var(--radius-selected,var(--radius-base,8px))] p-[var(--density-padding)] card-elevation border border-border/40';
 export const CARD_TITLE = 'font-bold text-card-foreground text-base mb-3';
-export const KPI_CARD = 'bg-gradient-to-br from-card to-card/80 rounded-[var(--radius-selected,var(--radius-base,8px))] p-[var(--density-padding)] shadow-sm border border-border/40';
+export const KPI_CARD = 'card-kpi rounded-[var(--radius-selected,var(--radius-base,8px))] p-[var(--density-padding)] border border-border/40';
 
 // === BADGES ===
 export const BADGE_SM = 'text-[10px] px-2 py-0.5 rounded-full font-medium';

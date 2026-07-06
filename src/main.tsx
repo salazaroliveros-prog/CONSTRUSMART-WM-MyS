@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import { initServiceWorker } from '@/lib/sw-init';
+import { initServiceWorker, unregisterServiceWorker } from '@/lib/sw-init';
 import { log } from '@/lib/auto-logger';
 import { errorReporter } from '@/lib/errorReporting';
 import { initMetrics } from '@/lib/metrics';
@@ -14,6 +14,15 @@ const container = document.getElementById('root');
 const root = createRoot(container!);
 
 // Inicializar Service Worker con VAPID key dinámica
+// Para diagnosticar problema de visualización, desactiva SW temporalmente:
+if (!sessionStorage.getItem('wm_sw_disabled_once')) {
+  unregisterServiceWorker().then((ok) => {
+    if (ok) {
+      sessionStorage.setItem('wm_sw_disabled_once', 'true');
+      log('info', 'Main', 'Service Worker desregistrado para recarga limpia');
+    }
+  });
+}
 initServiceWorker().then(reg => {
   if (reg) {
     log('info', 'Main', 'Service Worker registrado correctamente', {
