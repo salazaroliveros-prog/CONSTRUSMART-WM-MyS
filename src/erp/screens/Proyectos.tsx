@@ -229,8 +229,6 @@ const Proyectos: React.FC = () => {
             ...data,
             lat: coords.lat,
             lng: coords.lng,
-            latitud: coords.lat,
-            longitud: coords.lng,
           });
           toast.success(t('proyectos.proyecto_creado_plantilla', { nombre: data.nombre }), { description: t('proyectos.proyecto_creado_plantilla_desc') });
         } else {

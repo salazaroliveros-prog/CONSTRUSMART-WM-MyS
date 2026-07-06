@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
-import { logErrorFromException } from '@/lib/error-logger';
 import { useErpStore } from '@/erp/zustandStore';
 
 import { EscalaProduccion } from '@/erp/types';
@@ -106,7 +105,7 @@ export class EscalasProduccion {
     }
   ): Promise<ResultadoAplicacionEscala> {
     try {
-      const { data, error } = await supabase.rpc('aplicar_factores_escala', {
+      const { data: dataResult, error } = await supabase.rpc('aplicar_factores_escala', {
         p_costo_base: costoBase,
         p_tipo_proyecto: tipoProyecto,
         p_subtipo_proyecto: opciones?.subtipoProyecto || null,
@@ -115,7 +114,7 @@ export class EscalasProduccion {
       });
 
       if (error) throw error;
-      const rows = safeParseEscalaProduccionArray(data);
+      const rows = safeParseEscalaProduccionArray(dataResult);
       return rows[0] ?? {
         costo_ajustado: costoBase,
         factor_economia: 1.0,

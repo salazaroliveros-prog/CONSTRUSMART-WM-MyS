@@ -1,7 +1,7 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, message } from 'antd';
+import { Modal } from 'antd';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { downloadBlob } from '../utils';

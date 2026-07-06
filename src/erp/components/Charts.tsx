@@ -10,6 +10,8 @@ export const PALETTES: Record<string, string[]> = {
 };
 export type PaletteName = keyof typeof PALETTES;
 export const PALETTE_NAMES = Object.keys(PALETTES) as PaletteName[];
+export type BarDatum = { label: string; value: number; color?: string };
+export type DonutDatum = { label: string; value: number; color: string };
 
 function pickColor(index: number, palette?: PaletteName, explicit?: string): string {
   if (explicit) return explicit;

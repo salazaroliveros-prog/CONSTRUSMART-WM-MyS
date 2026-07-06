@@ -26,16 +26,16 @@ const batch = async <T extends Record<string, unknown>>(label: string, rows: T[]
   const insertColumns = columns.map(q).join(', ');
   for (const row of rows) {
     const values = `(${columns.map(column => sqlValue(row[column])).join(', ')})`;
-    const insert = `INSERT INTO public.${q(label)} (${insertColumns}) VALUES ${values} ON CONFLICT (id) DO NOTHING`;
+    const insertSql = `INSERT INTO public.${q(label)} (${insertColumns}) VALUES ${values} ON CONFLICT (id) DO NOTHING`;
     const updateSql = `UPDATE public.${q(label)} SET ${updateColumns.map(column => `${q(column)} = ${sqlValue(row[column])}`).join(', ')} WHERE id = ${sqlValue(row.id)}`;
     try {
-      const result = await client.query(insert);
+      const result = await client.query(insertSql);
       if (result.rowCount === 0) {
         await client.query(updateSql);
       }
     } catch (error) {
       console.error(`error en ${label}`, error);
-      console.error(insert.slice(0, 3000));
+      console.error(insertSql.slice(0, 3000));
       console.error(updateSql.slice(0, 3000));
       throw error;
     }

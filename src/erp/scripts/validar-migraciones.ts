@@ -29,7 +29,7 @@ async function validarTablas() {
 
   for (const tabla of tablasEsperadas) {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from(tabla as any)
         .select('*', { count: 'exact', head: true })
         .limit(1);

@@ -532,7 +532,6 @@ export interface ActivoHerramienta {
   estado: 'disponible' | 'asignado' | 'mantenimiento' | 'baja' | 'dado_baja';
   ubicacion?: string;
   asignadoA?: string;
-  proyectoId?: string;
   fechaAsignacion?: string;
   fechaAdquisicion: string;
 }

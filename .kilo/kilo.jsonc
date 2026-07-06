@@ -1,3 +1,15 @@
 {
-  "$schema": "https://app.kilo.ai/config.json"
+  "$schema": "https://app.kilo.ai/config.json",
+  "indexing": {
+    "provider": "openrouter",
+    "openrouter": {
+      "apiKey": ""
+    },
+    "qdrant": {
+    },
+    "ollama": {
+      "baseUrl": "http://localhost:8080"
+    },
+    "vectorStore": "qdrant"
+  }
 }

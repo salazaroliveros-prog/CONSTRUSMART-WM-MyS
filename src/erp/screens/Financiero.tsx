@@ -7,12 +7,12 @@ import { useChartConfig } from '../hooks/useChartConfig';
 import MovimientoForm from '../components/MovimientoForm';
 import { Wallet, Trash2, TrendingUp, TrendingDown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY } from '../ui';
+import { COLOR_SUCCESS, COLOR_DANGER, COLOR_PRIMARY } from '../ui';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899', '#14b8a6', '#a855f7', '#f43f5e'];
 
 const Financiero: React.FC = () => {
-  const { movimientos, deleteMovimiento, proyectos, centrosCosto, selectedProyectoId } = useErp();
+  const { movimientos, deleteMovimiento, proyectos, centrosCosto } = useErp();
   const [filtro, setFiltro] = useState<'todos' | 'ingreso' | 'gasto'>('todos');
   const [loading, setLoading] = useState(true);
   const flowConfig = useChartConfig('line', 'default');

@@ -19,7 +19,7 @@ const DashboardPredictivo: React.FC = () => {
   const totalGastos = gastos.reduce((a, m) => a + (m.costoTotal ?? m.monto), 0);
 
   // Costo final proyectado (EAC = AC + (BAC - EV) / CPI)
-  const BAC = proyecto?.presupuestoTotal || proyecto?.presupuesto || presupuesto?.totalPV || 0;
+  const BAC = proyecto?.presupuestoTotal || presupuesto?.totalCalculado || 0;
   const avanceReal = proyecto?.avanceFisico || 0;
   const EV = BAC * (avanceReal / 100);
   const CPI = EV > 0 ? EV / Math.max(totalGastos, 1) : 1;

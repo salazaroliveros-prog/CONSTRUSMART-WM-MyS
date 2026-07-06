@@ -11,7 +11,7 @@ const recepcionSchema = z.object({
 export const EntradasAlmacenOC: React.FC = () => {
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
-  const { ordenes, materiales, updateMaterial, updateOrden, recepciones, addRecepcion } = useErp();
+  const { ordenes, updateOrden, recepciones, addRecepcion } = useErp();
   const [ocFilter, setOcFilter] = useState<'todas' | 'pendientes' | 'aprobadas'>('todas');
   const [showForm, setShowForm] = useState<string | null>(null);
   const [formCantidad, setFormCantidad] = useState(0);
@@ -20,7 +20,7 @@ export const EntradasAlmacenOC: React.FC = () => {
   const ocFiltradas = useMemo(() => {
     let filtered = ordenes;
     if (ocFilter === 'pendientes') filtered = filtered.filter(o => o.estado === 'pendiente');
-    if (ocFilter === 'aprobadas') filtered = filtered.filter(o => o.estado === 'aprobada');
+    if (ocFilter === 'aprobadas') filtered = filtered.filter(o => o.estado === 'aprobado');
     return filtered;
   }, [ordenes, ocFilter]);
 

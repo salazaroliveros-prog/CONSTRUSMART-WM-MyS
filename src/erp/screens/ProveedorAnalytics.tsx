@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useErp } from '../store';
 import { safeLogger } from '@/lib/safeLogger';
-import { fmtQ, fmtPct, calculateSupplierPerformance, getSupplierRecommendations, identifySupplierRisks, type SupplierPerformanceMetrics, CATEGORIA_LABEL } from '../utils';
-import { BarChart, Donut, Gauge, Progress } from '../components/Charts';
-import { TrendingUp, TrendingDown, AlertTriangle, Award, Star, Truck, Shield, DollarSign, Clock, Filter, Download, RefreshCw, Loader2 } from 'lucide-react';
+import { fmtQ, fmtPct, calculateSupplierPerformance, getSupplierRecommendations, identifySupplierRisks, CATEGORIA_LABEL } from '../utils';
+import { BarChart, Donut, Progress } from '../components/Charts';
+import { TrendingUp, TrendingDown, AlertTriangle, Award, Star, Truck, Shield, Download, RefreshCw, Loader2 } from 'lucide-react';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, CARD, CARD_TITLE } from '../ui';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -286,8 +286,6 @@ const ProveedorAnalytics: React.FC = () => {
           <div className="h-48 sm:h-64">
             <Donut 
               data={categoriaDistribution}
-              showLabels
-              showLegend
             />
           </div>
         </div>
@@ -299,12 +297,11 @@ const ProveedorAnalytics: React.FC = () => {
           </h3>
           <div className="h-48 sm:h-64">
             <BarChart 
-              data={performanceByCategory.map(cat => ({
+              data={performanceByCategory.map((cat, i) => ({
                 label: cat.categoria.substring(0, 10),
                 value: cat.avgScore,
+                color: COLORS[i % COLORS.length],
               }))}
-              colors={COLORS}
-              showLabels
             />
           </div>
         </div>
@@ -330,17 +327,17 @@ const ProveedorAnalytics: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {metricsFiltradas
-                .sort((a, b) => b.puntajeGeneral - a.puntajeGeneral)
-                .slice(0, 10)
-                .map((metric, i) => {
-                  const TendenciaIcon = tendencias[metric.tendencia].icon;
-                  return (
-                    <tr 
-                      key={metric.proveedorId} 
-                      className={`border-b border-border cursor-pointer hover:bg-muted/50 ${selectedProveedor === metric.proveedorId ? 'bg-muted' : ''}`}
-                      onClick={() => setSelectedProveedor(metric.proveedorId)}
-                    >
+      {metricsFiltradas
+        .sort((a, b) => b.puntajeGeneral - a.puntajeGeneral)
+        .slice(0, 10)
+        .map((metric) => {
+          const TendenciaIcon = tendencias[metric.tendencia].icon;
+          return (
+            <tr 
+              key={metric.proveedorId} 
+              className={`border-b border-border cursor-pointer hover:bg-muted/50 ${selectedProveedor === metric.proveedorId ? 'bg-muted' : ''}`}
+              onClick={() => setSelectedProveedor(metric.proveedorId)}
+            >
                       <td className="p-2 font-medium">{metric.proveedorNombre}</td>
                       <td className="p-2 text-muted-foreground">{CATEGORIA_LABEL[metric.categoria as keyof typeof CATEGORIA_LABEL] || metric.categoria}</td>
                       <td className="p-2 text-center">

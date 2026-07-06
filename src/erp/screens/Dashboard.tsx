@@ -15,7 +15,7 @@ import { CARD, CARD_TITLE, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INF
 import ProyectoFilter from '../components/ProyectoFilter';
 import { SkeletonDashboard } from '../../components/SkeletonScreens';
 import { supabase } from '@/lib/supabase';
-import type { ActivoHerramienta, Empleado, Licitacion, Riesgo, OrdenCompra } from '../types';
+import type { ActivoHerramienta, Empleado, Licitacion, Riesgo } from '../types';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
 
@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
     publicacionesMuro, planos, rfis, submittals, ventasPaquetes, pagosProveedor,
     ncs, seguimientoEVM,
     mutationQueue, syncStatus, lastSyncedAt, syncError,
-    cotizacionesNegocio, notificacionesNoLeidas,
+    cotizacionesNegocio, notificacionesNoLeidas, notificaciones,
   } = ctx;
 
   const hasData = (proyectos || []).length > 0 || (movimientos || []).length > 0 || (materiales || []).length > 0;
@@ -230,7 +230,7 @@ const Dashboard: React.FC = () => {
 
   const ocPendientes = useMemo(() =>
     (ordenes || []).filter(o => o.estado === 'pendiente' || o.estado === 'borrador').slice(0, 3)
-      .map(o => ({ id: o.id, proveedor: o.proveedor, material: o.material, cantidad: o.cantidad, monto: (o.precioUnitario || 0) * (o.cantidad || 0) })),
+      .map(o => ({ id: o.id, proveedor: o.proveedor, material: o.material, cantidad: o.cantidad, monto: o.total || o.monto || 0 })),
   [ordenes]);
 
   const cuentasProximas = useMemo(() => {
@@ -245,24 +245,24 @@ const Dashboard: React.FC = () => {
     const hoy = new Date();
     const treintaDias = new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000);
     return (cuentasCobrar || [])
-      .filter(c => c.fechaVencimiento && new Date(c.fechaVencimiento) <= treintaDias && c.estado !== 'pagado')
+      .filter(c => c.fechaVencimiento && new Date(c.fechaVencimiento) <= treintaDias && c.estado !== 'cobrado')
       .sort((a, b) => new Date(a.fechaVencimiento).getTime() - new Date(b.fechaVencimiento).getTime()).slice(0, 3);
   }, [cuentasCobrar]);
 
   const licitacionesData = useMemo(() => {
     const licits = licitaciones || [];
-    const abiertas = licits.filter((l: Licitacion) => l.estado === 'abierta' || l.estado === 'en_proceso').length;
-    const ganadas = licits.filter((l: Licitacion) => l.estado === 'ganada').length;
-    const totalMonto = licits.reduce((a: number, l: Licitacion) => a + (l.montoEstimado || l.monto || 0), 0);
+    const abiertas = licits.filter((l: Licitacion) => l.estado === 'activa').length;
+    const ganadas = licits.filter((l: Licitacion) => l.estado === 'adjudicada').length;
+    const totalMonto = licits.reduce((a: number, l: Licitacion) => a + (l.monto || 0), 0);
     const top = [...licits].sort((a: Licitacion, b: Licitacion) => (b.probabilidad || 0) - (a.probabilidad || 0)).slice(0, 3);
     return { abiertas, ganadas, totalMonto, count: licits.length, top };
   }, [licitaciones]);
 
   const riesgosActivos = useMemo(() => {
     const rs = riesgos || [];
-    const activos = rs.filter((r: Riesgo) => r.estado === 'abierto' || r.estado === 'en_seguimiento');
-    const alto = activos.filter((r: Riesgo) => (r.nivel || '').toLowerCase().includes('alto') || (r.nivel || '').toLowerCase().includes('high')).length;
-    const medio = activos.filter((r: Riesgo) => (r.nivel || '').toLowerCase().includes('medio') || (r.nivel || '').toLowerCase().includes('medium')).length;
+    const activos = rs.filter((r: Riesgo) => r.estado === 'identificado' || r.estado === 'en_mitigacion');
+    const alto = activos.filter((r: Riesgo) => (r.nivel || '').toLowerCase().includes('alto')).length;
+    const medio = activos.filter((r: Riesgo) => (r.nivel || '').toLowerCase().includes('medio')).length;
     const bajo = activos.length - alto - medio;
     const top = activos.slice(0, 3);
     return { total: activos.length, alto, medio, bajo: Math.max(bajo, 0), top };
@@ -289,7 +289,7 @@ const Dashboard: React.FC = () => {
 
   const ocCambioPendientes = useMemo(() => {
     const ocs = ordenesCambio || [];
-    return ocs.filter((o: OrdenCompra) => o.estado === 'pendiente' || o.estado === 'pendiente_aprobacion').slice(0, 3);
+    return ocs.filter(o => o.estado === 'solicitud' || o.estado === 'revision').slice(0, 3);
   }, [ordenesCambio]);
 
   const proyTrend = useMemo(() => {
@@ -371,8 +371,8 @@ const Dashboard: React.FC = () => {
     erp_cuentas_cobrar: cuentasCobrar || [],
     erp_cuentas_pagar: cuentasPagar || [],
     pagos_proveedores: pagosProveedor || [],
-    erp_notificaciones: notificacionesNoLeidas || [],
-  }), [proyectos, licitaciones, cotizacionesNegocio, presupuestos, hitos, riesgos, seguimientoEVM, avances, ncs, publicacionesMuro, ordenesCambio, planos, rfis, submittals, materiales, ordenes, valesSalida, recepciones, empleados, destajos, movimientos, cuentasCobrar, cuentasPagar, pagosProveedor, notificacionesNoLeidas, proveedores, ventasPaquetes]);
+    erp_notificaciones: notificaciones || [],
+  }), [proyectos, licitaciones, cotizacionesNegocio, presupuestos, hitos, riesgos, seguimientoEVM, avances, ncs, publicacionesMuro, ordenesCambio, planos, rfis, submittals, materiales, ordenes, valesSalida, recepciones, empleados, destajos, movimientos, cuentasCobrar, cuentasPagar, pagosProveedor, notificaciones, proveedores, ventasPaquetes]);
 
   const categoriaResumen = useMemo(() => CATEGORIA_MAP.map((categoria, index) => {
     const count = categoria.tables.reduce((sum, table) => sum + (tableToDataMap[table]?.length || 0), 0);

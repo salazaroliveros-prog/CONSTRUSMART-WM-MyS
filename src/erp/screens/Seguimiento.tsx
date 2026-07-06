@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { AvanceObra, BitacoraEntry, Hito } from '../types';
-import { fmtPct, fmtQ, todayISO } from '../utils';
+import { fmtPct, fmtQ, todayISO, safeNum, safePct } from '../utils';
 import { Progress, Gauge, BarChart, LineChart } from '../components/Charts';
 import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';

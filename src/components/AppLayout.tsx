@@ -109,7 +109,7 @@ const Shell: React.FC = () => {
   const { sidebarOpen, toggleSidebar, closeSidebar, sidebarCollapsed } = useAppContext();
 
   useSupabaseRealtime({
-    tablas: [
+    tablas: ([
       'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
       'erp_notificaciones', 'erp_publicaciones_muro',
       'erp_presupuestos', 'erp_ordenes_compra', 'erp_avances', 'erp_vales_salida',
@@ -118,8 +118,8 @@ const Shell: React.FC = () => {
       'erp_cuentas_cobrar', 'erp_cuentas_pagar', 'erp_no_conformidades',
       'erp_incidentes', 'erp_pruebas_laboratorio', 'erp_liberaciones_partida',
       'erp_planos', 'erp_rfis', 'erp_submittals', 'erp_activos', 'erp_cuadros',
-      'ventas_paquetes', 'erp_pagos_proveedor',
-    ],
+      'ventas_paquetes', 'pagos_proveedores',
+    ] as string[]),
     enabled: true,
     rol: user?.rol,
     onCambio: (payload) => {
@@ -142,7 +142,7 @@ const Shell: React.FC = () => {
     });
   }, [appSettings.appTheme, appSettings.compactMode, appSettings.primaryColor, appSettings.uiMode]);
 
-  const viewName = view.split(':')[0];
+  const viewName = typeof view === 'string' ? view.split(':')[0] : 'dashboard';
 
   const screens: Record<string, React.ReactNode> = useMemo(() => ({
     dashboard:         <Dashboard />,
@@ -186,20 +186,20 @@ const Shell: React.FC = () => {
   }), []);
 
   type ScreenKey = (typeof SCREEN_KEYS)[number];
-  const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter((key): key is ScreenKey => allowedViews.includes(key)), [allowedViews]);
+  const allAllowedScreens = useMemo(() => SCREEN_KEYS.filter((key): key is ScreenKey => (allowedViews as string[]).includes(key)), [allowedViews]);
 
-  const setViewRef = useRef<ReturnType<typeof setView>>(setView);
-  setViewRef.current = setView;
+  const setViewRef = useRef<((v: string) => void) | null>(null);
+  useEffect(() => { setViewRef.current = setView; }, [setView]);
 
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
-    if (hash && SCREEN_SET.has(hash)) setViewRef.current(hash);
+    if (hash && SCREEN_SET.has(hash)) setViewRef.current?.(hash);
   }, []);
 
   useEffect(() => {
     const onHash = () => {
       const hash = window.location.hash.replace('#', '');
-      if (hash && SCREEN_SET.has(hash)) setViewRef.current(hash);
+      if (hash && SCREEN_SET.has(hash)) setViewRef.current?.(hash);
     };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
@@ -208,7 +208,7 @@ const Shell: React.FC = () => {
   const resolvedView = viewName;
 
   let safeScreen = screens['dashboard'];
-  if (allAllowedScreens.includes(resolvedView)) {
+  if ((allAllowedScreens as string[]).includes(resolvedView)) {
     safeScreen = screens[resolvedView];
   } else {
     safeScreen = screens['dashboard'];
@@ -226,7 +226,7 @@ const Shell: React.FC = () => {
             aria-label="Contenido principal"
           >
             <PageTransition>
-              <ErrorBoundary moduleName={viewName}>
+              <ErrorBoundary moduleName={String(viewName)}>
                 <Suspense fallback={<ScreenLoader />}>
                   {safeScreen}
                 </Suspense>
@@ -234,11 +234,11 @@ const Shell: React.FC = () => {
             </PageTransition>
           </main>
         </div>
-        {appSettings.showFooter !== false && (
+        {appSettings.footerEnabled !== false && (
           <footer className="border-t border-border bg-muted/30 px-3 sm:px-4 lg:px-6 py-2 flex-shrink-0">
             <div className="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
               <span>© {new Date().getFullYear()} CONSTRUSMART ERP</span>
-              <span>{EMPRESA?.nombreCorto ?? 'CONSTRUSMART'} · {EMPRESA?.eslogan ?? ''}</span>
+              <span>{EMPRESA?.nombre ?? 'CONSTRUSMART'} · {EMPRESA?.eslogan ?? ''}</span>
             </div>
           </footer>
         )}

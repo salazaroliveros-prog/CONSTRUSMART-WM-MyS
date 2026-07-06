@@ -56,14 +56,14 @@ const Weather: React.FC = () => {
   const weather = proyecto ? proyectoWeather.find(w => w.proyectoId === proyecto.id) : undefined;
 
   const refreshWeather = useCallback(async () => {
-    if (!proyecto || !(proyecto.latitud && proyecto.longitud)) {
+    if (!proyecto || !(proyecto.lat && proyecto.lng)) {
       toast.error(t('weather.no_coordinates', 'El proyecto no tiene coordenadas configuradas'));
       return;
     }
 
     setRefreshing(true);
     try {
-      const weatherData = await getCompleteWeatherData(proyecto.latitud, proyecto.longitud, proyecto.ubicacion);
+      const weatherData = await getCompleteWeatherData(proyecto.lat, proyecto.lng, proyecto.ubicacion);
       if (weatherData) {
         const impact = calculateWeatherImpact(weatherData);
         const constructionMetrics = calculateConstructionMetrics(weatherData);

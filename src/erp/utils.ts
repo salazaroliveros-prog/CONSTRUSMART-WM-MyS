@@ -513,5 +513,19 @@ export function identifySupplierRisks(metrics: SupplierPerformanceMetrics[]): Ar
               m.puntajeCalidad < 50 ? 'Problemas de calidad' : 'Desempeño general bajo',
       nivel: m.puntajeGeneral < 40 ? 'alto' : m.puntajeGeneral < 50 ? 'medio' : 'bajo',
     }))
-    .sort((a, b) => (b.nivel === 'alto' ? 1 : b.nivel === 'medio' ? 0 : -1) - (a.nivel === 'alto' ? 1 : a.nivel === 'medio' ? 0 : -1));
+    .sort((a, b) => (b.nivel === 'alto' ? 1 : b.nivel === 'medio' ? 0 : -1) - (a.nivel === 'alto' ? 1 : b.nivel === 'medio' ? 0 : -1));
 }
+
+// Safe numeric conversions for potentially undefined/null values
+export function safeNum(value: unknown): number {
+  if (value === null || value === undefined) return 0;
+  const num = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(num) ? num : 0;
+}
+
+export function safePct(value: unknown): string {
+  return fmtPct(safeNum(value));
+}
+
+// Seguimiento tab identifiers
+export type SeguimientoTab = 'resumen' | 'evm' | 'bitacora' | 'avances' | 'cronograma';

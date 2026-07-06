@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useErp, View } from '../store';
+import { useErp } from '../store';
 import { Plus, Search, Settings, Bell, Building2, Calculator, Warehouse, Wallet, Target, FileText, HardHat, Users, Truck, Package, LayoutDashboard, ChevronUp, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

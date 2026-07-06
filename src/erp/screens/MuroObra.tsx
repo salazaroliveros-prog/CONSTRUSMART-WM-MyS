@@ -20,7 +20,6 @@ const MuroObra: React.FC = () => {
   const [proyectoFilter, setProyectoFilter] = useState('');
   const [nuevoTexto, setNuevoTexto] = useState('');
   const [nuevoTipo, setNuevoTipo] = useState<TipoPublicacion>('general');
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const publicacionSchema = z.object({
     texto: z.string().min(1, 'Escribe algo para publicar'),

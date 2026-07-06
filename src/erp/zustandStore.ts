@@ -172,7 +172,13 @@ interface ErpActions {
   setAppSettings: (v: AppSettings | ((prev: AppSettings) => AppSettings)) => void;
   updateAppSettings: (patch: Partial<AppSettings>) => void;
   deleteOrden: (id: string) => void;
+  addNotificacion: (tipo: Notificacion['tipo'], titulo: string, mensaje: string, proyectoId?: string, referenciaId?: string) => void;
+  markNotificacionLeida: (id: string) => void;
+  marcarTodasLeidas: () => void;
   deleteNotificacion: (id: string) => void;
+  verificarStockCritico: () => void;
+  verificarOrdenesCambioPendientes: () => void;
+  verificarChecklistRechazado: () => void;
   addCentroCosto: (c: Omit<CentroCosto, 'id'>) => void;
   updateCentroCosto: (id: string, patch: Partial<CentroCosto>) => void;
   deleteCentroCosto: (id: string) => void;

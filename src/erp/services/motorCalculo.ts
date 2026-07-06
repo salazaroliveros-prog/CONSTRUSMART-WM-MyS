@@ -230,7 +230,7 @@ export class ServicioMotorCalculo {
   static async obtenerFactorCostoMunicipio(codigoMunicipio: string): Promise<number> {
     try {
       const municipio = await this.obtenerMunicipio(codigoMunicipio);
-      return municipio?.factor_costo || 1.0;
+      return municipio?.factorCosto || 1.0;
     } catch (error) {
       safeLogger.error('Error al obtener factor costo municipio:', error);
       return 1.0;
@@ -243,7 +243,7 @@ export class ServicioMotorCalculo {
   static async obtenerFactorRendimientoMunicipio(codigoMunicipio: string): Promise<number> {
     try {
       const municipio = await this.obtenerMunicipio(codigoMunicipio);
-      return municipio?.factor_rendimiento || 1.0;
+      return municipio?.factorRendimiento || 1.0;
     } catch (error) {
       safeLogger.error('Error al obtener factor rendimiento municipio:', error);
       return 1.0;

@@ -4,6 +4,7 @@ import { captureException, captureMessage } from '@/lib/sentry';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  moduleName?: string;
 }
 
 interface State {
@@ -39,11 +40,13 @@ export class ErrorBoundary extends Component<Props, State> {
     captureException(error, {
       componentStack: errorInfo.componentStack,
       errorBoundary: true,
+      moduleName: (this.props as Props).moduleName,
     });
 
     captureMessage('ErrorBoundary caught an error', 'error', {
       error: error.message,
       stack: error.stack,
+      moduleName: (this.props as Props).moduleName,
     });
   }
 
