@@ -171,6 +171,8 @@
     "add_item_desc": "Add line item to budget",
     "record_progress": "Record Progress",
     "record_progress_desc": "Record physical progress",
+    "view_field_performance": "View Field Performance",
+    "view_field_performance_desc": "View field performance and progress curve analysis",
     "view_s_curves": "View S-Curves",
     "view_s_curves_desc": "S-Curve analysis",
     "add_income": "Add Income",

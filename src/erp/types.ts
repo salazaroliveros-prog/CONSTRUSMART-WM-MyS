@@ -32,7 +32,7 @@ export const APP_STAGES = {
     border: 'border-amber-200',
     texto: 'text-amber-700',
     descripcion: 'Presupuestación detallada, costos totales, cronograma y materiales',
-    modulosPermitidos: ['presupuestos', 'apu', 'baseprecios', 'cotizaciones', 'curvas', 'hitos', 'riesgos', 'muro', 'notificaciones', 'ajustes'],
+    modulosPermitidos: ['presupuestos', 'apu', 'baseprecios', 'cotizaciones', 'hitos', 'riesgos', 'muro', 'notificaciones', 'ajustes'],
     vistasSiguiente: ['construccion'],
   },
   construccion: {

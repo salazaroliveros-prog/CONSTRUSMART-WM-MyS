@@ -419,6 +419,8 @@
     "add_item_desc": "Agregar renglón al presupuesto",
     "record_progress": "Registrar Avance",
     "record_progress_desc": "Registrar avance físico",
+    "view_field_performance": "Ver Rendimiento de Campo",
+    "view_field_performance_desc": "Ver análisis de rendimiento y curva de avance",
     "view_s_curves": "Ver Curvas S",
     "view_s_curves_desc": "Análisis de curvas S",
     "add_income": "Agregar Ingreso",

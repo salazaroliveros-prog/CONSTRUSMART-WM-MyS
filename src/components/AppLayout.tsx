@@ -205,7 +205,7 @@ const Shell: React.FC = () => {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  const resolvedView = viewName === 'rendimientos' ? 'rendimiento-campo' : viewName;
+  const resolvedView = viewName;
 
   let safeScreen = screens['dashboard'];
   if (allAllowedScreens.includes(resolvedView)) {

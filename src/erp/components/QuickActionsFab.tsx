@@ -137,14 +137,14 @@ const QuickActionsFab: React.FC = () => {
           description: t('quick_actions.record_progress_desc') || 'Registrar avance físico',
         },
         {
-          id: 'view-s-curves',
-          label: t('quick_actions.view_s_curves') || 'Ver Curvas S',
+          id: 'view-field-performance',
+          label: t('quick_actions.view_field_performance') || 'Ver Rendimiento de Campo',
           icon: Calculator,
           action: () => {
-            setView('curvas');
+            setView('rendimiento-campo');
             setIsOpen(false);
           },
-          description: t('quick_actions.view_s_curves_desc') || 'Análisis de curvas S',
+          description: t('quick_actions.view_field_performance_desc') || 'Ver análisis de rendimiento y curva de avance',
         },
       ],
       financiero: [
@@ -443,17 +443,6 @@ const QuickActionsFab: React.FC = () => {
             setIsOpen(false);
           },
           description: t('quick_actions.create_apu_desc') || 'Nuevo análisis de precios unitarios',
-        },
-      ],
-      curvas: [
-        {
-          id: 'generate-curves',
-          label: t('quick_actions.generate_curves') || 'Generar Curvas',
-          icon: Calculator,
-          action: () => {
-            setIsOpen(false);
-          },
-          description: t('quick_actions.generate_curves_desc') || 'Generar curvas S del proyecto',
         },
       ],
       baseprecios: [
