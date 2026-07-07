@@ -323,6 +323,24 @@ const Ajustes: React.FC = () => {
               </SettingRow>
 
               <SettingRow
+                icon={<PlayCircleOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Tipo de Animación"
+                subtitle="Estilo de transición entre pantallas"
+              >
+                <Radio.Group
+                  value={appSettings.animationType || 'fade'}
+                  onChange={e => updateAppSettings({ animationType: e.target.value as any })}
+                  optionType="button"
+                  buttonStyle="solid"
+                >
+                  <Radio.Button value="fade">Fundido</Radio.Button>
+                  <Radio.Button value="slide">Deslizar</Radio.Button>
+                  <Radio.Button value="scale">Escalar</Radio.Button>
+                  <Radio.Button value="none">Ninguna</Radio.Button>
+                </Radio.Group>
+              </SettingRow>
+
+              <SettingRow
                 icon={<EyeOutlined style={{ fontSize: ICON_SIZE }} />}
                 title="Modo Compacto"
                 subtitle="Reduce espaciado para mostrar más información"
@@ -330,6 +348,39 @@ const Ajustes: React.FC = () => {
                 <Switch
                   checked={appSettings.compactMode}
                   onChange={v => updateAppSettings({ compactMode: v })}
+                />
+              </SettingRow>
+
+              <SettingRow
+                icon={<span style={{ fontSize: ICON_SIZE }}>🔗</span>}
+                title="Migas de Pan"
+                subtitle="Navegación jerárquica en la parte superior"
+              >
+                <Switch
+                  checked={appSettings.breadcrumbsEnabled !== false}
+                  onChange={v => updateAppSettings({ breadcrumbsEnabled: v })}
+                />
+              </SettingRow>
+
+              <SettingRow
+                icon={<span style={{ fontSize: ICON_SIZE }}>📄</span>}
+                title="Pie de Página"
+                subtitle="Mostrar footer con información de la empresa"
+              >
+                <Switch
+                  checked={appSettings.footerEnabled !== false}
+                  onChange={v => updateAppSettings({ footerEnabled: v })}
+                />
+              </SettingRow>
+
+              <SettingRow
+                icon={<span style={{ fontSize: ICON_SIZE }}>👆</span>}
+                title="Modo Táctil"
+                subtitle="Optimizado para tablets y pantallas táctiles"
+              >
+                <Switch
+                  checked={appSettings.touchMode || false}
+                  onChange={v => updateAppSettings({ touchMode: v })}
                 />
               </SettingRow>
             </Card>
