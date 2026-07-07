@@ -19,98 +19,146 @@
 
 ---
 
-## 🔴 Alta Prioridad (P0) — Requiere sesión dedicada
+## Estrategia de Implementación Paralela (3 Agentes)
 
-### 1. Sidebar configurable (posición + hover-to-expand)
-**Estimado:** 1.5 días
-- [ ] Posición: izquierda/derecha/overlay desde Ajustes
-- [ ] Modo hover-to-expand en sidebar colapsado
-- [ ] Ancho configurable (240px/280px/320px)
+### 🔴 DÍA 1 — P0 (Alta Prioridad)
 
-### 2. Sistema de densidad global
-**Estimado:** 1 día
-- [ ] Compact (padding reducido, fuente 13px)
-- [ ] Normal (padding estándar, fuente 14px)
-- [ ] Comfortable (padding amplio, fuente 15px)
-- [ ] Control desde Ajustes → `density: 'compact' | 'normal' | 'comfortable'`
+| Agente | Items | Dependencias |
+|--------|-------|:------------:|
+| **Agente A** | Sidebar configurable (posición + hover-to-expand + ancho) | Ninguna |
+| **Agente B** | Sistema de densidad global + Espaciado/padding configurable | Ninguna |
+| **Agente C** | Modo quiosco/touch + Índices DB (SQL) + Tests motor cálculo | Ninguna |
 
-### 3. Modo quiosco / touch para tablets
-**Estimado:** 1 día
-- [ ] Botones más grandes (min-height: 48px)
-- [ ] Targets táctiles de al menos 44x44px
-- [ ] Gestos: swipe, pull-to-refresh
-- [ ] Control desde Ajustes → `touchMode: boolean`
+**Resultado Día 1:** ✅ 6/6 P0 completados
 
-### 4. Espaciado/padding global configurable
-**Estimado:** 0.5 día
-- [ ] Escalas: compact / normal / spacious
-- [ ] Aplica a padding de cards, gap, margen de secciones
+### 🟡 DÍA 2-3 — P1 (Media Prioridad)
 
-### 5. Índices DB estratégicos
-**Estimado:** 0.5 día
-- [ ] Migration SQL con índices en:
-  - `erp_proyectos(cliente_id)`
-  - `erp_movimientos(proyecto_id, fecha)`
-  - `erp_presupuestos(proyecto_id)`
-  - `erp_ordenes_compra(proveedor_id, estado)`
+| Agente | Items | Dependencias |
+|--------|-------|:------------:|
+| **Agente A** | Fuente tipográfica + Radio bordes + Animaciones por tipo + Breadcrumbs | Ninguna |
+| **Agente B** | Batch forceSync + Web Worker compresión + Virtual scrolling + React Query | Ninguna |
+| **Agente C** | Backup automation + Performance monitoring + Daily integrity checks + Tests UI + Tests accesibilidad + Tests regresión visual + Guía usuario | Ninguna |
 
-### 6. Tests para motor de cálculo
-**Estimado:** 0.5 día
-- [ ] Tests unitarios para ServicioMotorCalculo
-- [ ] Tests para validación de cálculos (APU, dosificación, pavimentos)
+**Resultado Día 2-3:** ✅ 15/15 P1 completados
+
+### 🟢 DÍA 4-5 — P2 (Baja Prioridad)
+
+| Agente | Items | Dependencias |
+|--------|-------|:------------:|
+| **Agente A** | Toast position + Footer + Sonidos + Service Worker PWA | Ninguna |
+| **Agente B** | Partitioning DB + Rate limiting + 2FA/MFA | Ninguna |
+| **Agente C** | Rotación API keys + Cache Weather + Diagrama + API docs + Contribución + CHANGELOG | Ninguna |
+
+**Resultado Día 4-5:** ✅ 13/13 P2 completados
 
 ---
 
-## 🟡 Media Prioridad (P1)
+## Comparativa: Secuencial vs Paralelo
 
-| Item | Estimado |
-|------|:--------:|
-| Fuente tipográfica seleccionable (Inter, Roboto, Open Sans) | 0.5 día |
-| Radio de bordes global configurable | 0.5 día |
-| Animaciones por tipo (slide, scale, none) | 0.5 día |
-| Breadcrumbs on/off | 0.5 día |
-| Batch forceSync (agrupar mutations) | 1 día |
-| Web Worker para compresión lz-string | 1 día |
-| Virtual scrolling con react-window | 1 día |
-| React Query + SWR para datos de referencia | 1 día |
-| Backup automation con cron semanal | 0.5 día |
-| Performance monitoring (pg_stat_statements) | 1 día |
-| Daily integrity checks RPC | 0.5 día |
-| Tests para componentes UI nuevos | 0.5 día |
-| Tests de regresión visual (Playwright) | 1 día |
-| Tests de accesibilidad (axe-core) | 1 día |
-| Guía de usuario para temas y personalización | 0.5 día |
+| Prioridad | Items | Secuencial | 3 Agentes | Reducción |
+|-----------|:-----:|:----------:|:---------:|:---------:|
+| 🔴 P0 | 6 | ~5 días | **~1 día** | 80% |
+| 🟡 P1 | 15 | ~10.5 días | **~2 días** | 81% |
+| 🟢 P2 | 13 | ~9 días | **~2 días** | 78% |
+| **TOTAL** | **34** | **~24.5 días** | **~5 días** | **80%** |
 
 ---
 
-## 🟢 Baja Prioridad (P2)
+## 🔴 DÍA 1 — Detalle P0
 
-| Item | Estimado |
-|------|:--------:|
-| Posición de notificaciones toast configurable | 0.5 día |
-| Footer on/off | 0.5 día |
-| Sonidos de notificación | 0.5 día |
-| Partitioning en tablas grandes | 1 día |
-| Rate limiting (token bucket) | 0.5 día |
-| 2FA / MFA | 2 días |
-| Rotación de API keys | 0.5 día |
-| Service Worker optimizado para PWA | 1 día |
-| Cache de pronóstico Weather (7 días) | 0.5 día |
-| Diagrama de arquitectura Weather | 0.5 día |
-| Documentación de API de componentes UI | 1 día |
-| Guía de contribución | 0.5 día |
-| CHANGELOG.md | 0.5 día |
+### Agente A: Sidebar + Ajustes
+- [ ] `Ajustes.tsx`: Añadir control `sidebarPosition: 'left' | 'right' | 'overlay'`
+- [ ] `Ajustes.tsx`: Añadir control `sidebarMode: 'expanded' | 'collapsed' | 'hover-expand' | 'mini'`
+- [ ] `Ajustes.tsx`: Añadir control `sidebarWidth: 240 | 280 | 320`
+- [ ] `Sidebar.tsx`: Implementar posición dinámica (left/right/overlay)
+- [ ] `Sidebar.tsx`: Implementar hover-to-expand
+- [ ] `Sidebar.tsx`: Implementar ancho configurable
+- [ ] Store: Extender `AppSettings` con nuevas propiedades
+- [ ] Persistencia: localStorage + Supabase
+
+### Agente B: Densidad + Espaciado
+- [ ] `design-tokens.css`: Añadir variables `--density-*` (compact/normal/comfortable)
+- [ ] `Ajustes.tsx`: Añadir control `density: 'compact' | 'normal' | 'comfortable'`
+- [ ] `Ajustes.tsx`: Añadir control `spacing: 'compact' | 'normal' | 'spacious'`
+- [ ] `ui.ts`: Actualizar CARD, INPUT, BUTTON, TABLE para usar `--density-*`
+- [ ] Store: Extender `AppSettings` con density/spacing
+- [ ] Aplicar clases `.density-compact`, `.density-normal`, `.density-comfortable` al DOM
+
+### Agente C: Quiosco + DB + Tests
+- [ ] `Ajustes.tsx`: Añadir control `touchMode: boolean`
+- [ ] CSS: Media query `@media (pointer: coarse)` para detección automática
+- [ ] CSS: `min-height: 48px` en botones cuando touchMode activo
+- [ ] Componentes: Asegurar targets táctiles ≥44x44px
+- [ ] Migration SQL: Índices en columnas de filtro frecuente
+- [ ] Tests: `src/__tests__/motor-calculo.test.ts` para ServicioMotorCalculo
+- [ ] Tests: Validación de cálculos (APU, dosificación, pavimentos)
+
+---
+
+## 🟡 DÍA 2-3 — Detalle P1
+
+### Agente A: Tipografía + Bordes + Animaciones + Breadcrumbs
+- [ ] `Ajustes.tsx`: Selector de fuente (Inter, Roboto, Open Sans, Poppins, System UI)
+- [ ] `design-tokens.css`: `--font-family` dinámico
+- [ ] `Ajustes.tsx`: Selector de radio de bordes (none/small/medium/large/full)
+- [ ] `design-tokens.css`: `--radius-selected` dinámico
+- [ ] `Animations.tsx`: Añadir tipos slide, scale, none
+- [ ] `Ajustes.tsx`: Selector de tipo de animación
+- [ ] `AppLayout.tsx`: Implementar Breadcrumbs con `useLocation()`
+- [ ] `Ajustes.tsx`: Switch breadcrumbs on/off
+
+### Agente B: Performance
+- [ ] `store.tsx`: Implementar batch forceSync (agrupar mutations del mismo tipo)
+- [ ] `workers/compression.worker.ts`: Web Worker para lz-string
+- [ ] `store.tsx`: Migrar compressData a Web Worker
+- [ ] Instalar `react-window`: Virtual scrolling en Bodega, Movimientos
+- [ ] Instalar `@tanstack/react-query`: SWR para datos de referencia
+- [ ] Migrar llamadas a departamentos/municipios a React Query
+
+### Agente C: DB + Testing + Docs
+- [ ] Script `scripts/backup.cjs`: Programar con `node-cron`
+- [ ] Migration SQL: `pg_stat_statements` habilitado
+- [ ] Dashboard: Card de performance de queries
+- [ ] RPC `check_integrity_daily()`: Verificar FK orphans + NULLs inesperados
+- [ ] Tests: `src/__tests__/components-ui.test.tsx` (ElevatedCard, FloatingLabelInput, Animations)
+- [ ] Tests: Playwright screenshot comparison (regresión visual)
+- [ ] Tests: axe-core (accesibilidad)
+- [ ] `docs/GUIA_TEMAS.md`: Guía de usuario para personalización
+
+---
+
+## 🟢 DÍA 4-5 — Detalle P2
+
+### Agente A: UX Details
+- [ ] `Ajustes.tsx`: Selector de posición de toast (top-right, bottom-left, etc.)
+- [ ] `AppLayout.tsx`: Footer on/off con versión, año, soporte
+- [ ] `Ajustes.tsx`: Switch sonidos de notificación
+- [ ] `public/sw.js`: Optimizar service worker con estrategia cache-first para assets
+
+### Agente B: Infraestructura
+- [ ] Migration SQL: Partitioning por año/mes en `erp_movimientos`, `erp_audit_log`
+- [ ] `store.tsx`: Token bucket para rate limiting en forceSync
+- [ ] `Ajustes.tsx`: Configuración de 2FA (enlace a Supabase Auth)
+- [ ] Documentar proceso de 2FA
+
+### Agente C: Documentación + Mantenimiento
+- [ ] Script rotación de API keys
+- [ ] `WeatherWidget.tsx`: Cache de pronóstico 7 días en localStorage
+- [ ] `docs/ARCHITECTURE_WEATHER.md`: Diagrama de arquitectura
+- [ ] `docs/API_COMPONENTES.md`: Documentación de componentes UI
+- [ ] `CONTRIBUTING.md`: Guía de contribución
+- [ ] `CHANGELOG.md`: Historial de cambios
 
 ---
 
 ## Totales
 
-| Prioridad | Items | Tiempo Estimado |
-|-----------|:-----:|:----------------:|
-| 🔴 P0 | 6 items | ~5 días |
-| 🟡 P1 | 15 items | ~10.5 días |
-| 🟢 P2 | 13 items | ~9 días |
-| **TOTAL** | **34 items** | **~24.5 días hábiles** |
+| Prioridad | Items | Secuencial | 3 Agentes | Reducción |
+|-----------|:-----:|:----------:|:---------:|:---------:|
+| 🔴 P0 | 6 | ~5 días | **~1 día** | 80% |
+| 🟡 P1 | 15 | ~10.5 días | **~2 días** | 81% |
+| 🟢 P2 | 13 | ~9 días | **~2 días** | 78% |
+| **TOTAL** | **34** | **~24.5 días** | **~5 días** | **80%** |
 
 ---
 
@@ -118,6 +166,7 @@
 
 | Fecha | Hash | Descripción |
 |------|------|-------------|
+| 07/06 | `b1a10aa` | Add TODO_PENDIENTE.md |
 | 07/06 | `2af684b` | Fix COLOR_* string literals, gap analysis docs |
 | 07/06 | `df41a40` | Fix TS errors (await, Skeleton, implicit any) |
 | 07/06 | `80579f4` | Fix 404 icons (PNG to /icons/, manifest) |
