@@ -21,6 +21,7 @@ export type AppSettings = {
   sidebarWidth: 240 | 280 | 320;
   sidebarMiniWidth: 64 | 72 | 80;
   animationsEnabled: boolean;
+  animationType: 'fade' | 'slide' | 'scale' | 'none';
   compactMode: boolean;
   fontSize: 'small' | 'medium' | 'large';
   fontFamily: 'system-ui' | 'inter' | 'roboto' | 'open-sans' | 'poppins';
@@ -168,6 +169,7 @@ export const APP_SETTINGS_DEFAULTS: AppSettings = {
   sidebarWidth: 240,
   sidebarMiniWidth: 64,
   animationsEnabled: true,
+  animationType: 'fade',
   compactMode: false,
   fontSize: 'medium',
   fontFamily: 'system-ui',

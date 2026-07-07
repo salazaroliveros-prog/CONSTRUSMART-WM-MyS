@@ -240,7 +240,14 @@ const Shell: React.FC = () => {
             role="main"
             aria-label="Contenido principal"
           >
-            <PageTransition>
+            {appSettings.breadcrumbsEnabled !== false && (
+              <nav className="px-3 sm:px-4 lg:px-6 py-1.5 text-xs text-muted-foreground border-b border-border/30 flex items-center gap-1.5" aria-label="Breadcrumb">
+                <span className="text-foreground/60">ERP</span>
+                <span className="text-foreground/30">/</span>
+                <span className="font-medium text-foreground/80 capitalize">{viewName.replace(/-/g, ' ')}</span>
+              </nav>
+            )}
+            <PageTransition animationType={appSettings.animationType || 'fade'}>
               <ErrorBoundary moduleName={String(viewName)}>
                 <Suspense fallback={<ScreenLoader />}>
                   {safeScreen}
