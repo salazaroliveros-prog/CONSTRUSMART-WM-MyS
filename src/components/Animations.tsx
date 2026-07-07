@@ -4,9 +4,28 @@ import { ReactNode, useEffect, useState, useRef } from 'react';
  * PageTransition — Animación de entrada para cambios de pantalla
  * Respeta prefers-reduced-motion y la configuración de animaciones del usuario
  */
-export function PageTransition({ children }: { children: ReactNode }) {
+export function PageTransition({
+  children,
+  animationType = 'fade',
+}: {
+  children: ReactNode;
+  animationType?: 'fade' | 'slide' | 'scale' | 'none';
+}) {
   const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  const getAnimationClass = () => {
+    if (animationType === 'none') return '';
+    switch (animationType) {
+      case 'slide':
+        return visible ? 'animate-slide-in-right' : 'opacity-0';
+      case 'scale':
+        return visible ? 'animate-scale-in' : 'opacity-0';
+      case 'fade':
+      default:
+        return visible ? 'animate-fade-in-up' : 'opacity-0';
+    }
+  };
 
   useEffect(() => {
     // Check if animations are disabled via app settings
@@ -22,12 +41,12 @@ export function PageTransition({ children }: { children: ReactNode }) {
       clearTimeout(timer);
       setVisible(false);
     };
-  }, [children]);
+  }, [children, animationType]);
 
   return (
     <div
       ref={ref}
-      className={visible ? 'animate-fade-in-up' : 'opacity-0'}
+      className={getAnimationClass()}
       style={{
         animationDuration: '350ms',
         animationFillMode: 'both',
