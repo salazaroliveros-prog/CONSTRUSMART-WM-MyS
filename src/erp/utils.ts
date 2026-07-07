@@ -31,6 +31,7 @@ export type AppSettings = {
   breadcrumbsEnabled: boolean;
   footerEnabled: boolean;
   touchMode: boolean;
+  notificationSounds: boolean;
   empresaInfo?: {
     nombre: string;
     nit: string;
@@ -179,6 +180,7 @@ export const APP_SETTINGS_DEFAULTS: AppSettings = {
   breadcrumbsEnabled: true,
   footerEnabled: true,
   touchMode: false,
+  notificationSounds: true,
   empresaInfo: EMPRESA_DEFAULT,
 };
 

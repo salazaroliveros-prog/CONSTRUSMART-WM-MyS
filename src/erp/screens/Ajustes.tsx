@@ -495,6 +495,17 @@ const Ajustes: React.FC = () => {
             <Card style={sectionCard} size="small">
               <SettingRow
                 icon={<BellOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Sonidos de Notificación"
+                subtitle="Reproducir sonido al recibir notificaciones"
+              >
+                <Switch
+                  checked={appSettings.notificationSounds !== false}
+                  onChange={v => updateAppSettings({ notificationSounds: v })}
+                />
+              </SettingRow>
+
+              <SettingRow
+                icon={<BellOutlined style={{ fontSize: ICON_SIZE }} />}
                 title="Stock Crítico"
                 subtitle="Alertas cuando el inventario está bajo"
               >
@@ -596,6 +607,25 @@ const Ajustes: React.FC = () => {
           <Col xs={24} lg={12}>
             <Card title="Seguridad" style={sectionCard} size="small">
               <Space direction="vertical" style={{ width: '100%' }} size={16}>
+                <Card title="Autenticación de Dos Factores (2FA)" size="small" type="inner">
+                  <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                    <Text>Protege tu cuenta con verificación en dos pasos.</Text>
+                    <Button
+                      type="primary"
+                      icon={<SafetyOutlined />}
+                      block
+                      href="https://supabase.com/dashboard/project/_/auth/mfa"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Configurar 2FA en Supabase
+                    </Button>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      Serás redirigido al panel de Supabase para configurar la autenticación multifactor.
+                    </Text>
+                  </Space>
+                </Card>
+                <Divider />
                 <Button icon={<KeyOutlined />} block>Cambiar Contraseña</Button>
                 <Divider />
                 <Alert
