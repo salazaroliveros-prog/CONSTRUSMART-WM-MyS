@@ -174,52 +174,61 @@ export function syncAllVisualSettings(settings: {
   footerEnabled?: boolean;
   touchMode?: boolean;
 }): void {
+  const body = document.body;
+  const html = document.documentElement;
+
   if (settings.appTheme) {
-    document.documentElement.setAttribute('data-theme', settings.appTheme);
-    document.documentElement.classList.toggle('dark', settings.appTheme === 'dark-pro');
+    html.setAttribute('data-theme', settings.appTheme);
+    html.classList.toggle('dark', settings.appTheme === 'dark-pro');
   }
   if (settings.compactMode !== undefined) {
-    document.documentElement.classList.toggle('compact', settings.compactMode);
+    html.classList.toggle('compact', settings.compactMode);
   }
   if (settings.primaryColor) {
     const hsl = hexToHSL(settings.primaryColor);
-    document.documentElement.style.setProperty('--primary-hue', hsl);
-    document.documentElement.style.setProperty('--primary', hsl);
+    html.style.setProperty('--primary-hue', hsl);
+    html.style.setProperty('--primary', hsl);
   }
   if (settings.animationsEnabled !== undefined) {
     syncAnimationsSetting(settings.animationsEnabled);
   }
   if (settings.fontSize) {
-    document.documentElement.setAttribute('data-font-size', settings.fontSize);
+    html.setAttribute('data-font-size', settings.fontSize);
   }
   if (settings.fontFamily) {
-    document.documentElement.setAttribute('data-font-family', settings.fontFamily);
+    html.style.setProperty('--font-family', `'${settings.fontFamily === 'system-ui' ? 'system-ui, sans-serif' : settings.fontFamily === 'inter' ? 'Inter, sans-serif' : settings.fontFamily === 'roboto' ? 'Roboto, sans-serif' : settings.fontFamily === 'open-sans' ? '"Open Sans", sans-serif' : settings.fontFamily === 'poppins' ? 'Poppins, sans-serif' : 'Inter, sans-serif'}'`);
   }
   if (settings.borderRadius) {
-    document.documentElement.setAttribute('data-border-radius', settings.borderRadius);
+    const radiusMap: Record<string, string> = { none: '0px', small: '4px', medium: '6px', large: '12px', full: '9999px' };
+    html.style.setProperty('--radius-selected', radiusMap[settings.borderRadius] || '6px');
   }
   if (settings.spacingScale) {
-    document.documentElement.setAttribute('data-spacing-scale', settings.spacingScale);
+    const spacingMap: Record<string, string> = { compact: '4px', normal: '8px', spacious: '16px' };
+    html.style.setProperty('--spacing-selected', spacingMap[settings.spacingScale] || '8px');
   }
   if (settings.densityTable) {
-    document.documentElement.setAttribute('data-density-table', settings.densityTable);
+    // Apply density class to body
+    body.classList.remove('density-compact', 'density-normal', 'density-comfortable');
+    body.classList.add(`density-${settings.densityTable}`);
   }
   if (settings.sidebarPosition) {
-    document.documentElement.setAttribute('data-sidebar-position', settings.sidebarPosition);
+    body.classList.remove('sidebar-left', 'sidebar-right', 'sidebar-overlay');
+    body.classList.add(`sidebar-${settings.sidebarPosition}`);
+    html.style.setProperty('--sidebar-position', settings.sidebarPosition);
   }
   if (settings.sidebarMode) {
-    document.documentElement.setAttribute('data-sidebar-mode', settings.sidebarMode);
+    html.setAttribute('data-sidebar-mode', settings.sidebarMode);
   }
   if (settings.sidebarWidth) {
-    document.documentElement.setAttribute('data-sidebar-width', String(settings.sidebarWidth));
+    html.style.setProperty('--sidebar-width', `${settings.sidebarWidth}px`);
   }
   if (settings.breadcrumbsEnabled !== undefined) {
-    document.documentElement.setAttribute('data-breadcrumbs-enabled', String(settings.breadcrumbsEnabled));
+    html.setAttribute('data-breadcrumbs-enabled', String(settings.breadcrumbsEnabled));
   }
   if (settings.footerEnabled !== undefined) {
-    document.documentElement.setAttribute('data-footer-enabled', String(settings.footerEnabled));
+    html.setAttribute('data-footer-enabled', String(settings.footerEnabled));
   }
   if (settings.touchMode !== undefined) {
-    document.documentElement.setAttribute('data-touch-mode', String(settings.touchMode));
+    body.classList.toggle('touch-mode', settings.touchMode);
   }
 }

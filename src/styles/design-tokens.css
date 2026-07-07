@@ -6,6 +6,17 @@
 
 @layer base {
   :root {
+    /* === DENSITY SYSTEM === */
+    --density-padding: 16px;
+    --density-gap: 16px;
+    --density-input-height: 32px;
+    --density-table-cell: 8px;
+    --density-selected: var(--density-padding);
+
+    /* === SIDEBAR === */
+    --sidebar-width: 240px;
+    --sidebar-position: left;
+
     /* === ELEVATION / SHADOW SYSTEM === */
     --elevation-0: none;
     --elevation-1: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
@@ -106,6 +117,44 @@
     --z-tooltip: 700;
     --z-toast: 800;
   }
+
+  /* Density: Compact */
+  .density-compact {
+    --density-padding: 8px;
+    --density-gap: 8px;
+    --density-input-height: 28px;
+    --density-table-cell: 6px;
+    --density-selected: var(--density-padding);
+  }
+
+  /* Density: Normal (default) */
+  .density-normal {
+    --density-padding: 16px;
+    --density-gap: 16px;
+    --density-input-height: 32px;
+    --density-table-cell: 8px;
+    --density-selected: var(--density-padding);
+  }
+
+  /* Density: Comfortable */
+  .density-comfortable {
+    --density-padding: 24px;
+    --density-gap: 24px;
+    --density-input-height: 40px;
+    --density-table-cell: 12px;
+    --density-selected: var(--density-padding);
+  }
+
+  /* Sidebar: Right */
+  .sidebar-right {
+    --sidebar-position: right;
+  }
+  .sidebar-right .sidebar-main {
+    order: 2;
+  }
+  .sidebar-right .sidebar-content-area {
+    order: 1;
+  }
 }
 
 /* ============================================================================
@@ -158,75 +207,56 @@
     box-shadow: var(--card-elevation-rest);
     transition: box-shadow var(--motion-duration-normal) var(--motion-easing-in-out),
                 transform var(--motion-duration-normal) var(--motion-easing-in-out);
-    background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--card) / 0.85));
-    position: relative;
-    overflow: hidden;
-  }
-  .card-kpi::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.5));
-    opacity: 0;
-    transition: opacity var(--motion-duration-normal) var(--motion-easing-in-out);
   }
   .card-kpi:hover {
     box-shadow: var(--card-elevation-hover);
     transform: translateY(var(--motion-translate-hover));
   }
-  .card-kpi:hover::before {
-    opacity: 1;
+
+  /* Animation / motion utilities */
+  .animate-fade-in {
+    animation: fadeIn var(--motion-duration-normal) var(--motion-easing-out);
+  }
+  .animate-slide-up {
+    animation: slideUp var(--motion-duration-normal) var(--motion-easing-out);
+  }
+  .animate-scale-in {
+    animation: scaleIn var(--motion-duration-normal) var(--motion-easing-spring);
+  }
+  .animate-slide-in-right {
+    animation: slideInRight var(--motion-duration-normal) var(--motion-easing-out);
   }
 
-  /* Dialog / Modal elevation */
-  .elevation-dialog {
-    box-shadow: var(--card-elevation-dialog);
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(16px); }
+    to { opacity: 1; transform: translateX(0); }
   }
 
-  /* Dropdown / Popover elevation */
-  .elevation-dropdown {
-    box-shadow: var(--card-elevation-dropdown);
-  }
-}
+  /* Staggered animation for lists */
+  .stagger-1 { animation-delay: 0ms; }
+  .stagger-2 { animation-delay: 50ms; }
+  .stagger-3 { animation-delay: 100ms; }
+  .stagger-4 { animation-delay: 150ms; }
+  .stagger-5 { animation-delay: 200ms; }
+  .stagger-6 { animation-delay: 250ms; }
+  .stagger-7 { animation-delay: 300ms; }
+  .stagger-8 { animation-delay: 350ms; }
 
-/* ============================================================================
-   MOTION UTILITY CLASSES
-   ============================================================================ */
-@layer utilities {
-  /* Base transition presets */
-  .motion-safe {
-    transition-duration: var(--motion-duration-normal);
-    transition-timing-function: var(--motion-easing-in-out);
-  }
-  .motion-fast {
-    transition-duration: var(--motion-duration-fast);
-    transition-timing-function: var(--motion-easing-out);
-  }
-  .motion-slow {
-    transition-duration: var(--motion-duration-slow);
-    transition-timing-function: var(--motion-easing-in-out);
-  }
-  .motion-spring {
-    transition-duration: var(--motion-duration-slow);
-    transition-timing-function: var(--motion-easing-spring);
-  }
-
-  /* Stagger animation delays */
-  .stagger-1 { animation-delay: 50ms; }
-  .stagger-2 { animation-delay: 100ms; }
-  .stagger-3 { animation-delay: 150ms; }
-  .stagger-4 { animation-delay: 200ms; }
-  .stagger-5 { animation-delay: 250ms; }
-  .stagger-6 { animation-delay: 300ms; }
-  .stagger-7 { animation-delay: 350ms; }
-  .stagger-8 { animation-delay: 400ms; }
-
-  /* Hover scale effect */
+  /* Hover utilities */
   .hover-scale {
-    transition: transform var(--motion-duration-fast) var(--motion-easing-out);
+    transition: transform var(--motion-duration-fast) var(--motion-easing-in-out);
   }
   .hover-scale:hover {
     transform: scale(var(--motion-scale-hover));
@@ -413,6 +443,46 @@
   .animations-disabled .card-elevation:hover,
   .animations-disabled .card-interactive:hover,
   .animations-disabled .card-kpi:hover {
+    transform: none !important;
+  }
+}
+
+/* ============================================================================
+   TOUCH MODE
+   ============================================================================ */
+@layer base {
+  /* Auto-detect touch device */
+  @media (pointer: coarse) {
+    .auto-touch-mode button,
+    .auto-touch-mode .btn,
+    .auto-touch-mode [role="button"] {
+      min-height: 44px;
+    }
+    .auto-touch-mode input,
+    .auto-touch-mode select,
+    .auto-touch-mode textarea {
+      min-height: 44px;
+      padding: 10px 12px;
+    }
+  }
+
+  /* Manual touch mode (from settings) */
+  .touch-mode button,
+  .touch-mode .btn,
+  .touch-mode [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .touch-mode input,
+  .touch-mode select,
+  .touch-mode textarea {
+    min-height: 48px;
+    padding: 12px 14px;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+  .touch-mode .card-elevation:hover,
+  .touch-mode .card-interactive:hover,
+  .touch-mode .card-kpi:hover {
     transform: none !important;
   }
 }
