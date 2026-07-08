@@ -5,7 +5,7 @@ export const TABLE_MAP: Record<string, string> = {
   erp_riesgos:'riesgos',erp_licitaciones:'licitaciones',
   erp_cotizaciones_negocio:'cotizacionesNegocio',erp_vales_salida:'valesSalida',
   erp_no_conformidades:'ncs',erp_incidentes:'incidentes',
-  erp_muro:'publicacionesMuro',erp_planos:'planos',erp_rfis:'rfis',
+  erp_publicaciones_muro:'publicacionesMuro',erp_planos:'planos',erp_rfis:'rfis',
   erp_submittals:'submittals',erp_activos:'activos',erp_cuadros:'cuadros',
   erp_pagos_proveedor:'pagosProveedor',erp_destajos:'destajos',
   erp_recepciones:'recepciones',erp_centros_costo:'centrosCosto',
