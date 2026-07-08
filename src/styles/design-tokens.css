@@ -448,8 +448,31 @@
 }
 
 /* ============================================================================
-   TOUCH MODE
+   MOBILE TYPOGRAPHY SCALING
    ============================================================================ */
+@media (max-width: 639px) {
+  .mobile-text-scale {
+    font-size: 0.875rem;
+  }
+}
+
+/* ============================================================================
+   TOUCH TARGETS
+   ============================================================================ */
+@media (pointer: coarse) {
+  .touch-table-actions button,
+  .touch-table-actions [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ============================================================================
+   SAFE AREA BOTTOM
+   ============================================================================ */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
 @layer base {
   /* Auto-detect touch device */
   @media (pointer: coarse) {

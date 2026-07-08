@@ -396,7 +396,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div ref={dashRef} className="h-full flex flex-col p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto overflow-y-auto overflow-x-hidden bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.04),transparent_50%)]">
+    <div ref={dashRef} className="h-full flex flex-col p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto overflow-y-auto overflow-x-hidden bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.04),transparent_50%)] mobile-text-base">
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-1 sm:gap-2 mb-2 flex-shrink-0">
         <div className="min-w-0 flex flex-col md:flex-row md:items-center gap-2 md:gap-3">

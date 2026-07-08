@@ -566,7 +566,7 @@ const QuickActionsFab: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
+    <div className="fixed bottom-[calc(theme('spacing.6')+theme('spacing.20')+env(safe-area-inset-bottom,0px))] md:bottom-6 right-6 z-[60] flex flex-col items-end gap-2">
       <AnimatePresence>
         {isOpen && !isMinimized && (
           <motion.div
