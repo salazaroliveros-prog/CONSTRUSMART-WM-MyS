@@ -1,13 +1,12 @@
--- Migration: Strategic Indexes for Query Performance
--- Description: Creates indexes on frequently filtered columns to improve query performance
--- Date: 2026-07-07
-
-BEGIN;
+-- Migration: Apply corrected strategic indexes
+-- Context: 000000000067 was recorded as applied but failed at line 8
+-- (column cliente_id does not exist) causing the whole transaction to roll back.
+-- This migration recreates the indexes with the correct column names.
 
 -- Proyectos: Filter by client
 CREATE INDEX IF NOT EXISTS idx_erp_proyectos_cliente ON erp_proyectos(cliente);
 
--- Movimientos: Filter by project + date range (most common query pattern)
+-- Movimientos: Filter by project + date range
 CREATE INDEX IF NOT EXISTS idx_erp_movimientos_proyecto_fecha ON erp_movimientos(proyecto_id, fecha);
 
 -- Presupuestos: Filter by project
@@ -36,5 +35,3 @@ CREATE INDEX IF NOT EXISTS idx_erp_cuentas_cobrar_proyecto_estado ON erp_cuentas
 
 -- Cuentas Pagar: Filter by project + status
 CREATE INDEX IF NOT EXISTS idx_erp_cuentas_pagar_proyecto_estado ON erp_cuentas_pagar(proyecto_id, estado);
-
-COMMIT;
