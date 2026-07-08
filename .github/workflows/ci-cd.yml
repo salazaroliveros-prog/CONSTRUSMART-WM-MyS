@@ -66,9 +66,12 @@ jobs:
       - run: npm run build
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
+        id: vercel-deploy
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: .
           vercel-args: '--prod'
+      - name: Set production alias
+        run: npx vercel alias set ${{ steps.vercel-deploy.outputs.preview-url }} construsmart-wm2026.vercel.app --token ${{ secrets.VERCEL_TOKEN }}
