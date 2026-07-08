@@ -33,6 +33,8 @@ eslint_*.txt
 eslint_out.json
 tsc_*.txt
 *.png
+# Temp SQL scripts for manual Supabase Dashboard execution
+APPLY_SECURITY_FIX.sql
 !public/icons/icon-192.png
 !public/icons/icon-512.png
 .vercel
