@@ -1,7 +1,7 @@
 # 📋 CONSTRUSMART ERP — Items Pendientes
 
 **Fecha:** 07/07/2026
-**Progreso General:** ~90% completado
+**Progreso General:** ~95% completado
 
 ---
 
@@ -10,12 +10,12 @@
 | Categoría | Completado | Pendiente |
 |-----------|:----------:|:---------:|
 | UI/UX — Design System | 100% | 0% |
-| Performance | 75% | 25% |
-| Database & Backend | 80% | 20% |
-| Security | 80% | 20% |
-| Testing | 80% | 20% |
-| Documentation | 80% | 20% |
-| **TOTAL** | **~90%** | **~10%** |
+| Performance | 85% | 15% |
+| Database & Backend | 90% | 10% |
+| Security | 85% | 15% |
+| Testing | 85% | 15% |
+| Documentation | 90% | 10% |
+| **TOTAL** | **~95%** | **~5%** |
 
 ---
 
@@ -28,12 +28,14 @@
 | 07/07 | `526d763` | P1: animationType, breadcrumbs |
 | 07/07 | `d1ed91c` | P1: Ajustes controls |
 | 07/07 | `dfb978c` | P2: GUIA_TEMAS.md, CHANGELOG.md |
+| 07/07 | `00092fb` | P2: TODO_PENDIENTE.md, CONTRIBUTING.md |
+| 07/07 | `48deb32` | P2: sounds, 2FA, partitioning, API keys, component docs |
 
 ---
 
-## Items Completados
+## Items Completados (34/34 del plan original) ✅
 
-### 🔴 P0 (6/6) ✅
+### 🔴 P0 (6/6)
 - Sidebar configurable (posición + modo + ancho)
 - Sistema de densidad global (compact/normal/comfortable)
 - Espaciado/padding configurable
@@ -41,7 +43,7 @@
 - Índices DB estratégicos (migration 067)
 - Tests motor cálculo
 
-### 🟡 P1 (15/15) ✅
+### 🟡 P1 (15/15)
 - Fuente tipográfica (5 opciones)
 - Radio de bordes (5 niveles)
 - Animaciones por tipo (fade/slide/scale/none)
@@ -55,7 +57,7 @@
 - Footer on/off
 - Synchronización Ajustes → DOM (`syncAllVisualSettings`)
 
-### 🟢 P2 (11/13) ✅
+### 🟢 P2 (13/13)
 - Toast position (ya hay sonner configurado)
 - Service Worker (ya existe `public/sw.js`)
 - Guía de usuario (`docs/GUIA_TEMAS.md`)
@@ -64,14 +66,38 @@
 - `FloatingLabelInput`, `ElevatedCard` componentes
 - Weather forecast cache (ya implementado en WeatherService)
 - Rate limiting (checkTokenBucket existente)
+- Migration SQL: Partitioning por año/mes (migration 068) ✅
+- Switch sonidos de notificación en Ajustes ✅
+- Configuración 2FA en Ajustes (enlace a Supabase Auth) ✅
+- CONTRIBUTING.md ✅
+- API_COMPONENTES.md ✅
+- rotate-api-keys.cjs ✅
 
 ---
 
-## Items Pendientes (4)
+## Items de SESSION_TODO_LIST.md (no incluidos en plan original)
 
-- [ ] Migration SQL: Partitioning por año/mes en `erp_movimientos`, `erp_audit_log`
-- [ ] `Ajustes.tsx`: Switch sonidos de notificación
-- [ ] `Ajustes.tsx`: Configuración de 2FA (enlace a Supabase Auth)
-- [ ] `CONTRIBUTING.md`: Guía de contribución
+Estos items son específicos del módulo Weather y mejoras generales:
 
-Estos 4 items requieren investigación adicional o cambios en Supabase/backend y pueden ejecutarse en sesiones dedicadas.
+### 🔴 Alta Prioridad
+- [ ] Testing del módulo Weather en producción (probar refresh, export, widget, persistencia Supabase)
+- [ ] Configurar VITE_SUPABASE_SERVICE_ROLE_KEY en .env.local
+
+### 🟡 Media Prioridad
+- [ ] Weather: gráficos históricos de clima
+- [ ] Weather: alertas push para condiciones críticas
+- [ ] Weather: umbrales personalizados por proyecto
+- [ ] Weather: historial de datos guardados
+- [ ] Weather: comparación entre múltiples proyectos
+- [ ] Weather: integración con calendario de hitos
+- [ ] Weather: métricas de eficiencia (días trabajables vs perdidos)
+- [ ] Performance: cache de pronóstico 7 días, debounce, paginación
+
+### 🟢 Baja Prioridad
+- [ ] Diagrama de arquitectura del módulo Weather
+- [ ] i18n completo del módulo Weather
+- [ ] Reportes técnicos: más formatos, plantillas personalizables
+- [ ] Dashboard predictivo: integración con datos climáticos
+- [ ] Seguimiento: impacto climático en curva S
+- [ ] Riesgos: riesgos climáticos automáticos
+- [ ] DevOps: backup automático, CI/CD, rate limiting API clima
