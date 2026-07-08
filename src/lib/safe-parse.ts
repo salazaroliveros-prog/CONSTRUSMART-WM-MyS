@@ -45,7 +45,7 @@ export function safeParse<T>(
   })
 
   // En desarrollo, mostrar más detalle
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     console.groupCollapsed(`[safeParse] Validation error in "${ctx}"`)
     console.warn('Issues:', issues)
     console.warn('Received:', data)

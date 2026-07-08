@@ -41,7 +41,7 @@ function initialize(): void {
   isInitialized = true
 
   // En desarrollo, mostrar en consola cuántos logs existen
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     try {
       const existingLogs = getLogs()
       if (existingLogs.length > 0) {

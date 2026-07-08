@@ -10,6 +10,7 @@ const supabaseServiceKey = rawServiceKey.trim();
 
 export const hasSupabase = Boolean(supabaseUrl && supabaseKey);
 export const hasServiceRole = Boolean(supabaseUrl && supabaseServiceKey);
+export const projectRef = supabaseUrl ? new URL(supabaseUrl).hostname.split('.')[0] : 'local';
 
 if (!supabaseUrl || !supabaseKey) {
   if (typeof window !== 'undefined') {

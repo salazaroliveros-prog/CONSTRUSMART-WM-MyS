@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { z } from 'zod';
 import { sanitizarObjeto } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
-import { supabase, hasServiceRole, getServiceClient } from '@/lib/supabase';
+import { supabase, hasServiceRole, getServiceClient, projectRef } from '@/lib/supabase';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance, validateForeignKey as validateForeignKeyInArray } from './utils';
 import { recordSyncMetric } from '@/lib/metrics';
 import { logErrorFromException } from '@/lib/error-logger';
@@ -378,7 +378,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_proyecto_weather',
     ] as const;
 
-    const isGuestMode = hasServiceRole && !localStorage.getItem('sb-neygzluxugodiwcuctbj-auth-token');
+    const isGuestMode = hasServiceRole && !localStorage.getItem(`sb-${projectRef}-auth-token`);
     let serviceRoleFailed = false;
 
     const fetchTable = async (table: string) => {

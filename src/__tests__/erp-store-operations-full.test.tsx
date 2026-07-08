@@ -1044,7 +1044,7 @@ describe('12. Navegación y Rutas', () => {
 describe('13. Realtime y Suscripciones', () => {
   it('13.1 Tablas de realtime están correctamente mapeadas', () => {
     const tablasRealtime = [
-      'erp_publicaciones_muro',
+      'erp_muro',
       'erp_presupuestos',
       'erp_ordenes_compra',
       'erp_avances',
