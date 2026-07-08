@@ -1,4 +1,5 @@
 import { lazy, useState, useEffect } from "react";
+import { useVisualSettings } from "@/hooks/useVisualSettings";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -36,6 +37,7 @@ const App = () => {
   const [themeMode, setThemeMode] = useState<ThemeMode>(() =>
     getIsDark() ? 'dark' : 'light'
   );
+  useVisualSettings();
 
   useEffect(() => {
     const onThemeChange = () => setThemeMode(getIsDark() ? 'dark' : 'light');
