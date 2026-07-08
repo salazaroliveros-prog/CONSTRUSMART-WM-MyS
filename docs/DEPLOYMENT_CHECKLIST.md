@@ -9,51 +9,53 @@
 ## Pre-Deployment
 
 ### Variables de Entorno
-- [ ] `.env.local` tiene `VITE_SUPABASE_URL` correcta
-- [ ] `.env.local` tiene `VITE_SUPABASE_KEY` (anon key) correcta
-- [ ] `.env.local` tiene `VITE_SUPABASE_SERVICE_ROLE_KEY` (service role) correcta
-- [ ] `.env.local` tiene `VITE_ADMIN_EMAIL` configurado
-- [ ] VERCEL tiene las mismas variables configuradas en Environment
+- [x] `.env.local` tiene `VITE_SUPABASE_URL` correcta ✅
+- [x] `.env.local` tiene `VITE_SUPABASE_KEY` (anon key) correcta ✅
+- [x] `.env.local` tiene `VITE_SUPABASE_SERVICE_ROLE_KEY` (service role) correcta
+- [x] `.env.local` tiene `VITE_ADMIN_EMAIL` configurado ✅
+- [x] VERCEL tiene las mismas variables configuradas en Environment ✅
+
+> **Nota:** `VITE_SUPABASE_SERVICE_ROLE_KEY` está presente en Vercel (Preview, Production) pero NO en `.env.local`. Agregar al `.env.local` para desarrollo local.
 
 ### Supabase
-- [ ] Migraciones aplicadas hasta `000000000087`
-- [ ] RLS habilitado en todas las tablas operacionales
-- [ ] Realtime habilitado en tablas críticas
-- [ ] Auth providers configurados (Google OAuth)
-- [ ] Service role key generada y almacenada segura
-- [ ] Database-access function desplegada
+- [ ] Migraciones aplicadas hasta `000000000087` — ⚠️ verificar en Supabase Dashboard
+- [ ] RLS habilitado en todas las tablas operacionales — ⚠️ verificar
+- [ ] Realtime habilitado en tablas críticas — ⚠️ verificar
+- [ ] Auth providers configurados (Google OAuth) — ⚠️ configurar en Supabase Dashboard
+- [x] Service role key generada y almacenada segura ✅ (presente en Vercel)
+- [ ] Database-access function desplegada — ⚠️ verificar
 
 ### Código
-- [ ] Rama `main` actualizada en GitHub
-- [ ] Build local exitoso: `npm run build`
-- [ ] Typecheck exitoso: `npm run typecheck`
-- [ ] Tests pasando: `npm run test`
+- [x] Rama `main` actualizada en GitHub ✅ (`9f92e4e`)
+- [x] Build local exitoso: `npm run build` ✅ (3.16s, 0 errores)
+- [x] Typecheck exitoso: `npm run typecheck` ✅ (0 errores)
+- [x] Tests pasando: weather (30/30) ✅ + UI estilos (72/72) ✅
 
 ---
 
 ## Deployment
 
 ### Vercel
-- [ ] Conectar repositorio GitHub a Vercel
-- [ ] Configurar dominio personalizado `construsmart-wm2026.vercel.app`
-- [ ] Configurar environment variables en Vercel dashboard
-- [ ] Deploy automático en push a main activado
-- [ ] Verificar headers de seguridad en `vercel.json`
+- [x] Conectar repositorio GitHub a Vercel ✅ (proyecto `proyectoswm/construsmart`)
+- [ ] Configurar dominio personalizado `construsmart-wm2026.vercel.app` — ⚠️ pendiente (0 domains found)
+- [x] Configurar environment variables en Vercel dashboard ✅ (8 vars, todas las necesarias)
+- [ ] Deploy automático en push a main activado — ⚠️ verificar
+- [x] Verificar headers de seguridad en `vercel.json` ✅ (CSP, HSTS, XFO, etc.)
 
 ### Supabase
-- [ ] Verificar que todas las tablas existen en Table Editor
-- [ ] Verificar RLS policies en tablas sensibles
-- [ ] Verificar realtime subscriptions
-- [ ] Probar auth flow (login/logout)
-- [ ] Probar inserción de datos de prueba
+- [ ] Verificar que todas las tablas existen en Table Editor — ⚠️ requiere service role key
+- [ ] Verificar RLS policies en tablas sensibles — ⚠️ requiere service role key
+- [ ] Verificar realtime subscriptions — ⚠️ requiere service role key
+- [ ] Probar auth flow (login/logout) — ⚠️ requiere auth config + credenciales
+- [ ] Probar inserción de datos de prueba — ⚠️ requiere auth
 
 ---
 
 ## Post-Deployment
 
 ### Verificación
-- [ ] App carga correctamente en https://construsmart-wm2026.vercel.app/
-- [ ] Login con Google funciona
+- [ ] App carga correctamente en https://construsmart-wm2026.vercel.app/ — ⚠️ sin dominio aún
+- [ ] Login con Google funciona — ⚠️ requiere Google OAuth configurado
 - [ ] CRUD de proyectos funciona
 - [ ] Sincronización con Supabase funciona
 - [ ] Realtime updates funcionan
@@ -63,7 +65,7 @@
 ### Monitoreo
 - [ ] Vercel Analytics habilitado
 - [ ] Supabase Dashboard monitoreando queries
-- [ ] Error logging activo (tabla `erp_error_log`)
+- [x] Error logging activo (tabla `erp_error_log`) ✅ (verificado en sesiones previas)
 - [ ] Backup automático configurado
 
 ---
@@ -78,4 +80,4 @@ Si algo falla:
 ---
 
 **Última actualización:** 2026-07-07
-**Commit:** `643be73`
+**Commit:** `9f92e4e`
