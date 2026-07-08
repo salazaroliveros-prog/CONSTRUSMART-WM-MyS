@@ -38,3 +38,4 @@ APPLY_SECURITY_FIX.sql
 !public/icons/icon-192.png
 !public/icons/icon-512.png
 .vercel
+.env*

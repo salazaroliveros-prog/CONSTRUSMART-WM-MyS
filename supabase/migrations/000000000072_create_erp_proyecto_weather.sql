@@ -17,20 +17,24 @@ CREATE TABLE IF NOT EXISTS erp_proyecto_weather (
 
 ALTER TABLE erp_proyecto_weather ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Users can read own proyecto weather"
+DROP POLICY IF EXISTS "Users can read own proyecto weather" ON erp_proyecto_weather;
+CREATE POLICY "Users can read own proyecto weather"
   ON erp_proyecto_weather FOR SELECT
   USING (true);
 
-CREATE POLICY IF NOT EXISTS "Users can insert own proyecto weather"
+DROP POLICY IF EXISTS "Users can insert own proyecto weather" ON erp_proyecto_weather;
+CREATE POLICY "Users can insert own proyecto weather"
   ON erp_proyecto_weather FOR INSERT
   WITH CHECK (true);
 
-CREATE POLICY IF NOT EXISTS "Users can update own proyecto weather"
+DROP POLICY IF EXISTS "Users can update own proyecto weather" ON erp_proyecto_weather;
+CREATE POLICY "Users can update own proyecto weather"
   ON erp_proyecto_weather FOR UPDATE
   USING (true)
   WITH CHECK (true);
 
-CREATE POLICY IF NOT EXISTS "Users can delete own proyecto weather"
+DROP POLICY IF EXISTS "Users can delete own proyecto weather" ON erp_proyecto_weather;
+CREATE POLICY "Users can delete own proyecto weather"
   ON erp_proyecto_weather FOR DELETE
   USING (true);
 
@@ -41,6 +45,15 @@ COMMENT ON COLUMN erp_proyecto_weather.construction_metrics IS 'Concrete curing,
 COMMENT ON COLUMN erp_proyecto_weather.scheduling_windows IS 'Daily scheduling suitability windows for construction activities';
 COMMENT ON COLUMN erp_proyecto_weather.history IS 'Daily weather history snapshots for chart display (last 60 entries)';
 
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_proyecto_weather;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime'
+    AND tablename = 'erp_proyecto_weather'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE erp_proyecto_weather;
+  END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_erp_proyecto_weather_proyecto_id ON erp_proyecto_weather(proyecto_id);

@@ -46,7 +46,7 @@ VITE_SUPABASE_URL=https://[project-id].supabase.co
 VITE_SUPABASE_KEY=[anon-public-key]
 VITE_SUPABASE_SERVICE_ROLE_KEY=[service-role-secret-key]
 SUPABASE_DB_URL=postgresql://postgres:[password]@db.[project].supabase.co:5432/postgres
-VITE_ADMIN_EMAIL=admin@construsmart.com
+VITE_ADMIN_EMAIL=salazaroliveros@gmail.com
 VITE_APP_ENV=development
 ```
 
