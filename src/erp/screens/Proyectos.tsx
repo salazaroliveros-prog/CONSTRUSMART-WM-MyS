@@ -27,6 +27,7 @@ const ETAPAS = ['planificacion', 'diseno', 'preconstruccion', 'construccion', 'c
 const Proyectos: React.FC = () => {
   const { t } = useTranslation();
   const proyectos = useErp(s => s.proyectos);
+  const safeProyectos = Array.isArray(proyectos) ? proyectos : [];
 
   const {
     show, setShow,
@@ -43,19 +44,19 @@ const Proyectos: React.FC = () => {
     register, handleSubmit, reset, setValue, watch, errors,
     openCreate, openEdit, openDetail,
     onSubmit, accionRapida, confirmarPausa, handleDelete, limpiarProyectos,
-    proyectosFiltrados,
+    proyectosFiltrados, sugerencias, plantillas,
   } = useProyectosActions({ onCreated: () => { reset({}); setCoords({}); setSelectedTemplate(''); setTemplateSearch(''); } });
   const [ordenamiento, setOrdenamiento] = React.useState<'nombre' | 'fecha' | 'presupuesto'>('fecha');
   const [ordenDescendente, setOrdenDescendente] = React.useState(true);
   const [vistaLista, setVistaLista] = React.useState(false);
 
   const kpis = useMemo(() => {
-    const total = proyectos.length;
-    const enEjecucion = proyectos.filter(p => p.estado === 'ejecucion').length;
-    const presupuestoTotal = proyectos.reduce((s, p) => s + (p.presupuestoTotal || 0), 0);
-    const contratoTotal = proyectos.reduce((s, p) => s + (p.montoContrato || 0), 0);
+    const total = safeProyectos.length;
+    const enEjecucion = safeProyectos.filter(p => p.estado === 'ejecucion').length;
+    const presupuestoTotal = safeProyectos.reduce((s, p) => s + (p.presupuestoTotal || 0), 0);
+    const contratoTotal = safeProyectos.reduce((s, p) => s + (p.montoContrato || 0), 0);
     return { total, enEjecucion, presupuestoTotal, contratoTotal };
-  }, [proyectos]);
+  }, [safeProyectos]);
 
   if (show === undefined) return null;
 
@@ -70,14 +71,14 @@ const Proyectos: React.FC = () => {
         setOrdenDescendente={setOrdenDescendente}
         vistaLista={vistaLista}
         setVistaLista={setVistaLista}
-        proyectosCount={proyectos.length}
+        proyectosCount={safeProyectos.length}
         onOpenCreate={openCreate}
         onClearAll={limpiarProyectos}
         t={t}
       />
 
       <div className="relative mb-4 rounded-2xl overflow-hidden border border-border">
-        <HeatMap proyectos={proyectos} />
+        <HeatMap proyectos={safeProyectos} />
         <div className="absolute top-0 left-0 right-0 z-20 p-3 sm:p-4">
           <div className="flex items-center gap-2 text-white mb-1 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
             <MapPin className="w-4 h-4 text-orange-200" /><span className="text-sm font-bold">{t('proyectos.mapa_calor')}</span>
@@ -143,7 +144,7 @@ const Proyectos: React.FC = () => {
         </button>
       </div>
 
-      {proyectos.length === 0 ? (
+      {safeProyectos.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
           <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/60" aria-hidden="true" />
           <h2 className="text-base font-bold text-foreground mb-1">{t('proyectos.sin_proyectos_title')}</h2>
@@ -168,7 +169,7 @@ const Proyectos: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-          {proyectos.map((p, i) => (
+          {safeProyectos.map((p, i) => (
             <ProyectoCard
               key={p.id}
               proyecto={p}

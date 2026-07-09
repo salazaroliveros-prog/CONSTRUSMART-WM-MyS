@@ -387,38 +387,49 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
         const { data: svcData, error: svcError } = await svcClient.from(table).select('*').limit(1);
         if (!svcError) {
           const { data: allData } = await svcClient.from(table).select('*');
-          return { table, data: (allData || []).map(normalizarFilaSupabase) };
+          const normalized = (allData || []).map(normalizarFilaSupabase);
+          return { table, data: Array.isArray(normalized) ? normalized : [] };
         }
         serviceRoleFailed = true;
         safeLogger.warn(`[fetchInitialData] service_role falló (${svcError.message}), usando anon`);
       }
       const { data, error } = await supabase.from(table).select('*');
       if (error) {
-        safeLogger.warn(`[fetchInitialData] Error en ${table}: ${error.message}`);
-        return null;
+        const authErr = error.message?.includes('permission denied') || error.message?.includes('JWT') || error.code === '42501' || error.code === '401';
+        if (authErr) {
+          safeLogger.warn(`[fetchInitialData] Auth/permission error en ${table}: ${error.message}`);
+        } else {
+          safeLogger.warn(`[fetchInitialData] Error en ${table}: ${error.message}`);
+        }
+        return { table, authError: !!authErr, data: [] as any[] };
       }
-      return { table, data: (data || []).map(normalizarFilaSupabase) };
+      const normalized = (data || []).map(normalizarFilaSupabase);
+      return { table, data: Array.isArray(normalized) ? normalized : [] };
     };
 
-    const processResults = (results: PromiseSettledResult<{ table: string; data: any[] } | null>[]) => {
+    const processResults = (results: PromiseSettledResult<ReturnType<typeof fetchTable>>[]) => {
       const statePatch: Record<string, any> = {};
       let errorCount = 0;
+      let authErrorCount = 0;
       for (const result of results) {
         if (result.status === 'fulfilled' && result.value) {
-          const { table, data } = result.value;
+          const { table, data, authError } = result.value;
           const stateKey = TABLE_MAP[table];
-          if (stateKey) statePatch[stateKey] = data;
+          if (stateKey) {
+            statePatch[stateKey] = Array.isArray(data) ? data : [];
+          }
+          if (authError) authErrorCount++;
         } else {
           errorCount++;
         }
       }
-      return { statePatch, errorCount };
+      return { statePatch, errorCount, authErrorCount };
     };
 
     const criticalResults = await Promise.allSettled(CRITICAL_TABLES.map(fetchTable));
-    const { statePatch: criticalPatch, errorCount: criticalErrors } = processResults(criticalResults);
+    const { statePatch: criticalPatch, errorCount: criticalErrors, authErrorCount: criticalAuthErrors } = processResults(criticalResults);
 
-    if (Object.keys(criticalPatch).length > 0) {
+    if (Object.keys(criticalPatch).length > 0 && criticalAuthErrors === 0) {
       useErpStore.setState({ 
         ...criticalPatch, 
         syncStatus: 'synced', 
@@ -426,25 +437,29 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
         syncError: criticalErrors > 0 ? `${criticalErrors} tablas críticas fallaron pero otras cargaron correctamente` : undefined 
       });
       safeLogger.log(`[fetchInitialData] Cargados datos críticos de ${Object.keys(criticalPatch).length} tablas desde Supabase`);
+    } else if (criticalAuthErrors > 0) {
+      safeLogger.warn('[fetchInitialData] Errores de autenticación/autorización en tablas críticas; se preserva state local');
     }
 
     setTimeout(async () => {
       const secondaryResults = await Promise.allSettled(SECONDARY_TABLES.map(fetchTable));
-      const { statePatch: secondaryPatch, errorCount: secondaryErrors } = processResults(secondaryResults);
+      const { statePatch: secondaryPatch, errorCount: secondaryErrors, authErrorCount: secondaryAuthErrors } = processResults(secondaryResults);
 
-      if (Object.keys(secondaryPatch).length > 0) {
+      if (Object.keys(secondaryPatch).length > 0 && secondaryAuthErrors === 0) {
         useErpStore.setState(secondaryPatch);
         safeLogger.log(`[fetchInitialData] Cargados datos secundarios de ${Object.keys(secondaryPatch).length} tablas desde Supabase`);
-        const totalErrors = criticalErrors + secondaryErrors;
-        if (totalErrors > 0) {
-          useErpStore.setState({ 
-            syncError: `${totalErrors} tablas fallaron pero otras cargaron correctamente` 
-          });
-        }
+      } else if (secondaryAuthErrors > 0) {
+        safeLogger.warn('[fetchInitialData] Errores de autenticación/autorización en tablas secundarias; se preserva state local');
+      }
+      const totalErrors = criticalErrors + secondaryErrors;
+      if (totalErrors > 0) {
+        useErpStore.setState({ 
+          syncError: `${totalErrors} tablas fallaron pero otras cargaron correctamente` 
+        });
       }
     }, 100);
 
-    if (Object.keys(criticalPatch).length > 0) {
+    if (Object.keys(criticalPatch).length > 0 && criticalAuthErrors === 0) {
       const duration = performance.now() - startTime;
       recordSyncMetric(duration, true, CRITICAL_TABLES.length);
       (window as any).__FETCH_RETRY = 0;

@@ -60,6 +60,7 @@ const SettingRow: React.FC<SettingRowProps> = ({ icon, title, subtitle, children
 const Ajustes: React.FC = () => {
   const { t } = useTranslation();
   const { appSettings, updateAppSettings, user, proyectos, notificacionesNoLeidas, marcarTodasLeidas } = useErp();
+  const safeProyectos = Array.isArray(proyectos) ? proyectos : [];
   const [resetModal, setResetModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -466,8 +467,8 @@ const Ajustes: React.FC = () => {
           <Col xs={24} lg={12}>
             <Card title="Información del Sistema" style={sectionCard} size="small">
               <Descriptions column={1} size="small" bordered>
-                <Descriptions.Item label="Proyectos Activos">{proyectos.filter(p => p.estado === 'ejecucion').length}</Descriptions.Item>
-                <Descriptions.Item label="Total Proyectos">{proyectos.length}</Descriptions.Item>
+                 <Descriptions.Item label="Proyectos Activos">{safeProyectos.filter(p => p.estado === 'ejecucion').length}</Descriptions.Item>
+                 <Descriptions.Item label="Total Proyectos">{safeProyectos.length}</Descriptions.Item>
                 <Descriptions.Item label="Notificaciones Pendientes">
                   <Badge count={notificacionesNoLeidas} showZero>
                     <BellOutlined style={{ fontSize: 16 }} />

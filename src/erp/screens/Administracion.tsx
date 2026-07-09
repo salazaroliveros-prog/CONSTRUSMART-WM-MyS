@@ -13,7 +13,9 @@ import { centroCostoFormSchema } from '../store/schemas/admin';
 type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
 
 const Administracion: React.FC = () => {
-  const { proyectos, t } = useErp();
+  const { proyectos } = useErp();
+  const safeProyectos = Array.isArray(proyectos) ? proyectos : [];
+  const { t } = useTranslation();
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion'>('centros');
   const [centrosCosto, setCentrosCosto] = useState<CentroCosto[]>([]);
   const [auditLog, setAuditLog] = useState<LogAuditoria[]>([]);
@@ -53,7 +55,7 @@ const Administracion: React.FC = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold text-foreground">{t('admin.centros')}</h2>
           <div className="flex items-center gap-2">
-            <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} />
+            <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={safeProyectos} />
             <button onClick={() => { setShowForm(true); reset(); }}
               className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">
               {t('admin.nuevo_centro')}
@@ -101,7 +103,7 @@ const Administracion: React.FC = () => {
                   <tr key={cc.id} className="border-t hover:bg-muted/50">
                     <td className="p-2 font-mono text-xs">{cc.codigo}</td>
                     <td className="p-2">{cc.nombre}</td>
-                    <td className="p-2 text-xs text-muted-foreground">{proyectos.find(p => p.id === cc.proyectoId)?.nombre || cc.proyectoId}</td>
+                    <td className="p-2 text-xs text-muted-foreground">{safeProyectos.find(p => p.id === cc.proyectoId)?.nombre || cc.proyectoId}</td>
                     <td className="p-2 text-right font-mono">Q{cc.presupuestoAsignado.toLocaleString()}</td>
                     <td className="p-2 text-right font-mono">Q{cc.gastoActual.toLocaleString()}</td>
                     <td className={`p-2 text-right font-semibold font-mono ${saldo < 0 ? 'text-destructive' : 'text-success'}`}>
@@ -175,7 +177,7 @@ const Administracion: React.FC = () => {
         </div>
         <div className="p-4 bg-info/10 rounded-lg border border-info/30">
           <p className="text-sm font-semibold text-info">{t('admin.validacion_proy')}</p>
-          <p className="text-xs text-muted-foreground mt-1">{proyectos.length} {t('admin.proyectos')}, {proyectos.filter(p => p.estado === 'ejecucion').length} {t('admin.en_ejecucion')}</p>
+           <p className="text-xs text-muted-foreground mt-1">{safeProyectos.length} {t('admin.proyectos')}, {safeProyectos.filter(p => p.estado === 'ejecucion').length} {t('admin.en_ejecucion')}</p>
         </div>
       </div>
       <button onClick={() => {
@@ -228,7 +230,7 @@ const Administracion: React.FC = () => {
               <div>
                 <select {...register('proyectoId')} className={inp(!!errors.proyectoId)}>
                   <option value="">{t('admin.seleccionar_proyecto')}</option>
-                  {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                  {safeProyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
                 {errors.proyectoId && <p className="text-xs text-destructive mt-1">{errors.proyectoId.message}</p>}
               </div>
