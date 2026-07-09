@@ -102,6 +102,9 @@ interface ErpContextValue {
   logout: () => Promise<void>;
   allowedViews: readonly string[];
   forceSync: () => Promise<void>;
+  currentProjectId: string | null;
+  setCurrentProjectId: (v: string | null) => void;
+  currentProject: Proyecto | null;
 }
 
 const Ctx = createContext<ErpContextValue>(null!);
@@ -109,6 +112,15 @@ export const useErp = () => {
   const ctx = useContext(Ctx);
   const zState = useErpStore();
   return useMemo(() => ({ ...zState, ...ctx }), [zState, ctx]);
+};
+
+export const useCurrentProject = () => {
+  const { currentProjectId, setCurrentProjectId, currentProject } = useErp();
+  return useMemo(() => ({
+    currentProjectId,
+    setCurrentProjectId,
+    currentProject,
+  }), [currentProjectId, currentProject]);
 };
 
 // Store key mapping: Supabase table name → zustand store key
@@ -176,6 +188,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [view, setView] = useState<string>('dashboard');
   const [initializing, setInitializing] = useState(true);
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
 
   const { user: authUser, signInWithGoogle: realSignInWithGoogle, signOut: realLogout, loading: authLoading } = useAuth();
   const handleLogout = useCallback(async () => {
@@ -586,12 +599,20 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
 
   const notificacionesNoLeidas = useErpStore(s => s.notificaciones.filter(n => !n.leido).length);
 
-const ctxValue = useMemo(() => ({
-     view, setView, user, initializing, isOnline, notificacionesNoLeidas,
-     signInWithGoogle: realSignInWithGoogle,
-      logout: handleLogout,
-     allowedViews, forceSync,
-    }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, handleLogout, allowedViews, forceSync]);
+  const currentProject = useMemo(() => {
+    if (!currentProjectId) return null;
+    return useErpStore.getState().proyectos.find(p => p.id === currentProjectId) || null;
+  }, [currentProjectId]);
+
+ const ctxValue = useMemo(() => ({
+      view, setView, user, initializing, isOnline, notificacionesNoLeidas,
+      signInWithGoogle: realSignInWithGoogle,
+       logout: handleLogout,
+      allowedViews, forceSync,
+      currentProjectId,
+      setCurrentProjectId,
+      currentProject,
+    }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, handleLogout, allowedViews, forceSync, currentProjectId, currentProject]);
 
 // Initialize realtime subscriptions -Cuando recibimos cambios de otros clientes
     useEffect(() => {
