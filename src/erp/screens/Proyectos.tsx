@@ -81,7 +81,7 @@ const Proyectos: React.FC = () => {
 
   type ProyectoFormData = z.infer<typeof proyectoSchema>;
 
-  const { proyectos, addProyecto, updateProyecto, deleteProyecto, clearProyectos, plantillas, crearProyectoDesdePlantilla, sugerirPlantillas, setSelectedProyectoId, setView } = useErp();
+  const { proyectos, addProyecto, updateProyecto, deleteProyecto, clearProyectos, plantillas, crearProyectoDesdePlantilla, sugerirPlantillas, setCurrentProjectId, setView } = useErp();
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -335,7 +335,7 @@ const Proyectos: React.FC = () => {
   };
 
   const openDetail = (p: Proyecto) => {
-    setSelectedProyectoId(p.id);
+    setCurrentProjectId(p.id);
     setView('presupuestos');
   };
 

@@ -35,7 +35,7 @@ const Bodega: React.FC = () => {
       return true;
     });
   }, [rawMateriales]);
-  const handleExportStockPDF = () => exportStockPDF(materiales, proyectos.find(p => p.id === ctx.selectedProyectoId)?.nombre);
+  const handleExportStockPDF = () => exportStockPDF(materiales, proyectos.find(p => p.id === ctx.currentProjectId)?.nombre);
   const [showProveedor, setShowProveedor] = useState(false);
   const [showOrden, setShowOrden] = useState(false);
   const [editingProveedor, setEditingProveedor] = useState<string | null>(null);

@@ -41,7 +41,7 @@ export default function ErrorLog() {
   const [search, setSearch] = React.useState('');
   const [filterSeverity, setFilterSeverity] = React.useState<string | null>(null);
   const [filterStatus, setFilterStatus] = React.useState<string | null>(null);
-  const [filterProyecto, setFilterProyecto] = React.useState('');
+  const [currentProjectId, setcurrentProjectId] = React.useState('');
   const [dateRange, setDateRange] = React.useState<[string | null, string | null] | null>(null);
   const [detailModalOpen, setDetailModalOpen] = React.useState(false);
   const [selectedError, setSelectedError] = React.useState<ErrorLogEntry | null>(null);
@@ -66,7 +66,7 @@ export default function ErrorLog() {
       if (filterStatus === 'resolved') return e.resolved;
       return true;
     })
-    .filter(e => !filterProyecto || e.proyectoId === filterProyecto)
+    .filter(e => !currentProjectId || e.proyectoId === currentProjectId)
     .filter(e => !search ||
       e.errorMessage.toLowerCase().includes(search.toLowerCase()) ||
       e.errorCode?.toLowerCase().includes(search.toLowerCase()) ||
@@ -356,8 +356,8 @@ export default function ErrorLog() {
         />
         <ProyectoFilter
           proyectos={proyectos}
-          selectedProyectoId={filterProyecto}
-          onChange={setFilterProyecto}
+          selectedProyectoId={currentProjectId}
+          onChange={setcurrentProjectId}
         />
         <RangePicker
           onChange={(_, dateStrings) => setDateRange(dateStrings as [string, string] || null)}

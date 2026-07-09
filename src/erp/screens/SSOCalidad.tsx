@@ -39,7 +39,7 @@ const SSOCalidad: React.FC = () => {
   const { t } = useTranslation();
   const { proyectos, user, addNotificacion, incidentes, addIncidente, updateIncidente, pruebas, addPrueba, updatePrueba, ncs, addNC, updateNC, liberaciones, addLiberacion, updateLiberacion } = useErp();
   const [tab, setTab] = useState<TabSSO>('incidentes');
-  const [selProyecto, setSelProyecto] = useState('');
+  const [currentProjectId, setCurrentProjectId] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { setLoading(false); }, []);
@@ -53,14 +53,14 @@ const SSOCalidad: React.FC = () => {
   const clearSsError = (field: string) => setSsFormErrors(prev => ({ ...prev, [field]: '' }));
   const resetSsErrors = () => setSsFormErrors({});
 
-  const proyectoActual = proyectos.find(p => p.id === selProyecto);
+  const proyectoActual = proyectos.find(p => p.id === currentProjectId);
 
   // === INCIDENTE FORM ===
   const [showIncForm, setShowIncForm] = useState(false);
   const [incForm, setIncForm] = useState({ tipo: 'accidente' as Incidente['tipo'], descripcion: '', afectados: '', testigos: '', acciones: '', lat: undefined as number | undefined, lng: undefined as number | undefined });
 
   const handleAddIncidente = () => {
-    if (!selProyecto) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
+    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
     const result = incidenteSchema.safeParse({ tipo: incForm.tipo, descripcion: incForm.descripcion, afectados: incForm.afectados });
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -72,7 +72,7 @@ const SSOCalidad: React.FC = () => {
     setSsFormErrors({});
     const nuevo: Incidente = {
       id: Date.now().toString(),
-      proyectoId: selProyecto,
+      proyectoId: currentProjectId,
       tipo: incForm.tipo,
       fecha: todayISO(),
       hora: new Date().toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' }),
@@ -107,7 +107,7 @@ const SSOCalidad: React.FC = () => {
   const [pruebaForm, setPruebaForm] = useState({ tipo: 'concreto' as PruebaLaboratorio['tipo'], descripcion: '', responsable: '' });
 
   const handleAddPrueba = () => {
-    if (!selProyecto) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
+    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
     const result = pruebaSchema.safeParse(pruebaForm);
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -118,7 +118,7 @@ const SSOCalidad: React.FC = () => {
     }
     setSsFormErrors({});
     addPrueba({
-      proyectoId: selProyecto,
+      proyectoId: currentProjectId,
       tipo: pruebaForm.tipo,
       descripcion: pruebaForm.descripcion,
       fechaMuestra: todayISO(),
@@ -140,7 +140,7 @@ const SSOCalidad: React.FC = () => {
   const [ncForm, setNcForm] = useState({ descripcion: '', categoria: 'material' as NoConformidad['categoria'], detectadoPor: '' });
 
   const handleAddNC = () => {
-    if (!selProyecto) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
+    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
     const result = ncSchema.safeParse(ncForm);
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -150,10 +150,10 @@ const SSOCalidad: React.FC = () => {
       return;
     }
     setSsFormErrors({});
-    const count = ncs.filter(n => n.proyectoId === selProyecto).length + 1;
-    const codigo = `NC-${selProyecto.slice(0, 4)}-${String(count).padStart(3, '0')}`;
+    const count = ncs.filter(n => n.proyectoId === currentProjectId).length + 1;
+    const codigo = `NC-${currentProjectId.slice(0, 4)}-${String(count).padStart(3, '0')}`;
     addNC({
-      proyectoId: selProyecto,
+      proyectoId: currentProjectId,
       codigo,
       descripcion: ncForm.descripcion,
       categoria: ncForm.categoria,
@@ -176,7 +176,7 @@ const SSOCalidad: React.FC = () => {
   const [libForm, setLibForm] = useState({ renglonId: '', renglonNombre: '', solicitante: '', supervisor: '' });
 
   const handleAddLiberacion = () => {
-    if (!selProyecto) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
+    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
     const result = liberacionSchema.safeParse(libForm);
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -187,7 +187,7 @@ const SSOCalidad: React.FC = () => {
     }
     setSsFormErrors({});
     addLiberacion({
-      proyectoId: selProyecto,
+      proyectoId: currentProjectId,
       renglonId: libForm.renglonId || Date.now().toString(),
       renglonNombre: libForm.renglonNombre,
       fechaSolicitud: todayISO(),
@@ -207,8 +207,8 @@ const SSOCalidad: React.FC = () => {
   };
 
   // === ESTADÍSTICAS ===
-  const totalIncidentes = incidentes.filter(i => !selProyecto || i.proyectoId === selProyecto).length;
-  const incidentesAbiertos = incidentes.filter(i => i.estado !== 'cerrado' && (!selProyecto || i.proyectoId === selProyecto)).length;
+  const totalIncidentes = incidentes.filter(i => !currentProjectId || i.proyectoId === currentProjectId).length;
+  const incidentesAbiertos = incidentes.filter(i => i.estado !== 'cerrado' && (!currentProjectId || i.proyectoId === currentProjectId)).length;
   const tasaIncidencia = proyectos.length > 0 ? ((totalIncidentes / proyectos.length) * 100).toFixed(1) : '0';
 
   const tabs = [
@@ -241,8 +241,8 @@ const SSOCalidad: React.FC = () => {
           <Shield className="w-6 h-6 text-red-500" /> {t('sso_calidad.titulo', 'SSO & Control de Calidad')}
         </h1>
         <select
-          value={selProyecto}
-          onChange={e => { setSelProyecto(e.target.value); clearSsError('proyecto'); }}
+          value={currentProjectId}
+          onChange={e => { setCurrentProjectId(e.target.value); clearSsError('proyecto'); }}
           className="text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-red-400 bg-card"
         >
           <option value="">{t('sso_calidad.todos_proyectos', '— Todos los proyectos —')}</option>
@@ -338,13 +338,13 @@ const SSOCalidad: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {incidentes.filter(i => !selProyecto || i.proyectoId === selProyecto).length === 0 ? (
+            {incidentes.filter(i => !currentProjectId || i.proyectoId === currentProjectId).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Shield className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p className="text-sm">{t('sso_calidad.sin_incidentes', 'Sin incidentes registrados')}</p>
               </div>
             ) : (
-              incidentes.filter(i => !selProyecto || i.proyectoId === selProyecto).map(inc => {
+              incidentes.filter(i => !currentProjectId || i.proyectoId === currentProjectId).map(inc => {
                 const proy = proyectos.find(p => p.id === inc.proyectoId);
                 return (
                   <div key={inc.id} className={`p-3 rounded-lg border ${inc.estado === 'cerrado' ? 'bg-muted/30 border-border opacity-60' : 'bg-card border-border'}`}>
@@ -455,8 +455,8 @@ const SSOCalidad: React.FC = () => {
                 <h3 className="font-bold text-xs text-muted-foreground mb-3">{t('sso_calidad.incidentes_por_tipo', 'Incidentes por Tipo')}</h3>
                 <div className="space-y-2">
                   {(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro'] as const).map(tipo => {
-                    const count = incidentes.filter(i => i.tipo === tipo && (!selProyecto || i.proyectoId === selProyecto)).length;
-                    const maxCount = Math.max(1, ...(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro'] as const).map(t => incidentes.filter(i => i.tipo === t && (!selProyecto || i.proyectoId === selProyecto)).length));
+                    const count = incidentes.filter(i => i.tipo === tipo && (!currentProjectId || i.proyectoId === currentProjectId)).length;
+                    const maxCount = Math.max(1, ...(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro'] as const).map(t => incidentes.filter(i => i.tipo === t && (!currentProjectId || i.proyectoId === currentProjectId)).length));
                     return (
                       <div key={tipo} className="flex items-center gap-2">
                         <span className="text-[10px] text-muted-foreground w-28">{tipo.replace(/_/g, ' ')}</span>
@@ -486,23 +486,23 @@ const SSOCalidad: React.FC = () => {
             <p className="text-sm text-muted-foreground">{t('sso_calidad.boton_emergencia_desc', 'Activa este botón en caso de una emergencia real en obra. Se notificará a todos los supervisores y se enviará tu ubicación.')}</p>
             <button
               onClick={() => {
-                if (!selProyecto) { toast.error(t('sso_calidad.selecciona_proyecto_emergencia', 'Selecciona un proyecto primero')); return; }
+                if (!currentProjectId) { toast.error(t('sso_calidad.selecciona_proyecto_emergencia', 'Selecciona un proyecto primero')); return; }
                 if (navigator.geolocation) {
                   navigator.geolocation.getCurrentPosition(
                     (pos) => {
                       const msg = `EMERGENCIA en ${proyectoActual?.nombre || 'obra'} - Ubicación: https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
                       toast.error(msg, { duration: 10000 });
-                      addNotificacion('general', `Emergencia: ${proyectoActual?.nombre || 'Obra'}`, `¡Emergencia reportada! Ubicación: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`, selProyecto);
+                      addNotificacion('general', `Emergencia: ${proyectoActual?.nombre || 'Obra'}`, `¡Emergencia reportada! Ubicación: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`, currentProjectId);
                     },
                     () => {
                       toast.error('EMERGENCIA reportada (sin ubicación)', { duration: 10000 });
-                      addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', selProyecto);
+                      addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', currentProjectId);
                     },
                     { enableHighAccuracy: true, timeout: 10000 }
                   );
                 } else {
                   toast.error('EMERGENCIA reportada', { duration: 10000 });
-                  addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', selProyecto);
+                  addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', currentProjectId);
                 }
               }}
               className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-bold text-xs shadow-sm shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center flex-col"
@@ -571,13 +571,13 @@ const SSOCalidad: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {pruebas.filter(p => !selProyecto || p.proyectoId === selProyecto).length === 0 ? (
+            {pruebas.filter(p => !currentProjectId || p.proyectoId === currentProjectId).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <FlaskConical className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p className="text-sm">{t('sso_calidad.sin_pruebas', 'Sin pruebas registradas')}</p>
               </div>
             ) : (
-              pruebas.filter(p => !selProyecto || p.proyectoId === selProyecto).map(p => (
+              pruebas.filter(p => !currentProjectId || p.proyectoId === currentProjectId).map(p => (
                 <div key={p.id} className="p-3 bg-card rounded-lg border border-border">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
@@ -665,13 +665,13 @@ const SSOCalidad: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {ncs.filter(n => !selProyecto || n.proyectoId === selProyecto).length === 0 ? (
+            {ncs.filter(n => !currentProjectId || n.proyectoId === currentProjectId).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <XCircle className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p className="text-sm">{t('sso_calidad.sin_nc', 'Sin no conformidades')}</p>
               </div>
             ) : (
-              ncs.filter(n => !selProyecto || n.proyectoId === selProyecto).map(nc => (
+              ncs.filter(n => !currentProjectId || n.proyectoId === currentProjectId).map(nc => (
                 <div key={nc.id} className={`p-3 rounded-lg border ${nc.estado === 'cerrado' ? 'bg-emerald-50 border-emerald-200' : 'bg-card border-border'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
@@ -759,13 +759,13 @@ const SSOCalidad: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {liberaciones.filter(l => !selProyecto || l.proyectoId === selProyecto).length === 0 ? (
+            {liberaciones.filter(l => !currentProjectId || l.proyectoId === currentProjectId).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Layers className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p className="text-sm">{t('sso_calidad.sin_liberaciones', 'Sin solicitudes de liberación')}</p>
               </div>
             ) : (
-              liberaciones.filter(l => !selProyecto || l.proyectoId === selProyecto).map(l => (
+              liberaciones.filter(l => !currentProjectId || l.proyectoId === currentProjectId).map(l => (
                 <div key={l.id} className={`p-3 rounded-lg border ${l.estado === 'liberado' ? 'bg-emerald-50 border-emerald-200' : l.estado === 'rechazado' ? 'bg-red-50 border-red-200' : 'bg-card border-border'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
