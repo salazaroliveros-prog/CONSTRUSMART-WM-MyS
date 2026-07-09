@@ -8,7 +8,7 @@ import { SyncStatusBadge } from '../../components/SyncStatusBadge';
 
 const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, title }) => {
   const { t } = useTranslation();
-  const { user, logout, setView, view, notificacionesNoLeidas } = useErp();
+  const { user, logout, setView, view, notificacionesNoLeidas, currentProject } = useErp();
   const [now, setNow] = useState(new Date());
   const [customPhoto, setCustomPhoto] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -70,6 +70,11 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         <div className="min-w-0 hidden sm:block">
           <div className="font-bold text-xs sm:text-sm leading-tight truncate">{title || EMPRESA.nombre}</div>
           <div className="text-[8px] sm:text-[9px] text-primary-foreground/75 italic truncate">{EMPRESA.eslogan}</div>
+          {currentProject && (
+            <div className="text-[10px] sm:text-[11px] text-primary-foreground/90 font-medium truncate" title={currentProject.nombre}>
+              🏗️ {currentProject.nombre}
+            </div>
+          )}
         </div>
       </div>
 
