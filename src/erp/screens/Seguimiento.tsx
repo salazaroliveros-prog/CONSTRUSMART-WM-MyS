@@ -16,9 +16,9 @@ import { bitacoraSchema } from '../store/schemas/calendario';
 type BitacoraFormData = z.infer<typeof bitacoraSchema>;
 
 const Seguimiento: React.FC = () => {
-  const { proyectos, movimientos, bitacora, avances, hitos, seguimientoEVM, addBitacora, updateProyecto, updateBitacora, deleteBitacora } = useErp();
+  const { proyectos, movimientos, bitacora, avances, hitos, seguimientoEVM, addBitacora, updateProyecto, updateBitacora, deleteBitacora, currentProjectId, setCurrentProjectId } = useErp();
   const barConfig = useChartConfig('line', 'default');
-  const [selProy, setSelProy] = useState(proyectos[0]?.id || '');
+  const selProy = currentProjectId || proyectos[0]?.id || '';
   const [activeTab, setActiveTab] = useState<SeguimientoTab>('resumen');
   const [bit, setBit] = useState({ clima: 'soleado', personal: '12', maquinaria: 'Retroexcavadora', tareas: '', observaciones: '' });
   const [editingProject, setEditingProject] = useState<string | null>(null);
