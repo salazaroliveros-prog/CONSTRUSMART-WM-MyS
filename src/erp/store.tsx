@@ -402,10 +402,10 @@ const forceSync = useMemo(() => {
                   tableProcessed.push(m.id);
                 }
               }
-              const BATCH_SIZE = 50;
+               const BATCH_SIZE = 50;
               for (const chunk of chunkArray(ops.INSERT, BATCH_SIZE)) {
                 const payload = chunk.map(m => toSnake(stripAppOnlyFields(sanitizarObjeto(m.payload) as Record<string, unknown>)));
-                const { error } = await client.from(table).insert(payload);
+                const { error } = await client.from(table).insert(payload).onConflict('id').ignore();
                 if (error) throw error;
                 tableProcessed.push(...chunk.map(m => m.id));
               }
