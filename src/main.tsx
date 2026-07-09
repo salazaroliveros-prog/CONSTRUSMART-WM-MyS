@@ -13,24 +13,22 @@ import { initSentry } from '@/lib/sentry';
 const container = document.getElementById('root');
 const root = createRoot(container!);
 
-// Inicializar Service Worker con VAPID key dinámica
-// Para diagnosticar problema de visualización, desactiva SW temporalmente:
-if (!sessionStorage.getItem('wm_sw_disabled_once')) {
-  unregisterServiceWorker().then((ok) => {
+;(async () => {
+  if (!sessionStorage.getItem('wm_sw_disabled_once')) {
+    const ok = await unregisterServiceWorker()
     if (ok) {
       sessionStorage.setItem('wm_sw_disabled_once', 'true');
       log('info', 'Main', 'Service Worker desregistrado para recarga limpia');
     }
-  });
-}
-initServiceWorker().then(reg => {
+  }
+  const reg = await initServiceWorker();
   if (reg) {
     log('info', 'Main', 'Service Worker registrado correctamente', {
       scope: reg.scope,
       state: reg.active?.state,
     });
   }
-});
+})();
 
 // Inicializar sistema de reporte de errores local
 errorReporter.init();

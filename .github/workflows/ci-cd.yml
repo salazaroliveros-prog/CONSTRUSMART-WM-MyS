@@ -11,6 +11,7 @@ env:
   VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
   VITE_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.VITE_SUPABASE_SERVICE_ROLE_KEY }}
   VITE_ADMIN_EMAIL: ${{ secrets.VITE_ADMIN_EMAIL }}
+  VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY || '' }}
   NODE_ENV: test
 
 jobs:
@@ -51,7 +52,7 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - run: npm test
 
-  build-and-deploy:
+  deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
     needs: [typecheck, test]
@@ -64,14 +65,14 @@ jobs:
           cache: 'npm'
       - run: npm ci --legacy-peer-deps
       - run: npm run build
+        env:
+          VITE_APP_ENV: production
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
-        id: vercel-deploy
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: .
-          vercel-args: '--prod'
-      - name: Set production alias
-        run: npx vercel alias set ${{ steps.vercel-deploy.outputs.preview-url }} construsmart-wm2026.vercel.app --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: npx vercel deploy --prod --token ${{ secrets.VERCEL_TOKEN }} --yes
+      - name: Warm production edge cache
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" https://construsmart-wm2026.vercel.app/
+          curl -s -o /dev/null -w "%{http_code}" https://construsmart-wm2026.vercel.app/index.html

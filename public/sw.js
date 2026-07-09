@@ -3,7 +3,7 @@ const OFFLINE_URL = '/offline.html';
 let PUSH_PUBLIC_KEY = '';
 
 const PRECACHE_ASSETS = [
-  '/', '/index.html', '/offline.html', '/manifest.json',
+  '/', '/index.html', '/offline.html', '/site.manifest.json',
   '/logo.png', '/logo.webp', '/favicon.ico', '/wm-logo.svg',
   '/icons/icon-192.png', '/icons/icon-192.webp',
   '/icons/icon-512.png', '/icons/icon-512.webp',

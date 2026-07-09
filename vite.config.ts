@@ -24,8 +24,8 @@ export default defineConfig(({ mode: _mode }) => ({
     rollupOptions: {
       output: {
         manualChunks(id: string) {
-          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react-router') || id.includes('node_modules/react-i18next')) return 'vendor';
-          if (id.includes('node_modules/react/')) return 'vendor';
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react-router') || id.includes('node_modules/react-i18next') || id.includes('node_modules/react/') || id.includes('node_modules/scheduler/')) return 'vendor';
+          if (id.includes('node_modules/@supabase/supabase-js') || id.includes('node_modules/zustand') || id.includes('node_modules/zod') || id.includes('node_modules/i18next') || id.includes('node_modules/sonner') || id.includes('node_modules/react-hook-form') || id.includes('node_modules/dompurify') || id.includes('node_modules/framer-motion') || id.includes('node_modules/lucide-react')) return 'vendor';
           if (id.includes('node_modules/antd')) return 'antd';
           if (id.includes('node_modules/@ant-design/icons')) return 'icons';
           if (id.includes('node_modules/xlsx')) return 'xlsx';
