@@ -109,7 +109,7 @@ interface ErpData {
   mutationQueue: Mutation[]; syncMessage: string; syncCooldown: boolean; notificaciones: Notificacion[];
   auditLog: LogAuditoria[]; syncStatus: 'idle' | 'loading' | 'synced' | 'queued' | 'error';
   lastSyncedAt?: string; syncError?: string;
-  isOnline: boolean; selectedProyectoId: string | null; appSettings: AppSettings;
+  isOnline: boolean; currentProjectId: string | null; appSettings: AppSettings;
   proyectoWeather: ProyectoWeather[];
   errorLogs: ErrorLogEntry[];
 }
@@ -168,7 +168,7 @@ interface ErpActions {
   clearAllData: () => void;
   setNotificaciones: (v: Notificacion[] | ((prev: Notificacion[]) => Notificacion[])) => void;
   setIsOnline: (v: boolean) => void;
-  setSelectedProyectoId: (v: string | null) => void;
+  setCurrentProjectId: (v: string | null) => void;
   setAppSettings: (v: AppSettings | ((prev: AppSettings) => AppSettings)) => void;
   updateAppSettings: (patch: Partial<AppSettings>) => void;
   deleteOrden: (id: string) => void;
@@ -496,7 +496,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   notificaciones: [],
   auditLog: [],
   isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
-  selectedProyectoId: null,
+  currentProjectId: null,
   appSettings: APP_SETTINGS_DEFAULTS,
   proyectoWeather: [],
   errorLogs: [],
@@ -570,7 +570,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setSyncError: (v) => set({ syncError: v }),
   setNotificaciones: (v) => set(typeof v === 'function' ? { notificaciones: v(get().notificaciones) } : { notificaciones: v }),
   setIsOnline: (v) => set({ isOnline: v }),
-  setSelectedProyectoId: (v) => set({ selectedProyectoId: v }),
+  setCurrentProjectId: (v) => set({ currentProjectId: v }),
   setAppSettings: (v) => set(typeof v === 'function' ? { appSettings: v(get().appSettings) } : { appSettings: v }),
   updateAppSettings: (patch) => set(s => ({ appSettings: { ...s.appSettings, ...patch } })),
   setAuditLog: (v) => set(typeof v === 'function' ? { auditLog: v(get().auditLog) } : { auditLog: v }),
@@ -666,7 +666,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     if (ids.length === 0) return;
     const nombres = get().proyectos.map(p => p.nombre);
     get().setProyectos([]);
-    if (ids.includes(get().selectedProyectoId || '')) get().setSelectedProyectoId(null);
+  if (ids.includes(get().currentProjectId || '')) get().setCurrentProjectId(null);
     ids.forEach(id => {
       get().enqueueMutation('deleteProyecto', { id });
     });
