@@ -4,7 +4,7 @@
 **Repositorio:** https://github.com/salazaroliveros-prog/CONSTRUSMART-WM-MyS.git
 **Base de Datos:** Supabase (proyecto `neygzluxugodiwcuctbj`)
 
-> Nota: Vercel genera alias aleatorios para preview; no usarlos como referencia oficial.
+> Nota: el dominio `https://construsmart-wm2026.vercel.app` es el dominio de producción configurado en Vercel. Las URLs de deployment interno con prefijo aleatorio solo sirven para inspección; para Supabase, Google OAuth y toda la documentación debe usarse siempre `https://construsmart-wm2026.vercel.app`.
 
 ---
 
