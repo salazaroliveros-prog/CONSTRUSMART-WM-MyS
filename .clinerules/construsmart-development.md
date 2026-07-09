@@ -43,3 +43,10 @@ After each change run: `npm run typecheck && npm run lint && npm test -- --run &
 - Props strictly typed with TypeScript interfaces
 - Use `ui.ts` constants for repeated Tailwind classes
 - Arabic numerals, no locale-specific formatting in code
+
+## Supabase client rules
+- Server-side (`src/lib/supabase/server.ts`): used for actions requiring elevated privileges (RLS bypass with service role key), secure token handling, and operations triggered from backend endpoints.
+- Browser-side (`src/lib/supabase/client.ts`): used for standard user-facing operations (client-side realtime subscriptions, auth flows, and public data reads). Never use service role key in browser-context code.
+- Mutation queue (`forceSync`) always uses the browser client with the anon key; the service role key is never exposed client-side.
+- For new features, prefer the publishable key (`VITE_SUPABASE_PUBLISHABLE_KEY`) over the anon key where applicable.
+- `VITE_SUPABASE_SERVICE_ROLE_KEY` must never appear in client bundles.
