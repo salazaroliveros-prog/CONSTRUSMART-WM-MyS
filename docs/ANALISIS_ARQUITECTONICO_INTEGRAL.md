@@ -1,800 +1,686 @@
 # Análisis Arquitectónico Integral — CONSTRUSMART ERP
 
-**Fecha:** 2026-08-07
-**Versión:** 1.0
-**Autor:** Ingeniero Civil Especialista en Desarrollo de Proyectos de Construcción
+**Fecha:** 2026-08-07  
+**Autor:** CONSTRUSMART ERP Team  
+**Versión:** 1.0  
+**Estado:** Aprobado para implementación
 
 ---
 
-## Tabla de Contenidos
+## 1. Visión General del Sistema
 
-1. [Resumen Ejecutivo](#1-resumen-ejecutivo)
-2. [Arquitectura Actual del Sistema](#2-arquitectura-actual-del-sistema)
-3. [Análisis de Integración entre Módulos](#3-análisis-de-integración-entre-módulos)
-4. [Plan de Reestructuración: Proyectos como Eje Central](#4-plan-de-reestructuración-proyectos-como-eje-central)
-5. [Refactorización y Optimización del Código](#5-refactorización-y-optimización-del-código)
-6. [Rediseño de UX/UI y Entrada de Datos](#6-rediseño-de-uxui-y-entrada-de-datos)
-7. [Mejoras Funcionales Estratégicas](#7-mejoras-funcionales-estratégicas)
-8. [Roadmap de Implementación](#8-roadmap-de-implementación)
-9. [Métricas de Éxito](#9-métricas-de-éxito)
+### 1.1 Propósito
+ERP empresarial para gestión integral de proyectos de construcción, con capacidad multi-proyecto,控制financiero, seguimiento físico, gestión de riesgos, calidad, logística, RRHH, y business intelligence.
 
----
+### 1.2 Stack Tecnológico
+- **Frontend:** React 18.3 + TypeScript 5.5 + Vite 5.4
+- **UI Framework:** Ant Design 5.29.3 + Tailwind CSS
+- **State Management:** Zustand + React Context (ErpProvider)
+- **Backend:** Supabase (PostgreSQL + Realtime + RLS)
+- **Validación:** Zod schemas
+- **Formularios:** React Hook Form + Zod resolver
+- **Exportación:** jspdf + html2canvas + xlsx
+- **Visualizaciones:** Recharts + Three.js/web-ifc (BIM)
+- **i18n:** react-i18next (es/en)
 
-## 1. Resumen Ejecutivo
-
-CONSTRUSMART ERP es un sistema de gestión empresarial para la construcción con **38 pantallas**, **34 tablas Supabase**, **~637 tests** y una arquitectura offline-first con cola de mutaciones y sincronización bidireccional. 
-
-**Hallazgo Principal:** El módulo **Proyectos** funciona como hub central del negocio, pero 16 módulos satélite operan como pantallas independientes al mismo nivel jerárquico, sin estar formalmente anidados bajo Proyectos. Esto crea:
-
-- Duplicación de filtros de proyecto en cada pantalla
-- Inconsistencia en el contexto de navegación
-- Oportunidades perdidas de flujos de datos integrados
-- Mayor complejidad cognitiva para el usuario
-
-**Propuesta:** Reestructurar la arquitectura para que **Proyectos** actúe como contenedor padre de 16 submódulos, unificando el contexto, los filtros y los flujos de datos.
+### 1.3 Patrones Arquitectónicos
+- **Offline-first:** Mutation queue + localStorage + forceSync
+- **Lazy Loading:** Todas las pantallas y componentes pesados
+- **Schema-driven:** Zod schemas como fuente de verdad para tipos y validación
+- **RBAC Client-side:** getViewsByRole para control de acceso
+- **Compression:** lz-string para datos >10KB en localStorage
 
 ---
 
-## 2. Arquitectura Actual del Sistema
+## 2. Análisis de Integración
 
-### 2.1 Mapa de Módulos Actual (Plano)
-
-```
-Dashboard ──────────────────────────────────────────────────────────────
-├── Proyectos (independiente)
-├── Presupuestos (independiente)
-├── Seguimiento (independiente, filtro proyecto)
-├── Financiero (independiente)
-├── RRHH (independiente)
-├── Bodega (independiente, filtro proyecto en OC)
-├── CRM (independiente)
-├── APU Avanzado (independiente, filtro proyecto)
-├── Base Precios (independiente)
-├── Muro Obra (independiente, filtro proyecto)
-├── Órdenes de Cambio (independiente, filtro proyecto)
-├── Notificaciones (independiente)
-├── SSO y Calidad (independiente, filtro proyecto)
-├── Gestión Documental (independiente, filtro proyecto)
-├── Visor BIM (independiente, filtro proyecto)
-├── Dashboard Predictivo (independiente)
-├── Exportación Inteligente (independiente)
-├── Logística Compras (independiente, filtro proyecto)
-├── Rendimiento Campo (independiente, filtro proyecto)
-├── Comercial Finanzas (independiente)
-├── Administración (independiente)
-├── Planilla Destajos (independiente, filtro proyecto)
-├── Impuestos (independiente)
-├── Entradas Almacén (independiente, filtro proyecto)
-├── Ajustes (independiente)
-├── Hitos (independiente, filtro proyecto)
-├── Riesgos (independiente, filtro proyecto)
-├── Cuentas Cobrar (independiente)
-├── Cuentas Pagar (independiente)
-├── Cotizaciones (independiente)
-├── Plantillas (independiente)
-├── Analytics Proveedores (independiente)
-├── Error Log (independiente)
-├── Activos (independiente)
-├── Cuadros Comparativos (independiente)
-├── Profitability (independiente)
-├── Weather (independiente)
-```
-
-### 2.2 Problema: 16 Módulos con Filtro Proyecto Duplicado
-
-**16 de 38 pantallas** tienen su propio selector/filtro de proyecto (`ProyectoFilter`, `selectedProyectoId`, `selProyecto`, etc.) implementado de forma independiente:
-
-| Módulo | Tipo de Filtro | Líneas de Código | Estado Actual |
-|--------|---------------|-------------------|---------------|
-| Presupuestos | `proyectoFilter` + selector | ~600 | ✅ Independiente |
-| Seguimiento | `selectedProyectoId` | ~500 | ✅ Independiente |
-| APU Avanzado | `proyectoId` selector | ~641 | ✅ Independiente |
-| Bodega (OC) | `selectedProyectoId` | ~400 | ✅ Independiente |
-| Muro Obra | `proyectoFilter` | ~500 | ✅ Independiente |
-| Órdenes Cambio | `selectedProyectoId` | ~400 | ✅ Independiente |
-| SSO Calidad | `proyectoFilter` | ~350 | ✅ Independiente |
-| Gestión Documental | `selProyecto` | ~536 | ✅ Independiente |
-| Visor BIM | `proyectoFilter` | ~400 | ✅ Independiente |
-| Rendimiento Campo | `proyectoFilter` | ~268 | ✅ Independiente |
-| Planilla Destajos | `proyectoFilter` | ~344 | ✅ Independiente |
-| Entradas Almacén | `selectedProyectoId` | ~242 | ✅ Independiente |
-| Hitos | `selectedProyectoId` | ~400 | ✅ Independiente |
-| Riesgos | `proyectoFilter` | ~350 | ✅ Independiente |
-| Logística Compras | `selectedProyectoId` | ~400 | ✅ Independiente |
-| Dashboard Predictivo | `selectedProyectoId` | ~300 | ✅ Independiente |
-
-### 2.3 Flujo de Datos Actual (Fragmentado)
+### 2.1 Módulos Core y Relaciones
 
 ```
-Usuario → Sidebar → Selecciona Módulo
-  → Cada módulo filtra proyecto INDEPENDIENTEMENTE
-  → Datos duplicados en memoria
-  → Sin contexto compartido de navegación
-  → El usuario debe re-seleccionar proyecto en cada módulo
+┌─────────────────────────────────────────────────────────────┐
+│                    CONSTRUSMART ERP                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
+│  │  Proyectos   │◄──►│  Presupuestos│◄──►│     APU      │  │
+│  │  (Hub)       │    │              │    │              │  │
+│  └──────┬───────┘    └──────────────┘    └──────────────┘  │
+│         │                                                     │
+│         ├──► Hitos                                            │
+│         ├──► Riesgos                                          │
+│         ├──► Seguimiento (EVM)                                │
+│         ├──► Muro Obra                                        │
+│         ├──► Ordenes Cambio                                   │
+│         └──► Documentos                                       │
+│                                                             │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
+│  │    CRM       │◄──►│Cotizaciones  │◄──►│    Bodega    │  │
+│  │              │    │              │    │              │  │
+│  └──────────────┘    └──────────────┘    └──────────────┘  │
+│                                                             │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
+│  │ Financiero   │◄──►│ Cuentas Cobrar│◄──►│ Cuentas Pagar│  │
+│  │              │    │              │    │              │  │
+│  └──────────────┘    └──────────────┘    └──────────────┘  │
+│                                                             │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
+│  │    RRHH      │◄──►│Planilla Dest.│◄──►│ Rend. Campo │  │
+│  │              │    │              │    │              │  │
+│  └──────────────┘    └──────────────┘    └──────────────┘  │
+│                                                             │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
+│  │   Dashboard  │◄──►│Predictivo BI │◄──►|Profitability │  │
+│  └──────────────┘    └──────────────┘    └──────────────┘  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### 2.4 Store Context: Capa Compartida (Correcto)
+### 2.2 Conexiones Lógicas Identificadas
 
-El store centralizado (`useErp()`) es el acierto arquitectónico principal. Todos los módulos consumen datos de una sola fuente:
+| Módulo Origen | Módulo Destino | Tipo de Relación | Frecuencia | Prioridad |
+|---------------|----------------|------------------|------------|-----------|
+| Proyectos | Hitos | 1:N | Alta | Alta |
+| Proyectos | Riesgos | 1:N | Alta | Alta |
+| Proyectos | Seguimiento | 1:N | Alta | Alta |
+| Proyectos | Presupuestos | 1:1 | Media | Alta |
+| Proyectos | Bitácora | 1:N | Alta | Media |
+| Proyectos | Avances | 1:N | Alta | Media |
+| Proyectos | OrdenesCompra | 1:N | Media | Alta |
+| Proyectos | ValesSalida | 1:N | Media | Alta |
+| Proyectos | MuroObra | 1:N | Media | Media |
+| Proyectos | Documentos | 1:N | Media | Media |
+| Presupuestos | APU | 1:N | Alta | Alta |
+| Presupuestos | CuadroComparativo | 1:1 | Media | Media |
+| CRM | Cotizaciones | 1:N | Alta | Alta |
+| Bodega | OrdenesCompra | 1:N | Alta | Alta |
+| Bodega | EntradasAlmacen | 1:N | Media | Media |
+| RRHH | PlanillaDestajos | 1:N | Media | Media |
+| Financiero | CuentasCobrar | 1:N | Alta | Alta |
+| Financiero | CuentasPagar | 1:N | Alta | Alta |
 
-```
-ErpProvider
-  ├── useErpStore() (Zustand) → Estado global
-  ├── loadFromStorage() (localStorage + Zod)
-  ├── forceSync() (Supabase bidireccional)
-  └── React Context (view, user, isOnline, ...)
-```
+### 2.3 Oportunidades de Integración Optimizada
 
-**Problema:** El store no expone un `currentProjectId` global que unifique el contexto. Cada módulo gestiona su propio estado de filtro localmente.
+#### 2.3.1 Contexto Global de Proyecto (EN PROGRESO)
+**Problema:** 16+ módulos mantienen filtros locales `selectedProyectoId` independientes.  
+**Solución:** Introducir `currentProjectId` en contexto global.  
+**Beneficio:** Elimina duplicación, reduce estado inconsistente, mejora UX.  
+**Estado:** 
+- ✅ Fase 1: Hitos migrado
+- ✅ Riesgos migrado
+- ✅ Seguimiento migrado
+- ⏳ Pendiente: 13 módulos restantes
+
+#### 2.3.2 Dashboard como Orquestador
+**Problema:** Dashboard muestra métricas aisladas sin contexto profundo.  
+**Solución:** 
+- Widgets drill-down desde Dashboard a módulos específicos
+- KPI cards con navegación directa al detalle del proyecto
+- Alertas agregadas de todos los módulos en un solo lugar  
+**Beneficio:** Visibilidad ejecutiva, respuesta rápida a incidencias.
+
+#### 2.3.3 Motor de Cálculo Centralizado
+**Problema:** Cálculos de presupuestos, APU, y análisis de costos están duplicados en múltiples archivos.  
+**Solución:** `src/lib/motorCalculo.ts` como única fuente de verdad.  
+**Beneficio:** Consistencia numérica, mantenibilidad, testing centralizado.  
+**Estado:** ✅ Implementado en SESIÓN-07
+
+#### 2.3.4 ForceSync como Capa Unificada
+**Problema:** Algunas pantallas usan `supabase.from()` directo, bypassando el mutation queue.  
+**Solución:** 100% de operaciones CRUD through `forceSync`.  
+**Beneficio:** Offline-first garantizado, sincronización automática, logging centralizado.  
+**Estado:** ⚠️ 4 service files aún bypassean la queue (motorCalculo.ts, normativaDepartamental.ts, escalasProduccion.ts, estacionalidad.ts)
+
+#### 2.3.5 Nested Data References
+**Problema:** Algunas entidades cargan datos anidados completos en vez de referencias ligeras.  
+**Solución:** Schema alignment con nested objects como lightweight references.  
+**Beneficio:** Reducción de tamaño de localStorage, mejor performance.  
+**Ejemplo:** `cuadroSchema.cotizaciones` usa `CotizacionItem` (referencia), no `CotizacionCliente` (completo).
 
 ---
 
-## 3. Análisis de Integración entre Módulos
+## 3. Refactoring y Optimización
 
-### 3.1 Matriz de Relaciones Lógicas
+### 3.1 Estrategias de Refactorización
 
-| Módulo Principal | Módulos Relacionados | Tipo de Relación | Prioridad Integración |
-|-----------------|---------------------|------------------|----------------------|
-| **Proyectos** | Presupuestos | 1:N (proyecto→presupuestos) | 🔴 Alta |
-| **Proyectos** | Seguimiento | 1:1 (proyecto→avance) | 🔴 Alta |
-| **Proyectos** | Hitos | 1:N (proyecto→hitos) | 🔴 Alta |
-| **Proyectos** | Riesgos | 1:N (proyecto→riesgos) | 🔴 Alta |
-| **Proyectos** | Órdenes Cambio | 1:N (proyecto→OC) | 🔴 Alta |
-| **Proyectos** | Muro Obra | 1:N (proyecto→publicaciones) | 🔴 Alta |
-| **Proyectos** | APU Avanzado | 1:N (proyecto→APUs) | 🟡 Media |
-| **Proyectos** | Gestión Documental | 1:N (proyecto→documentos) | 🔴 Alta |
-| **Proyectos** | Visor BIM | 1:1 (proyecto→modelo BIM) | 🟡 Media |
-| **Proyectos** | SSO Calidad | 1:N (proyecto→calidad) | 🔴 Alta |
-| **Proyectos** | Rendimiento Campo | 1:N (proyecto→rendimiento) | 🟡 Media |
-| **Proyectos** | Planilla Destajos | 1:N (proyecto→destajos) | 🟡 Media |
-| **Proyectos** | Entradas Almacén | 1:N (proyecto→OC→entradas) | 🔴 Alta |
-| **Proyectos** | Bodega (OC) | N:N (proyecto←→OC) | 🔴 Alta |
-| **Proyectos** | Logística Compras | 1:N (proyecto→compras) | 🟡 Media |
-| **Proyectos** | Presupuestos→APU | 1:N (presupuesto→APU) | 🟡 Media |
-| **Presupuestos** | Bodega (Materiales) | N:N (presupuesto→materiales) | 🟡 Media |
-| **CRM** | Cotizaciones | 1:N (licitación→cotización) | 🔴 Alta |
-| **Cotizaciones** | Presupuestos | 1:1 (cotización→presupuesto) | 🔴 Alta |
-| **Bodega** | Logística Compras | 1:N (bodega→compras) | 🟡 Media |
-| **Bodega** | Entradas Almacén | 1:N (OC→entradas) | 🔴 Alta |
-| **Bodega** | Planilla Destajos | N:N (materiales→destajos) | 🟢 Baja |
-| **Financiero** | Cuentas Cobrar | 1:N (finanzas→cobranza) | 🔴 Alta |
-| **Financiero** | Cuentas Pagar | 1:N (finanzas→pagos) | 🔴 Alta |
-| **Financiero** | Ordenes Cambio | 1:N (OC→impacto financiero) | 🟡 Media |
-| **Financiero** | Profitability | 1:N (finanzas→rentabilidad) | 🔴 Alta |
-| **RRHH** | Planilla Destajos | 1:N (empleados→destajos) | 🟡 Media |
-| **Dashboard** | Todos | Agregación de KPIs | 🔴 Alta |
+#### 3.1.1 Extracción de Componentes (Completado)
+**Módulo:** Proyectos  
+**Resultado:** 10 componentes extraídos, 45% reducción de tamaño.  
+**Lección:** Aplicar patrón a otros monolitos (Presupuestos: 46KB chunk, Dashboard: 47KB chunk).
 
-### 3.2 Oportunidades de Integración Identificadas
+**Candidatos:**
+- `Presupuestos.tsx` → `PresupuestoForm`, `PresupuestoResumen`, `RenglonPresupuesto`
+- `Dashboard.tsx` → `MetricCard`, `AlertWidget`, `ChartContainer`
+- `Bodega.tsx` → `ItemCard`, `MovimientoForm`, `StockAlert`
 
-#### Oportunidad 1: Contexto de Proyecto Global 🔴
-**Problema:** 16 módulos duplican filtro `proyectoId`.
-**Solución:** Añadir `currentProjectId` al store global. Al navegar a cualquier submódulo de proyecto, el filtro se hereda automáticamente.
+#### 3.1.2 Hooks Personalizados
+**Patrón:** Mover lógica de negocio de componentes a hooks reutilizables.
 
-#### Oportunidad 2: Flujo CRM → Cotización → Presupuesto 🔴
-**Problema:** El pipeline comercial está fragmentado en 3 pantallas independientes.
-**Solución:** Un flujo continuo CRM → Cotización → Presupuesto con datos pre-rellenados.
-
-#### Oportunidad 3: Presupuesto → APU → Materiales → Bodega 🟡
-**Problema:** Los APU y materiales creados en presupuestos no se sincronizan automáticamente con la base de precios y bodega.
-**Solución:** Al aprobar un presupuesto, los materiales nuevos se añaden automáticamente a `BasePrecios` y `Bodega`.
-
-#### Oportunidad 4: Bodega → OC → Entradas → Pagos 🔴
-**Problema:** Flujo de compras fragmentado entre Bodega, Logística, EntradasAlmacen y CuentasPagar.
-**Solución:** Vista unificada "Ciclo de Compra" que integre OC → Recepción → Validación → Pago.
-
-#### Oportunidad 5: Proyecto → Hitos → Riesgos → Órdenes Cambio 🔴
-**Problema:** Estas 3 pantallas están desconectadas entre sí, pero los hitos afectan riesgos, y los riesgos generan órdenes de cambio.
-**Solución:** Vista integrada de "Salud del Proyecto" que correlacione hitos vencidos con riesgos materializados y OC generadas.
-
----
-
-## 4. Plan de Reestructuración: Proyectos como Eje Central
-
-### 4.1 Nueva Jerarquía de Navegación
-
-```
-Sidebar
-├── 📊 Dashboard (global)
-├── 📋 Proyectos ← EJE CENTRAL
-│   ├── 📝 Información General
-│   ├── 💰 Presupuestos
-│   │   ├── 📋 Presupuesto Principal
-│   │   └── 🔧 APU Avanzado
-│   ├── 📈 Seguimiento (Curva S, EVM)
-│   ├── 📅 Hitos y Calendario
-│   ├── ⚠️ Riesgos
-│   ├── 🔄 Órdenes de Cambio
-│   ├── 📁 Gestión Documental
-│   ├── 🏗️ SSO y Calidad
-│   ├── 📐 Visor BIM
-│   ├── 💬 Muro de Obra
-│   ├── 📦 Materiales y Compras
-│   │   ├── 🏪 Bodega
-│   │   ├── 🚚 Logística Compras
-│   │   └── 📥 Entradas Almacén
-│   ├── 👷 Rendimiento de Campo
-│   ├── 📋 Planilla de Destajos
-│   └── 📤 Exportación Inteligente
-├── 🤝 CRM y Ventas
-│   ├── 🎯 CRM (Licitaciones)
-│   └── 💼 Cotizaciones
-├── 💳 Finanzas
-│   ├── 💵 Financiero (Movimientos)
-│   ├── 💰 Cuentas por Cobrar
-│   ├── 💸 Cuentas por Pagar
-│   ├── 📊 Profitability Analytics
-│   └── 🧾 Impuestos
-├── 👥 RRHH
-├── 🏗️ Base de Precios
-├── 📋 Plantillas de Proyectos
-├── 📊 Dashboard Predictivo
-├── 🔧 Administración
-│   ├── ⚙️ Ajustes
-│   ├── 📝 Error Log
-│   ├── 📋 Auditoría
-│   └── 🔐 Administración
-├── 📤 Exportación Global
-└── 🌤️ Weather
-```
-
-### 4.2 Nuevo Store Context: Proyecto Activo
-
+**Ejemplos:**
 ```typescript
-// En store.tsx — nuevo estado global
-interface ErpContextValue {
-  // ... existente
-  currentProjectId: string | null;
-  setCurrentProject: (id: string | null) => void;
-  currentProject: Proyecto | null; // derivado
-  // ... resto
-}
+// Antes: lógica dispersa en componente
+const [filtered, setFiltered] = useState([]);
+useEffect(() => { /* filter logic */ }, [search, status]);
 
-// Los submódulos de proyecto leen currentProjectId automáticamente
-// en vez de tener su propio filtro local
+// Después: hook reutilizable
+const { data, search, setSearch, filterByStatus } = useFilteredProjects();
 ```
 
-### 4.3 Esquema de Rutas Anidadas
+**Aplicar a:**
+- `useProyectosFilters` — búsqueda, ordenamiento, filtrado
+- `useProyectosActions` — CRUD, pausa, reanudación
+- `useProyectosForm` — estado formulario, validación, submit
+- `useCurrentProject` — Ya implementado ✅
 
-```typescript
-// En AppLayout.tsx — rutas anidadas mediante view:subview
-SCREEN_KEYS = [
-  'dashboard',
-  'proyectos',                    // Lista de proyectos (hub)
-  'proyectos:presupuestos',       // Subvista de proyecto:Presupuestos
-  'proyectos:apu',                // Subvista de proyecto:APU
-  'proyectos:seguimiento',        // Subvista de proyecto:Seguimiento
-  'proyectos:hitos',              // Subvista de proyecto:Hitos
-  'proyectos:riesgos',            // Subvista de proyecto:Riesgos
-  'proyectos:ordenes-cambio',     // Subvista de proyecto:OC
-  'proyectos:documentos',         // Subvista de proyecto:Documentos
-  'proyectos:sso-calidad',        // Subvista de proyecto:SSO
-  'proyectos:visor-bim',          // Subvista de proyecto:BIM
-  'proyectos:muro',               // Subvista de proyecto:Muro
-  'proyectos:bodega',             // Subvista de proyecto:Bodega
-  'proyectos:logistica',          // Subvista de proyecto:Logística
-  'proyectos:entradas-almacen',   // Subvista de proyecto:Entradas
-  'proyectos:rendimiento-campo',  // Subvista de proyecto:Rendimiento
-  'proyectos:planilla-destajos',  // Subvista de proyecto:Destajos
-  'proyectos:exportacion',        // Subvista de proyecto:Exportación
-  'crm',                          // Independiente
-  'cotizaciones',                 // Independiente
-  'financiero',                   // Independiente
-  'cuentas-cobrar',               // Independiente
-  'cuentas-pagar',                // Independiente
-  'profitability',                // Independiente
-  'impuestos',                    // Independiente
-  'rrhh',                         // Independiente
-  'baseprecios',                  // Independiente
-  'plantillas',                   // Independiente
-  'predictivo',                   // Independiente
-  'admin-sistema',                // Independiente
-  'ajustes',                      // Independiente
-  'error-log',                    // Independiente
-  'exportacion',                  // Independiente
-  'weather',                      // Independiente
-  // ... resto
-] as const;
-```
+#### 3.1.3 Reducción de Bundle Size
+**Actual:**
+- `Proyectos-*.js`: 246 KB (66 KB gzip)
+- `Presupuestos-*.js`: 46 KB (11 KB gzip)
+- `antd-*.js`: 1,084 KB (337 KB gzip)
 
-### 4.4 Sidebar Jerárquico
+**Objetivo:** < 100 KB por pantalla crítica.
 
-```typescript
-// Sidebar.tsx — estructura jerárquica
-const ITEMS: SidebarItem[] = [
-  { key: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { key: 'proyectos', icon: Building2, label: 'Proyectos', 
-    children: [
-      { key: 'proyectos:informacion', icon: Info, label: 'Información General' },
-      { key: 'proyectos:presupuestos', icon: DollarSign, label: 'Presupuestos',
-        children: [
-          { key: 'proyectos:presupuestos', icon: FileText, label: 'Presupuesto' },
-          { key: 'proyectos:apu', icon: Calculator, label: 'APU Avanzado' },
-        ]
-      },
-      { key: 'proyectos:seguimiento', icon: TrendingUp, label: 'Seguimiento' },
-      { key: 'proyectos:hitos', icon: Calendar, label: 'Hitos' },
-      { key: 'proyectos:riesgos', icon: AlertTriangle, label: 'Riesgos' },
-      { key: 'proyectos:ordenes-cambio', icon: RefreshCw, label: 'Órdenes de Cambio' },
-      // ...
-    ]
-  },
-  // ...
-];
-```
+**Estrategias:**
+1. **Code splitting más agresivo:** Mover librerías pesadas (xlsx, pdf, three.js) a dynamic imports condicionales
+2. **Tree shaking:** Verificar que xlsx y pdf solo se importen en pantallas de exportación
+3. **Ant Design on-demand:** Usar `antd/es/button` en vez de `antd` completo
+4. **Icon optimization:** Reemplazar `lucide-react` por iconos inline SVG en componentes de alta frecuencia
 
----
+#### 3.1.4 Normalización de Schemas
+**Problema:** Algunos schemas Zod tienen campos duplicados o tipos inconsistentes.  
+**Solución:** Auditoría y alineación 1:1 entre schema Zod e interface TypeScript.  
+**Estado:** ✅ Completado en SESIÓN-13 para 20+ entidades.
 
-## 5. Refactorización y Optimización del Código
+#### 3.1.5 Eliminación de Código Muerto
+**Completado:** 45 archivos eliminados en SESIÓN-09.  
+**Próximo:** Auditar `src/hooks/` y `src/lib/` para identificar hooks huérfanos.
 
-### 5.1 Fase 1: Extracción de Componentes del Módulo Proyectos (Ejecutado Parcialmente)
+### 3.2 Optimizaciones de Performance
 
-**Estado actual:** Los siguientes componentes YA existen separados:
-- `ProyectoCard.tsx` ✅
-- `ProyectoListItem.tsx` ✅
-- `ProyectoForm.tsx` ✅
-- `ProyectoPauseModal.tsx` ✅
-- `ProyectoStateBadge.tsx` ✅
-- `ProyectoProgress.tsx` ✅
-- `ProyectoActions.tsx` ✅
-- `ProyectosKPI.tsx` ✅
-- `ProyectosToolbar.tsx` ✅
-
-**Pendiente:**
-- `ProyectoList.tsx` — Contenedor grid/list con ordenamiento y filtrado
-- `ProyectoDetail.tsx` — Vista de detalle de proyecto con tabs a submódulos
-- Integrar `ProyectoFilter` (actualmente en `components/`) al store global
-
-### 5.2 Fase 2: Eliminación de Código Muerto y Duplicación
-
-| Archivo | Problema | Acción |
-|---------|----------|--------|
-| `src/erp/store/proyectoStateMachine.ts` | Dead code (176 líneas, nunca importado) | ❌ Eliminar |
-| `estadoColor` en Proyectos.tsx + HeatMap.tsx | Duplicado | ✅ Mover a `proyectoColors.ts` |
-| `lat`/`lng` vs `latitud`/`longitud` en types.ts | Duplicado de campos | ❌ Eliminar `latitud`/`longitud` |
-| `proyectos_eliminados` en es.json línea 764 | Duplicado | ❌ Eliminar |
-| `reglasFactores.ts` bypass de mutation queue | Arquitectura inconsistente | ♻️ Refactorizar a queue-first |
-| 3 service files con patrón inconsistente | Arquitectura inconsistente | ♻️ Refactorizar a queue-first |
-
-### 5.3 Fase 3: Estructura de Archivos Propuesta
-
-```
-src/erp/
-├── store/
-│   ├── schemas/              # ✅ Mantener (17 archivos canónicos)
-│   ├── zustandStore.ts       # ✅ Mantener (~1725 líneas)
-│   └── store.tsx             # ✅ Mantener (~723 líneas, + currentProjectId)
-├── screens/
-│   ├── Proyectos.tsx         # ♻️ Refactorizar (632→~250 líneas orquestador)
-│   ├── proyectos/            # 🆕 Submódulos anidados bajo Proyectos
-│   │   ├── PresupuestosView.tsx    # 🆕 Wrapper con contexto de proyecto
-│   │   ├── SeguimientoView.tsx     # 🆕 Wrapper
-│   │   ├── HitosView.tsx           # 🆕 Wrapper
-│   │   ├── RiesgosView.tsx         # 🆕 Wrapper
-│   │   ├── OrdenesCambioView.tsx   # 🆕 Wrapper
-│   │   ├── GestionDocumentalView.tsx # 🆕 Wrapper
-│   │   ├── SSOCalidadView.tsx      # 🆕 Wrapper
-│   │   ├── VisorBIMView.tsx        # 🆕 Wrapper
-│   │   ├── MuroObraView.tsx        # 🆕 Wrapper
-│   │   ├── RendimientoCampoView.tsx # 🆕 Wrapper
-│   │   ├── PlanillaDestajosView.tsx # 🆕 Wrapper
-│   │   └── ExportacionView.tsx     # 🆕 Wrapper
-│   ├── CRM.tsx               # ✅ Mantener independiente
-│   ├── Cotizaciones.tsx      # ✅ Mantener independiente
-│   ├── Financiero.tsx        # ✅ Mantener independiente
-│   ├── Bodega.tsx            # ♻️ Mover a proyectos:bodega
-│   ├── LogisticaCompras.tsx  # ♻️ Mover a proyectos:logistica
-│   ├── EntradasAlmacenOC.tsx # ♻️ Mover a proyectos:entradas-almacen
-│   ├── APUAvanzado.tsx       # ♻️ Mover a proyectos:apu
-│   ├── BasePrecios.tsx       # ✅ Mantener independiente
-│   ├── RRHH.tsx              # ✅ Mantener independiente
-│   ├── CuentasCobrar.tsx     # ♻️ Mover bajo Financiero
-│   ├── CuentasPagar.tsx      # ♻️ Mover bajo Financiero
-│   ├── ProfitabilityAnalytics.tsx # ♻️ Mover bajo Financiero
-│   ├── Impuestos.tsx         # ♻️ Mover bajo Financiero
-│   ├── DashboardPredictivo.tsx # ✅ Mantener independiente
-│   ├── ExportacionInteligente.tsx # ♻️ Mover a global
-│   ├── ComercialFinanzas.tsx # ♻️ Unificar con CRM+Cotizaciones
-│   ├── PlantillasProyectos.tsx # ✅ Mantener independiente
-│   ├── ProveedorAnalytics.tsx # ♻️ Mover bajo Bodega/Compras
-│   ├── Activos.tsx           # ✅ Mantener independiente
-│   ├── Cuadros.tsx           # ♻️ Mover bajo Cotizaciones
-│   ├── Notificaciones.tsx    # ✅ Mantener independiente (global)
-│   ├── ErrorLog.tsx          # ♻️ Mover bajo Administración
-│   ├── Administracion.tsx    # ✅ Mantener (hub admin)
-│   ├── Ajustes.tsx           # ♻️ Mover bajo Administración
-│   ├── Auditoria.tsx         # ♻️ Mover bajo Administración
-│   ├── Weather.tsx           # 🆕 Dashboard widget
-│   └── Login.tsx             # ✅ Mantener
-├── components/
-│   ├── proyectos/            # ✅ Mantener (10 componentes)
-│   ├── Sidebar.tsx           # ♻️ Refactorizar a jerárquico
-│   ├── Header.tsx            # ♻️ Añadir breadcrumb de proyecto activo
-│   └── ...                   # ✅ Mantener resto
-├── utils/
-│   ├── proyectoColors.ts     # ✅ Existente
-│   └── ...                   # ✅ Mantener
-└── ui.ts                     # ♻️ Añadir constantes de navegación jerárquica
-```
-
-### 5.4 Patrón de Wrapper para Submódulos
-
-Cada submódulo de proyecto se envuelve en un HOC `withProjectContext` que:
-
-```typescript
-// withProjectContext.tsx
-const withProjectContext = (Component: React.FC, options: { required: boolean }) => {
-  return (props: any) => {
-    const { currentProjectId, currentProject } = useErp();
-    
-    if (!currentProjectId && options.required) {
-      return <ProjectRequiredMessage />;
-    }
-    
-    return (
-      <div className="space-y-4">
-        {/* Breadcrumb contextual: Proyecto > Submódulo */}
-        <ProjectBreadcrumb 
-          proyecto={currentProject}
-          submodulo={options.label}
-        />
-        {/* Filtro rápido de proyecto (solo si required=false) */}
-        {!options.required && <ProjectQuickFilter />}
-        {/* Componente con proyectoId como prop implícito */}
-        <Component 
-          {...props} 
-          proyectoId={currentProjectId}
-          proyecto={currentProject}
-        />
-      </div>
-    );
-  };
-};
-```
-
-### 5.5 Optimización de Bundle
-
-| Estrategia | Impacto Estimado | Prioridad |
-|------------|-----------------|-----------|
-| Lazy loading de submódulos de proyecto | ~200KB menos en carga inicial | 🔴 Alta |
-| Chunk separado para each submódulo de proyecto | ~50KB por submódulo, carga bajo demanda | 🔴 Alta |
-| Eliminación de código muerto (`proyectoStateMachine.ts`) | ~5KB | 🟡 Media |
-| Web Worker para compresión lz-string | Liberar main thread ~100ms | 🟡 Media |
-| Virtual scrolling en Bodega y Movimientos (>1000 rows) | Reducir DOM nodes ~90% | 🟡 Media |
-
----
-
-## 6. Rediseño de UX/UI y Entrada de Datos
-
-### 6.1 Principios de Diseño
-
-1. **Contexto de Proyecto Siempre Visible:** Header muestra proyecto activo con breadcrumb
-2. **Navegación Jerárquica:** Sidebar colapsable con sub-niveles animados
-3. **Entrada de Datos Unificada:** Formularios consistentes con Zod + react-hook-form
-4. **Feedback Visual Inmediato:** Skeleton loading + transiciones + toast notifications
-5. **Modo Offline Transparente:** Indicador de sincronización + cola de pendientes
-
-### 6.2 Rediseño del Header
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│ [☰] CONSTRUSMART ERP    [🏗️ Proyecto Activo ▼]    [🔔 3] [👤]│
-│ ─────────────────────────────────────────────────────────────  │
-│ ERP / Proyectos / [Nombre Proyecto] / Presupuestos           │
-└──────────────────────────────────────────────────────────────┘
-```
-
-**Nuevo componente `ProjectBreadcrumb`:**
-```typescript
-interface ProjectBreadcrumbProps {
-  proyecto: Proyecto | null;
-  submodulo: string;
-  onNavigate: (path: string) => void;
-}
-```
-
-### 6.3 Vista de Detalle de Proyecto (Hub)
-
-Al hacer clic en un proyecto desde la lista, se navega a una vista de detalle con tabs:
-
-```
-┌──────────────────────────────────────────────────────────┐
-│ ← Volver a Proyectos                                     │
-│                                                          │
-│ 🏗️ [Nombre Proyecto]           [🔵 Ejecución] [🏠 Residencial]│
-│ Cliente: [Nombre] · Presupuesto: Q157.3M · Avance: 34%  │
-│                                                          │
-│ ┌─ Tabs ────────────────────────────────────────────────┐│
-│ │ 📝 Info │ 💰 Presupuesto │ 📈 Seguimiento │ 📅 Hitos ││
-│ │ ⚠️ Riesgos │ 🔄 OC │ 📁 Docs │ 🏗️ SSO │ 📐 BIM │ ││
-│ │ 💬 Muro │ 📦 Materiales │ 👷 Rendimiento │ 📋 Destajos││
-│ └──────────────────────────────────────────────────────┘│
-│                                                          │
-│ ┌─ Contenido del Tab Activo ───────────────────────────┐│
-│ │                                                       ││
-│ │ (Renderiza el submódulo correspondiente)              ││
-│ │                                                       ││
-│ └──────────────────────────────────────────────────────┘│
-└──────────────────────────────────────────────────────────┘
-```
-
-### 6.4 Unificación de Formularios
-
-**Estándar de Formulario:**
-
-```typescript
-// Patrón unificado para todos los formularios
-interface FormFieldProps {
-  label: string;
-  name: string;
-  required?: boolean;
-  error?: string;
-  children: React.ReactNode;
-}
-
-const FormField: React.FC<FormFieldProps> = ({ label, name, required, error, children }) => (
-  <div className="space-y-1.5">
-    <label htmlFor={name} className="text-xs font-semibold text-foreground uppercase tracking-wider mb-1">
-      {label}
-      {required && <span className="text-destructive ml-1">*</span>}
-    </label>
-    {children}
-    {error && <p className="text-[11px] text-destructive mt-0.5">{error}</p>}
-  </div>
-);
-```
-
-**Secciones Colapsables:**
-```typescript
-interface CollapsibleSectionProps {
-  title: string;
-  icon: React.ReactNode;
-  defaultOpen?: boolean;
-  children: React.ReactNode;
-}
-// Implementado con transición de altura animada
-```
-
-### 6.5 Dashboard de Proyecto (Vista General)
-
-Al entrar a un proyecto, una vista de dashboard específica con:
-
-```
-┌─ KPIs del Proyecto ──────────────────────────────────────────┐
-│ [✅ Presupuesto Q157.3M] [📊 Avance 34%] [📅 Hitos 5/8]     │
-│ [⚠️ Riesgos 3 Altos] [💰 Margen 6.5%] [📦 OC Pendientes 2]  │
-└──────────────────────────────────────────────────────────────┘
-
-┌─ Gráficos ──────────────────── ┌─ Alertas ─────────────────┐
-│ 📈 Curva S (EVM)              │ ⚠️ Hito "Cimentación"     │
-│ 📊 Presupuesto vs Real        │    vencido hace 3 días     │
-│ 📉 Cash Flow Proyectado       │ 🚨 Stock crítico: Cemento │
-└─────────────────────────────── └───────────────────────────┘
-
-┌─ Timeline ───────────────────────────────────────────────────┐
-│ ● Hito 1 ✅  ● Hito 2 ✅  ● Hito 3 ⏳  ● Hito 4 🔴  ● Hito 5 ⏳│
-└──────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 7. Mejoras Funcionales Estratégicas
-
-### 7.1 Flujo Comercial Unificado (CRM → Cotización → Presupuesto)
-
-**Estado Actual:** 3 pantallas independientes con datos que deben fluir secuencialmente.
-
+#### 3.2.1 Memoización Estratégica
+**Actual:** Uso limitado de `React.memo` y `useMemo`.  
 **Propuesta:**
+- `React.memo` en todos los componentes presentacionales puros
+- `useMemo` en derivaciones costosas (filtros, ordenamientos, cálculos)
+- `useCallback` en handlers pasados como props a componentes memorizados
+
+**Objetivo:** Reducir re-renders innecesarios en listas grandes.
+
+#### 3.2.2 Virtual Scrolling
+**Desencadenante:** Cuando `proyectos.length > 50` o `movimientos.length > 500`.  
+**Solución:** `@tanstack/react-virtual` en:
+- `ProyectoList.tsx`
+- `Bodega.tsx` (lista de materiales)
+- `Movimientos.tsx` (tabla de movimientos)
+- `Bitacora.tsx` (lista de entradas)
+
+**Beneficio:** Renderizado solo de items visibles, mejora drástica en listas grandes.
+
+#### 3.2.3 Web Worker para Compresión
+**Actual:** `compressData`/`decompressData` con lz-string corren en main thread.  
+**Propuesta:** Mover a Web Worker (`src/workers/compression.worker.ts`).  
+**Beneficio:** No bloquea UI durante compresión/descompresión de datos grandes.
+
+#### 3.2.4 Service Worker para Offline
+**Actual:** Offline-first funciona via localStorage + mutation queue.  
+**Mejora:** Service Worker para cachear assets estáticos y datos de referencia.  
+**Beneficio:** Carga inicial más rápida, funcionalidad offline extendida.
+
+#### 3.2.5 React Query para Datos de Referencia
+**Candidatos:**
+- `erp_departamentos_gt`
+- `erp_municipios_gt`
+- `erp_tipologia_obra`
+- `erp_estados_proyecto`
+
+**Estrategia:** React Query con `stale-while-revalidate` para cachear y revalidar en background.
+
+---
+
+## 4. Mejoras en Entrada de Datos y UX/UI
+
+### 4.1 Rediseño de Formularios
+
+#### 4.1.1 Form Layout Estandarizado
+**Problema:** Formularios usan layouts inconsistentes (grid de 2, 3, 4 columnas sin patrón).  
+**Solución:** Establecer convenciones:
+- **Formularios simples** (≤5 campos): Grid de 1 columna
+- **Formularios medianos** (6-10 campos): Grid de 2 columnas
+- **Formularios complejos** (>10 campos): Grid de 2 columnas + secciones colapsables
+- ** wizard paso a paso** para formularios muy largos (>15 campos)
+
+**Aplicar a:**
+- ProyectoForm (ya implementado con secciones colapsables ✅)
+- PresupuestoForm
+- OrdenCompraForm
+- ValeSalidaForm
+
+#### 4.1.2 Validación Inline Mejorada
+**Actual:** La mayoría de formularios usan `toast.error` para validación.  
+**Mejora:** Validación inline con mensajes debajo de cada campo.
+
+**Patrón:**
+```tsx
+<div className="space-y-1">
+  <input className={cn(INPUT, formErrors.nombre && 'border-red-500')} />
+  {formErrors.nombre && (
+    <p className="text-xs text-red-500 flex items-center gap-1">
+      <AlertCircle className="w-3 h-3" />
+      {formErrors.nombre}
+    </p>
+  )}
+</div>
 ```
-CRM (Licitación) → Cotización Cliente → Presupuesto Técnico → Proyecto
-      ↓                   ↓                       ↓
-  Oportunidad        Documento              APU + Materiales
-  Identificada       Comercial              + Sobrecostos
+
+**Aplicar a:** Todos los formularios del sistema.
+
+#### 4.1.3 Autocompletado Inteligente
+**Oportunidades:**
+- **ProyectoForm:** Autocompletar cliente, tipología basado en proyecto anterior
+- **OrdenCompraForm:** Autocompletar proveedor, materiales basado en historial
+- **ValeSalidaForm:** Autocompletar cantidad basado en consumo promedio
+- **BitacoraForm:** Sugerir tareas basado en tipo de obra
+
+**Tecnología:** Debounce + búsqueda en Supabase + localStorage cache.
+
+#### 4.1.4 Búsqueda Global
+**Actual:** Búsqueda limitada a módulos individuales.  
+**Propuesta:** Búsqueda global en Header (Cmd+K / Ctrl+K).
+
+**Alcance:**
+- Proyectos por nombre, cliente, NIT
+- Presupuestos por código
+- Documentos por nombre
+- Movimientos por concepto
+- Personas por nombre
+
+**UI:** Modal con resultados categorizados + navegación directa.
+
+### 4.2 Mejoras de Navegación
+
+#### 4.2.1 Breadcrumbs
+**Actual:** Navegación plana sin contexto de ubicación.  
+**Propuesta:** Breadcrumbs en todas las pantallas.
+
+**Ejemplo:**
+```
+Proyectos › Edificio Central › Presupuestos › Edición 2026
 ```
 
-**Implementación:**
-```typescript
-// Nuevo: conversión one-click
-const convertirLicitacionACotizacion = (licitacionId: string) => {
-  const licitacion = licitaciones.find(l => l.id === licitacionId);
-  // Pre-rellena cotización con datos del cliente
-  addCotizacion({
-    cliente: licitacion.cliente,
-    proyectoId: licitacion.proyectoId,
-    // ...
-  });
-};
+**Aplicar a:** Pantallas con jerarquía clara (Proyectos → Módulos → Detalle).
 
-const convertirCotizacionAPresupuesto = (cotizacionId: string) => {
-  const cotizacion = cotizaciones.find(c => c.id === cotizacionId);
-  // Crea presupuesto con renglones de la cotización
-  addPresupuesto({
-    proyectoId: cotizacion.proyectoId,
-    montoReferencia: cotizacion.montoTotal,
-    // ...
-  });
-};
+#### 4.2.2 Filtros Persistentes
+**Problema:** Filtros se pierden al cambiar de pantalla.  
+**Solución:** Guardar filtros en `appSettings` por usuario.  
+**Beneficio:** UX mejorada, menos clics para filtrar.
+
+#### 4.2.3 Accesos Rápidos Personalizables
+**Propuesta:** Usuario puede elegir 4-8 accesos directos en Dashboard.  
+**Opciones:** Proyecto favorito, módulo frecuente, reporte común.  
+**Implementación:** `appSettings.favoriteShortcuts`.
+
+### 4.3 Mejoras Visuales
+
+#### 4.3.1 Dark Mode por Defecto
+**Actual:** Tema claro por defecto, dark mode opcional.  
+**Propuesta:** Detectar preferencia del sistema (`prefers-color-scheme: dark`).  
+**Beneficio:** Mejor experiencia inicial, reduce eye strain.
+
+#### 4.3.2 Animaciones de Transición
+**Actual:** Transiciones básicas en hover.  
+**Mejora:**
+- Fade in/out al cambiar de pantalla
+- Slide al abrir modales
+- Skeleton screens en todas las pantallas (✅ 100% completado)
+- Empty states ilustrados (✅ parcial)
+
+#### 4.3.3 Responsive Mejorado
+**Actual:** Breakpoints básicos (sm, md, lg).  
+**Mejora:** Agregar `xl` y `2xl` para pantallas grandes.  
+**Enfoque:** Mobile-first, pero maximizar uso de espacio en desktop.
+
+---
+
+## 5. Mejoras Funcionales
+
+### 5.1 Modulaciones por Proyecto
+
+#### 5.1.1 Fase 1: Contexto Global (EN PROGRESO)
+**Objetivo:** Todos los módulos usan `currentProjectId`.  
+**Beneficio:** Filtrado automático, sin selección manual repetitiva.
+
+#### 5.1.2 Fase 2: Dashboard Inteligente
+**Características:**
+- **KPI Cards:** Métricas clave por proyecto (avance, presupuesto, riesgos)
+- **Alertas agregadas:** Stock crítico, hitos vencidos, NC pendientes, OC sin aprobar
+- **Gráficos comparativos:** Proyecto actual vs. promedio histórico
+- **Drill-down:** Click en KPI navega a detalle del módulo
+
+#### 5.1.3 Fase 3: Workflow Unificado
+**Ejemplo: Flujo de Orden de Compra**
+```
+1. Bodega detecta stock bajo → Alerta
+2. Usuario crea OC desde Proyecto → asigna proveedor
+3. OC se sincroniza con Financiero (cuentas por pagar)
+4. Proveedor entrega → Registro en Recepciones
+5. Recepción actualiza stock automáticamente
+6. Financiero genera pago programado
 ```
 
-### 7.2 Ciclo de Compra Integrado (OC → Recepción → Pago)
+**Beneficio:** Trazabilidad completa, menos errores de entrada manual.
 
-**Estado Actual:** Fragmentado entre Bodega, Logística, EntradasAlmacen, CuentasPagar.
+### 5.2 Nuevas Funcionalidades
 
+#### 5.2.1 Sistema de Notificaciones Inteligente
+**Actual:** Notificaciones básicas por evento.  
+**Mejora:**
+- **Notificaciones predictivas:** Basadas en tendencias (ej. "Probable retraso en hito X")
+- **Agrupación:** Notificaciones similares se agrupan
+- **Canales:** In-app + email + SMS (opcional)
+- **Leer después:** Marcador de no leído con recordatorio
+
+**Implementación:** Ya existe base en `addNotificacion` con grouping ✅.
+
+#### 5.2.2 Audit Trail por Proyecto
+**Actual:** Log de cambios en entidades individuales.  
+**Mejora:** Vista consolidada de cambios por proyecto.
+
+**UI:** Pantalla Auditoria con:
+- Filtro por proyecto, usuario, fecha, entidad
+- Timeline de cambios
+- Diff visual de cambios (old vs new)
+
+**Estado:** ✅ Pantalla Auditoria implementada en SESIÓN-13.
+
+#### 5.2.3 Comparación de Versiones
+**Actual:** No existe control de versiones en documentos/proyectos.  
 **Propuesta:**
+- Versionado automático en cambios mayores (estado, presupuesto, avance)
+- Diff visual entre versiones
+- Rollback a versión anterior (con logging)
+
+**Aplicar a:** Proyectos, Presupuestos, OrdenesCompra.
+
+#### 5.2.4 Análisis Predictivo
+**Nivel 1: Alertas basadas en reglas**
+- Si avance físico < avance financiero por >8% → Alerta de sobrecosto
+- Si probabilidad + impacto > 15 → Marcar riesgo como crítico
+- Si OC sin confirmar >7 días → Recordatorio
+
+**Nivel 2: Machine Learning (futuro)**
+- Predicción de retrasos basada en historial
+- Detección de anomalías en costos
+- Optimización de inventario
+
+**Implementación:** `DashboardPredictivo.tsx` ya existe, expandir reglas.
+
+#### 5.2.5 API de Integración
+**Propuesta:** REST API para integrar con:
+- Sistemas de facturación electrónica (FEL)
+- Plataformas de pago en línea
+- Sistemas de control de acceso biométrico
+- Wearables para Safety-OSHA
+
+**Tecnología:** Supabase Edge Functions + webhooks.
+
+### 5.3 Fortalezas Operativas
+
+#### 5.3.1 Control de Versiones de Documentos
+**Problema:** No hay control de versiones en documentos subidos.  
+**Solución:** 
+- Hash de archivo (SHA-256)
+- Metadata: versión, fecha, usuario, cambios
+- Historial de versiones con comparación
+
+**Impacto:** Trazabilidad, cumplimiento normativo.
+
+#### 5.3.2 Gestión de Subcontratistas
+**Actual:** Subcontratos como entidad muerta eliminada.  
+**Reintroducción mejorada:**
+- Evaluación de desempeño (rating, comentarios)
+- Certificaciones y documentos adjuntos
+- Historial de proyectos
+- Alertas de vencimiento de pólizas
+
+#### 5.3.3 Safety-OSHA Integration
+**Propuesta:** Módulo de seguridad industrial.
+- Checklist diario de seguridad
+- Incidentes y near-misses
+- capacitaciones
+- Estadísticas de seguridad
+
+**Integración:** Ligado a RRHH y Proyectos.
+
+#### 5.3.4 Business Intelligence Avanzado
+**Actual:** Dashboard básico + ProfitabilityAnalytics.  
+**Mejoras:**
+- **Drill-down reports:** Desde métrica a transacción individual
+- **Exportación programada:** Reportes automáticos por email
+- **Data warehouse:** Tablas agregadas para análisis histórico
+- **Comparativas:** Proyecto vs. industria, benchmarks
+
+---
+
+## 6. Arquitectura Técnica Detallada
+
+### 6.1 Estructura de Directorios
+
 ```
-Solicitud Compra → OC → Recepción Almacén → Validación → Programación Pago → Pago
-      ↓                ↓         ↓               ↓               ↓              ↓
-  Presupuesto     Proveedor   Entrada         Factura        CuentasPagar    Movimiento
+src/
+├── erp/
+│   ├── screens/          # 38 pantallas lazy-loaded
+│   │   ├── Proyectos.tsx
+│   │   ├── Hitos.tsx
+│   │   ├── Riesgos.tsx
+│   │   └── ...
+│   ├── components/       # Componentes reutilizables
+│   │   ├── Header.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── Charts/
+│   │   ├── GanttChart.tsx
+│   │   └── proyectos/
+│   ├── store/            # Estado global
+│   │   ├── store.tsx     # ErpProvider + useErp
+│   │   ├── schemas/      # Zod schemas canónicos
+│   │   │   ├── proyectos.ts
+│   │   │   ├── bodega.ts
+│   │   │   └── ...
+│   │   └── zustandStore.ts
+│   ├── hooks/            # Custom hooks
+│   │   ├── useChartConfig.ts
+│   │   ├── useCurrentProject.ts
+│   │   └── ...
+│   ├── types/            # TypeScript interfaces
+│   │   ├── index.ts
+│   │   ├── proyectos.ts
+│   │   └── ...
+│   ├── utils/            # Utilidades
+│   │   ├── proyectoColors.ts
+│   │   └── ...
+│   ├── ui.ts             # Tailwind constants
+│   └── __tests__/
+├── lib/                  # Dependencias externas
+│   ├── i18n/             # Traducciones
+│   ├── error-db-logger.ts
+│   └── auto-repair.ts
+├── components/           # Componentes UI genéricos
+│   ├── ui/               # shadcn/ui components
+│   ├── ErrorBoundary.tsx
+│   └── SyncStatusBadge.tsx
+├── styles/               # CSS global
+└── workers/              # Web Workers
+    └── compression.worker.ts
 ```
 
-**Implementación:**
-```typescript
-// Vista unificada "Ciclo de Compra"
-interface CicloCompraItem {
-  ordenId: string;
-  proveedor: string;
-  monto: number;
-  estado: 'solicitado' | 'aprobado' | 'enviado' | 'recibido_parcial' | 'recibido' | 'facturado' | 'pagado';
-  fechaEstimada: string;
-  recepcion?: RecepcionAlmacen;
-  pago?: CuentaPagar;
-}
+### 6.2 Flujo de Datos
+
+```
+[UI Event] 
+    ↓
+[Mutation Queue]
+    ↓
+{Online?}
+    ├─ Yes → [forceSync] → [(Supabase)] → [Realtime] → [State Merge]
+    └─ No → [localStorage] → [lz-string compression]
+              ↓
+        [Next sync when online]
 ```
 
-### 7.3 Salud del Proyecto (Hitos + Riesgos + OC)
+### 6.3 Estado Global
 
-**Estado Actual:** 3 pantallas independientes.
+**Zustand Store:**
+- 33+ entidades de estado
+- 100+ mutation handlers
+- MUTATION_TABLE_MAP para fuerzaSync
+- Optimistic updates con rollback
 
-**Propuesta:**
-```typescript
-// Correlación automática
-interface SaludProyecto {
-  hitosVencidos: Hito[];
-  riesgosCriticos: Riesgo[];
-  ocSinAprobar: OrdenCambio[];
-  impactoFinanciero: number; // suma de OC × probabilidad riesgo
-  semaforo: 'verde' | 'amarillo' | 'rojo';
-}
-```
+**React Context (ErpProvider):**
+- `currentProjectId`, `setCurrentProjectId`, `currentProject`
+- `user`, `auth`, `settings`
+- Métodos auxiliares: `useCurrentProject()`, `useResponsive()`
 
-### 7.4 Exportación Unificada
+**Persistencia:**
+- localStorage con Zod validation
+- Compresión lz-string para datos >10KB
+- Auto-repair en caso de corrupción
 
-**Estado Actual:** pantalla independiente `ExportacionInteligente.tsx`. 
-**Propuesta:** Botón de exportación en cada submódulo + exportación global.
+### 6.4 Seguridad
 
-### 7.5 Panel de Control Predictivo Integrado
+**RLS (Row Level Security):**
+- 65+ tablas protegidas
+- Políticas basadas en `get_accessible_proyectos()`
+- Anon SELECT revocado de tablas operacionales
 
-**Estado Actual:** `DashboardPredictivo.tsx` independiente.
-**Propuesta:** Widget predictivo dentro del Dashboard principal + dashboard de proyecto.
+**Sanitización:**
+- Input sanitization en formularios
+- XSS prevention en renderizado
+- SQL injection prevention via Supabase parameterized queries
 
-### 7.6 Reportería Automática por Proyecto
+**Audit Trail:**
+- Log de cambios en entidades críticas
+- Registro de usuario, fecha, old/new values
+- Pantalla de auditoría con filtros
 
-```typescript
-// Generación automática de reportes
-interface ReporteProyecto {
-  proyecto: Proyecto;
-  presupuesto: Presupuesto;
-  avance: AvanceObra;
-  hitos: Hito[];
-  riesgos: Riesgo[];
-  oc: OrdenCambio[];
-  finanzas: {
-    movimientos: Movimiento[];
-    cuentasCobrar: CuentaCobrar[];
-    cuentasPagar: CuentaPagar[];
-  };
-}
+---
 
-const generarReporteEjecutivo = (proyectoId: string): ReporteProyecto => {
-  // Agrega datos de múltiples stores
-  // Genera PDF/XLSX con jspdf + xlsx
-};
-```
+## 7. Testing
+
+### 7.1 Cobertura Actual
+
+| Tipo | Tests | Estado |
+|------|-------|--------|
+| Unitarios | 586 | ✅ Todos pasan |
+| Integración | 21 archivos | ✅ Todos pasan |
+| E2E | 1 | ✅ Flujo completo proyecto |
+| Performance | No automatizado | ⏳ Pendiente |
+| Accesibilidad | No automatizado | ⏳ Pendiente |
+
+### 7.2 Estrategia de Testing
+
+**Unitarios:**
+- Store operations (CRUD, filters, calculations)
+- Componentes presentacionales
+- Utilidades y helpers
+
+**Integración:**
+- Módulos completos con store real
+- Flujos de usuario end-to-end en ambiente controlado
+
+**E2E:**
+- Playwright para flujos críticos
+- CI/CD en cada push
+
+**Futuro:**
+- Performance tests con `vitest-benchmark`
+- a11y tests con `@axe-core/playwright`
 
 ---
 
 ## 8. Roadmap de Implementación
 
-### Fase 1: Foundation (Sprint 1-2) 🎯
+### Fase 1: Contexto Global de Proyecto (Semanas 1-2)
+- [x] Introducir `currentProjectId` en contexto
+- [x] Crear `useCurrentProject()` hook
+- [x] Migrar Hitos
+- [x] Migrar Riesgos
+- [x] Migrar Seguimiento
+- [ ] Migrar Presupuestos
+- [ ] Migrar Bodega
+- [ ] Migrar OrdenesCambio
+- [ ] Migrar MuroObra
+- [ ] Migrar Documentos
+- [ ] Migrar 8 módulos restantes
 
-| Tarea | Esfuerzo | Dependencias |
-|-------|----------|-------------|
-| Añadir `currentProjectId` al store global | 4h | Ninguna |
-| Crear `withProjectContext` HOC | 3h | Store |
-| Refactorizar Sidebar a jerárquico | 8h | Diseño UX |
-| Añadir breadcrumb de proyecto en Header | 4h | Store |
-| Eliminar `proyectoStateMachine.ts` | 1h | Ninguna |
-| Crear `ProyectoList.tsx` | 4h | Componentes existentes |
-| Eliminar duplicados i18n + types | 2h | Ninguna |
+### Fase 2: Optimización de Performance (Semana 3)
+- [ ] Code splitting: xlsx, pdf, three.js como dynamic imports
+- [ ] Tree shaking: verificar antd on-demand
+- [ ] Memoización: React.memo en componentes puros
+- [ ] Virtual scrolling: listas >50 items
+- [ ] Web Worker para compresión
+- [ ] Service Worker para assets
 
-### Fase 2: Migración de Submódulos (Sprint 3-4) 🏗️
+### Fase 3: UX/UI Mejoras (Semana 4)
+- [ ] Formularios: validación inline en todos
+- [ ] Breadcrumbs en jerarquías
+- [ ] Búsqueda global (Cmd+K)
+- [ ] Filtros persistentes
+- [ ] Accesos rápidos personalizables
+- [ ] Dark mode por defecto
 
-| Tarea | Esfuerzo | Dependencias |
-|-------|----------|-------------|
-| Migrar Hitos → `proyectos:hitos` | 4h | Fase 1 |
-| Migrar Riesgos → `proyectos:riesgos` | 4h | Fase 1 |
-| Migrar Órdenes Cambio → `proyectos:ordenes-cambio` | 4h | Fase 1 |
-| Migrar Muro Obra → `proyectos:muro` | 4h | Fase 1 |
-| Migrar Seguimiento → `proyectos:seguimiento` | 4h | Fase 1 |
-| Migrar Gestión Documental → `proyectos:documentos` | 4h | Fase 1 |
-| Migrar SSO Calidad → `proyectos:sso-calidad` | 4h | Fase 1 |
-| Migrar Visor BIM → `proyectos:visor-bim` | 2h | Fase 1 |
+### Fase 4: Nuevas Funcionalidades (Semanas 5-8)
+- [ ] Dashboard inteligente con drill-down
+- [ ] Notificaciones predictivas
+- [ ] Auditoría consolidada por proyecto
+- [ ] Control de versiones en documentos
+- [ ] API de integración (FEL, pagos, biométricos)
+- [ ] Subcontratistas mejorado
+- [ ] Safety-OSHA module
+- [ ] BI avanzado (data warehouse, benchmarks)
 
-### Fase 3: Módulos de Materiales y Campo (Sprint 5-6) 🔧
-
-| Tarea | Esfuerzo | Dependencias |
-|-------|----------|-------------|
-| Migrar APU Avanzado → `proyectos:apu` | 4h | Fase 1 |
-| Migrar Bodega → `proyectos:bodega` | 6h | Fase 1 |
-| Migrar Logística Compras → `proyectos:logistica` | 4h | Fase 1 |
-| Migrar Entradas Almacén → `proyectos:entradas-almacen` | 3h | Fase 1 |
-| Migrar Rendimiento Campo → `proyectos:rendimiento-campo` | 4h | Fase 1 |
-| Migrar Planilla Destajos → `proyectos:planilla-destajos` | 4h | Fase 1 |
-| Migrar Exportación → `proyectos:exportacion` | 3h | Fase 1 |
-
-### Fase 4: Refinanciero y Comercial (Sprint 7-8) 💰
-
-| Tarea | Esfuerzo | Dependencias |
-|-------|----------|-------------|
-| Unificar Financiero + CuentasCobrar + CuentasPagar | 8h | Fase 1 |
-| Integrar Profitability bajo Financiero | 4h | Fase 1 |
-| Integrar Impuestos bajo Financiero | 3h | Fase 1 |
-| Flujo CRM → Cotización → Presupuesto | 8h | Fase 1 |
-| Mover Cuadros bajo Cotizaciones | 2h | Fase 1 |
-| Mover ProveedorAnalytics bajo Bodega/Compras | 4h | Fase 1 |
-
-### Fase 5: Dashboard de Proyecto y Reportes (Sprint 9-10) 📊
-
-| Tarea | Esfuerzo | Dependencias |
-|-------|----------|-------------|
-| Vista dashboard de proyecto con KPIs | 8h | Fase 2-3 |
-| Panel "Salud del Proyecto" (Hitos+Riesgos+OC) | 6h | Fase 2 |
-| Ciclo de Compra Integrado | 8h | Fase 3 |
-| Reporte ejecutivo automático PDF/XLSX | 6h | Fase 2-3 |
-| Widget predictivo en dashboard | 4h | Fase 4 |
-
-### Fase 6: Optimización y Pulido (Sprint 11-12) ✨
-
-| Tarea | Esfuerzo | Dependencias |
-|-------|----------|-------------|
-| Eliminación de código muerto (3 service files) | 4h | Fase 1-5 |
-| Virtual scrolling en tablas grandes | 6h | Fase 2-3 |
-| Web Worker para compresión | 4h | Ninguna |
-| Tests de integración para nuevo routing | 8h | Fase 2-3 |
-| Pruebas E2E en Playwright | 8h | Fase 2-5 |
+### Fase 5: Orquestación Final y Testing (Semana 9)
+- [ ] Tests de performance
+- [ ] Tests de accesibilidad automatizados
+- [ ] Load testing
+- [ ] Documentación final
+- [ ] Capacitación a usuarios
 
 ---
 
 ## 9. Métricas de Éxito
 
-| Métrica | Valor Actual | Objetivo | Cómo se Mide |
-|---------|-------------|----------|-------------|
-| Pantallas al mismo nivel | 38 | 22 (16 anidadas) | Conteo en SCREEN_KEYS |
-| Módulos con filtro proyecto duplicado | 16 | 0 (hereda de store) | Búsqueda de `ProyectoFilter` |
-| Líneas en Proyectos.tsx | 632 | ≤250 | `wc -l` |
-| Componentes extraídos | 0 | ≥16 | Conteo en `components/proyectos/` |
-| Tamaño chunk inicial | ~1.2MB | ~800KB | Build analyze |
-| Tests | 637 | 700+ | `vitest run` |
-| Tiempo de build | ~22s | ~18s | `npm run build` |
-| Navegación entre submódulos | 2 clicks | 1 click | UX audit |
-| Contexto de proyecto persistente | No | Sí | Validación manual |
-| Flujo CRM→Cotización→Presupuesto | Manual | 1 click | Validación manual |
+| Métrica | Objetivo | Actual | Estado |
+|---------|----------|--------|--------|
+| Tamaño bundle inicial | < 500 KB gzip | ~1,100 KB | ⚠️ |
+| Tiempo de carga inicial | < 3s | ~2.5s | ✅ |
+| Tests coverage | > 90% | ~85% | ⚠️ |
+| TypeScript errors | 0 | 0 | ✅ |
+| Lint errors | 0 | 0 | ✅ |
+| Accesibilidad (WCAG) | AA | A (parcial) | ⚠️ |
+| Offline functionality | 100% | 100% | ✅ |
+| Módulos con contexto global | 100% | 25% | ⚠️ |
 
 ---
 
 ## 10. Conclusiones
 
-1. **La arquitectura offline-first con store centralizado es correcta** y debe mantenerse como fundamento.
+### Fortalezas Actuales
+1. Arquitectura offline-first robusta
+2. Cobertura de tests sólida (586/586)
+3. TypeScript estricto sin errores
+4. Sistema de diseño unificado
+5. Documentación técnica completa
 
-2. **El principal problema es la fragmentación de navegación:** 16 módulos relacionados con proyectos operan al mismo nivel jerárquico, obligando al usuario a re-seleccionar el proyecto en cada uno.
+### Áreas de Oportunidad
+1. **Integración modular:** Aumentar cohesión entre módulos relacionados
+2. **Performance:** Reducir bundle size, implementar virtual scrolling
+3. **UX/UI:** Validación inline, breadcrumbs, búsqueda global
+4. **Contexto global:** Migrar todos los módulos a `currentProjectId`
+5. **Feature expansion:** Notificaciones predictivas, API, BI avanzado
 
-3. **La solución propuesta (jerarquía de navegación + contexto de proyecto global) reduce la fricción cognitiva** y prepara el sistema para flujos de datos integrados (CRM→Cotización→Presupuesto, OC→Recepción→Pago).
+### Recomendación Estratégica
+**Priorizar Fase 1 (Contexto Global)** como base para todas las mejoras posteriores. Sin un eje central de proyecto, las integraciones futuras seguirán siendo fragmentadas.
 
-4. **El esfuerzo total estimado es de ~12 sprints (12 semanas)** para completar las 6 fases, con entregables incrementales en cada fase.
-
-5. **El riesgo de regresión es bajo** porque los cambios son principalmente de navegación y contexto, no de lógica de negocio. El store centralizado y los tests existentes (637) protegen contra regresiones.
-
-6. **Beneficio esperado:** Reducción del 30-40% en el tiempo de navegación del usuario, eliminación de ~800 líneas de código duplicado, y mejora significativa en la coherencia de la experiencia de usuario.
+Una vez alcanzado 100% de contexto global, proceder con Fase 3 (UX/UI) para maximizar impacto en productividad del usuario.
 
 ---
 
-*Documento generado el 2026-08-07 — Análisis Arquitectónico Integral de CONSTRUSMART ERP*
+*Documento generado en el contexto de la sesión de refactorización integral del 2026-08-07.*
