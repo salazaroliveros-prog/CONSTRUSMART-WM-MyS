@@ -429,7 +429,7 @@ const forceSync = useMemo(() => {
             } catch (err) {
               const error = err instanceof Error ? err.message : String(err);
               const errObj = err as any;
-              if (errObj?.code === '23503') {
+               if (errObj?.code === '23503') {
                 safeLogger.warn(`[forceSync] FK violation on ${table}:`, errObj.details || errObj.message);
                 logErrorFromException(err instanceof Error ? err : new Error(error), {
                   component: 'ErpProvider',
@@ -441,6 +441,20 @@ const forceSync = useMemo(() => {
                 ops.INSERT.forEach(m => { if (m.retryCount >= 3) tableProcessed.push(m.id); else tableFailed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
                 ops.UPDATE.forEach(m => { if (m.retryCount >= 3) tableProcessed.push(m.id); else tableFailed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
                 ops.DELETE.forEach(m => { if (m.retryCount >= 3) tableProcessed.push(m.id); else tableFailed.push({ ...m, retryCount: (m.retryCount || 0) + 1 }); });
+                return { tableProcessed, tableFailed };
+              }
+              if (errObj?.code === '23505') {
+                safeLogger.warn(`[forceSync] Duplicate key on ${table}:`, errObj.details || errObj.message);
+                logErrorFromException(err instanceof Error ? err : new Error(error), {
+                  component: 'ErpProvider',
+                  function_name: 'forceSync',
+                  error_type: 'database',
+                  severity: 'warning',
+                  additional_context: { table, operation: 'duplicate_key_23505', details: errObj.details, mutationCount: ops.INSERT.length + ops.UPDATE.length + ops.DELETE.length }
+                });
+                ops.INSERT.forEach(m => tableProcessed.push(m.id));
+                ops.UPDATE.forEach(m => tableProcessed.push(m.id));
+                ops.DELETE.forEach(m => tableProcessed.push(m.id));
                 return { tableProcessed, tableFailed };
               }
               safeLogger.warn(`[forceSync] Batch ${table} failed:`, error);
