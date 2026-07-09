@@ -120,7 +120,7 @@ export const useCurrentProject = () => {
     currentProjectId,
     setCurrentProjectId,
     currentProject,
-  }), [currentProjectId, currentProject]);
+  }), [currentProjectId, setCurrentProjectId, currentProject]);
 };
 
 // Store key mapping: Supabase table name → zustand store key
@@ -612,7 +612,7 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
       currentProjectId,
       setCurrentProjectId,
       currentProject,
-    }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, handleLogout, allowedViews, forceSync, currentProjectId, currentProject]);
+    }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, handleLogout, allowedViews, forceSync, currentProjectId, setCurrentProjectId, currentProject]);
 
 // Initialize realtime subscriptions -Cuando recibimos cambios de otros clientes
     useEffect(() => {
