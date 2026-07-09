@@ -13,7 +13,7 @@ import { hitoFormSchema } from '../store/schemas/calendario';
 
 const HitosScreen: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, updateProyecto, selectedProyectoId, setSelectedProyectoId, hitos, addHito, updateHito, deleteHito, addNotificacion } = useErp();
+  const { proyectos, updateProyecto, currentProjectId, setCurrentProjectId, hitos, addHito, updateHito, deleteHito, addNotificacion } = useErp();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const [showForm, setShowForm] = useState(false);
@@ -25,17 +25,17 @@ const HitosScreen: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (selectedProyectoId && !form.proyectoId) {
-      setForm(prev => ({ ...prev, proyectoId: selectedProyectoId }));
+    if (currentProjectId && !form.proyectoId) {
+      setForm(prev => ({ ...prev, proyectoId: currentProjectId }));
     }
-  }, [selectedProyectoId, form.proyectoId]);
+  }, [currentProjectId, form.proyectoId]);
 
   const notifyVencidos = (todosHitos: Hito[]) => {
     const hoy = todayISO();
     const vencidos = todosHitos.filter(hi => hi.estado === 'pendiente' && hi.fecha < hoy);
-    if (vencidos.length > 0 && selectedProyectoId) {
-      const proy = proyectos.find(p => p.id === selectedProyectoId);
-      addNotificacion('general', 'Hitos vencidos', `${vencidos.length} hito(s) vencido(s) en ${proy?.nombre || 'el proyecto'}`, selectedProyectoId || undefined);
+    if (vencidos.length > 0 && currentProjectId) {
+      const proy = proyectos.find(p => p.id === currentProjectId);
+      addNotificacion('general', 'Hitos vencidos', `${vencidos.length} hito(s) vencido(s) en ${proy?.nombre || 'el proyecto'}`, currentProjectId || undefined);
     }
   };
 
@@ -66,7 +66,7 @@ const HitosScreen: React.FC = () => {
     notifyVencidos([nuevo, ...hitos]);
     toast.success('Hito creado');
     setShowForm(false);
-    setForm({ proyectoId: selectedProyectoId || '', nombre: '', descripcion: '', fecha: '', tipo: 'hito', responsable: '', dependeDe: [] });
+    setForm({ proyectoId: currentProjectId || '', nombre: '', descripcion: '', fecha: '', tipo: 'hito', responsable: '', dependeDe: [] });
   };
 
   const completar = (id: string) => {
@@ -102,13 +102,13 @@ const HitosScreen: React.FC = () => {
   const hoy = todayISO();
   const hitosFiltrados = useMemo(() => {
     let filtrados = hitos;
-    if (selectedProyectoId) filtrados = filtrados.filter(h => h.proyectoId === selectedProyectoId);
+    if (currentProjectId) filtrados = filtrados.filter(h => h.proyectoId === currentProjectId);
     return filtrados;
-  }, [hitos, selectedProyectoId]);
+  }, [hitos, currentProjectId]);
 
   const pendientesVencidos = hitosFiltrados.filter(h => h.estado === 'pendiente' && h.fecha < hoy);
   const completados = hitosFiltrados.filter(h => h.estado === 'completado' || h.estado === 'retrasado');
-  const proyActual = selectedProyectoId ? proyectos.find(p => p.id === selectedProyectoId) : null;
+  const proyActual = currentProjectId ? proyectos.find(p => p.id === currentProjectId) : null;
 
   if (loading) {
     return (
