@@ -40,3 +40,6 @@ APPLY_SECURITY_FIX.sql
 .vercel
 .env*
 .vercel
+_archive/
+e2e/
+scripts/rotate-api-keys.cjs

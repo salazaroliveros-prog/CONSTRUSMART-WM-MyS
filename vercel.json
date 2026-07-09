@@ -2,6 +2,9 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "env": {
+    "VITE_APP_ENV": "production"
+  },
   "headers": [
     {
       "source": "/(.*)",

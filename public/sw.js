@@ -1,4 +1,4 @@
-const CACHE_NAME = 'construsmart-v5';
+const CACHE_NAME = 'construsmart-v6';
 const OFFLINE_URL = '/offline.html';
 let PUSH_PUBLIC_KEY = '';
 
