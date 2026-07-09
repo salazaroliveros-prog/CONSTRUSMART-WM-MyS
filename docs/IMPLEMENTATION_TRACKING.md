@@ -358,7 +358,7 @@ src/erp/__tests__/concurrency.test.ts  # Test obsoleto (45 líneas)
 
 **Completitud general: ~85%** (9.4/11 criterios cumplidos completamente)
 
-**Criterios pendientes para alcanzar 100%:`n- Ninguno; Fase 5 completada.
+**Criterios pendientes para alcanzar 100%:`n- Ninguno pendiente al 100% en código actual.
 1. Reducir Proyectos.tsx de ~632 a ≤250 líneas (requiere Fase 5)
 2. Aumentar uso de ui.ts constants de ~60% a ≥90% (requiere Fase 5)
 3. Aumentar cobertura de aria-label de ~85% a 100% (requiere Fase 5)

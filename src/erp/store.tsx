@@ -124,7 +124,7 @@ export const useCurrentProject = () => {
 };
 
 // Store key mapping: Supabase table name → zustand store key
-const APP_ONLY_FIELDS = new Set(['selectedProyectoId']);
+const APP_ONLY_FIELDS = new Set(['currentProjectId']);
 
 function stripAppOnlyFields<T extends Record<string, unknown>>(obj: T): T {
   const result = { ...obj };

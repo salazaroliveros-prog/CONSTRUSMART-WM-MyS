@@ -6,10 +6,10 @@ import { CARD, CARD_TITLE } from '../ui';
 
 const WeatherWidget: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, selectedProyectoId, proyectoWeather } = useErp();
+  const { proyectos, currentProjectId, proyectoWeather } = useErp();
 
-  const proyecto = selectedProyectoId 
-    ? proyectos.find(p => p.id === selectedProyectoId) 
+  const proyecto = currentProjectId
+    ? proyectos.find(p => p.id === currentProjectId)
     : proyectos.find(p => p.estado === 'ejecucion') || proyectos[0];
 
   const weather = proyecto ? proyectoWeather.find(w => w.proyectoId === proyecto.id) : undefined;
