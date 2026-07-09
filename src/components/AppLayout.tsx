@@ -281,7 +281,9 @@ const AppLayoutContent: React.FC = () => {
     return <AppLoader />;
   }
 
-  if (!user) {
+  const BYPASS_LOGIN = import.meta.env.DEV;
+
+  if (!user && !BYPASS_LOGIN) {
     return (
       <Suspense fallback={<AppLoader />}>
         <Login />

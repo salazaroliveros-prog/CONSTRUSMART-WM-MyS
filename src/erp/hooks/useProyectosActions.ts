@@ -59,7 +59,7 @@ const proyectoSchema = proyectoSchemaCanonico.pick({
 export type ProyectoFormData = z.infer<typeof proyectoSchema>;
 
 export const useProyectosActions = (options: { onCreated?: () => void } = {}) => {
-  const onCreatedRef = React.useRef(options.onCreated);
+  const onCreatedRef = useRef(options.onCreated);
   useEffect(() => { onCreatedRef.current = options.onCreated; }, [options.onCreated]);
   const { t } = useTranslation();
   const { proyectos, addProyecto, updateProyecto, deleteProyecto, clearProyectos, plantillas, crearProyectoDesdePlantilla, sugerirPlantillas, setCurrentProjectId, setView } = useErp();

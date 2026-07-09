@@ -65,11 +65,13 @@ const Dashboard: React.FC = () => {
     cotizacionesNegocio, notificacionesNoLeidas, notificaciones,
   } = ctx;
 
-  const hasData = (proyectos || []).length > 0 || (movimientos || []).length > 0 || (materiales || []).length > 0;
+  const safeProyectos = Array.isArray(proyectos) ? proyectos : [];
+
+  const hasData = safeProyectos.length > 0 || (movimientos || []).length > 0 || (materiales || []).length > 0;
   const filteredProyectos = useMemo(() => {
-    if (currentProjectId && currentProjectId !== 'none') return (proyectos || []).filter(p => p.id === currentProjectId);
-    return proyectos || [];
-  }, [proyectos, currentProjectId]);
+    if (currentProjectId && currentProjectId !== 'none') return safeProyectos.filter(p => p.id === currentProjectId);
+    return safeProyectos;
+  }, [safeProyectos, currentProjectId]);
 
   const proyectosSel = filteredProyectos;
   const totalOrphans = integrityData?.fk_orphans?.reduce?.((a, o) => a + o.count, 0) ?? 0;
@@ -78,7 +80,7 @@ const Dashboard: React.FC = () => {
   const s2 = useStagger(100);
   const s3 = useStagger(200);
   const s4 = useStagger(300);
-  const activos = useMemo(() => (proyectos || []).filter(p => p.estado === 'ejecucion'), [proyectos]);
+  const activos = useMemo(() => safeProyectos.filter(p => p.estado === 'ejecucion'), [safeProyectos]);
 
   const { presupuestoTotal, margenProm, desviacion, avanceProm, avanceFinProm } = useMemo(() => {
     if (filteredProyectos.length === 0) return { presupuestoTotal: 0, margenProm: 0, desviacion: 0, avanceProm: 0, avanceFinProm: 0 };
@@ -99,9 +101,9 @@ const Dashboard: React.FC = () => {
   const saldoNeto = useMemo(() => ingresos - gastos, [ingresos, gastos]);
   const carteraData = useMemo(() => {
     const counts: Record<string, number> = { planeacion: 0, ejecucion: 0, pausado: 0, finalizado: 0 };
-    (proyectos || []).forEach(p => { if (counts[p.estado] !== undefined) counts[p.estado]++; });
+    safeProyectos.forEach(p => { if (counts[p.estado] !== undefined) counts[p.estado]++; });
     return Object.entries(counts).filter(([, v]) => v > 0).map(([k, v]) => ({ label: t(`dashboard.${k}`), value: v, color: STATUS_COLORS[k] || '#6b7280' }));
-  }, [proyectos, t]);
+  }, [safeProyectos, t]);
 
   const planVsReal = useMemo(() => {
     const presupuestosActivos = (presupuestos || []).filter(p => p.estado !== 'anulado' && p.estado !== 'rechazado');
@@ -131,13 +133,13 @@ const Dashboard: React.FC = () => {
 
   const timelineData = useMemo(() => {
     const filtrados = currentProjectId && currentProjectId !== 'none' ? (hitos || []).filter(h => h.proyectoId === currentProjectId) : (hitos || []);
-    const projMap = new Map((proyectos || []).map(p => [p.id, p.nombre]));
+    const projMap = new Map(safeProyectos.map(p => [p.id, p.nombre]));
     return [...filtrados].filter(h => h.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 8).map(h => ({ id: h.id, nombre: h.nombre, proyecto: projMap.get(h.proyectoId) || '', fecha: h.fecha, estado: h.estado || 'pendiente' }));
-  }, [hitos, currentProjectId, proyectos]);
+  }, [hitos, currentProjectId, safeProyectos]);
 
   const ganttData = useMemo(() => {
     const filtrados = currentProjectId && currentProjectId !== 'none' ? (hitos || []).filter(h => h.proyectoId === currentProjectId) : (hitos || []);
-    const projMap = new Map((proyectos || []).map(p => [p.id, p.nombre]));
+    const projMap = new Map(safeProyectos.map(p => [p.id, p.nombre]));
     return [...filtrados].filter(h => h.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 12).map(h => {
       const hoy = new Date();
       const fechaHito = new Date(h.fecha);
@@ -146,7 +148,7 @@ const Dashboard: React.FC = () => {
       inicio.setDate(inicio.getDate() - Math.max(diffDias + 14, 14));
       return { id: h.id, nombre: h.nombre, proyecto: projMap.get(h.proyectoId) || '', fechaInicio: inicio.toISOString().slice(0, 10), fechaFin: h.fecha, estado: h.estado || 'pendiente', avance: h.estado === 'completado' ? 100 : (h as any).avance };
     });
-  }, [hitos, currentProjectId, proyectos]);
+  }, [hitos, currentProjectId, safeProyectos]);
 
   const movPorCategoria = useMemo(() => {
     const mapGastos: Record<string, number> = {};
@@ -161,7 +163,7 @@ const Dashboard: React.FC = () => {
     return labels.map((k, i) => ({ label: k || 'Otros', value: Math.max(mapGastos[k] || 0, mapIngresos[k] || 0), gasto: mapGastos[k] || 0, ingreso: mapIngresos[k] || 0, color: CATEGORIA_COLORS[i % CATEGORIA_COLORS.length] }));
   }, [movimientos]);
 
-  const topProyectos = useMemo(() => (proyectos || []).slice().sort((a, b) => b.presupuestoTotal - a.presupuestoTotal).slice(0, 3).map(p => ({ id: p.id, nombre: p.nombre, presupuesto: p.presupuestoTotal, avance: p.avanceFisico, estado: p.estado })), [proyectos]);
+  const topProyectos = useMemo(() => safeProyectos.slice().sort((a, b) => b.presupuestoTotal - a.presupuestoTotal).slice(0, 3).map(p => ({ id: p.id, nombre: p.nombre, presupuesto: p.presupuestoTotal, avance: p.avanceFisico, estado: p.estado })), [safeProyectos]);
   const ocPendientes = useMemo(() => (ordenes || []).filter(o => o.estado === 'pendiente' || o.estado === 'borrador').slice(0, 3).map(o => ({ id: o.id, proveedor: o.proveedor, material: o.material, cantidad: o.cantidad, monto: o.total || o.monto || 0 })), [ordenes]);
   const cuentasProximas = useMemo(() => { const hoy = new Date(); const t = new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000); return (cuentasPagar || []).filter(c => c.fechaVencimiento && new Date(c.fechaVencimiento) <= t && c.estado !== 'pagado').sort((a, b) => new Date(a.fechaVencimiento).getTime() - new Date(b.fechaVencimiento).getTime()).slice(0, 3); }, [cuentasPagar]);
   const cobrarProximas = useMemo(() => { const hoy = new Date(); const t = new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000); return (cuentasCobrar || []).filter(c => c.fechaVencimiento && new Date(c.fechaVencimiento) <= t && c.estado !== 'cobrado').sort((a, b) => new Date(a.fechaVencimiento).getTime() - new Date(b.fechaVencimiento).getTime()).slice(0, 3); }, [cuentasCobrar]);
@@ -193,10 +195,10 @@ const Dashboard: React.FC = () => {
     if (typeof window === 'undefined') return;
     const store = useErpStore.getState();
     if (store.notificaciones.length > 0) return;
-    if ((proyectos || []).length === 0) return;
+    if (safeProyectos.length === 0) return;
     const proximos = (hitos || []).filter(h => h.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 3);
     if (proximos.length > 0) proximos.forEach(h => store.addNotificacion('general', `Hito próximo: ${h.nombre}`, `Fecha: ${h.fecha}`, h.proyectoId, h.id));
-  }, [hitos, proyectos]);
+  }, [hitos, safeProyectos]);
 
   const [exportingPdf, setExportingPdf] = useState(false);
   const handleExportPdf = useCallback(async () => {
