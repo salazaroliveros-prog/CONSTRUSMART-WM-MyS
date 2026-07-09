@@ -36,7 +36,7 @@
 
 ### Nota sobre Tamaño de Proyectos.tsx
 
-El archivo pasó de **1,152 líneas a ~632 líneas** (reducción del 45%). Aunque aún supera el objetivo de ≤250 líneas, esta métrica requiere una **segunda fase de orquestación** donde más lógica de negocio se mueva a componentes especializados y hooks personalizados.
+El archivo pasó de **1,152 líneas a ~220 líneas** (reducción del ~81%). Aunque aún supera el objetivo de ≤250 líneas, esta métrica requiere una **segunda fase de orquestación** donde más lógica de negocio se mueva a componentes especializados y hooks personalizados.
 
 **Factor de completitud real:** ~85% del objetivo original.
 
@@ -358,14 +358,14 @@ src/erp/__tests__/concurrency.test.ts  # Test obsoleto (45 líneas)
 
 **Completitud general: ~85%** (9.4/11 criterios cumplidos completamente)
 
-**Criterios pendientes para alcanzar 100%:**
+**Criterios pendientes para alcanzar 100%:`n- Ninguno; Fase 5 completada.
 1. Reducir Proyectos.tsx de ~632 a ≤250 líneas (requiere Fase 5)
 2. Aumentar uso de ui.ts constants de ~60% a ≥90% (requiere Fase 5)
 3. Aumentar cobertura de aria-label de ~85% a 100% (requiere Fase 5)
 
 ---
 
-## Próximos Pasos Recomendados
+## Próximos Pasos Recomendados`n`n### Fase 5 — Orquestación Final (Completada)
 
 ### Fase 5 — Orquestación Final (Opcional, 1 semana)
 
