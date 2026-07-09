@@ -9,7 +9,6 @@ import { todayISO } from '../utils';
 import { z } from 'zod';
 import type { Plano, RFI, Submittal } from '../types';
 
-// Zod schemas
 const planoSchema = z.object({
   nombre: z.string().min(1, 'Nombre del plano requerido').max(200, 'Máximo 200 caracteres'),
   disciplina: z.enum(['arquitectura', 'estructura', 'instalaciones', 'electricas', 'sanitarias', 'mecanicas', 'otra']),
@@ -33,9 +32,8 @@ type TabDoc = 'planos' | 'rfis' | 'submittals';
 
 const GestionDocumental: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, user, planos, addPlano, updatePlano, rfis, addRfi, updateRfi, submittals, addSubmittal, updateSubmittal } = useErp();
+  const { proyectos, user, planos, addPlano, updatePlano, rfis, addRfi, updateRfi, submittals, addSubmittal, updateSubmittal, currentProjectId, setCurrentProjectId } = useErp();
   const [tab, setTab] = useState<TabDoc>('planos');
-  const [selProyecto, setSelProyecto] = useState('');
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => { setLoading(false); }, []);
@@ -44,12 +42,11 @@ const GestionDocumental: React.FC = () => {
   const [_gdFormErrors, setGdFormErrors] = useState<Record<string, string>>({});
   const resetGdErrors = () => setGdFormErrors({});
 
-  // === PLANO FORM ===
   const [showPlanoForm, setShowPlanoForm] = useState(false);
   const [planoForm, setPlanoForm] = useState({ nombre: '', disciplina: 'arquitectura' as Plano['disciplina'], version: '1.0', descripcion: '' });
 
   const handleAddPlano = async () => {
-    if (!selProyecto) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
+    if (!currentProjectId) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
     const planoResult = planoSchema.safeParse(planoForm);
     if (!planoResult.success) {
       const errs: Record<string, string> = {};
@@ -61,7 +58,7 @@ const GestionDocumental: React.FC = () => {
     setGdFormErrors({});
     const nuevo: Plano = {
       id: Date.now().toString(),
-      proyectoId: selProyecto,
+      proyectoId: currentProjectId,
       nombre: planoResult.data.nombre,
       disciplina: planoResult.data.disciplina,
       version: planoResult.data.version,
@@ -98,12 +95,11 @@ const GestionDocumental: React.FC = () => {
     toast.success(`Nueva versión ${newVer}`);
   };
 
-  // === RFI FORM ===
   const [showRFIForm, setShowRFIForm] = useState(false);
   const [rfiForm, setRfiForm] = useState({ titulo: '', descripcion: '', destino: '' });
 
   const handleAddRFI = async () => {
-    if (!selProyecto) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
+    if (!currentProjectId) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
     const rfiResult = rfiSchema.safeParse(rfiForm);
     if (!rfiResult.success) {
       const errs: Record<string, string> = {};
@@ -113,11 +109,11 @@ const GestionDocumental: React.FC = () => {
       return;
     }
     setGdFormErrors({});
-    const count = rfis.filter(r => r.proyectoId === selProyecto).length + 1;
+    const count = rfis.filter(r => r.proyectoId === currentProjectId).length + 1;
     const nueva: RFI = {
       id: Date.now().toString(),
-      proyectoId: selProyecto,
-      numero: `RFI-${selProyecto.slice(0, 4)}-${String(count).padStart(3, '0')}`,
+      proyectoId: currentProjectId,
+      numero: `RFI-${currentProjectId.slice(0, 4)}-${String(count).padStart(3, '0')}`,
       titulo: rfiResult.data.titulo,
       descripcion: rfiResult.data.descripcion,
       solicitante: user?.nombre || 'Anónimo',
@@ -136,12 +132,11 @@ const GestionDocumental: React.FC = () => {
     toast.success(`RFI actualizado: ${estado}`);
   };
 
-  // === SUBMITTAL FORM ===
   const [showSubForm, setShowSubForm] = useState(false);
   const [subForm, setSubForm] = useState({ titulo: '', descripcion: '', categoria: 'material' as Submittal['categoria'], proveedor: '' });
 
   const handleAddSubmittal = async () => {
-    if (!selProyecto) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
+    if (!currentProjectId) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
     const subResult = submittalSchema.safeParse({
       titulo: subForm.titulo,
       categoria: subForm.categoria,
@@ -160,7 +155,7 @@ const GestionDocumental: React.FC = () => {
     setGdFormErrors({});
     const nuevo: Submittal = {
       id: Date.now().toString(),
-      proyectoId: selProyecto,
+      proyectoId: currentProjectId,
       titulo: subResult.data.titulo,
       descripcion: subForm.descripcion,
       categoria: subForm.categoria,
@@ -215,8 +210,8 @@ const GestionDocumental: React.FC = () => {
           <FileText className="w-6 h-6 text-info" /> {t('gestion_documental.titulo', 'Gestión Documental')}
         </h1>
         <select
-          value={selProyecto}
-          onChange={e => setSelProyecto(e.target.value)}
+          value={currentProjectId}
+          onChange={e => setCurrentProjectId(e.target.value)}
           className="text-xs px-3 py-2 rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground"
         >
           <option value="">{t('gestion_documental.todos_proyectos', '— Todos los proyectos —')}</option>
@@ -224,23 +219,21 @@ const GestionDocumental: React.FC = () => {
         </select>
       </div>
 
-      {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
           <div className="text-xs text-muted-foreground">{t('gestion_documental.kpi_planos', 'Planos')}</div>
-          <div className="text-lg font-bold text-foreground">{planos.filter(p => !selProyecto || p.proyectoId === selProyecto).length}</div>
+          <div className="text-lg font-bold text-foreground">{planos.filter(p => !currentProjectId || p.proyectoId === currentProjectId).length}</div>
         </div>
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
           <div className="text-xs text-muted-foreground">{t('gestion_documental.kpi_rfis', 'RFIs Activos')}</div>
-          <div className="text-lg font-bold text-warning">{rfis.filter(r => r.estado !== 'cerrado' && (!selProyecto || r.proyectoId === selProyecto)).length}</div>
+          <div className="text-lg font-bold text-warning">{rfis.filter(r => r.estado !== 'cerrado' && (!currentProjectId || r.proyectoId === currentProjectId)).length}</div>
         </div>
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
           <div className="text-xs text-muted-foreground">{t('gestion_documental.kpi_submittals', 'Submittals Pendientes')}</div>
-          <div className="text-lg font-bold text-info">{submittals.filter(s => s.estado === 'pendiente' && (!selProyecto || s.proyectoId === selProyecto)).length}</div>
+          <div className="text-lg font-bold text-info">{submittals.filter(s => s.estado === 'pendiente' && (!currentProjectId || s.proyectoId === currentProjectId)).length}</div>
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-1 mb-4 bg-muted p-1 rounded-xl">
         {tabs.map(tabItem => {
           const Icon = tabItem.icon;
@@ -249,9 +242,7 @@ const GestionDocumental: React.FC = () => {
             <button
               key={tabItem.id}
               onClick={() => setTab(tabItem.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all ${
-                active ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
-              }`}
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all ${active ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'}`}
             >
               <Icon className="w-4 h-4" />
               <span className="hidden sm:inline">{tabItem.label}</span>
@@ -260,7 +251,6 @@ const GestionDocumental: React.FC = () => {
         })}
       </div>
 
-      {/* ========== PLANOS ========== */}
       {tab === 'planos' && (
         <div>
           <div className="flex justify-between items-center mb-3">
@@ -274,28 +264,28 @@ const GestionDocumental: React.FC = () => {
 
           {showPlanoForm && (
             <div className="bg-muted rounded-xl p-4 mb-4 border border-border space-y-2">
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                 <div>
-                   <input value={planoForm.nombre} onChange={e => { setPlanoForm(prev => ({ ...prev, nombre: e.target.value })); setGdFormErrors(prev => ({ ...prev, nombre: '' })); }} placeholder={t('gestion_documental.nombre_plano_placeholder', 'Nombre del plano')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
-                   {_gdFormErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.nombre}</p>}
-                 </div>
-                 <div>
-                   <select value={planoForm.disciplina} onChange={e => { setPlanoForm(prev => ({ ...prev, disciplina: e.target.value as Plano['disciplina'] })); setGdFormErrors(prev => ({ ...prev, disciplina: '' })); }} className={INPUT}>
-                     {disciplinas.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
-                   </select>
-                   {_gdFormErrors.disciplina && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.disciplina}</p>}
-                 </div>
-               </div>
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                 <div>
-                   <input value={planoForm.version} onChange={e => { setPlanoForm(prev => ({ ...prev, version: e.target.value })); setGdFormErrors(prev => ({ ...prev, version: '' })); }} placeholder={t('gestion_documental.version_placeholder', 'Versión (ej: 1.0)')} className={INPUT} />
-                   {_gdFormErrors.version && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.version}</p>}
-                 </div>
-                 <div>
-                   <input value={planoForm.descripcion} onChange={e => { setPlanoForm(prev => ({ ...prev, descripcion: e.target.value })); setGdFormErrors(prev => ({ ...prev, descripcion: '' })); }} placeholder={t('gestion_documental.descripcion_placeholder', 'Descripción (opcional)')} className={INPUT} />
-                   {_gdFormErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.descripcion}</p>}
-                 </div>
-               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <input value={planoForm.nombre} onChange={e => { setPlanoForm(prev => ({ ...prev, nombre: e.target.value })); setGdFormErrors(prev => ({ ...prev, nombre: '' })); }} placeholder={t('gestion_documental.nombre_plano_placeholder', 'Nombre del plano')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
+                  {_gdFormErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.nombre}</p>}
+                </div>
+                <div>
+                  <select value={planoForm.disciplina} onChange={e => { setPlanoForm(prev => ({ ...prev, disciplina: e.target.value as Plano['disciplina'] })); setGdFormErrors(prev => ({ ...prev, disciplina: '' })); }} className={INPUT}>
+                    {disciplinas.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+                  </select>
+                  {_gdFormErrors.disciplina && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.disciplina}</p>}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <input value={planoForm.version} onChange={e => { setPlanoForm(prev => ({ ...prev, version: e.target.value })); setGdFormErrors(prev => ({ ...prev, version: '' })); }} placeholder={t('gestion_documental.version_placeholder', 'Versión (ej: 1.0)')} className={INPUT} />
+                  {_gdFormErrors.version && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.version}</p>}
+                </div>
+                <div>
+                  <input value={planoForm.descripcion} onChange={e => { setPlanoForm(prev => ({ ...prev, descripcion: e.target.value })); setGdFormErrors(prev => ({ ...prev, descripcion: '' })); }} placeholder={t('gestion_documental.descripcion_placeholder', 'Descripción (opcional)')} className={INPUT} />
+                  {_gdFormErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.descripcion}</p>}
+                </div>
+              </div>
               <div className="flex gap-2">
                 <button onClick={handleAddPlano} className="flex-1 bg-info hover:bg-info/90 text-info-foreground py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.subir_plano', 'Subir Plano')}</button>
                 <button onClick={() => setShowPlanoForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
@@ -303,40 +293,20 @@ const GestionDocumental: React.FC = () => {
             </div>
           )}
 
-          {/* Historial de versiones */}
-          {Object.keys(versiones).length > 0 && (
-            <div className="mb-3 p-3 bg-muted/30 rounded-lg border border-border">
-              <h3 className="text-xs font-bold text-muted-foreground uppercase mb-2">{t('gestion_documental.historial_versiones', 'Historial de Versiones')}</h3>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(versiones).map(([planoId, vers]) => {
-                  const plano = planos.find(p => p.id === planoId);
-                  if (!plano) return null;
-                  return (
-                    <div key={planoId} className="text-xs bg-card border border-border rounded px-2 py-1">
-                      <span className="font-semibold text-muted-foreground">{plano.nombre}</span>: {vers.join(' → ')}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           <div className="space-y-2">
-            {planos.filter(p => !selProyecto || p.proyectoId === selProyecto).length === 0 ? (
+            {planos.filter(p => !currentProjectId || p.proyectoId === currentProjectId).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="w-10 h-10 mx-auto mb-2 text-muted-foreground/60" />
                 <p className="text-sm">{t('gestion_documental.sin_planos', 'Sin planos registrados')}</p>
               </div>
             ) : (
-              planos.filter(p => !selProyecto || p.proyectoId === selProyecto).map(p => (
+              planos.filter(p => !currentProjectId || p.proyectoId === currentProjectId).map(p => (
                 <div key={p.id} className={`p-3 rounded-lg border ${p.estado === 'vigente' ? 'bg-card border-border' : p.estado === 'obsoleto' ? 'bg-muted border-border opacity-60' : 'bg-warning/10 border-warning/30'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs px-1.5 py-0.5 rounded-full bg-info/10 text-info font-medium">{p.disciplina}</span>
-                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
-                          p.estado === 'vigente' ? 'bg-success/10 text-success' : p.estado === 'obsoleto' ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning'
-                        }`}>{p.estado}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${p.estado === 'vigente' ? 'bg-success/10 text-success' : p.estado === 'obsoleto' ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning'}`}>{p.estado}</span>
                       </div>
                       <p className="text-sm font-medium text-foreground">{p.nombre}</p>
                       <div className="flex gap-2 mt-1 text-xs text-muted-foreground">
@@ -360,7 +330,6 @@ const GestionDocumental: React.FC = () => {
         </div>
       )}
 
-      {/* ========== RFIs ========== */}
       {tab === 'rfis' && (
         <div>
           <div className="flex justify-between items-center mb-3">
@@ -372,43 +341,41 @@ const GestionDocumental: React.FC = () => {
             </button>
           </div>
 
-           {showRFIForm && (
-             <div className="bg-warning/10 rounded-xl p-4 mb-4 border border-warning/30 space-y-2">
-               <div>
-                 <input value={rfiForm.titulo} onChange={e => { setRfiForm(prev => ({ ...prev, titulo: e.target.value })); setGdFormErrors(prev => ({ ...prev, titulo: '' })); }} placeholder={t('gestion_documental.rfi_titulo_placeholder', 'Título del RFI')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
-                 {_gdFormErrors.titulo && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.titulo}</p>}
-               </div>
-               <div>
-                 <textarea value={rfiForm.descripcion} onChange={e => { setRfiForm(prev => ({ ...prev, descripcion: e.target.value })); setGdFormErrors(prev => ({ ...prev, descripcion: '' })); }} placeholder={t('gestion_documental.rfi_descripcion_placeholder', 'Descripción detallada...')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground min-h-[60px]" />
-                 {_gdFormErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.descripcion}</p>}
-               </div>
-               <div>
-                 <input value={rfiForm.destino} onChange={e => { setRfiForm(prev => ({ ...prev, destino: e.target.value })); setGdFormErrors(prev => ({ ...prev, destino: '' })); }} placeholder={t('gestion_documental.rfi_destino_placeholder', 'Destinatario (ej: Arquitecto de proyecto)')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
-                 {_gdFormErrors.destino && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.destino}</p>}
-               </div>
-               <div className="flex gap-2">
-                 <button onClick={handleAddRFI} className="flex-1 bg-warning hover:bg-warning/90 text-warning-foreground py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.enviar_rfi', 'Enviar RFI')}</button>
-                 <button onClick={() => setShowRFIForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
-               </div>
-             </div>
-           )}
+          {showRFIForm && (
+            <div className="bg-warning/10 rounded-xl p-4 mb-4 border border-warning/30 space-y-2">
+              <div>
+                <input value={rfiForm.titulo} onChange={e => { setRfiForm(prev => ({ ...prev, titulo: e.target.value })); setGdFormErrors(prev => ({ ...prev, titulo: '' })); }} placeholder={t('gestion_documental.rfi_titulo_placeholder', 'Título del RFI')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
+                {_gdFormErrors.titulo && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.titulo}</p>}
+              </div>
+              <div>
+                <textarea value={rfiForm.descripcion} onChange={e => { setRfiForm(prev => ({ ...prev, descripcion: e.target.value })); setGdFormErrors(prev => ({ ...prev, descripcion: '' })); }} placeholder={t('gestion_documental.rfi_descripcion_placeholder', 'Descripción detallada...')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground min-h-[60px]" />
+                {_gdFormErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.descripcion}</p>}
+              </div>
+              <div>
+                <input value={rfiForm.destino} onChange={e => { setRfiForm(prev => ({ ...prev, destino: e.target.value })); setGdFormErrors(prev => ({ ...prev, destino: '' })); }} placeholder={t('gestion_documental.rfi_destino_placeholder', 'Destinatario (ej: Arquitecto de proyecto)')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
+                {_gdFormErrors.destino && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.destino}</p>}
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleAddRFI} className="flex-1 bg-warning hover:bg-warning/90 text-warning-foreground py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.enviar_rfi', 'Enviar RFI')}</button>
+                <button onClick={() => setShowRFIForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
-            {rfis.filter(r => !selProyecto || r.proyectoId === selProyecto).length === 0 ? (
+            {rfis.filter(r => !currentProjectId || r.proyectoId === currentProjectId).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <MessageSquare className="w-10 h-10 mx-auto mb-2 text-muted-foreground/60" />
                 <p className="text-sm">{t('gestion_documental.sin_rfis', 'Sin RFIs registrados')}</p>
               </div>
             ) : (
-              rfis.filter(r => !selProyecto || r.proyectoId === selProyecto).map(r => (
+              rfis.filter(r => !currentProjectId || r.proyectoId === currentProjectId).map(r => (
                 <div key={r.id} className={`p-3 rounded-lg border ${r.estado === 'cerrado' ? 'bg-success/10 border-success/30' : 'bg-card border-border'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-bold text-warning bg-warning/10 px-1.5 py-0.5 rounded">{r.numero}</span>
-                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                          r.estado === 'abierto' ? 'bg-destructive/10 text-destructive' : r.estado === 'en_respuesta' ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
-                        }`}>{r.estado.replace(/_/g, ' ')}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${r.estado === 'abierto' ? 'bg-destructive/10 text-destructive' : r.estado === 'en_respuesta' ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'}`}>{r.estado.replace(/_/g, ' ')}</span>
                       </div>
                       <p className="text-sm font-medium text-foreground">{r.titulo}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">{r.descripcion}</p>
@@ -426,10 +393,7 @@ const GestionDocumental: React.FC = () => {
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {r.estado === 'abierto' && (
-                        <button onClick={() => {
-                          const resp = prompt(t('gestion_documental.escribe_respuesta', 'Escribe la respuesta:'));
-                          if (resp) actualizarRFI(r.id, 'en_respuesta', resp);
-                        }} className="px-2 py-1 bg-amber-500 text-white rounded text-xs hover:bg-amber-600">{t('gestion_documental.responder', 'Responder')}</button>
+                        <button onClick={() => { const resp = prompt(t('gestion_documental.escribe_respuesta', 'Escribe la respuesta:')); if (resp) actualizarRFI(r.id, 'en_respuesta', resp); }} className="px-2 py-1 bg-amber-500 text-white rounded text-xs hover:bg-amber-600">{t('gestion_documental.responder', 'Responder')}</button>
                       )}
                       {r.estado === 'en_respuesta' && (
                         <button onClick={() => actualizarRFI(r.id, 'cerrado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-xs hover:bg-emerald-600">{t('gestion_documental.cerrar', 'Cerrar')}</button>
@@ -443,7 +407,6 @@ const GestionDocumental: React.FC = () => {
         </div>
       )}
 
-      {/* ========== SUBMITTALS ========== */}
       {tab === 'submittals' && (
         <div>
           <div className="flex justify-between items-center mb-3">
@@ -488,21 +451,19 @@ const GestionDocumental: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {submittals.filter(s => !selProyecto || s.proyectoId === selProyecto).length === 0 ? (
+            {submittals.filter(s => !currentProjectId || s.proyectoId === currentProjectId).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Package className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p className="text-sm">{t('gestion_documental.sin_submittals', 'Sin submittals registrados')}</p>
               </div>
             ) : (
-              submittals.filter(s => !selProyecto || s.proyectoId === selProyecto).map(s => (
+              submittals.filter(s => !currentProjectId || s.proyectoId === currentProjectId).map(s => (
                 <div key={s.id} className={`p-3 rounded-lg border ${s.estado === 'aprobado' ? 'bg-emerald-50 border-emerald-200' : 'bg-card border-border'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-blue-600 font-medium">{s.categoria}</span>
-                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                          s.estado === 'aprobado' ? 'bg-emerald-50 text-emerald-600' : s.estado === 'rechazado' ? 'bg-red-50 text-red-500' : s.estado === 'con_comentarios' ? 'bg-amber-50 text-amber-600' : 'bg-muted text-muted-foreground'
-                        }`}>{s.estado.replace(/_/g, ' ')}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${s.estado === 'aprobado' ? 'bg-emerald-50 text-emerald-600' : s.estado === 'rechazado' ? 'bg-red-50 text-red-500' : s.estado === 'con_comentarios' ? 'bg-amber-50 text-amber-600' : 'bg-muted text-muted-foreground'}`}>{s.estado.replace(/_/g, ' ')}</span>
                       </div>
                       <p className="text-sm font-medium text-muted-foreground">{s.titulo}</p>
                       <div className="flex gap-2 mt-1 text-xs text-muted-foreground">
@@ -532,5 +493,3 @@ const GestionDocumental: React.FC = () => {
 };
 
 export default GestionDocumental;
-
-

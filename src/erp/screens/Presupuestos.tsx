@@ -17,7 +17,7 @@ import { presupuestoFormSchema } from '../store/schemas/presupuestos';
 
 const Presupuestos: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, selectedProyectoId, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores, updateProyecto, materiales, updateMaterial, addMaterial } = useErp();
+  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, currentProjectId, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores, updateProyecto, materiales, updateMaterial, addMaterial } = useErp();
   const [tab, setTab] = useState<'crear' | 'guardados'>('crear');
   const [tipologia, setTipologia] = useState<Tipologia>('residencial');
   const [proyecto, setProyecto] = useState('Nuevo Presupuesto');
@@ -55,9 +55,9 @@ const Presupuestos: React.FC = () => {
   };
 
   useEffect(() => {
-    if (selectedProyectoId) {
-      setProjectId(selectedProyectoId);
-      const proyectoSeleccionado = proyectos.find(p => p.id === selectedProyectoId);
+    if (currentProjectId) {
+      setProjectId(currentProjectId);
+      const proyectoSeleccionado = proyectos.find(p => p.id === currentProjectId);
       if (proyectoSeleccionado) {
         setTipologia(proyectoSeleccionado.tipologia);
         setProyecto(`Presupuesto ${proyectoSeleccionado.nombre}`);
@@ -68,7 +68,7 @@ const Presupuestos: React.FC = () => {
     if (!projectId && proyectos.length > 0) {
       setProjectId(proyectos[0].id);
     }
-  }, [proyectos, projectId, selectedProyectoId]);
+  }, [proyectos, projectId, currentProjectId]);
 
   useEffect(() => {
     if (proveedores.length > 0 && !selectedProveedorId) {
@@ -77,22 +77,22 @@ const Presupuestos: React.FC = () => {
   }, [proveedores, selectedProveedorId]);
 
   useEffect(() => {
-    if (!selectedProyectoId) return;
+    if (!currentProjectId) return;
 
     const presupuestoExistente = presupuestos
-      .filter(p => p.proyectoId === selectedProyectoId)
+      .filter(p => p.proyectoId === currentProjectId)
       .sort((a, b) => new Date(b.fechaActualizacion).getTime() - new Date(a.fechaActualizacion).getTime())[0];
 
     if (presupuestoExistente) {
       setItems((presupuestoExistente.renglones || []) as RenglonPresupuesto[]);
       setTipologia(presupuestoExistente.tipologia);
-      setProyecto(presupuestoExistente.notas || `Presupuesto ${proyectos.find(p => p.id === selectedProyectoId)?.nombre || ''}`);
+      setProyecto(presupuestoExistente.notas || `Presupuesto ${proyectos.find(p => p.id === currentProjectId)?.nombre || ''}`);
       setEditingPresupuesto(presupuestoExistente);
     } else {
       setItems([]);
       setEditingPresupuesto(null);
     }
-  }, [selectedProyectoId, presupuestos, proyectos]);
+  }, [currentProjectId, presupuestos, proyectos]);
 
   const openHistorial = async () => {
     if (!(await confirmDiscard())) return;

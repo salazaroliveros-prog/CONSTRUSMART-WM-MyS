@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const Cuadros: React.FC = () => {
   const { t } = useTranslation();
-  const { cuadros, proyectos, proveedores, addCuadro, updateCuadro, deleteCuadro, selectedProyectoId, cotizacionesNegocio } = useErp();
+  const { cuadros, proyectos, proveedores, addCuadro, updateCuadro, deleteCuadro, currentProjectId, cotizacionesNegocio } = useErp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState<string>('all');
   const [showModal, setShowModal] = useState(false);
@@ -37,11 +37,11 @@ const Cuadros: React.FC = () => {
         cuadro.solicitud.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesEstado = filterEstado === 'all' || cuadro.estado === filterEstado;
-      const matchesProyecto = !selectedProyectoId || selectedProyectoId === 'none' || cuadro.proyectoId === selectedProyectoId;
+      const matchesProyecto = !currentProjectId || currentProjectId === 'none' || cuadro.proyectoId === currentProjectId;
       
       return matchesSearch && matchesEstado && matchesProyecto;
     });
-  }, [cuadros, searchTerm, filterEstado, selectedProyectoId]);
+  }, [cuadros, searchTerm, filterEstado, currentProjectId]);
 
   const stats = useMemo(() => {
     const total = filteredCuadros.length;
@@ -82,7 +82,7 @@ const Cuadros: React.FC = () => {
         solicitud: '',
         fechaSolicitud: new Date().toISOString().split('T')[0],
         estado: 'abierto',
-        proyectoId: selectedProyectoId || '',
+        proyectoId: currentProjectId || '',
         cotizaciones: [],
       });
     }

@@ -33,7 +33,7 @@ const SEGMENTO_COLORS = {
 
 const PROFITABILITYAnalytics: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, movimientos, empleados, materiales, ordenes, selectedProyectoId, setSelectedProyectoId } = useErp();
+  const { proyectos, movimientos, empleados, materiales, ordenes, currentProjectId, setCurrentProjectId } = useErp();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'proyectos' | 'clientes' | 'pronosticos' | 'recursos' | 'tendencias' | 'precios'>('proyectos');
   const [showDetails, setShowDetails] = useState(true);
@@ -52,9 +52,9 @@ const PROFITABILITYAnalytics: React.FC = () => {
   }, [proyectos, movimientos, empleados, materiales, ordenes]);
 
   const filteredProjects = useMemo(() => {
-    if (!selectedProyectoId || selectedProyectoId === 'none') return proyectos || [];
-    return (proyectos || []).filter(p => p.id === selectedProyectoId);
-  }, [proyectos, selectedProyectoId]);
+    if (!currentProjectId || currentProjectId === 'none') return proyectos || [];
+    return (proyectos || []).filter(p => p.id === currentProjectId);
+  }, [proyectos, currentProjectId]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);

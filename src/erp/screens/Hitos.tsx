@@ -175,7 +175,7 @@ const HitosScreen: React.FC = () => {
       {proyectos.length > 0 && (
         <div className="flex items-center gap-2 mb-3">
           <Filter className="w-4 h-4 text-muted-foreground" />
-          <select value={selectedProyectoId || ''} onChange={e => setSelectedProyectoId(e.target.value || null)} className={`${INPUT} max-w-xs`}>
+          <select value={currentProjectId || ''} onChange={e => setCurrentProjectId(e.target.value || null)} className={`${INPUT} max-w-xs`}>
             <option value="">Todos los proyectos</option>
             {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
           </select>

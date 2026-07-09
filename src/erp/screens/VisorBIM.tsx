@@ -19,7 +19,7 @@ type TabBIM = 'visor' | 'vincular' | 'cubicacion' | 'avance';
 
 export default function VisorBIM() {
   const { t } = useTranslation();
-  const { proyectos, presupuestos, selectedProyectoId, setSelectedProyectoId, setView } = useErp();
+  const { proyectos, presupuestos, currentProjectId, setCurrentProjectId, setView } = useErp();
   const [tab, setTab] = useState<TabBIM>('visor');
   const [elementoSeleccionado, setElementoSeleccionado] = useState<any>(null);
   const [vinculaciones, setVinculaciones] = useState<Record<string, string>>({});
@@ -37,7 +37,7 @@ export default function VisorBIM() {
     { id: 'e6', guid: '6eF7gH8hI9jK0lM3', nombre: 'Instalación Sanitaria', tipo: 'IfcFlowSegment', cantidad: 85.3, unidad: 'm' },
   ], []);
 
-  const presupuestoActual = useMemo(() => presupuestos.find(p => p.proyectoId === selectedProyectoId), [presupuestos, selectedProyectoId]);
+  const presupuestoActual = useMemo(() => presupuestos.find(p => p.proyectoId === currentProjectId), [presupuestos, currentProjectId]);
   const renglones = useMemo(() => presupuestoActual?.renglones || [], [presupuestoActual]);
 
   React.useEffect(() => {
@@ -107,8 +107,8 @@ export default function VisorBIM() {
       <div className="bg-card rounded-xl shadow-sm border border-border p-3">
         <Label className="text-xs text-gray-600">Proyecto</Label>
         <select
-          value={selectedProyectoId || ''}
-          onChange={e => setSelectedProyectoId(e.target.value)}
+          value={currentProjectId || ''}
+          onChange={e => setCurrentProjectId(e.target.value)}
           className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
         >
           <option value="">Selecciona un proyecto</option>

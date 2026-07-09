@@ -5,17 +5,16 @@ import { fmtQ } from '../utils';
 import { Calendar, AlertTriangle, DollarSign, Activity, Zap, CheckCircle } from 'lucide-react';
 
 const DashboardPredictivo: React.FC = () => {
-  const { proyectos, movimientos, presupuestos, avances, empleados } = useErp();
-  const [selProyecto, setSelProyecto] = useState('');
+  const { proyectos, movimientos, presupuestos, avances, empleados, currentProjectId, setCurrentProjectId } = useErp();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { setLoading(false); }, []);
 
-  const proyecto = proyectos.find(p => p.id === selProyecto);
-  const presupuesto = presupuestos.find(p => p.proyectoId === selProyecto);
+  const proyecto = proyectos.find(p => p.id === currentProjectId);
+  const presupuesto = presupuestos.find(p => p.proyectoId === currentProjectId);
 
   // --- Cálculos ---
-  const gastos = movimientos.filter(m => m.proyectoId === selProyecto && (m.tipo === 'gasto' || m.tipo === 'egreso'));
+  const gastos = movimientos.filter(m => m.proyectoId === currentProjectId && (m.tipo === 'gasto' || m.tipo === 'egreso'));
   const totalGastos = gastos.reduce((a, m) => a + (m.costoTotal ?? m.monto), 0);
 
   // Costo final proyectado (EAC = AC + (BAC - EV) / CPI)
@@ -40,7 +39,7 @@ const DashboardPredictivo: React.FC = () => {
   // Riesgos: renglones con desviación
   const renglonesConAvance = useMemo(() => {
     const _renglones = presupuesto?.renglones ?? [];
-    const _avancesProyecto = avances.filter(a => a.proyectoId === selProyecto);
+    const _avancesProyecto = avances.filter(a => a.proyectoId === currentProjectId);
     const _diasTotales = fechaInicio && fechaFin ? Math.round((new Date(fechaFin).getTime() - new Date(fechaInicio).getTime()) / 86400000) : 1;
     const _diasTranscurridos = fechaInicio ? Math.round((Date.now() - new Date(fechaInicio).getTime()) / 86400000) : 0;
     return _renglones.map(r => {
@@ -50,7 +49,7 @@ const DashboardPredictivo: React.FC = () => {
       const desviacion = pctAvance - avanceEsperado;
       return { ...r, pctAvance, avanceEsperado, desviacion };
     });
-  }, [presupuesto, avances, selProyecto, fechaInicio, fechaFin]);
+  }, [presupuesto, avances, currentProjectId, fechaInicio, fechaFin]);
 
   const riesgosAltos = renglonesConAvance.filter(r => r.pctAvance < 50 && r.desviacion < -20);
   const riesgosMedios = renglonesConAvance.filter(r => r.desviacion < -10 && r.desviacion >= -20);
@@ -58,7 +57,7 @@ const DashboardPredictivo: React.FC = () => {
 
   // Costo de MO por día
   const costoMOPorDia = empleados
-    .filter(e => e.activo && (!selProyecto || e.proyectoIds.includes(selProyecto)))
+    .filter(e => e.activo && (!currentProjectId || e.proyectoIds.includes(currentProjectId)))
     .reduce((a, e) => a + e.salarioDiario, 0);
 
   if (loading) {
@@ -81,8 +80,8 @@ const DashboardPredictivo: React.FC = () => {
           <Zap className="w-6 h-6 text-purple-500" /> Dashboard Predictivo
         </h1>
         <select
-          value={selProyecto}
-          onChange={e => setSelProyecto(e.target.value)}
+          value={currentProjectId}
+          onChange={e => setCurrentProjectId(e.target.value)}
           className="text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-purple-400 bg-card"
         >
           <option value="">— Todos los proyectos —</option>
@@ -92,7 +91,7 @@ const DashboardPredictivo: React.FC = () => {
         </select>
       </div>
 
-      {!selProyecto ? (
+      {!currentProjectId ? (
         <div className="text-center py-16 text-muted-foreground">
           <Zap className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p className="text-lg font-medium">Selecciona un proyecto</p>

@@ -33,8 +33,8 @@ const Weather: React.FC = () => {
   const { t } = useTranslation();
   const { 
     proyectos, 
-    selectedProyectoId, 
-    setSelectedProyectoId, 
+    currentProjectId, 
+    setCurrentProjectId, 
     proyectoWeather, 
     updateProyectoWeather,
     addNotificacion 
@@ -52,7 +52,7 @@ const Weather: React.FC = () => {
 
   useEffect(() => { setLoading(false); }, []);
 
-  const proyecto = selectedProyectoId ? proyectos.find(p => p.id === selectedProyectoId) : proyectos[0];
+  const proyecto = currentProjectId ? proyectos.find(p => p.id === currentProjectId) : proyectos[0];
   const weather = proyecto ? proyectoWeather.find(w => w.proyectoId === proyecto.id) : undefined;
 
   const refreshWeather = useCallback(async () => {
@@ -386,8 +386,8 @@ const Weather: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           <select
-            value={selectedProyectoId || ''}
-            onChange={(e) => setSelectedProyectoId(e.target.value)}
+            value={currentProjectId || ''}
+            onChange={(e) => setCurrentProjectId(e.target.value)}
             className="text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-blue-400 bg-card"
           >
             {proyectos.map(p => (
