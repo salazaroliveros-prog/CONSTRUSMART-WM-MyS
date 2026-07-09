@@ -24,7 +24,7 @@ const calcularNivel = (prob: number, imp: number): Riesgo['nivel'] => {
 
 const Riesgos: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, selectedProyectoId, setSelectedProyectoId, riesgos, addRiesgo, updateRiesgo, deleteRiesgo, addNotificacion } = useErp();
+  const { proyectos, currentProjectId, setCurrentProjectId, riesgos, addRiesgo, updateRiesgo, deleteRiesgo, addNotificacion } = useErp();
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -42,16 +42,16 @@ const Riesgos: React.FC = () => {
   });
 
   useEffect(() => {
-    if (selectedProyectoId && !form.proyectoId) {
-      setForm(prev => ({ ...prev, proyectoId: selectedProyectoId }));
+    if (currentProjectId && !form.proyectoId) {
+      setForm(prev => ({ ...prev, proyectoId: currentProjectId }));
     }
-  }, [selectedProyectoId, form.proyectoId]);
+  }, [currentProjectId, form.proyectoId]);
 
   const notifyCriticos = (todos: Riesgo[]) => {
     const criticos = todos.filter(ri => ri.nivel === 'critico' && ri.estado === 'identificado');
-    if (criticos.length > 0 && selectedProyectoId) {
-      const proy = proyectos.find(p => p.id === selectedProyectoId);
-      addNotificacion('general', 'Riesgos críticos sin mitigar', `${criticos.length} riesgo(s) crítico(s) en ${proy?.nombre || 'el proyecto'}`, selectedProyectoId || undefined);
+    if (criticos.length > 0 && currentProjectId) {
+      const proy = proyectos.find(p => p.id === currentProjectId);
+      addNotificacion('general', 'Riesgos críticos sin mitigar', `${criticos.length} riesgo(s) crítico(s) en ${proy?.nombre || 'el proyecto'}`, currentProjectId || undefined);
     }
   };
 
@@ -80,7 +80,7 @@ const Riesgos: React.FC = () => {
     notifyCriticos([nuevo, ...riesgos]);
     toast.success(t('riesgos.registrado', 'Riesgo registrado'));
     setShowForm(false);
-    setForm({ proyectoId: selectedProyectoId || '', nombre: '', descripcion: '', tipo: 'tecnico', probabilidad: 2, impacto: 2, planMitigacion: '', responsable: '', costoSoporte: 0 });
+    setForm({ proyectoId: currentProjectId || '', nombre: '', descripcion: '', tipo: 'tecnico', probabilidad: 2, impacto: 2, planMitigacion: '', responsable: '', costoSoporte: 0 });
   };
 
   const actualizarEstado = (id: string, estado: Riesgo['estado']) => {
@@ -102,11 +102,11 @@ const Riesgos: React.FC = () => {
   };
 
   const riesgosFiltrados = useMemo(() => {
-    if (!selectedProyectoId) return riesgos;
-    return riesgos.filter(r => r.proyectoId === selectedProyectoId);
-  }, [riesgos, selectedProyectoId]);
+    if (!currentProjectId) return riesgos;
+    return riesgos.filter(r => r.proyectoId === currentProjectId);
+  }, [riesgos, currentProjectId]);
 
-  const proyActual = selectedProyectoId ? proyectos.find(p => p.id === selectedProyectoId) : null;
+  const proyActual = currentProjectId ? proyectos.find(p => p.id === currentProjectId) : null;
   const mitigados = useMemo(() => riesgosFiltrados.filter((r: Riesgo) => r.estado === 'mitigado'), [riesgosFiltrados]);
   const altos = useMemo(() => riesgosFiltrados.filter(r => r.nivel === 'alto' || r.nivel === 'critico'), [riesgosFiltrados]);
   const enSeguimiento = useMemo(() => riesgosFiltrados.filter(r => r.estado === 'en_mitigacion'), [riesgosFiltrados]);
