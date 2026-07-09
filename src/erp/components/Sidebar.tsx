@@ -80,7 +80,7 @@ const GROUP_DOT: Record<string, string> = {
 
 const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const { t } = useTranslation();
-  const { view, setView, allowedViews, user, notificacionesNoLeidas, errorLogs, appSettings, updateAppSettings } = useErp();
+  const { view, setView, allowedViews, user, notificacionesNoLeidas, errorLogs, appSettings, updateAppSettings, currentProjectId, setCurrentProjectId } = useErp();
   const { sidebarCollapsed, toggleCollapse } = useAppContext();
   const [hoverExpand, setHoverExpand] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
@@ -131,10 +131,16 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
     const badge = it.id === 'notificaciones' && notificacionesNoLeidas > 0;
     const errBadge = it.id === 'error-log' && unresolvedErrors > 0;
 
+    const handleClick = () => {
+      if (it.id === 'proyectos') setCurrentProjectId(null);
+      setView(it.id);
+      window.location.hash = it.id;
+      onClose();
+    };
     return (
       <button
         key={it.id}
-        onClick={() => { setView(it.id); window.location.hash = it.id; onClose(); }}
+        onClick={handleClick}
         title={effectivelyCollapsed ? t('nav.items.' + it.labelKey) : undefined}
         aria-label={t('nav.items.' + it.labelKey)}
         aria-current={active ? 'page' : undefined}
