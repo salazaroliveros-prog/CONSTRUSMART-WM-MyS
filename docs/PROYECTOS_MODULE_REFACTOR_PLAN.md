@@ -697,4 +697,37 @@ src/erp/store/proyectoStateMachine.ts  # Dead code
 
 ---
 
+## 14. Integración de Módulos Standalone en Proyectos
+
+### 14.1 Módulos identificados para integración
+
+| Módulo | Archivo | Dependencia actual | Integración propuesta |
+|--------|---------|-------------------|----------------------|
+| Hitos | `screens/Hitos.tsx` | `proyectoFilter` local | Usar `currentProjectId` del store; mostrar hitos como subsección en detalle de proyecto |
+| Riesgos | `screens/Riesgos.tsx` | `proyectoFilter` local | Idem; mostrar matriz de riesgos en vista proyecto |
+| Seguimiento EVM | `screens/Seguimiento.tsx` | `proyectoFilter` local | Idem; curvas S como pestaña en dashboard de proyecto |
+| Presupuestos | `screens/Presupuestos.tsx` | `proyectoFilter` local | Idem; resumen presupuestal en cabecera de proyecto |
+| Bodega (filtrado) | `screens/Bodega.tsx` | `proyectoFilter` local | Idem; stock por proyecto en subpanel |
+| OrdenesCambio | `screens/OrdenesCambio.tsx` | `proyectoFilter` local | Idem; OC como pestaña en detalle |
+| MuroObra | `screens/MuroObra.tsx` | `proyectoFilter` local | Idem; timeline de obra en vista proyecto |
+| Documentos | `screens/GestionDocumental.tsx` | `proyectoFilter` local | Idem; repositorio documental anidado |
+| SSOCalidad | `screens/SSOCalidad.tsx` | `proyectoFilter` local | Idem; checklist y NC por proyecto |
+| PlanillaDestajos | `screens/PlanillaDestajos.tsx` | `proyectoFilter` local | Idem; rendimiento diario en subsección |
+| RendimientoCampo | `screens/RendimientoCampo.tsx` | `proyectoFilter` local | Idem; capturas de rendimiento anidadas |
+
+### 14.2 Estrategia de integración
+
+1. **Fase A — Contexto único**: Reemplazar todos los `proyectoFilter` locales por `currentProjectId` del store.
+2. **Fase B — Subsecciones anidadas**: Cada módulo standalone se convierte en subcomponente renderizado condicionalmente dentro de `ProyectoDetail`.
+3. **Fase C — Pestañas unificadas**: Agrupar subsecciones en tabs dentro de la vista de detalle: General, Presupuesto, Hitos, Riesgos, Seguimiento, Bodega, OC, Muro, Documentos, Calidad, Rendimiento.
+4. **Fase D — KPIs consolidados**: Calcular avance físico/financiero, margen y desviación a partir de datos de todos los submódulos integrados.
+
+### 14.3 Beneficios
+- Navegación sin cambiar de contexto: el usuario ve todo el proyecto en una sola pantalla.
+- 11 pantallas dejan de mantener su propio `proyectoFilter`.
+- Todos los submódulos leen el mismo `currentProjectId` (consistencia garantizada).
+- Sincronización atómica por proyecto al estar todos bajo el mismo store.
+
+---
+
 *Documento generado el 2026-07-08 — Plan de factorización del Módulo Proyectos CONSTRUSMART ERP*
