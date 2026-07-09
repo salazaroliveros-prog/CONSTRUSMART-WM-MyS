@@ -98,3 +98,9 @@ export const STATUS_DOT = 'w-2 h-2 rounded-full inline-block';
 export const STATUS_ONLINE = 'bg-emerald-500';
 export const STATUS_OFFLINE = 'bg-muted-foreground';
 export const STATUS_AWAY = 'bg-amber-500';
+
+export const BUTTON_ACCION_EMERALD = 'flex-1 justify-center bg-emerald-500 hover:bg-emerald-600 text-white';
+export const BUTTON_ACCION_AMBER = 'flex-1 justify-center bg-amber-500 hover:bg-amber-600 text-white';
+export const BUTTON_ACCION_BLUE = 'flex-1 justify-center bg-blue-500 hover:bg-blue-600 text-white';
+export const BADGE_PROYECTO_ESTADO = 'text-[10px] px-3 py-1.5 rounded-full font-medium transition-colors min-h-[32px] flex items-center';
+export const CARD_PROYECTO = 'group bg-card text-card-foreground rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border hover:-translate-y-1 animate-enter focus:outline-none focus:ring-2 focus:ring-ring';

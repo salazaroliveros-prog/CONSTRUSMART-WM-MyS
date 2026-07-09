@@ -16,15 +16,16 @@ import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MO
 import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, ChevronRight, Copy, Layout, Sparkles, Star, Search, ArrowUpDown, List, Grid3x3, DollarSign, ClipboardList, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import { proyectoSchemaObject as proyectoSchemaCanonico } from '../store/schemas/proyectos';
-
-
-const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado: string }) => {
-  const dev = p.avanceFinanciero - p.avanceFisico;
-  if (p.estado === 'planeacion') return '#94a3b8';
-  if (dev > 8) return '#ef4444';
-  if (dev > 3) return '#fbbf24';
-  return '#10b981';
-};
+import { estadoColor, estadoBadgeClass } from '../utils/proyectoColors';
+import ProyectoStateBadge from '../components/proyectos/ProyectoStateBadge';
+import ProyectoProgress from '../components/proyectos/ProyectoProgress';
+import ProyectoActions from '../components/proyectos/ProyectoActions';
+import ProyectoCard from '../components/proyectos/ProyectoCard';
+import ProyectoListItem from '../components/proyectos/ProyectoListItem';
+import ProyectosKPI from '../components/proyectos/ProyectosKPI';
+import ProyectosToolbar from '../components/proyectos/ProyectosToolbar';
+import ProyectoForm from '../components/proyectos/ProyectoForm';
+import ProyectoPauseModal from '../components/proyectos/ProyectoPauseModal';
 
 const TIPOS_OBRA = ['nueva', 'remodelacion', 'ampliacion'] as const;
 const ETAPAS = ['planificacion', 'diseno', 'preconstruccion', 'construccion', 'cierre'] as const;
@@ -83,8 +84,6 @@ const Proyectos: React.FC = () => {
   const { proyectos, addProyecto, updateProyecto, deleteProyecto, clearProyectos, plantillas, crearProyectoDesdePlantilla, sugerirPlantillas, setSelectedProyectoId, setView } = useErp();
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => { setLoading(false); }, []);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [sugerencias, setSugerencias] = useState<any[]>([]);
@@ -95,6 +94,13 @@ const Proyectos: React.FC = () => {
   const [ordenamiento, setOrdenamiento] = useState<'nombre' | 'fecha' | 'presupuesto'>('fecha');
   const [ordenDescendente, setOrdenDescendente] = useState(true);
   const [vistaLista, setVistaLista] = useState(false);
+  const [pauseModal, setPauseModal] = useState<{ proyectoId: string; nombre: string } | null>(null);
+  const [pauseReason, setPauseReason] = useState('');
+  const [pauseAutorizador, setPauseAutorizador] = useState('');
+  const [pauseReanudacion, setPauseReanudacion] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => { setLoading(false); }, []);
 
   const {
     register,
@@ -137,12 +143,6 @@ const Proyectos: React.FC = () => {
       etapa: 'planificacion',
     },
   });
-
-  const [submitting, setSubmitting] = useState(false);
-  const [pauseModal, setPauseModal] = useState<{ proyectoId: string; nombre: string } | null>(null);
-  const [pauseReason, setPauseReason] = useState('');
-  const [pauseAutorizador, setPauseAutorizador] = useState('');
-  const [pauseReanudacion, setPauseReanudacion] = useState('');
 
   useEffect(() => {
     if (selectedTemplate && !editingId) {
@@ -398,12 +398,24 @@ const Proyectos: React.FC = () => {
     cierre: t('proyectos.etapa_cierre'),
   };
 
-  const estadoBadgeClass = (estado: string) => {
-    if (estado === 'ejecucion') return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
-    if (estado === 'pausado') return `bg-amber-500/10 ${COLOR_WARNING} dark:text-amber-400`;
-    if (estado === 'finalizado') return 'bg-blue-500/10 text-blue-600 dark:text-blue-400';
-    return 'bg-muted/10 text-muted-foreground dark:text-muted-foreground';
-  };
+  const handleDelete = useCallback(async (p: Proyecto) => {
+    try {
+      await Modal.confirm({
+        title: t('proyectos.eliminar_proyecto'),
+        content: t('proyectos.confirmar_eliminar', { nombre: p.nombre }),
+        centered: true,
+        okText: t('common.si'),
+        cancelText: t('common.cancelar'),
+        okType: 'danger',
+      });
+      deleteProyecto(p.id);
+      toast.success(t('proyectos.proyecto_eliminado', { nombre: p.nombre }), { description: t('proyectos.proyecto_eliminado_desc') });
+    } catch (error) {
+      if (error instanceof Error) return;
+      console.error('Error deleting proyecto:', error);
+      toast.error(t('common.error'), { description: t('proyectos.error_eliminar_proyecto_desc') });
+    }
+  }, [deleteProyecto, t]);
 
   const limpiarProyectos = async () => {
     if (!proyectos.length) return;
@@ -421,7 +433,6 @@ const Proyectos: React.FC = () => {
       toast.success(t('proyectos.proyectos_eliminados'), { description: t('proyectos.proyectos_eliminados_desc') });
     } catch (error) {
       if (error instanceof Error) {
-        // Rechaza de Modal confirm (usario pulsó cancelar)
         return;
       }
       console.error('Error in limpiarProyectos:', error);
@@ -442,24 +453,23 @@ const Proyectos: React.FC = () => {
       </div>
     );
   }
+
   return (
     <div className="p-[var(--density-padding)] max-w-[1600px] mx-auto">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
-        <div>
-          <h1 className={SECTION_TITLE}>{t('proyectos.titulo')}</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">{t('proyectos.subtitulo', { count: proyectos.length })}</p>
-        </div>
-        <div className="flex gap-2">
-          {proyectos.length > 0 && (
-            <button onClick={limpiarProyectos} className="px-4 py-2.5 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-semibold transition-colors">
-              <Trash2 className="w-3 h-3 mr-1" aria-hidden="true" />{t('proyectos.eliminar_todos')}
-            </button>
-          )}
-          <button onClick={openCreate} className={`${BUTTON_PRIMARY} h-[var(--density-input-height)]`}>
-            <Plus className="w-4 h-4" aria-hidden="true" /> {t('proyectos.nuevo')}
-          </button>
-        </div>
-      </div>
+      <ProyectosToolbar
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
+        ordenamiento={ordenamiento}
+        setOrdenamiento={setOrdenamiento}
+        ordenDescendente={ordenDescendente}
+        setOrdenDescendente={setOrdenDescendente}
+        vistaLista={vistaLista}
+        setVistaLista={setVistaLista}
+        proyectosCount={proyectos.length}
+        onOpenCreate={openCreate}
+        onClearAll={limpiarProyectos}
+        t={t}
+      />
 
       <div className="relative mb-4 rounded-2xl overflow-hidden border border-border">
         <HeatMap proyectos={proyectos} />
@@ -475,31 +485,14 @@ const Proyectos: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI metrics bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
-        <div className={KPI_CARD}>
-          <Activity className="w-4 h-4 text-primary" aria-hidden="true" />
-          <div className="text-lg font-black">{kpis.total}</div>
-          <div className={CARD_TITLE}>{t('proyectos.total_proyectos')}</div>
-        </div>
-        <div className={KPI_CARD}>
-          <Play className={`w-4 h-4 ${COLOR_SUCCESS}`} aria-hidden="true" />
-          <div className="text-lg font-black">{kpis.enEjecucion}</div>
-          <div className={CARD_TITLE}>{t('proyectos.en_ejecucion')}</div>
-        </div>
-        <div className={KPI_CARD}>
-          <ClipboardList className={`w-4 h-4 ${COLOR_INFO}`} aria-hidden="true" />
-          <div className="text-lg font-black">{fmtQ(kpis.presupuestoTotal)}</div>
-          <div className={CARD_TITLE}>{t('proyectos.total_presupuesto')}</div>
-        </div>
-        <div className={KPI_CARD}>
-          <DollarSign className={`w-4 h-4 ${COLOR_SUCCESS}`} aria-hidden="true" />
-          <div className="text-lg font-black">{fmtQ(kpis.contratoTotal)}</div>
-          <div className={CARD_TITLE}>{t('proyectos.total_contratos')}</div>
-        </div>
-      </div>
+      <ProyectosKPI
+        total={kpis.total}
+        enEjecucion={kpis.enEjecucion}
+        presupuestoTotal={kpis.presupuestoTotal}
+        contratoTotal={kpis.contratoTotal}
+        t={t}
+      />
 
-      {/* Search + Sort + View Toggle */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
@@ -555,598 +548,85 @@ const Proyectos: React.FC = () => {
       ) : vistaLista ? (
         <div className="space-y-2">
           {proyectosFiltrados.map((p, i) => (
-            <div
+            <ProyectoListItem
               key={p.id}
-              className="group bg-card text-card-foreground rounded-xl shadow-sm hover:shadow-sm active:shadow-sm transition-all duration-200 border border-border p-4 flex flex-wrap items-center gap-3 focus:outline-none focus:ring-2 focus:ring-ring"
-              tabIndex={0}
-              role="row"
-              aria-label={t('proyectos.aria_card', { nombre: p.nombre })}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(p); }
-              }}
-            >
-              <div className="w-1 self-stretch rounded" style={{ background: estadoColor(p) }} aria-hidden="true" />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-sm truncate">{p.nombre}</h3>
-                  <span className={`text-[10px] px-3 py-1.5 rounded-full font-medium min-h-[32px] flex items-center ${estadoBadgeClass(p.estado)}`}>{estadoLabel[p.estado] || p.estado}</span>
-                </div>
-                <p className="text-xs text-muted-foreground truncate">{p.cliente} · {p.ubicacion}</p>
-              </div>
-              <div className="text-xs text-muted-foreground hidden sm:block">
-                <span className="block">{fmtQ(p.presupuestoTotal || 0)}</span>
-                <span className="block">{fmtPct(p.avanceFisico)}</span>
-              </div>
-              <div className="flex gap-1">
-                <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={t('proyectos.editar_proyecto', { nombre: p.nombre })}>
-                  <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
-                </button>
-                <button onClick={() => openDetail(p)} className={BUTTON_ICON} aria-label={t('proyectos.ver_detalle', { nombre: p.nombre })}>
-                  <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
-                </button>
-              </div>
-            </div>
+              proyecto={p}
+              estadoLabel={estadoLabel}
+              onEdit={openEdit}
+              onDetail={openDetail}
+              onAccionRapida={accionRapida}
+              t={t}
+              fmtQ={fmtQ}
+              fmtPct={fmtPct}
+            />
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-        {proyectosFiltrados.map((p, i) => (
-          <div
-            key={p.id}
-            className="group bg-card text-card-foreground rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border hover:-translate-y-1 animate-enter focus:outline-none focus:ring-2 focus:ring-ring"
-            style={{ animationDelay: `${i * 0.04}s` }}
-            tabIndex={0}
-            role="button"
-            aria-label={t('proyectos.aria_card', { nombre: p.nombre })}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                openDetail(p);
-              }
-            }}
-          >
-            {/* Barra superior de color según estado */}
-            <div className="h-1.5 rounded-t-2xl transition-all duration-300 group-hover:h-2" style={{ background: estadoColor(p) }} />
-
-            <div className="p-5">
-              <div className="flex items-start gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0 transition-transform duration-300 group-hover:scale-110" style={{ background: estadoColor(p) }} aria-hidden="true">
-                  <Building2 className="w-5 h-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-foreground text-sm truncate">{p.nombre}</h3>
-                  <p className="text-xs text-muted-foreground truncate">{p.cliente}</p>
-                  {p.areaConstruccion && <p className="text-xs text-muted-foreground">{p.areaConstruccion.toLocaleString()} m² · {p.numPisos ? `${p.numPisos} ${t('proyectos.niveles')}` : ''}</p>}
-                </div>
-                <div className="flex gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
-                  <button onClick={() => openEdit(p)} className={BUTTON_ICON} aria-label={t('proyectos.editar_proyecto', { nombre: p.nombre })}>
-                    <Pencil className="w-4 h-4" aria-hidden="true" />
-                  </button>
-<button onClick={async () => {
-                      try {
-                        await Modal.confirm({
-                          title: t('proyectos.eliminar_proyecto'),
-                          content: t('proyectos.confirmar_eliminar', { nombre: p.nombre }),
-                          centered: true,
-                          okText: t('common.si'),
-                          cancelText: t('common.cancelar'),
-                          okType: 'danger',
-                        });
-                        deleteProyecto(p.id);
-                        toast.success(t('proyectos.proyecto_eliminado', { nombre: p.nombre }), { description: t('proyectos.proyecto_eliminado_desc') });
-                      } catch (error) {
-                        if (error instanceof Error) return;
-                        console.error('Error deleting proyecto:', error);
-                        toast.error(t('common.error'), { description: t('proyectos.error_eliminar_proyecto_desc') });
-                      }
-                    }} className={BUTTON_DANGER} aria-label={t('proyectos.eliminar_proyecto_nombre', { nombre: p.nombre })}>
-                      <Trash2 className="w-4 h-4" aria-hidden="true" />
-                    </button>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                <span className="text-[10px] px-3 py-1.5 rounded-full bg-muted text-foreground font-medium min-h-[32px] flex items-center">{TIPOLOGIA_LABEL[p.tipologia]}</span>
-                <span className={`text-[10px] px-3 py-1.5 rounded-full font-medium transition-colors min-h-[32px] flex items-center ${estadoBadgeClass(p.estado)}`}>{estadoLabel[p.estado] || p.estado}</span>
-                {p.etapa && <span className="text-[10px] px-3 py-1.5 rounded-full bg-muted text-muted-foreground min-h-[32px] flex items-center">{etapaLabel[p.etapa] || p.etapa}</span>}
-                {p.estado === 'pausado' && p.motivoPausa && <span className={`text-[10px] px-3 py-1.5 rounded-full bg-amber-500/10 ${COLOR_WARNING} dark:text-amber-400 truncate max-w-[140px] min-h-[32px] flex items-center`} title={p.motivoPausa}>{p.motivoPausa}</span>}
-                {p.moneda && <span className="text-[10px] px-3 py-1.5 rounded-full bg-muted text-muted-foreground">{p.moneda}</span>}
-              </div>
-
-              <div className="space-y-2.5 mb-4">
-                <div>
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-muted-foreground">{t('proyectos.avance_fisico')}</span>
-                    <span className="font-semibold text-foreground">{fmtPct(p.avanceFisico)}</span>
-                  </div>
-                  <div className="relative overflow-hidden rounded-full">
-                    <Progress value={p.avanceFisico} color="#3b82f6" />
-                    <div className="shimmer-bar absolute inset-0 pointer-events-none" />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-muted-foreground">{t('proyectos.avance_financiero')}</span>
-                    <span className="font-semibold text-foreground">{fmtPct(p.avanceFinanciero)}</span>
-                  </div>
-                  <div className="relative overflow-hidden rounded-full">
-                    <Progress value={p.avanceFinanciero} color="#f97316" />
-                    <div className="shimmer-bar absolute inset-0 pointer-events-none" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-3.5 flex justify-between text-xs border-t border-border">
-                <div>
-                  <span className="text-muted-foreground block text-[10px] mb-0.5">{t('proyectos.presupuesto')}</span>
-                  <b className="text-foreground font-semibold">{fmtQ(p.presupuestoTotal)}</b>
-                </div>
-                <div className="text-right">
-                  <span className="text-muted-foreground block text-[10px] mb-0.5">{t('proyectos.contrato')}</span>
-                  <b className="text-emerald-600 dark:text-emerald-400 font-semibold">{fmtQ(p.montoContrato || 0)}</b>
-                </div>
-              </div>
-
-              <div className="mt-3 pt-3 border-t border-border flex flex-wrap gap-1.5">
-                {p.estado === 'planeacion' && (
-                  <button
-                    onClick={() => accionRapida(p, 'iniciar')}
-                    className={`${BUTTON_PRIMARY} flex-1 justify-center bg-emerald-500 hover:bg-emerald-600 text-white`}
-                  >
-                    <Play className="w-3 h-3" /> {t('proyectos.iniciar')}
-                  </button>
-                )}
-                {p.estado === 'ejecucion' && (
-                  <>
-                    <button
-                      onClick={() => accionRapida(p, 'pausar')}
-                      className={`${BUTTON_PRIMARY} flex-1 justify-center bg-amber-500 hover:bg-amber-600 text-white`}
-                    >
-                      <Pause className="w-3 h-3" /> {t('proyectos.pausar')}
-                    </button>
-                    <button
-                      onClick={() => accionRapida(p, 'finalizar')}
-                      className={`${BUTTON_PRIMARY} flex-1 justify-center bg-blue-500 hover:bg-blue-600 text-white`}
-                    >
-                      <CheckCircle2 className="w-3 h-3" /> {t('proyectos.finalizar')}
-                    </button>
-                  </>
-                )}
-                {p.estado === 'pausado' && (
-                  <button
-                    onClick={() => accionRapida(p, 'reanudar')}
-                    className={`${BUTTON_PRIMARY} flex-1 justify-center bg-emerald-500 hover:bg-emerald-600 text-white`}
-                  >
-                    <RotateCcw className="w-3 h-3" /> {t('proyectos.reanudar')}
-                  </button>
-                )}
-                {p.estado === 'finalizado' && (
-                  <button
-                    onClick={() => accionRapida(p, 'reabrir')}
-                    className={`${BUTTON_SECONDARY} flex-1 justify-center`}
-                  >
-                    <RotateCcw className="w-3 h-3" /> {t('proyectos.reabrir')}
-                  </button>
-                )}
-                <button
-                  onClick={() => openDetail(p)}
-                  className="text-xs px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 active:bg-muted text-muted-foreground hover:text-foreground font-medium flex items-center justify-center gap-1 transition-all active:scale-95"
-                >
-                  <ChevronRight className="w-3 h-3" /> {t('proyectos.detalle')}
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
+          {proyectosFiltrados.map((p, i) => (
+            <ProyectoCard
+              key={p.id}
+              proyecto={p}
+              index={i}
+              estadoLabel={estadoLabel}
+              etapaLabel={etapaLabel}
+              tipoObraLabel={tipoObraLabel}
+              TIPOLOGIA_LABEL={TIPOLOGIA_LABEL}
+              onEdit={openEdit}
+              onDelete={handleDelete}
+              onDetail={openDetail}
+              onAccionRapida={accionRapida}
+              t={t}
+            />
+          ))}
         </div>
       )}
 
-      {pauseModal && (
-        <div className={MODAL_OVERLAY + ' animate-enter'} role="dialog" aria-modal="true" aria-labelledby="modal-pausa-title">
-          <div onClick={e => e.stopPropagation()} className={`${MODAL_PANEL.replace('max-w-lg sm:max-w-xl md:max-w-2xl', 'max-w-md')} animate-enter`}>
-            <div className={MODAL_HEADER}>
-              <h2 id="modal-pausa-title" className={MODAL_TITLE}>{t('proyectos.pausar_proyecto')}</h2>
-              <button type="button" onClick={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }} className={MODAL_CLOSE} aria-label={t('common.cerrar')}>
-                <X className="w-5 h-5" aria-hidden="true" />
-              </button>
-            </div>
-            <div className="p-4 space-y-3">
-              <p className="text-sm font-medium text-foreground">{t('proyectos.proyecto_label')}: <span className="text-primary">{pauseModal.nombre}</span></p>
-              <div>
-                <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.motivo_pausa')} *</label>
-                <textarea
-                  value={pauseReason}
-                  onChange={e => setPauseReason(e.target.value)}
-                  placeholder={t('proyectos.motivo_pausa_placeholder')}
-                  className={`${INPUT} min-h-[80px] resize-none`}
-                  rows={3}
-                />
-              </div>
-              <div>
-                <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.autorizado_por')} *</label>
-                <input
-                  value={pauseAutorizador}
-                  onChange={e => setPauseAutorizador(e.target.value)}
-                  placeholder={t('proyectos.autorizado_por_placeholder')}
-                  className={INPUT}
-                />
-              </div>
-              <div>
-                <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.fecha_reanudacion')}</label>
-                <input
-                  type="date"
-                  value={pauseReanudacion}
-                  onChange={e => setPauseReanudacion(e.target.value)}
-                  className={INPUT}
-                />
-              </div>
-            </div>
-            <div className="px-4 pb-4 flex gap-2">
-              <button onClick={confirmarPausa} className={BUTTON_PRIMARY + ' flex-1 justify-center active:scale-[0.98]'}>
-                <Pause className="w-4 h-4" /> {t('proyectos.confirmar_pausa')}
-              </button>
-              <button onClick={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }} className="flex-1 text-xs px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 active:bg-muted text-muted-foreground font-medium transition-all">
-                {t('common.cancelar')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ProyectoPauseModal
+        pauseModal={pauseModal}
+        pauseReason={pauseReason}
+        setPauseReason={setPauseReason}
+        pauseAutorizador={pauseAutorizador}
+        setPauseAutorizador={setPauseAutorizador}
+        pauseReanudacion={pauseReanudacion}
+        setPauseReanudacion={setPauseReanudacion}
+        onConfirm={confirmarPausa}
+        onClose={() => { setPauseModal(null); setPauseReason(''); setPauseAutorizador(''); setPauseReanudacion(''); }}
+        t={t}
+        INPUT={INPUT}
+        BUTTON_PRIMARY={BUTTON_PRIMARY}
+      />
 
-      {show && (
-        <div className={MODAL_OVERLAY + ' animate-enter'} role="dialog" aria-modal="true" aria-labelledby="modal-proyecto-title">
-          <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className={`${MODAL_PANEL.replace('max-w-lg sm:max-w-xl md:max-w-2xl', 'max-w-xl')} animate-enter`}>
-            <div className={MODAL_HEADER}>
-              <h2 id="modal-proyecto-title" className={MODAL_TITLE}>{editingId ? t('proyectos.editar') : t('proyectos.nuevo')}</h2>
-              <button type="button" onClick={() => { setShow(false); setEditingId(null); setSelectedTemplate(''); setSugerencias([]); setTemplateSearch(''); }} className={MODAL_CLOSE} aria-label={t('common.cerrar')}>
-                <X className="w-5 h-5" aria-hidden="true" />
-              </button>
-            </div>
-
-            <div className="p-4 sm:p-6 space-y-5">
-              {!editingId && (
-                <>
-                  <div>
-                      <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
-                      <Layout className="w-3 h-3" />
-                      {t('proyectos.plantilla_opcional')}
-                    </h3>
-                    
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                          <input
-                            type="text"
-                            placeholder={t('proyectos.buscar_plantilla')}
-                            value={templateSearch}
-                            onChange={(e) => setTemplateSearch(e.target.value)}
-                            className={`${INPUT} pl-9`}
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setTemplateSearch('')}
-                          className="px-3 py-2 text-xs bg-muted hover:bg-muted/80 active:bg-muted rounded"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-
-                      <div className="max-h-64 overflow-y-auto space-y-2">
-                        {plantillas
-                          .filter(p => p.activa)
-                          .filter(p => 
-                            templateSearch 
-                              ? p.nombre.toLowerCase().includes(templateSearch.toLowerCase()) ||
-                                p.descripcion?.toLowerCase().includes(templateSearch.toLowerCase()) ||
-                                p.categoria.toLowerCase().includes(templateSearch.toLowerCase())
-                              : true
-                          )
-                          .sort((a, b) => (b.favorita ? 1 : 0) - (a.favorita ? 1 : 0) || (b.usosCount || 0) - (a.usosCount || 0))
-                          .map(p => (
-                            <button
-                              key={p.id}
-                              type="button"
-                              onClick={() => setSelectedTemplate(p.id)}
-                              className={`w-full p-3 rounded-lg border text-left transition-all hover:scale-[1.01] ${
-                                selectedTemplate === p.id 
-                                  ? 'border-primary bg-primary/5 ring-2 ring-primary/20' 
-                                  : 'border-border hover:border-primary/50 hover:bg-muted/50'
-                              }`}
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2">
-                  {p.favorita && <Star className={`w-3 h-3 ${COLOR_WARNING} fill-current`} />}
-                                    <span className="font-medium text-sm">{p.nombre}</span>
-                                  </div>
-                                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                    {p.descripcion || t('proyectos.sin_descripcion')}
-                                  </p>
-                                </div>
-                                <div className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded shrink-0">
-                                  {p.categoria}
-                                </div>
-                              </div>
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 text-xs">
-                                <div className="text-center">
-                                  <div className="font-semibold">{p.estructuraPresupuesto?.length || 0}</div>
-                                  <div className="text-muted-foreground text-[10px]">{t('proyectos.renglones')}</div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="font-semibold">{p.hitosTemplate?.length || 0}</div>
-                                  <div className="text-muted-foreground text-[10px]">{t('proyectos.hitos')}</div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="font-semibold">{p.riesgosTemplate?.length || 0}</div>
-                                  <div className="text-muted-foreground text-[10px]">{t('proyectos.riesgos')}</div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="font-semibold">{p.usosCount || 0}</div>
-                                  <div className="text-muted-foreground text-[10px]">{t('proyectos.usos')}</div>
-                                </div>
-                              </div>
-                              {selectedTemplate === p.id && (
-                                <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-950/30 rounded text-xs text-blue-700 dark:text-blue-300">
-                                  <div className="flex items-center gap-1 mb-1">
-                                    <Copy className="w-3 h-3" />
-                                    <span className="font-medium">{t('proyectos.se_crearan_auto')}</span>
-                                  </div>
-                                  <div className="grid grid-cols-2 gap-1 text-[10px]">
-                                    <div>• {t('proyectos.presupuesto_renglones')}</div>
-                                    <div>• {t('proyectos.hitos_proyecto')}</div>
-                                    <div>• {t('proyectos.riesgos_predefinidos')}</div>
-                                    <div>• {t('proyectos.configuracion_base')}</div>
-                                  </div>
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                      </div>
-
-                      {!templateSearch && sugerencias.length > 0 && (
-                        <div className="mt-3">
-                          <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
-                            <Sparkles className="w-3 h-3" />
-                            <span>{t('proyectos.sugerencias')}</span>
-                          </div>
-                          <div className="grid grid-cols-1 gap-2">
-                            {sugerencias.map(sugerencia => {
-                              const catInfo = TIPOLOGIA_LABEL[sugerencia.categoria as keyof typeof TIPOLOGIA_LABEL] || sugerencia.categoria;
-                              return (
-                                <button
-                                  key={sugerencia.id}
-                                  type="button"
-                                  onClick={() => setSelectedTemplate(sugerencia.id)}
-                                  className={`p-3 border rounded-lg hover:bg-muted/50 text-left transition-colors ${
-                                    selectedTemplate === sugerencia.id
-                                      ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                                      : 'border-border'
-                                  }`}
-                                >
-                                  <div className="flex items-start justify-between gap-2">
-                                    <div className="flex-1">
-                                      <div className="font-medium text-sm flex items-center gap-2">
-                                        {sugerencia.favorita && <Star className={`w-3 h-3 ${COLOR_WARNING} fill-current`} />}
-                                        {sugerencia.nombre}
-                                      </div>
-                                      <div className="text-xs text-muted-foreground mt-1">
-                                      {catInfo} • {sugerencia.estructuraPresupuesto?.length || 0} {t('proyectos.renglones')} • {sugerencia.usosCount || 0} {t('proyectos.usos')}
-                                        </div>
-                                        {sugerencia.clienteNombre && (
-                                          <div className="text-xs text-blue-600 mt-1">
-                                            {t('proyectos.cliente')}: {sugerencia.clienteNombre}
-                                        </div>
-                                      )}
-                                    </div>
-                                    {sugerencia.metricas?.exitoPromedio && sugerencia.metricas.exitoPromedio >= 80 && (
-                                      <div className="flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded">
-                                        <Star className="w-3 h-3" />
-                                        <span>{t('proyectos.excelente')}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="border-t pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedTemplate('')}
-                      className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-                    >
-                      <X className="w-3 h-3" />
-                      {t('proyectos.omitir_plantilla')}
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {/* Informacion General */}
-                  <div>
-                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      {t('proyectos.informacion_general')}
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div className="sm:col-span-2">
-                    <input {...register('nombre')} placeholder={t('proyectos.nombre_placeholder')} className={INPUT} />
-                    {errors.nombre && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-0.5`}>{errors.nombre.message}</p>}
-                  </div>
-                  <div className="sm:col-span-2">
-                    <textarea {...register('descripcion')} placeholder={t('proyectos.descripcion_placeholder')} className={`${INPUT} min-h-[60px] resize-none`} rows={2} />
-                  </div>
-                  <select {...register('tipologia')} className={INPUT}>
-                    {(Object.keys(TIPOLOGIA_LABEL) as Tipologia[]).map(t => <option key={t} value={t}>{TIPOLOGIA_LABEL[t]}</option>)}
-                  </select>
-                  {subtipologias.length > 0 && (
-                    <select {...register('subtipo')} className={INPUT}>
-                      <option value="">{t('proyectos.subtipo_opcional')}</option>
-                      {subtipologias.map(s => (
-                        <option key={s.subtipo} value={s.subtipo}>{s.subtipo}</option>
-                      ))}
-                    </select>
-                  )}
-                  <select {...register('tipoObra')} className={INPUT}>
-                    {TIPOS_OBRA.map(t => <option key={t} value={t}>{tipoObraLabel[t]}</option>)}
-                  </select>
-                  <select {...register('moneda')} className={INPUT}>
-                    <option value="GTQ">GTQ - {t('proyectos.quetzal')}</option>
-                    <option value="USD">USD - {t('proyectos.dolar')}</option>
-                  </select>
-                  <div className="flex gap-2 sm:col-span-2">
-                    <input type="number" inputMode="decimal" {...register('areaConstruccion')} placeholder={t('proyectos.area_placeholder')} className={INPUT} />
-                    <input type="number" inputMode="decimal" {...register('numPisos')} placeholder={t('proyectos.niveles_placeholder')} className={INPUT} />
-                  </div>
-                  <input type="number" inputMode="decimal" {...register('plazoSemanas')} placeholder={t('proyectos.plazo_placeholder')} className={INPUT} />
-                </div>
-              </div>
-
-              {/* Cliente */}
-                  <div>
-                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      {t('proyectos.cliente')}
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div>
-                    <input {...register('cliente')} placeholder={t('proyectos.cliente_placeholder')} className={INPUT} />
-                    {errors.cliente && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-0.5`}>{errors.cliente.message}</p>}
-                  </div>
-                  <input {...register('clienteNit')} placeholder={t('proyectos.nit_placeholder')} className={INPUT} />
-                  <input {...register('clienteTelefono')} placeholder={t('proyectos.telefono_placeholder')} className={INPUT} />
-                  <div>
-                    <input {...register('clienteEmail')} placeholder={t('proyectos.email_placeholder')} className={INPUT} />
-                    {errors.clienteEmail && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-0.5`}>{errors.clienteEmail.message}</p>}
-                  </div>
-                </div>
-              </div>
-
-              {/* Ubicacion y Mapa */}
-                  <div>
-                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      {t('proyectos.ubicacion')}
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
-                  <div>
-                    <input {...register('ubicacion')} placeholder={t('proyectos.ubicacion_placeholder')} className={INPUT} />
-                    {errors.ubicacion && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-0.5`}>{errors.ubicacion.message}</p>}
-                  </div>
-                  <input {...register('direccion')} placeholder={t('proyectos.direccion_placeholder')} className={INPUT} />
-                  <input {...register('ciudad')} placeholder={t('proyectos.ciudad_placeholder')} className={INPUT} />
-                  <input {...register('departamento')} placeholder={t('proyectos.departamento_placeholder')} className={INPUT} />
-                  <input {...register('codigoPostal')} placeholder={t('proyectos.codigo_postal_placeholder')} className={INPUT + ' sm:col-span-2'} />
-                </div>
-                <MapPicker
-                  lat={coords.lat}
-                  lng={coords.lng}
-                  onChange={(lat, lng) => {
-                    setCoords({ lat, lng });
-                    setValue('ubicacion', `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
-                  }}
-                />
-              </div>
-
-              {/* Responsables */}
-                  <div>
-                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      {t('proyectos.responsables')}
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <input {...register('ingenieroResidente')} placeholder={t('proyectos.ingeniero_placeholder')} className={INPUT} />
-                  <input {...register('supervisor')} placeholder={t('proyectos.supervisor_placeholder')} className={INPUT} />
-                  <input {...register('arquitecto')} placeholder={t('proyectos.arquitecto_placeholder')} className={INPUT + ' sm:col-span-2'} />
-                </div>
-              </div>
-
-              {/* Documentacion */}
-                  <div>
-                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      {t('proyectos.documentacion')}
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <input {...register('numeroExpediente')} placeholder={t('proyectos.expediente_placeholder')} className={INPUT} />
-                  <input {...register('numeroLicencia')} placeholder={t('proyectos.licencia_placeholder')} className={INPUT} />
-                </div>
-              </div>
-
-              {/* Estado y Etapa */}
-                  <div>
-                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      {t('proyectos.estado_proyecto')}
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-<div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.estado')}</label>
-                    <select {...register('estado')} className={INPUT}>
-                      {Object.entries(estadoLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.etapa')}</label>
-                    <select {...register('etapa')} className={INPUT}>
-                      {ETAPAS.map(e => <option key={e} value={e}>{etapaLabel[e]}</option>)}
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Presupuesto y Fechas */}
-                  <div>
-                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      {t('proyectos.presupuesto_plazos')}
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.presupuesto_total')}</label>
-                    <input type="number" inputMode="decimal" {...register('presupuestoTotal')} placeholder={t('proyectos.presupuesto_placeholder')} className={INPUT} />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.monto_contrato')}</label>
-                    <input type="number" inputMode="decimal" {...register('montoContrato')} placeholder={t('proyectos.contrato_placeholder')} className={INPUT} />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.margen_utilidad')}</label>
-                    <input type="number" inputMode="decimal" {...register('margenUtilidadObjetivo')} placeholder={t('proyectos.margen_placeholder')} className={INPUT} />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.fecha_inicio')}</label>
-                    <input type="date" {...register('fechaInicio')} className={INPUT} />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-muted-foreground mb-0.5 block">{t('proyectos.fecha_fin_estimada')}</label>
-                    <input type="date" {...register('fechaFin')} className={INPUT} />
-                  </div>
-                </div>
-                {(errors.presupuestoTotal || errors.montoContrato || errors.fechaInicio || errors.fechaFin) && (
-                  <p className={`text-xs ${COLOR_DANGER} dark:text-red-400 mt-1`}>{t('proyectos.campos_requeridos')}</p>
-                )}
-              </div>
-            </div>
-
-            <button type="submit" className={`${BUTTON_PRIMARY} mt-4 w-full justify-center active:scale-[0.98]`}>
-              {editingId ? t('proyectos.guardar_cambios') : t('proyectos.crear')}
-            </button>
-          </form>
-        </div>
-      )}
+      <ProyectoForm
+        show={show}
+        editingId={editingId}
+        onSubmit={onSubmit}
+        onClose={() => { setShow(false); setEditingId(null); setSelectedTemplate(''); setSugerencias([]); setTemplateSearch(''); }}
+        register={register}
+        handleSubmit={handleSubmit}
+        reset={reset}
+        setValue={setValue}
+        watch={watch}
+        errors={errors}
+        submitting={submitting}
+        selectedTemplate={selectedTemplate}
+        setSelectedTemplate={setSelectedTemplate}
+        templateSearch={templateSearch}
+        setTemplateSearch={setTemplateSearch}
+        sugerencias={sugerencias}
+        plantillas={plantillas}
+        coords={coords}
+        setCoords={setCoords}
+        subtipologias={subtipologias}
+        setSubtipologias={setSubtipologias}
+        TIPOS_OBRA={TIPOS_OBRA}
+        ETAPAS={ETAPAS}
+        tipoObraLabel={tipoObraLabel}
+        etapaLabel={etapaLabel}
+        t={t}
+      />
     </div>
   );
 };
 
 export default Proyectos;
-
-
-

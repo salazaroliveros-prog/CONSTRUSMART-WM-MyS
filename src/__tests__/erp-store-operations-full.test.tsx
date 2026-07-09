@@ -895,10 +895,10 @@ describe('10. Renderizado y Carga de Pantallas', () => {
       try {
         const mod = await import(`../erp/screens/${screen}.tsx`);
         expect(mod.default).toBeDefined();
-      } catch {
+      } catch (e) {
         expect(`Screen ${screen} may use alternative path`).toBeTruthy();
       }
-    }, screen === 'Ajustes' || screen === 'Dashboard' ? 30000 : 10000);
+    }, 15000);
   });
 
   it('10.2 Sidebar tiene todos los items del menú', async () => {
