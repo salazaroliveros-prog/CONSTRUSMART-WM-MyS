@@ -714,7 +714,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().setMutationQueue([]);
     get().setNotificaciones([]);
     get().setAuditLog([]);
-    get().setSelectedProyectoId(null);
+    get().setCurrentProjectId(null);
     get().setAppSettings(APP_SETTINGS_DEFAULTS);
     get().setSyncMessage('');
     get().setSyncStatus('idle');

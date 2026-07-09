@@ -1,8 +1,10 @@
 # Checklist de Deployment — CONSTRUSMART ERP
 
-**Producción:** https://construsmart-wm2026.vercel.app/
+**Dominio productivo único:** https://construsmart-wm2026.vercel.app/
 **Repositorio:** https://github.com/salazaroliveros-prog/CONSTRUSMART-WM-MyS.git
 **Base de Datos:** Supabase (proyecto `neygzluxugodiwcuctbj`)
+
+> Nota: Vercel genera alias aleatorios para preview; no usarlos como referencia oficial.
 
 ---
 
@@ -37,7 +39,7 @@
 
 ### Vercel
 - [x] Conectar repositorio GitHub a Vercel ✅ (proyecto `proyectoswm/construsmart`)
-- [ ] Configurar dominio personalizado `construsmart-wm2026.vercel.app` — ⚠️ pendiente (0 domains found)
+- [x] Dominio productivo único: `https://construsmart-wm2026.vercel.app/` ✅
 - [x] Configurar environment variables en Vercel dashboard ✅ (8 vars, todas las necesarias)
 - [ ] Deploy automático en push a main activado — ⚠️ verificar
 - [x] Verificar headers de seguridad en `vercel.json` ✅ (CSP, HSTS, XFO, etc.)
@@ -54,7 +56,7 @@
 ## Post-Deployment
 
 ### Verificación
-- [ ] App carga correctamente en https://construsmart-wm2026.vercel.app/ — ⚠️ sin dominio aún
+- [x] App carga correctamente en dominio productivo único: https://construsmart-wm2026.vercel.app/ — ✅
 - [ ] Login con Google funciona — ⚠️ requiere Google OAuth configurado
 - [ ] CRUD de proyectos funciona
 - [ ] Sincronización con Supabase funciona
@@ -79,5 +81,5 @@ Si algo falla:
 
 ---
 
-**Última actualización:** 2026-07-07
-**Commit:** `9f92e4e`
+**Última actualización:** 2026-07-08
+**Dominio productivo:** https://construsmart-wm2026.vercel.app

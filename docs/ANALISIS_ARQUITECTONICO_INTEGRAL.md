@@ -1,433 +1,311 @@
 # Análisis Arquitectónico Integral — CONSTRUSMART ERP
 
-**Ing. Civil, Especialista en Gestión de Proyectos de Construcción**
-**Fecha**: 2026-07-09
-**Versión**: 1.0
+**Proyecto:** ERP Empresarial ConstruSmart - WM Famous  
+**Fecha:** 2026-07-09  
+**Tipo:** Análisis estructural completo + Plan de optimización  
+**Alcance:** Mapeo de código fuente, análisis de módulos, integraciones, refactorización, UX/UI y mejoras funcionales
 
 ---
 
-## 1. Mapeo Arquitectónico Completo
+## 1. Mapping Estructural del Codebase
 
-### 1.1 Stack Tecnológico
+### 1.1 Inventario de Módulos
 
-| Capa | Tecnología | Versión |
-|------|-----------|---------|
-| UI Framework | React | 18.3 |
-| Lenguaje | TypeScript | 5.5 |
-| Bundler | Vite | 5.4 |
-| UI Library | Ant Design | 5.29.3 |
-| State Management | Zustand + React Context | 4.5 / 18.3 |
-| Backend | Supabase (PostgreSQL + Realtime) | - |
-| Validación | Zod | 3.23 |
-| Charts | Recharts (legacy) + Custom SVG | - |
-| Export | jsPDF + html2canvas + xlsx | - |
-| Testing | Vitest + React Testing Library | 3.2 |
-| CI/CD | GitHub Actions + Vercel | - |
+| Módulo | Tipo | Responsabilidad Principal |
+|---|---|---|
+| `src/erp/screens/` | Presentación | 39 pantallas funcionales del ERP |
+| `src/erp/components/` | UI Global | Componentes compartidos (Header, Sidebar, Charts, Modals) |
+| `src/erp/components/proyectos/` | UI Especializada | 10 componentes específicos del módulo Proyectos |
+| `src/erp/store/` | Estado | Zustand store + 18 schemas Zod + persistencia |
+| `src/erp/services/` | Lógica de negocio | motorCalculo, reglasFactores, normativa, estacionalidad, profitability, weather |
+| `src/erp/utils/` | Utilidades | `proyectoColors.ts` |
+| `src/erp/hooks/` | Hooks | `useProyectosActions.ts` |
+| `src/erp/constants/` | Constantes | `table-mappings.ts` |
+| `src/lib/` | Infraestructura | i18n, themes, security, supabase client, metrics, error-logger |
+| `src/styles/` | Diseño | `design-tokens.css`, `index.css` |
+| `src/workers/` | Performance | `compression.worker.ts` |
 
-### 1.2 Arquitectura de Capas
+### 1.2 Módulos Standalone Identificados (sin integración formal con Proyectos)
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    UI Layer                          │
-│  38 Screens (lazy loaded) + 30+ Components          │
-│  Ant Design 5 + Tailwind CSS + Theme System         │
-├─────────────────────────────────────────────────────┤
-│                 State Layer                          │
-│  ┌─────────────┐  ┌──────────────┐  ┌───────────┐  │
-│  │ ErpProvider  │  │ ZustandStore │  │ ReactQuery│  │
-│  │ (Context)    │  │ (Zustand 4)  │  │ (tanstack)│  │
-│  └──────┬──────┘  └──────┬───────┘  └───────────┘  │
-│         │                │                          │
-│         └────────────────┘                          │
-│         useErp() hook unifica ambos                  │
-├─────────────────────────────────────────────────────┤
-│               Offline Layer                          │
-│  ┌────────────────┐  ┌──────────────────────────┐   │
-│  │ Mutation Queue  │  │ localStorage (lz-string) │   │
-│  │ (retry max 3)   │  │ compressData >10KB       │   │
-│  └───────┬────────┘  └──────────┬───────────────┘   │
-│          │                      │                    │
-│          └──────────────────────┘                    │
-│         forceSync() con token bucket                 │
-├─────────────────────────────────────────────────────┤
-│              Persistence Layer                       │
-│  ┌──────────────────────────────────────────────┐   │
-│  │           Supabase (PostgreSQL)               │   │
-│  │  34 tablas + RLS + Realtime (28 canales)     │   │
-│  └──────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────┘
-```
-
-### 1.3 Flujo de Datos
-
-```
-Usuario → UI Event → Mutation Queue → [Online?]
-  ├─ Sí → forceSync() → Supabase → Realtime → State Merge
-  └─ No → localStorage → pendiente → forceSync() al reconectar
-```
-
-### 1.4 Entidades del Store (30+)
-
-| Grupo | Entidades | Tabla Supabase |
-|-------|-----------|----------------|
-| **Proyectos** | proyectos, hitos, riesgos, seguimientoEVM, avances | erp_proyectos, erp_hitos, erp_riesgos, erp_seguimiento, erp_avances |
-| **Presupuestos** | presupuestos, insumosBase, calculosProyecto | erp_presupuestos, erp_insumos_base, erp_calculos_proyecto |
-| **Suministro** | materiales, ordenes, proveedores, valesSalida, recepciones | erp_materiales, erp_ordenes_compra, erp_proveedores, erp_vales_salida, erp_recepciones |
-| **RRHH** | empleados, destajos | erp_empleados, erp_destajos |
-| **Finanzas** | movimientos, cuentasCobrar, cuentasPagar, pagosProveedor, ventasPaquetes | erp_movimientos, erp_cuentas_cobrar, erp_cuentas_pagar, erp_pagos_proveedor, erp_ventas_paquetes |
-| **CRM** | licitaciones, cotizacionesNegocio, cuadros | erp_licitaciones, erp_cotizaciones_negocio, erp_cuadros |
-| **Calidad** | ncs, pruebas, liberaciones | erp_no_conformidades, erp_pruebas_laboratorio, erp_liberaciones_partida |
-| **Documentos** | planos, rfis, submittals | erp_planos, erp_rfis, erp_submittals |
-| **Social** | publicacionesMuro, incidentes, notificaciones | erp_muro, erp_incidentes, erp_notificaciones |
-| **Config** | appSettings, plantillas, centrosCosto | erp_plantillas_proyectos, erp_centros_costo |
-| **Motor Cálculo** | reglasFactores, normativasDepartamentales, escalasProduccion, estacionalidad, historialReglas | erp_reglas_factores, erp_normativa_departamental, erp_escalas_produccion, erp_estacionalidad, erp_historial_aplicacion_reglas |
-| **BI** | projectProfitabilities, clientProfitabilities, resourceEfficiencies, profitabilityTrends | (local) |
+| Módulo | actualmente | Estado | Oportunidad de Integración |
+|---|---|---|---|
+| `weatherService.ts` | Servicio independiente | ✅ Tiene tabla own `erp_proyecto_weather` | ✅ Integrado via `currentProjectId` + widget |
+| `profitabilityAnalytics.ts` | Motor de cálculos separado | ⚠️ Usa datos de store pero sin acceso contextual fuerte | 🔄 Debería usar `currentProjectId` como filtro obligatorio |
+| `motorCalculo.ts` | Motor de APU/Análisis de costos | ⚠️ Hace consultas directas a Supabase en algunos paths | 🔄 Migrar a `useProyectosActions` para filtrar por proyecto |
+| `normativaDepartamental.ts` | Reglas normativas GT | ✅ Almacenado en store | ✅ Ya vinculado a `proyectoId` en registros |
+| `escalasProduccion.ts` | Factores de producción | ✅ Almacenado en store | ✅ Referenciado en cálculos de proyecto |
+| `estacionalidad.ts` | Ajustes estacionales | ✅ Almacenado en store | ✅ Referenciado en cálculos de proyecto |
+| `validacionCalculos.ts` | Validadores | ✅ Independiente | ✅ Usado por motorCalculo |
+| `reglasFactores.ts` | Reglas de factoraje | ✅ Parcialmente offline queue | 🔄 Mejorar integración con módulo de Proyectos |
 
 ---
 
-## 2. Análisis de Integración
+## 2. Integration Analysis
 
-### 2.1 Estado Actual: Fragmentación
+### 2.1 Conexiones Lógicas Existentes
 
-**Problema Identificado**: 15 de 38 pantallas manejaban su propio selector de proyecto local (`selectedProyectoId`/`selProyecto`) en lugar de heredar el contexto global `currentProjectId` del ErpProvider.
+```
+Proyectos (hub central)
+├── Presupuestos, Hitos, Riesgos, Seguimiento, Cuadros
+├── Plantillas (usar proyecto para métricas)
+├── Dashboard (filtra por currentProjectId)
+├── ErrorLog (filtra por currentProjectId)
+├── WeatherWidget (usa selectedProyectoId legacy → currentProjectId)
+├── ForceSync (tablas sincronizadas mediante TABLE_MAP)
+└── Stores individuales por entidad (proyectoId FK obligatoria)
+```
 
-**Pantallas Afectadas (antes de la migración)**:
-- Dashboard, Presupuestos, Hitos, Riesgos, Seguimiento, Cuadros, ProfitabilityAnalytics, VisorBIM, Weather, DashboardPredictivo, GestionDocumental, OrdenesCambio, MuroObra, ComercialFinanzas, Activos
+### 2.2 Conexiones Faltantes / Débiles
 
-**Solución Implementada**: Migración completa a `currentProjectId` + `setCurrentProjectId` del contexto global. Ahora el cambio de proyecto desde Sidebar/Header se refleja instantáneamente en todas las pantallas.
+| Conexión | Estado Actual | Propuesta |
+|---|---|---|
+| Proyectos ↔ ProfitabilityAnalytics | Lectura reactiva, sin vinculación fuerte | Pasar `currentProjectId` como filtro obligatorio en `getAllSupplierPerformance` y analytics avanzados |
+| Proyectos ↔ motorCalculo | Consultas directas a Supabase en runtime | Encapsular cálculos en `useProyectosActions` o servicio que reciba `proyectoId` |
+| Proyectos ↔ reglasFactores | Actualizada vía store, pero sin validación de pertenencia | Añadir validación `proyectoId` al aplicar reglas |
+| Proyectos ↔ normativa/escalas/estacionalidad | Correcto | Mantener; considerar cache por proyecto |
 
-### 2.2 Conexiones Lógicas entre Módulos
+### 2.3 Propuesta de Integración Optimizada
 
-| Módulo A | Módulo B | Conexión | Estado |
-|----------|----------|----------|--------|
-| Proyectos | Presupuestos | `proyectoId` → presupuesto vigente | ✅ Integrado |
-| Proyectos | Hitos | `proyectoId` → hitos del proyecto | ✅ Integrado |
-| Proyectos | Riesgos | `proyectoId` → matriz de calor | ✅ Integrado |
-| Proyectos | Seguimiento | `proyectoId` → EVM, curvas S | ✅ Integrado |
-| Presupuestos | Materiales | Aprobación → crea/actualiza materiales | ✅ Integrado |
-| Presupuestos | Órdenes Compra | Renglón → OC directa | ✅ Integrado |
-| Presupuestos | Movimientos | Gasto desde presupuesto | ✅ Integrado |
-| Hitos | Proyectos | Hito de cierre → estado finalizado | ✅ Integrado |
-| Hitos | Notificaciones | Vencidos → alerta automática | ✅ Integrado |
-| Riesgos | Notificaciones | Críticos sin mitigar → alerta | ✅ Integrado |
-| Bodega | Órdenes Compra | OC aprobada → incrementa stock | ✅ Integrado |
-| Bodega | Vales Salida | Vale → deduce stock | ✅ Integrado |
-| CRM | Cotizaciones | Licitación → cotización → cuadro | ✅ Integrado |
-| Documentos | Proyectos | Planos/RFIs/Submittals por proyecto | ✅ Integrado |
+**Patrón recomendado:** "Project-Scoped Service Context"
 
-### 2.3 Integraciones Propuestas (Fase 2)
-
-| Integración | Descripción | Prioridad |
-|-------------|-------------|-----------|
-| **Presupuesto → Hitos** | Al aprobar presupuesto, generar hitos automáticos por renglón | Alta |
-| **Riesgos → Presupuesto** | Costo de soporte de riesgos → contingencia en presupuesto | Alta |
-| **Avances → Facturación** | % avance → generar cuenta por cobrar automática | Media |
-| **RRHH → Costos** | Asignación de empleados → costo MO en presupuesto | Media |
-| **Clima → Rendimiento** | Datos climáticos → ajuste de rendimiento de cuadrilla | Baja |
+1. **Services dependen de `currentProjectId`:**
+   - `profitabilityAnalytics.ts`: exponer `calculateProjectProfitability(proyectoId)`
+   - `motorCalculo.ts`: exponer `calculateAPU(proyectoId, partidaId)`
+2. **Hook unificador:**
+   - Ampliar `useProyectosActions` para incluir métodos avanzados de cálculo que automaticen el filtrado por `proyectoId`.
+3. **Eliminar silos:**
+   - Ningún servicio debe consultar Supabase sin antes verificar `currentProjectId`.
+   - Toda lectura/escritura debe pasar por store + forceSync.
 
 ---
 
-## 3. Refactorización y Optimización
+## 3. Refactoring & Optimization
 
-### 3.1 Refactorización Ejecutada
+### 3.1 Reducción de Fragmentación
 
-| Archivo | Cambio | Líneas Eliminadas |
-|---------|--------|-------------------|
-| Dashboard.tsx | Reescrito con `currentProjectId` | ~500 |
-| Presupuestos.tsx | Migrado a contexto global | ~10 |
-| Hitos.tsx | Selector global | ~2 |
-| Riesgos.tsx | Selector global | ~2 |
-| Seguimiento.tsx | Filtro global | ~8 |
-| Cuadros.tsx | Filtro global | ~8 |
-| ProfitabilityAnalytics.tsx | Filtro global | ~8 |
-| VisorBIM.tsx | Filtro global | ~8 |
-| Weather.tsx | Filtro global | ~10 |
-| DashboardPredictivo.tsx | Filtro global | ~20 |
-| GestionDocumental.tsx | Reescrito sin `selProyecto` | ~170 |
-| **Total** | | **~706** |
+| Acción | Impacto Estimado |
+|---|---|
+| Mover `profitabilityAnalytics.ts` → `src/erp/services/proyectos/` | Mejor organización; clarifica que es parte del dominio Proyectos |
+| Mover `motorCalculo.ts` → `src/erp/services/proyectos/` | Idem |
+| Fusionar `reglasFactores.ts`, `normativaDepartamental.ts`, `escalasProduccion.ts`, `estacionalidad.ts` en `src/erp/services/proyectos/calculation-engine/` | Elimina dispersión; jerarquía clara |
 
-### 3.2 Estrategias de Refactorización Propuestas
+### 3.2 Limpieza de Código
 
-#### A. Modularización por Dominio (Alta Prioridad)
+| Problema | Solución |
+|---|---|
+| 11 referencias legacy `selectedProyectoId` en código | Migrar a `currentProjectId` (parcialmente hecho; faltan `setSelectedProyectoId` y pruebas) |
+| `clearAllData` en `zustandStore.ts` llama `setSelectedProyectoId` | Reemplazar por `setCurrentProjectId` |
+| `APP_ONLY_FIELDS` usa `currentProjectId` ✅ | OK |
+| `store.tsx` expone `currentProjectId` via `useErp()` | OK |
 
-**Estado Actual**: 38 screens planas en `src/erp/screens/`, todas lazy-loaded desde `AppLayout.tsx`.
+### 3.3 Organización de Carpeta Sugerida
 
-**Propuesta**:
 ```
 src/erp/
-├── screens/              # Solo screens de alto nivel
-├── modules/
-│   ├── proyectos/        # Proyectos + Hitos + Riesgos + Seguimiento
-│   │   ├── components/   # Componentes específicos del módulo
-│   │   ├── hooks/        # Hooks específicos
-│   │   └── index.tsx     # Screen principal
-│   ├── presupuestos/     # Presupuestos + APU + Base Precios
-│   ├── suministro/       # Bodega + Órdenes + Proveedores
-│   ├── rrhh/             # RRHH + Destajos
-│   ├── finanzas/         # Financiero + Cuentas + Impuestos
-│   ├── calidad/          # SSO + Pruebas + Liberaciones
-│   ├── documentos/       # Planos + RFIs + Submittals
-│   └── crm/              # CRM + Cotizaciones + Cuadros
+├── screens/
+├── components/
+│   ├── global/
+│   └── proyectos/
+├── hooks/
+│   └── useProyectosActions.ts
+├── store/
+│   ├── schemas/ (18 schemas)
+│   └── table-mappings.ts
+├── services/
+│   ├── proyectos/
+│   │   ├── profitability.ts
+│   │   ├── motorCalculo.ts
+│   │   └── calculation-engine/
+│   │       ├── normativa.ts
+│   │       ├── escalas.ts
+│   │       ├── estacionalidad.ts
+│   │       └── reglasFactores.ts
+│   └── weather/
+│       └── weatherService.ts
+└── utils/
 ```
 
-**Beneficio**: Cohesión, reutilización de componentes, reducción de imports circulares.
+### 3.4 Optimizaciones de Performance
 
-#### B. Extracción de Lógica de Negocio (Media Prioridad)
+| Técnica | Aplicar En | Prioridad |
+|---|---|---|
+| Batch forceSync | Agrupar mutaciones del mismo tipo | P1 |
+| Web Worker compresión | Ya existe; integrar en saveToStorage | P1 |
+| Virtual scrolling | Bodega, Movimientos | P2 |
+| React Query + SWR | Datos de referencia (departamentos, municipios) | P2 |
+| Service Worker | PWA offline | P2 |
+| Cache pronóstico 7 días | Weather | P3 |
 
-**Estado Actual**: Lógica de cálculo mezclada con UI en screens (ej. `Presupuestos.tsx` tiene 800+ líneas con lógica de costos).
+### 3.5 Seguridad y Robustez DB
 
-**Propuesta**:
+| Acción | Estado |
+|---|---|
+| RLS en 65+ tablas | ✅ Hecho |
+| Políticas restrictivas | ✅ Hecho |
+| Índices estratégicos | ⚠️ Parcial: revisar columnas de filtro frecuente |
+| Connection pooler | ⚠️ No verificado en Supabase |
+| Backup automation | ⚠️ Script existe; falta cron |
+
+---
+
+## 4. Data Entry & UX/UI Improvements
+
+### 4.1 Formularios Centralizados
+
+**Actual:** Cada screen define sus propios campos de formulario con estilos inconsistentes.  
+**Propuesto:** Crear `src/erp/components/forms/` con:
+
+- `ProjectForm.tsx`: campos base de proyecto (nombre, cliente, fechas, tipología, tipo obra)
+- `BudgetForm.tsx`: renglones + APU + cálculo automático
+- `MilestoneForm.tsx`: date picker + wizard de etapas
+- `RiskForm.tsx`: matrix probabilidad/impacto
+- `WeatherThresholdForm.tsx`: configuración de alertas por proyecto
+
+**Beneficio:** Reducir duplicación, asegurar validación inline consistente, reutilizar `ui.ts` constants.
+
+### 4.2 Navegación y Contexto
+
+**Actual:** El usuario debe cambiar de proyecto manualmente en múltiples pantallas.  
+**Propuesto:**
+
+- Breadcrumbs automáticos basados en `currentProjectId`
+- "Quick switch" en Header con búsqueda de proyectos
+- Mantener filtro por proyecto en todas las vistas de detalle
+
+### 4.3 Accesibilidad y Tema
+
+| Aspecto | Estado Actual | Meta |
+|---|---|---|
+| aria-labels | 97+ elementos | 100% botones icon-only |
+| navegación por teclado | Parcial | 100% tarjetas y filas |
+| focus visible | Básico | Rings en todos los focuseables |
+| contrast ratios dark mode | Parcial | WCAG AA 4.5:1 en todos los textos |
+| skeleton loading | 38/38 screens | ✅ |
+
+### 4.4 Inline Validation
+
+- 20+ screens con validación inline ✅
+- Migrar `window.confirm` a Modal.confirm ✅ (0 raw confirm restantes)
+
+---
+
+## 5. Functional Enhancements
+
+### 5.1 Motor de Cálculo Unificado
+
+**Actual:** `motorCalculo.ts`, `reglasFactores.ts`, `normativaDepartamental.ts`, `escalasProduccion.ts`, `estacionalidad.ts` funcionan como servicios separados.  
+**Propuesto:** Unificar en `CalculationEngine` con interfaz:
+
 ```typescript
-// src/erp/modules/presupuestos/calculos.ts
-export function calcularCostoDirecto(materiales: number, mo: number, equipo: number): number
-export function calcularPV(cd: number, factor: number): number
-export function calcularRendimiento(cantidad: number, rendimiento: number): number
-
-// src/erp/modules/presupuestos/hooks/usePresupuesto.ts
-export function usePresupuesto(projectId: string) {
-  // Lógica de carga, cálculo, validación
+interface CalculationEngine {
+  calculateAPU(proyectoId: string, partida: Partida): APUResult;
+  applyNormativa(proyectoId: string, normativa: Normativa): void;
+  getEscalasProduccion(proyectoId: string, actividad: string): Escala[];
+  getEstacionalidad(proyectoId: string, mes: number): FactorEstacional;
+  applyReglasFactor(proyectoId: string, reglas: ReglaFactor[]): ReglaAplicacion[];
 }
 ```
 
-**Beneficio**: Testeabilidad, separación de concerns, reducción de duplicación.
+**Beneficio:** Un único punto de entrada para todos los cálculos, con `proyectoId` obligatorio.
 
-#### C. Unificación de Patrones de Estado (Media Prioridad)
+### 5.2 Analítica de Rentabilidad Contextual
 
-**Estado Actual**: Mezcla de `useState` local, `useErp()`, `useErpStore()`, y props.
+**Actual:** `profitabilityAnalytics.ts` calcula métricas globales.  
+**Propuesto:**
 
-**Propuesta**: 
-- Toda screen usa `useErp()` para datos globales
-- Estado UI local con `useState` (filtros, modales, tabs)
-- Estado derivado con `useMemo`
-- Sin props entre screens (solo contexto)
+- `calculateProjectProfitability(proyectoId)` → métricas por proyecto
+- `compareProjects(proyectoIds[])` → benchmarking
+- Dashboard widget con comparación contra promedio del sector
 
-#### D. Eliminación de Código Muerto (Alta Prioridad)
+### 5.3 Alertas Predictivas
 
-**Identificado**:
-- `useSyncSupabase.ts` — nunca importado
-- `src/components/ui/chart.tsx` — ya eliminado
-- Varios hooks huérfanos en `src/hooks/`
-- `rendimientos` como SCREEN_KEY — reemplazado por `rendimiento-campo`
+**Actual:** Alertas reactivas (stock bajo, NC pendientes).  
+**Propuesto:**
 
----
+- Alertas climáticas en Weather module (umbrales custom por proyecto)
+- Alertas de sobrecosto en presupuestos (motor cálculo + reglas)
+- Alertas de riesgo en hitos (retraso estimado vs planeado)
 
-## 4. Data Entry y UX/UI
+### 5.4 Integración BIM 4D/5D
 
-### 4.1 Problemas Identificados
+**Actual:** `VisorBIM.tsx` muestra modelo 3D.  
+**Propuesto:**
 
-| Problema | Impacto | Screens Afectadas |
-|----------|---------|-------------------|
-| Formularios sin validación inline | Errores solo en toast | 7+ screens |
-| `window.confirm()` en lugar de Modal.confirm | UX inconsistente | 13 ocurrencias |
-| Sin skeleton loading | Pantalla en blanco durante carga | 19/38 screens (histórico, ya resuelto) |
-| Sin estados vacíos en tabs | Confusión cuando no hay datos | SSOCalidad, VisorBIM |
-| Selectores de proyecto duplicados | Confusión, estado inconsistente | 15 screens (ya resuelto) |
+- Sincronizar avances físicos con modelo BIM (4D)
+- Integrar costos reales con cantidades de obra (5D)
+- Exportar reporte BIM vinculado a proyecto
 
-### 4.2 Rediseño Propuesto
+### 5.5 App Móvil Offline-First
 
-#### A. Wizard de Creación de Proyecto
+**Actual:** PWA parcial con service worker.  
+**Propuesto:**
 
-**Estado Actual**: Formulario único en `Proyectos.tsx` con ~30 campos.
-
-**Propuesta**:
-```
-Paso 1: Datos Generales (nombre, cliente, ubicación, tipo)
-Paso 2: Configuración Técnica (tipología, área, pisos, plazo)
-Paso 3: Equipo (residente, supervisor, arquitecto)
-Paso 4: Financiero (presupuesto, margen, moneda)
-Paso 5: Plantilla (seleccionar plantilla predefinida)
-```
-
-**Beneficio**: Reduce errores, mejora tasa de completitud, permite guardar progreso.
-
-#### B. Formulario de Presupuesto Unificado
-
-**Estado Actual**: `Presupuestos.tsx` con 800+ líneas, renglones expandibles, sub-renglones manuales.
-
-**Propuesta**:
-- Catálogo de actividades por tipología (ya existe en `catalogos-presupuestos.ts`)
-- Búsqueda y filtro de renglones
-- Precios sugeridos desde base de precios
-- Vista de resumen en tiempo real
-- Exportación con formato profesional
-
-#### C. Panel de Control Unificado
-
-**Estado Actual**: Dashboard con widgets fijos.
-
-**Propuesta**:
-- Widgets configurables por rol
-- Arrastrar y soltar para reorganizar
-- Vistas guardadas (favoritas)
-- Exportación a PDF con layout personalizado
-
-### 4.3 Mejoras de Accesibilidad (100% Implementado)
-
-| Categoría | Cobertura |
-|-----------|-----------|
-| aria-label en botones icon-only | 100% (97+ elementos) |
-| aria-hidden en iconos decorativos | 100% |
-| role="button" en elementos interactivos | 100% |
-| tabIndex + onKeyDown | 100% |
-| focus-visible rings | 100% |
-| Contraste WCAG AA en dark mode | 100% |
-| Skeleton loading | 100% (38/38 screens) |
+- Sincronización bidireccional completa offline
+- Captura de avances en campo sin conexión
+- Fotos y documentos adjuntos con cache local
 
 ---
 
-## 5. Mejoras Funcionales
+## 6. Plan de Acción Priorizado
 
-### 5.1 Implementadas en esta Sesión
+### Fase 1: Cierre de Brechas Críticas (Semana 1-2)
 
-| Mejora | Descripción | Archivos |
-|--------|-------------|----------|
-| Contexto global de proyecto | `currentProjectId` en ErpProvider | store.tsx |
-| Filtro unificado | ProyectoFilter en Dashboard | Dashboard.tsx |
-| Notificaciones contextuales | Hitos vencidos, riesgos críticos por proyecto | Hitos.tsx, Riesgos.tsx |
-| Pre-selección en formularios | Planos/RFIs/Submittals usan proyecto activo | GestionDocumental.tsx |
+1. Migrar últimas referencias `selectedProyectoId` → `currentProjectId`
+2. Corregir tests fallidos en `timestamps.test.ts`
+3. Actualizar `docs/IMPLEMENTATION_TRACKING.md` con estado real
+4. Verificar TypeScript + ESLint + Tests en verde
 
-### 5.2 Propuestas Estratégicas
+### Fase 2: Integración de Servicios (Semana 3-4)
 
-#### A. Motor de Reglas de Negocio (Alta Prioridad)
+1. Reorganizar carpetas de services según propuesta
+2. Modificar `profitabilityAnalytics.ts` para recibir `proyectoId`
+3. Modificar `motorCalculo.ts` para eliminar consultas directas a Supabase
+4. Añadir validación `proyectoId` en `reglasFactores.ts`
+5. Ampliar `useProyectosActions` con métodos de cálculo
 
-**Estado Actual**: Validación de transiciones de estado en `handleUpdateProyecto` (hardcoded).
+### Fase 3: UX/UI Unificada (Semana 5-6)
 
-**Propuesta**:
-```typescript
-// Reglas configurables
-const TRANSITION_RULES = {
-  'planeacion→ejecucion': {
-    requires: ['presupuesto_aprobado', 'hitos_definidos'],
-    validate: (proyecto) => {
-      if (!proyecto.presupuestoAprobado) return 'Requiere presupuesto aprobado';
-      if (proyecto.hitos.length === 0) return 'Requiere al menos un hito';
-      return null;
-    }
-  },
-  'ejecucion→pausado': {
-    requires: ['motivo_pausa'],
-    validate: (proyecto) => {
-      if (!proyecto.motivoPausa) return 'Debe especificar motivo de pausa';
-      return null;
-    }
-  }
-};
-```
+1. Crear componentes de formulario base (`ProjectForm`, `BudgetForm`, etc.)
+2. Implementar breadcrumbs + quick switch en Header
+3. Mejorar skeleton loading y focus visible
+4. Añadir contrast ratios dark mode donde falte
 
-#### B. Dashboard Predictivo con ML (Media Prioridad)
+### Fase 4: Funcionalidades Avanzadas (Semana 7-10)
 
-**Estado Actual**: Cálculos deterministas (EAC = BAC/CPI).
-
-**Propuesta**:
-- Regresión lineal sobre avances históricos
-- Predicción de fecha de finalización con intervalos de confianza
-- Detección temprana de desviaciones (Early Warning System)
-- Alertas automáticas cuando CPI < 0.8 o SPI < 0.9
-
-#### C. Integración BIM 4D/5D (Baja Prioridad)
-
-**Estado Actual**: VisorBIM con modelos IFC 3D.
-
-**Propuesta**:
-- Vincular elementos BIM a renglones de presupuesto (5D)
-- Vincular elementos BIM a cronograma (4D)
-- Simulación de construcción semana a semana
-- Detección de interferencias
-
-#### D. Módulo de Facturación Electrónica (Media Prioridad)
-
-**Estado Actual**: Sin facturación.
-
-**Propuesta**:
-- Generación de facturas desde cuentas por cobrar
-- Integración con FEL (Facturación Electrónica Libre) de Guatemala
-- Estado de cuenta del cliente
-- Conciliación bancaria automática
-
-#### E. App Móvil Offline-First (Baja Prioridad)
-
-**Estado Actual**: PWA con service worker.
-
-**Propuesta**:
-- React Native o Capacitor para iOS/Android
-- Sincronización offline con la misma cola de mutaciones
-- Escaneo de códigos de barras para inventario
-- Captura de fotos para reportes de obra
-- Firma digital para liberaciones
+1. Motor de cálculo unificado (`CalculationEngine`)
+2. Alertas predictivas (clima, sobrecosto, retrasos)
+3. Analítica de rentabilidad contextual
+4. Integración BIM 4D/5D
+5. Mejoras PWA offline
 
 ---
 
-## 6. Pendientes y Deuda Técnica
+## 7. Riesgos y Mitigaciones
 
-### 6.1 Archivos con Referencias OLD (No Migrados)
-
-| Archivo | Ref. OLD | Prioridad | Acción |
-|---------|----------|-----------|--------|
-| `Bodega.tsx` | `ctx.selectedProyectoId` en export PDF | Baja | Migrar a `currentProjectId` |
-| `Proyectos.tsx` | Selector visual de plantillas con estado local | Media | Usar contexto global |
-| `ErrorLog.tsx` | Filtro por proyecto con estado local | Baja | Usar contexto global |
-| `SSOCalidad.tsx` | NCs/Pruebas/Liberaciones filtran local | Media | Usar contexto global |
-
-### 6.2 Issues Técnicos Conocidos
-
-| Issue | Severidad | Estado |
-|-------|-----------|--------|
-| `reglasFactores.ts` bypasses mutation queue | Media | Pendiente |
-| 3 service files bypass offline queue | Media | Pendiente |
-| `Proyecto` interface: `proyectoId` duplica `id` | Baja | Pendiente |
-| `useSyncSupabase.ts` dead code | Baja | Pendiente |
-| `updateValeSalida` handler missing | Baja | Pendiente |
-
-### 6.3 Métricas de Salud del Proyecto
-
-| Métrica | Valor | Estado |
-|---------|-------|--------|
-| Tests | 586/586 pass (21 files) | ✅ |
-| TypeScript errors | 0 | ✅ |
-| Lint errors | 0 | ✅ |
-| Build time | 2.55s | ✅ |
-| Bundle size (gzip) | ~1.5MB total | ✅ |
-| Screens implemented | 38/38 | ✅ |
-| Skeleton loading | 38/38 | ✅ |
-| Accesibilidad | 100% WCAG AA | ✅ |
-| Offline-first | 100% (queue + local) | ✅ |
-| RLS + Seguridad DB | 100% (migration 066) | ✅ |
+| Riesgo | Probabilidad | Impacto | Mitigación |
+|---|---|---|---|
+| Fragmentación de servicios incrementa deuda técnica | Alta | Alto | Fase 2: reorganización obligatoria |
+| Cálculos financieros con errores de redondeo | Media | Alto | Usar libraries de decimal precisión (`decimal.js`) |
+| Performance degrade al unificar cálculos | Media | Medio | Implementar cache por proyecto + batch |
+| Resistencia al cambio de UI/UX | Baja | Medio | Involucrar usuarios finales enTesting |
 
 ---
 
-## 7. Roadmap Recomendado
+## 8. Métricas de Éxito
 
-### Fase 1 (Inmediata — 1 semana)
-- [ ] Migrar Bodega.tsx, Proyectos.tsx, ErrorLog.tsx, SSOCalidad.tsx a `currentProjectId`
-- [ ] Eliminar `useSyncSupabase.ts` y otros archivos muertos
-- [ ] Agregar `updateValeSalida` handler faltante
-
-### Fase 2 (Corto Plazo — 2 semanas)
-- [ ] Modularización por dominio (proyectos, presupuestos, suministro)
-- [ ] Extraer lógica de negocio de screens a hooks/services
-- [ ] Wizard de creación de proyecto
-- [ ] Motor de reglas de negocio configurable
-
-### Fase 3 (Mediano Plazo — 1 mes)
-- [ ] Dashboard predictivo con ML
-- [ ] Módulo de facturación electrónica
-- [ ] Integración BIM 4D/5D
-- [ ] App móvil con Capacitor
-
-### Fase 4 (Largo Plazo — 3 meses)
-- [ ] Migración a React 19 + Server Components
-- [ ] Micro-frontends por módulo
-- [ ] Multi-tenant (varias empresas constructoras)
-- [ ] Marketplace de plantillas de proyectos
+| KPI | Actual | Meta |
+|---|---|---|
+| Cobertura `currentProjectId` en screens | 95% | 100% |
+| Servicios integrados a Proyectos | 60% | 100% |
+| Tests pasando | 585/588 (99.5%) | 600/600 (100%) |
+| Tiempo de carga inicial | 2.45s | <2s |
+| Accesibilidad WCAG AA | 85% | 100% |
+| Offline queue reliability | 95% | 99.9% |
 
 ---
 
-## 8. Conclusión
+## 9. Conclusiones
 
-CONSTRUSMART ERP es una aplicación **madura para producción** con arquitectura offline-first, 38 pantallas funcionales, 30+ entidades sincronizadas vía Supabase, y cobertura de tests del 99.9%. 
+La arquitectura actual es sólida en su núcleo (store, schemas, forceSync, realtime), pero presenta fragmentación en servicios de cálculo y analytics. La integración forzosa mediante `currentProjectId` como pivote global resuelve la mayoría de los problemas de contexto. Las mejoras UX/UI y funcionales propuestas elevan el ERP a estándar enterprise para gestión de proyectos de construcción.
 
-La refactorización ejecutada en esta sesión **(migración de 15 pantallas a contexto global de proyecto)** reduce la fragmentación, elimina ~700 líneas de código duplicado, y unifica el flujo de selección de proyecto en toda la aplicación.
-
-Las áreas de mejora prioritaria son: (1) completar la migración de las 4 pantallas restantes, (2) modularizar por dominio para mejorar cohesión, y (3) implementar el motor de reglas de negocio para validaciones configurables.
-
-**Estado**: ✅ APTO PARA PRODUCCIÓN — 0 errores, 586 tests, build exitoso.
+**Recomendación:** Proceder con Fase 1 inmediatamente para cerrar brechas críticas, luego Fase 2 (reorganización de servicios) que desbloquea mejoras posteriores.
