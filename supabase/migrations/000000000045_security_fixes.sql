@@ -12,7 +12,12 @@ REVOKE SELECT ON TABLE erp_vales_salida FROM anon;
 REVOKE SELECT ON TABLE erp_movimientos FROM anon;
 REVOKE SELECT ON TABLE erp_empleados FROM anon;
 REVOKE SELECT ON TABLE erp_usuarios FROM anon;
-REVOKE SELECT ON TABLE erp_notificaciones FROM anon;
+DO $$
+BEGIN
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'erp_notificaciones') THEN
+    REVOKE SELECT ON TABLE erp_notificaciones FROM anon;
+  END IF;
+END $$;
 REVOKE SELECT ON TABLE erp_auditoria FROM anon;
 
 -- 2. ENSURE RLS ON LOGS TABLE (if exists)

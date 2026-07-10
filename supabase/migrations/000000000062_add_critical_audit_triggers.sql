@@ -1,4 +1,4 @@
--- Migration 062: Add Critical Audit Triggers
+-- Migration 062: Add Critical Audit Triggers (idempotent, table-existence guarded)
 -- Purpose: Add audit triggers to critical business tables missing from migrations 050 and 061
 -- Risk: Low - triggers are non-destructive
 -- Rollback: Drops the added triggers
@@ -8,37 +8,45 @@
 -- Step 1: Add audit triggers to project management tables
 -- ============================================================
 
--- erp_cuadros - Work area squares
-DROP TRIGGER IF EXISTS audit_erp_cuadros ON erp_cuadros;
-CREATE TRIGGER audit_erp_cuadros
-AFTER INSERT OR UPDATE OR DELETE ON erp_cuadros
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_cuadros' AND relkind = 'r') THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS audit_erp_cuadros ON erp_cuadros';
+    EXECUTE 'CREATE TRIGGER audit_erp_cuadros AFTER INSERT OR UPDATE OR DELETE ON erp_cuadros FOR EACH ROW EXECUTE FUNCTION audit_trigger_func()';
+  END IF;
+END $$;
 
 -- NOTE: erp_cuadros_comparativos is a view, not a table
 -- Views cannot have row-level triggers
 -- The underlying table cuadro_comparativo_proveedores should have its own trigger if needed
 
--- erp_eventos_calendario - Calendar events
-DROP TRIGGER IF EXISTS audit_erp_eventos_calendario ON erp_eventos_calendario;
-CREATE TRIGGER audit_erp_eventos_calendario
-AFTER INSERT OR UPDATE OR DELETE ON erp_eventos_calendario
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_eventos_calendario' AND relkind = 'r') THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS audit_erp_eventos_calendario ON erp_eventos_calendario';
+    EXECUTE 'CREATE TRIGGER audit_erp_eventos_calendario AFTER INSERT OR UPDATE OR DELETE ON erp_eventos_calendario FOR EACH ROW EXECUTE FUNCTION audit_trigger_func()';
+  END IF;
+END $$;
 
 -- ============================================================
 -- Step 2: Add audit triggers to documentation and tracking tables
 -- ============================================================
 
--- erp_bitacora - Project log/diary
-DROP TRIGGER IF EXISTS audit_erp_bitacora ON erp_bitacora;
-CREATE TRIGGER audit_erp_bitacora
-AFTER INSERT OR UPDATE OR DELETE ON erp_bitacora
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_bitacora' AND relkind = 'r') THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS audit_erp_bitacora ON erp_bitacora';
+    EXECUTE 'CREATE TRIGGER audit_erp_bitacora AFTER INSERT OR UPDATE OR DELETE ON erp_bitacora FOR EACH ROW EXECUTE FUNCTION audit_trigger_func()';
+  END IF;
+END $$;
 
--- erp_seguimiento - Project tracking
-DROP TRIGGER IF EXISTS audit_erp_seguimiento ON erp_seguimiento;
-CREATE TRIGGER audit_erp_seguimiento
-AFTER INSERT OR UPDATE OR DELETE ON erp_seguimiento
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_seguimiento' AND relkind = 'r') THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS audit_erp_seguimiento ON erp_seguimiento';
+    EXECUTE 'CREATE TRIGGER audit_erp_seguimiento AFTER INSERT OR UPDATE OR DELETE ON erp_seguimiento FOR EACH ROW EXECUTE FUNCTION audit_trigger_func()';
+  END IF;
+END $$;
 
 -- ============================================================
 -- Step 3: Add audit triggers to social and communication tables
@@ -60,16 +68,14 @@ FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
 -- Step 5: Add audit triggers to HR tables
 -- ============================================================
 
--- erp_empleados - Employees
-DROP TRIGGER IF EXISTS audit_erp_empleados ON erp_empleados;
-CREATE TRIGGER audit_erp_empleados
-AFTER INSERT OR UPDATE OR DELETE ON erp_empleados
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_empleados' AND relkind = 'r') THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS audit_erp_empleados ON erp_empleados';
+    EXECUTE 'CREATE TRIGGER audit_erp_empleados AFTER INSERT OR UPDATE OR DELETE ON erp_empleados FOR EACH ROW EXECUTE FUNCTION audit_trigger_func()';
+  END IF;
+END $$;
 
 -- ============================================================
 -- COMPLETADO
 -- ============================================================
--- Coverage increased from 39.4% (28/71 tables) to 45.1% (32/71 tables)
--- Critical business tables now have audit trail
--- Note: erp_cuadros_comparativos, erp_incidentes_sso, and erp_publicaciones_muro are views, not tables
--- Note: erp_recepciones_almacen table does not exist in the database

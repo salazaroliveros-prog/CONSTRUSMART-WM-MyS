@@ -21,9 +21,6 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'erp_centros_costo') THEN
     ALTER PUBLICATION supabase_realtime ADD TABLE erp_centros_costo;
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'erp_error_logs') THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE erp_error_logs;
-  END IF;
 END;
 $$;
 
@@ -35,11 +32,25 @@ ALTER TABLE erp_presupuestos ADD COLUMN IF NOT EXISTS updated_at timestamptz DEF
 ALTER TABLE erp_presupuestos DROP CONSTRAINT IF EXISTS chk_erp_presupuestos_estado_valid;
 
 -- 4) FIX: RLS para tablas que aún no lo tienen habilitado
-ALTER TABLE erp_snapshots_estado_calculo ENABLE ROW LEVEL SECURITY;
-ALTER TABLE erp_cumplimiento_normativo ENABLE ROW LEVEL SECURITY;
-ALTER TABLE erp_ajustes_estacionales_actividad ENABLE ROW LEVEL SECURITY;
-ALTER TABLE erp_aplicacion_escalas ENABLE ROW LEVEL SECURITY;
-ALTER TABLE erp_historial_aplicacion_reglas ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_snapshots_estado_calculo' AND relkind = 'r') THEN
+    ALTER TABLE erp_snapshots_estado_calculo ENABLE ROW LEVEL SECURITY;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_cumplimiento_normativo' AND relkind = 'r') THEN
+    ALTER TABLE erp_cumplimiento_normativo ENABLE ROW LEVEL SECURITY;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_ajustes_estacionales_actividad' AND relkind = 'r') THEN
+    ALTER TABLE erp_ajustes_estacionales_actividad ENABLE ROW LEVEL SECURITY;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_aplicacion_escalas' AND relkind = 'r') THEN
+    ALTER TABLE erp_aplicacion_escalas ENABLE ROW LEVEL SECURITY;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_historial_aplicacion_reglas' AND relkind = 'r') THEN
+    ALTER TABLE erp_historial_aplicacion_reglas ENABLE ROW LEVEL SECURITY;
+  END IF;
+END;
+$$;
 
 -- 5) FIX: Políticas RLS para tablas sin políticas (usando DO blocks para evitar IF NOT EXISTS)
 DO $$

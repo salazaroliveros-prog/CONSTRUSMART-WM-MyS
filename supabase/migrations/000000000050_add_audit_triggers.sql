@@ -1,4 +1,4 @@
--- Migration 050: Add Audit Triggers
+-- Migration 050: Add Audit Triggers (idempotent)
 -- Purpose: Create audit trail for critical table changes
 -- Risk: Low - triggers are non-destructive
 -- Rollback: Drops triggers and audit tables
@@ -74,97 +74,26 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Step 3: Add audit triggers to critical tables
 -- ============================================================
 
--- Financial tables
-DROP TRIGGER IF EXISTS audit_erp_ordenes_compra ON erp_ordenes_compra;
-CREATE TRIGGER audit_erp_ordenes_compra
-AFTER INSERT OR UPDATE OR DELETE ON erp_ordenes_compra
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
-DROP TRIGGER IF EXISTS audit_erp_vales_salida ON erp_vales_salida;
-CREATE TRIGGER audit_erp_vales_salida
-AFTER INSERT OR UPDATE OR DELETE ON erp_vales_salida
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
-DROP TRIGGER IF EXISTS audit_erp_cuentas_cobrar ON erp_cuentas_cobrar;
-CREATE TRIGGER audit_erp_cuentas_cobrar
-AFTER INSERT OR UPDATE OR DELETE ON erp_cuentas_cobrar
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
-DROP TRIGGER IF EXISTS audit_erp_cuentas_pagar ON erp_cuentas_pagar;
-CREATE TRIGGER audit_erp_cuentas_pagar
-AFTER INSERT OR UPDATE OR DELETE ON erp_cuentas_pagar
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
--- Project configuration tables
-DROP TRIGGER IF EXISTS audit_erp_proyectos ON erp_proyectos;
-CREATE TRIGGER audit_erp_proyectos
-AFTER INSERT OR UPDATE OR DELETE ON erp_proyectos
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
-DROP TRIGGER IF EXISTS audit_erp_presupuestos ON erp_presupuestos;
-CREATE TRIGGER audit_erp_presupuestos
-AFTER INSERT OR UPDATE OR DELETE ON erp_presupuestos
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
-DROP TRIGGER IF EXISTS audit_erp_renglones ON erp_renglones;
-CREATE TRIGGER audit_erp_renglones
-AFTER INSERT OR UPDATE OR DELETE ON erp_renglones
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
--- User activity tables
-DROP TRIGGER IF EXISTS audit_erp_muro ON erp_muro;
-CREATE TRIGGER audit_erp_muro
-AFTER INSERT OR UPDATE OR DELETE ON erp_muro
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
-DROP TRIGGER IF EXISTS audit_erp_muro_likes ON erp_muro_likes;
-CREATE TRIGGER audit_erp_muro_likes
-AFTER INSERT OR UPDATE OR DELETE ON erp_muro_likes
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
--- Quality and safety tables
-DROP TRIGGER IF EXISTS audit_erp_no_conformidades ON erp_no_conformidades;
-CREATE TRIGGER audit_erp_no_conformidades
-AFTER INSERT OR UPDATE OR DELETE ON erp_no_conformidades
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
-DROP TRIGGER IF EXISTS audit_erp_incidentes ON erp_incidentes;
-CREATE TRIGGER audit_erp_incidentes
-AFTER INSERT OR UPDATE OR DELETE ON erp_incidentes
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
--- NOTE: erp_licencias table does not exist in the database
--- DROP TRIGGER IF EXISTS audit_erp_licencias ON erp_licencias;
--- CREATE TRIGGER audit_erp_licencias
--- AFTER INSERT OR UPDATE OR DELETE ON erp_licencias
--- FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
--- Change management tables
-DROP TRIGGER IF EXISTS audit_erp_ordenes_cambio ON erp_ordenes_cambio;
-CREATE TRIGGER audit_erp_ordenes_cambio
-AFTER INSERT OR UPDATE OR DELETE ON erp_ordenes_cambio
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
-DROP TRIGGER IF EXISTS audit_erp_rfis ON erp_rfis;
-CREATE TRIGGER audit_erp_rfis
-AFTER INSERT OR UPDATE OR DELETE ON erp_rfis
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
-DROP TRIGGER IF EXISTS audit_erp_submittals ON erp_submittals;
-CREATE TRIGGER audit_erp_submittals
-AFTER INSERT OR UPDATE OR DELETE ON erp_submittals
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
--- Inventory tables
-DROP TRIGGER IF EXISTS audit_erp_activos ON erp_activos;
-CREATE TRIGGER audit_erp_activos
-AFTER INSERT OR UPDATE OR DELETE ON erp_activos
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
-
-DROP TRIGGER IF EXISTS audit_erp_materiales ON erp_materiales;
-CREATE TRIGGER audit_erp_materiales
-AFTER INSERT OR UPDATE OR DELETE ON erp_materiales
-FOR EACH ROW EXECUTE FUNCTION audit_trigger_func();
+-- Helper to create trigger only if table exists
+DO $$
+DECLARE
+  _tbl text;
+  _tbls text[] := ARRAY[
+    'erp_ordenes_compra', 'erp_vales_salida', 'erp_cuentas_cobrar', 'erp_cuentas_pagar',
+    'erp_proyectos', 'erp_presupuestos', 'erp_renglones', 'erp_muro', 'erp_muro_likes',
+    'erp_no_conformidades', 'erp_incidentes', 'erp_ordenes_cambio',
+    'erp_rfis', 'erp_submittals', 'erp_activos', 'erp_materiales'
+  ];
+  _trg_name text;
+BEGIN
+  FOREACH _tbl IN ARRAY _tbls LOOP
+    IF EXISTS (SELECT 1 FROM pg_class WHERE relname = _tbl AND relkind = 'r') THEN
+      _trg_name := 'audit_' || _tbl;
+      EXECUTE format('DROP TRIGGER IF EXISTS %I ON %I CASCADE', _trg_name, _tbl);
+      EXECUTE format('CREATE TRIGGER %I AFTER INSERT OR UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE FUNCTION audit_trigger_func()', _trg_name, _tbl);
+    END IF;
+  END LOOP;
+END $$;
 
 -- ============================================================
 -- Step 4: Create audit log view for easy querying

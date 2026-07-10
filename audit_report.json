@@ -1,0 +1,152 @@
+{
+  "timestamp": "2026-07-10T17:53:27.638Z",
+  "project": "neygzluxugodiwcuctbj",
+  "tables": {
+    "total": 87,
+    "erp": 82,
+    "missing": [
+      "erp_audit_log",
+      "erp_muro_likes"
+    ]
+  },
+  "rls": {
+    "enabled": 79,
+    "disabled": [],
+    "policies": 539,
+    "noPolicy": []
+  },
+  "fks": {
+    "total": 51,
+    "bad": []
+  },
+  "realtime": {
+    "published": 81,
+    "notPublished": [
+      "erp_app_config",
+      "erp_backup_config",
+      "erp_monitoring_config"
+    ]
+  },
+  "enums": [
+    {
+      "enum_name": "estado_activo",
+      "enum_values": [
+        "disponible",
+        "asignado",
+        "mantenimiento",
+        "baja"
+      ]
+    },
+    {
+      "enum_name": "estado_anticipo",
+      "enum_values": [
+        "activo",
+        "amortizado",
+        "cancelado"
+      ]
+    },
+    {
+      "enum_name": "estado_caja",
+      "enum_values": [
+        "pendiente",
+        "aprobada",
+        "rechazada"
+      ]
+    },
+    {
+      "enum_name": "estado_cuadro",
+      "enum_values": [
+        "abierto",
+        "cerrado",
+        "adjudicado"
+      ]
+    },
+    {
+      "enum_name": "estado_licitacion",
+      "enum_values": [
+        "activa",
+        "ganada",
+        "perdida",
+        "cancelada"
+      ]
+    },
+    {
+      "enum_name": "estado_orden",
+      "enum_values": [
+        "borrador",
+        "pendiente",
+        "aprobado",
+        "rechazado",
+        "recibida",
+        "cancelada"
+      ]
+    },
+    {
+      "enum_name": "estado_pago",
+      "enum_values": [
+        "pendiente",
+        "pagado",
+        "vencido",
+        "cancelado"
+      ]
+    },
+    {
+      "enum_name": "estado_presupuesto",
+      "enum_values": [
+        "borrador",
+        "aprobado",
+        "revisado",
+        "rechazado"
+      ]
+    },
+    {
+      "enum_name": "estado_proyecto",
+      "enum_values": [
+        "planeacion",
+        "ejecucion",
+        "pausado",
+        "finalizado"
+      ]
+    },
+    {
+      "enum_name": "estado_venta",
+      "enum_values": [
+        "disponible",
+        "reservado",
+        "vendido",
+        "entregado"
+      ]
+    },
+    {
+      "enum_name": "tipo_activo",
+      "enum_values": [
+        "herramienta",
+        "equipo",
+        "vehiculo",
+        "accesorio"
+      ]
+    },
+    {
+      "enum_name": "tipo_caja",
+      "enum_values": [
+        "materiales",
+        "herramientas",
+        "transporte",
+        "comidas",
+        "otros"
+      ]
+    }
+  ],
+  "views": [
+    "erp_error_log_recent",
+    "erp_error_log_stats",
+    "erp_incidentes_sso"
+  ],
+  "issues": [
+    {
+      "severity": "HIGH",
+      "category": "TABLES",
+      "message": "Missing 2 tables: erp_audit_log, erp_muro_likes"
+    }
+  ]
+}
