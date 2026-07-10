@@ -71,8 +71,13 @@ CREATE INDEX IF NOT EXISTS idx_normativa_codigo ON erp_normativa_departamental(c
 CREATE INDEX IF NOT EXISTS idx_normativa_activo ON erp_normativa_departamental(activo);
 -- CREATE INDEX IF NOT EXISTS idx_normativa_vigencia ON erp_normativa_departamental(fecha_vigencia_inicio, fecha_vigencia_fin);
 
--- Cumplimiento normativo
-CREATE INDEX IF NOT EXISTS idx_cumplimiento_proyecto ON erp_cumplimiento_normativo(proyecto_id);
+-- Cumplimiento normativo (tabla creada en migración 065+)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_cumplimiento_normativo') THEN
+    CREATE INDEX IF NOT EXISTS idx_cumplimiento_proyecto ON erp_cumplimiento_normativo(proyecto_id);
+  END IF;
+END $$;
 -- CREATE INDEX IF NOT EXISTS idx_cumplimiento_norma ON erp_cumplimiento_normativo(normativa_id);
 -- CREATE INDEX IF NOT EXISTS idx_cumplimiento_estado ON erp_cumplimiento_normativo(estado_cumplimiento);
 

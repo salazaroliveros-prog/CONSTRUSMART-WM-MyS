@@ -19,10 +19,24 @@ ALTER TABLE erp_ordenes_compra ADD COLUMN IF NOT EXISTS stock_actualizado boolea
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS descripcion text;
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS subtipo text;
 
--- Fix estado CHECK constraint to match app enum: planeacion/ejecucion/pausado/finalizado
-ALTER TABLE erp_proyectos DROP CONSTRAINT IF EXISTS chk_erp_proyectos_estado_valid;
-ALTER TABLE erp_proyectos ADD CONSTRAINT chk_erp_proyectos_estado_valid
-  CHECK (estado = ANY (ARRAY['planeacion'::text, 'ejecucion'::text, 'pausado'::text, 'finalizado'::text]));
+-- 3.1 Normalize estado safely:
+-- - Drop constraint if exists
+-- - Drop problematic update trigger if present
+-- - Update only rows that truly need normalization
+-- - Recreate constraint
+DROP TRIGGER IF EXISTS trg_erp_proyectos_updated ON erp_proyectos;
+
+UPDATE erp_proyectos
+SET estado = CASE
+  WHEN lower(estado) IN ('planificacion', 'en_planificacion', 'planeacion') THEN 'planeacion'
+  WHEN lower(estado) IN ('en_curso', 'ejecucion') THEN 'ejecucion'
+  WHEN lower(estado) IN ('pausado', 'pausa') THEN 'pausado'
+  WHEN lower(estado) IN ('completado', 'finalizado', 'terminado') THEN 'finalizado'
+  WHEN lower(estado) IN ('cancelado', 'cancelada') THEN 'cancelado'
+  ELSE 'planeacion'
+END
+WHERE estado NOT IN ('planeacion','ejecucion','pausado','finalizado','cancelado');
+
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS tipo_obra text;
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS cliente_nit text;
 ALTER TABLE erp_proyectos ADD COLUMN IF NOT EXISTS cliente_telefono text;
@@ -101,29 +115,16 @@ CREATE TABLE IF NOT EXISTS erp_centros_costo (
   updated_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS erp_error_logs (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  mensaje text NOT NULL,
-  tipo text NOT NULL,
-  severidad text DEFAULT 'media',
-  componente text,
-  funcion text,
-  stack text,
-  contexto jsonb DEFAULT '{}'::jsonb,
-  resuelto boolean DEFAULT false,
-  notas_resolucion text,
-  created_at timestamptz DEFAULT now() NOT NULL,
-  updated_at timestamptz DEFAULT now() NOT NULL
-);
+-- NOTA: erp_error_logs se crea como VIEW en migración 063 (sobre erp_error_log)
+-- No hay tabla física adicional nueva aquí, así que no se necesita ENABLE ROW LEVEL SECURITY aquí.
 
 -- 6) RLS para nuevas tablas
 ALTER TABLE erp_destajos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_recepciones ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_pagos_proveedor ENABLE ROW LEVEL SECURITY;
 ALTER TABLE erp_centros_costo ENABLE ROW LEVEL SECURITY;
-ALTER TABLE erp_error_logs ENABLE ROW LEVEL SECURITY;
 
--- 7) Realtime para nuevas tablas (usando DO block, IF NOT EXISTS no válido en ALTER PUBLICATION)
+-- 7) Realtime para nuevas tablas (DO block)
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'erp_destajos') THEN
@@ -137,9 +138,6 @@ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'erp_centros_costo') THEN
     ALTER PUBLICATION supabase_realtime ADD TABLE erp_centros_costo;
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'erp_error_logs') THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE erp_error_logs;
   END IF;
 END;
 $$;

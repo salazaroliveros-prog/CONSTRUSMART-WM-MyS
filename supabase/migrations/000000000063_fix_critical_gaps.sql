@@ -34,22 +34,6 @@ CREATE INDEX IF NOT EXISTS idx_erp_plantillas_proyecto_id ON erp_plantillas_proy
 
 ALTER TABLE erp_plantillas_proyectos ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Usuarios autenticados pueden leer plantillas"
-  ON erp_plantillas_proyectos FOR SELECT
-  USING (auth.role() = 'authenticated');
-
-CREATE POLICY IF NOT EXISTS "Usuarios autenticados pueden insertar plantillas"
-  ON erp_plantillas_proyectos FOR INSERT
-  WITH CHECK (auth.role() = 'authenticated');
-
-CREATE POLICY IF NOT EXISTS "Usuarios autenticados pueden actualizar plantillas"
-  ON erp_plantillas_proyectos FOR UPDATE
-  USING (auth.role() = 'authenticated');
-
-CREATE POLICY IF NOT EXISTS "Usuarios autenticados pueden eliminar plantillas"
-  ON erp_plantillas_proyectos FOR DELETE
-  USING (auth.role() = 'authenticated');
-
 -- ============================================================
 -- Step 2: Fix erp_error_logs naming mismatch
 -- The code references 'erp_error_logs' but table is 'erp_error_log'
@@ -121,15 +105,18 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 DROP TRIGGER IF EXISTS trg_erp_error_logs_insert ON erp_error_logs;
-CREATE INSTEAD OF INSERT ON erp_error_logs
+CREATE TRIGGER trg_erp_error_logs_insert
+  INSTEAD OF INSERT ON erp_error_logs
   FOR EACH ROW EXECUTE FUNCTION erp_error_logs_insert();
 
 DROP TRIGGER IF EXISTS trg_erp_error_logs_update ON erp_error_logs;
-CREATE INSTEAD OF UPDATE ON erp_error_logs
+CREATE TRIGGER trg_erp_error_logs_update
+  INSTEAD OF UPDATE ON erp_error_logs
   FOR EACH ROW EXECUTE FUNCTION erp_error_logs_update();
 
 DROP TRIGGER IF EXISTS trg_erp_error_logs_delete ON erp_error_logs;
-CREATE INSTEAD OF DELETE ON erp_error_logs
+CREATE TRIGGER trg_erp_error_logs_delete
+  INSTEAD OF DELETE ON erp_error_logs
   FOR EACH ROW EXECUTE FUNCTION erp_error_logs_delete();
 
 -- RLS on the view uses the underlying table's RLS
@@ -176,13 +163,3 @@ BEGIN
   END IF;
 END;
 $$;
-
--- ============================================================
--- Rollback instructions:
---   DROP VIEW IF EXISTS erp_error_logs CASCADE;
---   DROP FUNCTION IF EXISTS erp_error_logs_insert() CASCADE;
---   DROP FUNCTION IF EXISTS erp_error_logs_update() CASCADE;
---   DROP FUNCTION IF EXISTS erp_error_logs_delete() CASCADE;
---   DROP FUNCTION IF EXISTS exec_sql(TEXT) CASCADE;
---   DROP TABLE IF EXISTS erp_plantillas_proyectos CASCADE;
--- ============================================================
