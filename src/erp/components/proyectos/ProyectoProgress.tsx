@@ -17,7 +17,7 @@ const ProyectoProgress: React.FC<ProyectoProgressProps> = ({ avanceFisico, avanc
           <span className="font-semibold text-foreground">{fmtPct(avanceFisico)}</span>
         </div>
         <div className="relative overflow-hidden rounded-full">
-          <Progress value={avanceFisico} color="#3b82f6" />
+          <Progress value={avanceFisico} className="text-blue-500" bg="bg-blue-100" />
           <div className="shimmer-bar absolute inset-0 pointer-events-none" />
         </div>
       </div>
@@ -27,7 +27,7 @@ const ProyectoProgress: React.FC<ProyectoProgressProps> = ({ avanceFisico, avanc
           <span className="font-semibold text-foreground">{fmtPct(avanceFinanciero)}</span>
         </div>
         <div className="relative overflow-hidden rounded-full">
-          <Progress value={avanceFinanciero} color="#f97316" />
+          <Progress value={avanceFinanciero} className="text-orange-500" bg="bg-orange-100" />
           <div className="shimmer-bar absolute inset-0 pointer-events-none" />
         </div>
       </div>

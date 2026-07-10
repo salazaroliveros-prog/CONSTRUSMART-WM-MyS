@@ -244,9 +244,11 @@ const CRM: React.FC = () => {
               )}
             </div>
 
-            <div className="bg-opacity-30 p-2 space-y-2 rounded-b-2xl min-h-[400px]"
-              style={{ background: col.key === 'activa' ? '#eff6ff' : col.key === 'adjudicada' ? '#ecfdf5' : col.key === 'perdida' ? '#fef2f2' : '#f8fafc' }}
-            >
+            <div className={`p-2 space-y-2 rounded-b-2xl min-h-[400px] ${
+              col.key === 'activa' ? 'bg-blue-50/30' :
+              col.key === 'adjudicada' ? 'bg-emerald-50/30' :
+              col.key === 'perdida' ? 'bg-red-50/30' : 'bg-slate-50/30'
+            }`}>
               {col.items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-32 text-slate-300">
                   <Clipboard className="w-8 h-8 mx-auto mb-1" aria-hidden="true" />

@@ -252,16 +252,16 @@ const Dashboard: React.FC = () => {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-2 flex-shrink-0" style={{ opacity: s1, transform: `translateY(${(1 - s1) * 12}px)`, transition: 'all 0.4s ease-out' }}>
         <div className="card-kpi rounded-xl p-3 sm:p-4">
-          <GaugeKpi label={t('dashboard.proyectos')} sublabel={`${activos.length} activos · ${proyectos.length} total`} value={activos.length} displayValue={String(activos.length)} max={Math.max(proyectos.length, 1)} color="from-blue-500 to-indigo-500" icon={<Building2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />} hasData={hasData} delay={0} sparkData={proyTrend} zones={[{ from: 0, to: Math.max(proyectos.length, 1) * 0.3, color: '#6366f1' }, { from: Math.max(proyectos.length, 1) * 0.3, to: Math.max(proyectos.length, 1) * 0.7, color: '#3b82f6' }, { from: Math.max(proyectos.length, 1) * 0.7, to: Math.max(proyectos.length, 1), color: '#10b981' }]} />
+          <GaugeKpi label={t('dashboard.proyectos')} sublabel={`${activos.length} activos · ${proyectos.length} total`} value={activos.length} displayValue={String(activos.length)} max={Math.max(proyectos.length, 1)} color="from-primary to-primary/80" icon={<Building2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />} hasData={hasData} delay={0} sparkData={proyTrend} zones={[{ from: 0, to: Math.max(proyectos.length, 1) * 0.3, color: 'hsl(var(--destructive))' }, { from: Math.max(proyectos.length, 1) * 0.3, to: Math.max(proyectos.length, 1) * 0.7, color: 'hsl(var(--warning))' }, { from: Math.max(proyectos.length, 1) * 0.7, to: Math.max(proyectos.length, 1), color: 'hsl(var(--success))' }]} />
         </div>
         <div className="card-kpi rounded-xl p-3 sm:p-4">
           <GaugeKpi label={t('dashboard.presupuesto')} sublabel={fmtQ(presupuestoTotal)} value={presupuestoTotal} displayValue={presupuestoTotal > 0 ? `Q ${(presupuestoTotal / 1000000).toFixed(1)}M` : 'Q 0'} max={Math.max(presupuestoTotal * 1.5, 1000000)} color="from-orange-500 to-amber-500" icon={<DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5" />} hasData={hasData} delay={100} sparkData={gastoTrend} />
         </div>
         <div className="card-kpi rounded-xl p-3 sm:p-4">
-          <GaugeKpi label={t('dashboard.margen_util')} sublabel={margenProm > 0 ? t('dashboard.sano') : t('dashboard.riesgo')} value={Math.max(0, margenProm)} displayValue={fmtPct(margenProm)} max={50} color="from-emerald-500 to-teal-500" icon={<TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />} hasData={hasData && presupuestoTotal > 0} delay={200} zones={[{ from: 0, to: 10, color: '#ef4444' }, { from: 10, to: 25, color: '#f59e0b' }, { from: 25, to: 50, color: '#10b981' }]} />
+          <GaugeKpi label={t('dashboard.margen_util')} sublabel={margenProm > 0 ? t('dashboard.sano') : t('dashboard.riesgo')} value={Math.max(0, margenProm)} displayValue={fmtPct(margenProm)} max={50} color="from-success to-success/80" icon={<TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />} hasData={hasData && presupuestoTotal > 0} delay={200} zones={[{ from: 0, to: 10, color: 'hsl(var(--destructive))' }, { from: 10, to: 25, color: 'hsl(var(--warning))' }, { from: 25, to: 50, color: 'hsl(var(--success))' }]} />
         </div>
         <div className="card-kpi rounded-xl p-3 sm:p-4">
-          <GaugeKpi label={t('dashboard.desviacion')} sublabel={Math.abs(desviacion) > 15 ? t('dashboard.riesgo') : t('dashboard.sano')} value={Math.max(0, Math.min(100, 50 + desviacion * 2))} displayValue={fmtPct(desviacion)} max={100} color={Math.abs(desviacion) > 15 ? 'from-red-500 to-rose-500' : 'from-amber-500 to-yellow-500'} icon={<AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />} hasData={hasData && proyectosSel.length > 0} delay={300} zones={[{ from: 0, to: 30, color: '#10b981' }, { from: 30, to: 70, color: '#f59e0b' }, { from: 70, to: 100, color: '#ef4444' }]} />
+          <GaugeKpi label={t('dashboard.desviacion')} sublabel={Math.abs(desviacion) > 15 ? t('dashboard.riesgo') : t('dashboard.sano')} value={Math.max(0, Math.min(100, 50 + desviacion * 2))} displayValue={fmtPct(desviacion)} max={100} color={Math.abs(desviacion) > 15 ? 'from-destructive to-destructive/80' : 'from-warning to-warning/80'} icon={<AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />} hasData={hasData && proyectosSel.length > 0} delay={300} zones={[{ from: 0, to: 30, color: 'hsl(var(--success))' }, { from: 30, to: 70, color: 'hsl(var(--warning))' }, { from: 70, to: 100, color: 'hsl(var(--destructive))' }]} />
         </div>
       </div>
 
@@ -270,7 +270,7 @@ const Dashboard: React.FC = () => {
           <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1.5`}><Calculator className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />{t('dashboard.planif')} vs {t('dashboard.real')}</h3>
           {(planVsReal.conPlan > 0 || planVsReal.costoPlanificado > 0 || planVsReal.costoReal > 0) ? (
             <div className="flex items-center gap-3">
-              <Donut size={110} data={[{ label: t('dashboard.planif'), value: planVsReal.costoPlanificado || 0, color: '#3b82f6' }, { label: t('dashboard.real'), value: Math.max(planVsReal.costoReal, 0) || 0, color: '#f97316' }]} />
+              <Donut size={110} data={[{ label: t('dashboard.planif'), value: planVsReal.costoPlanificado || 0, color: 'hsl(var(--primary))' }, { label: t('dashboard.real'), value: Math.max(planVsReal.costoReal, 0) || 0, color: 'hsl(var(--warning))' }]} />
               <div className="flex-1 text-[10px] space-y-1">
                 <div className="flex justify-between"><span className="text-muted-foreground">Planificado</span><b className="text-foreground">{fmtQ(planVsReal.costoPlanificado || 0)}</b></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Real</span><b className="text-foreground">{fmtQ(Math.max(planVsReal.costoReal, 0))}</b></div>
@@ -285,12 +285,12 @@ const Dashboard: React.FC = () => {
         <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
           <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1.5`}><Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />{t('dashboard.avance_general')}</h3>
           <div className="flex items-center gap-3">
-            <div className="w-24 flex-shrink-0"><Gauge value={avanceProm} max={100} label={t('dashboard.avance_fisico')} color={avanceProm < 30 ? '#ef4444' : avanceProm < 70 ? '#f59e0b' : '#10b981'} /></div>
-            <div className="flex-1 text-[10px] space-y-1">
-              <div className="flex justify-between items-center"><span className="text-muted-foreground">{t('dashboard.avance_fisico')}</span><b className={avanceColor}>{fmtPct(avanceProm)}</b></div>
-              <Progress value={Math.min(avanceProm, 100)} color={avanceProm < 30 ? '#ef4444' : avanceProm < 70 ? '#f59e0b' : '#10b981'} />
-              <div className="flex justify-between items-center pt-0.5"><span className="text-muted-foreground">{t('dashboard.avance_financiero')}</span><b className={avanceFinProm < 30 ? COLOR_DANGER : avanceFinProm < 70 ? COLOR_WARNING : COLOR_SUCCESS}>{fmtPct(avanceFinProm)}</b></div>
-              <Progress value={Math.min(avanceFinProm, 100)} color={avanceFinProm < 30 ? '#ef4444' : avanceFinProm < 70 ? '#f59e0b' : '#10b981'} />
+             <div className="w-24 flex-shrink-0"><Gauge value={avanceProm} max={100} label={t('dashboard.avance_fisico')} color={avanceProm < 30 ? 'hsl(var(--destructive))' : avanceProm < 70 ? 'hsl(var(--warning))' : 'hsl(var(--success))'} /></div>
+             <div className="flex-1 text-[10px] space-y-1">
+               <div className="flex justify-between items-center"><span className="text-muted-foreground">{t('dashboard.avance_fisico')}</span><b className={avanceColor}>{fmtPct(avanceProm)}</b></div>
+               <Progress value={Math.min(avanceProm, 100)} color={avanceProm < 30 ? 'hsl(var(--destructive))' : avanceProm < 70 ? 'hsl(var(--warning))' : 'hsl(var(--success))'} />
+               <div className="flex justify-between items-center pt-0.5"><span className="text-muted-foreground">{t('dashboard.avance_financiero')}</span><b className={avanceFinProm < 30 ? COLOR_DANGER : avanceFinProm < 70 ? COLOR_WARNING : COLOR_SUCCESS}>{fmtPct(avanceFinProm)}</b></div>
+               <Progress value={Math.min(avanceFinProm, 100)} color={avanceFinProm < 30 ? 'hsl(var(--destructive))' : avanceFinProm < 70 ? 'hsl(var(--warning))' : 'hsl(var(--success))'} />
               <div className="flex justify-between text-[10px] text-muted-foreground pt-0.5"><span>{t('dashboard.registros_avance')}</span><span className="text-foreground font-medium">{avances.length}</span></div>
               <div className="flex justify-between text-[10px] text-muted-foreground"><span>{t('dashboard.proy_ejecucion')}</span><span className="text-foreground font-medium">{activos.length}</span></div>
             </div>
@@ -301,7 +301,7 @@ const Dashboard: React.FC = () => {
           <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1.5`}><Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />{t('dashboard.recursos') || 'Recursos'}</h3>
           <div className="flex gap-3">
             <div className="flex flex-col items-center">
-              <Donut size={90} data={[{ label: t('dashboard.stock_critico'), value: stockData.criticos, color: '#ef4444' }, { label: 'OK', value: stockData.ok, color: '#10b981' }]} />
+              <Donut size={90} data={[{ label: t('dashboard.stock_critico'), value: stockData.criticos, color: 'hsl(var(--destructive))' }, { label: 'OK', value: stockData.ok, color: 'hsl(var(--success))' }]} />
               <span className="text-[10px] text-muted-foreground mt-0.5">{stockData.criticos > 0 ? `${stockData.criticos} críticos` : `${stockData.total} mats`}</span>
             </div>
             <div className="flex-1 space-y-2">

@@ -17,9 +17,9 @@ interface GaugeKpiProps {
 }
 
 const DEFAULT_ZONES = (max: number) => [
-  { from: 0, to: max * 0.3, color: '#ef4444' },
-  { from: max * 0.3, to: max * 0.7, color: '#f59e0b' },
-  { from: max * 0.7, to: max, color: '#10b981' },
+  { from: 0, to: max * 0.3, color: 'hsl(var(--destructive))' },
+  { from: max * 0.3, to: max * 0.7, color: 'hsl(var(--warning))' },
+  { from: max * 0.7, to: max, color: 'hsl(var(--success))' },
 ];
 
 function useNeedle(target: number, max: number, ms = 1200, delay = 0) {

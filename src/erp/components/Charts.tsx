@@ -304,17 +304,17 @@ export const Gauge: React.FC<{
 
   return (
     <svg viewBox="0 0 160 100" className="w-full" role="img" aria-label={`Gauge: ${label}`}>
-      <path d="M 20 80 A 60 60 0 0 1 140 80" fill="none" stroke="#e2e8f0"
+      <path d="M 20 80 A 60 60 0 0 1 140 80" fill="none" stroke="hsl(var(--border))"
         strokeWidth={12} strokeLinecap="round" />
-      <path d="M 20 80 A 60 60 0 0 1 80 20" fill="none" stroke="#ef4444"
+      <path d="M 20 80 A 60 60 0 0 1 80 20" fill="none" stroke="hsl(var(--destructive))"
         strokeWidth={12} opacity={0.35} />
       <path d="M 80 20 A 60 60 0 0 1 140 80" fill="none" stroke={color}
         strokeWidth={12} opacity={0.35} />
       <line x1={cx} y1={cy} x2={nx} y2={ny}
-        stroke="#334155" strokeWidth={3} strokeLinecap="round"
+        stroke="hsl(var(--foreground))" strokeWidth={3} strokeLinecap="round"
         style={{ transition: 'all 0.05s' }} />
-      <circle cx={cx} cy={cy} r={5} fill="#334155" />
-      <text x={80} y={97} fontSize={9} textAnchor="middle" fill="#94a3b8">{label}</text>
+      <circle cx={cx} cy={cy} r={5} fill="hsl(var(--foreground))" />
+      <text x={80} y={97} fontSize={9} textAnchor="middle" fill="hsl(var(--muted-foreground))">{label}</text>
     </svg>
   );
 });

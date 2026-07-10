@@ -202,7 +202,7 @@ const Seguimiento: React.FC = () => {
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <Progress value={safeNum(p.avanceFisico)} color="#3b82f6" />
+                       <Progress value={safeNum(p.avanceFisico)} color="hsl(var(--primary))" />
                       <span className="text-xs font-semibold w-10 text-foreground">{safePct(p.avanceFisico)}</span>
                       <button type="button" onClick={() => startEditProjectProgress(p.id, safeNum(p.avanceFisico))}
                         aria-label={t('seguimiento.editar_avance_fisico_de', { nombre: p.nombre })}
@@ -212,7 +212,7 @@ const Seguimiento: React.FC = () => {
                     </div>
                   )}
                 </td>
-                <td className="p-3"><div className="flex items-center gap-2"><Progress value={safeNum(p.avanceFinanciero)} color="#f97316" /><span className="text-xs font-semibold w-10 text-foreground">{safePct(p.avanceFinanciero)}</span></div></td>
+                <td className="p-3"><div className="flex items-center gap-2"><Progress value={safeNum(p.avanceFinanciero)} color="hsl(var(--warning))" /><span className="text-xs font-semibold w-10 text-foreground">{safePct(p.avanceFinanciero)}</span></div></td>
                 <td className="p-3 text-right text-emerald-600 dark:text-emerald-400 font-semibold">{fmtQ(safeNum(p.ing))}</td>
                 <td className="p-3 text-right text-red-500 dark:text-red-400 font-semibold">{fmtQ(safeNum(p.gas))}</td>
                 <td className="p-3 text-right text-foreground font-bold">{fmtQ(safeNum(p.pendiente))}</td>
@@ -242,10 +242,10 @@ const Seguimiento: React.FC = () => {
         {proy ? (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
-              <div><Gauge value={CV} max={safeNum(proy.presupuestoTotal) || 1} label={t('seguimiento.cv_costo')} color={CV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${CV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(CV)}</div></div>
-              <div><Gauge value={SV} max={safeNum(proy.presupuestoTotal) || 1} label={t('seguimiento.sv_tiempo')} color={SV >= 0 ? '#10b981' : '#ef4444'} /><div className={`text-center text-xs font-bold ${SV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(SV)}</div></div>
-              <div><Gauge value={spi} max={1.5} label="SPI" color={spi >= 1 ? '#10b981' : '#f59e0b'} /><div className="text-center text-xs font-bold">{spi.toFixed(2)}</div></div>
-              <div><Gauge value={cpi} max={1.5} label="CPI" color={cpi >= 1 ? '#10b981' : '#f59e0b'} /><div className="text-center text-xs font-bold">{cpi.toFixed(2)}</div></div>
+               <div><Gauge value={CV} max={safeNum(proy.presupuestoTotal) || 1} label={t('seguimiento.cv_costo')} color={CV >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'} /><div className={`text-center text-xs font-bold ${CV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(CV)}</div></div>
+               <div><Gauge value={SV} max={safeNum(proy.presupuestoTotal) || 1} label={t('seguimiento.sv_tiempo')} color={SV >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'} /><div className={`text-center text-xs font-bold ${SV >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(SV)}</div></div>
+               <div><Gauge value={spi} max={1.5} label="SPI" color={spi >= 1 ? 'hsl(var(--success))' : 'hsl(var(--warning))'} /><div className="text-center text-xs font-bold">{spi.toFixed(2)}</div></div>
+               <div><Gauge value={cpi} max={1.5} label="CPI" color={cpi >= 1 ? 'hsl(var(--success))' : 'hsl(var(--warning))'} /><div className="text-center text-xs font-bold">{cpi.toFixed(2)}</div></div>
             </div>
             <div className="flex items-center justify-between">
               <h3 className={CARD_TITLE}>{t('seguimiento.fisico_vs_financiero')}</h3>
@@ -256,16 +256,16 @@ const Seguimiento: React.FC = () => {
                 palette={barConfig.palette}
                 onPaletteChange={barConfig.setPalette}
                 series={[
-                  { id: 'Físico', label: 'Físico', color: '#3b82f6', visible: barConfig.isVisible('Físico') },
-                  { id: 'Financ.', label: 'Financ.', color: '#f97316', visible: barConfig.isVisible('Financ.') },
+                  { id: 'Físico', label: 'Físico', color: 'hsl(var(--primary))', visible: barConfig.isVisible('Físico') },
+                  { id: 'Financ.', label: 'Financ.', color: 'hsl(var(--warning))', visible: barConfig.isVisible('Financ.') },
                 ]}
                 onToggleSeries={barConfig.toggleSeries}
                 onReset={barConfig.reset}
               />
             </div>
             <BarChart height={180} data={[
-              { label: 'Físico', value: safeNum(proy.avanceFisico), color: '#3b82f6' },
-              { label: 'Financ.', value: safeNum(proy.avanceFinanciero), color: '#f97316' },
+              { label: 'Físico', value: safeNum(proy.avanceFisico), color: 'hsl(var(--primary))' },
+              { label: 'Financ.', value: safeNum(proy.avanceFinanciero), color: 'hsl(var(--warning))' },
             ]} palette={barConfig.palette} />
           </>
         ) : (
@@ -399,7 +399,7 @@ const Seguimiento: React.FC = () => {
                     <td className="p-3">{a.fecha}</td>
                     <td className="p-3 font-medium">{proyectos.find(p => p.id === a.proyectoId)?.nombre}</td>
                     <td className="p-3">{a.renglonNombre || a.renglonCodigo || a.renglonId || t('seguimiento.global')}</td>
-                    <td className="p-3 text-right"><Progress value={safeNum(a.avanceFisico)} color="#10b981" /><span className="ml-2 font-semibold">{safePct(a.avanceFisico)}</span></td>
+                    <td className="p-3 text-right"><Progress value={safeNum(a.avanceFisico)} color="hsl(var(--success))" /><span className="ml-2 font-semibold">{safePct(a.avanceFisico)}</span></td>
                     <td className="p-3 text-right font-semibold">{safeNum(a.cantidadEjecutada).toLocaleString('es-GT')}</td>
                     <td className="p-3 text-muted-foreground">{a.notas || '-'}</td>
                   </tr>
@@ -413,7 +413,7 @@ const Seguimiento: React.FC = () => {
           {avanceData.length > 0 ? (
             <LineChart height={220}
               labels={avanceData.map(a => a.fecha.slice(5))}
-              series={[{ label: 'Avance físico', data: avanceData.map(a => safeNum(a.avanceFisico)), color: '#10b981' }]}
+              series={[{ label: 'Avance físico', data: avanceData.map(a => safeNum(a.avanceFisico)), color: 'hsl(var(--success))' }]}
             />
           ) : (
             <div className="p-6 text-center text-xs text-muted-foreground">{t('seguimiento.selecciona_proyecto_curva')}</div>

@@ -3,6 +3,8 @@ import { ErpProvider, useErp } from '@/erp/store';
 import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
 import { ErrorBoundary } from './ErrorBoundary';
 import { PageTransition } from './Animations';
+import { AntdProvider } from '@/lib/antd-config';
+import type { ThemeMode } from '@/lib/antd-config';
 
 const Header = lazy(() => import('@/erp/components/Header'));
 const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
@@ -148,6 +150,7 @@ const Shell: React.FC = () => {
       footerEnabled: appSettings.footerEnabled,
       touchMode: appSettings.touchMode,
     });
+    window.dispatchEvent(new Event('wm-theme-changed'));
   }, [
     appSettings.appTheme, appSettings.compactMode, appSettings.primaryColor,
     appSettings.uiMode, appSettings.animationsEnabled, appSettings.fontSize,
@@ -274,25 +277,30 @@ const Shell: React.FC = () => {
   );
 };
 
-const AppLayoutContent: React.FC = () => {
-  const { user, initializing } = useErp();
+  const AppLayoutContent: React.FC = () => {
+    const { appSettings, initializing, user } = useErp();
+    const antdMode: ThemeMode = appSettings.appTheme || 'ant-design';
 
-  if (initializing) {
-    return <AppLoader />;
-  }
+    if (initializing) {
+      return <AppLoader />;
+    }
 
-  const BYPASS_LOGIN = import.meta.env.DEV;
+    const BYPASS_LOGIN = import.meta.env.DEV;
 
-  if (!user && !BYPASS_LOGIN) {
+    if (!user && !BYPASS_LOGIN) {
+      return (
+        <Suspense fallback={<AppLoader />}>
+          <Login />
+        </Suspense>
+      );
+    }
+
     return (
-      <Suspense fallback={<AppLoader />}>
-        <Login />
-      </Suspense>
+      <AntdProvider mode={antdMode}>
+        <Shell />
+      </AntdProvider>
     );
-  }
-
-  return <Shell />;
-};
+  };
 
 const AppLayout: React.FC = () => (
   <AppProvider>

@@ -174,51 +174,63 @@ const ExportacionInteligente: React.FC = () => {
       const { default: jsPDF } = await import('jspdf');
       const { default: html2canvas } = await import('html2canvas');
 
+      const rootStyles = getComputedStyle(document.documentElement);
+      const themeTokens = {
+        primary: rootStyles.getPropertyValue('--erp-color-primary').trim() || '#f97316',
+        text: rootStyles.getPropertyValue('--erp-color-text').trim() || '#1e293b',
+        textSecondary: rootStyles.getPropertyValue('--erp-color-text-secondary').trim() || '#64748b',
+        bg: rootStyles.getPropertyValue('--erp-color-bg').trim() || '#ffffff',
+        bgSecondary: rootStyles.getPropertyValue('--erp-color-bg-secondary').trim() || '#f5f5f5',
+        bgTertiary: rootStyles.getPropertyValue('--erp-color-bg-tertiary').trim() || '#f8fafc',
+        border: rootStyles.getPropertyValue('--erp-color-border').trim() || '#e2e8f0',
+        borderSecondary: rootStyles.getPropertyValue('--erp-color-border-secondary').trim() || '#f0f0f0',
+      };
+
       const reportDiv = document.createElement('div');
-      reportDiv.style.cssText = 'padding: 30px; font-family: Arial, sans-serif; max-width: 800px; background: white;';
+      reportDiv.style.cssText = `padding: 30px; font-family: Arial, sans-serif; max-width: 800px; background: ${themeTokens.bg}; color: ${themeTokens.text};`;
       reportDiv.innerHTML = `
-        <div style="text-align:center;border-bottom:3px solid #f97316;padding-bottom:15px;margin-bottom:20px">
-          <h1 style="margin:0;color:#1e293b">CONSTRUCTORA WM</h1>
-          <p style="margin:5px 0;color:#f97316;font-style:italic">Edificando el Futuro</p>
-          <p style="margin:0;color:#64748b;font-size:11px">${t('exportacion.reporte_pdf_fecha', 'Reporte Ejecutivo')} · ${new Date().toLocaleDateString('es-GT', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <div style="text-align:center;border-bottom:3px solid ${themeTokens.primary};padding-bottom:15px;margin-bottom:20px">
+          <h1 style="margin:0;color:${themeTokens.text}">CONSTRUCTORA WM</h1>
+          <p style="margin:5px 0;color:${themeTokens.primary};font-style:italic">Edificando el Futuro</p>
+          <p style="margin:0;color:${themeTokens.textSecondary};font-size:11px">${t('exportacion.reporte_pdf_fecha', 'Reporte Ejecutivo')} · ${new Date().toLocaleDateString('es-GT', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
         </div>
-        <h2 style="color:#1e293b;font-size:14px">${t('exportacion.resumen_general', 'Resumen General')}</h2>
+        <h2 style="color:${themeTokens.text};font-size:14px">${t('exportacion.resumen_general', 'Resumen General')}</h2>
         <table style="width:100%;border-collapse:collapse;margin-bottom:15px">
-          <tr style="background:#f8fafc">
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px"><b>${t('exportacion.total_proyectos', 'Total Proyectos')}</b></td>
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px">${proyectos.length}</td>
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px"><b>${t('exportacion.total_empleados', 'Total Empleados')}</b></td>
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px">${empleados.length}</td>
+          <tr style="background:${themeTokens.bgTertiary}">
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px"><b>${t('exportacion.total_proyectos', 'Total Proyectos')}</b></td>
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px">${proyectos.length}</td>
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px"><b>${t('exportacion.total_empleados', 'Total Empleados')}</b></td>
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px">${empleados.length}</td>
           </tr>
           <tr>
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px"><b>${t('exportacion.total_materiales', 'Total Materiales')}</b></td>
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px">${materiales.length}</td>
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px"><b>${t('exportacion.total_movimientos', 'Total Movimientos')}</b></td>
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px">${movimientos.length}</td>
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px"><b>${t('exportacion.total_materiales', 'Total Materiales')}</b></td>
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px">${materiales.length}</td>
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px"><b>${t('exportacion.total_movimientos', 'Total Movimientos')}</b></td>
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px">${movimientos.length}</td>
           </tr>
-          <tr style="background:#f8fafc">
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px"><b>${t('exportacion.presupuesto_total', 'Presupuesto Total')}</b></td>
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px">Q${fmtQ(proyectos.reduce((a, p) => a + (p.presupuestoTotal || 0), 0))}</td>
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px"><b>${t('exportacion.avance_promedio', 'Avance Promedio')}</b></td>
-            <td style="padding:8px;border:1px solid #e2e8f0;font-size:11px">${proyectos.length > 0 ? (proyectos.reduce((a, p) => a + (p.avanceFisico || 0), 0) / proyectos.length).toFixed(0) : 0}%</td>
+          <tr style="background:${themeTokens.bgTertiary}">
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px"><b>${t('exportacion.presupuesto_total', 'Presupuesto Total')}</b></td>
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px">Q${fmtQ(proyectos.reduce((a, p) => a + (p.presupuestoTotal || 0), 0))}</td>
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px"><b>${t('exportacion.avance_promedio', 'Avance Promedio')}</b></td>
+            <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px">${proyectos.length > 0 ? (proyectos.reduce((a, p) => a + (p.avanceFisico || 0), 0) / proyectos.length).toFixed(0) : 0}%</td>
           </tr>
         </table>
-        <h2 style="color:#1e293b;font-size:14px">${t('exportacion.proyectos', 'Proyectos')}</h2>
+        <h2 style="color:${themeTokens.text};font-size:14px">${t('exportacion.proyectos', 'Proyectos')}</h2>
         <table style="width:100%;border-collapse:collapse;margin-bottom:15px">
-          <tr style="background:#f97316;color:white">
-            <th style="padding:6px;border:1px solid #f97316;font-size:10px">${t('exportacion.nombre', 'Nombre')}</th>
-            <th style="padding:6px;border:1px solid #f97316;font-size:10px">${t('exportacion.estado', 'Estado')}</th>
-            <th style="padding:6px;border:1px solid #f97316;font-size:10px">${t('exportacion.presupuesto', 'Presupuesto')}</th>
-            <th style="padding:6px;border:1px solid #f97316;font-size:10px">${t('exportacion.avance', 'Avance')}</th>
+          <tr style="background:${themeTokens.primary};color:${themeTokens.bg}">
+            <th style="padding:6px;border:1px solid ${themeTokens.primary};font-size:10px">${t('exportacion.nombre', 'Nombre')}</th>
+            <th style="padding:6px;border:1px solid ${themeTokens.primary};font-size:10px">${t('exportacion.estado', 'Estado')}</th>
+            <th style="padding:6px;border:1px solid ${themeTokens.primary};font-size:10px">${t('exportacion.presupuesto', 'Presupuesto')}</th>
+            <th style="padding:6px;border:1px solid ${themeTokens.primary};font-size:10px">${t('exportacion.avance', 'Avance')}</th>
           </tr>
           ${proyectos.map(p => `<tr>
-            <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">${sanitizarTexto(p.nombre)}</td>
-            <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">${sanitizarTexto(p.estado)}</td>
-            <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">Q${fmtQ(p.presupuestoTotal || 0)}</td>
-            <td style="padding:6px;border:1px solid #e2e8f0;font-size:10px">${p.avanceFisico || 0}%</td>
+            <td style="padding:6px;border:1px solid ${themeTokens.border};font-size:10px">${sanitizarTexto(p.nombre)}</td>
+            <td style="padding:6px;border:1px solid ${themeTokens.border};font-size:10px">${sanitizarTexto(p.estado)}</td>
+            <td style="padding:6px;border:1px solid ${themeTokens.border};font-size:10px">Q${fmtQ(p.presupuestoTotal || 0)}</td>
+            <td style="padding:6px;border:1px solid ${themeTokens.border};font-size:10px">${p.avanceFisico || 0}%</td>
           </tr>`).join('')}
         </table>
-        <p style="color:#94a3b8;font-size:9px;text-align:center;margin-top:30px">${t('exportacion.generado_por', 'Generado por CONSTRUSMART ERP')} · ${todayISO()}</p>
+        <p style="color:${themeTokens.textSecondary};font-size:9px;text-align:center;margin-top:30px">${t('exportacion.generado_por', 'Generado por CONSTRUSMART ERP')} · ${todayISO()}</p>
       `;
       document.body.appendChild(reportDiv);
       const canvas = await html2canvas(reportDiv, { scale: 2, useCORS: true });

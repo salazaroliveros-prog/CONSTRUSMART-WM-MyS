@@ -586,8 +586,22 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setNotificaciones: (v) => set(typeof v === 'function' ? { notificaciones: v(get().notificaciones) } : { notificaciones: v }),
   setIsOnline: (v) => set({ isOnline: v }),
   setCurrentProjectId: (v) => set({ currentProjectId: v }),
-  setAppSettings: (v) => set(typeof v === 'function' ? { appSettings: v(get().appSettings) } : { appSettings: v }),
-  updateAppSettings: (patch) => set(s => ({ appSettings: { ...s.appSettings, ...patch } })),
+  setAppSettings: (v) => {
+    const next = typeof v === 'function' ? v(get().appSettings) : v;
+    set({ appSettings: next });
+    try {
+      localStorage.setItem('wm_erp_data_settings', JSON.stringify(next));
+      if (next.appTheme) localStorage.setItem('wm_erp_theme', next.appTheme);
+    } catch {}
+  },
+  updateAppSettings: (patch) => {
+    const next = { ...get().appSettings, ...patch };
+    set({ appSettings: next });
+    try {
+      localStorage.setItem('wm_erp_data_settings', JSON.stringify(next));
+      if (patch.appTheme) localStorage.setItem('wm_erp_theme', patch.appTheme);
+    } catch {}
+  },
   setAuditLog: (v) => set(typeof v === 'function' ? { auditLog: v(get().auditLog) } : { auditLog: v }),
 
   enqueueMutation: (type, payload) => {
