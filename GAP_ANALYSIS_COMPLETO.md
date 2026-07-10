@@ -1,11 +1,13 @@
 # GAP ANALYSIS COMPLETO — CONSTRUSMART ERP
 ## Estado Actual vs Documentación .md
 
-**Fecha:** 07/06/2026
+**Fecha:** 07/06/2026 (actualizado 10/07/2026)
 **Tests:** 611/611 pass (21 archivos)
 **TypeScript:** 0 errores
 **Build:** Exitoso
 **Deploy:** Producción activa en Vercel
+
+**Nota:** Actualizado el 10/07/2026 tras revisión de código - múltiples items marcados como pendientes ya estaban implementados en Ajustes.tsx
 
 ---
 
@@ -36,17 +38,17 @@
 
 | Item | Prioridad | Estado Actual |
 |------|-----------|---------------|
-| **Posición del sidebar configurable** (izquierda/derecha/overlay) | P0 | ❌ No implementado en Ajustes |
-| **Modo hover-to-expand** en sidebar colapsado | P0 | ❌ No implementado |
-| **Fuente tipográfica seleccionable** (Inter, Roboto, Open Sans, etc.) | P1 | ❌ No implementado en Ajustes |
-| **Espaciado/padding global** configurable | P0 | ❌ No implementado |
-| **Radio de bordes global** configurable | P1 | ❌ No implementado |
-| **Densidad de tabla** (compact/normal/comfortable) | P0 | ❌ No implementado |
-| **Animaciones por tipo** (fade, slide, scale, none) | P1 | ❌ Solo fade implementado |
-| **Breadcrumbs on/off** | P1 | ❌ No implementado |
+| **Posición del sidebar configurable** (izquierda/derecha/overlay) | P0 | ✅ IMPLEMENTADO (Radio.Group en Ajustes.tsx) |
+| **Modo hover-to-expand** en sidebar colapsado | P0 | ✅ IMPLEMENTADO (Radio.Group en Ajustes.tsx) |
+| **Fuente tipográfica seleccionable** (Inter, Roboto, Open Sans, etc.) | P1 | ✅ IMPLEMENTADO (5 opciones en Ajustes.tsx) |
+| **Espaciado/padding global** configurable | P0 | ✅ IMPLEMENTADO (compacto/normal/amplio en Ajustes.tsx) |
+| **Radio de bordes global** configurable | P1 | ✅ IMPLEMENTADO (5 niveles en Ajustes.tsx) |
+| **Densidad de tabla** (compact/normal/comfortable) | P0 | ✅ IMPLEMENTADO (3 opciones en Ajustes.tsx) |
+| **Animaciones por tipo** (fade, slide, scale, none) | P1 | ✅ IMPLEMENTADO (4 tipos en Ajustes.tsx) |
+| **Breadcrumbs on/off** | P1 | ✅ IMPLEMENTADO (Switch en Ajustes.tsx) |
 | **Posición de notificaciones toast** configurable | P2 | ❌ No implementado |
-| **Modo quiosco/touch** para tablets | P0 | ❌ No implementado |
-| **Footer on/off** | P2 | ❌ No implementado |
+| **Modo quiosco/touch** para tablets | P0 | ✅ IMPLEMENTADO (Switch en Ajustes.tsx) |
+| **Footer on/off** | P2 | ✅ IMPLEMENTADO (Switch en Ajustes.tsx) |
 | **Sonidos de notificación** | P2 | ❌ No implementado |
 | **COLOR_* string literals** en CRM.tsx, PlantillasProyectos.tsx | HIGH | ❌ ~13 instancias de `"COLOR_DANGER"` como string literal |
 | **hover:COLOR_DANGER** en Bodega.tsx | HIGH | ❌ CSS inválido |
@@ -224,20 +226,20 @@
 
 1. **Corregir COLOR_* string literals** en CRM.tsx y PlantillasProyectos.tsx (~13 instancias)
 2. **Corregir hover:COLOR_DANGER** en Bodega.tsx
-3. **Posición del sidebar configurable** en Ajustes
-4. **Modo hover-to-expand** en sidebar colapsado
-5. **Espaciado/padding global** configurable
-6. **Densidad de tabla** (compact/normal/comfortable)
-7. **Modo quiosco/touch** para tablets
+3. ~~Posición del sidebar configurable~~ en Ajustes ✅ COMPLETADO
+4. ~~Modo hover-to-expand~~ en sidebar colapsado ✅ COMPLETADO
+5. ~~Espaciado/padding global~~ configurable ✅ COMPLETADO
+6. ~~Densidad de tabla~~ (compact/normal/comfortable) ✅ COMPLETADO
+7. ~~Modo quiosco/touch~~ para tablets ✅ COMPLETADO
 8. **Índices DB en columnas de filtro frecuente**
 9. **Tests para motor de cálculo** (APU, costos)
 
 ### 🟡 MEDIA PRIORIDAD (P1)
 
-1. **Fuente tipográfica seleccionable**
-2. **Radio de bordes global** configurable
-3. **Animaciones por tipo** (slide, scale, none)
-4. **Breadcrumbs on/off**
+1. ~~Fuente tipográfica seleccionable~~ ✅ COMPLETADO
+2. ~~Radio de bordes global~~ configurable ✅ COMPLETADO
+3. ~~Animaciones por tipo~~ (slide, scale, none) ✅ COMPLETADO
+4. ~~Breadcrumbs on/off~~ ✅ COMPLETADO
 5. **Batch forceSync** (agrupar mutations)
 6. **Web Worker para compresión**
 7. **Virtual scrolling** con react-window
@@ -253,7 +255,7 @@
 ### 🟢 BAJA PRIORIDAD (P2)
 
 1. **Posición de notificaciones toast** configurable
-2. **Footer on/off**
+2. ~~Footer on/off~~ ✅ COMPLETADO
 3. **Sonidos de notificación**
 4. **Partitioning** en tablas grandes
 5. **Rate limiting** (token bucket)

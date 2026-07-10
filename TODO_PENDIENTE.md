@@ -1,7 +1,9 @@
 # 📋 CONSTRUSMART ERP — Items Pendientes
 
-**Fecha:** 07/07/2026
+**Fecha:** 07/07/2026 (actualizado 10/07/2026)
 **Progreso General:** ~95% completado
+
+**Nota:** Actualizado el 10/07/2026 - items de diseño UI/UX marcados como completados tras verificación en Ajustes.tsx
 
 ---
 
