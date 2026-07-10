@@ -1,6 +1,21 @@
 import { ReactNode, useEffect, useState, useRef } from 'react';
 
 /**
+ * COMPONENTES DE ANIMACIÓN PARA TRANSICIONES DE PANTALLA
+ * 
+ * Este archivo contiene componentes para animaciones de transición entre pantallas
+ * en la aplicación CONSTRUSMART ERP.
+ * 
+ * Componentes principales:
+ * - PageTransition: Animación de entrada para cambios de pantalla
+ * - Soporta tipos: fade, slide, scale, none
+ * - Respeta prefers-reduced-motion y la configuración de animaciones del usuario
+ * 
+ * NOTA: El archivo src/components/ui/animations.tsx fue eliminado porque no estaba siendo utilizado.
+ * Si se necesitan animaciones para tarjetas u otros componentes UI, considerar agregarlas aquí.
+ */
+
+/**
  * PageTransition — Animación de entrada para cambios de pantalla
  * Respeta prefers-reduced-motion y la configuración de animaciones del usuario
  */
