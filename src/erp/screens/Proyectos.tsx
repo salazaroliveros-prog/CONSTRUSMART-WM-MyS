@@ -27,7 +27,7 @@ const ETAPAS = ['planificacion', 'diseno', 'preconstruccion', 'construccion', 'c
 const Proyectos: React.FC = () => {
   const { t } = useTranslation();
   const proyectos = useErp(s => s.proyectos);
-  const safeProyectos = Array.isArray(proyectos) ? proyectos : [];
+  const safeProyectos = React.useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]);
 
   const {
     show, setShow,

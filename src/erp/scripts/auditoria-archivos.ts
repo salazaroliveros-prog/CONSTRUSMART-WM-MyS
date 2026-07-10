@@ -166,7 +166,7 @@ function findObsoleteImports(files: FileInfo[], allImports: Map<string, ImportIn
   
   for (const [filePath, imports] of allImports) {
     for (const imp of imports) {
-      let importPath = imp.from;
+      const importPath = imp.from;
       let resolvedPath: string | null = null;
       
       if (importPath.startsWith('.')) {

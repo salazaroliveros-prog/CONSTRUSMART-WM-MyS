@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
     cotizacionesNegocio, notificacionesNoLeidas, notificaciones,
   } = ctx;
 
-  const safeProyectos = Array.isArray(proyectos) ? proyectos : [];
+  const safeProyectos = useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]);
 
   const hasData = safeProyectos.length > 0 || (movimientos || []).length > 0 || (materiales || []).length > 0;
   const filteredProyectos = useMemo(() => {
