@@ -14,6 +14,7 @@ import type {
   NoConformidad, LiberacionPartida, Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo,
   PagoProveedor, CotizacionCliente, VentaPaquete,   Destajo, RecepcionAlmacen, Incidente, Rol, CentroCosto, CalculoProyecto, InsumoBase,
   ReglaFactor, NormativaDepartamental, EscalaProduccion, Estacionalidad, HistorialAplicacionRegla,
+  AjusteEstacionalActividad, AplicacionEscala, CumplimientoNormativo,
 } from './types';
 import type { Plantilla } from './store/schemas/plantillas';
 import type { ErrorLogEntry } from './store/schemas/errorLog';
@@ -106,6 +107,9 @@ interface ErpData {
   reglasFactores: ReglaFactor[]; normativasDepartamentales: NormativaDepartamental[];
   escalasProduccion: EscalaProduccion[]; estacionalidad: Estacionalidad[];
   historialReglas: HistorialAplicacionRegla[];
+  ajustesEstacionalesActividad: AjusteEstacionalActividad[];
+  aplicacionEscalas: AplicacionEscala[];
+  cumplimientoNormativo: CumplimientoNormativo[];
   mutationQueue: Mutation[]; syncMessage: string; syncCooldown: boolean; notificaciones: Notificacion[];
   auditLog: LogAuditoria[]; syncStatus: 'idle' | 'loading' | 'synced' | 'queued' | 'error';
   lastSyncedAt?: string; syncError?: string;
@@ -505,7 +509,8 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   ventasPaquetes: [], bitacora: [], pruebas: [], ncs: [], valesSalida: [],
   seguimientoEVM: [], incidentes: [], publicacionesMuro: [], liberaciones: [], planos: [],
   rfis: [], submittals: [], activos: [], cuadros: [], pagosProveedor: [],   destajos: [], calculosProyecto: [],
-    recepciones: [], centrosCosto: [],   plantillas: [],
+  ajustesEstacionalesActividad: [], aplicacionEscalas: [], cumplimientoNormativo: [],
+  recepciones: [], centrosCosto: [],   plantillas: [],
   insumosBase: [],
   mutationQueue: [], syncMessage: '', syncCooldown: false, syncStatus: 'idle',
   notificaciones: [],
@@ -549,6 +554,9 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setPagosProveedor: (v) => set(typeof v === 'function' ? { pagosProveedor: v(get().pagosProveedor) } : { pagosProveedor: v }),
   setDestajos: (v) => set(typeof v === 'function' ? { destajos: v(get().destajos) } : { destajos: v }),
   setCalculosProyecto: (v) => set(typeof v === 'function' ? { calculosProyecto: v(get().calculosProyecto) } : { calculosProyecto: v }),
+  setAjustesEstacionalesActividad: (v) => set(typeof v === 'function' ? { ajustesEstacionalesActividad: v(get().ajustesEstacionalesActividad) } : { ajustesEstacionalesActividad: v }),
+  setAplicacionEscalas: (v) => set(typeof v === 'function' ? { aplicacionEscalas: v(get().aplicacionEscalas) } : { aplicacionEscalas: v }),
+  setCumplimientoNormativo: (v) => set(typeof v === 'function' ? { cumplimientoNormativo: v(get().cumplimientoNormativo) } : { cumplimientoNormativo: v }),
   setRecepciones: (v) => set(typeof v === 'function' ? { recepciones: v(get().recepciones) } : { recepciones: v }),
   setCentrosCosto: (v) => set(typeof v === 'function' ? { centrosCosto: v(get().centrosCosto) } : { centrosCosto: v }),
   setPlantillas: (v) => set(typeof v === 'function' ? { plantillas: v(get().plantillas) } : { plantillas: v }),

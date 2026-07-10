@@ -11,9 +11,10 @@ import {
    notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
    licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
    destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema, insumosBaseSchema,
-   auditLogSchema, appSettingsSchema, proyectoWeatherSchema, errorLogSchema, calculoProyectoSchema,
-   reglaFactorSchema, normativaDepartamentalSchema, escalaProduccionSchema, estacionalidadSchema,
-   historialAplicacionReglaSchema, projectProfitabilitySchema, clientProfitabilitySchema, resourceEfficiencySchema, profitabilityTrendSchema,
+    auditLogSchema, appSettingsSchema, proyectoWeatherSchema, errorLogSchema, calculoProyectoSchema,
+    reglaFactorSchema, normativaDepartamentalSchema, escalaProduccionSchema, estacionalidadSchema,
+    historialAplicacionReglaSchema, projectProfitabilitySchema, clientProfitabilitySchema, resourceEfficiencySchema, profitabilityTrendSchema,
+    ajusteEstacionalActividadSchema, aplicacionEscalaSchema, cumplimientoNormativoSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, decompressData, compressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -36,6 +37,9 @@ const ESCALAS_KEY = BASE_STORAGE_KEY + '_escalas';
 const ESTACIONALIDAD_KEY = BASE_STORAGE_KEY + '_estacionalidad';
 const HISTORIAL_REGLAS_KEY = BASE_STORAGE_KEY + '_historial_reglas';
 const PROFITABILITY_KEY = BASE_STORAGE_KEY + '_profitability';
+const AJUSTES_ESTACIONALES_KEY = BASE_STORAGE_KEY + '_ajustes_estacionales';
+const APLICACION_ESCALAS_KEY = BASE_STORAGE_KEY + '_aplicacion_escalas';
+const CUMPLIMIENTO_NORMATIVO_KEY = BASE_STORAGE_KEY + '_cumplimiento_normativo';
 
 function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   try {
@@ -289,8 +293,11 @@ calculosProyecto: loadFromStorage(BASE_STORAGE_KEY + '_calculos_proyecto', calcu
        normativasDepartamentales: loadFromStorage(NORMATIVAS_KEY, normativaDepartamentalSchema),
        escalasProduccion: loadFromStorage(ESCALAS_KEY, escalaProduccionSchema),
        estacionalidad: loadFromStorage(ESTACIONALIDAD_KEY, estacionalidadSchema),
-       historialReglas: loadFromStorage(HISTORIAL_REGLAS_KEY, historialAplicacionReglaSchema),
-       projectProfitabilities: loadFromStorage(PROFITABILITY_KEY + '_projects', projectProfitabilitySchema),
+        historialReglas: loadFromStorage(HISTORIAL_REGLAS_KEY, historialAplicacionReglaSchema),
+        ajustesEstacionalesActividad: loadFromStorage(AJUSTES_ESTACIONALES_KEY, ajusteEstacionalActividadSchema),
+        aplicacionEscalas: loadFromStorage(APLICACION_ESCALAS_KEY, aplicacionEscalaSchema),
+        cumplimientoNormativo: loadFromStorage(CUMPLIMIENTO_NORMATIVO_KEY, cumplimientoNormativoSchema),
+        projectProfitabilities: loadFromStorage(PROFITABILITY_KEY + '_projects', projectProfitabilitySchema),
        clientProfitabilities: loadFromStorage(PROFITABILITY_KEY + '_clients', clientProfitabilitySchema),
        resourceEfficiencies: loadFromStorage(PROFITABILITY_KEY + '_resources', resourceEfficiencySchema),
        profitabilityTrends: loadFromStorage(PROFITABILITY_KEY + '_trends', profitabilityTrendSchema),

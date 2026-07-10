@@ -32,4 +32,8 @@ export const TABLE_MAP: Record<string, string> = {
   erp_historial_aplicacion_reglas:'historialAplicacionReglas',
   erp_rendimientos_cuadrilla:'rendimientosCuadrilla',
   erp_insumos:'insumos',
+  erp_ajustes_estacionales_actividad:'ajustesEstacionalesActividad',
+  erp_aplicacion_escalas:'aplicacionEscalas',
+  erp_calculos_proyecto:'calculosProyecto',
+  erp_cumplimiento_normativo:'cumplimientoNormativo',
 };

@@ -119,6 +119,70 @@ export const estacionalidadSchema = z.object({
   activo: z.boolean().default(true),
 });
 
+export const ajusteEstacionalActividadSchema = z.object({
+  id: z.string(),
+  estacionalidad_id: z.string().min(1),
+  tipo_actividad: z.string().min(1),
+  factor_especifico: z.number().default(1.0),
+  impacto_duracion: z.number().int().optional(),
+  recomendaciones: z.array(z.string()).optional(),
+  medidas_mitigacion: z.array(z.string()).optional(),
+  activo: z.boolean().default(true),
+});
+
+export const aplicacionEscalaSchema = z.object({
+  id: z.string(),
+  proyecto_id: z.string().min(1),
+  escala_id: z.string().min(1),
+  tamano_proyecto: z.number().optional(),
+  presupuesto_estimado: z.number().optional(),
+  cantidad_renglones: z.number().int().optional(),
+  factor_economia_aplicado: z.number().optional(),
+  factor_administracion_aplicado: z.number().optional(),
+  factor_imprevistos_aplicado: z.number().optional(),
+  factor_logistica_aplicado: z.number().optional(),
+  factor_financiero_aplicado: z.number().optional(),
+  factor_total: z.number().optional(),
+  costo_ajustado: z.number().optional(),
+  ahorro_estimado: z.number().optional(),
+  usuario_aplicacion: z.string().optional(),
+  fecha_aplicacion: z.string().optional(),
+  observaciones: z.string().optional(),
+});
+
+export const cumplimientoNormativoSchema = z.object({
+  id: z.string(),
+  proyecto_id: z.string().min(1),
+  norma_id: z.string().min(1),
+  estado_cumplimiento: z.string().optional(),
+  fecha_verificacion: z.string().optional(),
+  responsable_verificacion: z.string().optional(),
+  evidencias_cumplimiento: z.record(z.unknown()).default({}),
+  observaciones: z.string().optional(),
+  requiere_acciones_correctivas: z.boolean().default(false),
+  acciones_correctivas: z.array(z.string()).optional(),
+  fecha_limite_correccion: z.string().optional(),
+});
+
+export type AjusteEstacionalActividad = z.infer<typeof ajusteEstacionalActividadSchema>;
+export type AplicacionEscala = z.infer<typeof aplicacionEscalaSchema>;
+export type CumplimientoNormativo = z.infer<typeof cumplimientoNormativoSchema>;
+
+export const estacionalidadSchema = z.object({
+  id: z.string(),
+  departamento_codigo: z.string(),
+  mes: z.number().min(1).max(12),
+  temporada: z.string(),
+  factor_disponibilidad: z.number(),
+  factor_costo: z.number(),
+  factor_productividad: z.number(),
+  factor_especifico: z.number().optional(),
+  condiciones_especiales: z.string().optional(),
+  restricciones_especiales: z.array(z.unknown()).optional(),
+  riesgos_estacionales: z.array(z.unknown()).optional(),
+  activo: z.boolean().default(true),
+});
+
 export type CalculoProyecto = z.infer<typeof calculoProyectoSchema>;
 export type SnapshotCalculo = z.infer<typeof snapshotCalculoSchema>;
 export type ComparacionCalculos = z.infer<typeof comparacionCalculosSchema>;
