@@ -300,7 +300,7 @@ const ProveedorAnalytics: React.FC = () => {
               data={performanceByCategory.map((cat, i) => ({
                 label: cat.categoria.substring(0, 10),
                 value: cat.avgScore,
-                color: COLORS[i % COLORS.length],
+                color: `hsl(var(--${['primary', 'success', 'warning', 'info'][i % 4]}))`,
               }))}
             />
           </div>

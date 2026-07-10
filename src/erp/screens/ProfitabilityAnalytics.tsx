@@ -17,18 +17,18 @@ import { COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY, 
 import { toast } from 'sonner';
 
 const RENTABILIDAD_COLORS = {
-  excelente: '#10b981',
-  bueno: '#3b82f6',
-  aceptable: '#f59e0b',
-  riesgoso: '#f97316',
-  critico: '#ef4444',
+  excelente: 'bg-emerald-500',
+  bueno: 'bg-blue-500',
+  aceptable: 'bg-amber-500',
+  riesgoso: 'bg-orange-500',
+  critico: 'bg-red-500',
 };
 
 const SEGMENTO_COLORS = {
-  vip: '#8b5cf6',
-  premium: '#3b82f6',
-  estandar: '#10b981',
-  bajo_margen: '#ef4444',
+  vip: 'bg-violet-500',
+  premium: 'bg-blue-500',
+  estandar: 'bg-emerald-500',
+  bajo_margen: 'bg-red-500',
 };
 
 const PROFITABILITYAnalytics: React.FC = () => {
@@ -301,19 +301,19 @@ const PROFITABILITYAnalytics: React.FC = () => {
                   Estado de Rentabilidad
                 </h3>
                 <div className="h-64">
-                  <Donut
-                    data={Object.entries(
-                      projectProfitabilities.reduce((acc, p) => {
-                        acc[p.estadoRentabilidad] = (acc[p.estadoRentabilidad] || 0) + 1;
-                        return acc;
-                      }, {} as Record<string, number>)
-                    ).map(([key, value]) => ({
-                      label: key.charAt(0).toUpperCase() + key.slice(1),
-                      value,
-                      color: RENTABILIDAD_COLORS[key as keyof typeof RENTABILIDAD_COLORS],
-                    }))}
-                    height={240}
-                  />
+                   <Donut
+                     data={Object.entries(
+                       projectProfitabilities.reduce((acc, p) => {
+                         acc[p.estadoRentabilidad] = (acc[p.estadoRentabilidad] || 0) + 1;
+                         return acc;
+                       }, {} as Record<string, number>)
+                     ).map(([key, value]) => ({
+                       label: key.charAt(0).toUpperCase() + key.slice(1),
+                       value,
+                       color: `hsl(var(--${RENTABILIDAD_COLORS[key as keyof typeof RENTABILIDAD_COLORS]?.replace('bg-', '') || 'primary'})`,
+                     }))}
+                     height={240}
+                   />
                 </div>
               </div>
             </div>
@@ -348,10 +348,9 @@ const PROFITABILITYAnalytics: React.FC = () => {
                         </td>
                         <td className="text-right p-3">{fmtPct(p.margenBruto)}</td>
                         <td className="text-center p-3">
-                          <span 
-                            className="inline-block px-2 py-1 rounded-full text-[10px] font-medium text-white"
-                            style={{ backgroundColor: RENTABILIDAD_COLORS[p.estadoRentabilidad] }}
-                          >
+                           <span 
+                             className={`inline-block px-2 py-1 rounded-full text-[10px] font-medium text-white ${RENTABILIDAD_COLORS[p.estadoRentabilidad]}`}
+                           >
                             {p.estadoRentabilidad.charAt(0).toUpperCase() + p.estadoRentabilidad.slice(1)}
                           </span>
                         </td>
@@ -382,14 +381,14 @@ const PROFITABILITYAnalytics: React.FC = () => {
                 Segmentación de Clientes
               </h3>
               <div className="h-64">
-                <Donut
-                  data={clientProfitabilities.map(c => ({
-                    label: c.cliente.substring(0, 15),
-                    value: c.utilidadTotal,
-                    color: SEGMENTO_COLORS[c.segmento],
-                  }))}
-                  height={240}
-                />
+                 <Donut
+                   data={clientProfitabilities.map(c => ({
+                     label: c.cliente.substring(0, 15),
+                     value: c.utilidadTotal,
+                     color: `hsl(var(--${SEGMENTO_COLORS[c.segmento]?.replace('bg-', '') || 'primary'})`,
+                   }))}
+                   height={240}
+                 />
               </div>
             </div>
 
@@ -399,15 +398,15 @@ const PROFITABILITYAnalytics: React.FC = () => {
                 Valor de Vida del Cliente
               </h3>
               <div className="h-64">
-                <BarChart
-                  data={clientProfitabilities
-                    .sort((a, b) => b.valorVidaCliente - a.valorVidaCliente)
-                    .slice(0, 8)
-                    .map(c => ({
-                      label: c.cliente.substring(0, 15),
-                      value: c.valorVidaCliente,
-                      color: SEGMENTO_COLORS[c.segmento],
-                    }))}
+                 <BarChart
+                   data={clientProfitabilities
+                     .sort((a, b) => b.valorVidaCliente - a.valorVidaCliente)
+                     .slice(0, 8)
+                     .map(c => ({
+                       label: c.cliente.substring(0, 15),
+                       value: c.valorVidaCliente,
+                       color: `hsl(var(--${SEGMENTO_COLORS[c.segmento]?.replace('bg-', '') || 'primary'})`,
+                     }))}
                   height={240}
                 />
               </div>
@@ -440,10 +439,9 @@ const PROFITABILITYAnalytics: React.FC = () => {
                       </td>
                       <td className="text-right p-3">{fmtPct(c.margenPromedio)}</td>
                       <td className="text-center p-3">
-                        <span 
-                          className="inline-block px-2 py-1 rounded-full text-[10px] font-medium text-white"
-                          style={{ backgroundColor: SEGMENTO_COLORS[c.segmento] }}
-                        >
+                         <span 
+                           className={`inline-block px-2 py-1 rounded-full text-[10px] font-medium text-white ${SEGMENTO_COLORS[c.segmento]}`}
+                         >
                           {c.segmento.toUpperCase()}
                         </span>
                       </td>
@@ -596,7 +594,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
                         <span className="text-muted-foreground">Eficiencia Promedio</span>
                         <span className="font-semibold">{fmtPct(avgEficiencia)}</span>
                       </div>
-                      <Progress value={avgEficiencia} className="h-2" />
+                      <Progress value={avgEficiencia} className="h-2" color="hsl(var(--primary))" />
                     </div>
 
                     <div>
@@ -604,7 +602,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
                         <span className="text-muted-foreground">Desperdicio Promedio</span>
                         <span className="font-semibold">{fmtPct(avgDesperdicio)}</span>
                       </div>
-                      <Progress value={avgDesperdicio} className="h-2" color={avgDesperdicio > 15 ? '#ef4444' : '#f59e0b'} />
+                      <Progress value={avgDesperdicio} className="h-2" color={avgDesperdicio > 15 ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'} />
                     </div>
 
                     <div className="pt-4 border-t border-border">

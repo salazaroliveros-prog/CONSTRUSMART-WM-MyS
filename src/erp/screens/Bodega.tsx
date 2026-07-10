@@ -118,7 +118,7 @@ const Bodega: React.FC = () => {
   };
 
   const pareto = useMemo(() => {
-    const sorted = [...materiales].map(m => ({ label: m.nombre.split(' ')[0], value: m.stock * m.precio, color: '#f97316' })).sort((a, b) => b.value - a.value).slice(0, 8);
+    const sorted = [...materiales].map(m => ({ label: m.nombre.split(' ')[0], value: m.stock * m.precio, color: 'hsl(var(--warning))' })).sort((a, b) => b.value - a.value).slice(0, 8);
     return sorted;
   }, [materiales]);
 
@@ -248,7 +248,7 @@ const Bodega: React.FC = () => {
             </table>
           </div>
           <div className="p-3">
-            <Progress value={Math.min(100, Math.max(0, 100 - Math.abs(avgDesv)))} color={avgDesv > 15 ? '#ef4444' : '#10b981'} />
+            <Progress value={Math.min(100, Math.max(0, 100 - Math.abs(avgDesv)))} color={avgDesv > 15 ? 'hsl(var(--destructive))' : 'hsl(var(--success))'} />
             <p className="text-[10px] text-muted-foreground mt-1">{t('bodega.cobertura_presupuestaria', { desv: fmtPct(avgDesv) })}</p>
           </div>
         </div>

@@ -121,10 +121,10 @@ const Financiero: React.FC = () => {
               onTypeChange={flowConfig.setType}
               palette={flowConfig.palette}
               onPaletteChange={flowConfig.setPalette}
-              series={[
-                { id: 'Ingresos', label: 'Ingresos', color: '#10b981', visible: flowConfig.isVisible('Ingresos') },
-                { id: 'Egresos', label: 'Egresos', color: '#ef4444', visible: flowConfig.isVisible('Egresos') },
-              ]}
+               series={[
+                 { id: 'Ingresos', label: 'Ingresos', color: 'hsl(var(--success))', visible: flowConfig.isVisible('Ingresos') },
+                 { id: 'Egresos', label: 'Egresos', color: 'hsl(var(--destructive))', visible: flowConfig.isVisible('Egresos') },
+               ]}
               onToggleSeries={flowConfig.toggleSeries}
               onReset={flowConfig.reset}
             />
@@ -133,8 +133,8 @@ const Financiero: React.FC = () => {
             <ConfigurableLineArea labels={['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']}
               type={flowConfig.type} palette={flowConfig.palette}
               series={[
-                { label: 'Ingresos', color: '#10b981', data: cashFlow.ingresos },
-                { label: 'Egresos', color: '#ef4444', data: cashFlow.egresos },
+                { label: 'Ingresos', color: 'hsl(var(--success))', data: cashFlow.ingresos },
+                { label: 'Egresos', color: 'hsl(var(--destructive))', data: cashFlow.egresos },
               ].filter(s => flowConfig.isVisible(s.label))} />
           </div>
         </div>
@@ -151,9 +151,9 @@ const Financiero: React.FC = () => {
             />
           </div>
           <div className="flex items-center gap-3">
-            <Donut size={130} data={porCategoria.length ? porCategoria : [{ label: '-', value: 1, color: '#e2e8f0' }]} />
-            <div className="text-xs space-y-1 flex-1 max-h-32 overflow-y-auto">
-              {porCategoria.length > 0 ? porCategoria.map((c, i) => <div key={c.label || `cat-${i}`} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full" style={{ background: c.color }} />{c.label || 'Otros'}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>) : <p className="text-muted-foreground text-center py-2">Sin gastos registrados</p>}
+             <Donut size={130} data={porCategoria.length ? porCategoria : [{ label: '-', value: 1, color: 'hsl(var(--border))' }]} />
+             <div className="text-xs space-y-1 flex-1 max-h-32 overflow-y-auto">
+               {porCategoria.length > 0 ? porCategoria.map((c, i) => <div key={c.label || `cat-${i}`} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full bg-primary" />{c.label || 'Otros'}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>) : <p className="text-muted-foreground text-center py-2">Sin gastos registrados</p>}
             </div>
           </div>
         </div>
