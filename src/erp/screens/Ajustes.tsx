@@ -384,6 +384,61 @@ const Ajustes: React.FC = () => {
                   onChange={v => updateAppSettings({ touchMode: v })}
                 />
               </SettingRow>
+
+              <SettingRow
+                icon={<SettingOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Posición del Sidebar"
+                subtitle="Lado de la pantalla donde aparece el menú"
+              >
+                <Radio.Group
+                  value={appSettings.sidebarPosition}
+                  onChange={e => updateAppSettings({ sidebarPosition: e.target.value as any })}
+                  optionType="button"
+                  buttonStyle="solid"
+                  size="small"
+                >
+                  <Radio.Button value="left">Izquierda</Radio.Button>
+                  <Radio.Button value="right">Derecha</Radio.Button>
+                  <Radio.Button value="overlay">Overlay</Radio.Button>
+                </Radio.Group>
+              </SettingRow>
+
+              <SettingRow
+                icon={<SettingOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Modo del Sidebar"
+                subtitle="Comportamiento de expansión/colapso"
+              >
+                <Radio.Group
+                  value={appSettings.sidebarMode}
+                  onChange={e => updateAppSettings({ sidebarMode: e.target.value as any })}
+                  optionType="button"
+                  buttonStyle="solid"
+                  size="small"
+                >
+                  <Radio.Button value="expanded">Expandido</Radio.Button>
+                  <Radio.Button value="collapsed">Colapsado</Radio.Button>
+                  <Radio.Button value="hover-expand">Hover Expand</Radio.Button>
+                  <Radio.Button value="mini">Mini</Radio.Button>
+                </Radio.Group>
+              </SettingRow>
+
+              <SettingRow
+                icon={<SettingOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Ancho del Sidebar"
+                subtitle="Ancho cuando está expandido"
+              >
+                <Radio.Group
+                  value={appSettings.sidebarWidth}
+                  onChange={e => updateAppSettings({ sidebarWidth: e.target.value as any })}
+                  optionType="button"
+                  buttonStyle="solid"
+                  size="small"
+                >
+                  <Radio.Button value={240}>240px</Radio.Button>
+                  <Radio.Button value={280}>280px</Radio.Button>
+                  <Radio.Button value={320}>320px</Radio.Button>
+                </Radio.Group>
+              </SettingRow>
             </Card>
           </Col>
 
