@@ -1,5 +1,19 @@
 import { Categoria, Tipologia } from './types';
 
+/**
+ * UTILIDADES ESPECÍFICAS DE LA ERP CONSTRUSMART
+ * 
+ * Este archivo contiene funciones de utilidad específicas para la ERP:
+ * - Formateo de moneda (fmtQ, fmtPct)
+ * - Constantes de negocio (TIPOLOGIA_LABEL, CATEGORIA_LABEL)
+ * - Configuración de la aplicación (AppSettings, APP_SETTINGS_DEFAULTS)
+ * - Funciones de cálculo (costoDirectoUnitario, precioUnitarioVenta)
+ * - Utilidades de fecha (todayISO)
+ * - Utilidades de datos (safeParseArray, toSnake, toCamel)
+ * 
+ * NOTA: No confundir con src/lib/utils.ts que solo contiene la función cn() para shadcn/ui
+ */
+
 export const safeParseArray = <T>(value: unknown, schema: { safeParse: (data: unknown) => { success: boolean; data?: T } }): T[] => {
   if (!Array.isArray(value)) return [];
   return value
