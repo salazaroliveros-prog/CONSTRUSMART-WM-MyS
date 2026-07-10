@@ -168,21 +168,6 @@ export type AjusteEstacionalActividad = z.infer<typeof ajusteEstacionalActividad
 export type AplicacionEscala = z.infer<typeof aplicacionEscalaSchema>;
 export type CumplimientoNormativo = z.infer<typeof cumplimientoNormativoSchema>;
 
-export const estacionalidadSchema = z.object({
-  id: z.string(),
-  departamento_codigo: z.string(),
-  mes: z.number().min(1).max(12),
-  temporada: z.string(),
-  factor_disponibilidad: z.number(),
-  factor_costo: z.number(),
-  factor_productividad: z.number(),
-  factor_especifico: z.number().optional(),
-  condiciones_especiales: z.string().optional(),
-  restricciones_especiales: z.array(z.unknown()).optional(),
-  riesgos_estacionales: z.array(z.unknown()).optional(),
-  activo: z.boolean().default(true),
-});
-
 export type CalculoProyecto = z.infer<typeof calculoProyectoSchema>;
 export type SnapshotCalculo = z.infer<typeof snapshotCalculoSchema>;
 export type ComparacionCalculos = z.infer<typeof comparacionCalculosSchema>;
