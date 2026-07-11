@@ -106,6 +106,20 @@ export function getViewsByRole(rol: RolSistema): View[] {
   }
 }
 
+export function canUserEdit(rol: RolSistema | null | undefined): boolean {
+  return rol === 'Administrador' || rol === 'Gerente';
+}
+
+export function canUserDelete(rol: RolSistema | null | undefined): boolean {
+  return rol === 'Administrador';
+}
+
+export function hasViewAccess(rol: RolSistema | null | undefined, view: View): boolean {
+  if (!rol) return false;
+  const allowed = getViewsByRole(rol);
+  return allowed.includes(view);
+}
+
 /**
  * Valida si el usuario tiene permiso para una operacion especifica
  * LLAMAR ANTES de cualquier operacion CRUD
