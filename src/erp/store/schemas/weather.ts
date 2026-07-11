@@ -36,7 +36,7 @@ const forecastItemSchema = z.object({
 
 const weatherImpactSchema = z.object({
   score: z.number(),
-  level: z.enum(['low', 'medium', 'high', 'critical']),
+  level: z.enum(['low', 'medium', 'high', 'critical'] as const),
   factors: z.array(z.string()),
   recommendations: z.array(z.string()),
 });
@@ -56,7 +56,7 @@ const equipmentOperationSchema = z.object({
 
 const workforceSafetySchema = z.object({
   heatIndex: z.number(),
-  heatStressRisk: z.enum(['low', 'moderate', 'high', 'extreme']),
+  heatStressRisk: z.enum(['low', 'moderate', 'high', 'extreme'] as const),
   hydrationRequired: z.boolean(),
   workScheduleAdjustment: z.string(),
 });
@@ -64,7 +64,7 @@ const workforceSafetySchema = z.object({
 const materialProtectionSchema = z.object({
   materialsToProtect: z.array(z.string()),
   protectionRequired: z.boolean(),
-  urgency: z.enum(['low', 'medium', 'high']),
+  urgency: z.enum(['low', 'medium', 'high'] as const),
 });
 
 const constructionMetricsSchema = z.object({

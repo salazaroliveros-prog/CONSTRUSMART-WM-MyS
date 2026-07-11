@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { z } from 'zod';
 import { sanitizarObjeto } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
-import { supabase, hasServiceRole, getServiceClient, projectRef } from '@/lib/supabase';
+import { supabase, projectRef } from '@/lib/supabase';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance, validateForeignKey as validateForeignKeyInArray } from './utils';
 import { recordSyncMetric } from '@/lib/metrics';
 import { logErrorFromException } from '@/lib/error-logger';
@@ -382,21 +382,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_proyecto_weather',
     ] as const;
 
-    const isGuestMode = hasServiceRole && !localStorage.getItem(`sb-${projectRef}-auth-token`);
-    let serviceRoleFailed = false;
-
     const fetchTable = async (table: string) => {
-      if (isGuestMode && !serviceRoleFailed) {
-        const svcClient = getServiceClient();
-        const { data: svcData, error: svcError } = await svcClient.from(table).select('*').limit(1);
-        if (!svcError) {
-          const { data: allData } = await svcClient.from(table).select('*');
-          const normalized = (allData || []).map(normalizarFilaSupabase);
-          return { table, data: Array.isArray(normalized) ? normalized : [] };
-        }
-        serviceRoleFailed = true;
-        safeLogger.warn(`[fetchInitialData] service_role falló (${svcError.message}), usando anon`);
-      }
       const { data, error } = await supabase.from(table).select('*');
       if (error) {
         const authErr = error.message?.includes('permission denied') || error.message?.includes('JWT') || error.code === '42501' || error.code === '401';
@@ -996,13 +982,11 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     }
     const n = { ...c, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     get().setCotizacionesNegocio(prev => [n, ...prev]);
-    const { proyectoId: _, ...payload } = n;
-    get().enqueueMutation('addCotizacion', payload);
+    get().enqueueMutation('addCotizacion', n);
   },
   updateCotizacion: (id, patch) => {
     get().setCotizacionesNegocio(prev => prev.map(p => p.id === id ? { ...p, ...patch, updatedAt: new Date().toISOString() } : p));
-    const { proyectoId: _, ...cleanPatch } = patch;
-    get().enqueueMutation('updateCotizacion', { id, ...cleanPatch });
+    get().enqueueMutation('updateCotizacion', { id, ...patch });
   },
   deleteCotizacion: (id) => { get().setCotizacionesNegocio(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteCotizacion', { id }); },
 
@@ -1153,6 +1137,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   addPublicacionMuro: (p) => {
     const n = { ...p, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), likes: 0, comentarios: [] };
     get().setPublicacionesMuro(prev => [n, ...prev]);
+    get().enqueueMutation('addPublicacionMuro', n);
   },
   addComentarioMuro: (publicacionId, comentario) => {
     const c: ComentarioMuro = { ...comentario, id: uid(), createdAt: new Date().toISOString() };
@@ -1828,6 +1813,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
 
   deletePublicacionMuro: (id) => {
     set((state) => ({ publicacionesMuro: state.publicacionesMuro.filter((p) => p.id !== id) }));
+    get().enqueueMutation('deletePublicacionMuro', { id });
   },
 
   updateNotificacion: (id, patch) => {
@@ -1879,6 +1865,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     get().enqueueMutation('deleteEstacionalidad', { id });
   },
   deleteAjusteEstacionalActividad: (id) => {
+    set((state) => ({ ajustesEstacionalesActividad: state.ajustesEstacionalesActividad.filter((a) => a.id !== id) }));
     get().enqueueMutation('deleteAjusteEstacionalActividad', { id });
   },
   setReglasFactores: (v) => {

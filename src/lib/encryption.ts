@@ -26,7 +26,8 @@ class EncryptionManager {
       return this.keyCache.get(keyId)!;
     }
 
-    const storedKey = localStorage.getItem(`${ENCRYPTION_KEY_PREFIX}${keyId}`);
+    const storage = typeof window !== 'undefined' ? window.sessionStorage : null;
+    const storedKey = storage?.getItem(`${ENCRYPTION_KEY_PREFIX}${keyId}`);
     if (storedKey) {
       const keyData = JSON.parse(storedKey);
       const key = await crypto.subtle.importKey(
@@ -47,7 +48,7 @@ class EncryptionManager {
     );
 
     const exportedKey = await crypto.subtle.exportKey('jwk', newKey);
-    localStorage.setItem(`${ENCRYPTION_KEY_PREFIX}${keyId}`, JSON.stringify(exportedKey));
+    storage?.setItem(`${ENCRYPTION_KEY_PREFIX}${keyId}`, JSON.stringify(exportedKey));
     this.keyCache.set(keyId, newKey);
     return newKey;
   }

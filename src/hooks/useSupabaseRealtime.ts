@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { supabase, hasSupabase, hasServiceRole, getServiceRealtimeClient } from '@/lib/supabase';
+import { supabase, hasSupabase } from '@/lib/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { log } from '@/lib/auto-logger';
 import type { Rol } from '@/erp/store';
