@@ -116,6 +116,14 @@ export default function VisorBIM() {
         </select>
       </div>
 
+      {!currentProjectId && (
+        <div className="text-center py-12 text-muted-foreground">
+          <Eye className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+          <p className="text-sm">Selecciona un proyecto para ver el modelo BIM</p>
+        </div>
+      )}
+
+      {currentProjectId && (
       <Tabs value={tab} onValueChange={v => setTab(v as TabBIM)} className="space-y-4">
         <TabsList>
           <TabsTrigger value="visor"><Eye className="w-4 h-4 mr-1" /> Visor 3D</TabsTrigger>
@@ -232,6 +240,7 @@ export default function VisorBIM() {
           </Card>
         </TabsContent>
       </Tabs>
+      )}
     </div>
   );
 }
