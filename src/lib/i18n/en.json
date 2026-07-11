@@ -122,6 +122,7 @@
     "advertencia": "Warning",
     "sin_acceso": "Unauthorized access",
     "sin_acceso_desc": "You do not have permission to view this section.",
+    "sin_permisos": "You don't have permission for this action",
     "volver_tablero": "Back to Dashboard",
     "sin_resultados": "No results to display.",
     "copiar": "Copy",

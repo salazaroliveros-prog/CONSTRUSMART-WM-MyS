@@ -10,10 +10,11 @@ import { Modal } from 'antd';
 import { todayISO } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { hitoFormSchema } from '../store/schemas/calendario';
+import { canUserDelete } from '@/lib/security';
 
 const HitosScreen: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, updateProyecto, currentProjectId, setCurrentProjectId, hitos, addHito, updateHito, deleteHito, addNotificacion } = useErp();
+  const { proyectos, updateProyecto, currentProjectId, setCurrentProjectId, hitos, addHito, updateHito, deleteHito, addNotificacion, user } = useErp();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const [showForm, setShowForm] = useState(false);
@@ -95,9 +96,13 @@ const HitosScreen: React.FC = () => {
   };
 
   const eliminar = async (id: string) => {
+    if (!canUserDelete(user?.rol)) {
+      toast.error(t('common.sin_permisos', 'Sin permisos para eliminar'));
+      return;
+    }
     await Modal.confirm({ title: t('hitos.confirmar_eliminar_titulo', 'Confirmar eliminación'), content: t('hitos.confirmar_eliminar_contenido', '¿Eliminar este hito?'), centered: true, okText: t('common.si'), cancelText: t('common.cancelar') });
-  deleteHito(id);
-};
+    deleteHito(id);
+  };
 
   const hoy = todayISO();
   const hitosFiltrados = useMemo(() => {
