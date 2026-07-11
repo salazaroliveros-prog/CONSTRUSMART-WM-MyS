@@ -147,7 +147,7 @@ BEGIN
 END $$;
 
 -- 6. Realtime para tablas nuevas
-ALTER PUBLICATION supabase_realtime ADD TABLE erp_notificaciones;
+ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_notificaciones;
 ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_plantillas_proyectos;
 ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_comentarios_muro;
 ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_ventas_paquetes;
