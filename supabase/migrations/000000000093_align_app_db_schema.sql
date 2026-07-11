@@ -157,4 +157,4 @@ CREATE POLICY "Usuarios autenticados pueden eliminar notificaciones" ON erp_noti
   FOR DELETE USING (auth.role() = 'authenticated');
 
 -- 4. Realtime para erp_notificaciones
-ALTER PUBLICATION supabase_realtime ADD TABLE erp_notificaciones;
+ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_notificaciones;
