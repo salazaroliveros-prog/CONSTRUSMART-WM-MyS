@@ -8,6 +8,7 @@ import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { Modal } from 'antd';
 import { todayISO } from '../utils';
+import { canUserDelete } from '@/lib/security';
 
 type RProb = Riesgo['probabilidad'];
 type RImp = Riesgo['impacto'];
@@ -24,7 +25,7 @@ const calcularNivel = (prob: number, imp: number): Riesgo['nivel'] => {
 
 const Riesgos: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, currentProjectId, setCurrentProjectId, riesgos, addRiesgo, updateRiesgo, deleteRiesgo, addNotificacion } = useErp();
+  const { proyectos, currentProjectId, setCurrentProjectId, riesgos, addRiesgo, updateRiesgo, deleteRiesgo, addNotificacion, user } = useErp();
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -94,6 +95,10 @@ const Riesgos: React.FC = () => {
   };
 
   const eliminar = async (id: string) => {
+    if (!canUserDelete(user?.rol)) {
+      toast.error(t('common.sin_permisos', 'Sin permisos para eliminar'));
+      return;
+    }
     await Modal.confirm({ title: t('riesgos.confirmar_eliminacion', 'Confirmar eliminación'), content: t('riesgos.confirmar_eliminar', '¿Eliminar este riesgo?'), centered: true, okText: t('riesgos.si_eliminar', 'Sí, eliminar'), cancelText: t('riesgos.cancelar', 'Cancelar') });
     deleteRiesgo(id);
   };
