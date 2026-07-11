@@ -598,7 +598,12 @@
     "performance_titulo": "Performance de Queries",
     "performance_lentas": "Queries lentas: {{count}}",
     "performance_sync": "Sync promedio: {{time}}s",
-    "performance_db_size": "Tamaño DB: {{size}}"
+    "performance_db_size": "Tamaño DB: {{size}}",
+    "ver_analytics_completo": "Ver Analytics Completo",
+    "sin_datos_dashboard": "Sin datos disponibles",
+    "sin_proyectos": "Crea tu primer proyecto para comenzar",
+    "sin_movimientos": "No hay movimientos registrados",
+    "sin_presupuestos": "No hay presupuestos definidos"
   },
   "proyectos": {
     "titulo": "Proyectos",
@@ -1096,7 +1101,25 @@
     "costo_directo": "Costo Directo",
     "costo_indirecto": "Costo Indirecto",
     "rendimiento": "Rendimiento",
-    "factor_prestaciones": "Factor de Prestaciones"
+    "factor_prestaciones": "Factor de Prestaciones",
+    "error_calculo_dosificacion": "Error al calcular dosificación",
+    "error_calculo_acero": "Error al calcular desglose de acero",
+    "error_calculo_movimiento_tierra": "Error al calcular movimiento de tierra",
+    "error_calculo_climaticos": "Error al calcular parámetros climáticos",
+    "error_calculo_pavimento": "Error al calcular pavimento",
+    "error_calculo_red_infraestructura": "Error al calcular red de infraestructura",
+    "error_calculo_muro_contencion": "Error al calcular muro de contención",
+    "error_validacion_calculo": "Cálculo tiene errores de validación",
+    "factor_actualizado_proyecto": "Factor de sobrecosto actualizado para el proyecto",
+    "factor_guardado_sin_proyecto": "Factor guardado (sin proyecto)",
+    "calculando": "Calculando...",
+    "calcular_dosificacion": "Calcular Dosificación",
+    "calcular_acero": "Calcular Desglose de Acero",
+    "calcular_movimiento_tierra": "Calcular Movimiento de Tierra",
+    "calcular_climaticos": "Calcular Parámetros Climáticos",
+    "calcular_pavimento": "Calcular Pavimento",
+    "calcular_red_infraestructura": "Calcular Red de Infraestructura",
+    "calcular_muro_contencion": "Calcular Muro de Contención"
   },
   "curvas": {
     "titulo": "Curvas S",

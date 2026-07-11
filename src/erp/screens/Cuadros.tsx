@@ -352,7 +352,7 @@ const Cuadros: React.FC = () => {
               <label className="block text-sm font-medium mb-1">{t('cuadros.estado_label')}</label>
               <select
                 value={formData.estado || 'abierto'}
-                onChange={(e) => { setFormData({ ...formData, estado: e.target.value as any }); setFormErrors(prev => ({ ...prev, estado: '' })); }}
+                onChange={(e) => { setFormData({ ...formData, estado: e.target.value as unknown }); setFormErrors(prev => ({ ...prev, estado: '' })); }}
                 className={INPUT}
               >
                 <option value="abierto">{t('cuadros.estado_abierto')}</option>

@@ -562,7 +562,7 @@ const Weather: React.FC = () => {
                   <span className="text-sm">{t('weather.alert_threshold', 'Umbral de alertas')}</span>
                   <select
                     value={alertThreshold}
-                    onChange={(e) => setAlertThreshold(e.target.value as any)}
+                    onChange={(e) => setAlertThreshold(e.target.value as unknown)}
                     className="text-xs px-2 py-1 rounded border border-border bg-card focus:outline-none focus:ring-2 focus:ring-blue-400"
                     aria-label="Alert threshold"
                   >

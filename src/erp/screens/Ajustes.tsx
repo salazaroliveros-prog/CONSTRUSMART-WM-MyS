@@ -249,7 +249,7 @@ const Ajustes: React.FC = () => {
                 title="Tipografía"
                 subtitle="Fuente base del sistema"
               >
-                <Select value={appSettings.fontFamily} onChange={v => updateAppSettings({ fontFamily: v as any })} className={controlWidthClass} options={[
+                <Select value={appSettings.fontFamily} onChange={v => updateAppSettings({ fontFamily: v as string })} className={controlWidthClass} options={[
                   { value: 'system-ui', label: 'System UI' },
                   { value: 'inter', label: 'Inter' },
                   { value: 'roboto', label: 'Roboto' },
@@ -265,7 +265,7 @@ const Ajustes: React.FC = () => {
               >
                 <Radio.Group
                   value={appSettings.borderRadius}
-                  onChange={e => updateAppSettings({ borderRadius: e.target.value as any })}
+                  onChange={e => updateAppSettings({ borderRadius: e.target.value as string })}
                   optionType="button"
                   buttonStyle="solid"
                 >
@@ -284,7 +284,7 @@ const Ajustes: React.FC = () => {
               >
                 <Radio.Group
                   value={appSettings.spacingScale}
-                  onChange={e => updateAppSettings({ spacingScale: e.target.value as any })}
+                  onChange={e => updateAppSettings({ spacingScale: e.target.value as string })}
                   optionType="button"
                   buttonStyle="solid"
                 >
@@ -301,7 +301,7 @@ const Ajustes: React.FC = () => {
               >
                 <Radio.Group
                   value={appSettings.densityTable}
-                  onChange={e => updateAppSettings({ densityTable: e.target.value as any })}
+                  onChange={e => updateAppSettings({ densityTable: e.target.value as string })}
                   optionType="button"
                   buttonStyle="solid"
                 >
@@ -330,7 +330,7 @@ const Ajustes: React.FC = () => {
               >
                 <Radio.Group
                   value={appSettings.animationType || 'fade'}
-                  onChange={e => updateAppSettings({ animationType: e.target.value as any })}
+                  onChange={e => updateAppSettings({ animationType: e.target.value as string })}
                   optionType="button"
                   buttonStyle="solid"
                 >
@@ -392,7 +392,7 @@ const Ajustes: React.FC = () => {
               >
                 <Radio.Group
                   value={appSettings.sidebarPosition}
-                  onChange={e => updateAppSettings({ sidebarPosition: e.target.value as any })}
+                  onChange={e => updateAppSettings({ sidebarPosition: e.target.value as string })}
                   optionType="button"
                   buttonStyle="solid"
                   size="small"
@@ -410,7 +410,7 @@ const Ajustes: React.FC = () => {
               >
                 <Radio.Group
                   value={appSettings.sidebarMode}
-                  onChange={e => updateAppSettings({ sidebarMode: e.target.value as any })}
+                  onChange={e => updateAppSettings({ sidebarMode: e.target.value as string })}
                   optionType="button"
                   buttonStyle="solid"
                   size="small"
@@ -429,7 +429,7 @@ const Ajustes: React.FC = () => {
               >
                 <Radio.Group
                   value={appSettings.sidebarWidth}
-                  onChange={e => updateAppSettings({ sidebarWidth: e.target.value as any })}
+                  onChange={e => updateAppSettings({ sidebarWidth: e.target.value as string })}
                   optionType="button"
                   buttonStyle="solid"
                   size="small"

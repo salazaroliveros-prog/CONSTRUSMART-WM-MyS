@@ -203,7 +203,7 @@ const HitosScreen: React.FC = () => {
               {formErrors.fecha && <p className="text-xs text-red-500 mt-0.5">{formErrors.fecha}</p>}
             </div>
             <div>
-              <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as any }))} className={INPUT}>
+              <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as unknown }))} className={INPUT}>
                 <option value="inicio">Inicio</option>
                 <option value="hito">Hito</option>
                 <option value="entrega">Entrega</option>
