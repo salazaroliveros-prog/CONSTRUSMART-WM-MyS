@@ -18,7 +18,7 @@ import {
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, decompressData, compressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { hasSupabase, assertSupabase, supabase, hasServiceRole, getServiceClient } from '@/lib/supabase';
+import { hasSupabase, assertSupabase, supabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
 import { sanitizarObjeto, getViewsByRole } from '@/lib/security';
 import { useAuth } from '@/hooks/useAuth';
@@ -40,6 +40,7 @@ const PROFITABILITY_KEY = BASE_STORAGE_KEY + '_profitability';
 const AJUSTES_ESTACIONALES_KEY = BASE_STORAGE_KEY + '_ajustes_estacionales';
 const APLICACION_ESCALAS_KEY = BASE_STORAGE_KEY + '_aplicacion_escalas';
 const CUMPLIMIENTO_NORMATIVO_KEY = BASE_STORAGE_KEY + '_cumplimiento_normativo';
+const REORDERING_KEY = BASE_STORAGE_KEY + '_reordering';
 
 function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   try {
@@ -198,7 +199,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const handleLogout = useCallback(async () => {
     await realLogout();
     try {
-      const keys = Object.keys(localStorage).filter(k => k.startsWith('erp_') || k === 'zustand_erp_store' || k === 'wm_photo' || k === 'wm_google_avatar');
+      const keys = Object.keys(localStorage).filter(k => k.startsWith('wm_erp_data') || k === 'zustand_erp_store' || k === 'wm_photo' || k === 'wm_google_avatar' || k.startsWith('sb-'));
       keys.forEach(k => localStorage.removeItem(k));
     } catch {}
     window.location.reload();
@@ -353,12 +354,13 @@ function checkTokenBucket(): boolean {
     return () => { clearTimeout(keepAliveRef.current); document.removeEventListener('visibilitychange', onVis); };
   }, [isOnline]);
 
+const syncInProgressRef = useRef(false);
 const forceSync = useMemo(() => {
         return async () => {
+          if (syncInProgressRef.current) return;
           if (!checkTokenBucket()) return;
           const queue = useErpStore.getState().mutationQueue;
           
-          // Only proceed if we have mutations, are online, and have Supabase configured
           if (queue.length === 0) return;
           if (!isOnlineRef.current) {
             useErpStore.setState({ syncStatus: 'queued' });
@@ -369,15 +371,14 @@ const forceSync = useMemo(() => {
             return;
           }
 
-          // Try authenticated session first, fall back to service-role client if configured
+          syncInProgressRef.current = true;
           let client: SupabaseClient;
           const { data: { session } } = await supabase.auth.getSession();
           if (session) {
             client = assertSupabase();
-          } else if (hasServiceRole) {
-            client = getServiceClient();
           } else {
             useErpStore.setState({ syncMessage: 'Sesión expirada. Inicia sesión para sincronizar.', syncStatus: 'error', syncError: 'Sesión expirada' });
+            syncInProgressRef.current = false;
             return;
           }
 
@@ -520,6 +521,7 @@ const forceSync = useMemo(() => {
             useErpStore.setState({ syncMessage: msg + errMsg, syncStatus: failed.length > 0 ? 'error' : 'synced', syncError: failed.length > 0 ? 'Algunos cambios fallaron' : undefined, lastSyncedAt: new Date().toISOString() });
             if (msg) { setTimeout(() => useErpStore.setState({ syncMessage: '' }), 3000); await fetchInitialData(); }
           }
+          syncInProgressRef.current = false;
         };
       }, []);
 
@@ -563,9 +565,14 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
           liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
           activos: s.activos, cuadros: s.cuadros, pagosProveedor: s.pagosProveedor,
           destajos: s.destajos, calculosProyecto: s.calculosProyecto, recepciones: s.recepciones, centrosCosto: s.centrosCosto,
-       plantillas: s.plantillas, insumos_base: s.insumosBase, proyecto_weather: s.proyectoWeather,
-          escalasProduccion: s.escalasProduccion, estacionalidad: s.estacionalidad, historialReglas: s.historialReglas,
-          };
+        plantillas: s.plantillas, insumos_base: s.insumosBase, weather: s.proyectoWeather,
+        escalasProduccion: s.escalasProduccion, estacionalidad: s.estacionalidad, historialReglas: s.historialReglas,
+        bitacora: s.bitacora, no_conformidades: s.ncs, pruebas: s.pruebas, ventas_paquetes: s.ventasPaquetes,
+        vales_salida: s.valesSalida, reglas_factores: s.reglasFactores,
+        normativas_departamentales: s.normativasDepartamentales,
+        ajustes_estacionales: s.ajustesEstacionalesActividad, aplicacion_escalas: s.aplicacionEscalas,
+        cumplimiento_normativo: s.cumplimientoNormativo, error_logs: s.errorLogs,
+        };
           const quotaCritical = isStorageQuotaCritical();
           for (const [k, v] of Object.entries(map)) {
             try { const value = await compressDataAsync(v); safeSetItem(`${BASE_STORAGE_KEY}_${k}`, value, `${BASE_STORAGE_KEY}_${k}`); } catch {}
@@ -621,128 +628,89 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
       currentProject,
     }), [view, user, initializing, isOnline, notificacionesNoLeidas, realSignInWithGoogle, handleLogout, allowedViews, forceSync, currentProjectId, setCurrentProjectId, currentProject]);
 
-// Initialize realtime subscriptions -Cuando recibimos cambios de otros clientes
-    useEffect(() => {
-      if (!isOnline) return;
-      
-      const subscribeToRealtime = async () => {
-        // No repetir si ya nos registramos
-        if (supabaseSubscriptionsRef.current) return;
-        
-        const client = assertSupabase(); // Get Supabase client
-        
-        const subs: Set<string> = new Set([
-          'public:erp_proyectos',
-          'public:erp_movimientos', 
-          'public:erp_empleados',
-          'public:erp_materiales',
-          'public:erp_ordenes_compra',
-          'public:erp_proveedores',
-          'public:erp_cuentas_cobrar',
-          'public:erp_cuentas_pagar',
-          'public:erp_hitos',
-          'public:erp_riesgos',
-          'public:erp_licitaciones',
-          'public:erp_cotizaciones_negocio',
-          'public:erp_vales_salida',
-          'public:erp_no_conformidades',
-          'public:erp_incidentes',
-          'public:erp_planos',
-          'public:erp_rfis',
-          'public:erp_submittals',
-          'public:erp_activos',
-          'public:erp_cuadros',
-          'public:erp_pagos_proveedor',
-          'public:erp_destajos',
-          'public:erp_recepciones',
-          'public:erp_centros_costo',
-          'public:erp_seguimiento',
-          'public:erp_bitacora',
-          'public:erp_pruebas_laboratorio',
-          'public:erp_liberaciones_partida',
-          'public:erp_plantillas_proyectos',
-          'public:erp_presupuestos',
-          'public:erp_avances',
-          'public:erp_muro',
-           'public:erp_ventas_paquetes',
-          'public:erp_proyecto_weather',
-        ]);
-        
-        // Suscribirse a cada canal público
-        const channels: Array<Promise<void>> = Array.from(subs).map(table => {
-          return new Promise((resolve, reject) => {
-            const channel = client.channel(table);
-            channel
-              .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table },
-                payload => {
-                  // Manejar eventos de inserción, actualización y eliminación
-                  const newRecord = payload.new as any;
-                  const oldRecord = payload.old as any;
-                  
-                  // Map Supabase table → zustand store key (handles special cases like erp_muro→publicacionesMuro, erp_no_conformidades→ncs)
-                  const tableName = table.startsWith('public:') ? table.slice(7) : table;
-                  const storeKey = STORE_KEY_MAP[tableName] || tableName;
-                  
-                  // Convert incoming snake_case rows to camelCase for the store
-                  const toStoreRecord = (raw: any) => raw ? toCamel(raw) : raw;
-                  
-                  if (payload.eventType === 'INSERT') {
-                    useErpStore.setState(prev => {
-                      const arr: any[] = (prev as any)[storeKey] ?? [];
-                      const normalized = toStoreRecord(newRecord);
-                      if (Array.isArray(arr) && normalized?.id && !arr.some((item: any) => item.id === normalized.id)) {
-                        return { ...prev, [storeKey]: [normalized, ...arr] } as any;
-                      }
-                      return prev;
-                    });
-                  } 
-                  else if (payload.eventType === 'UPDATE') {
-                    useErpStore.setState(prev => {
-                      const arr: any[] = (prev as any)[storeKey] ?? [];
-                      const normalized = toStoreRecord(newRecord);
-                      if (Array.isArray(arr) && normalized?.id) {
-                        const idx = arr.findIndex((item: any) => item.id === normalized.id);
-                        if (idx !== -1) {
-                          const updated = [...arr];
-                          updated[idx] = normalized;
-                          return { ...prev, [storeKey]: updated } as any;
-                        }
-                      }
-                      return prev;
-                    });
-                  }
-                  else if (payload.eventType === 'DELETE') {
-                    useErpStore.setState(prev => {
-                      const arr: any[] = (prev as any)[storeKey] ?? [];
-                      if (Array.isArray(arr) && oldRecord?.id) {
-                        return { ...prev, [storeKey]: arr.filter((item: any) => item.id !== oldRecord.id) } as any;
-                      }
-                      return prev;
-                    });
-                  }
+const realtimeChannelsRef = useRef<ReturnType<typeof client.channel>[]>([]);
+useEffect(() => {
+  if (!isOnline) return;
+  const channelsArr = realtimeChannelsRef.current;
+  
+  const subscribeToRealtime = async () => {
+    if (supabaseSubscriptionsRef.current) return;
+    
+    const client = assertSupabase();
+    
+    const subs: string[] = [
+      'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
+      'erp_ordenes_compra', 'erp_proveedores', 'erp_cuentas_cobrar', 'erp_cuentas_pagar',
+      'erp_hitos', 'erp_riesgos', 'erp_licitaciones', 'erp_cotizaciones_negocio',
+      'erp_vales_salida', 'erp_no_conformidades', 'erp_incidentes', 'erp_planos',
+      'erp_rfis', 'erp_submittals', 'erp_activos', 'erp_cuadros', 'erp_pagos_proveedor',
+      'erp_destajos', 'erp_recepciones', 'erp_centros_costo', 'erp_seguimiento',
+      'erp_bitacora', 'erp_pruebas_laboratorio', 'erp_liberaciones_partida',
+      'erp_plantillas_proyectos', 'erp_presupuestos', 'erp_avances',
+      'erp_muro', 'erp_ventas_paquetes', 'erp_proyecto_weather',
+    ];
+    
+    const promises = subs.map(table => new Promise<void>((resolve, reject) => {
+      const channel = client.channel(`public:${table}`);
+      channelsArr.push(channel);
+      channel
+        .on('postgres_changes', { event: '*', schema: 'public', table }, payload => {
+          const newRecord = payload.new as any;
+          const oldRecord = payload.old as any;
+          const storeKey = STORE_KEY_MAP[table] || table;
+          const toStoreRecord = (raw: any) => raw ? toCamel(raw) : raw;
+          
+          if (payload.eventType === 'INSERT') {
+            useErpStore.setState(prev => {
+              const arr: any[] = (prev as any)[storeKey] ?? [];
+              const normalized = toStoreRecord(newRecord);
+              if (Array.isArray(arr) && normalized?.id && !arr.some((item: any) => item.id === normalized.id)) {
+                return { ...prev, [storeKey]: [normalized, ...arr] } as any;
+              }
+              return prev;
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            useErpStore.setState(prev => {
+              const arr: any[] = (prev as any)[storeKey] ?? [];
+              const normalized = toStoreRecord(newRecord);
+              if (Array.isArray(arr) && normalized?.id) {
+                const idx = arr.findIndex((item: any) => item.id === normalized.id);
+                if (idx !== -1) {
+                  const updated = [...arr];
+                  updated[idx] = normalized;
+                  return { ...prev, [storeKey]: updated } as any;
                 }
-              )
-              .subscribe((status) => {
-                if (status === 'SUBSCRIBED') {
-                  resolve();
-                } else if (status === 'CHANNEL_ERROR') {
-                  reject(new Error(`Failed to subscribe to ${table}`));
-                }
-              });
-          });
+              }
+              return prev;
+            });
+          } else if (payload.eventType === 'DELETE') {
+            useErpStore.setState(prev => {
+              const arr: any[] = (prev as any)[storeKey] ?? [];
+              if (Array.isArray(arr) && oldRecord?.id) {
+                return { ...prev, [storeKey]: arr.filter((item: any) => item.id !== oldRecord.id) } as any;
+              }
+              return prev;
+            });
+          }
+        })
+        .subscribe(status => {
+          if (status === 'SUBSCRIBED') resolve();
+          else if (status === 'CHANNEL_ERROR') reject(new Error(`Failed to subscribe to ${table}`));
         });
-        
-        // Esperar a todos los canales
-        await Promise.all(channels);
-        
-        // Registramos las suscripciones para evitar volver a suscribirnos
-        supabaseSubscriptionsRef.current = true;
-      };
-      
-      subscribeToRealtime().catch(() => {});
-    }, [isOnline]);
+    }));
+    
+    await Promise.all(promises);
+    supabaseSubscriptionsRef.current = true;
+  };
+  
+  subscribeToRealtime().catch(() => {});
+  
+  return () => {
+    channelsArr.forEach(ch => { try { ch.unsubscribe(); } catch {} });
+    channelsArr.length = 0;
+    supabaseSubscriptionsRef.current = false;
+  };
+}, [isOnline]);
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
 };

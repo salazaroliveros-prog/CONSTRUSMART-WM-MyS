@@ -26,3 +26,5 @@ export { errorLogSchema } from './errorLog';
 export type { ErrorLogEntry } from './errorLog';
 export { projectProfitabilitySchema, clientProfitabilitySchema, profitabilityForecastSchema, resourceEfficiencySchema, profitabilityTrendSchema, pricingOptimizationSchema } from './profitability';
 export type { ProjectProfitability, ClientProfitability, ProfitabilityForecast, ResourceEfficiency, ProfitabilityTrend, PricingOptimization } from './profitability';
+export { consumoHistoricoSchema, patronConsumoSchema, proveedorLeadTimeSchema, reorderSuggestionSchema, reorderConfigSchema } from './reordering';
+export type { ConsumoHistorico, PatronConsumo, ProveedorLeadTime, ReorderSuggestion, ReorderConfig, ReorderStore } from './reordering';

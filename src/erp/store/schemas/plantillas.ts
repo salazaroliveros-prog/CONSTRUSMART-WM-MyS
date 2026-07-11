@@ -16,13 +16,13 @@ const hitoTemplateSchema = z.object({
   nombre: z.string().default(''),
   descripcion: z.string().optional().default(''),
   diasDesdeInicio: z.number().default(0),
-  estado: z.enum(['pendiente', 'en_proceso', 'completado', 'retrasado']).default('pendiente'),
+  estado: z.enum(['pendiente', 'en_proceso', 'completado', 'retrasado'] as const).default('pendiente'),
 });
 
 const riesgoTemplateSchema = z.object({
   categoria: z.string().default(''),
   descripcion: z.string().default(''),
-  nivel: z.enum(['bajo', 'medio', 'alto']).default('medio'),
+  nivel: z.enum(['bajo', 'medio', 'alto'] as const).default('medio'),
   mitigation: z.string().optional().default(''),
 });
 
@@ -55,22 +55,22 @@ export const plantillaSchema = z.object({
   id: z.string(),
   nombre: z.string().min(1, 'Nombre requerido').max(200, 'Máximo 200 caracteres'),
   descripcion: z.string().max(500).optional().default(''),
-  categoria: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']).default('residencial'),
+  categoria: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica'] as const).default('residencial'),
   proyectoOrigenId: z.string().optional().default(''),
   clienteId: z.string().optional().default(''),
   clienteNombre: z.string().optional().default(''),
   activa: z.boolean().default(true),
   favorita: z.boolean().default(false),
   configuracion: z.object({
-    tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']).default('residencial'),
-    tipoObra: z.enum(['nueva', 'remodelacion', 'ampliacion']).default('nueva'),
+    tipologia: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica'] as const).default('residencial'),
+    tipoObra: z.enum(['nueva', 'remodelacion', 'ampliacion'] as const).default('nueva'),
     factorSobrecosto: z.object({
       indirectos: z.number().default(0),
       administracion: z.number().default(0),
       imprevistos: z.number().default(0),
       utilidad: z.number().default(0),
     }).optional(),
-    moneda: z.enum(['GTQ', 'USD']).default('GTQ'),
+    moneda: z.enum(['GTQ', 'USD'] as const).default('GTQ'),
   }).optional(),
   estructuraPresupuesto: z.array(renglonTemplateSchema).default([]),
   hitosTemplate: z.array(hitoTemplateSchema).default([]),
