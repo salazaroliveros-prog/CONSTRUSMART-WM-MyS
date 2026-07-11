@@ -1,0 +1,2 @@
+-- placeholder: exists in remote schema_migrations but was removed from local during cleanup.
+-- Restored to match remote version history for preview alignment.
