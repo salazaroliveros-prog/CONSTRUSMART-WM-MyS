@@ -518,7 +518,7 @@ const PlantillasProyectos: React.FC = () => {
           <span className="text-sm font-medium">Ordenar:</span>
           <select
             value={ordenamiento}
-            onChange={(e) => setOrdenamiento(e.target.value as any)}
+            onChange={(e) => setOrdenamiento(e.target.value as string)}
             className="px-3 py-1 border rounded-md text-sm"
             aria-label="Criterio de ordenamiento"
           >
@@ -932,7 +932,7 @@ const PlantillasProyectos: React.FC = () => {
                 <label className="block text-sm font-medium mb-1">Categoría</label>
                 <select
                   value={formData.categoria}
-                  onChange={(e) => setFormData({ ...formData, categoria: e.target.value as any })}
+                  onChange={(e) => setFormData({ ...formData, categoria: e.target.value as string })}
                   className="w-full px-3 py-2 border rounded-md"
                 >
                   {CATEGORIAS.map(cat => (

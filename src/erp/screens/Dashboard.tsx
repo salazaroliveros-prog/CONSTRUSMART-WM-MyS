@@ -146,7 +146,7 @@ const Dashboard: React.FC = () => {
       const diffDias = Math.ceil((hoy.getTime() - fechaHito.getTime()) / 86400000);
       const inicio = new Date(fechaHito);
       inicio.setDate(inicio.getDate() - Math.max(diffDias + 14, 14));
-      return { id: h.id, nombre: h.nombre, proyecto: projMap.get(h.proyectoId) || '', fechaInicio: inicio.toISOString().slice(0, 10), fechaFin: h.fecha, estado: h.estado || 'pendiente', avance: h.estado === 'completado' ? 100 : (h as any).avance };
+      return { id: h.id, nombre: h.nombre, proyecto: projMap.get(h.proyectoId) || '', fechaInicio: inicio.toISOString().slice(0, 10), fechaFin: h.fecha, estado: h.estado || 'pendiente', avance: h.estado === 'completado' ? 100 : (h as unknown).avance };
     });
   }, [hitos, currentProjectId, safeProyectos]);
 
@@ -242,13 +242,15 @@ const Dashboard: React.FC = () => {
             <span className={syncStatus === 'error' ? 'text-destructive' : 'text-primary'}>{syncStatus === 'synced' ? 'Supabase conectado' : syncStatus === 'loading' ? 'Leyendo Supabase' : syncStatus === 'error' ? syncError || 'Error sync' : mutationQueue.length > 0 ? `${mutationQueue.length} pendientes` : 'Supabase activo'}</span>
           </div>
           {lastSyncedAt && <div className="text-[10px] text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">Sync {new Date(lastSyncedAt).toLocaleTimeString()}</div>}
-          <button onClick={handleExportPdf} disabled={exportingPdf} className="text-[10px] text-primary hover:text-primary/80 font-medium flex items-center gap-0.5 bg-primary/10 rounded-full px-2 py-0.5 transition-colors disabled:opacity-60" title={t('dashboard.exportar_pdf')}>
+          <button onClick={handleExportPdf} disabled={exportingPdf} className="text-[10px] text-primary hover:text-primary/80 font-medium flex items-center gap-0.5 bg-primary/10 rounded-full px-2 py-0.5 transition-colors disabled:opacity-60" aria-label={t('dashboard.exportar_pdf')} title={t('dashboard.exportar_pdf')}>
             {exportingPdf ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Download className="w-2.5 h-2.5" />}
             {exportingPdf ? 'Exportando...' : 'PDF'}
           </button>
         </div>
         <ProyectoFilter value={currentProjectId ?? ''} onChange={(id) => setCurrentProjectId(id || null)} proyectos={proyectos} />
       </div>
+
+      {!hasData && (<div className="flex flex-col items-center justify-center py-12 text-center"><div className="text-muted-foreground mb-2"><BarChart3 className="w-10 h-10" /></div><p className="text-sm text-muted-foreground">{t('dashboard.sin_datos_dashboard')}</p><p className="text-xs text-muted-foreground/70 mt-1">{t('dashboard.sin_proyectos')}</p></div>)}
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-2 flex-shrink-0" style={{ opacity: s1, transform: `translateY(${(1 - s1) * 12}px)`, transition: 'all 0.4s ease-out' }}>
         <div className="card-kpi rounded-xl p-3 sm:p-4">
@@ -378,7 +380,7 @@ const Dashboard: React.FC = () => {
             <div className="space-y-1.5">
               {supplierPerformanceData.topPerformers.length > 0 && (<div><span className={`text-[10px] ${COLOR_SUCCESS} font-medium`}>Top Desempeño</span>{supplierPerformanceData.topPerformers.slice(0, 2).map((s, i) => (<div key={s.id} className="flex justify-between items-center text-[10px] mt-0.5"><span className="truncate text-muted-foreground max-w-[100px]">{s.nombre}</span><span className={COLOR_SUCCESS + ' font-medium'}>{fmtPct(s.puntajeGeneral)}</span></div>))}</div>)}
               {supplierPerformanceData.atRisk.length > 0 && (<div className="border-t border-border pt-1"><span className="text-[10px] text-destructive font-medium">En Riesgo</span>{supplierPerformanceData.atRisk.slice(0, 2).map((s, i) => (<div key={s.id} className="flex justify-between items-center text-[10px] mt-0.5"><span className="truncate text-muted-foreground max-w-[100px]">{s.nombre}</span><span className="text-destructive font-medium">{fmtPct(s.puntajeGeneral)}</span></div>))}</div>)}
-              <button onClick={() => setView('proveedor-analytics' as View)} className="w-full mt-1 flex items-center justify-center gap-1 text-[10px] text-primary hover:text-primary/80 bg-primary/10 rounded-lg py-1 transition-colors">Ver Analytics Completo<ArrowRight className="w-2.5 h-2.5" /></button>
+              <button onClick={() => setView('proveedor-analytics' as View)} className="w-full mt-1 flex items-center justify-center gap-1 text-[10px] text-primary hover:text-primary/80 bg-primary/10 rounded-lg py-1 transition-colors" aria-label={t('dashboard.ver_analytics_completo')}>Ver Analytics Completo<ArrowRight className="w-2.5 h-2.5" /></button>
             </div>
           </div>)}
         </div>

@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useErp } from '../store';
+import { useTranslation } from 'react-i18next';
 import {
   Receipt, Search, DollarSign, Users, Wrench, Save, Edit3,
   BarChart3, Table as TableIcon, Settings, RefreshCw, Calculator,
@@ -10,6 +11,7 @@ import { FactorSobrecosto, DosificacionConcreto, MovimientoTierra, Pavimento, Re
 import { ServicioMotorCalculo } from '../services/motorCalculo';
 import { registrarCalculo } from '../services/motorCalculo';
 import { ServicioValidacionCalculos, mostrarValidaciones } from '../services/validacionCalculos';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Tab = 'insumos' | 'rendimientos' | 'sobrecosto' | 'calculo' | 'historico' | 'dosificacion' | 'acero' | 'movimientoTierra' | 'parametrosClimaticos' | 'pavimentos' | 'redesInfraestructura' | 'murosContencion';
 
@@ -21,6 +23,7 @@ const FACTOR_DEFAULT: FactorSobrecosto = {
 };
 
 const APUAvanzado: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, updateProyecto, insumosBase } = useErp();
 
   const [tab, setTab] = useState<Tab>('insumos');
@@ -29,6 +32,7 @@ const APUAvanzado: React.FC = () => {
   const [proyectoId, setProyectoId] = useState('');
   const [factor, setFactor] = useState<FactorSobrecosto>(FACTOR_DEFAULT);
   const [editFactor, setEditFactor] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [dosificacion, setDosificacion] = useState<DosificacionConcreto>({
     resistencia: '3000psi',
@@ -90,7 +94,7 @@ const APUAvanzado: React.FC = () => {
 
   const filteredRendimientos = useMemo(() => {
     const q = (searchRend || '').toLowerCase();
-    if (!q) return [] as any[];
+    if (!q) return [];
     return [];
   }, [searchRend]);
 
@@ -109,17 +113,19 @@ const APUAvanzado: React.FC = () => {
   const handleSaveFactor = () => {
     if (proyectoId) {
       updateProyecto(proyectoId, { factorSobrecosto: factor });
-      toast.success('Factor de sobrecosto actualizado para el proyecto');
+      toast.success(t('apu.factor_actualizado_proyecto'));
     } else {
-      toast.success('Factor guardado (sin proyecto)');
+      toast.success(t('apu.factor_guardado_sin_proyecto'));
     }
     setEditFactor(false);
   };
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     ServicioMotorCalculo.obtenerDepartamentos().then(data => {
       if (!cancelled) setDepartamentos(data);
+      if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
   }, []);
@@ -131,7 +137,7 @@ const APUAvanzado: React.FC = () => {
       setResultadoDosificacion(resultado);
       toast.success('Dosificación calculada exitosamente');
     } catch (error) {
-      toast.error('Error al calcular dosificación');
+      toast.error(t('apu.error_calculo_dosificacion'));
       safeLogger.error(error);
     } finally {
       setCalculando(false);
@@ -141,11 +147,11 @@ const APUAvanzado: React.FC = () => {
   const handleCalcularAcero = async () => {
     setCalculandoAcero(true);
     try {
-      const resultado = await (ServicioMotorCalculo as any).calcularDesgloseAcero?.(acero) || { error: 'Función no implementada' };
+      const resultado = await (ServicioMotorCalculo as unknown).calcularDesgloseAcero?.(acero) || { error: 'Función no implementada' };
       setResultadoAcero(resultado);
       toast.success('Desglose de acero calculado exitosamente');
     } catch (error) {
-      toast.error('Error al calcular desglose de acero');
+      toast.error(t('apu.error_calculo_acero'));
       safeLogger.error(error);
     } finally {
       setCalculandoAcero(false);
@@ -159,7 +165,7 @@ const APUAvanzado: React.FC = () => {
       setResultadoMovimientoTierra(resultado);
       toast.success('Movimiento de tierra calculado exitosamente');
     } catch (error) {
-      toast.error('Error al calcular movimiento de tierra');
+      toast.error(t('apu.error_calculo_movimiento_tierra'));
       safeLogger.error(error);
     } finally {
       setCalculandoMovimientoTierra(false);
@@ -173,7 +179,7 @@ const APUAvanzado: React.FC = () => {
       setResultadoClimaticos(resultado);
       toast.success('Parámetros climáticos calculados exitosamente');
     } catch (error) {
-      toast.error('Error al calcular parámetros climáticos');
+      toast.error(t('apu.error_calculo_climaticos'));
       safeLogger.error(error);
     } finally {
       setCalculandoClimaticos(false);
@@ -183,17 +189,17 @@ const APUAvanzado: React.FC = () => {
   const handleCalcularPavimento = async () => {
     setCalculandoPavimento(true);
     try {
-      const resultado = await ServicioMotorCalculo.calcularPavimento(pavimento);
-      const validaciones = await ServicioValidacionCalculos.validarPavimento(pavimento as any, resultado as any);
+      const resultado = await ServicioMotorCalculo.calcularPavimento(pavimento as unknown as Parameters<typeof ServicioMotorCalculo.calcularPavimento>[0]);
+      const validaciones = await ServicioValidacionCalculos.validarPavimento(pavimento as unknown as Parameters<typeof ServicioValidacionCalculos.validarPavimento>[0], resultado as unknown as Parameters<typeof ServicioValidacionCalculos.validarPavimento>[1]);
       const esValido = await mostrarValidaciones(validaciones);
-      if (!esValido) toast.warning('Cálculo tiene errores de validación');
+      if (!esValido) toast.warning(t('apu.error_validacion_calculo'));
       setResultadoPavimento(resultado);
       toast.success('Pavimento calculado exitosamente');
       try {
-        await (registrarCalculo as any)(proyectoId || proyectos[0]?.id || '', 'pavimento', pavimento as any, resultado as any, 'Cálculo manual de pavimento');
+        await (registrarCalculo as unknown as (proyectoId: string, tipo: string, data: unknown, resultado: unknown, nota: string) => Promise<void>)(proyectoId || proyectos[0]?.id || '', 'pavimento', pavimento as unknown, resultado as unknown, 'Cálculo manual de pavimento');
       } catch (err) { /* ignore */ }
     } catch (error) {
-      toast.error('Error al calcular pavimento');
+      toast.error(t('apu.error_calculo_pavimento'));
       safeLogger.error(error);
     } finally {
       setCalculandoPavimento(false);
@@ -204,16 +210,16 @@ const APUAvanzado: React.FC = () => {
     setCalculandoRedInfraestructura(true);
     try {
       const resultado = await ServicioMotorCalculo.calcularRedInfraestructura(redInfraestructura);
-      const validaciones = await ServicioValidacionCalculos.validarRedInfraestructura(redInfraestructura as any, resultado as any);
+      const validaciones = await ServicioValidacionCalculos.validarRedInfraestructura(redInfraestructura as unknown, resultado as unknown);
       const esValido = mostrarValidaciones(validaciones);
-      if (!esValido) toast.warning('Cálculo tiene errores de validación');
+      if (!esValido) toast.warning(t('apu.error_validacion_calculo'));
       setResultadoRedInfraestructura(resultado);
       toast.success('Red de infraestructura calculada exitosamente');
       try {
-        await (registrarCalculo as any)(proyectoId || proyectos[0]?.id || '', 'red_infraestructura', redInfraestructura as any, resultado as any, 'Cálculo manual de red de infraestructura');
+        await (registrarCalculo as unknown)(proyectoId || proyectos[0]?.id || '', 'red_infraestructura', redInfraestructura as unknown, resultado as unknown, 'Cálculo manual de red de infraestructura');
       } catch (err) { /* ignore */ }
     } catch (error) {
-      toast.error('Error al calcular red de infraestructura');
+      toast.error(t('apu.error_calculo_red_infraestructura'));
       safeLogger.error(error);
     } finally {
       setCalculandoRedInfraestructura(false);
@@ -224,16 +230,16 @@ const APUAvanzado: React.FC = () => {
     setCalculandoMuroContencion(true);
     try {
       const resultado = await ServicioMotorCalculo.calcularMuroContencion(muroContencion);
-      const validaciones = await ServicioValidacionCalculos.validarMuroContencion(muroContencion as any, resultado as any);
+      const validaciones = await ServicioValidacionCalculos.validarMuroContencion(muroContencion as unknown, resultado as unknown);
       const esValido = mostrarValidaciones(validaciones);
-      if (!esValido) toast.warning('Cálculo tiene errores de validación');
+      if (!esValido) toast.warning(t('apu.error_validacion_calculo'));
       setResultadoMuroContencion(resultado);
       toast.success('Muro de contención calculado exitosamente');
       try {
-        await (registrarCalculo as any)(proyectoId || proyectos[0]?.id || '', 'muro_contencion', muroContencion as any, resultado as any, 'Cálculo manual de muro de contención');
+        await (registrarCalculo as unknown)(proyectoId || proyectos[0]?.id || '', 'muro_contencion', muroContencion as unknown, resultado as unknown, 'Cálculo manual de muro de contención');
       } catch (err) { /* ignore */ }
     } catch (error) {
-      toast.error('Error al calcular muro de contención');
+      toast.error(t('apu.error_calculo_muro_contencion'));
       safeLogger.error(error);
     } finally {
       setCalculandoMuroContencion(false);
@@ -243,10 +249,10 @@ const APUAvanzado: React.FC = () => {
   const historial = useMemo(() => {
     const base = insumosBase || [];
     if (base.length === 0) return [];
-    const fechasUnicas = [...new Set((base as any[]).map(i => i.fechaActualizacion).filter(Boolean))] as string[];
+    const fechasUnicas = [...new Set((base as unknown[]).map(i => i.fechaActualizacion).filter(Boolean))] as string[];
     if (fechasUnicas.length === 0) return [];
     return fechasUnicas.slice(-5).map(fecha => {
-      const insumosFecha = (base as any[]).filter(i => i.fechaActualizacion === fecha);
+      const insumosFecha = (base as unknown[]).filter(i => i.fechaActualizacion === fecha);
       const cemento = insumosFecha.find((i: any) => i.nombre.toLowerCase().includes('cemento'))?.precioReferencia || 0;
       const hierro = insumosFecha.find((i: any) => i.nombre.toLowerCase().includes('hierro') || i.nombre.toLowerCase().includes('varilla'))?.precioReferencia || 0;
       const arena = insumosFecha.find((i: any) => i.nombre.toLowerCase().includes('arena'))?.precioReferencia || 0;
@@ -272,7 +278,17 @@ const APUAvanzado: React.FC = () => {
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      {loading && (
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-10 w-full" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
+          </div>
+        </div>
+      )}
+      {!loading && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
           <Receipt className="w-6 h-6 text-primary" /> APU Avanzado
         </h1>
@@ -285,7 +301,7 @@ const APUAvanzado: React.FC = () => {
         {TABS.map(t => {
           const Icon = t.icon;
           return (
-            <button key={t.id} onClick={() => setTab(t.id)} className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${tab === t.id ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-background'}`}>
+            <button key={t.id} onClick={() => setTab(t.id)} aria-label={`Ver pestaña ${t.label}`} className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${tab === t.id ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-background'}`}>
               <Icon className="w-3.5 h-3.5" /> {t.label}
             </button>
           );
@@ -308,7 +324,7 @@ const APUAvanzado: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="text-xs text-muted-foreground mb-2">{(filteredInsumos as any[]).length} insumos · Precios de referencia INSIVUMEH / MOP</div>
+            <div className="text-xs text-muted-foreground mb-2">{(filteredInsumos as unknown[]).length} insumos · Precios de referencia INSIVUMEH / MOP</div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
@@ -322,7 +338,7 @@ const APUAvanzado: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {(filteredInsumos as any[]).map((ins: any) => (
+                  {(filteredInsumos as unknown[]).map((ins: any) => (
                     <tr key={ins.id} className="border-b border-border hover:bg-muted">
                       <td className="py-2 px-2 font-medium text-foreground">{ins.nombre}</td>
                       <td className="py-2 px-2">
@@ -362,7 +378,7 @@ const APUAvanzado: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {(filteredRendimientos as any[]).map((r: any) => (
+                  {(filteredRendimientos as unknown[]).map((r: any) => (
                     <tr key={r.id} className="border-b border-border hover:bg-accent">
                       <td className="py-2 px-2 font-medium text-muted-foreground">{r.actividad}</td>
                       <td className="py-2 px-2 text-muted-foreground">{r.cuadrilla}</td>
@@ -380,7 +396,7 @@ const APUAvanzado: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-bold text-muted-foreground text-sm">Factor de Sobrecosto</h2>
-              <button onClick={() => setEditFactor(!editFactor)} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-muted transition-colors">
+              <button onClick={() => setEditFactor(!editFactor)} aria-label={editFactor ? 'Cancelar edición de factor' : 'Editar factor de sobrecosto'} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-muted transition-colors">
                 <Edit3 className="w-3 h-3" /> {editFactor ? 'Cancelar' : 'Editar'}
               </button>
             </div>
@@ -406,7 +422,7 @@ const APUAvanzado: React.FC = () => {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div><span className="text-xs text-orange-600 font-medium">Total sobrecosto:</span><span className="text-xl font-bold text-orange-700 ml-2">{factor.indirectos + factor.administracion + factor.imprevistos + factor.utilidad}%</span></div>
                 <div><span className="text-xs text-orange-600 font-medium">Factor multiplicador:</span><span className="text-xl font-bold text-orange-700 ml-2">x{((factor.indirectos + factor.administracion + factor.imprevistos + factor.utilidad) / 100 + 1).toFixed(2)}</span></div>
-                {editFactor && (<button onClick={handleSaveFactor} className="flex items-center gap-1 text-xs px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium"><Save className="w-3 h-3" /> Guardar</button>)}
+                {editFactor && (<button onClick={handleSaveFactor} aria-label="Guardar factor de sobrecosto" className="flex items-center gap-1 text-xs px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium"><Save className="w-3 h-3" /> Guardar</button>)}
               </div>
             </div>
           </div>
@@ -417,16 +433,16 @@ const APUAvanzado: React.FC = () => {
             <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Dosificación de Concreto</h2>
             <p className="text-xs text-muted-foreground mb-4">Cálculo paramétrico de materiales basado en resistencia, tipo y condiciones ambientales</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-              <div><label className="text-xs text-muted-foreground mb-1 block">Resistencia</label><select value={dosificacion.resistencia} onChange={e => setDosificacion(d => ({ ...d, resistencia: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="2000psi">2000 psi</option><option value="2500psi">2500 psi</option><option value="3000psi">3000 psi</option><option value="3500psi">3500 psi</option><option value="4000psi">4000 psi</option><option value="4500psi">4500 psi</option><option value="5000psi">5000 psi</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo de Elemento</label><select value={dosificacion.tipo} onChange={e => setDosificacion(d => ({ ...d, tipo: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="cimentacion">Cimentación</option><option value="estructura">Estructura</option><option value="losa">Losa</option><option value="pavimento">Pavimento</option><option value="muro">Muro</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Tamaño de Agregado</label><select value={dosificacion.tamañoAgregado} onChange={e => setDosificacion(d => ({ ...d, tamañoAgregado: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="3/4">3/4&quot;</option><option value="1">1&quot;</option><option value="1.5">1.5&quot;</option><option value="2">2&quot;</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Aditivos</label><select value={dosificacion.aditivos} onChange={e => setDosificacion(d => ({ ...d, aditivos: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="ninguno">Ninguno</option><option value="acelerador">Acelerador</option><option value="retardador">Retardador</option><option value="plastificante">Plastificante</option><option value="impermeabilizante">Impermeabilizante</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo de Curado</label><select value={dosificacion.curado} onChange={e => setDosificacion(d => ({ ...d, curado: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="normal">Normal</option><option value="acelerado">Acelerado</option><option value="prolongado">Prolongado</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Resistencia</label><select value={dosificacion.resistencia} onChange={e => setDosificacion(d => ({ ...d, resistencia: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="2000psi">2000 psi</option><option value="2500psi">2500 psi</option><option value="3000psi">3000 psi</option><option value="3500psi">3500 psi</option><option value="4000psi">4000 psi</option><option value="4500psi">4500 psi</option><option value="5000psi">5000 psi</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo de Elemento</label><select value={dosificacion.tipo} onChange={e => setDosificacion(d => ({ ...d, tipo: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="cimentacion">Cimentación</option><option value="estructura">Estructura</option><option value="losa">Losa</option><option value="pavimento">Pavimento</option><option value="muro">Muro</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Tamaño de Agregado</label><select value={dosificacion.tamañoAgregado} onChange={e => setDosificacion(d => ({ ...d, tamañoAgregado: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="3/4">3/4&quot;</option><option value="1">1&quot;</option><option value="1.5">1.5&quot;</option><option value="2">2&quot;</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Aditivos</label><select value={dosificacion.aditivos} onChange={e => setDosificacion(d => ({ ...d, aditivos: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="ninguno">Ninguno</option><option value="acelerador">Acelerador</option><option value="retardador">Retardador</option><option value="plastificante">Plastificante</option><option value="impermeabilizante">Impermeabilizante</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo de Curado</label><select value={dosificacion.curado} onChange={e => setDosificacion(d => ({ ...d, curado: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="normal">Normal</option><option value="acelerado">Acelerado</option><option value="prolongado">Prolongado</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">Volumen (m³)</label><input type="number" inputMode="decimal" value={volumen} onChange={e => setVolumen(Math.max(0.1, parseFloat(e.target.value) || 1))} min={0.1} step={0.1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">Departamento (opcional)</label><select value={departamento} onChange={e => setDepartamento(e.target.value)} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">Sin ajuste regional</option>{departamentos.map((dep: any) => (<option key={dep.codigo} value={dep.codigo}>{dep.nombre}</option>))}</select></div>
               <div className="sm:col-span-2 md:col-span-3">
-                <button onClick={handleCalcularDosificacion} disabled={calculando} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-                  <Calculator className="w-4 h-4" />{calculando ? 'Calculando...' : 'Calcular Dosificación'}
+                <button onClick={handleCalcularDosificacion} disabled={calculando} aria-label={calculando ? 'Calculando dosificación' : 'Calcular dosificación de concreto'} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                  <Calculator className="w-4 h-4" />{calculando ? t('apu.calculando') : t('apu.calcular_dosificacion')}
                 </button>
               </div>
             </div>
@@ -493,20 +509,20 @@ const APUAvanzado: React.FC = () => {
             <p className="text-xs text-muted-foreground mb-4">Evolución de precios de referencia — Guatemala 2025–2026</p>
             {historial.length > 0 ? (<>
               <div className="relative h-40 mb-4 bg-muted/30 rounded-xl p-3 border border-border">
-                <div className="flex items-end gap-1 h-full">{(historial as any[]).map((h: any, i: number) => { const maxVal = Math.max(...(historial as any[]).map((x: any) => x.cemento)); const hPct = (h.cemento / maxVal) * 100; return (<div key={i} className="flex-1 flex flex-col items-center gap-1"><span className="text-[10px] text-muted-foreground font-medium">{h.cemento}</span><div className="w-full bg-orange-400 rounded-t transition-all" style={{ height: `${hPct}%`, minHeight: 8 }} /><span className="text-[8px] text-muted-foreground">{h.fecha.slice(2)}</span></div>); })}</div>
+                <div className="flex items-end gap-1 h-full">{(historial as unknown[]).map((h: any, i: number) => { const maxVal = Math.max(...(historial as unknown[]).map((x: any) => x.cemento)); const hPct = (h.cemento / maxVal) * 100; return (<div key={i} className="flex-1 flex flex-col items-center gap-1"><span className="text-[10px] text-muted-foreground font-medium">{h.cemento}</span><div className="w-full bg-orange-400 rounded-t transition-all" style={{ height: `${hPct}%`, minHeight: 8 }} /><span className="text-[8px] text-muted-foreground">{h.fecha.slice(2)}</span></div>); })}</div>
                 <div className="absolute top-2 left-3 text-xs text-muted-foreground">Cemento UGC (Q/saco)</div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead><tr className="border-b border-border text-muted-foreground"><th className="text-left py-2 px-2 font-medium">Fecha</th><th className="text-right py-2 px-2 font-medium">Cemento</th><th className="text-right py-2 px-2 font-medium">Hierro 3/8&quot;</th><th className="text-right py-2 px-2 font-medium">Arena</th><th className="text-right py-2 px-2 font-medium">Block</th></tr></thead>
-                  <tbody>{(historial as any[]).map((h: any, i: number) => (<tr key={i} className="border-b border-slate-50 hover:bg-accent"><td className="py-2 px-2 font-medium text-muted-foreground">{h.fecha}</td><td className="py-2 px-2 text-right">Q{h.cemento}</td><td className="py-2 px-2 text-right">Q{h.hierro}</td><td className="py-2 px-2 text-right">Q{h.arena}</td><td className="py-2 px-2 text-right">Q{h.block}</td></tr>))}</tbody>
+                  <tbody>{(historial as unknown[]).map((h: any, i: number) => (<tr key={i} className="border-b border-slate-50 hover:bg-accent"><td className="py-2 px-2 font-medium text-muted-foreground">{h.fecha}</td><td className="py-2 px-2 text-right">Q{h.cemento}</td><td className="py-2 px-2 text-right">Q{h.hierro}</td><td className="py-2 px-2 text-right">Q{h.arena}</td><td className="py-2 px-2 text-right">Q{h.block}</td></tr>))}</tbody>
                 </table>
               </div>
               <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <div className="bg-muted/30 rounded-xl p-3 border border-border"><div className="text-xs text-muted-foreground">Cemento</div><div className="text-sm font-bold text-orange-600">Q{(historial as any[])[(historial as any[]).length - 1].cemento.toFixed(0)}<span className="text-xs ml-1 text-red-500">↑ {(((historial as any[])[(historial as any[]).length - 1].cemento - (historial as any[])[0].cemento) / ((historial as any[])[0].cemento || 1) * 100).toFixed(1)}%</span></div></div>
-                <div className="bg-muted/30 rounded-xl p-3 border border-border"><div className="text-xs text-muted-foreground">Hierro 3/8&quot;</div><div className="text-sm font-bold text-blue-600">Q{(historial as any[])[(historial as any[]).length - 1].hierro.toFixed(0)}<span className="text-xs ml-1 text-red-500">↑ {(((historial as any[])[(historial as any[]).length - 1].hierro - (historial as any[])[0].hierro) / ((historial as any[])[0].hierro || 1) * 100).toFixed(1)}%</span></div></div>
-                <div className="bg-muted/30 rounded-xl p-3 border border-border"><div className="text-xs text-muted-foreground">Arena</div><div className="text-sm font-bold text-emerald-600">Q{(historial as any[])[(historial as any[]).length - 1].arena.toFixed(0)}<span className="text-xs ml-1 text-red-500">↑ {(((historial as any[])[(historial as any[]).length - 1].arena - (historial as any[])[0].arena) / ((historial as any[])[0].arena || 1) * 100).toFixed(1)}%</span></div></div>
-                <div className="bg-muted/30 rounded-xl p-3 border border-border"><div className="text-xs text-muted-foreground">Block</div><div className="text-sm font-bold text-blue-600">Q{(historial as any[])[(historial as any[]).length - 1].block.toFixed(0)}<span className="text-xs ml-1 text-red-500">↑ {(((historial as any[])[(historial as any[]).length - 1].block - (historial as any[])[0].block) / ((historial as any[])[0].block || 1) * 100).toFixed(1)}%</span></div></div>
+                <div className="bg-muted/30 rounded-xl p-3 border border-border"><div className="text-xs text-muted-foreground">Cemento</div><div className="text-sm font-bold text-orange-600">Q{(historial as unknown[])[(historial as unknown[]).length - 1].cemento.toFixed(0)}<span className="text-xs ml-1 text-red-500">↑ {(((historial as unknown[])[(historial as unknown[]).length - 1].cemento - (historial as unknown[])[0].cemento) / ((historial as unknown[])[0].cemento || 1) * 100).toFixed(1)}%</span></div></div>
+                <div className="bg-muted/30 rounded-xl p-3 border border-border"><div className="text-xs text-muted-foreground">Hierro 3/8&quot;</div><div className="text-sm font-bold text-blue-600">Q{(historial as unknown[])[(historial as unknown[]).length - 1].hierro.toFixed(0)}<span className="text-xs ml-1 text-red-500">↑ {(((historial as unknown[])[(historial as unknown[]).length - 1].hierro - (historial as unknown[])[0].hierro) / ((historial as unknown[])[0].hierro || 1) * 100).toFixed(1)}%</span></div></div>
+                <div className="bg-muted/30 rounded-xl p-3 border border-border"><div className="text-xs text-muted-foreground">Arena</div><div className="text-sm font-bold text-emerald-600">Q{(historial as unknown[])[(historial as unknown[]).length - 1].arena.toFixed(0)}<span className="text-xs ml-1 text-red-500">↑ {(((historial as unknown[])[(historial as unknown[]).length - 1].arena - (historial as unknown[])[0].arena) / ((historial as unknown[])[0].arena || 1) * 100).toFixed(1)}%</span></div></div>
+                <div className="bg-muted/30 rounded-xl p-3 border border-border"><div className="text-xs text-muted-foreground">Block</div><div className="text-sm font-bold text-blue-600">Q{(historial as unknown[])[(historial as unknown[]).length - 1].block.toFixed(0)}<span className="text-xs ml-1 text-red-500">↑ {(((historial as unknown[])[(historial as unknown[]).length - 1].block - (historial as unknown[])[0].block) / ((historial as unknown[])[0].block || 1) * 100).toFixed(1)}%</span></div></div>
               </div>
             </>) : (<div className="text-center py-8 text-muted-foreground text-sm">No hay datos históricos disponibles.</div>)}
           </div>
@@ -521,7 +537,7 @@ const APUAvanzado: React.FC = () => {
               <div><label className="text-xs text-muted-foreground mb-1 block">Estribos</label><select value={acero.estribos} onChange={e => setAcero((d: any) => ({ ...d, estribos: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="estribos">Estribos</option><option value="espiral">Espiral</option><option value="malla">Malla Electrosoldada</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">Volumen (m³)</label><input type="number" inputMode="decimal" value={acero.volumenM3} onChange={e => setAcero((d: any) => ({ ...d, volumenM3: Math.max(0.1, parseFloat(e.target.value) || 1) }))} min={0.1} step={0.1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
               <div className="sm:col-span-2 md:col-span-3">
-                <button onClick={handleCalcularAcero} disabled={calculandoAcero} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoAcero ? 'Calculando...' : 'Calcular Desglose de Acero'}</button>
+                <button onClick={handleCalcularAcero} disabled={calculandoAcero} aria-label={calculandoAcero ? 'Calculando desglose de acero' : 'Calcular desglose de acero'} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoAcero ? t('apu.calculando') : t('apu.calcular_acero')}</button>
               </div>
             </div>
             {resultadoAcero && (
@@ -537,13 +553,13 @@ const APUAvanzado: React.FC = () => {
           <div>
             <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Movimientos de Tierra</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo</label><select value={movimientoTierra.tipo} onChange={e => setMovimientoTierra(d => ({ ...d, tipo: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="excavacion">Excavación</option><option value="relleno">Relleno</option><option value="compactacion">Compactación</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Suelo</label><select value={movimientoTierra.suelo} onChange={e => setMovimientoTierra(d => ({ ...d, suelo: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="relleno">Relleno</option><option value="arcilla">Arcilla</option><option value="arena">Arena</option><option value="roca_blanda">Roca Blanda</option><option value="roca_dura">Roca Dura</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Profundidad</label><select value={movimientoTierra.profundidad} onChange={e => setMovimientoTierra(d => ({ ...d, profundidad: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="menos_1m">Menos de 1m</option><option value="1_2m">1-2m</option><option value="2_3m">2-3m</option><option value="mas_3m">Más de 3m</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Acceso</label><select value={movimientoTierra.acceso} onChange={e => setMovimientoTierra(d => ({ ...d, acceso: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="retroexcavadora">Retroexcavadora</option><option value="cargador">Cargador Frontal</option><option value="manual">Manual</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Drenaje</label><select value={movimientoTierra.drenaje} onChange={e => setMovimientoTierra(d => ({ ...d, drenaje: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="seco">Seco</option><option value="agua">Con Agua</option><option value="lodos">Con Lodos</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo</label><select value={movimientoTierra.tipo} onChange={e => setMovimientoTierra(d => ({ ...d, tipo: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="excavacion">Excavación</option><option value="relleno">Relleno</option><option value="compactacion">Compactación</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Suelo</label><select value={movimientoTierra.suelo} onChange={e => setMovimientoTierra(d => ({ ...d, suelo: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="relleno">Relleno</option><option value="arcilla">Arcilla</option><option value="arena">Arena</option><option value="roca_blanda">Roca Blanda</option><option value="roca_dura">Roca Dura</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Profundidad</label><select value={movimientoTierra.profundidad} onChange={e => setMovimientoTierra(d => ({ ...d, profundidad: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="menos_1m">Menos de 1m</option><option value="1_2m">1-2m</option><option value="2_3m">2-3m</option><option value="mas_3m">Más de 3m</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Acceso</label><select value={movimientoTierra.acceso} onChange={e => setMovimientoTierra(d => ({ ...d, acceso: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="retroexcavadora">Retroexcavadora</option><option value="cargador">Cargador Frontal</option><option value="manual">Manual</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Drenaje</label><select value={movimientoTierra.drenaje} onChange={e => setMovimientoTierra(d => ({ ...d, drenaje: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="seco">Seco</option><option value="agua">Con Agua</option><option value="lodos">Con Lodos</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">Volumen (m³)</label><input type="number" inputMode="decimal" value={movimientoTierra.volumen} onChange={e => setMovimientoTierra(d => ({ ...d, volumen: Math.max(0.1, parseFloat(e.target.value) || 1) }))} min={0.1} step={0.1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
-              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularMovimientoTierra} disabled={calculandoMovimientoTierra} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoMovimientoTierra ? 'Calculando...' : 'Calcular Movimiento de Tierra'}</button></div>
+              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularMovimientoTierra} disabled={calculandoMovimientoTierra} aria-label={calculandoMovimientoTierra ? 'Calculando movimiento de tierra' : 'Calcular movimiento de tierra'} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoMovimientoTierra ? t('apu.calculando') : t('apu.calcular_movimiento_tierra')}</button></div>
             </div>
             {resultadoMovimientoTierra && (
               <div className="mt-4 space-y-3">
@@ -560,8 +576,8 @@ const APUAvanzado: React.FC = () => {
             <p className="text-xs text-muted-foreground mb-4">Factores de ajuste por clima para curado de concreto y rendimiento de mano de obra</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">Departamento</label><select value={parametrosClimaticos.departamentoCodigo} onChange={e => setParametrosClimaticos((d: any) => ({ ...d, departamentoCodigo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">Seleccione departamento</option>{departamentos.map(dep => (<option key={dep.codigo} value={dep.codigo}>{dep.nombre}</option>))}</select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Mes (opcional)</label><select value={(parametrosClimaticos as any).mes || ''} onChange={e => setParametrosClimaticos((d: any) => ({ ...d, mes: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">Sin estacionalidad</option><option value="enero">Enero</option><option value="febrero">Febrero</option><option value="marzo">Marzo</option><option value="abril">Abril</option><option value="mayo">Mayo</option><option value="junio">Junio</option><option value="julio">Julio</option><option value="agosto">Agosto</option><option value="septiembre">Septiembre</option><option value="octubre">Octubre</option><option value="noviembre">Noviembre</option><option value="diciembre">Diciembre</option></select></div>
-              <div className="sm:col-span-2"><button onClick={handleCalcularParametrosClimaticos} disabled={calculandoClimaticos} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoClimaticos ? 'Calculando...' : 'Calcular Parámetros Climáticos'}</button></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Mes (opcional)</label><select value={(parametrosClimaticos as unknown).mes || ''} onChange={e => setParametrosClimaticos((d: any) => ({ ...d, mes: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">Sin estacionalidad</option><option value="enero">Enero</option><option value="febrero">Febrero</option><option value="marzo">Marzo</option><option value="abril">Abril</option><option value="mayo">Mayo</option><option value="junio">Junio</option><option value="julio">Julio</option><option value="agosto">Agosto</option><option value="septiembre">Septiembre</option><option value="octubre">Octubre</option><option value="noviembre">Noviembre</option><option value="diciembre">Diciembre</option></select></div>
+              <div className="sm:col-span-2"><button onClick={handleCalcularParametrosClimaticos} disabled={calculandoClimaticos} aria-label={calculandoClimaticos ? 'Calculando parámetros climáticos' : 'Calcular parámetros climáticos'} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoClimaticos ? t('apu.calculando') : t('apu.calcular_climaticos')}</button></div>
             </div>
             {resultadoClimaticos && (
               <div className="mt-4 space-y-3">
@@ -576,12 +592,12 @@ const APUAvanzado: React.FC = () => {
           <div>
             <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Pavimentos</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-              <div><label className="text-xs text-muted-foreground mb-1 block">Uso</label><select value={pavimento.uso} onChange={e => setPavimento(d => ({ ...d, uso: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="peatonal">Peatonal</option><option value="vehicular_liviano">Vehicular Liviano</option><option value="vehicular_medio">Vehicular Medio</option><option value="vehicular_pesado">Vehicular Pesado</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo</label><select value={pavimento.tipo} onChange={e => setPavimento(d => ({ ...d, tipo: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="adoquinado">Adoquinado</option><option value="concreto">Concreto</option><option value="asfaltico">Asfaltico</option><option value="interlock">Interlock</option><option value="ceramico">Cerámico</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo Base</label><select value={pavimento.tipoBase} onChange={e => setPavimento(d => ({ ...d, tipoBase: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="c4">C4</option><option value="piedra_picada">Piedra Picada</option><option value="grava">Grava</option><option value="arena">Arena</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo Sello</label><select value={pavimento.tipoSello} onChange={e => setPavimento(d => ({ ...d, tipoSello: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="arena">Arena</option><option value="cemento">Cemento</option><option value="ninguno">Ninguno</option><option value="asfalto">Asfalto</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Uso</label><select value={pavimento.uso} onChange={e => setPavimento(d => ({ ...d, uso: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="peatonal">Peatonal</option><option value="vehicular_liviano">Vehicular Liviano</option><option value="vehicular_medio">Vehicular Medio</option><option value="vehicular_pesado">Vehicular Pesado</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo</label><select value={pavimento.tipo} onChange={e => setPavimento(d => ({ ...d, tipo: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="adoquinado">Adoquinado</option><option value="concreto">Concreto</option><option value="asfaltico">Asfaltico</option><option value="interlock">Interlock</option><option value="ceramico">Cerámico</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo Base</label><select value={pavimento.tipoBase} onChange={e => setPavimento(d => ({ ...d, tipoBase: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="c4">C4</option><option value="piedra_picada">Piedra Picada</option><option value="grava">Grava</option><option value="arena">Arena</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo Sello</label><select value={pavimento.tipoSello} onChange={e => setPavimento(d => ({ ...d, tipoSello: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="arena">Arena</option><option value="cemento">Cemento</option><option value="ninguno">Ninguno</option><option value="asfalto">Asfalto</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">Área (m²)</label><input type="number" inputMode="decimal" value={pavimento.areaM2} onChange={e => setPavimento(d => ({ ...d, areaM2: Math.max(1, parseFloat(e.target.value) || 1) }))} min={1} step={1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
-              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularPavimento} disabled={calculandoPavimento} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoPavimento ? 'Calculando...' : 'Calcular Pavimento'}</button></div>
+              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularPavimento} disabled={calculandoPavimento} aria-label={calculandoPavimento ? 'Calculando pavimento' : 'Calcular pavimento'} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoPavimento ? t('apu.calculando') : t('apu.calcular_pavimento')}</button></div>
             </div>
             {resultadoPavimento && (
               <div className="mt-4 space-y-3">
@@ -597,12 +613,12 @@ const APUAvanzado: React.FC = () => {
           <div>
             <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Redes de Infraestructura</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo</label><select value={redInfraestructura.tipo} onChange={e => setRedInfraestructura(d => ({ ...d, tipo: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="agua_potable">Agua Potable</option><option value="alcantarillado_sanitario">Alcantarillado Sanitario</option><option value="alcantarillado_pluvial">Alcantarillado Pluvial</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo</label><select value={redInfraestructura.tipo} onChange={e => setRedInfraestructura(d => ({ ...d, tipo: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="agua_potable">Agua Potable</option><option value="alcantarillado_sanitario">Alcantarillado Sanitario</option><option value="alcantarillado_pluvial">Alcantarillado Pluvial</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">Diámetro (pulgadas)</label><select value={redInfraestructura.diametroPulgadas} onChange={e => setRedInfraestructura(d => ({ ...d, diametroPulgadas: parseFloat(e.target.value) }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="0.5">0.5&quot;</option><option value="1.0">1.0&quot;</option><option value="2.0">2.0&quot;</option><option value="3.0">3.0&quot;</option><option value="4.0">4.0&quot;</option><option value="6.0">6.0&quot;</option><option value="8.0">8.0&quot;</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Material</label><select value={redInfraestructura.material} onChange={e => setRedInfraestructura(d => ({ ...d, material: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="pvc">PVC</option><option value="cpvc">CPVC</option><option value="cobre">Cobre</option><option value="hdpe">HDPE</option><option value="concreto">Concreto</option><option value="fierro_fundido">Fierro Fundido</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Presión</label><select value={redInfraestructura.presion} onChange={e => setRedInfraestructura(d => ({ ...d, presion: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="baja">Baja</option><option value="media">Media</option><option value="alta">Alta</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Material</label><select value={redInfraestructura.material} onChange={e => setRedInfraestructura(d => ({ ...d, material: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="pvc">PVC</option><option value="cpvc">CPVC</option><option value="cobre">Cobre</option><option value="hdpe">HDPE</option><option value="concreto">Concreto</option><option value="fierro_fundido">Fierro Fundido</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Presión</label><select value={redInfraestructura.presion} onChange={e => setRedInfraestructura(d => ({ ...d, presion: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="baja">Baja</option><option value="media">Media</option><option value="alta">Alta</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">Longitud (ml)</label><input type="number" inputMode="decimal" value={redInfraestructura.longitudMl} onChange={e => setRedInfraestructura(d => ({ ...d, longitudMl: Math.max(1, parseFloat(e.target.value) || 1) }))} min={1} step={1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
-              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularRedInfraestructura} disabled={calculandoRedInfraestructura} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoRedInfraestructura ? 'Calculando...' : 'Calcular Red de Infraestructura'}</button></div>
+              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularRedInfraestructura} disabled={calculandoRedInfraestructura} aria-label={calculandoRedInfraestructura ? 'Calculando red de infraestructura' : 'Calcular red de infraestructura'} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoRedInfraestructura ? t('apu.calculando') : t('apu.calcular_red_infraestructura')}</button></div>
             </div>
             {resultadoRedInfraestructura && (
               <div className="mt-4 space-y-3">
@@ -618,12 +634,12 @@ const APUAvanzado: React.FC = () => {
             <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Muros de Contención</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">Altura (m)</label><input type="number" inputMode="decimal" value={muroContencion.alturaM} onChange={e => setMuroContencion(d => ({ ...d, alturaM: Math.max(1, parseFloat(e.target.value) || 1) }))} min={1} max={10} step={0.5} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo de Muro</label><select value={muroContencion.tipo} onChange={e => setMuroContencion(d => ({ ...d, tipo: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="gravedad">Gravedad</option><option value="cantiliver">Cantilever</option><option value="atirantado">Atirantado</option><option value="tipo celular">Tipo Celular</option><option value="pantalla">Pantalla</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Cimentación</label><select value={muroContencion.tipoCimentacion} onChange={e => setMuroContencion(d => ({ ...d, tipoCimentacion: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="zapata_corrida">Zapata Corrida</option><option value="pilotes">Pilotes</option><option value="losa">Losa</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo de Suelo</label><select value={muroContencion.tipoSuelo} onChange={e => setMuroContencion(d => ({ ...d, tipoSuelo: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="arcilla">Arcilla</option><option value="arena">Arena</option><option value="roca">Roca</option><option value="relleno_compactado">Relleno Compactado</option><option value="granular">Granular</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Drenaje</label><select value={muroContencion.tipoDrenaje} onChange={e => setMuroContencion(d => ({ ...d, tipoDrenaje: e.target.value as any }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="sin_drenaje">Sin Drenaje</option><option value="drenaje_superficial">Drenaje Superficial</option><option value="drenaje_interno">Drenaje Interno</option><option value="drenaje_completo">Drenaje Completo</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo de Muro</label><select value={muroContencion.tipo} onChange={e => setMuroContencion(d => ({ ...d, tipo: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="gravedad">Gravedad</option><option value="cantiliver">Cantilever</option><option value="atirantado">Atirantado</option><option value="tipo celular">Tipo Celular</option><option value="pantalla">Pantalla</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Cimentación</label><select value={muroContencion.tipoCimentacion} onChange={e => setMuroContencion(d => ({ ...d, tipoCimentacion: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="zapata_corrida">Zapata Corrida</option><option value="pilotes">Pilotes</option><option value="losa">Losa</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Tipo de Suelo</label><select value={muroContencion.tipoSuelo} onChange={e => setMuroContencion(d => ({ ...d, tipoSuelo: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="arcilla">Arcilla</option><option value="arena">Arena</option><option value="roca">Roca</option><option value="relleno_compactado">Relleno Compactado</option><option value="granular">Granular</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Drenaje</label><select value={muroContencion.tipoDrenaje} onChange={e => setMuroContencion(d => ({ ...d, tipoDrenaje: e.target.value as unknown }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="sin_drenaje">Sin Drenaje</option><option value="drenaje_superficial">Drenaje Superficial</option><option value="drenaje_interno">Drenaje Interno</option><option value="drenaje_completo">Drenaje Completo</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">Longitud (m)</label><input type="number" inputMode="decimal" value={muroContencion.longitudM} onChange={e => setMuroContencion(d => ({ ...d, longitudM: Math.max(1, parseFloat(e.target.value) || 1) }))} min={1} step={1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
-              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularMuroContencion} disabled={calculandoMuroContencion} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoMuroContencion ? 'Calculando...' : 'Calcular Muro de Contención'}</button></div>
+              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularMuroContencion} disabled={calculandoMuroContencion} aria-label={calculandoMuroContencion ? 'Calculando muro de contención' : 'Calcular muro de contención'} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoMuroContencion ? t('apu.calculando') : t('apu.calcular_muro_contencion')}</button></div>
             </div>
             {resultadoMuroContencion && (
               <div className="mt-4 space-y-3">
