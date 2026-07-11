@@ -963,7 +963,7 @@
     "confirmar_eliminar_titulo": "Confirm deletion",
     "confirmar_eliminar_contenido": "Delete this milestone?"
   },
-  "riesgos": {
+   "riesgos": {
     "titulo": "Risk Management",
     "nuevo_riesgo": "New Risk",
     "editar_riesgo": "Edit Risk",
@@ -990,7 +990,22 @@
     "matriz_calor": "Heat Map",
     "riesgos_por_nivel": "Risks by Level",
     "registrar": "Register",
-    "cancelar": "Cancel"
+    "cancelar": "Cancel",
+    "nombre_requerido": "Name required",
+    "proyecto_requerido": "Project required",
+    "nombre_placeholder": "Risk name *",
+    "seleccionar_proyecto": "Select project *",
+    "tipo_tecnico": "Technical",
+    "tipo_financiero": "Financial",
+    "tipo_cronograma": "Schedule",
+    "tipo_legal": "Legal",
+    "tipo_ambiental": "Environmental",
+    "tipo_seguridad": "Safety",
+    "tipo_otro": "Other",
+    "descripcion_placeholder": "Risk description",
+    "mitigacion_placeholder": "Mitigation plan",
+    "responsable_placeholder": "Responsible",
+    "costo_soporte_placeholder": "Estimated support cost Q"
   },
   "notificaciones": {
     "titulo": "Notifications",
@@ -1164,7 +1179,7 @@
     "confirmar_eliminar_titulo": "Delete task",
     "confirmar_eliminar_contenido": "Delete task for \"{{cuadrilla}}\" ({{codigo}})?"
   },
-  "impuestos": {
+   "impuestos": {
     "titulo": "Taxes",
     "iva": "VAT",
     "isr": "Income Tax",
@@ -1172,7 +1187,8 @@
     "emitir_factura": "Issue Invoice",
     "periodo_fiscal": "Tax Period",
     "declaracion": "Declaration",
-    "sin_registros": "No tax records"
+    "sin_registros": "No tax records",
+    "sin_movimientos_periodo": "No movements in this period"
   },
   "admin": {
     "titulo": "System Admin",

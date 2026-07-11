@@ -124,7 +124,8 @@
     "iva_credito_12": "IVA Crédito (12% s/70% gastos)",
     "movimientos_periodo": "Movimientos del Período",
     "registros": "registros",
-    "monto": "Monto"
+    "monto": "Monto",
+    "sin_movimientos_periodo": "Sin movimientos en este período"
   },
   "bitacora": {
     "titulo": "Bitácora de Obra",
@@ -166,7 +167,7 @@
     "nuevo_registro": "Nuevo Registro",
     "sin_registros": "Sin registros"
   },
-  "riesgos": {
+   "riesgos": {
     "titulo": "Gestión de Riesgos",
     "nuevo": "Nuevo Riesgo",
     "total_riesgos": "Total riesgos",
@@ -179,7 +180,24 @@
     "riesgos_por_nivel": "Riesgos por nivel",
     "registrar": "Registrar",
     "cancelar": "Cancelar",
-    "sin_riesgos": "Sin riesgos registrados"
+    "sin_riesgos": "Sin riesgos registrados",
+    "nombre_requerido": "Nombre requerido",
+    "proyecto_requerido": "Proyecto requerido",
+    "nombre_placeholder": "Nombre del riesgo *",
+    "seleccionar_proyecto": "Seleccionar proyecto *",
+    "tipo_tecnico": "Técnico",
+    "tipo_financiero": "Financiero",
+    "tipo_cronograma": "Cronograma",
+    "tipo_legal": "Legal",
+    "tipo_ambiental": "Ambiental",
+    "tipo_seguridad": "Seguridad",
+    "tipo_otro": "Otro",
+    "probabilidad": "Probabilidad",
+    "impacto": "Impacto",
+    "descripcion_placeholder": "Descripción del riesgo",
+    "mitigacion_placeholder": "Plan de mitigación",
+    "responsable_placeholder": "Responsable",
+    "costo_soporte_placeholder": "Costo estimado de soporte Q"
   },
   "comercial": {
     "titulo": "Comercial / Finanzas",

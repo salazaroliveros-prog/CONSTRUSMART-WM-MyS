@@ -40,6 +40,7 @@ const Riesgos: React.FC = () => {
     responsable: '',
     costoSoporte: 0,
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (currentProjectId && !form.proyectoId) {
@@ -56,10 +57,11 @@ const Riesgos: React.FC = () => {
   };
 
   const agregar = () => {
-    if (!form.nombre.trim() || !form.proyectoId) {
-      toast.error(t('riesgos.nombre_proyecto_requerido', 'Nombre y proyecto son requeridos'));
-      return;
-    }
+    const errors: Record<string, string> = {};
+    if (!form.nombre.trim()) errors.nombre = t('riesgos.nombre_requerido', 'Nombre requerido');
+    if (!form.proyectoId) errors.proyectoId = t('riesgos.proyecto_requerido', 'Proyecto requerido');
+    if (Object.keys(errors).length) { setFormErrors(errors); return; }
+    setFormErrors({});
     const nuevo: Riesgo = {
       id: crypto.randomUUID(),
       proyectoId: form.proyectoId,
@@ -251,11 +253,17 @@ const Riesgos: React.FC = () => {
       {showForm && (
         <div className="bg-amber-50 rounded-xl p-4 mb-4 border border-amber-200 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder={t('riesgos.nombre_placeholder', 'Nombre del riesgo *')} className={INPUT} />
-            <select value={form.proyectoId} onChange={e => setForm(p => ({ ...p, proyectoId: e.target.value }))} className={INPUT}>
-              <option value="">{t('riesgos.seleccionar_proyecto', 'Seleccionar proyecto *')}</option>
-              {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-            </select>
+            <div>
+              <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder={t('riesgos.nombre_placeholder', 'Nombre del riesgo *')} className={INPUT} aria-invalid={!!formErrors.nombre} />
+              {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
+            </div>
+            <div>
+              <select value={form.proyectoId} onChange={e => setForm(p => ({ ...p, proyectoId: e.target.value }))} className={INPUT} aria-invalid={!!formErrors.proyectoId}>
+                <option value="">{t('riesgos.seleccionar_proyecto', 'Seleccionar proyecto *')}</option>
+                {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+              </select>
+              {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as RTipo }))} className={INPUT}>

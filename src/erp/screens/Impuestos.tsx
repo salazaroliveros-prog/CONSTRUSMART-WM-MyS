@@ -191,6 +191,12 @@ export const Impuestos: React.FC = () => {
         <h3 className="text-sm font-semibold text-gray-500 mb-3">
           {t('impuestos.movimientos_periodo')} ({movimientosFiltrados.length} {t('impuestos.registros')})
         </h3>
+        {movimientosFiltrados.length === 0 ? (
+          <div className="text-center py-10 text-muted-foreground">
+            <FileText className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+            <p className="text-sm">{t('impuestos.sin_movimientos_periodo')}</p>
+          </div>
+        ) : (
         <div className="overflow-x-auto max-h-60 overflow-y-auto">
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-gray-50">

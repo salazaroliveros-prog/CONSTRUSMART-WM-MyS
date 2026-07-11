@@ -262,6 +262,13 @@ const PROFITABILITYAnalytics: React.FC = () => {
 
       {activeTab === 'proyectos' && (
         <div className="space-y-4">
+          {projectProfitabilities.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <TrendingUp className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+              <p className="text-sm">{t('profitability.sin_datos')}</p>
+            </div>
+          ) : (
+          <>
           <div className="flex justify-between items-center">
             <h2 className={SECTION_TITLE}>Rentabilidad por Proyecto</h2>
             <button 
