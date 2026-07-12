@@ -42,21 +42,31 @@
 | 35 | `src/lib/i18n/es.json` | Añadidas 50+ keys (apu, dashboard, impuestos, riesgos, common) | ✅ |
 | 36 | `src/lib/i18n/en.json` | Añadidas secciones faltantes: cuadros, bitacora, curvas_s | ✅ |
 | 37 | Global | Eliminados 55 `as any` casts en 7 screens | ✅ |
+| 38 | `src/erp/screens/ComercialFinanzas.tsx` | 3 empty states migrados a i18n | ✅ |
+| 39 | `src/erp/screens/EntradasAlmacenOC.tsx` | Empty state + import i18n | ✅ |
+| 40 | `src/erp/screens/Financiero.tsx` | 3 empty states migrados a i18n | ✅ |
+| 41 | `src/erp/screens/PlanillaDestajos.tsx` | Empty state migrado a i18n | ✅ |
+| 42 | `src/erp/screens/RendimientoCampo.tsx` | 4 empty states migrados a i18n | ✅ |
+| 43 | `src/erp/screens/Activos.tsx` | Inline validation con `formErrors` | ✅ |
+| 44 | `src/erp/screens/ExportacionInteligente.tsx` | Inline validation con `formErrors` | ✅ |
+| 45 | `src/erp/screens/Presupuestos.tsx` | RBAC delete guard `canUserDelete()` | ✅ |
+| 46 | `src/erp/screens/Cotizaciones.tsx` | RBAC delete guard `canUserDelete()` | ✅ |
+| 47 | `src/erp/screens/OrdenesCambio.tsx` | RBAC approve/reject guard `canUserEdit()` | ✅ |
 
 ### Progreso por Categoría
 
 | Categoría | Total | Completados | Pendientes |
 |-----------|-------|-------------|------------|
 | Accesibilidad (aria-labels) | 14 | 4 | 10 |
-| Validación inline | 10 | 1 | 9 |
-| Empty states | 35 | 5 | 30 |
-| i18n (pantallas) | 11 | 3 | 8 |
+| Validación inline | 10 | 3 | 7 |
+| Empty states | 35 | 12 | 23 |
+| i18n (pantallas) | 11 | 6 | 5 |
 | i18n (secciones faltantes) | 2 | 1 | 1 |
 | Type safety (`as any`) | 7 | 7 | 0 |
 | Framework UI mixto | 13 | 0 | 13 |
 | Skeleton loading | 1 | 1 | 0 |
-| RBAC/Seguridad | 3 | 1 | 2 |
-| **Total** | **96** | **22** | **74** |
+| RBAC/Seguridad | 3 | 5 | 0 |
+| **Total** | **96** | **39** | **57** |
 
 ### Pendientes de Implementación
 
