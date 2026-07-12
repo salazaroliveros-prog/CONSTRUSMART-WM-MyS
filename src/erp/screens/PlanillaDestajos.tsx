@@ -257,10 +257,7 @@ export const PlanillaDestajos: React.FC = () => {
       )}
 
       {planilla.length === 0 && destajosSemana.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground text-sm">No hay destajos registrados para esta semana.</p>
-          <p className="text-muted-foreground text-xs mt-1">Agrega un destajo usando el botón &quot;+ Nuevo Destajo&quot;.</p>
-        </div>
+        <p className="text-muted-foreground text-sm">{t('planilla.sin_destajos_semana')}</p>
       )}
 
       {planilla.length > 0 && (

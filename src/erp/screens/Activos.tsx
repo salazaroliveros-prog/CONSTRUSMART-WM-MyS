@@ -36,6 +36,7 @@ const Activos: React.FC = () => {
 
   const [form, setForm] = useState(empty);
   const set = (k: string, v: string | number) => setForm(f => ({ ...f, [k]: v }));
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const filtered = useMemo(() => {
     const qq = q.trim().toLowerCase();
@@ -55,7 +56,11 @@ const Activos: React.FC = () => {
   };
 
   const save = () => {
-    if (!form.nombre || !form.codigo) return toast.error('Nombre y código requeridos');
+    const errors: Record<string, string> = {};
+    if (!form.nombre.trim()) errors.nombre = t('activos.error_nombre');
+    if (!form.codigo.trim()) errors.codigo = t('activos.error_codigo');
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
     const payload = { ...form, valor: Number(form.valor) || 0, fechaAdquisicion: new Date().toISOString().slice(0, 10) };
     if (editId) {
       setActivos(arr => arr.map(a => a.id === editId ? { ...a, ...payload } : a));
@@ -142,8 +147,14 @@ const Activos: React.FC = () => {
           <div className="bg-card rounded-xl p-5 w-full max-w-md shadow-sm">
             <h3 className="font-bold mb-3">{editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}</h3>
             <div className="grid gap-2">
-              <input value={form.nombre} onChange={e => set('nombre', e.target.value)} placeholder={t('activos.columna_nombre')} className="px-3 py-2 border rounded-lg text-sm" />
-              <input value={form.codigo} onChange={e => set('codigo', e.target.value)} placeholder={t('activos.columna_codigo')} className="px-3 py-2 border rounded-lg text-sm" />
+              <div>
+                <input value={form.nombre} onChange={e => { set('nombre', e.target.value); if (formErrors.nombre) setFormErrors(f => ({ ...f, nombre: '' })); }} placeholder={t('activos.columna_nombre')} className={`px-3 py-2 border rounded-lg text-sm ${formErrors.nombre ? 'border-red-500' : ''}`} />
+                {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
+              </div>
+              <div>
+                <input value={form.codigo} onChange={e => { set('codigo', e.target.value); if (formErrors.codigo) setFormErrors(f => ({ ...f, codigo: '' })); }} placeholder={t('activos.columna_codigo')} className={`px-3 py-2 border rounded-lg text-sm ${formErrors.codigo ? 'border-red-500' : ''}`} />
+                {formErrors.codigo && <p className="text-xs text-red-500 mt-0.5">{formErrors.codigo}</p>}
+              </div>
               <select value={form.tipo} onChange={e => set('tipo', e.target.value)} className="px-3 py-2 border rounded-lg text-sm">
                 {TIPOS.map(tp => <option key={tp} value={tp}>{TIPO_LABEL[tp]}</option>)}
               </select>

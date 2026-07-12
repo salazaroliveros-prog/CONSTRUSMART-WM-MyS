@@ -773,6 +773,9 @@
     "nuevo_movimiento": "New Transaction",
     "editar_movimiento": "Edit Transaction",
     "sin_movimientos": "No transactions recorded",
+    "sin_gastos": "No expenses recorded",
+    "no_hay_movimientos": "No transactions available",
+    "sin_centros_costo": "No cost centers registered",
     "flujo_caja": "Cash Flow",
     "anticipos": "Advances",
     "retenciones": "Retentions",
@@ -1109,7 +1112,9 @@
     "eliminar": "Delete",
     "editar": "Edit",
     "eliminar_exito": "Asset deleted",
-    "guardar_exito": "Asset saved"
+    "guardar_exito": "Asset saved",
+    "error_nombre": "Name is required",
+    "error_codigo": "Code is required"
   },
   "exportacion": {
     "titulo": "Smart Export",
@@ -1120,7 +1125,8 @@
     "incluir_graficos": "Include Charts",
     "incluir_tablas": "Include Tables",
     "formato": "Export Format",
-    "exportar": "Export"
+    "exportar": "Export",
+    "error_nombre": "Name is required"
   },
   "plantillas": {
     "titulo": "Project Templates",
@@ -1164,7 +1170,8 @@
     "solicitud": "Request",
     "aprobacion": "Approval",
     "recibido": "Received",
-    "sin_ordenes": "No purchase orders"
+    "sin_ordenes": "No purchase orders",
+    "no_oc_validar": "No purchase orders to validate"
   },
   "planilla": {
     "titulo": "Piecework Payroll",
@@ -1177,6 +1184,7 @@
     "total_pagar": "Total to Pay",
     "generar_planilla": "Generate Payroll",
     "sin_registros": "No payroll records",
+    "sin_destajos_semana": "No piecework tasks registered for this week",
     "confirmar_eliminar_titulo": "Delete task",
     "confirmar_eliminar_contenido": "Delete task for \"{{cuadrilla}}\" ({{codigo}})?"
   },
@@ -1324,7 +1332,12 @@
     "fecha_medicion": "Measurement Date",
     "observaciones": "Observations",
     "nuevo_registro": "New Record",
-    "sin_registros": "No performance records"
+    "sin_registros": "No performance records",
+    "sin_destajos": "No piecework tasks registered",
+    "sin_capturas": "No performance captures",
+    "sin_plantillas": "No predefined templates — create new templates from scratch",
+    "sin_plantillas_uso": "No templates. Use the capture forms to create records.",
+    "sin_vales_renglon": "No vouchers by line item"
   },
   "comercial": {
     "titulo": "Commercial / Finance",

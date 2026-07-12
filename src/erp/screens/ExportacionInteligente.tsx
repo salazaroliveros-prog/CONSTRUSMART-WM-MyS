@@ -86,6 +86,7 @@ const ExportacionInteligente: React.FC = () => {
 
   useEffect(() => { setLoading(false); }, []);
   const [form, setForm] = useState({ nombre: '', tipo: 'ejecutivo' as ReporteProgramado['tipo'], formato: 'json' as ExportFormat, frecuencia: 'semanal' as ReporteProgramado['frecuencia'], destinatarios: '' });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const saveReportes = (r: ReporteProgramado[]) => {
     setReportes(r);
@@ -251,7 +252,10 @@ const ExportacionInteligente: React.FC = () => {
 
   // === REPORTES PROGRAMADOS ===
   const agregarReporte = () => {
-    if (!form.nombre.trim()) { toast.error(t('exportacion.nombre_requerido', 'Nombre requerido')); return; }
+    const errors: Record<string, string> = {};
+    if (!form.nombre.trim()) errors.nombre = t('exportacion.error_nombre', 'Nombre es requerido');
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
     const nuevo: ReporteProgramado = {
       id: Date.now().toString(),
       nombre: form.nombre,
@@ -265,6 +269,7 @@ const ExportacionInteligente: React.FC = () => {
     toast.success(t('exportacion.reporte_programado', 'Reporte "{{nombre}}" programado ({{frecuencia}})', { nombre: form.nombre, frecuencia: form.frecuencia }));
     setShowForm(false);
     setForm({ nombre: '', tipo: 'ejecutivo', formato: 'json', frecuencia: 'semanal', destinatarios: '' });
+    setFormErrors({});
   };
 
   const toggleReporte = (id: string) => {
@@ -478,7 +483,10 @@ const ExportacionInteligente: React.FC = () => {
         {showForm && (
           <div className="bg-purple-50 rounded-xl p-4 mb-4 border border-purple-200 space-y-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <input value={form.nombre} onChange={e => setForm(prev => ({ ...prev, nombre: e.target.value }))} placeholder={t('exportacion.nombre_reporte', 'Nombre del reporte')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400" />
+              <div>
+                <input value={form.nombre} onChange={e => { setForm(prev => ({ ...prev, nombre: e.target.value })); if (formErrors.nombre) setFormErrors(f => ({ ...f, nombre: '' })); }} placeholder={t('exportacion.nombre_reporte', 'Nombre del reporte')} className={`w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400 ${formErrors.nombre ? 'border-red-500' : ''}`} />
+                {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
+              </div>
               <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value as ReporteProgramado['tipo'] }))} className={INPUT}>
                 <option value="ejecutivo">{t('exportacion.tipo_ejecutivo', 'Ejecutivo')}</option>
                 <option value="completo">{t('exportacion.tipo_completo', 'Completo (todo)')}</option>
