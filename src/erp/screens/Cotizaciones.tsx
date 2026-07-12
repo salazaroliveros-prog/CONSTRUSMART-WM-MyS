@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, COLOR_DANGER } from '../ui';
 import { fmtQ } from '../utils';
-import { sanitizarObjeto } from '@/lib/security';
+import { sanitizarObjeto, canUserDelete } from '@/lib/security';
 import { exportCotizacionPDF } from '../export';
 import { Plus, X, Send, FileText, Trash2, Pencil, Copy, CheckCircle2, Clock, Calculator, HardHat, Landmark, Building, Ruler, Home, CalendarDays, Droplets, Box } from 'lucide-react';
 import { toast } from 'sonner';
@@ -52,7 +52,7 @@ const ESTADOS_COTIZACION = [
 
 const Cotizaciones: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, cotizacionesNegocio: cotizaciones, addCotizacion, updateCotizacion, deleteCotizacion } = useErp();
+  const { proyectos, cotizacionesNegocio: cotizaciones, addCotizacion, updateCotizacion, deleteCotizacion, user } = useErp();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const [showForm, setShowForm] = useState(false);
@@ -163,6 +163,10 @@ const Cotizaciones: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (!canUserDelete(user?.rol)) {
+      toast.error(t('common.sin_permisos', 'Sin permisos'));
+      return;
+    }
     try {
       await Modal.confirm({ title: t('cotizaciones.confirmar_eliminar'), content: t('cotizaciones.confirmar_eliminar_msg'), centered: true, okText: t('cotizaciones.si_eliminar'), cancelText: t('common.cancelar') });
     } catch { return; }

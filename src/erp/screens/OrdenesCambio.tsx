@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { OrdenCambio } from '../types';
@@ -6,10 +7,12 @@ import { fmtQ, todayISO } from '../utils';
 import { GitBranch, Plus, Check, X, Clock, ChevronRight, ChevronDown, FileText } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { canUserEdit } from '@/lib/security';
 
 type EstadoOC = OrdenCambio['estado'];
 
 const OrdenesCambio: React.FC = () => {
+  const { t } = useTranslation();
   const { proyectos, user, ordenesCambio, addOrdenCambio, updateOrdenCambio } = useErp();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
@@ -48,11 +51,19 @@ const OrdenesCambio: React.FC = () => {
   };
 
   const handleAprobar = (id: string) => {
+    if (!canUserEdit(user?.rol)) {
+      toast.error(t('common.sin_permisos', 'Sin permisos'));
+      return;
+    }
     updateOrdenCambio(id, { estado: 'aprobado', aprobador: user?.nombre || 'Gerente', fechaAprobacion: todayISO() });
     toast.success('Cambio aprobado');
   };
 
   const handleRechazar = (id: string) => {
+    if (!canUserEdit(user?.rol)) {
+      toast.error(t('common.sin_permisos', 'Sin permisos'));
+      return;
+    }
     updateOrdenCambio(id, { estado: 'rechazado', aprobador: user?.nombre || 'Gerente', fechaAprobacion: todayISO() });
     toast.info('Cambio rechazado');
   };
