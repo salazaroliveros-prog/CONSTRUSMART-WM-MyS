@@ -30,7 +30,7 @@ describe('ALLOWED - Mapa de permisos por rol', () => {
     Gerente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero', 'rrhh', 'bodega', 'crm', 'apu', 'baseprecios', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo', 'exportacion', 'logistica', 'rendimiento-campo', 'comercial-fin', 'admin-sistema', 'planilla-destajos', 'impuestos', 'entradas-almacen', 'ajustes', 'hitos', 'riesgos', 'cuentas-cobrar', 'cuentas-pagar', 'cotizaciones', 'plantillas', 'proveedor-analytics', 'error-log', 'activos', 'cuadros', 'profitability', 'weather'],
     Residente: ['dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'apu', 'rendimiento-campo', 'baseprecios', 'muro', 'ordenes-cambio', 'notificaciones', 'sso-calidad', 'documentos', 'profitability'],
     Compras: ['dashboard', 'bodega', 'proyectos'],
-    Bodeguero: ['dashboard', 'bodega', 'ajustes'],
+    Bodeguero: ['dashboard', 'bodega'],
   };
 
   it('Administrador tiene todos los permisos', () => {

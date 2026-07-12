@@ -6,7 +6,7 @@ import { Flag, CheckCircle, Clock, AlertTriangle, Plus, X, Filter, Link2, List, 
 import { useTranslation } from 'react-i18next';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
-import { Modal } from 'antd';
+import { confirmAction } from '@/lib/confirm-action';
 import { todayISO } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { hitoFormSchema } from '../store/schemas/calendario';
@@ -100,7 +100,7 @@ const HitosScreen: React.FC = () => {
       toast.error(t('common.sin_permisos', 'Sin permisos para eliminar'));
       return;
     }
-    await Modal.confirm({ title: t('hitos.confirmar_eliminar_titulo', 'Confirmar eliminación'), content: t('hitos.confirmar_eliminar_contenido', '¿Eliminar este hito?'), centered: true, okText: t('common.si'), cancelText: t('common.cancelar') });
+    await confirmAction({ title: t('hitos.confirmar_eliminar_titulo', 'Confirmar eliminación'), content: t('hitos.confirmar_eliminar_contenido', '¿Eliminar este hito?'), centered: true, okText: t('common.si'), cancelText: t('common.cancelar') });
     deleteHito(id);
   };
 

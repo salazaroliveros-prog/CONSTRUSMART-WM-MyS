@@ -8,7 +8,7 @@ import { Progress } from '../components/Charts';
 import MapPicker from '../components/MapPicker';
 import HeatMap from '../components/HeatMap';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
-import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, ChevronRight, Copy, Layout, Sparkles, Star, Search, ArrowUpDown, List, Grid3x3, DollarSign, ClipboardList, Activity } from 'lucide-react';
+import { Plus, MapPin, Trash2, X, Building2, Pencil, Play, Pause, CheckCircle2, RotateCcw, ChevronRight, Copy, Layout, Sparkles, Star, Search, ArrowUpDown, List, Grid3x3, DollarSign, ClipboardList, Activity, TriangleAlert } from 'lucide-react';
 import { estadoColor, estadoBadgeClass } from '../utils/proyectoColors';
 import ProyectoStateBadge from '../components/proyectos/ProyectoStateBadge';
 import ProyectoProgress from '../components/proyectos/ProyectoProgress';
@@ -20,6 +20,7 @@ import ProyectosToolbar from '../components/proyectos/ProyectosToolbar';
 import ProyectoForm from '../components/proyectos/ProyectoForm';
 import ProyectoPauseModal from '../components/proyectos/ProyectoPauseModal';
 import { useProyectosActions } from '../hooks/useProyectosActions';
+import { conflictDetectionService } from '../services/conflictDetection';
 
 const TIPOS_OBRA = ['nueva', 'remodelacion', 'ampliacion'] as const;
 const ETAPAS = ['planificacion', 'diseno', 'preconstruccion', 'construccion', 'cierre'] as const;
@@ -27,7 +28,27 @@ const ETAPAS = ['planificacion', 'diseno', 'preconstruccion', 'construccion', 'c
 const Proyectos: React.FC = () => {
   const { t } = useTranslation();
   const proyectos = useErp(s => s.proyectos);
+  const empleados = useErp(s => s.empleados);
+  const materiales = useErp(s => s.materiales);
+  const activos = useErp(s => s.activos);
+  const hitos = useErp(s => s.hitos);
+  const ordenes = useErp(s => s.ordenes);
   const safeProyectos = React.useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]);
+
+  const resourceConflicts = React.useMemo(() => {
+    return conflictDetectionService.detectAllConflicts(
+      empleados || [],
+      materiales || [],
+      activos || [],
+      safeProyectos,
+      hitos || [],
+      ordenes || []
+    );
+  }, [empleados, materiales, activos, safeProyectos, hitos, ordenes]);
+
+  const criticalConflicts = React.useMemo(() => {
+    return resourceConflicts.filter(c => c.severidad === 'critico' || c.severidad === 'alto');
+  }, [resourceConflicts]);
 
   const {
     show, setShow,
@@ -98,6 +119,29 @@ const Proyectos: React.FC = () => {
         contratoTotal={kpis.contratoTotal}
         t={t}
       />
+
+      {criticalConflicts.length > 0 && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3 mb-4">
+          <div className="flex items-start gap-3">
+            <TriangleAlert className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-red-900 dark:text-red-100 text-sm mb-1">
+                {t('conflicts.critical_conflicts')}: {criticalConflicts.length}
+              </h3>
+              <p className="text-xs text-red-700 dark:text-red-300 mb-2">
+                {t('conflicts.immediate_action')}
+              </p>
+              <div className="space-y-1">
+                {criticalConflicts.slice(0, 2).map(conflict => (
+                  <div key={conflict.id} className="text-xs text-red-800 dark:text-red-200">
+                    <span className="font-medium">{conflict.recursoNombre}</span>: {conflict.descripcion}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <div className="relative flex-1 min-w-[200px]">

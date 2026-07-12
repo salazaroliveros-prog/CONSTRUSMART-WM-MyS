@@ -9,12 +9,13 @@ import AlertasPanel from '../components/AlertasPanel';
 import WeatherWidget from '../components/WeatherWidget';
 import CompactCalendar from '../components/CompactCalendar';
 import { BarChart, Donut, Progress, Gauge } from '../components/Charts';
-import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, ClipboardCheck, Activity, TrendingDown, Download, Zap, BarChart3, Shield, Loader2, Database, Award, ArrowRight } from 'lucide-react';
+import { Building2, TrendingUp, DollarSign, AlertTriangle, Package, Users, CalendarClock, Calculator, ClipboardCheck, Activity, TrendingDown, Download, Zap, BarChart3, Shield, Loader2, Database, Award, ArrowRight, TriangleAlert, CheckCircle } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
 import { CARD, CARD_TITLE, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY, SECTION_TITLE } from '../ui';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { SkeletonDashboard } from '../../components/SkeletonScreens';
 import type { ActivoHerramienta, Empleado, Licitacion, Riesgo } from '../types';
+import { conflictDetectionService } from '../services/conflictDetection';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899'];
 const CATEGORIA_COLORS = ['#2563eb', '#f97316', '#10b981', '#06b6d4', '#8b5cf6', '#f59e0b', '#0ea5e9', '#64748b'];
@@ -180,6 +181,21 @@ const Dashboard: React.FC = () => {
     return { total: activos.length, alto, medio, bajo: Math.max(activos.length - alto - medio, 0), top: activos.slice(0, 3) };
   }, [riesgos]);
 
+  const resourceConflicts = useMemo(() => {
+    return conflictDetectionService.detectAllConflicts(
+      empleados || [],
+      materiales || [],
+      activos || [],
+      safeProyectos,
+      hitos || [],
+      ordenes || []
+    );
+  }, [empleados, materiales, activos, safeProyectos, hitos, ordenes]);
+
+  const criticalConflicts = useMemo(() => {
+    return resourceConflicts.filter(c => c.severidad === 'critico' || c.severidad === 'alto');
+  }, [resourceConflicts]);
+
   const supplierPerformanceData = useMemo(() => {
     const all = (proveedores || []).map(proveedor => ({ id: proveedor.id, nombre: proveedor.nombre, ...calculateSupplierPerformance(proveedor, ordenes || []) }));
     const topPerformers = [...all].sort((a, b) => b.puntajeGeneral - a.puntajeGeneral).slice(0, 3);
@@ -198,7 +214,14 @@ const Dashboard: React.FC = () => {
     if (safeProyectos.length === 0) return;
     const proximos = (hitos || []).filter(h => h.fecha).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 3);
     if (proximos.length > 0) proximos.forEach(h => store.addNotificacion('general', `Hito próximo: ${h.nombre}`, `Fecha: ${h.fecha}`, h.proyectoId, h.id));
-  }, [hitos, safeProyectos]);
+    
+    // Notify about critical conflicts
+    if (criticalConflicts.length > 0) {
+      criticalConflicts.forEach(conflict => {
+        store.addNotificacion('alerta', `Conflicto de recursos: ${conflict.titulo}`, conflict.descripcion, conflict.proyectos[0]?.proyectoId, conflict.id);
+      });
+    }
+  }, [hitos, safeProyectos, criticalConflicts]);
 
   const [exportingPdf, setExportingPdf] = useState(false);
   const handleExportPdf = useCallback(async () => {
@@ -239,12 +262,12 @@ const Dashboard: React.FC = () => {
             <span className={`w-1.5 h-1.5 rounded-full ${online ? 'bg-success animate-pulse' : 'bg-destructive'}`} />
             {online ? t('dashboard.en_vivo') : t('dashboard.offline')}
             <span className="text-muted-foreground/60">·</span>
-            <span className={syncStatus === 'error' ? 'text-destructive' : 'text-primary'}>{syncStatus === 'synced' ? 'Supabase conectado' : syncStatus === 'loading' ? 'Leyendo Supabase' : syncStatus === 'error' ? syncError || 'Error sync' : mutationQueue.length > 0 ? `${mutationQueue.length} pendientes` : 'Supabase activo'}</span>
+            <span className={syncStatus === 'error' ? 'text-destructive' : 'text-primary'}>{syncStatus === 'synced' ? t('dashboard.sync_conectado', 'Supabase conectado') : syncStatus === 'loading' ? t('dashboard.sync_leyendo', 'Leyendo Supabase') : syncStatus === 'error' ? syncError || t('dashboard.sync_error', 'Error sync') : mutationQueue.length > 0 ? t('dashboard.sync_pendientes', { count: mutationQueue.length, defaultValue: '{{count}} pendientes' }) : t('dashboard.sync_activo', 'Supabase activo')}</span>
           </div>
-          {lastSyncedAt && <div className="text-[10px] text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">Sync {new Date(lastSyncedAt).toLocaleTimeString()}</div>}
+          {lastSyncedAt && <div className="text-[10px] text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">{t('dashboard.sync_timestamp', 'Sync')} {new Date(lastSyncedAt).toLocaleTimeString()}</div>}
           <button onClick={handleExportPdf} disabled={exportingPdf} className="text-[10px] text-primary hover:text-primary/80 font-medium flex items-center gap-0.5 bg-primary/10 rounded-full px-2 py-0.5 transition-colors disabled:opacity-60" aria-label={t('dashboard.exportar_pdf')} title={t('dashboard.exportar_pdf')}>
             {exportingPdf ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Download className="w-2.5 h-2.5" />}
-            {exportingPdf ? 'Exportando...' : 'PDF'}
+            {exportingPdf ? t('dashboard.exportando', 'Exportando...') : t('common.pdf', 'PDF')}
           </button>
         </div>
         <ProyectoFilter value={currentProjectId ?? ''} onChange={(id) => setCurrentProjectId(id || null)} proyectos={proyectos} />
@@ -254,7 +277,7 @@ const Dashboard: React.FC = () => {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-2 flex-shrink-0" style={{ opacity: s1, transform: `translateY(${(1 - s1) * 12}px)`, transition: 'all 0.4s ease-out' }}>
         <div className="card-kpi rounded-xl p-3 sm:p-4">
-          <GaugeKpi label={t('dashboard.proyectos')} sublabel={`${activos.length} activos · ${proyectos.length} total`} value={activos.length} displayValue={String(activos.length)} max={Math.max(proyectos.length, 1)} color="from-primary to-primary/80" icon={<Building2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />} hasData={hasData} delay={0} sparkData={proyTrend} zones={[{ from: 0, to: Math.max(proyectos.length, 1) * 0.3, color: 'hsl(var(--destructive))' }, { from: Math.max(proyectos.length, 1) * 0.3, to: Math.max(proyectos.length, 1) * 0.7, color: 'hsl(var(--warning))' }, { from: Math.max(proyectos.length, 1) * 0.7, to: Math.max(proyectos.length, 1), color: 'hsl(var(--success))' }]} />
+          <GaugeKpi label={t('dashboard.proyectos')} sublabel={t('dashboard.activos_count', { count: activos.length }) + ' · ' + t('dashboard.total_count', { count: proyectos.length })} value={activos.length} displayValue={String(activos.length)} max={Math.max(proyectos.length, 1)} color="from-primary to-primary/80" icon={<Building2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />} hasData={hasData} delay={0} sparkData={proyTrend} zones={[{ from: 0, to: Math.max(proyectos.length, 1) * 0.3, color: 'hsl(var(--destructive))' }, { from: Math.max(proyectos.length, 1) * 0.3, to: Math.max(proyectos.length, 1) * 0.7, color: 'hsl(var(--warning))' }, { from: Math.max(proyectos.length, 1) * 0.7, to: Math.max(proyectos.length, 1), color: 'hsl(var(--success))' }]} />
         </div>
         <div className="card-kpi rounded-xl p-3 sm:p-4">
           <GaugeKpi label={t('dashboard.presupuesto')} sublabel={fmtQ(presupuestoTotal)} value={presupuestoTotal} displayValue={presupuestoTotal > 0 ? `Q ${(presupuestoTotal / 1000000).toFixed(1)}M` : 'Q 0'} max={Math.max(presupuestoTotal * 1.5, 1000000)} color="from-orange-500 to-amber-500" icon={<DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5" />} hasData={hasData} delay={100} sparkData={gastoTrend} />
@@ -268,20 +291,38 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-3 mb-2 flex-shrink-0">
+        <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`} onClick={() => setView('conflicts')} role="button" tabIndex={0}>
+          <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1.5`}><TriangleAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-destructive" aria-hidden="true" />{t('conflicts.title')}</h3>
+          {criticalConflicts.length > 0 ? (
+            <div className="flex items-center gap-3">
+              <div className="text-3xl sm:text-4xl font-black text-destructive">{criticalConflicts.length}</div>
+              <div className="flex-1 text-[10px] space-y-1">
+                <div className="flex justify-between"><span className="text-muted-foreground">{t('conflicts.critical_conflicts')}</span><b className="text-destructive">{criticalConflicts.length}</b></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{t('conflicts.total_conflicts')}</span><b className="text-foreground">{resourceConflicts.length}</b></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{t('conflicts.cost_impact')}</span><b className="text-destructive">{fmtQ(resourceConflicts.reduce((sum, c) => sum + c.impactoCosto, 0))}</b></div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center py-4 text-muted-foreground">
+              <CheckCircle className="w-8 h-8 text-emerald-500" aria-hidden="true" />
+              <span className="ml-2 text-xs">{t('conflicts.no_conflicts')}</span>
+            </div>
+          )}
+        </div>
         <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`} onClick={() => setView('presupuestos')} role="button" tabIndex={0}>
           <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1.5`}><Calculator className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />{t('dashboard.planif')} vs {t('dashboard.real')}</h3>
           {(planVsReal.conPlan > 0 || planVsReal.costoPlanificado > 0 || planVsReal.costoReal > 0) ? (
             <div className="flex items-center gap-3">
               <Donut size={110} data={[{ label: t('dashboard.planif'), value: planVsReal.costoPlanificado || 0, color: 'hsl(var(--primary))' }, { label: t('dashboard.real'), value: Math.max(planVsReal.costoReal, 0) || 0, color: 'hsl(var(--warning))' }]} />
               <div className="flex-1 text-[10px] space-y-1">
-                <div className="flex justify-between"><span className="text-muted-foreground">Planificado</span><b className="text-foreground">{fmtQ(planVsReal.costoPlanificado || 0)}</b></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Real</span><b className="text-foreground">{fmtQ(Math.max(planVsReal.costoReal, 0))}</b></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Desviación</span><b className={Math.abs(planVsReal.avgDesv) > 15 ? COLOR_DANGER : COLOR_SUCCESS}>{fmtPct(planVsReal.avgDesv)}</b></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Mayor desviación</span><b className="text-foreground truncate max-w-[120px] inline-block align-bottom text-right">{planVsReal.top?.nombre || (planVsReal.conPlan > 0 ? '-' : 'Sin datos')}</b></div>
-                {planVsReal.conPlan > 0 && (<div className="pt-1"><div className="flex justify-between text-[10px] text-muted-foreground mb-0.5"><span>Registros</span><span>{planVsReal.conPlan}/{planVsReal.totalMateriales}</span></div><div className="flex justify-between text-[10px] text-muted-foreground"><span>Fuente</span><span>Supabase</span></div></div>)}
+                <div className="flex justify-between"><span className="text-muted-foreground">{t('dashboard.planif')}</span><b className="text-foreground">{fmtQ(planVsReal.costoPlanificado || 0)}</b></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{t('dashboard.real')}</span><b className="text-foreground">{fmtQ(Math.max(planVsReal.costoReal, 0))}</b></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{t('dashboard.desviacion')}</span><b className={Math.abs(planVsReal.avgDesv) > 15 ? COLOR_DANGER : COLOR_SUCCESS}>{fmtPct(planVsReal.avgDesv)}</b></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{t('dashboard.mayor_desviacion', 'Mayor desviación')}</span><b className="text-foreground truncate max-w-[120px] inline-block align-bottom text-right">{planVsReal.top?.nombre || (planVsReal.conPlan > 0 ? '-' : t('dashboard.sin_datos'))}</b></div>
+                {planVsReal.conPlan > 0 && (<div className="pt-1"><div className="flex justify-between text-[10px] text-muted-foreground mb-0.5"><span>{t('dashboard.registros', 'Registros')}</span><span>{planVsReal.conPlan}/{planVsReal.totalMateriales}</span></div><div className="flex justify-between text-[10px] text-muted-foreground"><span>{t('dashboard.fuente', 'Fuente')}</span><span>{t('dashboard.supabase', 'Supabase')}</span></div></div>)}
               </div>
             </div>
-          ) : (<div className="flex items-center justify-center h-24 text-xs text-muted-foreground">Sin presupuestos cargados</div>)}
+          ) : (<div className="flex items-center justify-center h-24 text-xs text-muted-foreground">{t('dashboard.sin_presupuestos')}</div>)}
         </div>
 
         <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
@@ -304,16 +345,16 @@ const Dashboard: React.FC = () => {
           <div className="flex gap-3">
             <div className="flex flex-col items-center">
               <Donut size={90} data={[{ label: t('dashboard.stock_critico'), value: stockData.criticos, color: 'hsl(var(--destructive))' }, { label: 'OK', value: stockData.ok, color: 'hsl(var(--success))' }]} />
-              <span className="text-[10px] text-muted-foreground mt-0.5">{stockData.criticos > 0 ? `${stockData.criticos} críticos` : `${stockData.total} mats`}</span>
+              <span className="text-[10px] text-muted-foreground mt-0.5">{stockData.criticos > 0 ? t('dashboard.criticos_count', { count: stockData.criticos }) : t('dashboard.mats_count', { count: stockData.total })}</span>
             </div>
             <div className="flex-1 space-y-2">
               <div>
-                <div className="flex justify-between text-[10px] mb-0.5"><span className="text-muted-foreground flex items-center gap-1"><Users className="w-2.5 h-2.5" /> RRHH</span><span className="text-foreground font-medium">{rhData.total}</span></div>
+                <div className="flex justify-between text-[10px] mb-0.5"><span className="text-muted-foreground flex items-center gap-1"><Users className="w-2.5 h-2.5" /> {t('dashboard.rrhh_label', 'RRHH')}</span><span className="text-foreground font-medium">{rhData.total}</span></div>
                 <div className="flex h-4 rounded-full overflow-hidden bg-muted">
-                  <div className="bg-success transition-all" style={{ width: rhData.total > 0 ? `${(rhData.disponibles / rhData.total) * 100}%` : '50%' }} title={`Disp: ${rhData.disponibles}`} />
-                  <div className="bg-warning transition-all" style={{ width: rhData.total > 0 ? `${(rhData.ocupados / rhData.total) * 100}%` : '50%' }} title={`Ocup: ${rhData.ocupados}`} />
+                  <div className="bg-success transition-all" style={{ width: rhData.total > 0 ? `${(rhData.disponibles / rhData.total) * 100}%` : '50%' }} title={t('dashboard.disp_label', { count: rhData.disponibles })} />
+                  <div className="bg-warning transition-all" style={{ width: rhData.total > 0 ? `${(rhData.ocupados / rhData.total) * 100}%` : '50%' }} title={t('dashboard.ocup_label', { count: rhData.ocupados })} />
                 </div>
-                <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5"><span>{rhData.disponibles} disp.</span><span>{rhData.ocupados} ocup.</span></div>
+                <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5"><span>{t('dashboard.disponibles_count', { count: rhData.disponibles })}</span><span>{t('dashboard.ocupados_count', { count: rhData.ocupados })}</span></div>
               </div>
               {stockData.items.length > 0 && (<div className="space-y-0.5"><span className="text-[10px] text-destructive font-medium">{t('dashboard.stock_critico')}</span>{stockData.items.map((item, i) => (<div key={i} className="flex justify-between text-[10px]"><span className="truncate max-w-[100px] text-muted-foreground">{item.nombre}</span><span className="text-destructive font-medium">{item.stock}/{item.minimo}</span></div>))}</div>)}
             </div>
@@ -337,7 +378,7 @@ const Dashboard: React.FC = () => {
                 const Icono = i === 0 ? TrendingUp : i === 1 ? Activity : TrendingDown;
                 return (<div key={p.id} className="group cursor-pointer" onClick={() => setCurrentProjectId(p.id)}><div className="flex items-center justify-between text-[10px] mb-0.5"><span className="flex items-center gap-1 truncate"><Icono className={`w-2.5 h-2.5 ${i === 0 ? COLOR_WARNING : i === 1 ? COLOR_INFO : 'text-muted-foreground'}`} /><span className="text-foreground font-medium truncate max-w-[90px]">{p.nombre}</span></span><span className="flex items-center gap-1 text-muted-foreground"><span className="font-medium text-foreground">{fmtQ(p.presupuesto)}</span><span className={`text-[8px] ${p.avance > 70 ? COLOR_SUCCESS : p.avance > 30 ? COLOR_WARNING : 'text-destructive'}`}>{p.avance}%</span></span></div><div className="h-1.5 rounded-full bg-muted overflow-hidden"><div className={`h-full rounded-full transition-all group-hover:opacity-80 ${i === 0 ? 'bg-gradient-to-r from-amber-500 to-yellow-500' : i === 1 ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : 'bg-gradient-to-r from-slate-500 to-gray-500'}`} style={{ width: `${(p.presupuesto / maxP) * 100}%` }} /></div></div>);
               })}
-              {topProyectos.length === 0 && <p className="text-[10px] text-muted-foreground text-center py-3">{t('common.sin_proyectos')}</p>}
+              {topProyectos.length === 0 && <div className="text-center py-3"><Building2 className="w-5 h-5 mx-auto mb-1 text-muted-foreground/40" aria-hidden="true" /><p className="text-[10px] text-muted-foreground">{t('common.sin_proyectos')}</p></div>}
             </div>
           </div>
 
@@ -354,7 +395,7 @@ const Dashboard: React.FC = () => {
 
           <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
             <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}><ClipboardCheck className={`w-3 h-3 sm:w-4 sm:h-4 ${COLOR_WARNING}`} aria-hidden="true" />{t('dashboard.oc_pendientes')}{ocPendientes.length > 0 && <span className="text-[8px] font-normal text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">{ocPendientes.length}</span>}</h3>
-            {ocPendientes.length > 0 ? (<div className="space-y-1">{ocPendientes.map(oc => (<div key={oc.id} className="flex justify-between text-[10px] p-1 rounded-lg bg-yellow-500/5 border border-yellow-500/10"><div className="min-w-0 flex-1"><div className="truncate font-medium text-foreground">{oc.proveedor}</div><div className="truncate text-muted-foreground">{oc.material} x{oc.cantidad}</div></div><span className={COLOR_WARNING + ' font-medium flex-shrink-0'}>{fmtQ(oc.monto)}</span></div>))}</div>) : <p className="text-[10px] text-muted-foreground text-center py-3">{t('common.no_data')}</p>}
+            {ocPendientes.length > 0 ? (<div className="space-y-1">{ocPendientes.map(oc => (<div key={oc.id} className="flex justify-between text-[10px] p-1 rounded-lg bg-yellow-500/5 border border-yellow-500/10"><div className="min-w-0 flex-1"><div className="truncate font-medium text-foreground">{oc.proveedor}</div><div className="truncate text-muted-foreground">{oc.material} x{oc.cantidad}</div></div><span className={COLOR_WARNING + ' font-medium flex-shrink-0'}>{fmtQ(oc.monto)}</span></div>))}</div>) : <div className="text-center py-3"><Package className="w-5 h-5 mx-auto mb-1 text-muted-foreground/40" aria-hidden="true" /><p className="text-[10px] text-muted-foreground">{t('common.no_data')}</p></div>}
           </div>
 
           <div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
@@ -376,11 +417,11 @@ const Dashboard: React.FC = () => {
           </div>
 
           {supplierPerformanceData.total > 0 && (<div className={`${CARD} card-interactive flex flex-col p-3 sm:p-4`}>
-            <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}><Award className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />Analytics Proveedores<span className="text-[8px] font-normal text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">{supplierPerformanceData.total}</span></h3>
+            <h3 className={`${CARD_TITLE} text-xs sm:text-sm mb-1 flex items-center gap-1`}><Award className="w-3 h-3 sm:w-4 sm:h-4 text-primary" aria-hidden="true" />{t('dashboard.analytics_proveedores', 'Analytics Proveedores')}<span className="text-[8px] font-normal text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">{supplierPerformanceData.total}</span></h3>
             <div className="space-y-1.5">
-              {supplierPerformanceData.topPerformers.length > 0 && (<div><span className={`text-[10px] ${COLOR_SUCCESS} font-medium`}>Top Desempeño</span>{supplierPerformanceData.topPerformers.slice(0, 2).map((s, i) => (<div key={s.id} className="flex justify-between items-center text-[10px] mt-0.5"><span className="truncate text-muted-foreground max-w-[100px]">{s.nombre}</span><span className={COLOR_SUCCESS + ' font-medium'}>{fmtPct(s.puntajeGeneral)}</span></div>))}</div>)}
-              {supplierPerformanceData.atRisk.length > 0 && (<div className="border-t border-border pt-1"><span className="text-[10px] text-destructive font-medium">En Riesgo</span>{supplierPerformanceData.atRisk.slice(0, 2).map((s, i) => (<div key={s.id} className="flex justify-between items-center text-[10px] mt-0.5"><span className="truncate text-muted-foreground max-w-[100px]">{s.nombre}</span><span className="text-destructive font-medium">{fmtPct(s.puntajeGeneral)}</span></div>))}</div>)}
-              <button onClick={() => setView('proveedor-analytics' as View)} className="w-full mt-1 flex items-center justify-center gap-1 text-[10px] text-primary hover:text-primary/80 bg-primary/10 rounded-lg py-1 transition-colors" aria-label={t('dashboard.ver_analytics_completo')}>Ver Analytics Completo<ArrowRight className="w-2.5 h-2.5" /></button>
+              {supplierPerformanceData.topPerformers.length > 0 && (<div><span className={`text-[10px] ${COLOR_SUCCESS} font-medium`}>{t('dashboard.top_desempeno', 'Top Desempeño')}</span>{supplierPerformanceData.topPerformers.slice(0, 2).map((s, i) => (<div key={s.id} className="flex justify-between items-center text-[10px] mt-0.5"><span className="truncate text-muted-foreground max-w-[100px]">{s.nombre}</span><span className={COLOR_SUCCESS + ' font-medium'}>{fmtPct(s.puntajeGeneral)}</span></div>))}</div>)}
+              {supplierPerformanceData.atRisk.length > 0 && (<div className="border-t border-border pt-1"><span className="text-[10px] text-destructive font-medium">{t('dashboard.en_riesgo', 'En Riesgo')}</span>{supplierPerformanceData.atRisk.slice(0, 2).map((s, i) => (<div key={s.id} className="flex justify-between items-center text-[10px] mt-0.5"><span className="truncate text-muted-foreground max-w-[100px]">{s.nombre}</span><span className="text-destructive font-medium">{fmtPct(s.puntajeGeneral)}</span></div>))}</div>)}
+              <button onClick={() => setView('proveedor-analytics' as View)} className="w-full mt-1 flex items-center justify-center gap-1 text-[10px] text-primary hover:text-primary/80 bg-primary/10 rounded-lg py-1 transition-colors" aria-label={t('dashboard.ver_analytics_completo')}>{t('dashboard.ver_analytics_completo')}<ArrowRight className="w-2.5 h-2.5" /></button>
             </div>
           </div>)}
         </div>

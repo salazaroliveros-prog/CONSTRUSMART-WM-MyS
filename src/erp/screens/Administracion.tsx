@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { Building2, History } from 'lucide-react';
 import { centroCostoFormSchema } from '../store/schemas/admin';
 
 type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
@@ -56,7 +57,7 @@ const Administracion: React.FC = () => {
           <h2 className="text-lg font-bold text-foreground">{t('admin.centros')}</h2>
           <div className="flex items-center gap-2">
             <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={safeProyectos} />
-            <button onClick={() => { setShowForm(true); reset(); }}
+            <button onClick={() => { setShowForm(true); reset(); }} aria-label={t('admin.nuevo_centro')}
               className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">
               {t('admin.nuevo_centro')}
             </button>
@@ -86,13 +87,13 @@ const Administracion: React.FC = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted">
-                <th className="text-left p-2">{t('admin.codigo')}</th>
-                <th className="text-left p-2">{t('admin.nombre')}</th>
-                <th className="text-left p-2">{t('admin.proyecto')}</th>
-                <th className="text-right p-2">{t('admin.presupuesto')}</th>
-                <th className="text-right p-2">{t('admin.gasto')}</th>
-                <th className="text-right p-2">{t('admin.saldo')}</th>
-                <th className="text-right p-2">{t('admin.ejec_pct')}</th>
+                <th className="text-left p-2" scope="col">{t('admin.codigo')}</th>
+                <th className="text-left p-2" scope="col">{t('admin.nombre')}</th>
+                <th className="text-left p-2" scope="col">{t('admin.proyecto')}</th>
+                <th className="text-right p-2" scope="col">{t('admin.presupuesto')}</th>
+                <th className="text-right p-2" scope="col">{t('admin.gasto')}</th>
+                <th className="text-right p-2" scope="col">{t('admin.saldo')}</th>
+                <th className="text-right p-2" scope="col">{t('admin.ejec_pct')}</th>
               </tr>
             </thead>
             <tbody>
@@ -120,7 +121,7 @@ const Administracion: React.FC = () => {
             </tbody>
           </table>
         </div>
-        {centrosFiltered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t('admin.sin_centros')}</p>}
+        {centrosFiltered.length === 0 && <div className="text-center py-10 text-muted-foreground"><Building2 className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('admin.sin_centros')}</p></div>}
       </div>
     );
   };
@@ -129,20 +130,21 @@ const Administracion: React.FC = () => {
     <div>
       <h2 className="text-lg font-bold mb-4 text-foreground">{t('admin.logs')}</h2>
       {auditLog.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground text-sm">{t('admin.sin_logs')}</p>
-          <p className="text-muted-foreground text-xs mt-1">{t('admin.logs_auto')}</p>
+        <div className="text-center py-12 text-muted-foreground">
+          <History className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" />
+          <p className="text-sm">{t('admin.sin_logs')}</p>
+          <p className="text-xs mt-1">{t('admin.logs_auto')}</p>
         </div>
       ) : (
         <div className="overflow-x-auto max-h-96 overflow-y-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-muted sticky top-0">
-                <th className="text-left p-2">{t('admin.fecha')}</th>
-                <th className="text-left p-2">{t('admin.usuario')}</th>
-                <th className="text-left p-2">{t('admin.accion')}</th>
-                <th className="text-left p-2">{t('admin.entidad')}</th>
-                <th className="text-left p-2">{t('admin.detalle')}</th>
+                <th className="text-left p-2" scope="col">{t('admin.fecha')}</th>
+                <th className="text-left p-2" scope="col">{t('admin.usuario')}</th>
+                <th className="text-left p-2" scope="col">{t('admin.accion')}</th>
+                <th className="text-left p-2" scope="col">{t('admin.entidad')}</th>
+                <th className="text-left p-2" scope="col">{t('admin.detalle')}</th>
               </tr>
             </thead>
             <tbody>
@@ -182,7 +184,7 @@ const Administracion: React.FC = () => {
       </div>
       <button onClick={() => {
         toast.info(t('admin.validacion_ok'));
-      }} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">
+      }} aria-label={t('admin.ejecutar_validacion')} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">
         {t('admin.ejecutar_validacion')}
       </button>
     </div>
@@ -211,7 +213,7 @@ const Administracion: React.FC = () => {
           { key: 'logs' as const,       label: t('admin.tab_logs') },
           { key: 'validacion' as const, label: t('admin.tab_validacion') },
         ].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
+          <button key={t.key} onClick={() => setTab(t.key)} aria-label={t.label}
             className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               tab === t.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
             }`}>{t.label}</button>
@@ -223,7 +225,7 @@ const Administracion: React.FC = () => {
       {tab === 'validacion' && renderValidacion()}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={t('admin.nuevo_centro')}>
           <form onSubmit={handleSubmit(onAddCentroCosto)} onClick={e => e.stopPropagation()} className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm">
             <h3 className="font-bold mb-4 text-foreground">{t('admin.nuevo_centro')}</h3>
             <div className="grid gap-3">

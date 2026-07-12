@@ -225,6 +225,7 @@ export const Impuestos: React.FC = () => {
             </tbody>
           </table>
         </div>
+      )}
       </div>
     </div>
   );

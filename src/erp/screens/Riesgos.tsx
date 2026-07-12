@@ -6,7 +6,7 @@ import { Riesgo } from '../types';
 import { AlertTriangle, Shield, Plus, X, Filter, Clock, CheckCircle, Crosshair, DollarSign, Calendar, User } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
-import { Modal } from 'antd';
+import { confirmAction } from '@/lib/confirm-action';
 import { todayISO } from '../utils';
 import { canUserDelete } from '@/lib/security';
 
@@ -99,7 +99,7 @@ const Riesgos: React.FC = () => {
       toast.error(t('common.sin_permisos', 'Sin permisos para eliminar'));
       return;
     }
-    await Modal.confirm({ title: t('riesgos.confirmar_eliminacion', 'Confirmar eliminación'), content: t('riesgos.confirmar_eliminar', '¿Eliminar este riesgo?'), centered: true, okText: t('riesgos.si_eliminar', 'Sí, eliminar'), cancelText: t('riesgos.cancelar', 'Cancelar') });
+    await confirmAction({ title: t('riesgos.confirmar_eliminacion', 'Confirmar eliminación'), content: t('riesgos.confirmar_eliminar', '¿Eliminar este riesgo?'), centered: true, okText: t('riesgos.si_eliminar', 'Sí, eliminar'), cancelText: t('riesgos.cancelar', 'Cancelar') });
     deleteRiesgo(id);
   };
 
@@ -249,7 +249,10 @@ const Riesgos: React.FC = () => {
               })}
             </div>
             {riesgosFiltrados.filter(r => r.estado !== 'mitigado').length === 0 && (
-              <p className="text-xs text-muted-foreground text-center py-2">{t('riesgos.sin_riesgos_activos', 'Sin riesgos activos')}</p>
+              <div className="text-center py-8 text-muted-foreground">
+                <Shield className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" />
+                <p className="text-xs">{t('riesgos.sin_riesgos_activos', 'Sin riesgos activos')}</p>
+              </div>
             )}
           </div>
         </div>

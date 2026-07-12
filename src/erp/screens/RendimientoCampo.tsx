@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
-import { HardHat, BarChart3, AlertTriangle, Pickaxe, Trash2, ClipboardList, Package } from 'lucide-react';
+import { HardHat, BarChart3, AlertTriangle, Pickaxe, Trash2, ClipboardList, Package, Camera, Copy, FileText } from 'lucide-react';
 import type { Destajo, CapturaRendimiento, PlantillaSubrenglon, ValeSalidaRenglon } from '../types';
 
 const uid = () => Date.now().toString(36).substr(2, 9);
@@ -98,7 +98,7 @@ export const RendimientoCampo: React.FC = () => {
             </tbody>
           </table>
         </div>
-        {filtrados.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t('rendimiento_campo.sin_destajos')}</p>}
+        {filtrados.length === 0 && <div className="text-center py-10 text-muted-foreground"><HardHat className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('rendimiento_campo.sin_destajos')}</p></div>}
       </div>
     );
   };
@@ -165,7 +165,7 @@ export const RendimientoCampo: React.FC = () => {
             </tbody>
           </table>
         </div>
-        {filtradas.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t('rendimiento_campo.sin_capturas')}</p>}
+        {filtradas.length === 0 && <div className="text-center py-10 text-muted-foreground"><Camera className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('rendimiento_campo.sin_capturas')}</p></div>}
       </div>
     );
   };
@@ -177,14 +177,14 @@ export const RendimientoCampo: React.FC = () => {
           <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><ClipboardList className="w-5 h-5 text-purple-500" aria-hidden="true" /> {t('rendimiento_campo.plantillas')}</h2>
           <p className="text-[11px] text-muted-foreground mt-0.5">Estandariza metas por renglón para control homogéneo</p>
         </div>
-        <p className="text-xs text-muted-foreground">{t('rendimiento_campo.sin_plantillas')}</p>
+        <p className="text-xs text-muted-foreground"><Copy className="w-3 h-3 inline-block mr-1" aria-hidden="true" />{t('rendimiento_campo.sin_plantillas')}</p>
       </div>
       {plantillas.length > 0 ? (
         <div className="mt-4 p-3 bg-info/10 rounded-lg">
           <p className="text-sm font-medium text-info">{plantillas.length} material(es) cargados como plantilla</p>
         </div>
       ) : (
-        <p className="text-muted-foreground text-sm text-center py-8">{t('rendimiento_campo.sin_plantillas_uso')}</p>
+        <div className="text-center py-10 text-muted-foreground"><Copy className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('rendimiento_campo.sin_plantillas_uso')}</p></div>
       )}
     </div>
   );
@@ -220,7 +220,7 @@ export const RendimientoCampo: React.FC = () => {
           </tbody>
         </table>
       </div>
-      {vales.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t('rendimiento_campo.sin_vales_renglon')}</p>}
+      {vales.length === 0 && <div className="text-center py-10 text-muted-foreground"><FileText className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('rendimiento_campo.sin_vales_renglon')}</p></div>}
     </div>
   );
 

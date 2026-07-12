@@ -3,8 +3,9 @@ import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_DANGER } from '../ui';
-import { Modal, message } from 'antd';
 import { toast } from 'sonner';
+import { confirmAction } from '@/lib/confirm-action';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Search, Filter, ClipboardCheck, DollarSign, Calendar, User, Edit, Trash2, CheckCircle, AlertCircle, Building2, FileText } from 'lucide-react';
 import type { CuadroComparativo } from '../store/schemas/gestion';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -127,12 +128,12 @@ const Cuadros: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await Modal.confirm({
+      await confirmAction({
         title: t('cuadros.confirmar_eliminar_titulo'),
         content: t('cuadros.confirmar_eliminar'),
         okText: t('cuadros.eliminar'),
-        okType: 'danger',
         cancelText: t('common.cancelar'),
+        variant: 'destructive',
       });
       await deleteCuadro(id);
       toast.success(t('cuadros.eliminado_exito'));
@@ -254,6 +255,7 @@ const Cuadros: React.FC = () => {
               {filteredCuadros.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center p-8 text-muted-foreground">
+                    <ClipboardCheck className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />
                     {t('cuadros.sin_cuadros')}
                   </td>
                 </tr>
@@ -317,98 +319,99 @@ const Cuadros: React.FC = () => {
       </div>
 
       {/* Modal */}
-      <Modal
-        title={editingCuadro ? t('cuadros.editar_cuadro') : t('cuadros.nuevo_cuadro')}
-        open={showModal}
-        onCancel={() => setShowModal(false)}
-        onOk={handleSave}
-        okText={t('common.guardar')}
-        cancelText={t('common.cancelar')}
-        width={600}
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">{t('cuadros.solicitud_label')}</label>
-            <input
-              type="text"
-              value={formData.solicitud || ''}
-              onChange={(e) => { setFormData({ ...formData, solicitud: e.target.value }); setFormErrors(prev => ({ ...prev, solicitud: '' })); }}
-              className={INPUT}
-            />
-            {formErrors.solicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.solicitud}</p>}
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+      <Dialog open={showModal} onOpenChange={(open) => { if (!open) setShowModal(false); }}>
+        <DialogContent className="max-w-[600px] max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingCuadro ? t('cuadros.editar_cuadro') : t('cuadros.nuevo_cuadro')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
             <div>
-            <label className="block text-sm font-medium mb-1">{t('cuadros.fecha_solicitud_label')}</label>
-            <input
-              type="date"
-              value={formData.fechaSolicitud || ''}
-              onChange={(e) => { setFormData({ ...formData, fechaSolicitud: e.target.value }); setFormErrors(prev => ({ ...prev, fechaSolicitud: '' })); }}
-              className={INPUT}
-            />
-            {formErrors.fechaSolicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.fechaSolicitud}</p>}
-          </div>
+              <label className="block text-sm font-medium mb-1">{t('cuadros.solicitud_label')}</label>
+              <input
+                type="text"
+                value={formData.solicitud || ''}
+                onChange={(e) => { setFormData({ ...formData, solicitud: e.target.value }); setFormErrors(prev => ({ ...prev, solicitud: '' })); }}
+                className={INPUT}
+              />
+              {formErrors.solicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.solicitud}</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+              <label className="block text-sm font-medium mb-1">{t('cuadros.fecha_solicitud_label')}</label>
+              <input
+                type="date"
+                value={formData.fechaSolicitud || ''}
+                onChange={(e) => { setFormData({ ...formData, fechaSolicitud: e.target.value }); setFormErrors(prev => ({ ...prev, fechaSolicitud: '' })); }}
+                className={INPUT}
+              />
+              {formErrors.fechaSolicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.fechaSolicitud}</p>}
+            </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">{t('cuadros.estado_label')}</label>
+                <select
+                  value={formData.estado || 'abierto'}
+                  onChange={(e) => { setFormData({ ...formData, estado: e.target.value as unknown }); setFormErrors(prev => ({ ...prev, estado: '' })); }}
+                  className={INPUT}
+                >
+                  <option value="abierto">{t('cuadros.estado_abierto')}</option>
+                  <option value="cerrado">{t('cuadros.estado_cerrado')}</option>
+                  <option value="adjudicado">{t('cuadros.estado_adjudicado')}</option>
+                </select>
+                {formErrors.estado && <p className="text-xs text-red-500 mt-0.5">{formErrors.estado}</p>}
+              </div>
+            </div>
             <div>
-              <label className="block text-sm font-medium mb-1">{t('cuadros.estado_label')}</label>
+              <label className="block text-sm font-medium mb-1">{t('cuadros.proyecto_label')}</label>
               <select
-                value={formData.estado || 'abierto'}
-                onChange={(e) => { setFormData({ ...formData, estado: e.target.value as unknown }); setFormErrors(prev => ({ ...prev, estado: '' })); }}
+                value={formData.proyectoId || ''}
+                onChange={(e) => { setFormData({ ...formData, proyectoId: e.target.value }); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }}
                 className={INPUT}
               >
-                <option value="abierto">{t('cuadros.estado_abierto')}</option>
-                <option value="cerrado">{t('cuadros.estado_cerrado')}</option>
-                <option value="adjudicado">{t('cuadros.estado_adjudicado')}</option>
+                <option value="">{t('cuadros.seleccionar_proyecto')}</option>
+                {proyectos.map((p) => (
+                  <option key={p.id} value={p.id}>{p.nombre}</option>
+                ))}
               </select>
-              {formErrors.estado && <p className="text-xs text-red-500 mt-0.5">{formErrors.estado}</p>}
+              {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">{t('cuadros.fecha_cierre_label')}</label>
+              <input
+                type="date"
+                value={formData.fechaCierre || ''}
+                onChange={(e) => setFormData({ ...formData, fechaCierre: e.target.value })}
+                className={INPUT}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">{t('cuadros.adjudicado_label')}</label>
+              <select
+                value={formData.adjudicadoA || ''}
+                onChange={(e) => setFormData({ ...formData, adjudicadoA: e.target.value })}
+                className={INPUT}
+              >
+                <option value="">{t('cuadros.seleccionar_proveedor')}</option>
+                {proveedores.map((p) => (
+                  <option key={p.id} value={p.id}>{p.nombre}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">{t('cuadros.observaciones_label')}</label>
+              <textarea
+                value={formData.observaciones || ''}
+                onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
+                className={INPUT}
+                rows={3}
+              />
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">{t('cuadros.proyecto_label')}</label>
-            <select
-              value={formData.proyectoId || ''}
-              onChange={(e) => { setFormData({ ...formData, proyectoId: e.target.value }); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }}
-              className={INPUT}
-            >
-              <option value="">{t('cuadros.seleccionar_proyecto')}</option>
-              {proyectos.map((p) => (
-                <option key={p.id} value={p.id}>{p.nombre}</option>
-              ))}
-            </select>
-            {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">{t('cuadros.fecha_cierre_label')}</label>
-            <input
-              type="date"
-              value={formData.fechaCierre || ''}
-              onChange={(e) => setFormData({ ...formData, fechaCierre: e.target.value })}
-              className={INPUT}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">{t('cuadros.adjudicado_label')}</label>
-            <select
-              value={formData.adjudicadoA || ''}
-              onChange={(e) => setFormData({ ...formData, adjudicadoA: e.target.value })}
-              className={INPUT}
-            >
-              <option value="">{t('cuadros.seleccionar_proveedor')}</option>
-              {proveedores.map((p) => (
-                <option key={p.id} value={p.id}>{p.nombre}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">{t('cuadros.observaciones_label')}</label>
-            <textarea
-              value={formData.observaciones || ''}
-              onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
-              className={INPUT}
-              rows={3}
-            />
-          </div>
-        </div>
-      </Modal>
+          <DialogFooter className="mt-4">
+            <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-lg border border-border text-sm hover:bg-accent">{t('common.cancelar')}</button>
+            <button type="button" onClick={handleSave} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm hover:bg-primary/90 font-medium">{t('common.guardar')}</button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

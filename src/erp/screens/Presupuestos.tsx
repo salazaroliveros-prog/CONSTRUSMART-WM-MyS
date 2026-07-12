@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CARD, INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, BUTTON_DANGER, BUTTON_DARK, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, KPI_CARD, GRID_4, FLEX_ROW, FLEX_COL, FORM_LABEL, FORM_ERROR, FORM_GROUP, DIVIDER } from '../ui';
-import { Modal, message } from 'antd';
+import { confirmAction } from '@/lib/confirm-action';
 import { toast } from 'sonner';
 
 import { useErp } from '../store';
@@ -41,13 +41,13 @@ const Presupuestos: React.FC = () => {
   const confirmDiscard = async (): Promise<boolean> => {
     if (!hasUnsavedChanges) return true;
     try {
-      await Modal.confirm({
+      await confirmAction({
         title: 'Confirmar',
         content: t('presupuestos.confirmar_descartar') || 'Hay cambios sin guardar. ¿Descartarlos?',
         centered: true,
         okText: 'Sí, descartar',
         cancelText: 'Cancelar',
-        okType: 'danger',
+        variant: 'destructive',
       });
       return true;
     } catch {
@@ -693,7 +693,10 @@ const Presupuestos: React.FC = () => {
               }} className="bg-slate-900 text-white px-3 py-2 rounded-xl text-xs">+ {t('presupuestos.agregar_proveedor_btn')}</button>
             </div>
             {proveedores.length === 0 && (
-              <p className="text-xs text-amber-600 mt-1">{t('presupuestos.agregar_proveedores_aviso')}</p>
+              <p className="text-xs text-amber-600 mt-1">
+                <Users className="w-3 h-3 inline-block mr-1" aria-hidden="true" />
+                {t('presupuestos.agregar_proveedores_aviso')}
+              </p>
             )}
           </div>
         </div>

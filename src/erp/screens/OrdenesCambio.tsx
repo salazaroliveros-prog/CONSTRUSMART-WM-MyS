@@ -23,8 +23,7 @@ const OrdenesCambio: React.FC = () => {
   const [fDesc, setFDesc] = useState('');
   const [fCosto, setFCosto] = useState(0);
   const [fPlazo, setFPlazo] = useState(0);
-
-
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const filtered = useMemo(() => {
     if (!proyectoFilter) return ordenesCambio;
@@ -32,8 +31,11 @@ const OrdenesCambio: React.FC = () => {
   }, [ordenesCambio, proyectoFilter]);
 
   const handleCrear = () => {
-    if (!fTitulo.trim()) { toast.error('Título requerido'); return; }
-    if (!proyectoFilter) { toast.error('Selecciona un proyecto'); return; }
+    const errs: Record<string, string> = {};
+    if (!fTitulo.trim()) errs.titulo = 'Título requerido';
+    if (!proyectoFilter) errs.proyecto = 'Selecciona un proyecto';
+    if (Object.keys(errs).length > 0) { setFormErrors(errs); return; }
+    setFormErrors({});
     addOrdenCambio({
       proyectoId: proyectoFilter,
       titulo: fTitulo.trim(),
@@ -87,7 +89,10 @@ const OrdenesCambio: React.FC = () => {
           <GitBranch className="w-6 h-6 text-amber-500" /> Órdenes de Cambio
         </h1>
         <div className="flex flex-wrap gap-2">
-          <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
+          <div>
+            <ProyectoFilter value={proyectoFilter} onChange={(v) => { setProyectoFilter(v); setFormErrors(prev => ({ ...prev, proyecto: '' })); }} proyectos={proyectos} />
+            {formErrors.proyecto && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyecto}</p>}
+          </div>
           <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1 text-xs px-3.5 py-2.5 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors">
             <Plus className="w-3.5 h-3.5" aria-hidden="true" /> Nueva
           </button>
@@ -113,7 +118,10 @@ const OrdenesCambio: React.FC = () => {
         <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-4">
           <h3 className="font-bold text-sm text-muted-foreground mb-3"><FileText className="w-4 h-4 inline-block align-text-bottom" aria-hidden="true" /> Nueva Solicitud de Cambio</h3>
           <div className="space-y-2">
-            <input value={fTitulo} onChange={e => setFTitulo(e.target.value)} placeholder="Título del cambio *" className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border outline-none focus:border-amber-400" />
+            <div>
+              <input value={fTitulo} onChange={e => { setFTitulo(e.target.value); setFormErrors(prev => ({ ...prev, titulo: '' })); }} placeholder="Título del cambio *" className={`w-full text-xs px-3.5 py-2.5 rounded-lg border outline-none focus:border-amber-400 ${formErrors.titulo ? 'border-red-500' : 'border-border'}`} />
+              {formErrors.titulo && <p className="text-xs text-red-500 mt-0.5">{formErrors.titulo}</p>}
+            </div>
             <textarea value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder="Descripción detallada del cambio..." rows={2} className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border outline-none focus:border-amber-400 resize-none" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>

@@ -42,6 +42,7 @@ const Weather: React.FC = () => {
   
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [coordsError, setCoordsError] = useState('');
   const [selectedDay, setSelectedDay] = useState<number>(0);
   const [showDetails, setShowDetails] = useState(true);
   const [showScheduling, setShowScheduling] = useState(true);
@@ -57,9 +58,10 @@ const Weather: React.FC = () => {
 
   const refreshWeather = useCallback(async () => {
     if (!proyecto || !(proyecto.lat && proyecto.lng)) {
-      toast.error(t('weather.no_coordinates', 'El proyecto no tiene coordenadas configuradas'));
+      setCoordsError(t('weather.no_coordinates', 'El proyecto no tiene coordenadas configuradas'));
       return;
     }
+    setCoordsError('');
 
     setRefreshing(true);
     try {
@@ -402,26 +404,18 @@ const Weather: React.FC = () => {
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
           </button>
-          {weather?.weatherData && (
-            <>
-              <button
-                onClick={exportToPDF}
-                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
-                aria-label="Export to PDF"
-              >
-                <Download className="w-4 h-4" aria-hidden="true" />
-              </button>
-              <button
-                onClick={exportToExcel}
-                className="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400"
-                aria-label="Export to Excel"
-              >
-                <Download className="w-4 h-4" aria-hidden="true" />
-              </button>
-            </>
-          )}
         </div>
       </div>
+
+      {coordsError && (
+        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" aria-hidden="true" />
+          <p className="text-xs text-red-600 dark:text-red-400">{coordsError}</p>
+          <button onClick={() => setCoordsError('')} className="ml-auto p-1 hover:bg-red-100 dark:hover:bg-red-900 rounded" aria-label="Cerrar">
+            <X className="w-3 h-3 text-red-400" />
+          </button>
+        </div>
+      )}
 
       {!weather?.weatherData ? (
         <div className="text-center py-16 text-muted-foreground">

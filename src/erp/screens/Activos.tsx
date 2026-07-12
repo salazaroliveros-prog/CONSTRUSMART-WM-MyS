@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Search, Wrench, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Modal } from 'antd';
+import { confirmAction } from '@/lib/confirm-action';
 
 const TIPOS = ['herramienta', 'equipo', 'vehiculo', 'accesorio'] as const;
 const ESTADOS = ['disponible', 'asignado', 'mantenimiento', 'baja'] as const;
@@ -133,11 +133,11 @@ const Activos: React.FC = () => {
                 <td className="p-2 font-mono">Q{Number(a.valor || 0).toLocaleString()}</td>
                 <td className="p-2 text-right">
                   <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-accent" aria-label={t('activos.editar')}><Edit2 className="w-4 h-4 text-muted-foreground" aria-hidden="true" /></button>
-                  <button onClick={() => Modal.confirm({ title: t('activos.confirmar_eliminar'), onOk: () => remove(a.id), okText: 'Eliminar', cancelText: 'Cancelar', okButtonProps: { danger: true } })} className="p-1.5 rounded hover:bg-accent" aria-label={t('activos.eliminar')}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
+                  <button onClick={async () => { try { await confirmAction({ title: t('activos.confirmar_eliminar'), okText: 'Eliminar', cancelText: 'Cancelar', variant: 'destructive' }); remove(a.id); } catch {} }} className="p-1.5 rounded hover:bg-accent" aria-label={t('activos.eliminar')}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">{t('activos.sin_activos')}</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground"><Wrench className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('activos.sin_activos')}</td></tr>}
           </tbody>
         </table>
       </div>
