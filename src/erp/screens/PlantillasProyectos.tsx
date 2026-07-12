@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Modal, message } from 'antd';
+import { confirmAction } from '@/lib/confirm-action';
 import { useErp } from '../store';
 import { safeLogger } from '@/lib/safeLogger';
 import { fmtQ } from '../utils';
@@ -200,13 +200,13 @@ const PlantillasProyectos: React.FC = () => {
   const handleBulkDelete = async () => {
     if (seleccionMultiple.size === 0) return;
     try {
-      await Modal.confirm({
+      await confirmAction({
         title: t('plantillas.bulk_delete_titulo', 'Eliminar plantillas'),
         content: t('plantillas.bulk_delete_contenido', { count: seleccionMultiple.size }),
         centered: true,
         okText: t('common.si'),
         cancelText: t('common.cancelar'),
-        okType: 'danger',
+        variant: 'destructive',
       });
       seleccionMultiple.forEach(id => deletePlantilla(id));
       setSeleccionMultiple(new Set());
@@ -245,13 +245,13 @@ const PlantillasProyectos: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await Modal.confirm({
+      await confirmAction({
         title: t('plantillas.confirmar_eliminar_titulo', 'Eliminar plantilla'),
         content: t('plantillas.confirmar_eliminar_contenido', '¿Está seguro de eliminar esta plantilla?'),
         centered: true,
         okText: t('common.si'),
         cancelText: t('common.cancelar'),
-        okType: 'danger',
+        variant: 'destructive',
       });
       deletePlantilla(id);
         toast.success(t('plantillas.eliminada'));
@@ -327,13 +327,12 @@ const PlantillasProyectos: React.FC = () => {
   const handleRestaurarVersion = async (version: number) => {
     if (!previewPlantilla) return;
     try {
-      await Modal.confirm({
+      await confirmAction({
         title: t('plantillas.restaurar_version_titulo', 'Restaurar versión'),
         content: t('plantillas.restaurar_version_contenido', { version }),
         centered: true,
         okText: t('plantillas.restaurar_ok', 'Sí, restaurar'),
         cancelText: t('common.cancelar'),
-        okType: 'primary',
       });
       restaurarVersionPlantilla(previewPlantilla.id, version);
       toast.success('Versión restaurada correctamente');
@@ -1126,6 +1125,7 @@ const PlantillasProyectos: React.FC = () => {
               </div>
               {!previewPlantilla.versionHistorial || previewPlantilla.versionHistorial.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
+                  <History className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" />
                   No hay historial de versiones disponible
                 </div>
               ) : (

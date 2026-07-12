@@ -26,6 +26,7 @@ export default function VisorBIM() {
   const [selRenglon, setSelRenglon] = useState('');
   const [cubicacion, setCubicacion] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Elementos simulados del modelo IFC (memorizados para estabilidad de referencias)
   const elementosModelo = useMemo(() => [
@@ -46,9 +47,10 @@ export default function VisorBIM() {
 
   const handleVincular = useCallback((elementoId: string) => {
     if (!selRenglon) {
-      toast.error('Selecciona un renglón');
+      setFormErrors({ renglon: 'Selecciona un renglón para vincular' });
       return;
     }
+    setFormErrors({});
     setVinculaciones(prev => ({ ...prev, [elementoId]: selRenglon }));
     toast.success('Vinculación creada');
   }, [selRenglon]);
@@ -65,9 +67,10 @@ export default function VisorBIM() {
   const generarCubicacion = useCallback(() => {
     const elementosVinculados = elementosModelo.filter(el => vinculaciones[el.id]);
     if (elementosVinculados.length === 0) {
-      toast.error('Vincula al menos un elemento');
+      setFormErrors({ vincular: 'Vincula al menos un elemento del modelo antes de generar la cubicación' });
       return;
     }
+    setFormErrors({});
     const resultado = elementosVinculados.map(el => ({
       elemento: el.nombre,
       renglon: renglones.find(r => r.id === vinculaciones[el.id])?.nombre || 'Desconocido',
@@ -155,10 +158,11 @@ export default function VisorBIM() {
             </h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
               <Label className="text-xs text-blue-800">Renglón a vincular</Label>
-              <select value={selRenglon} onChange={e => setSelRenglon(e.target.value)} className="mt-1 w-full rounded-lg border border-blue-200 px-3 py-2 text-sm">
+              <select value={selRenglon} onChange={e => { setSelRenglon(e.target.value); setFormErrors(prev => ({ ...prev, renglon: '' })); }} className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${formErrors.renglon ? 'border-red-500 bg-red-50' : 'border-blue-200'}`}>
                 <option value="">— Renglón —</option>
                 {renglones.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
               </select>
+              {formErrors.renglon && <p className="text-xs text-red-500 mt-1">{formErrors.renglon}</p>}
             </div>
             <div className="space-y-2">
               {elementosModelo.map(el => (
@@ -216,9 +220,10 @@ export default function VisorBIM() {
                   ))}
                 </TableBody>
               </Table>
-            ) : (
-              <p className="text-xs text-gray-400 text-center py-6">Vincula elementos para generar la cubicación.</p>
-            )}
+            ) : (<>
+              {formErrors.vincular && <p className="text-xs text-red-500 text-center py-2 bg-red-50 rounded-lg mb-2">{formErrors.vincular}</p>}
+            <p className="text-xs text-gray-400 text-center py-6">Vincula elementos para generar la cubicación.</p>
+            </>)}
           </Card>
         </TabsContent>
 

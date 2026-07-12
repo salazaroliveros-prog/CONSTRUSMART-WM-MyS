@@ -1,7 +1,7 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal } from 'antd';
+import { confirmAction } from '@/lib/confirm-action';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { downloadBlob } from '../utils';
@@ -231,13 +231,13 @@ export const PlanillaDestajos: React.FC = () => {
                       <button
                         onClick={async () => {
                           try {
-                            await Modal.confirm({
+                            await confirmAction({
                               title: t('destajos.confirmar_eliminar_titulo'),
                               content: t('destajos.confirmar_eliminar_contenido', { cuadrilla: d.cuadrilla, codigo: d.renglonCodigo }),
                               centered: true,
                               okText: t('common.si'),
                               cancelText: t('common.cancelar'),
-                              okType: 'danger',
+                              variant: 'destructive',
                             });
                             deleteDestajo(d.id);
                           } catch {}
@@ -257,7 +257,10 @@ export const PlanillaDestajos: React.FC = () => {
       )}
 
       {planilla.length === 0 && destajosSemana.length === 0 && (
-        <p className="text-muted-foreground text-sm">{t('planilla.sin_destajos_semana')}</p>
+        <div className="text-center py-10 text-muted-foreground">
+          <ClipboardList className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" />
+          <p className="text-sm">{t('planilla.sin_destajos_semana')}</p>
+        </div>
       )}
 
       {planilla.length > 0 && (

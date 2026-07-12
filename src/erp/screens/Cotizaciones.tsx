@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Modal } from 'antd';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, COLOR_DANGER } from '../ui';
 import { fmtQ } from '../utils';
 import { sanitizarObjeto, canUserDelete } from '@/lib/security';
+import { confirmAction } from '@/lib/confirm-action';
 import { exportCotizacionPDF } from '../export';
 import { Plus, X, Send, FileText, Trash2, Pencil, Copy, CheckCircle2, Clock, Calculator, HardHat, Landmark, Building, Ruler, Home, CalendarDays, Droplets, Box } from 'lucide-react';
 import { toast } from 'sonner';
@@ -168,7 +169,7 @@ const Cotizaciones: React.FC = () => {
       return;
     }
     try {
-      await Modal.confirm({ title: t('cotizaciones.confirmar_eliminar'), content: t('cotizaciones.confirmar_eliminar_msg'), centered: true, okText: t('cotizaciones.si_eliminar'), cancelText: t('common.cancelar') });
+      await confirmAction({ title: t('cotizaciones.confirmar_eliminar'), content: t('cotizaciones.confirmar_eliminar_msg'), centered: true, okText: t('cotizaciones.si_eliminar'), cancelText: t('common.cancelar') });
     } catch { return; }
     deleteCotizacion(id);
     toast.success(t('cotizaciones.eliminada'));
@@ -302,111 +303,109 @@ const Cotizaciones: React.FC = () => {
       </div>
 
       {/* Modal */}
-      {showForm && (
-        <div className={MODAL_OVERLAY} role="dialog" aria-modal="true">
-          <form onSubmit={handleSubmit} className={`${MODAL_PANEL} max-w-2xl`}>
-            <div className={MODAL_HEADER}>
-              <h2 className={MODAL_TITLE}>{editingId ? t('cotizaciones.editar') : t('cotizaciones.nueva')}</h2>
-              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className={MODAL_CLOSE} aria-label={t('common.cerrar')}>
-                <X className="w-5 h-5" />
-              </button>
+      <Dialog open={showForm} onOpenChange={(open) => {
+        if (!open) {
+          setShowForm(false);
+          resetForm();
+        }
+      }}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingId ? t('cotizaciones.editar') : t('cotizaciones.nueva')}</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.tipo_cotizacion')}</label>
+                <select value={formData.tipo} onChange={e => setFormData(p => ({ ...p, tipo: e.target.value as CotizacionTipo }))} className={INPUT}>
+                  {TIPOS_COTIZACION.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                </select>
+              </div>
+              {formData.tipo === 'construccion' && (
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.motor_calculo')}</label>
+                  <button type="button" onClick={() => setShowCalculadora(true)} className={`${BUTTON_SECONDARY} flex items-center gap-2 w-full justify-center`}>
+                    <Calculator className="w-4 h-4" aria-hidden="true" /> {t('cotizaciones.motor_calculo')}
+                  </button>
+                </div>
+              )}
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.numero')}</label>
+                <input value={formData.numero} onChange={e => setFormData(p => ({ ...p, numero: e.target.value }))} placeholder="COT-001-2026" className={INPUT} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.fecha')}</label>
+                <input type="date" value={formData.fecha} onChange={e => setFormData(p => ({ ...p, fecha: e.target.value }))} className={INPUT} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.vencimiento')}</label>
+                <input type="date" value={formData.fechaVencimiento} onChange={e => setFormData(p => ({ ...p, fechaVencimiento: e.target.value }))} className={INPUT} />
+              </div>
             </div>
 
-            <div className="p-4 sm:p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="border-t pt-3">
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.descripcion')}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.nombre_razon')}</label>
+                  <input value={formData.clienteNombre} onChange={e => setFormData(p => ({ ...p, clienteNombre: e.target.value }))} placeholder={t('common.nombre')} className={INPUT} />
+                  {formErrors.clienteNombre && <p className={`text-xs ${COLOR_DANGER} mt-0.5`}>{formErrors.clienteNombre}</p>}
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.nit')}</label>
+                  <input value={formData.clienteNit} onChange={e => setFormData(p => ({ ...p, clienteNit: e.target.value }))} placeholder="NIT" className={INPUT} />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.telefono')}</label>
+                  <input value={formData.clienteTelefono} onChange={e => setFormData(p => ({ ...p, clienteTelefono: e.target.value }))} placeholder={t('cotizaciones.telefono')} className={INPUT} />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.email')}</label>
+                  <input value={formData.clienteEmail} onChange={e => setFormData(p => ({ ...p, clienteEmail: e.target.value }))} placeholder="correo@ejemplo.com" className={INPUT} />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.direccion')}</label>
+                  <input value={formData.clienteDireccion} onChange={e => setFormData(p => ({ ...p, clienteDireccion: e.target.value }))} placeholder={t('cotizaciones.direccion')} className={INPUT} />
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t pt-3">
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.descripcion')}</h3>
+              <div className="grid grid-cols-1 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.descripcion_corta')}</label>
+                  <input value={formData.descripcion} onChange={e => setFormData(p => ({ ...p, descripcion: e.target.value }))} placeholder="Ej. Diseño de planos para casa unifamiliar" className={INPUT} />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.alcance')}</label>
+                  <textarea value={formData.alcance} onChange={e => setFormData(p => ({ ...p, alcance: e.target.value }))} placeholder="Describe detalladamente qué incluye esta cotización..." className={`${INPUT} min-h-[80px] resize-none`} rows={3} />
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t pt-3">
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.precio')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.tipo_cotizacion')}</label>
-                  <select value={formData.tipo} onChange={e => setFormData(p => ({ ...p, tipo: e.target.value as CotizacionTipo }))} className={INPUT}>
-                    {TIPOS_COTIZACION.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                  </select>
-                </div>
-                {formData.tipo === 'construccion' && (
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.motor_calculo')}</label>
-                    <button type="button" onClick={() => setShowCalculadora(true)} className={`${BUTTON_SECONDARY} flex items-center gap-2 w-full justify-center`}>
-                      <Calculator className="w-4 h-4" aria-hidden="true" /> {t('cotizaciones.motor_calculo')}
-                    </button>
-                  </div>
-                )}
-                <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.numero')}</label>
-                  <input value={formData.numero} onChange={e => setFormData(p => ({ ...p, numero: e.target.value }))} placeholder="COT-001-2026" className={INPUT} />
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.costo_directo')}</label>
+                  <input type="number" inputMode="decimal" value={formData.costoDirectoTotal} onChange={e => setFormData(p => ({ ...p, costoDirectoTotal: +e.target.value }))} className={INPUT} />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.fecha')}</label>
-                  <input type="date" value={formData.fecha} onChange={e => setFormData(p => ({ ...p, fecha: e.target.value }))} className={INPUT} />
-                </div>
-                <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.vencimiento')}</label>
-                  <input type="date" value={formData.fechaVencimiento} onChange={e => setFormData(p => ({ ...p, fechaVencimiento: e.target.value }))} className={INPUT} />
-                </div>
-              </div>
-
-              <div className="border-t pt-3">
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.descripcion')}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="sm:col-span-2">
-                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.nombre_razon')}</label>
-                    <input value={formData.clienteNombre} onChange={e => setFormData(p => ({ ...p, clienteNombre: e.target.value }))} placeholder={t('common.nombre')} className={INPUT} />
-                    {formErrors.clienteNombre && <p className={`text-xs ${COLOR_DANGER} mt-0.5`}>{formErrors.clienteNombre}</p>}
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.nit')}</label>
-                    <input value={formData.clienteNit} onChange={e => setFormData(p => ({ ...p, clienteNit: e.target.value }))} placeholder="NIT" className={INPUT} />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.telefono')}</label>
-                    <input value={formData.clienteTelefono} onChange={e => setFormData(p => ({ ...p, clienteTelefono: e.target.value }))} placeholder={t('cotizaciones.telefono')} className={INPUT} />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.email')}</label>
-                    <input value={formData.clienteEmail} onChange={e => setFormData(p => ({ ...p, clienteEmail: e.target.value }))} placeholder="correo@ejemplo.com" className={INPUT} />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.direccion')}</label>
-                    <input value={formData.clienteDireccion} onChange={e => setFormData(p => ({ ...p, clienteDireccion: e.target.value }))} placeholder={t('cotizaciones.direccion')} className={INPUT} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t pt-3">
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.descripcion')}</h3>
-                <div className="grid grid-cols-1 gap-3">
-                  <div>
-                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.descripcion_corta')}</label>
-                    <input value={formData.descripcion} onChange={e => setFormData(p => ({ ...p, descripcion: e.target.value }))} placeholder="Ej. Diseño de planos para casa unifamiliar" className={INPUT} />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.alcance')}</label>
-                    <textarea value={formData.alcance} onChange={e => setFormData(p => ({ ...p, alcance: e.target.value }))} placeholder="Describe detalladamente qué incluye esta cotización..." className={`${INPUT} min-h-[80px] resize-none`} rows={3} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t pt-3">
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">{t('common.precio')}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.costo_directo')}</label>
-                    <input type="number" inputMode="decimal" value={formData.costoDirectoTotal} onChange={e => setFormData(p => ({ ...p, costoDirectoTotal: +e.target.value }))} className={INPUT} />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.precio_venta')}</label>
-                    <input type="number" inputMode="decimal" value={formData.precioVentaTotal} onChange={e => setFormData(p => ({ ...p, precioVentaTotal: +e.target.value }))} className={INPUT} />
-                  </div>
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.precio_venta')}</label>
+                  <input type="number" inputMode="decimal" value={formData.precioVentaTotal} onChange={e => setFormData(p => ({ ...p, precioVentaTotal: +e.target.value }))} className={INPUT} />
                 </div>
               </div>
             </div>
 
-            <div className="p-4 sm:p-6 border-t border-border flex justify-end gap-2">
+            <DialogFooter className="p-4 sm:p-6 border-t border-border">
               <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className={BUTTON_SECONDARY}>{t('common.cancelar')}</button>
               <button type="submit" className={BUTTON_PRIMARY}>{editingId ? t('common.editar') : t('cotizaciones.crear')}</button>
-            </div>
+            </DialogFooter>
           </form>
-        </div>
-      )}
-
-      {/* Modal Calculadora Avanzada */}
+        </DialogContent>
+      </Dialog>
       {showCalculadora && (
         <div className={MODAL_OVERLAY} role="dialog" aria-modal="true">
           <div className={`${MODAL_PANEL} max-w-4xl`}>

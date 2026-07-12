@@ -83,6 +83,7 @@ const DashboardPredictivo: React.FC = () => {
           value={currentProjectId}
           onChange={e => setCurrentProjectId(e.target.value)}
           className="text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-purple-400 bg-card"
+          aria-label="Seleccionar proyecto para dashboard predictivo"
         >
           <option value="">— Todos los proyectos —</option>
           {proyectos.filter(p => p.estado === 'ejecucion' || p.estado === 'planeacion').map(p => (

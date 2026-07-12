@@ -50,6 +50,7 @@ const ITEMS: NavItem[] = [
   { id: 'predictivo',        labelKey: 'predictivo',      icon: BarChart3,       group: 'Análisis BI'  },
   { id: 'profitability',     labelKey: 'profitability',   icon: TrendingUp,      group: 'Análisis BI'  },
   { id: 'exportacion',       labelKey: 'exportacion',     icon: Download,        group: 'Análisis BI'  },
+  { id: 'conflicts',         labelKey: 'conflicts',       icon: TriangleAlert,   group: 'Sistema'      },
   { id: 'notificaciones',    labelKey: 'notificaciones',  icon: Bell,            group: 'Sistema'      },
   { id: 'error-log',         labelKey: 'error-log',       icon: TriangleAlert,   group: 'Sistema'      },
   { id: 'admin-sistema',     labelKey: 'admin-sistema',   icon: FileCog,         group: 'Sistema'      },

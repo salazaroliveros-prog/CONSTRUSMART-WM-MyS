@@ -7,7 +7,7 @@ import { DollarSign, Plus, X, TrendingUp, CalendarDays, AlertTriangle, CheckCirc
 import { useTranslation } from 'react-i18next';
 import { INPUT, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO } from '../ui';
 import { toast } from 'sonner';
-import { Modal } from 'antd';
+import { confirmAction } from '@/lib/confirm-action';
 import { todayISO, fmtQ } from '../utils';
 
 const CuentasCobrarScreen: React.FC = () => {
@@ -47,7 +47,7 @@ const CuentasCobrarScreen: React.FC = () => {
 
   const eliminar = async (id: string) => {
     try {
-      await Modal.confirm({ title: t('cuentas_cobrar.confirmar_eliminar_titulo', 'Confirmar eliminación'), content: t('cuentas_cobrar.confirmar_eliminar_contenido', '¿Eliminar esta cuenta por cobrar?'), centered: true, okText: t('common.si'), cancelText: t('common.cancelar') });
+      await confirmAction({ title: t('cuentas_cobrar.confirmar_eliminar_titulo', 'Confirmar eliminación'), content: t('cuentas_cobrar.confirmar_eliminar_contenido', '¿Eliminar esta cuenta por cobrar?'), centered: true, okText: t('common.si'), cancelText: t('common.cancelar') });
       deleteCuentaCobrar(id);
       toast.success('Cuenta por cobrar eliminada');
     } catch {}

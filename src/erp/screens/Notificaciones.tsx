@@ -6,12 +6,12 @@ import ProyectoFilter from '../components/ProyectoFilter';
 import { Bell, Check, CheckCheck, AlertTriangle, ClipboardList, Package, TrendingDown, Activity } from 'lucide-react';
 
 const MAPA_ICONOS: Record<string, React.ReactNode> = {
-  checklist_rechazado: <AlertTriangle className="w-5 h-5 text-red-500" />,
-  orden_cambio_pendiente: <ClipboardList className="w-5 h-5 text-amber-500" />,
-  stock_critico: <Package className="w-5 h-5 text-amber-500" />,
-  desviacion_rendimiento: <TrendingDown className="w-5 h-5 text-red-500" />,
-  avance_registrado: <Activity className="w-5 h-5 text-green-500" />,
-  general: <Bell className="w-5 h-5 text-blue-500" />,
+  checklist_rechazado: <AlertTriangle className="w-5 h-5 text-red-500" aria-hidden="true" />,
+  orden_cambio_pendiente: <ClipboardList className="w-5 h-5 text-amber-500" aria-hidden="true" />,
+  stock_critico: <Package className="w-5 h-5 text-amber-500" aria-hidden="true" />,
+  desviacion_rendimiento: <TrendingDown className="w-5 h-5 text-red-500" aria-hidden="true" />,
+  avance_registrado: <Activity className="w-5 h-5 text-green-500" aria-hidden="true" />,
+  general: <Bell className="w-5 h-5 text-blue-500" aria-hidden="true" />,
 };
 
 const MAPA_COLORES: Record<string, string> = {
@@ -98,9 +98,11 @@ export default function Notificaciones() {
       </div>
 
       {/* Tabs: Alertas | Historial */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit" role="tablist">
         <button
           onClick={() => setTab('alertas')}
+          role="tab"
+          aria-selected={tab === 'alertas'}
           className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
             tab === 'alertas'
               ? 'bg-card text-gray-900 shadow-sm'
@@ -111,6 +113,8 @@ export default function Notificaciones() {
         </button>
         <button
           onClick={() => setTab('historial')}
+          role="tab"
+          aria-selected={tab === 'historial'}
           className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
             tab === 'historial'
               ? 'bg-card text-gray-900 shadow-sm'
@@ -167,6 +171,9 @@ export default function Notificaciones() {
           {filtradas.map(notif => (
             <div
               key={notif.id}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !notif.leido) { e.preventDefault(); markNotificacionLeida(notif.id); } }}
               className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${
                 MAPA_COLORES[notif.tipo] || 'bg-gray-50 border-gray-200'
               } ${notif.leido ? 'opacity-60' : 'shadow-sm'}`}
@@ -199,9 +206,9 @@ export default function Notificaciones() {
                 <button
                   onClick={(e) => { e.stopPropagation(); markNotificacionLeida(notif.id); }}
                   className="p-1.5 hover:bg-card/50 rounded-full transition-colors shrink-0"
-                  title={t('notificaciones.marcar_leida', 'Marcar como leída')}
+                  aria-label={t('notificaciones.marcar_leida', 'Marcar como leída')}
                 >
-                  <Check className="w-4 h-4 text-gray-400" />
+                  <Check className="w-4 h-4 text-gray-400" aria-hidden="true" />
                 </button>
               )}
             </div>

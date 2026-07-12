@@ -5,7 +5,7 @@ import { useErp, clearAllData, type UIMode, type AppThemeMode } from '../store';
 import { THEMES, type ThemeName, PRIMARY_COLORS } from '@/lib/themes';
 import {
   Layout, Card, Row, Col, Switch, Select, Button, Divider,
-  Typography, Space, Tabs, Tag, Avatar, Descriptions, Modal, message,
+  Typography, Space, Tabs, Tag, Avatar, Descriptions, Modal,
   Radio, Tooltip, Badge, Alert, Statistic, theme as antTheme,
 } from 'antd';
 import {
@@ -85,9 +85,9 @@ const Ajustes: React.FC = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      message.success('Respaldo exportado correctamente');
+      toast.success('Respaldo exportado correctamente');
     } catch (e) {
-      message.error('No se pudo exportar el respaldo');
+      toast.error('No se pudo exportar el respaldo. Verifica el almacenamiento disponible.');
     }
   };
 
@@ -102,21 +102,21 @@ const Ajustes: React.FC = () => {
         const text = await file.text();
         const data = JSON.parse(text);
         if (typeof data !== 'object' || Array.isArray(data)) {
-          message.error('Formato de archivo inválido');
+          toast.error('Formato de archivo inválido');
           return;
         }
         const wmKeys = Object.keys(data).filter(k => k.startsWith('wm_'));
         if (wmKeys.length === 0) {
-          message.warning('El archivo no contiene datos válidos de CONSTRUSMART');
+          toast.warning('El archivo no contiene datos válidos de CONSTRUSMART');
           return;
         }
         for (const k of wmKeys) {
           localStorage.setItem(k, data[k]);
         }
-        message.success(`Importados ${wmKeys.length} registros desde ${file.name}`);
+        toast.success(`Importados ${wmKeys.length} registros desde ${file.name}`);
         window.location.reload();
       } catch (err) {
-        message.error('Error al leer el archivo de respaldo');
+        toast.error('Error al leer el archivo de respaldo');
       }
     };
     input.click();

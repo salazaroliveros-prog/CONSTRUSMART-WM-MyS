@@ -88,7 +88,7 @@ export const EntradasAlmacenOC: React.FC = () => {
       <div className="flex flex-wrap gap-3 mb-4">
         <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
           {(['todas', 'pendientes', 'aprobadas'] as const).map(f => (
-            <button key={f} onClick={() => setOcFilter(f)}
+            <button key={f} onClick={() => setOcFilter(f)} aria-label={f === 'todas' ? 'Todas las OC' : f === 'pendientes' ? 'OC Pendientes' : 'OC Aprobadas'}
               className={`px-3 py-1.5 rounded text-xs font-medium ${
                 ocFilter === f ? 'bg-card shadow text-blue-700' : 'text-gray-500'
               }`}>
@@ -103,13 +103,13 @@ export const EntradasAlmacenOC: React.FC = () => {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-100">
-              <th className="p-2 text-left">Proveedor</th>
-              <th className="p-2 text-left">Material</th>
-              <th className="p-2 text-right">Cantidad OC</th>
-              <th className="p-2 text-right">Monto</th>
-              <th className="p-2 text-left">Estado</th>
-              <th className="p-2 text-right">Recibir</th>
-              <th className="p-2 text-right">Validación</th>
+              <th className="p-2 text-left" scope="col">Proveedor</th>
+              <th className="p-2 text-left" scope="col">Material</th>
+              <th className="p-2 text-right" scope="col">Cantidad OC</th>
+              <th className="p-2 text-right" scope="col">Monto</th>
+              <th className="p-2 text-left" scope="col">Estado</th>
+              <th className="p-2 text-right" scope="col">Recibir</th>
+              <th className="p-2 text-right" scope="col">Validación</th>
             </tr>
           </thead>
           <tbody>
@@ -135,7 +135,7 @@ export const EntradasAlmacenOC: React.FC = () => {
                   </td>
                   <td className="p-2 text-right">
                     {saldo > 0 ? (
-                      <button onClick={() => { setShowForm(oc.id); setFormCantidad(saldo); setFormErrors({}); }}
+                      <button onClick={() => { setShowForm(oc.id); setFormCantidad(saldo); setFormErrors({}); }} aria-label={`Recibir ${oc.material} de ${oc.proveedor}`}
                         className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
                         + Recibir
                       </button>
@@ -165,7 +165,7 @@ export const EntradasAlmacenOC: React.FC = () => {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Registrar Recepción">
           <div className="bg-card rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4">Registrar Recepción</h3>
             <p className="text-sm text-gray-500 mb-3">
@@ -181,11 +181,11 @@ export const EntradasAlmacenOC: React.FC = () => {
                 {formErrors.cantidad && <p className="text-xs text-red-500 mt-0.5">{formErrors.cantidad}</p>}
               </div>
               <div className="flex gap-2">
-                <button onClick={() => handleReception(showForm)}
+                <button onClick={() => handleReception(showForm)} aria-label="Confirmar Recepción"
                   className="flex-1 bg-green-600 text-white py-2 rounded text-sm hover:bg-green-700">
                   <CheckCircle className="w-4 h-4" aria-hidden="true" /> Confirmar Recepción
                 </button>
-                <button onClick={() => setShowForm(null)}
+                <button onClick={() => setShowForm(null)} aria-label="Cancelar recepción"
                   className="px-4 py-2 border rounded text-sm hover:bg-gray-50">
                   Cancelar
                 </button>
@@ -204,12 +204,12 @@ export const EntradasAlmacenOC: React.FC = () => {
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-gray-50">
                 <tr>
-                  <th className="p-2 text-left text-xs">Fecha</th>
-                  <th className="p-2 text-left text-xs">Proveedor</th>
-                  <th className="p-2 text-left text-xs">Material</th>
-                  <th className="p-2 text-right text-xs">Recibido</th>
-                  <th className="p-2 text-right text-xs">OC</th>
-                  <th className="p-2 text-right text-xs">Diferencia</th>
+                  <th className="p-2 text-left text-xs" scope="col">Fecha</th>
+                  <th className="p-2 text-left text-xs" scope="col">Proveedor</th>
+                  <th className="p-2 text-left text-xs" scope="col">Material</th>
+                  <th className="p-2 text-right text-xs" scope="col">Recibido</th>
+                  <th className="p-2 text-right text-xs" scope="col">OC</th>
+                  <th className="p-2 text-right text-xs" scope="col">Diferencia</th>
                 </tr>
               </thead>
               <tbody>
@@ -232,7 +232,10 @@ export const EntradasAlmacenOC: React.FC = () => {
       )}
 
       {ocFiltradas.length === 0 && (
-        <p className="text-gray-400 text-sm text-center py-8">{t('logistica.no_oc_validar')}</p>
+        <div className="text-center py-10 text-muted-foreground">
+          <Package className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" />
+          <p className="text-sm">{t('logistica.no_oc_validar')}</p>
+        </div>
       )}
     </div>
   );

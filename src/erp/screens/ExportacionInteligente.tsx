@@ -515,7 +515,10 @@ const ExportacionInteligente: React.FC = () => {
         )}
 
         {reportes.length === 0 ? (
-          <p className="text-xs text-muted-foreground text-center py-6">{t('exportacion.sin_reportes', 'Sin reportes programados. Crea uno para recibirlo periódicamente.')}</p>
+          <div className="text-center py-10 text-muted-foreground">
+            <Download className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" />
+            <p className="text-xs">{t('exportacion.sin_reportes', 'Sin reportes programados. Crea uno para recibirlo periódicamente.')}</p>
+          </div>
         ) : (
           <div className="space-y-2">
             {reportes.map(r => (

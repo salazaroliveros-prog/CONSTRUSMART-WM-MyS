@@ -242,9 +242,10 @@ const GestionDocumental: React.FC = () => {
             <button
               key={tabItem.id}
               onClick={() => setTab(tabItem.id)}
+              aria-label={tabItem.label}
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all ${active ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'}`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-4 h-4" aria-hidden="true" />
               <span className="hidden sm:inline">{tabItem.label}</span>
             </button>
           );
@@ -257,8 +258,8 @@ const GestionDocumental: React.FC = () => {
             <h2 className="font-bold text-foreground text-sm flex items-center gap-1.5">
               <FileText className="w-4 h-4 text-info" /> {t('gestion_documental.planos_titulo', 'Planos por Disciplina')}
             </h2>
-            <button onClick={() => { setShowPlanoForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-info text-info-foreground rounded-lg text-xs font-medium hover:bg-info/90">
-              <Upload className="w-3.5 h-3.5" /> {t('gestion_documental.subir_plano', 'Subir Plano')}
+            <button onClick={() => { setShowPlanoForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-info text-info-foreground rounded-lg text-xs font-medium hover:bg-info/90" aria-label={t('gestion_documental.subir_plano', 'Subir Plano')}>
+              <Upload className="w-3.5 h-3.5" aria-hidden="true" /> {t('gestion_documental.subir_plano', 'Subir Plano')}
             </button>
           </div>
 
@@ -317,7 +318,7 @@ const GestionDocumental: React.FC = () => {
                       {p.descripcion && <p className="text-xs text-muted-foreground mt-1">{p.descripcion}</p>}
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2">
-                      <button onClick={() => addVersionPlano(p.id)} className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600" title={t('gestion_documental.nueva_version', 'Nueva versión')}>+v</button>
+                      <button onClick={() => addVersionPlano(p.id)} className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600" aria-label={t('gestion_documental.nueva_version', 'Nueva versión')} title={t('gestion_documental.nueva_version', 'Nueva versión')}>+v</button>
                       <button onClick={() => togglePlanoEstado(p.id)} className={`px-2 py-1 rounded text-xs ${p.estado === 'vigente' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}>
                         {p.estado === 'vigente' ? t('gestion_documental.obsoleto', 'Obsoleto') : t('gestion_documental.activar', 'Activar')}
                       </button>

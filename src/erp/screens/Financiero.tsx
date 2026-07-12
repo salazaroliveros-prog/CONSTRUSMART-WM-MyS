@@ -191,7 +191,7 @@ const Financiero: React.FC = () => {
                           </button>
                         </td>
                       </tr>
-                    )) : <tr><td colSpan={3} className="p-4 text-center text-muted-foreground">{t('financiero.no_hay_movimientos')}</td></tr>}
+                    )) : <tr><td colSpan={3} className="p-4 text-center text-muted-foreground"><Wallet className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('financiero.no_hay_movimientos')}</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -215,7 +215,7 @@ const Financiero: React.FC = () => {
                     <td className={`text-right ${COLOR_DANGER}`}>{fmtQ(c.gas)}</td>
                     <td className={`text-right font-bold ${c.margen >= 0 ? 'text-foreground' : COLOR_DANGER}`}>{fmtQ(c.margen)}</td>
                   </tr>
-                )) : <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">{t('financiero.sin_centros_costo')}</td></tr>}
+                )) : <tr><td colSpan={6} className="p-4 text-center text-muted-foreground"><TrendingDown className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('financiero.sin_centros_costo')}</td></tr>}
               </tbody>
             </table>
           </div>

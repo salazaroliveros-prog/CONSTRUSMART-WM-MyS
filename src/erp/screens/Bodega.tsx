@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Modal } from 'antd';
+import { confirmAction } from '@/lib/confirm-action';
 import { useErp } from '../store';
 import { fmtQ, fmtPct, todayISO } from '../utils';
 import { useTranslation } from 'react-i18next';
@@ -219,7 +219,7 @@ const Bodega: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-border">
                 {materiales.length === 0 ? (
-                  <tr><td colSpan={5} className="px-3 py-8 text-center text-sm text-muted-foreground">{t('bodega.sin_materiales')}</td></tr>
+                  <tr><td colSpan={5} className="px-3 py-8 text-center text-sm text-muted-foreground"><Warehouse className="w-8 h-8 mx-auto mb-2 opacity-40" aria-hidden="true" />{t('bodega.sin_materiales')}</td></tr>
                 ) : materiales.map(m => {
                   const planificado = m.cantidadPresupuestada ?? 0;
                   const desv = planificado > 0 ? ((m.stock - planificado) / Math.max(planificado, 1)) * 100 : 0;
@@ -275,7 +275,7 @@ const Bodega: React.FC = () => {
             </div>
             <div className="divide-y divide-border max-h-56 overflow-y-auto">
               {ordenes.length === 0 ? (
-                <div className="p-4 text-center text-sm text-muted-foreground">{t('bodega.sin_ordenes')}</div>
+                <div className="p-4 text-center text-sm text-muted-foreground"><AlertTriangle className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('bodega.sin_ordenes')}</div>
               ) : ordenes.map(o => (
                 <div key={o.id} className="p-3 text-xs">
                   <div className="flex justify-between">
@@ -293,7 +293,9 @@ const Bodega: React.FC = () => {
                   <div className="text-muted-foreground mt-0.5">{o.proveedor} · {o.cantidad} u · {fmtQ(o.monto)}</div>
                   {o.estado === 'pendiente' && (
                     <div className="flex gap-1 mt-1.5">
-                       <button onClick={async () => { try { await Modal.confirm({ title: t('bodega.aprobar_orden'), content: t('bodega.aprobar_orden_confirm'), centered: true, okText: t('bodega.si_aprobar'), cancelText: t('common.cancelar') }); updateOrden(o.id, { estado: 'aprobado' }); } catch {} }}
+                       <button onClick={async () => { try { await confirmAction({ title: t('bodega.aprobar_orden'), content: t('bodega.aprobar_orden_confirm'), centered: true, okText: t('bodega.si_aprobar'), cancelText: t('common.cancelar') }); updateOrden(o.id, { estado: 'aprobado' }); } catch {} }}
+
+
                          aria-label={t('bodega.aprobar_orden_aria', { material: o.material })}
                          className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
                         <Check className="w-3 h-3" aria-hidden="true" /> {t('bodega.aprobar')}
@@ -316,7 +318,7 @@ const Bodega: React.FC = () => {
         <h3 className="font-bold text-foreground text-sm mb-3">{t('bodega.proveedores')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {proveedores.length === 0 ? (
-            <div className="col-span-full text-center py-6 text-sm text-muted-foreground">{t('bodega.sin_proveedores')}</div>
+            <div className="col-span-full text-center py-6 text-sm text-muted-foreground"><Star className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('bodega.sin_proveedores')}</div>
           ) : proveedores.map(p => (
             <div key={p.id} className="bg-muted rounded-xl p-3 flex items-center justify-between">
               <div>

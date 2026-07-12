@@ -137,7 +137,7 @@ export const LogisticaCompras: React.FC = () => {
         <button onClick={() => { setShowForm('activo'); setForm({}); setFormErrors({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded text-xs hover:bg-primary/90">{t('logistica.nuevo_activo', 'Nuevo Activo')}</button>
       </div>
-      {activos.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t('logistica.sin_activos', 'No hay activos registrados')}</p>}
+      {activos.length === 0 && <div className="text-center py-10 text-muted-foreground"><Wrench className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('logistica.sin_activos', 'No hay activos registrados')}</p></div>}
       {activos.length > 0 && (
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -176,7 +176,7 @@ export const LogisticaCompras: React.FC = () => {
         <button onClick={() => { setShowForm('cuadro'); setForm({}); setFormErrors({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded text-xs hover:bg-primary/90">{t('logistica.nueva_solicitud', 'Nueva Solicitud')}</button>
       </div>
-      {cuadros.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t('logistica.sin_cuadros', 'Sin solicitudes de cotización')}</p>}
+      {cuadros.length === 0 && <div className="text-center py-10 text-muted-foreground"><BarChart3 className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('logistica.sin_cuadros', 'Sin solicitudes de cotización')}</p></div>}
       {cuadros.length > 0 && (
       <div className="grid gap-3">
         {cuadros.map(c => (
@@ -228,7 +228,7 @@ export const LogisticaCompras: React.FC = () => {
         <button onClick={() => { setShowForm('pago'); setForm({}); setFormErrors({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded text-xs hover:bg-primary/90">+ {t('logistica.nuevo_pago', 'Nuevo Pago')}</button>
       </div>
-      {(pagosProveedor || []).length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t('logistica.sin_pagos', 'Sin pagos registrados')}</p>}
+      {(pagosProveedor || []).length === 0 && <div className="text-center py-10 text-muted-foreground"><DollarSign className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('logistica.sin_pagos', 'Sin pagos registrados')}</p></div>}
       {(pagosProveedor || []).length > 0 && (
       <div className="overflow-x-auto">
         <table className="w-full text-sm">

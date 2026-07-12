@@ -7,7 +7,7 @@ import { Progress, Gauge, BarChart, LineChart } from '../components/Charts';
 import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
 import { CARD, CARD_TITLE, INPUT } from '../ui';
-import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X, CalendarClock } from 'lucide-react';
+import { ClipboardCheck, Plus, CloudRain, Camera, Pencil, Trash2, Save, X, CalendarClock, SearchX, Database, BarChart3, GitBranch } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
@@ -168,7 +168,7 @@ const Seguimiento: React.FC = () => {
           </thead>
           <tbody>
             {proyData.length === 0 ? (
-              <tr><td colSpan={6} className="p-6 text-center text-xs text-muted-foreground">{t('seguimiento.sin_proyectos_supabase')}</td></tr>
+              <tr><td colSpan={6} className="p-6 text-center text-xs text-muted-foreground"><SearchX className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('seguimiento.sin_proyectos_supabase')}</td></tr>
             ) : proyData.map(p => (
               <tr key={p.id} className="border-t border-border/50 hover:bg-muted/40 transition-colors">
                 <td className="p-3">
@@ -269,7 +269,7 @@ const Seguimiento: React.FC = () => {
             ]} palette={barConfig.palette} />
           </>
         ) : (
-          <div className="p-6 text-center text-xs text-muted-foreground">{t('seguimiento.selecciona_proyecto_evm_empty')}</div>
+          <div className="p-6 text-center text-xs text-muted-foreground"><Database className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('seguimiento.selecciona_proyecto_evm_empty')}</div>
         )}
       </div>
 
@@ -277,7 +277,7 @@ const Seguimiento: React.FC = () => {
         <h3 className={CARD_TITLE}>{t('seguimiento.registros_evm')}</h3>
         <div className="space-y-2 mt-3 max-h-[460px] overflow-y-auto pr-1">
           {evmProyecto.length === 0 ? (
-            <p className="text-xs text-muted-foreground">{t('seguimiento.sin_registros_evm')}</p>
+            <div className="text-center py-4"><BarChart3 className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" /><p className="text-xs text-muted-foreground">{t('seguimiento.sin_registros_evm')}</p></div>
           ) : evmProyecto.map(s => (
             <div key={s.id} className="rounded-lg bg-muted p-2 text-xs">
               <div className="flex items-center justify-between font-semibold">
@@ -301,7 +301,7 @@ const Seguimiento: React.FC = () => {
       <div className={`${CARD} lg:col-span-2`}>
         <h3 className={`${CARD_TITLE} flex items-center gap-1`}><Camera className="w-4 h-4 text-emerald-500" aria-hidden="true" /> {t('seguimiento.bitacora_reciente')}</h3>
         <div className="space-y-2 mt-3 max-h-[520px] overflow-y-auto pr-1">
-          {bitacora.length === 0 && <p className="text-xs text-muted-foreground">{t('seguimiento.sin_entradas_bitacora')}</p>}
+          {bitacora.length === 0 && <div className="text-center py-4"><Camera className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" /><p className="text-xs text-muted-foreground">{t('seguimiento.sin_entradas_bitacora')}</p></div>}
           {bitacora.slice(0, 20).map(b => (
             <div key={b.id} className="bg-muted rounded-lg p-2 text-xs">
               <div className="flex justify-between items-start gap-2">
@@ -393,7 +393,7 @@ const Seguimiento: React.FC = () => {
               </thead>
               <tbody>
                 {avanceData.length === 0 ? (
-                  <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">{t('seguimiento.sin_avances')}</td></tr>
+                  <tr><td colSpan={6} className="p-6 text-center text-muted-foreground"><ClipboardCheck className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('seguimiento.sin_avances')}</td></tr>
                 ) : avanceData.map((a: AvanceObra) => (
                   <tr key={a.id} className="border-t border-border/50">
                     <td className="p-3">{a.fecha}</td>
@@ -432,7 +432,7 @@ const Seguimiento: React.FC = () => {
         </div>
       </div>
       {ganttItems.length > 0 ? <GanttChart items={ganttItems} /> : (
-        <div className="p-6 text-center text-xs text-muted-foreground">{t('seguimiento.sin_hitos_fechas')}</div>
+        <div className="p-6 text-center text-xs text-muted-foreground"><GitBranch className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('seguimiento.sin_hitos_fechas')}</div>
       )}
     </div>
   );

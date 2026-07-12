@@ -354,7 +354,15 @@ const BasePrecios: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(ins => {
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-muted-foreground">
+                    <Database className="w-10 h-10 mx-auto mb-2 text-muted-foreground/60" aria-hidden="true" />
+                    <p className="text-sm font-medium">{t('baseprecios.sin_insumos', 'No hay insumos en la base de precios')}</p>
+                    <p className="text-xs mt-1">{t('baseprecios.sin_insumos_desc', 'Agrega insumos o ajusta los filtros de búsqueda')}</p>
+                  </td>
+                </tr>
+              ) : filtered.map(ins => {
                 const costoBase = ins.costo_base ?? 0;
                 const precioZona = +(costoBase * factorZona).toFixed(2);
                 const inactivo = !ins.activo;

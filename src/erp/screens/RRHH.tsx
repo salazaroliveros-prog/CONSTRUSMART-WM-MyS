@@ -205,6 +205,7 @@ const RRHH: React.FC = () => {
               {empleadosFiltrados.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center p-8 text-muted-foreground">
+                    <Users className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />
                     {t('rrhh.noEmployees')}
                   </td>
                 </tr>

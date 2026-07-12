@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { z } from 'zod';
-import { sanitizarObjeto } from '@/lib/security';
+import { sanitizarObjeto, canUserDelete } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
 import { supabase, projectRef } from '@/lib/supabase';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance, validateForeignKey as validateForeignKeyInArray } from './utils';
@@ -21,6 +21,7 @@ import type { ErrorLogEntry } from './store/schemas/errorLog';
 import type { AppSettings, Mutation, LogAuditoria } from './types';
 import type { ProyectoWeather } from './store/schemas/weather';
 import type { ProjectProfitability, ClientProfitability, ResourceEfficiency, ProfitabilityTrend } from './store/schemas/profitability';
+import type { ResourceConflict } from './types/conflicts';
 
 const RATE_LIMIT_MS = 100;
 const lastMutationCall: Record<string, number> = {};
@@ -114,8 +115,9 @@ interface ErpData {
   auditLog: LogAuditoria[]; syncStatus: 'idle' | 'loading' | 'synced' | 'queued' | 'error';
   lastSyncedAt?: string; syncError?: string;
   isOnline: boolean; currentProjectId: string | null; appSettings: AppSettings;
-  proyectoWeather: ProyectoWeather[];
+  userRol: string | null; proyectoWeather: ProyectoWeather[];
   errorLogs: ErrorLogEntry[];
+  resourceConflicts: ResourceConflict[];
 }
 
 interface ErpActions {
@@ -210,9 +212,11 @@ interface ErpActions {
   toggleFavoritoPlantilla: (plantillaId: string) => void;
   updateProyectoWeather: (proyectoId: string, weatherData: any, impact: any) => void;
   getProyectoWeather: (proyectoId: string) => ProyectoWeather | undefined;
+  setUserRol: (rol: string | null) => void;
   enqueueMutation: (type: string, payload: Record<string, any>) => string;
   addAuditEntry: (entry: Omit<LogAuditoria, 'id' | 'createdAt'>) => void;
   setAuditLog: (v: LogAuditoria[] | ((prev: LogAuditoria[]) => LogAuditoria[])) => void;
+  setResourceConflicts: (v: ResourceConflict[] | ((prev: ResourceConflict[]) => ResourceConflict[])) => void;
   getSupplierPerformance: (proveedorId: string) => any;
   getAllSupplierPerformance: (filtroProyectoId?: string) => any[];
   updateAvance: (id: string, patch: Partial<AvanceObra>) => void;
@@ -502,10 +506,12 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   notificaciones: [],
   auditLog: [],
   isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
+  userRol: null,
   currentProjectId: null,
   appSettings: APP_SETTINGS_DEFAULTS,
   proyectoWeather: [],
   errorLogs: [],
+  resourceConflicts: [],
 
   setProyectos: (v) => set(typeof v === 'function' ? { proyectos: v(get().proyectos) } : { proyectos: v }),
   setMovimientos: (v) => set(typeof v === 'function' ? { movimientos: v(get().movimientos) } : { movimientos: v }),
@@ -549,6 +555,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setInsumosBase: (v) => set(typeof v === 'function' ? { insumosBase: v(get().insumosBase) } : { insumosBase: v }),
   setProyectoWeather: (v) => set(typeof v === 'function' ? { proyectoWeather: v(get().proyectoWeather) } : { proyectoWeather: v }),
   setErrorLogs: (v) => set(typeof v === 'function' ? { errorLogs: v(get().errorLogs) } : { errorLogs: v }),
+  setResourceConflicts: (v) => set(typeof v === 'function' ? { resourceConflicts: v(get().resourceConflicts) } : { resourceConflicts: v }),
   resolveError: (id, notes) => {
     set(s => ({
       errorLogs: s.errorLogs.map(e =>
@@ -598,8 +605,15 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   },
   setAuditLog: (v) => set(typeof v === 'function' ? { auditLog: v(get().auditLog) } : { auditLog: v }),
 
+  setUserRol: (rol) => set({ userRol: rol }),
+
   enqueueMutation: (type, payload) => {
     if (!checkRateLimit(type)) return '';
+    const rol = get().userRol;
+    if (type.startsWith('delete') && !canUserDelete(rol as any)) {
+      safeLogger.warn(`[Security] Denied ${type} — rol=${rol} no tiene permisos de eliminación`);
+      return '';
+    }
     const sanitized = sanitizarObjeto(payload);
     const safePayload = toSnake(sanitized);
     if (!safePayload.created_at && (type.startsWith('add') || type === 'clonarPlantilla')) {

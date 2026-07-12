@@ -260,11 +260,12 @@ const SSOCalidad: React.FC = () => {
             <button
               key={tabItem.id}
               onClick={() => setTab(tabItem.id)}
+              aria-label={tabItem.label}
               className={`shrink-0 flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-all ${
                 active ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-muted-foreground hover:bg-card/50'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-4 h-4" aria-hidden="true" />
               <span className="hidden sm:inline">{tabItem.label}</span>
             </button>
           );
