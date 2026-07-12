@@ -147,10 +147,36 @@ BEGIN
 END $$;
 
 -- 6. Realtime para tablas nuevas
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_notificaciones;
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_plantillas_proyectos;
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_comentarios_muro;
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS erp_ventas_paquetes;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'erp_notificaciones'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE erp_notificaciones;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'erp_plantillas_proyectos'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE erp_plantillas_proyectos;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'erp_comentarios_muro'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE erp_comentarios_muro;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'erp_ventas_paquetes'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE erp_ventas_paquetes;
+  END IF;
+END $$;
 
 -- 7. Auditoria: log de cambios
 INSERT INTO erp_audit_log (tabla, operacion, id_registro, datos_anteriores, datos_nuevos, usuario_id)

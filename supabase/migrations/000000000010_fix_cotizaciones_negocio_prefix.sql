@@ -41,4 +41,12 @@ CREATE INDEX IF NOT EXISTS idx_erp_cotizaciones_negocio_fecha
 
 ALTER TABLE erp_cotizaciones_negocio REPLICA IDENTITY FULL;
 
-ALTER PUBLICATION supabase_realtime ADD TABLE erp_cotizaciones_negocio;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'erp_cotizaciones_negocio'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE erp_cotizaciones_negocio;
+  END IF;
+END $$;

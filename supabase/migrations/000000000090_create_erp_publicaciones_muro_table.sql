@@ -55,7 +55,15 @@ CREATE POLICY "Users can delete own publicaciones"
   USING (autor_id = auth.uid());
 
 -- Add to realtime publication
-ALTER PUBLICATION supabase_realtime ADD TABLE public.erp_publicaciones_muro;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'erp_publicaciones_muro'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.erp_publicaciones_muro;
+  END IF;
+END $$;
 
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_erp_publicaciones_muro_proyecto_id ON public.erp_publicaciones_muro(proyecto_id);
