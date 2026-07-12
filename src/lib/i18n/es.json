@@ -1811,6 +1811,7 @@
     "no_hay_anticipos": "No hay anticipos registrados",
     "no_hay_gastos": "No hay gastos de caja chica",
     "no_hay_ventas": "No hay ventas registradas",
+    "error_proyecto": "Selecciona un proyecto",
     "total_aprobado": "Total Aprobado",
     "pendientes": "Pendientes",
     "aprobados": "Aprobados"
