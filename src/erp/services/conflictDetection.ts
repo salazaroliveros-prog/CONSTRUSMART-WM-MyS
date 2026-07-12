@@ -8,6 +8,8 @@ import type {
 import type { Proyecto, Empleado, Material, ActivoHerramienta } from '../types';
 import { uid } from '../store';
 
+// Smart Resource Conflict Detection Service
+
 export class ConflictDetectionService {
   detectEmployeeConflicts(
     empleados: Empleado[], 
