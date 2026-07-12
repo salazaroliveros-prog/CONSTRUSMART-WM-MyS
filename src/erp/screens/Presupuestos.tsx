@@ -14,10 +14,11 @@ import { Plus, ChevronDown, ChevronRight, Trash2, FileText, FileSpreadsheet, Cal
 import PresupuestosList from '../components/PresupuestosList';
 import { MATERIALES_POR_ACTIVIDAD, PERSONAL_POR_ACTIVIDAD, ACTIVIDADES_TIPICAS, ACTIVIDAD_POR_RENGLON } from '../data/catalogos-presupuestos';
 import { presupuestoFormSchema } from '../store/schemas/presupuestos';
+import { canUserDelete } from '@/lib/security';
 
 const Presupuestos: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, currentProjectId, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores, updateProyecto, materiales, updateMaterial, addMaterial } = useErp();
+  const { proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, presupuestos, currentProjectId, movimientos, addMovimiento, addNotificacion, addOrden, addProveedor, proveedores, updateProyecto, materiales, updateMaterial, addMaterial, user } = useErp();
   const [tab, setTab] = useState<'crear' | 'guardados'>('crear');
   const [tipologia, setTipologia] = useState<Tipologia>('residencial');
   const [proyecto, setProyecto] = useState('Nuevo Presupuesto');
@@ -532,6 +533,14 @@ const Presupuestos: React.FC = () => {
     exportPDF(p.renglones || [], p.notas || 'Presupuesto', p.tipologia);
   };
 
+  const handleDeletePresupuesto = (id: string) => {
+    if (!canUserDelete(user?.rol)) {
+      toast.error(t('common.sin_permisos', 'Sin permisos'));
+      return;
+    }
+    deletePresupuesto(id);
+  };
+
   const presupuestosDelProyecto = projectId ? presupuestos
     .filter(p => p.proyectoId === projectId)
     .sort((a, b) => new Date(b.fechaActualizacion).getTime() - new Date(a.fechaActualizacion).getTime())
@@ -613,7 +622,7 @@ const Presupuestos: React.FC = () => {
           <PresupuestosList 
             presupuestos={presupuestosDelProyecto}
             onEdit={handleEditPresupuesto}
-            onDelete={deletePresupuesto}
+            onDelete={handleDeletePresupuesto}
             onDuplicate={handleDuplicatePresupuesto}
             onExport={handleExportPresupuesto}
             onApprove={handleApprovePresupuesto}
