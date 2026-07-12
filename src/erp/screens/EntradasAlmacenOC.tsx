@@ -3,12 +3,14 @@ import { Package, CheckCircle, AlertTriangle, ClipboardList } from 'lucide-react
 import { useErp } from '../store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 
 const recepcionSchema = z.object({
   cantidad: z.number().min(0.01, 'Cantidad debe ser mayor a 0'),
 });
 
 export const EntradasAlmacenOC: React.FC = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const { ordenes, updateOrden, recepciones, addRecepcion } = useErp();
@@ -230,9 +232,7 @@ export const EntradasAlmacenOC: React.FC = () => {
       )}
 
       {ocFiltradas.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-400 text-sm">No hay órdenes de compra para validar.</p>
-        </div>
+        <p className="text-gray-400 text-sm text-center py-8">{t('logistica.no_oc_validar')}</p>
       )}
     </div>
   );

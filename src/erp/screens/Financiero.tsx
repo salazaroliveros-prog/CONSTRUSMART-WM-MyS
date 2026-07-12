@@ -8,10 +8,12 @@ import MovimientoForm from '../components/MovimientoForm';
 import { Wallet, Trash2, TrendingUp, TrendingDown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { COLOR_SUCCESS, COLOR_DANGER, COLOR_PRIMARY } from '../ui';
+import { useTranslation } from 'react-i18next';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899', '#14b8a6', '#a855f7', '#f43f5e'];
 
 const Financiero: React.FC = () => {
+  const { t } = useTranslation();
   const { movimientos, deleteMovimiento, proyectos, centrosCosto } = useErp();
   const [filtro, setFiltro] = useState<'todos' | 'ingreso' | 'gasto'>('todos');
   const [loading, setLoading] = useState(true);
@@ -153,7 +155,7 @@ const Financiero: React.FC = () => {
           <div className="flex items-center gap-3">
              <Donut size={130} data={porCategoria.length ? porCategoria : [{ label: '-', value: 1, color: 'hsl(var(--border))' }]} />
              <div className="text-xs space-y-1 flex-1 max-h-32 overflow-y-auto">
-               {porCategoria.length > 0 ? porCategoria.map((c, i) => <div key={c.label || `cat-${i}`} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full bg-primary" />{c.label || 'Otros'}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>) : <p className="text-muted-foreground text-center py-2">Sin gastos registrados</p>}
+               {porCategoria.length > 0 ? porCategoria.map((c, i) => <div key={c.label || `cat-${i}`} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full bg-primary" />{c.label || 'Otros'}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>) : <p className="text-muted-foreground text-center py-2">{t('financiero.sin_gastos')}</p>}
             </div>
           </div>
         </div>
@@ -189,7 +191,7 @@ const Financiero: React.FC = () => {
                           </button>
                         </td>
                       </tr>
-                    )) : <tr><td colSpan={3} className="p-4 text-center text-muted-foreground">No hay movimientos registrados</td></tr>}
+                    )) : <tr><td colSpan={3} className="p-4 text-center text-muted-foreground">{t('financiero.no_hay_movimientos')}</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -213,7 +215,7 @@ const Financiero: React.FC = () => {
                     <td className={`text-right ${COLOR_DANGER}`}>{fmtQ(c.gas)}</td>
                     <td className={`text-right font-bold ${c.margen >= 0 ? 'text-foreground' : COLOR_DANGER}`}>{fmtQ(c.margen)}</td>
                   </tr>
-                )) : <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">Sin centros de costo registrados</td></tr>}
+                )) : <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">{t('financiero.sin_centros_costo')}</td></tr>}
               </tbody>
             </table>
           </div>

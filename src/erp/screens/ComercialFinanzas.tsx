@@ -119,7 +119,7 @@ export const ComercialFinanzas: React.FC = () => {
           </tbody>
         </table>
       </div>
-      {ventas.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">No hay ventas registradas</p>}
+      {ventas.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t('comercial.no_hay_ventas')}</p>}
     </div>
   );
 
@@ -185,7 +185,7 @@ export const ComercialFinanzas: React.FC = () => {
           );
         })}
       </div>
-      {anticipos.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">No hay anticipos registrados</p>}
+      {anticipos.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t('comercial.no_hay_anticipos')}</p>}
     </div>
   );
 
@@ -260,7 +260,7 @@ export const ComercialFinanzas: React.FC = () => {
           </tbody>
         </table>
       </div>
-      {cajasChicas.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">No hay gastos de caja chica</p>}
+      {cajasChicas.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t('comercial.no_hay_gastos')}</p>}
     </div>
   );
 
