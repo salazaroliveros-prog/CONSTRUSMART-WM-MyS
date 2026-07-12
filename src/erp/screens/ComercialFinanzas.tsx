@@ -16,6 +16,7 @@ export const ComercialFinanzas: React.FC = () => {
   const [showForm, setShowForm] = useState<string | null>(null);
   const [form, setForm] = useState<Record<string, any>>({});
   const [amortInputs, setAmortInputs] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const [loading, setLoading] = useState(true);
   const [ventas, setVentas] = useState<VentaPaquete[]>((ventasPaquetes ?? []) as VentaPaquete[]);
@@ -315,22 +316,28 @@ export const ComercialFinanzas: React.FC = () => {
 
             {showForm === 'venta' && (
               <div className="grid gap-3">
-                <select className={SELECT} value={form.proyectoId || ''} onChange={e => setForm({ ...form, proyectoId: e.target.value })}>
-                  <option value="">Seleccionar proyecto</option>
-                  {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-                </select>
+                <div>
+                  <select className={SELECT} value={form.proyectoId || ''} onChange={e => { setForm({ ...form, proyectoId: e.target.value }); if (formErrors.proyectoId) setFormErrors(f => ({ ...f, proyectoId: '' })); }}>
+                    <option value="">Seleccionar proyecto</option>
+                    {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                  </select>
+                  {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
+                </div>
                 <select className={SELECT} value={form.tipo || 'unidad'} onChange={e => setForm({ ...form, tipo: e.target.value })}>
                   <option value="unidad">Unidad</option><option value="lote">Lote</option><option value="paquete">Paquete</option>
                 </select>
                 <input placeholder="Identificador (ej: Torre A - Apt 301)" className={INPUT} value={form.identificador || ''} onChange={e => setForm({ ...form, identificador: e.target.value })} />
                 <input placeholder="Precio de venta Q" type="number" inputMode="decimal" className={INPUT} value={form.precioVenta || ''} onChange={e => setForm({ ...form, precioVenta: +e.target.value })} />
                 <input placeholder="Cliente (opcional)" className={INPUT} value={form.cliente || ''} onChange={e => setForm({ ...form, cliente: e.target.value })} />
-                <button onClick={() => {
-                  if (!form.proyectoId) { toast.error('Selecciona un proyecto'); return; }
-                  addVenta({ proyectoId: form.proyectoId, tipo: form.tipo || 'unidad', identificador: form.identificador || 'Nueva unidad', precioVenta: form.precioVenta || 0, precioContrato: form.precioVenta || 0, estado: 'disponible', cliente: form.cliente || undefined });
-                  setShowForm(null);
-                  toast.success('Venta registrada');
-                }} className="bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">Guardar</button>
+                  <button onClick={() => {
+                    const errors: Record<string, string> = {};
+                    if (!form.proyectoId) errors.proyectoId = t('comercial.error_proyecto');
+                    setFormErrors(errors);
+                    if (Object.keys(errors).length > 0) return;
+                    addVenta({ proyectoId: form.proyectoId, tipo: form.tipo || 'unidad', identificador: form.identificador || 'Nueva unidad', precioVenta: form.precioVenta || 0, precioContrato: form.precioVenta || 0, estado: 'disponible', cliente: form.cliente || undefined });
+                    setShowForm(null);
+                    toast.success('Venta registrada');
+                  }} className="bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">Guardar</button>
               </div>
             )}
 

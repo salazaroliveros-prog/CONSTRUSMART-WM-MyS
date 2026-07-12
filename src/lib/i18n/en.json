@@ -1347,7 +1347,8 @@
     "facturacion": "Billing",
     "cobranza": "Collections",
     "nueva_venta": "New Sale",
-    "sin_registros": "No commercial records"
+    "sin_registros": "No commercial records",
+    "error_proyecto": "Select a project"
   },
   "cuentas": {
     "cobrar_titulo": "Accounts Receivable",
