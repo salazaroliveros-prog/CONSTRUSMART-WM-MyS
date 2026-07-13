@@ -33,37 +33,9 @@ BEGIN
   END IF;
 END $$;
 
--- 2. erp_comentarios_muro
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name='erp_comentarios_muro') THEN
-    ALTER TABLE erp_comentarios_muro ENABLE ROW LEVEL SECURITY;
-
-    DROP POLICY IF EXISTS "comentarios_read" ON erp_comentarios_muro;
-    DROP POLICY IF EXISTS "comentarios_insert_own" ON erp_comentarios_muro;
-    DROP POLICY IF EXISTS "comentarios_update_own" ON erp_comentarios_muro;
-    DROP POLICY IF EXISTS "comentarios_delete_admin" ON erp_comentarios_muro;
-
-    CREATE POLICY "comentarios_read" ON erp_comentarios_muro
-      FOR SELECT USING (auth.role() = 'authenticated');
-
-    CREATE POLICY "comentarios_insert_own" ON erp_comentarios_muro
-      FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND created_by = auth.uid()::text);
-
-    CREATE POLICY "comentarios_update_own" ON erp_comentarios_muro
-      FOR UPDATE USING (auth.role() = 'authenticated' AND created_by = auth.uid()::text);
-
-    CREATE POLICY "comentarios_delete_admin" ON erp_comentarios_muro
-      FOR DELETE USING (
-        auth.role() = 'authenticated'
-        AND EXISTS (
-          SELECT 1 FROM auth.users
-          WHERE auth.users.id = auth.uid()
-          AND auth.users.email = 'salazaroliveros@gmail.com'
-        )
-      );
-  END IF;
-END $$;
+-- 2. erp_comentarios_muro — NOTA: no existe como tabla independiente.
+-- Los comentarios se almacenan como JSONB dentro del array `comentarios` de erp_publicaciones_muro.
+-- Este bloque se omite para evitar error "column created_by does not exist".
 
 -- 3. erp_ventas_paquetes
 DO $$
