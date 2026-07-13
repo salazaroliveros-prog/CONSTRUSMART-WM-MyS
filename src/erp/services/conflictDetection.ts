@@ -12,12 +12,13 @@ import { uid } from '../store';
 
 export class ConflictDetectionService {
   detectEmployeeConflicts(
-    empleados: Empleado[], 
+    empleados: Empleado[] | null | undefined, 
     proyectos: Proyecto[]
   ): ResourceConflict[] {
     const conflicts: ResourceConflict[] = [];
+    const listaEmpleados = Array.isArray(empleados) ? empleados : [];
     
-    empleados.forEach(empleado => {
+    listaEmpleados.forEach(empleado => {
       if (!empleado.activo || !empleado.proyectoIds || empleado.proyectoIds.length <= 1) return;
       
       const proyectosEmp = empleado.proyectoIds
@@ -65,13 +66,14 @@ export class ConflictDetectionService {
   }
   
   detectMaterialConflicts(
-    materiales: Material[], 
+    materiales: Material[] | null | undefined,
     proyectos: Proyecto[],
     ordenes: any[]
   ): ResourceConflict[] {
     const conflicts: ResourceConflict[] = [];
+    const listaMateriales = Array.isArray(materiales) ? materiales : [];
     
-    materiales.forEach(material => {
+    listaMateriales.forEach(material => {
       const projectUsage = this.calculateMaterialUsage(material.id, proyectos, ordenes);
       
       if (projectUsage.length > 1) {
@@ -120,12 +122,13 @@ export class ConflictDetectionService {
   }
   
   detectAssetConflicts(
-    activos: ActivoHerramienta[], 
+    activos: ActivoHerramienta[] | null | undefined,
     proyectos: Proyecto[]
   ): ResourceConflict[] {
     const conflicts: ResourceConflict[] = [];
+    const listaActivos = Array.isArray(activos) ? activos : [];
     
-    activos.forEach(activo => {
+    listaActivos.forEach(activo => {
       if (!activo.activo || !activo.proyectoIds || activo.proyectoIds.length <= 1) return;
       
       const proyectosActivo = activo.proyectoIds
@@ -319,14 +322,17 @@ export class ConflictDetectionService {
   }
   
   calculateResourceAllocation(
-    empleados: Empleado[],
-    materiales: Material[],
-    activos: ActivoHerramienta[],
+    empleados: Empleado[] | null | undefined,
+    materiales: Material[] | null | undefined,
+    activos: ActivoHerramienta[] | null | undefined,
     proyectos: Proyecto[]
   ): ResourceAllocation[] {
     const allocations: ResourceAllocation[] = [];
+    const listaEmpleados = Array.isArray(empleados) ? empleados : [];
+    const listaMateriales = Array.isArray(materiales) ? materiales : [];
+    const listaActivos = Array.isArray(activos) ? activos : [];
     
-    empleados.forEach(emp => {
+    listaEmpleados.forEach(emp => {
       if (!emp.activo) return;
       const proyectosCount = emp.proyectoIds?.length || 0;
       allocations.push({
@@ -341,7 +347,7 @@ export class ConflictDetectionService {
       });
     });
     
-    materiales.forEach(mat => {
+    listaMateriales.forEach(mat => {
       const usage = this.calculateMaterialUsage(mat.id, proyectos, []);
       const totalRequested = usage.reduce((sum, u) => sum + u.cantidad, 0);
       allocations.push({
@@ -356,7 +362,7 @@ export class ConflictDetectionService {
       });
     });
     
-    activos.forEach(act => {
+    listaActivos.forEach(act => {
       if (!act.activo) return;
       const proyectosCount = act.proyectoIds?.length || 0;
       allocations.push({
@@ -375,9 +381,9 @@ export class ConflictDetectionService {
   }
   
   detectAllConflicts(
-    empleados: Empleado[],
-    materiales: Material[],
-    activos: ActivoHerramienta[],
+    empleados: Empleado[] | null | undefined,
+    materiales: Material[] | null | undefined,
+    activos: ActivoHerramienta[] | null | undefined,
     proyectos: Proyecto[],
     hitos: any[],
     ordenes: any[]
