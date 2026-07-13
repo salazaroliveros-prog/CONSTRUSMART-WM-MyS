@@ -279,7 +279,7 @@ const Administracion: React.FC = () => {
             </>
           )}
           {!metrics && !metricsLoading && (
-            <p className="text-sm text-muted-foreground">Haz clic en "Actualizar" para cargar las métricas.</p>
+            <p className="text-sm text-muted-foreground">Haz clic en &quot;Actualizar&quot; para cargar las m&eacute;tricas.</p>
           )}
         </div>
       )}

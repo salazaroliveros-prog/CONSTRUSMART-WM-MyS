@@ -694,9 +694,6 @@ export class ServicioMotorCalculo {
     }
     return null;
   }
-      return null;
-    }
-  }
 
   /**
    * Obtener snapshots de un cálculo
