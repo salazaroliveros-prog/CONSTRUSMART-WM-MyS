@@ -196,16 +196,6 @@ const BasePrecios: React.FC = () => {
     setFormErrors({});
   };
 
-  if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-56" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-96 rounded-2xl" />
-      </div>
-    );
-  }
-
   const totalValor = filtered.reduce((a, i) => a + (i.costo_base ?? 0), 0);
   const ITEM_HEIGHT = 36;
   const VIRTUAL_THRESHOLD = 50;
@@ -263,6 +253,16 @@ const BasePrecios: React.FC = () => {
       </tr>
     );
   }, [editando, nuevoNombre, nuevoPrecio, factorZona, t]);
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-96 rounded-2xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
