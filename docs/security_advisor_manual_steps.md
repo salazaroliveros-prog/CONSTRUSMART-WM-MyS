@@ -3,11 +3,9 @@
 ## 1) SQL Editor
 - Ir a: https://supabase.com/dashboard/project/neygzluxugodiwcuctbj/editor
 
-## 2) Ejecutar get_slow_queries()
+## 2) Opcional: get_slow_queries() sin pg_stat_statements
 ```sql
-DROP FUNCTION IF EXISTS public.get_slow_queries();
-
-CREATE FUNCTION public.get_slow_queries()
+CREATE OR REPLACE FUNCTION public.get_slow_queries()
 RETURNS TABLE (
   query text,
   calls bigint,
@@ -19,14 +17,21 @@ LANGUAGE sql
 SECURITY INVOKER
 SET search_path = 'public'
 AS $$
-  SELECT query, calls, total_time, mean_time, rows
-  FROM pg_stat_statements
+  SELECT query,
+         COUNT(*) FILTER (WHERE state = 'active')::bigint AS calls,
+         EXTRACT(EPOCH FROM (now() - query_start)) * 1000 AS total_time,
+         EXTRACT(EPOCH FROM (now() - query_start)) * 1000 AS mean_time,
+         COUNT(*)::bigint AS rows
+  FROM pg_stat_activity
   WHERE query NOT LIKE '%pg_stat_statements%'
-    AND mean_time > 100
+    AND state = 'active'
+  GROUP BY query
   ORDER BY mean_time DESC
   LIMIT 50
 $$;
 ```
+
+Nota: Si aparece `relation "pg_stat_statements" does not exist`, deja esta función tal cual. No habilites `pg_stat_statements` solo para este advisor.
 
 ## 3) Ejecutar get_table_sizes()
 ```sql
