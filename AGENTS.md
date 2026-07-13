@@ -568,7 +568,7 @@ La interfaz visual es **profesional, consistente, accesible y lista para producc
 | `motorCalculo.ts` uses try-direct-first RPC | **MEDIUM** | supabase.rpc() calls at lines 632, 673 | ✅ RESUELTO (queue-first) |
 | BigNumber/decimal.js migration | **MEDIUM** | Financial calcs use IEEE 754 double | ❌ Not implemented |
 | Decimal Zod branded types | **MEDIUM** | No `z.brand()` in any schema | ❌ Not implemented |
-| Connection pooler config | **MEDIUM** | env/supabase.ts — no pooler.supabase.com | ❌ Not implemented |
+| Connection pooler config | **MEDIUM** | env/supabase.ts — N/A para frontend (app sin backend Node.js propio; usa PostgREST/REST API) | ⚠️ N/A |
 | Virtual scrolling in Bodega/Movimientos | **MEDIUM** | react-window only in BasePrecios | ⚠️ Partial |
 | Math.fround usage for DB real(4) | **LOW** | 0 occurrences in codebase | ❌ Not implemented |
 | Partitioning (erp_movimientos, erp_audit_log) | **LOW** | No PARTITION BY in migrations | ❌ Not implemented |
@@ -640,7 +640,7 @@ flowchart LR
 - Migration tracking vía `supabase_migrations.schema_migrations`
 
 **Mejoras Recomendadas (Fase 3):**
-1. **Connection pooler**: Supabase pooler config (ya en CONNECTION_STRING con `pooler.supabase.com`) — ❌ No implementado en env/supabase.ts
+1. **Connection pooler**: N/A para frontend (app sin backend Node.js propio; todas las queries van por PostgREST/REST API)
 2. **Indexes estratégicos**: Crear índices en FK y columnas de filtro frecuente:
    - `erp_proyectos(cliente_id)`, `erp_movimientos(proyecto_id, fecha)`
    - `erp_presupuestos(proyecto_id)`, `erp_ordenes_compra(proveedor_id, estado)` — ✅ IMPLEMENTADO (migración 092 fix)
@@ -703,7 +703,7 @@ flowchart LR
 | 2 | BigNumber/decimal.js | ❌ No implementado | ✅ Correcto |
 | 2 | Decimal Zod branded types | ❌ No implementado | ✅ Correcto |
 | 2 | Calculation engine tests | ✅ Implementado (25+49 tests) | ❌ Marcado como "recomendado" |
-| 3 | Connection pooler | ❌ No implementado | ✅ Correcto |
+| 3 | Connection pooler | ⚠️ N/A (frontend sin backend Node.js) | ⚠️ N/A (ahora marcado como N/A en .md) |
 | 3 | Indexes estratégicos | ✅ Implementado (migración 092) | ❌ Marcado como "recomendado" |
 | 3 | Partitioning | ❌ No implementado | ✅ Correcto |
 | 3 | Backup automation | ✅ Implementado (backup.cjs + workflow) | ❌ Marcado como "recomendado" |

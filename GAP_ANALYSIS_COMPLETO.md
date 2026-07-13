@@ -7,7 +7,7 @@
 **Build:** Exitoso
 **Deploy:** Producción activa en Vercel
 
-**Nota:** Actualizado el 13/07/2026 — Gap Analysis completo de 197 archivos .md vs código. Verificados items de Estrategia Fase 1–3: 11/15 implementados (batch forceSync, Web Worker, React Query SWR, Service Worker, indexes, backup, monitoring, rate limiting, integrity checks, calc engine tests), 4 pendientes (BigNumber, branded types, pooler, partitioning). AGENTS.md, TODO_PENDIENTE.md, GAP_ANALYSIS_COMPLETO.md, docs/PLAN_IMPLEMENTACION.md actualizados.
+**Nota:** Actualizado el 13/07/2026 — Gap Analysis completo de 197 archivos .md vs código. Verificados items de Estrategia Fase 1–3: 11/15 implementados (batch forceSync, Web Worker, React Query SWR, Service Worker, indexes, backup, monitoring, rate limiting en forceSync, integrity checks, calc engine tests). Items pendientes reales confirmados por código: BigNumber, branded types Zod, virtual scrolling (Bodega/Movs), Math.fround, table partitioning, 2FA/MFA, rate limiting APIs externas, Weather alerts/umbrales/comparación/calendario. Connection pooler marcado como N/A (app frontend sin backend Node.js propio). AGENTS.md, TODO_PENDIENTE.md, GAP_ANALYSIS_COMPLETO.md actualizados.
 
 ---
 
@@ -107,7 +107,7 @@
 
 | Item | Prioridad | Estado Actual |
 |------|-----------|---------------|
-| **Connection pooler** configurado | MEDIUM | ❌ No verificado |
+| **Connection pooler** | — | ⚠️ N/A para frontend (app sin backend Node.js propio; usa PostgREST/REST API) |
 | **Índices en columnas de filtro frecuente** (erp_proyectos(cliente), erp_movimientos(proyecto_id, fecha), erp_presupuestos(proyecto_id), erp_ordenes_compra(proveedor, estado)) | HIGH | ✅ IMPLEMENTADO (migración 092 corregida 12/07/2026) |
 | **Partitioning** en tablas grandes (erp_movimientos, erp_audit_log) | LOW | ❌ No implementado |
 | **Backup automation** con cron semanal | MEDIUM | ✅ IMPLEMENTADO (.github/workflows/weekly-backup.yml — pg_dump cada domingo 02:00 UTC, artifact 30 días, secrets: SUPABASE_DB_HOST + SUPABASE_DB_PASSWORD) |
@@ -129,16 +129,16 @@
 | Session timeout (30 min) | `useSessionTimeout` en Shell |
 | Error boundaries en 38 screens | AppLayout.tsx |
 | Content Security Policy | vercel.json |
+| RBAC client-side (getViewsByRole) | Sesión 15 — vistas filtradas por rol |
+| Auditoría de accesos (erp_access_log) | Migración 097 + useAccessLog hook — registra SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED |
+| Rotación de API keys | scripts/rotate-api-keys.cjs |
 
 ### ❌ PENDIENTE
 
 | Item | Prioridad | Estado Actual |
 |------|-----------|---------------|
-| **RBAC client-side** (getViewsByRole) | HIGH | ✅ COMPLETADO (Sesión 15) |
 | **Rate limiting en API endpoints** | MEDIUM | ❌ No implementado |
-| **Auditoría de accesos** (log de inicios de sesión) | MEDIUM | ✅ IMPLEMENTADO (migración 097: erp_access_log + RLS; useAccessLog hook en AppLayout — registra SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED) |
 | **2FA / MFA** | LOW | ❌ No implementado |
-| **Rotación de API keys** | LOW | ✅ IMPLEMENTADO (scripts/rotate-api-keys.cjs) |
 
 ---
 

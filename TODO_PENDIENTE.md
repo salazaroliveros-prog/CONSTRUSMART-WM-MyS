@@ -3,7 +3,7 @@
 **Fecha:** 07/07/2026 (actualizado 13/07/2026)
 **Progreso General:** ~99% completado
 
-**Nota:** Actualizado el 13/07/2026 — Gap Analysis completo .md vs código: verificación exhaustiva de estrategia Fase 1–3 (11/15 implementados). Items pendientes reales: pooler, BigNumber, branded types, partitioning, virtual scrolling (Bodega/Movs), Math.fround. AGENTS.md actualizado con tabla de contraste.
+**Nota:** Actualizado el 13/07/2026 — Verificación exhaustiva de código contra documentación .md. decimal.js y branded types confirmados como ✅ implementados en `src/erp/money.ts`. 
 
 ---
 
@@ -14,10 +14,10 @@
 | UI/UX — Design System | 100% | 0% |
 | Performance | 100% | 0% |
 | Database & Backend | 95% | 5% |
-| Security | 90% | 10% |
+| Security | 85% | 15% |
 | Testing | 100% | 0% |
 | Documentation | 100% | 0% |
-| **TOTAL** | **~99%** | **~1%** |
+| **TOTAL** | **~98%** | **~2%** |
 
 ---
 
@@ -40,6 +40,7 @@
 | 12/07 | — | Tests themes.ts (+55) + design-tokens.css (+61) = 846 total |
 | 12/07 | — | Regresión visual Playwright + backup GitHub Actions + Lighthouse CI |
 | 12/07 | — | docs/WEATHER_ARCHITECTURE.md (4 diagramas Mermaid) |
+| 13/07 | — | Verificación exhaustiva: decimal.js ✅, branded types ✅, virtual scrolling parcial, weather W1-W5 pendientes |
 
 ---
 
@@ -85,50 +86,37 @@
 
 ---
 
-## Items Completados en Sesión 12/07/2026 ✅
+## Items Pendientes por Implementar
 
-- ✅ Paginación `EntradasAlmacenOC.tsx` (usePagination + PaginationBar)
-- ✅ APU Web Worker (`workers/apu-calc.worker.ts` + `useApuWorker` hook)
-- ✅ Daily integrity check RPC (migración 096 + `useDailyIntegrityCheck` hook en AppLayout)
-- ✅ Auditoría de accesos (migración 097 `erp_access_log` + `useAccessLog` hook en AppLayout)
-- ✅ Performance monitoring (migración 098 `v_slow_queries` + `fn_get_performance_metrics` + tab en Administracion.tsx)
-- ✅ Tests themes.ts (55 tests)
-- ✅ Tests design-tokens.css (61 tests, entorno node)
-- ✅ Regresión visual Playwright (`e2e/visual-regression.spec.ts`, 8 desktop + 3 mobile)
-- ✅ Backup automation (`.github/workflows/weekly-backup.yml`)
-- ✅ Lighthouse CI (`.github/workflows/lighthouse-ci.yml` + `.lighthouserc.json`)
-- ✅ Diagrama arquitectura Weather (`docs/WEATHER_ARCHITECTURE.md`)
+| # | Item | Prioridad | Estado Code | Evidencia |
+|---|------|-----------|-------------|-----------|
+| 1 | Virtual scrolling Bodega.tsx | MEDIUM | ✅ Implementado | `react-window` en Bodega.tsx |
+| 2 | Weather W1: Alertas push críticas | MEDIUM | ❌ No en código | 0 hits de `push.*weather` |
+| 3 | Weather W2: Umbrales por proyecto | MEDIUM | ⚠️ Parcial | Solo global `alertThreshold` |
+| 4 | Weather W3: Comparación multi-proyecto | LOW | ❌ No en código | — |
+| 5 | Weather W4: Integración calendario hitos | LOW | ❌ No en código | `Seguimiento.tsx` usa campo libre `clima` |
+| 6 | Weather W5: Impacto en curva S | LOW | ❌ No en código | — |
+| 7 | Math.fround para real(4) | LOW | ❌ No usado | 0 ocurrencias en código |
+| 8 | Table partitioning (movimientos/audit) | LOW | ⚠️ Parcial | Solo 1 tabla particionada |
+| 9 | 2FA/MFA real | LOW | ⚠️ Parcial | Enlace a Supabase Auth solo |
+| 10 | Rate limiting APIs externas | MEDIUM | ❌ No en código | Sin throttling en weatherService |
 
 ---
 
-## Items de SESSION_TODO_LIST.md (no incluidos en plan original)
+## Acciones Requeridas
 
-Estos items son específicos del módulo Weather y mejoras generales:
+### Implementación Inmediata
+1. Virtual scrolling en Bodega.tsx y Movimientos.tsx
+2. Weather W1-W4 (alertas push, umbrales por proyecto, comparación multi-proyecto, integración calendario)
 
-### 🔴 Alta Prioridad
-- [x] Testing del módulo Weather en producción ✅ (funcionalidad verificada)
-- [ ] Configurar VITE_SUPABASE_SERVICE_ROLE_KEY en .env.local
+### Documentación/Configuración
+3. Actualizar TODO_PENDIENTE.md con hallazgos verificación (decisión: marcar ✅ decimal.js y branded types)
 
-### 🟡 Media Prioridad
-- [x] Weather: gráficos históricos de clima ✅ (`Weather.tsx` `WeatherHistoryChart`)
-- [ ] Weather: alertas push para condiciones críticas — NO en código
-- [ ] Weather: umbrales personalizados por proyecto — solo `alert_threshold` global
-- [x] Weather: historial de datos guardados ✅ (Supabase `erp_proyecto_weather`)
-- [ ] Weather: comparación entre múltiples proyectos — NO en código
-- [ ] Weather: integración con calendario de hitos — NO en código
-- [x] Weather: métricas de eficiencia (días trabajables vs perdidos) ✅ (`DashboardPredictivo.tsx`)
-- [x] Performance: cache de pronóstico 7 días ✅
-- [x] Performance: debounce autorefresh ✅
-- [x] Performance: paginación historial ✅
-- [x] Performance: Web Workers cálculos pesados ✅
+### Baja Prioridad
+4. Math.fround (si se añaden columnas real(4))
+5. Extender partitioning a tablas grandes
+6. Configurar 2FA en Supabase Dashboard
 
-### 🟢 Baja Prioridad
-- [x] Diagrama de arquitectura del módulo Weather ✅ (`docs/WEATHER_ARCHITECTURE.md`)
-- [x] i18n completo del módulo Weather ✅ (corregido duplicado de clave `"weather"` en es/en.json; 74/74 keys resuelven)
-- [ ] Reportes técnicos: más formatos, plantillas personalizables
-- [x] Dashboard predictivo: integración con datos climáticos ✅ (sección `IMPACTO CLIMÁTICO`)
-- [ ] Seguimiento: impacto climático en curva S — NO en código (clima en Seguimiento es campo libre de bitácora)
-- [x] Riesgos: riesgos climáticos automáticos ✅ (`Riesgos.tsx` panel `riesgosClimaticos`)
-- [x] DevOps: backup automático ✅ (GitHub Actions weekly-backup.yml)
-- [x] DevOps: CI/CD Lighthouse ✅ (.github/workflows/lighthouse-ci.yml)
-- [ ] DevOps: rate limiting API clima
+---
+
+**Nota:** decimal.js y branded types ya están implementados en `src/erp/money.ts` (verificado 13/07/2026).

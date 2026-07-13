@@ -102,8 +102,9 @@ Esta lista contiene tareas pendientes identificadas durante las sesiones de desa
 
 #### 6. Seguridad (infraestructura)
 - [ ] 2FA / MFA real (requiere Supabase Auth config)
-- [ ] Connection pooler (requiere Supabase Dashboard)
 - [ ] Partitioning en tablas grandes (requiere acceso DB directo)
+- [ ] Rate limiting para APIs externas (weather, etc.)
+- [x] Connection pooler — N/A para frontend (app sin backend Node.js propio; usa PostgREST/REST API)
 
 ---
 
@@ -115,7 +116,8 @@ Esta lista contiene tareas pendientes identificadas durante las sesiones de desa
 2. Umbrales de alerta personalizados por proyecto
 3. Comparación de clima entre múltiples proyectos
 4. Integración de impacto climático en curva S (Seguimiento)
-5. Ítems de infraestructura bloqueados (connection pooler, partitioning, rate limiting API, 2FA/MFA)
+5. Ítems de infraestructura pendientes: partitioning (tablas grandes), rate limiting API externa, 2FA/MFA
+   - Nota: connection pooler no aplica (app frontend sin backend Node.js propio; usa PostgREST/REST API)
 
 ---
 
