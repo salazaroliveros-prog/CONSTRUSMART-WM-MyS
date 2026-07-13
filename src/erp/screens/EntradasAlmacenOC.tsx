@@ -4,6 +4,8 @@ import { useErp } from '../store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
+import { usePagination } from '../hooks/usePagination';
+import { PaginationBar } from '../components/PaginationBar';
 
 const recepcionSchema = z.object({
   cantidad: z.number().min(0.01, 'Cantidad debe ser mayor a 0'),
@@ -67,7 +69,8 @@ export const EntradasAlmacenOC: React.FC = () => {
     setFormCantidad(0);
   };
 
-  const historialRecepciones = recepciones;
+  const historialRecepciones = useMemo(() => recepciones.slice().reverse(), [recepciones]);
+  const paginacionHistorial = usePagination(historialRecepciones, 15); // alias para claridad
   const recsPorOC = useMemo(() => {
     const map = new Map<string, { totalRecibido: number }>();
     recepciones.forEach(r => {
@@ -200,7 +203,7 @@ export const EntradasAlmacenOC: React.FC = () => {
           <h3 className="text-sm font-semibold text-gray-500 mb-3">
             <ClipboardList className="w-4 h-4 inline" aria-hidden="true" /> Historial de Recepciones ({historialRecepciones.length})
           </h3>
-          <div className="overflow-x-auto max-h-48 overflow-y-auto">
+          <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-gray-50">
                 <tr>
@@ -213,7 +216,7 @@ export const EntradasAlmacenOC: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {historialRecepciones.slice().reverse().map(r => (
+                {paginacionHistorial.items.map(r => (
                   <tr key={r.id} className={`border-t ${r.diferencia < 0 ? 'bg-red-50' : 'hover:bg-gray-50'}`}>
                     <td className="p-2 text-xs">{new Date(r.fecha).toLocaleDateString()}</td>
                     <td className="p-2 text-xs">{r.proveedor}</td>
@@ -228,6 +231,7 @@ export const EntradasAlmacenOC: React.FC = () => {
               </tbody>
             </table>
           </div>
+          <PaginationBar pagination={paginacionHistorial} label="recepciones" />
         </div>
       )}
 

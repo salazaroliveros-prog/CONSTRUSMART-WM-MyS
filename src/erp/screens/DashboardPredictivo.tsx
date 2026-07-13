@@ -2,10 +2,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import React, { useMemo, useState, useEffect } from 'react';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
-import { Calendar, AlertTriangle, DollarSign, Activity, Zap, CheckCircle } from 'lucide-react';
+import { Calendar, AlertTriangle, DollarSign, Activity, Zap, CheckCircle, Cloud, CloudRain, Wind } from 'lucide-react';
+import { calculateWeatherImpact } from '../services/weatherService';
 
 const DashboardPredictivo: React.FC = () => {
-  const { proyectos, movimientos, presupuestos, avances, empleados, currentProjectId, setCurrentProjectId } = useErp();
+  const { proyectos, movimientos, presupuestos, avances, empleados, currentProjectId, setCurrentProjectId, proyectoWeather } = useErp();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { setLoading(false); }, []);
@@ -272,6 +273,66 @@ const DashboardPredictivo: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* === IMPACTO CLIMÁTICO === */}
+          {(() => {
+            const weatherRec = proyectoWeather?.find(w => w.proyectoId === currentProjectId);
+            if (!weatherRec?.weatherData) return null;
+            const impact = weatherRec.impact ?? calculateWeatherImpact(weatherRec.weatherData);
+            const history = weatherRec.history ?? [];
+            const workableDays = history.filter(h => h.impactLevel === 'low' || h.impactLevel === 'medium').length;
+            const lostDays = history.filter(h => h.impactLevel === 'high' || h.impactLevel === 'critical').length;
+            const diasPerdidosEst = lostDays > 0 ? Math.round(lostDays * 0.5) : 0;
+            const impactColor = impact.level === 'critical' ? 'border-red-300 bg-red-50 dark:bg-red-950'
+              : impact.level === 'high' ? 'border-orange-300 bg-orange-50 dark:bg-orange-950'
+              : impact.level === 'medium' ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-950'
+              : 'border-green-300 bg-green-50 dark:bg-green-950';
+            return (
+              <div>
+                <h2 className="font-bold text-muted-foreground text-sm mb-3 flex items-center gap-1.5">
+                  <Cloud className="w-4 h-4 text-blue-500" /> Impacto Climático en el Proyecto
+                </h2>
+                <div className={`rounded-xl p-4 border ${impactColor} mb-3`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold capitalize">Nivel actual: {impact.level}</span>
+                    <span className="text-xs font-bold">{impact.score}/100 pts</span>
+                  </div>
+                  {impact.factors.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {impact.factors.map((f, i) => (
+                        <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-white/60 dark:bg-black/20 border">{f}</span>
+                      ))}
+                    </div>
+                  )}
+                  {impact.recommendations.length > 0 && (
+                    <p className="text-xs text-muted-foreground">{impact.recommendations[0]}</p>
+                  )}
+                </div>
+                {history.length > 0 && (
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-card rounded-xl p-3 border border-border text-center">
+                      <div className="text-[10px] text-muted-foreground">Días registrados</div>
+                      <div className="text-lg font-bold">{history.length}</div>
+                    </div>
+                    <div className="bg-green-50 dark:bg-green-950 rounded-xl p-3 border border-green-200 text-center">
+                      <div className="text-[10px] text-green-600">Días trabajables</div>
+                      <div className="text-lg font-bold text-green-600">{workableDays}</div>
+                    </div>
+                    <div className="bg-red-50 dark:bg-red-950 rounded-xl p-3 border border-red-200 text-center">
+                      <div className="text-[10px] text-red-600">Días perdidos est.</div>
+                      <div className="text-lg font-bold text-red-600">{diasPerdidosEst}</div>
+                    </div>
+                  </div>
+                )}
+                {diasPerdidosEst > 0 && (
+                  <div className="mt-2 text-xs text-amber-700 bg-amber-50 dark:bg-amber-950 border border-amber-200 rounded-lg p-2 flex items-center gap-1.5">
+                    <AlertTriangle className="w-3 h-3 shrink-0" />
+                    Se estiman ~{diasPerdidosEst} días adicionales por condiciones climáticas adversas.
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Quema de horas hombre */}
           <div className="bg-card rounded-xl p-4 border border-border">

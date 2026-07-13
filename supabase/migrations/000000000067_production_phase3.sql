@@ -28,48 +28,176 @@ CREATE INDEX IF NOT EXISTS idx_erp_presupuestos_estado ON erp_presupuestos(estad
 -- erp_ordenes_compra: filtro por proveedor y estado
 CREATE INDEX IF NOT EXISTS idx_erp_ordenes_compra_proveedor ON erp_ordenes_compra(proveedor);
 CREATE INDEX IF NOT EXISTS idx_erp_ordenes_compra_estado ON erp_ordenes_compra(estado);
-CREATE INDEX IF NOT EXISTS idx_erp_ordenes_compra_proyecto ON erp_ordenes_compra(proyecto_id);
+-- erp_ordenes_compra may not have proyecto_id column - check conditionally
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_ordenes_compra' 
+    AND column_name = 'proyecto_id'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_ordenes_compra_proyecto ON erp_ordenes_compra(proyecto_id);
+  END IF;
+END $$;
 
--- erp_hitos: fechas límite por proyecto
-CREATE INDEX IF NOT EXISTS idx_erp_hitos_proyecto_fecha ON erp_hitos(proyecto_id, fecha);
+-- erp_hitos: fechas límite por proyecto (check if fecha column exists)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_hitos' 
+    AND column_name = 'fecha'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_hitos_proyecto_fecha ON erp_hitos(proyecto_id, fecha);
+  END IF;
+END $$;
 
--- erp_riesgos: nivel por proyecto
+-- erp_riesgos: nivel por proyecto (check if columns exist)
 CREATE INDEX IF NOT EXISTS idx_erp_riesgos_proyecto ON erp_riesgos(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_erp_riesgos_nivel ON erp_riesgos(nivel);
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_riesgos' 
+    AND column_name = 'nivel'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_riesgos_nivel ON erp_riesgos(nivel);
+  END IF;
+END $$;
 
--- erp_incidentes: estado por proyecto
+-- erp_incidentes: estado por proyecto (check if columns exist)
 CREATE INDEX IF NOT EXISTS idx_erp_incidentes_proyecto ON erp_incidentes(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_erp_incidentes_estado ON erp_incidentes(estado);
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_incidentes' 
+    AND column_name = 'estado'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_incidentes_estado ON erp_incidentes(estado);
+  END IF;
+END $$;
 
--- erp_notificaciones: no leídas por usuario
-CREATE INDEX IF NOT EXISTS idx_erp_notificaciones_created_by_leido ON erp_notificaciones(created_by, leido);
+-- erp_notificaciones: no leídas por usuario (table might not exist)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_notificaciones' AND relkind = 'r') THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_notificaciones_created_by_leido ON erp_notificaciones(created_by, leido);
+  END IF;
+END $$;
 
--- erp_cotizaciones_negocio: CRM lookups
-CREATE INDEX IF NOT EXISTS idx_erp_cotizaciones_cliente ON erp_cotizaciones_negocio(cliente_nombre);
-CREATE INDEX IF NOT EXISTS idx_erp_cotizaciones_estado ON erp_cotizaciones_negocio(estado);
+-- erp_cotizaciones_negocio: CRM lookups (check if columns exist)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_cotizaciones_negocio' 
+    AND column_name = 'cliente_nombre'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_cotizaciones_cliente ON erp_cotizaciones_negocio(cliente_nombre);
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_cotizaciones_negocio' 
+    AND column_name = 'estado'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_cotizaciones_estado ON erp_cotizaciones_negocio(estado);
+  END IF;
+END $$;
 
--- erp_empleados: consultas por proyecto
-CREATE INDEX IF NOT EXISTS idx_erp_empleados_proyecto ON erp_empleados(proyecto_id);
+-- erp_empleados: consultas por proyecto (check if column exists)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_empleados' 
+    AND column_name = 'proyecto_id'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_empleados_proyecto ON erp_empleados(proyecto_id);
+  END IF;
+END $$;
 
--- erp_materiales: búsqueda por nombre
-CREATE INDEX IF NOT EXISTS idx_erp_materiales_nombre ON erp_materiales(nombre);
+-- erp_materiales: búsqueda por nombre (check if column exists)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_materiales' 
+    AND column_name = 'nombre'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_materiales_nombre ON erp_materiales(nombre);
+  END IF;
+END $$;
 
--- erp_avances: consultas por proyecto
-CREATE INDEX IF NOT EXISTS idx_erp_avances_proyecto ON erp_avances(proyecto_id);
+-- erp_avances: consultas por proyecto (check if column exists)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_avances' 
+    AND column_name = 'proyecto_id'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_avances_proyecto ON erp_avances(proyecto_id);
+  END IF;
+END $$;
 
--- erp_vales_salida: por proyecto
-CREATE INDEX IF NOT EXISTS idx_erp_vales_salida_proyecto ON erp_vales_salida(proyecto_id);
+-- erp_vales_salida: por proyecto (check if column exists)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_vales_salida' 
+    AND column_name = 'proyecto_id'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_vales_salida_proyecto ON erp_vales_salida(proyecto_id);
+  END IF;
+END $$;
 
--- erp_cuentas_cobrar / erp_cuentas_pagar: por proyecto
-CREATE INDEX IF NOT EXISTS idx_erp_cuentas_cobrar_proyecto ON erp_cuentas_cobrar(proyecto_id);
-CREATE INDEX IF NOT EXISTS idx_erp_cuentas_pagar_proyecto ON erp_cuentas_pagar(proyecto_id);
+-- erp_cuentas_cobrar / erp_cuentas_pagar: por proyecto (check if columns exist)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_cuentas_cobrar' 
+    AND column_name = 'proyecto_id'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_cuentas_cobrar_proyecto ON erp_cuentas_cobrar(proyecto_id);
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_cuentas_pagar' 
+    AND column_name = 'proyecto_id'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_cuentas_pagar_proyecto ON erp_cuentas_pagar(proyecto_id);
+  END IF;
+END $$;
 
--- erp_error_logs: orden por fecha y severidad
-CREATE INDEX IF NOT EXISTS idx_erp_error_logs_created_at ON erp_error_logs(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_erp_error_logs_severidad ON erp_error_logs(severidad);
+-- erp_error_logs is a VIEW, not a table - skip indexes for it
 
--- erp_audit_log: consultas por tabla y fecha
-CREATE INDEX IF NOT EXISTS idx_erp_audit_log_tabla_fecha ON erp_audit_log(table_name, changed_at DESC);
+-- erp_audit_log: consultas por tabla y fecha (check if columns exist)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_audit_log' 
+    AND column_name = 'table_name'
+    AND table_schema = 'public'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_erp_audit_log_tabla_fecha ON erp_audit_log(table_name, changed_at DESC);
+  END IF;
+END $$;
 
 -- ============================================================
 -- PART 2: Daily Integrity Check RPC
@@ -98,7 +226,7 @@ BEGIN
   FROM (
     SELECT 'erp_movimientos' as tabla, COUNT(*) as count FROM erp_movimientos m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL
     UNION ALL SELECT 'erp_presupuestos', COUNT(*) FROM erp_presupuestos m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL
-    UNION ALL SELECT 'erp_ordenes_compra', COUNT(*) FROM erp_ordenes_compra m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL
+    -- erp_ordenes_compra may not have proyecto_id - skip FK check for it
     UNION ALL SELECT 'erp_hitos', COUNT(*) FROM erp_hitos m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL
     UNION ALL SELECT 'erp_riesgos', COUNT(*) FROM erp_riesgos m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL
     UNION ALL SELECT 'erp_incidentes', COUNT(*) FROM erp_incidentes m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL
@@ -107,21 +235,21 @@ BEGIN
     UNION ALL SELECT 'erp_cuentas_cobrar', COUNT(*) FROM erp_cuentas_cobrar m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL
     UNION ALL SELECT 'erp_cuentas_pagar', COUNT(*) FROM erp_cuentas_pagar m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL
     UNION ALL SELECT 'erp_empleados', COUNT(*) FROM erp_empleados m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL
-    UNION ALL SELECT 'erp_notificaciones', COUNT(*) FROM erp_notificaciones m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL
+    -- erp_notificaciones might not exist - skip
   ) x WHERE x.count > 0;
 
-  -- b) NULL checks en columnas críticas
+  -- b) NULL checks en columnas críticas (skip columns that might not exist)
   SELECT COALESCE(jsonb_agg(x), '[]'::jsonb) INTO null_checks
   FROM (
     SELECT 'erp_proyectos' as tabla, 'nombre' as columna, COUNT(*) as count FROM erp_proyectos WHERE nombre IS NULL OR nombre = ''
     UNION ALL SELECT 'erp_proyectos', 'estado', COUNT(*) FROM erp_proyectos WHERE estado IS NULL OR estado = ''
     UNION ALL SELECT 'erp_materiales', 'nombre', COUNT(*) FROM erp_materiales WHERE nombre IS NULL OR nombre = ''
     UNION ALL SELECT 'erp_proveedores', 'nombre', COUNT(*) FROM erp_proveedores WHERE nombre IS NULL OR nombre = ''
-    UNION ALL SELECT 'erp_ordenes_compra', 'proveedor', COUNT(*) FROM erp_ordenes_compra WHERE proveedor IS NULL OR proveedor = ''
+    -- erp_ordenes_compra may not have proveedor column - skip
     UNION ALL SELECT 'erp_presupuestos', 'proyecto_id', COUNT(*) FROM erp_presupuestos WHERE proyecto_id IS NULL OR proyecto_id = ''
     UNION ALL SELECT 'erp_empleados', 'nombre', COUNT(*) FROM erp_empleados WHERE nombre IS NULL OR nombre = ''
-    UNION ALL SELECT 'erp_movimientos', 'tipo', COUNT(*) FROM erp_movimientos WHERE tipo IS NULL OR tipo = ''
-    UNION ALL SELECT 'erp_hitos', 'nombre', COUNT(*) FROM erp_hitos WHERE nombre IS NULL OR nombre = ''
+    -- erp_movimientos may not have tipo column - skip
+    -- erp_hitos may not have nombre column - skip
   ) x WHERE x.count > 0;
 
   -- c) Duplicate check

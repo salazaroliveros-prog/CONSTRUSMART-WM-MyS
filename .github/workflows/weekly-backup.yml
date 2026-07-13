@@ -1,0 +1,66 @@
+name: Weekly Database Backup
+
+on:
+  schedule:
+    # Every Sunday at 02:00 UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual backup'
+        required: false
+        default: 'Manual trigger'
+
+jobs:
+  backup:
+    name: Supabase DB Backup
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pg_dump
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client
+
+      - name: Run pg_dump backup
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          BACKUP_FILE="backup_construsmart_${TIMESTAMP}.sql"
+
+          pg_dump \
+            --host=${{ secrets.SUPABASE_DB_HOST }} \
+            --port=5432 \
+            --username=postgres \
+            --dbname=postgres \
+            --schema=public \
+            --no-owner \
+            --no-acl \
+            --format=plain \
+            --file="${BACKUP_FILE}"
+
+          echo "BACKUP_FILE=${BACKUP_FILE}" >> $GITHUB_ENV
+          echo "Backup size: $(du -sh ${BACKUP_FILE} | cut -f1)"
+
+      - name: Compress backup
+        run: |
+          gzip "${{ env.BACKUP_FILE }}"
+          echo "BACKUP_GZ=${{ env.BACKUP_FILE }}.gz" >> $GITHUB_ENV
+
+      - name: Upload backup as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_number }}
+          path: ${{ env.BACKUP_GZ }}
+          retention-days: 30
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Database backup failed! Check Supabase credentials in repository secrets."
+          echo "Required secrets: SUPABASE_DB_HOST, SUPABASE_DB_PASSWORD"

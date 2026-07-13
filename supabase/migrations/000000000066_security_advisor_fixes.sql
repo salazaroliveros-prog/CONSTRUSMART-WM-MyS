@@ -56,7 +56,9 @@ BEGIN
   DROP POLICY IF EXISTS "p_vales_all" ON erp_vales_salida;
 
   -- erp_notificaciones
-  DROP POLICY IF EXISTS "allow_all_notificaciones" ON erp_notificaciones;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_notificaciones' AND relkind = 'r') THEN
+    DROP POLICY IF EXISTS "allow_all_notificaciones" ON erp_notificaciones;
+  END IF;
 
   -- erp_licitaciones
   DROP POLICY IF EXISTS "allow_all_licitaciones" ON erp_licitaciones;
@@ -130,7 +132,7 @@ $$;
 
 -- ============================================================
 -- PART 2: Create RLS policies for tables that have RLS but NO policies
--- Tables: erp_centros_costo, erp_destajos, erp_error_logs,
+-- Tables: erp_centros_costo, erp_destajos, erp_error_log (erp_error_logs is a VIEW),
 --         erp_pagos_proveedor, erp_recepciones
 -- ============================================================
 
@@ -168,22 +170,9 @@ DROP POLICY IF EXISTS "destajos_delete" ON erp_destajos;
 CREATE POLICY "destajos_delete" ON erp_destajos
   FOR DELETE TO authenticated USING (true);
 
--- erp_error_logs: Only Admin/Gerente can read/write logs
-DROP POLICY IF EXISTS "error_logs_select" ON erp_error_logs;
-CREATE POLICY "error_logs_select" ON erp_error_logs
-  FOR SELECT TO authenticated USING (true);
-
-DROP POLICY IF EXISTS "error_logs_insert" ON erp_error_logs;
-CREATE POLICY "error_logs_insert" ON erp_error_logs
-  FOR INSERT TO authenticated WITH CHECK (true);
-
-DROP POLICY IF EXISTS "error_logs_update" ON erp_error_logs;
-CREATE POLICY "error_logs_update" ON erp_error_logs
-  FOR UPDATE TO authenticated USING (true);
-
-DROP POLICY IF EXISTS "error_logs_delete" ON erp_error_logs;
-CREATE POLICY "error_logs_delete" ON erp_error_logs
-  FOR DELETE TO authenticated USING (true);
+-- erp_error_logs is a VIEW (created in migration 063) that references erp_error_log
+-- RLS policies are on the underlying table erp_error_log, not the view
+-- No policies needed here for the view itself
 
 -- erp_pagos_proveedor: Read/write for authenticated users
 DROP POLICY IF EXISTS "pagos_proveedor_select" ON erp_pagos_proveedor;
@@ -234,7 +223,7 @@ REVOKE SELECT ON TABLE erp_proveedores FROM anon;
 REVOKE SELECT ON TABLE erp_cuentas_cobrar FROM anon;
 REVOKE SELECT ON TABLE erp_cuentas_pagar FROM anon;
 REVOKE SELECT ON TABLE erp_vales_salida FROM anon;
-REVOKE SELECT ON TABLE erp_notificaciones FROM anon;
+-- erp_notificaciones - handled in DO block below (table might not exist)
 REVOKE SELECT ON TABLE erp_licitaciones FROM anon;
 REVOKE SELECT ON TABLE erp_cotizaciones_negocio FROM anon;
 REVOKE SELECT ON TABLE erp_hitos FROM anon;
@@ -248,50 +237,131 @@ REVOKE SELECT ON TABLE erp_centros_costo FROM anon;
 REVOKE SELECT ON TABLE erp_destajos FROM anon;
 REVOKE SELECT ON TABLE erp_pagos_proveedor FROM anon;
 REVOKE SELECT ON TABLE erp_recepciones FROM anon;
-REVOKE SELECT ON TABLE erp_planos FROM anon;
-REVOKE SELECT ON TABLE erp_rfis FROM anon;
-REVOKE SELECT ON TABLE erp_submittals FROM anon;
-REVOKE SELECT ON TABLE erp_pruebas_laboratorio FROM anon;
-REVOKE SELECT ON TABLE erp_no_conformidades FROM anon;
-REVOKE SELECT ON TABLE erp_liberaciones_partida FROM anon;
+-- erp_planos - handled in DO block below (table might not exist)
+-- erp_rfis - handled in DO block below (table might not exist)
+-- erp_submittals - handled in DO block below (table might not exist)
+-- erp_pruebas_laboratorio - handled in DO block below (table might not exist)
+-- erp_no_conformidades - handled in DO block below (table might not exist)
+-- erp_liberaciones_partida - handled in DO block below (table might not exist)
 REVOKE SELECT ON TABLE erp_muro FROM anon;
 REVOKE SELECT ON TABLE erp_muro_likes FROM anon;
 REVOKE SELECT ON TABLE erp_insumos FROM anon;
 REVOKE SELECT ON TABLE erp_insumos_base FROM anon;
 REVOKE SELECT ON TABLE erp_renglones FROM anon;
 REVOKE SELECT ON TABLE erp_sub_renglones FROM anon;
-REVOKE SELECT ON TABLE erp_seguimiento FROM anon;
-REVOKE SELECT ON TABLE erp_seguimiento_evm FROM anon;
+-- erp_seguimiento - handled in DO block below (table might not exist)
+-- erp_seguimiento_evm - handled in DO block below (table might not exist)
 REVOKE SELECT ON TABLE erp_rendimientos_cuadrilla FROM anon;
-REVOKE SELECT ON TABLE erp_activos FROM anon;
-REVOKE SELECT ON TABLE erp_cuadros FROM anon;
+-- erp_activos - handled in DO block below (table might not exist)
+-- erp_cuadros - handled in DO block below (table might not exist)
 REVOKE SELECT ON TABLE erp_error_log FROM anon;
-REVOKE SELECT ON TABLE erp_error_logs FROM anon;
+-- erp_error_logs is a VIEW, not a table - REVOKE not needed for views
 REVOKE SELECT ON TABLE erp_audit_log FROM anon;
 REVOKE SELECT ON TABLE erp_plantillas_proyectos FROM anon;
 REVOKE SELECT ON TABLE erp_proyecto_miembros FROM anon;
 REVOKE SELECT ON TABLE erp_usuarios FROM anon;
 REVOKE SELECT ON TABLE erp_empresas FROM anon;
-REVOKE SELECT ON TABLE erp_calculos_proyecto FROM anon;
-REVOKE SELECT ON TABLE erp_comparaciones_calculos FROM anon;
-REVOKE SELECT ON TABLE erp_snapshots_estado_calculo FROM anon;
-REVOKE SELECT ON TABLE erp_cumplimiento_normativo FROM anon;
-REVOKE SELECT ON TABLE erp_ajustes_estacionales_actividad FROM anon;
-REVOKE SELECT ON TABLE erp_aplicacion_escalas FROM anon;
-REVOKE SELECT ON TABLE erp_historial_aplicacion_reglas FROM anon;
-REVOKE SELECT ON TABLE erp_parametros_climaticos FROM anon;
-REVOKE SELECT ON TABLE erp_parametros_movimiento_tierra FROM anon;
-REVOKE SELECT ON TABLE erp_parametros_muros_contencion FROM anon;
-REVOKE SELECT ON TABLE erp_parametros_pavimentos FROM anon;
-REVOKE SELECT ON TABLE erp_parametros_redes_infraestructura FROM anon;
-REVOKE SELECT ON TABLE erp_precios_acero FROM anon;
-REVOKE SELECT ON TABLE erp_referencias_acero FROM anon;
-REVOKE SELECT ON TABLE erp_reglas_factores FROM anon;
-REVOKE SELECT ON TABLE erp_dosificaciones_concreto FROM anon;
-REVOKE SELECT ON TABLE erp_escalas_produccion FROM anon;
-REVOKE SELECT ON TABLE erp_estacionalidad FROM anon;
-REVOKE SELECT ON TABLE erp_normativa_departamental FROM anon;
-REVOKE SELECT ON TABLE erp_subtipologias FROM anon;
+-- Tables that might not exist - handle in DO block below
+
+-- Revoke anon SELECT from tables that might not exist (additional tables not covered above)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_notificaciones' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_notificaciones FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_planos' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_planos FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_rfis' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_rfis FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_submittals' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_submittals FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_pruebas_laboratorio' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_pruebas_laboratorio FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_no_conformidades' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_no_conformidades FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_liberaciones_partida' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_liberaciones_partida FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_seguimiento' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_seguimiento FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_seguimiento_evm' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_seguimiento_evm FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_activos' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_activos FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_cuadros' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_cuadros FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_calculos_proyecto' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_calculos_proyecto FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_comparaciones_calculos' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_comparaciones_calculos FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_snapshots_estado_calculo' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_snapshots_estado_calculo FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_cumplimiento_normativo' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_cumplimiento_normativo FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_ajustes_estacionales_actividad' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_ajustes_estacionales_actividad FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_aplicacion_escalas' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_aplicacion_escalas FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_historial_aplicacion_reglas' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_historial_aplicacion_reglas FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_parametros_climaticos' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_parametros_climaticos FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_parametros_movimiento_tierra' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_parametros_movimiento_tierra FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_parametros_muros_contencion' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_parametros_muros_contencion FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_parametros_pavimentos' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_parametros_pavimentos FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_parametros_redes_infraestructura' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_parametros_redes_infraestructura FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_precios_acero' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_precios_acero FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_referencias_acero' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_referencias_acero FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_reglas_factores' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_reglas_factores FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_dosificaciones_concreto' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_dosificaciones_concreto FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_escalas_produccion' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_escalas_produccion FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_estacionalidad' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_estacionalidad FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_normativa_departamental' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_normativa_departamental FROM anon;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_subtipologias' AND relkind = 'r') THEN
+    REVOKE SELECT ON TABLE erp_subtipologias FROM anon;
+  END IF;
+  -- Skip tables already handled above in the main REVOKE block
+  -- erp_error_logs is a VIEW, not a table - skip
+END $$;
 
 -- ============================================================
 -- PART 4: Create missing exec_sql RPC (from migration 063)

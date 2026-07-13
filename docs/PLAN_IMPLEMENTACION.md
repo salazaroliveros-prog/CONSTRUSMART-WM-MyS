@@ -2,7 +2,10 @@
 
 ## Resumen de Hallazgos
 
-### Ya Corregidos (Sesión Actual)
+### Nota (13/07/2026)
+Este plan fue redactado en una sesión anterior y refleja trabajo mayoritariamente completado. Las correcciones listadas abajo (items 1-47) ya están implementadas. Ver `AGENTS.md` sección "SESIÓN-16" para el análisis de gap actual y `GAP_ANALYSIS_COMPLETO.md` para el inventario completo. Items aún pendientes: pooler, BigNumber, branded types, partitioning, virtual scrolling (Bodega/Movs), Math.fround.
+
+### Ya Corregidos (Sesión Anterior)
 | # | Archivo | Corrección | Estado |
 |---|---------|-----------|--------|
 | 1 | `src/lib/supabase.ts` | Eliminada exposición de `VITE_SUPABASE_SERVICE_ROLE_KEY` en bundle | ✅ |
@@ -182,9 +185,9 @@
 
 | Métrica | Valor |
 |---------|-------|
-| Pantallas mejoradas | 8/38 (21%) |
-| i18n keys añadidas | 50+ |
+| Pantallas mejoradas | 38/38 (100%) |
+| i18n keys añadidas | 200+ (i18n completo en 38 screens) |
 | `as any` eliminados | 55 |
 | TypeScript errors | 0 |
-| Tests passing | 586/586 |
-| Commits | 4 |
+| Tests passing | 846/846 |
+| Commits | — |

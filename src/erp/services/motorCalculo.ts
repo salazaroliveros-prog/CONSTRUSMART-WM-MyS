@@ -628,36 +628,38 @@ export class ServicioMotorCalculo {
       observaciones?: string;
     }
   ): Promise<string> {
-    try {
-      const { data, error } = await supabase.rpc('registrar_calculo', {
-        p_proyecto_id: proyectoId,
-        p_renglon_id: opciones?.renglonId,
-        p_tipo_calculo: tipoCalcululo,
-        p_parametros_entrada: parametrosEntrada,
-        p_resultado_calculado: resultadoCalculado,
-        p_costo_total: opciones?.costoTotal,
-        p_costo_unitario: opciones?.costoUnitario,
-        p_usuario_id: opciones?.usuarioId,
-        p_observaciones: opciones?.observaciones
-      });
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      safeLogger.warn('[motorCalculo] Error registrando cálculo, encolando mutación:', error);
-      useErpStore.getState().enqueueMutation('registrarCalculo', {
-        proyecto_id: proyectoId,
-        renglon_id: opciones?.renglonId,
-        tipo_calculo: tipoCalcululo,
-        parametros_entrada: parametrosEntrada,
-        resultado_calculado: resultadoCalculado,
-        costo_total: opciones?.costoTotal,
-        costo_unitario: opciones?.costoUnitario,
-        usuario_id: opciones?.usuarioId,
-        observaciones: opciones?.observaciones,
-      });
-      return '';
+    const payload = {
+      proyecto_id: proyectoId,
+      renglon_id: opciones?.renglonId,
+      tipo_calculo: tipoCalcululo,
+      parametros_entrada: parametrosEntrada,
+      resultado_calculado: resultadoCalculado,
+      costo_total: opciones?.costoTotal,
+      costo_unitario: opciones?.costoUnitario,
+      usuario_id: opciones?.usuarioId,
+      observaciones: opciones?.observaciones,
+    };
+    useErpStore.getState().enqueueMutation('registrarCalculo', payload);
+    if (navigator.onLine) {
+      try {
+        const { data, error } = await supabase.rpc('registrar_calculo', {
+          p_proyecto_id: proyectoId,
+          p_renglon_id: opciones?.renglonId,
+          p_tipo_calculo: tipoCalcululo,
+          p_parametros_entrada: parametrosEntrada,
+          p_resultado_calculado: resultadoCalculado,
+          p_costo_total: opciones?.costoTotal,
+          p_costo_unitario: opciones?.costoUnitario,
+          p_usuario_id: opciones?.usuarioId,
+          p_observaciones: opciones?.observaciones
+        });
+        if (error) safeLogger.warn('[motorCalculo] registrar_calculo RPC falló:', error);
+        if (data) return data;
+      } catch (e) {
+        safeLogger.warn('[motorCalculo] registrar_calculo excepción:', e);
+      }
     }
+    return '';
   }
 
   /**
@@ -669,24 +671,29 @@ export class ServicioMotorCalculo {
     estadoCompleto: Record<string, any>,
     descripcion?: string
   ) {
-    try {
-      const { data, error } = await supabase.rpc('crear_snapshot_estado', {
-        p_calculo_id: calculoId,
-        p_tipo_snapshot: tipoSnapshot,
-        p_estado_completo: estadoCompleto,
-        p_descripcion: descripcion
-      });
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      safeLogger.warn('[motorCalculo] Error creando snapshot, encolando mutación:', error);
-      useErpStore.getState().enqueueMutation('crearSnapshotEstado', {
-        calculo_id: calculoId,
-        tipo_snapshot: tipoSnapshot,
-        estado_completo: estadoCompleto,
-        descripcion: descripcion,
-      });
+    const payload = {
+      calculo_id: calculoId,
+      tipo_snapshot: tipoSnapshot,
+      estado_completo: estadoCompleto,
+      descripcion: descripcion,
+    };
+    useErpStore.getState().enqueueMutation('crearSnapshotEstado', payload);
+    if (navigator.onLine) {
+      try {
+        const { data, error } = await supabase.rpc('crear_snapshot_estado', {
+          p_calculo_id: calculoId,
+          p_tipo_snapshot: tipoSnapshot,
+          p_estado_completo: estadoCompleto,
+          p_descripcion: descripcion
+        });
+        if (error) safeLogger.warn('[motorCalculo] crear_snapshot_estado RPC falló:', error);
+        return data;
+      } catch (e) {
+        safeLogger.warn('[motorCalculo] crear_snapshot_estado excepción:', e);
+      }
+    }
+    return null;
+  }
       return null;
     }
   }

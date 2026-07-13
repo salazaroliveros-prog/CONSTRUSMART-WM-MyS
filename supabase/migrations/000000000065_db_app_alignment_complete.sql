@@ -55,36 +55,43 @@ $$;
 -- 5) FIX: Políticas RLS para tablas sin políticas (usando DO blocks para evitar IF NOT EXISTS)
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_snapshots_estado_calculo' AND policyname = 'snapshots_lectura_autenticados') THEN
-    CREATE POLICY snapshots_lectura_autenticados ON erp_snapshots_estado_calculo
-      FOR SELECT TO authenticated USING (true);
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_snapshots_estado_calculo' AND relkind = 'r') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_snapshots_estado_calculo' AND policyname = 'snapshots_lectura_autenticados') THEN
+      CREATE POLICY snapshots_lectura_autenticados ON erp_snapshots_estado_calculo
+        FOR SELECT TO authenticated USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_snapshots_estado_calculo' AND policyname = 'snapshots_escritura_autenticados') THEN
+      CREATE POLICY snapshots_escritura_autenticados ON erp_snapshots_estado_calculo
+        FOR ALL TO authenticated USING (true) WITH CHECK (true);
+    END IF;
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_snapshots_estado_calculo' AND policyname = 'snapshots_escritura_autenticados') THEN
-    CREATE POLICY snapshots_escritura_autenticados ON erp_snapshots_estado_calculo
-      FOR ALL TO authenticated USING (true) WITH CHECK (true);
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_cumplimiento_normativo' AND relkind = 'r') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_cumplimiento_normativo' AND policyname = 'cumplimiento_read_all') THEN
+      CREATE POLICY cumplimiento_read_all ON erp_cumplimiento_normativo
+        FOR SELECT TO authenticated USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_cumplimiento_normativo' AND policyname = 'cumplimiento_write_roles') THEN
+      CREATE POLICY cumplimiento_write_roles ON erp_cumplimiento_normativo
+        FOR ALL TO authenticated
+        USING ((get_current_user_role() = ANY (ARRAY['Administrador'::text, 'Gerente'::text, 'Residente'::text])))
+        WITH CHECK ((get_current_user_role() = ANY (ARRAY['Administrador'::text, 'Gerente'::text, 'Residente'::text])));
+    END IF;
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_cumplimiento_normativo' AND policyname = 'cumplimiento_read_all') THEN
-    CREATE POLICY cumplimiento_read_all ON erp_cumplimiento_normativo
-      FOR SELECT TO authenticated USING (true);
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_ajustes_estacionales_actividad' AND relkind = 'r') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_ajustes_estacionales_actividad' AND policyname = 'ajustes_estacionales_read_all') THEN
+      CREATE POLICY ajustes_estacionales_read_all ON erp_ajustes_estacionales_actividad
+        FOR SELECT TO authenticated USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_ajustes_estacionales_actividad' AND policyname = 'ajustes_estacionales_write_roles') THEN
+      CREATE POLICY ajustes_estacionales_write_roles ON erp_ajustes_estacionales_actividad
+        FOR ALL TO authenticated
+        USING ((get_current_user_role() = ANY (ARRAY['Administrador'::text, 'Gerente'::text])))
+        WITH CHECK ((get_current_user_role() = ANY (ARRAY['Administrador'::text, 'Gerente'::text])));
+    END IF;
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_cumplimiento_normativo' AND policyname = 'cumplimiento_write_roles') THEN
-    CREATE POLICY cumplimiento_write_roles ON erp_cumplimiento_normativo
-      FOR ALL TO authenticated
-      USING ((get_current_user_role() = ANY (ARRAY['Administrador'::text, 'Gerente'::text, 'Residente'::text])))
-      WITH CHECK ((get_current_user_role() = ANY (ARRAY['Administrador'::text, 'Gerente'::text, 'Residente'::text])));
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_ajustes_estacionales_actividad' AND policyname = 'ajustes_estacionales_read_all') THEN
-    CREATE POLICY ajustes_estacionales_read_all ON erp_ajustes_estacionales_actividad
-      FOR SELECT TO authenticated USING (true);
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_ajustes_estacionales_actividad' AND policyname = 'ajustes_estacionales_write_roles') THEN
-    CREATE POLICY ajustes_estacionales_write_roles ON erp_ajustes_estacionales_actividad
-      FOR ALL TO authenticated
-      USING ((get_current_user_role() = ANY (ARRAY['Administrador'::text, 'Gerente'::text])))
-      WITH CHECK ((get_current_user_role() = ANY (ARRAY['Administrador'::text, 'Gerente'::text])));
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_aplicacion_escalas' AND policyname = 'aplicacion_escalas_read_all') THEN
-    CREATE POLICY aplicacion_escalas_read_all ON erp_aplicacion_escalas
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_aplicacion_escalas' AND relkind = 'r') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_aplicacion_escalas' AND policyname = 'aplicacion_escalas_read_all') THEN
+      CREATE POLICY aplicacion_escalas_read_all ON erp_aplicacion_escalas
       FOR SELECT TO authenticated USING (true);
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_aplicacion_escalas' AND policyname = 'aplicacion_escalas_write_roles') THEN
@@ -92,14 +99,17 @@ BEGIN
       FOR ALL TO authenticated
       USING ((get_current_user_role() = ANY (ARRAY['Administrador'::text, 'Gerente'::text])))
       WITH CHECK ((get_current_user_role() = ANY (ARRAY['Administrador'::text, 'Gerente'::text])));
+    END IF;
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_historial_aplicacion_reglas' AND policyname = 'historial_reglas_read_all') THEN
-    CREATE POLICY historial_reglas_read_all ON erp_historial_aplicacion_reglas
-      FOR SELECT TO authenticated USING (true);
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_historial_aplicacion_reglas' AND policyname = 'historial_reglas_insert_all') THEN
-    CREATE POLICY historial_reglas_insert_all ON erp_historial_aplicacion_reglas
-      FOR INSERT TO authenticated WITH CHECK (true);
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_historial_aplicacion_reglas' AND relkind = 'r') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_historial_aplicacion_reglas' AND policyname = 'historial_reglas_read_all') THEN
+      CREATE POLICY historial_reglas_read_all ON erp_historial_aplicacion_reglas
+        FOR SELECT TO authenticated USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'erp_historial_aplicacion_reglas' AND policyname = 'historial_reglas_insert_all') THEN
+      CREATE POLICY historial_reglas_insert_all ON erp_historial_aplicacion_reglas
+        FOR INSERT TO authenticated WITH CHECK (true);
+    END IF;
   END IF;
 END;
 $$;

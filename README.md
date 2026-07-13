@@ -1,11 +1,16 @@
-## Estado actual (junio 2026)
+## Estado actual (julio 2026)
 
 - Mapa de etapas APP_STAGES definido en src/erp/types.ts.
 - Trazabilidad Presupuesto → Bodega → Dashboard activa: cantidades presupuestadas respaldan métricas plan vs real.
 - Filtro global ProyectoFilter unificado en vistas principales.
 - Motor de Cálculo APU: 8 motores paramétricos (Fases 1-5 completas).
-- Suite: 619/619 tests verdes (15 archivos). Build: 0 errores.
-- Pantallas: 36 (100% implementadas, accesibles, con skeleton loading).
+- Suite: 846/846 tests verdes (25 archivos). Build: 0 errores.
+- Pantallas: 40 (100% implementadas, accesibles, con skeleton loading).
+- Módulo Weather con persistencia Supabase, export PDF/Excel y widget en Dashboard.
+- Design system unificado: 5 temas, densidad, fuente, animaciones, sidebar configurable.
+- Auditoría de accesos (erp_access_log), integrity check diario, performance monitoring DB.
+- CI/CD: backup semanal GitHub Actions + Lighthouse CI en PRs.
+- Regresión visual Playwright (8 pantallas desktop + 3 mobile).
 
 # ERP CONSTRUSMART — Gestión Constructora Integral
 
@@ -129,7 +134,7 @@ Proyectos                         Presupuestos
 
 ---
 
-## Módulos del Sistema (18 componentes)
+## Módulos del Sistema (40 pantallas)
 
 | # | Módulo | Archivo | Estado |
 |---|--------|---------|--------|
@@ -147,10 +152,32 @@ Proyectos                         Presupuestos
 | 12 | Comercial/Finanzas (ventas, anticipos, cajas chicas) | `ComercialFinanzas.tsx` | ✅ |
 | 13 | Administración (centros costo, auditoría, validación) | `Administracion.tsx` | ✅ |
 | 14 | GanttChart (cronograma interactivo) | `GanttChart.tsx` | ✅ |
-| 15 | CriticalRenglonAlert (alertas desviaciones) | `CriticalRenglonAlert.tsx` | ✅ |
-| 16 | PresupuestoCard (tarjeta vinculada en proyectos) | `PresupuestoCard.tsx` | ✅ |
-| 17 | IFCViewer (visor BIM Three.js + web-ifc) | `IFCViewer.tsx` | ✅ |
-| 18 | AppLayout + Sidebar + Header | Layout | ✅ |
+| 15 | APU Avanzado (motor cálculo paramétrico) | `APUAvanzado.tsx` | ✅ |
+| 16 | Base de Precios (catálogo insumos) | `BasePrecios.tsx` | ✅ |
+| 17 | Ajustes (design system, temas, densidad) | `Ajustes.tsx` | ✅ |
+| 18 | Dashboard Predictivo (EAC, ETC, BI) | `DashboardPredictivo.tsx` | ✅ |
+| 19 | Weather (clima, impacto obra, persistencia) | `Weather.tsx` | ✅ |
+| 20 | Exportación Inteligente (PDF/CSV/JSON) | `ExportacionInteligente.tsx` | ✅ |
+| 21 | Muro de Obra (feed colaborativo) | `MuroObra.tsx` | ✅ |
+| 22 | Hitos (milestones + calendario) | `Hitos.tsx` | ✅ |
+| 23 | Riesgos (matriz calor + mitigación) | `Riesgos.tsx` | ✅ |
+| 24 | Notificaciones (alertas + historial) | `Notificaciones.tsx` | ✅ |
+| 25 | SSO / Calidad (incidentes, checklist) | `SSOCalidad.tsx` | ✅ |
+| 26 | Gestión Documental (planos, RFI, submittals) | `GestionDocumental.tsx` | ✅ |
+| 27 | Órdenes de Cambio (flujo aprobación) | `OrdenesCambio.tsx` | ✅ |
+| 28 | Cuentas por Cobrar | `CuentasCobrar.tsx` | ✅ |
+| 29 | Cuentas por Pagar | `CuentasPagar.tsx` | ✅ |
+| 30 | Cotizaciones (cuadro comparativo) | `Cotizaciones.tsx` | ✅ |
+| 31 | Activos y Herramientas | `Activos.tsx` | ✅ |
+| 32 | Entradas Almacén vs OC | `EntradasAlmacenOC.tsx` | ✅ |
+| 33 | Planilla Destajos | `PlanillaDestajos.tsx` | ✅ |
+| 34 | Plantillas de Proyectos | `PlantillasProyectos.tsx` | ✅ |
+| 35 | Impuestos (ISR/IVA) | `Impuestos.tsx` | ✅ |
+| 36 | Cuadros Comparativos | `Cuadros.tsx` | ✅ |
+| 37 | Visor BIM (Three.js + web-ifc) | `VisorBIM.tsx` | ✅ |
+| 38 | Profitability Analytics | `ProfitabilityAnalytics.tsx` | ✅ |
+| 39 | Proveedor Analytics | `ProveedorAnalytics.tsx` | ✅ |
+| 40 | Resource Conflicts | `ResourceConflicts.tsx` | ✅ |
 
 ---
 
@@ -293,7 +320,7 @@ Ver `SUPABASE_GOOGLE_OAUTH_SETUP.md` (archivo eliminado — contenido consolidad
 | # | Item | Tipo | Estado |
 |---|------|------|--------|
 | 1 | Seed data en Supabase | Operación | ✅ Ejecutado |
-| 2 | Migraciones SQL (hasta 043) | Operación | ✅ Ejecutadas (43 migraciones) |
+| 2 | Migraciones SQL (hasta 095) | Operación | ✅ Ejecutadas (95 migraciones) |
 | 3 | Tablas sync Supabase | Feature | ✅ 30+ entidades sincronizadas |
 | 4 | Overlay de planos vs modelo en Visor BIM | Feature | ❌ No implementado |
 | 5 | Internacionalización (i18n) | Feature | ✅ Implementado (es.json + en.json, 633+ keys) |
@@ -316,4 +343,4 @@ Ver `SUPABASE_GOOGLE_OAUTH_SETUP.md` (archivo eliminado — contenido consolidad
 
 ---
 
-*Última actualización: 2026-06-21*
+*Última actualización: 2026-07-12*

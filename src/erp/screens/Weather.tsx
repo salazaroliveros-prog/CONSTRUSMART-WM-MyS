@@ -109,11 +109,22 @@ const Weather: React.FC = () => {
     }
   }, [proyecto, updateProyectoWeather, addNotificacion, t]);
 
+  // Autorefresh con intervalo real (cada 30 min) + debounce para evitar llamadas en ráfaga
   useEffect(() => {
-    if (autoRefresh && weather?.weatherData && isWeatherDataStale(weather.weatherData, 60)) {
-      refreshWeather();
+    if (!autoRefresh) return;
+    // Verificar inmediatamente si los datos están obsoletos
+    if (weather?.weatherData && isWeatherDataStale(weather.weatherData, 60)) {
+      const timer = setTimeout(() => { refreshWeather(); }, 500); // debounce 500ms
+      return () => clearTimeout(timer);
     }
-  }, [weather, autoRefresh, refreshWeather]);
+    // Intervalo periódico cada 30 min
+    const interval = setInterval(() => {
+      if (weather?.weatherData && isWeatherDataStale(weather.weatherData, 60)) {
+        refreshWeather();
+      }
+    }, 30 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, weather?.weatherData?.fetched_at, refreshWeather]);
 
   useEffect(() => {
     const loadWeatherFromStorage = async () => {
@@ -794,58 +805,168 @@ const Weather: React.FC = () => {
 
 const WeatherHistoryChart: React.FC<{ history: WeatherHistoryItem[] }> = ({ history }) => {
   const { t } = useTranslation();
-  const recent = history.slice(-14);
+  const [chartType, setChartType] = React.useState<'temp' | 'precip' | 'impact'>('temp');
+  const recent = history.slice(-30);
 
-  const maxTemp = Math.max(...recent.map(h => h.tempMax), 0);
-  const minTemp = Math.min(...recent.map(h => h.tempMin), 0);
+  const maxTemp = Math.max(...recent.map(h => h.tempMax), 35);
+  const minTemp = Math.min(...recent.map(h => h.tempMin), 10);
   const tempRange = maxTemp - minTemp || 1;
-  const maxPrecip = Math.max(...recent.map(h => h.precipitation), 0.1);
-  const precipScale = (val: number) => Math.max(2, (val / maxPrecip) * 25);
-  const barWidth = Math.max(20, Math.min(40, 600 / recent.length));
+  const maxPrecip = Math.max(...recent.map(h => h.precipitation), 1);
+  const barWidth = Math.max(16, Math.min(36, 560 / Math.max(recent.length, 1)));
+  const gap = 3;
+  const svgW = Math.max(300, recent.length * (barWidth + gap) + 16);
+  const chartH = 120;
+  const labelY = chartH + 28;
 
   const getTempColor = (temp: number) => {
     if (temp > 35) return '#ef4444';
-    if (temp > 25) return '#f97316';
-    if (temp > 15) return '#3b82f6';
+    if (temp > 28) return '#f97316';
+    if (temp > 18) return '#3b82f6';
     return '#06b6d4';
   };
 
-  return (
-    <div className="space-y-4">
-      <div className="overflow-x-auto">
-        <svg width={Math.max(300, recent.length * (barWidth + 4))} height="160" className="min-w-full">
-          {recent.map((item, i) => {
-            const x = i * (barWidth + 4) + 8;
-            const highY = 10 + (1 - (item.tempMax - minTemp) / tempRange) * 100;
-            const barH = Math.max(3, ((item.tempMax - item.tempMin) / tempRange) * 100);
-            const avgY = 10 + (1 - (item.temp - minTemp) / tempRange) * 100;
+  // Puntos para línea de temperatura promedio
+  const linePoints = recent.map((item, i) => {
+    const x = i * (barWidth + gap) + 8 + barWidth / 2;
+    const y = 10 + (1 - (item.temp - minTemp) / tempRange) * chartH;
+    return `${x},${y}`;
+  }).join(' ');
 
-            return (
-              <g key={`${item.date}-${i}`}>
-                <rect x={x} y={highY} width={barWidth} height={barH} rx="3" fill={getTempColor(item.temp)} opacity="0.7">
-                  <title>{item.date}: {Math.round(item.temp)}°C ({Math.round(item.tempMin)}-{Math.round(item.tempMax)})</title>
-                </rect>
-                {item.precipitation > 0 && (
-                  <rect x={x} y={125 - precipScale(item.precipitation)} width={barWidth} height={precipScale(item.precipitation)} rx="2" fill="#60a5fa" opacity="0.5">
-                    <title>{t('weather.precipitation', 'Precipitación')}: {item.precipitation.toFixed(1)}mm</title>
+  const impactColors: Record<string, string> = {
+    low: '#22c55e', medium: '#f59e0b', high: '#f97316', critical: '#ef4444'
+  };
+
+  const workableDays = recent.filter(h => h.impactLevel === 'low' || h.impactLevel === 'medium').length;
+  const lostDays = recent.filter(h => h.impactLevel === 'high' || h.impactLevel === 'critical').length;
+  const avgTemp = recent.length ? (recent.reduce((s, h) => s + h.temp, 0) / recent.length).toFixed(1) : '—';
+  const totalPrecip = recent.reduce((s, h) => s + h.precipitation, 0).toFixed(1);
+
+  return (
+    <div className="space-y-3">
+      {/* KPIs rápidos */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-2 text-center">
+          <div className="text-xs text-muted-foreground">{t('weather.avg_temp', 'Temp. promedio')}</div>
+          <div className="text-lg font-bold text-blue-600">{avgTemp}°C</div>
+        </div>
+        <div className="bg-cyan-50 dark:bg-cyan-950 rounded-lg p-2 text-center">
+          <div className="text-xs text-muted-foreground">{t('weather.total_precip', 'Precip. total')}</div>
+          <div className="text-lg font-bold text-cyan-600">{totalPrecip}mm</div>
+        </div>
+        <div className="bg-green-50 dark:bg-green-950 rounded-lg p-2 text-center">
+          <div className="text-xs text-muted-foreground">{t('weather.workable_days', 'Días trabajables')}</div>
+          <div className="text-lg font-bold text-green-600">{workableDays}</div>
+        </div>
+        <div className="bg-red-50 dark:bg-red-950 rounded-lg p-2 text-center">
+          <div className="text-xs text-muted-foreground">{t('weather.lost_days', 'Días perdidos')}</div>
+          <div className="text-lg font-bold text-red-600">{lostDays}</div>
+        </div>
+      </div>
+
+      {/* Selector de gráfico */}
+      <div className="flex gap-1">
+        {(['temp', 'precip', 'impact'] as const).map(type => (
+          <button
+            key={type}
+            onClick={() => setChartType(type)}
+            className={`text-xs px-3 py-1 rounded-full transition-colors ${
+              chartType === type ? 'bg-blue-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            }`}
+          >
+            {type === 'temp' ? t('weather.temperature', 'Temperatura') :
+             type === 'precip' ? t('weather.precipitation_short', 'Precip.') :
+             t('weather.impact_level', 'Impacto')}
+          </button>
+        ))}
+      </div>
+
+      {/* Gráfico SVG */}
+      <div className="overflow-x-auto rounded-lg bg-muted/20 p-2">
+        <svg width={svgW} height={labelY + 8} aria-label={t('weather.history_chart', 'Historial Climático')}>
+          {/* Líneas de referencia */}
+          {[0, 0.25, 0.5, 0.75, 1].map(pct => (
+            <line key={pct} x1="8" y1={10 + pct * chartH} x2={svgW - 4} y2={10 + pct * chartH}
+              stroke="#e5e7eb" strokeWidth="0.5" strokeDasharray="3,3" />
+          ))}
+
+          {chartType === 'temp' && (
+            <>
+              {recent.map((item, i) => {
+                const x = i * (barWidth + gap) + 8;
+                const highY = 10 + (1 - (item.tempMax - minTemp) / tempRange) * chartH;
+                const barH = Math.max(3, ((item.tempMax - item.tempMin) / tempRange) * chartH);
+                return (
+                  <rect key={`t-${i}`} x={x} y={highY} width={barWidth} height={barH} rx="2"
+                    fill={getTempColor(item.temp)} opacity="0.65">
+                    <title>{item.date}: {Math.round(item.temp)}°C ({Math.round(item.tempMin)}–{Math.round(item.tempMax)})</title>
                   </rect>
-                )}
-                {recent.length > 0 && (
-                  <text x={x + barWidth / 2} y="148" textAnchor="middle" className="fill-muted-foreground text-[9px]">
-                    {new Date(item.date).getDate()}
-                  </text>
-                )}
-                <line x1={x + barWidth / 2} y1={avgY} x2={x + barWidth / 2} y2={avgY + 4} stroke={getTempColor(item.temp)} strokeWidth="2" />
-              </g>
+                );
+              })}
+              {recent.length > 1 && (
+                <polyline points={linePoints} fill="none" stroke="#1d4ed8" strokeWidth="1.5"
+                  strokeLinejoin="round" opacity="0.9" />
+              )}
+            </>
+          )}
+
+          {chartType === 'precip' && recent.map((item, i) => {
+            const x = i * (barWidth + gap) + 8;
+            const h = Math.max(2, (item.precipitation / maxPrecip) * chartH);
+            return (
+              <rect key={`p-${i}`} x={x} y={10 + chartH - h} width={barWidth} height={h} rx="2"
+                fill="#60a5fa" opacity="0.8">
+                <title>{item.date}: {item.precipitation.toFixed(1)}mm</title>
+              </rect>
             );
           })}
-          <line x1="0" y1="110" x2={recent.length * (barWidth + 4) + 8} y2="110" stroke="#e5e7eb" strokeWidth="1" />
+
+          {chartType === 'impact' && recent.map((item, i) => {
+            const x = i * (barWidth + gap) + 8;
+            const score = item.impactScore || 0;
+            const h = Math.max(2, (score / 100) * chartH);
+            return (
+              <rect key={`i-${i}`} x={x} y={10 + chartH - h} width={barWidth} height={h} rx="2"
+                fill={impactColors[item.impactLevel] || '#22c55e'} opacity="0.8">
+                <title>{item.date}: {t(`weather.level.${item.impactLevel}`)} ({score}pts)</title>
+              </rect>
+            );
+          })}
+
+          {/* Etiquetas de fecha */}
+          {recent.map((item, i) => {
+            if (recent.length > 14 && i % 3 !== 0) return null;
+            const x = i * (barWidth + gap) + 8 + barWidth / 2;
+            return (
+              <text key={`l-${i}`} x={x} y={labelY} textAnchor="middle"
+                fontSize="9" fill="currentColor" opacity="0.6">
+                {new Date(item.date + 'T12:00:00').getDate()}
+              </text>
+            );
+          })}
         </svg>
       </div>
+
       <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-orange-500 inline-block" aria-hidden="true" /> {t('weather.temperature', 'Temperatura')}</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-400 opacity-50 inline-block" aria-hidden="true" /> {t('weather.precipitation_short', 'Precip.')}</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full border-2 border-muted-foreground inline-block" aria-hidden="true" /> {t('weather.avg_temp', 'Temp. promedio')}</span>
+        {chartType === 'temp' && (
+          <>
+            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-orange-500 inline-block" /> {t('weather.temp_range', 'Rango temp.')}</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-2 rounded bg-blue-700 inline-block" /> {t('weather.avg_temp', 'Temp. promedio')}</span>
+          </>
+        )}
+        {chartType === 'precip' && (
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-400 inline-block" /> {t('weather.precipitation', 'Precipitación')} (mm)</span>
+        )}
+        {chartType === 'impact' && (
+          <>
+            {(['low','medium','high','critical'] as const).map(lvl => (
+              <span key={lvl} className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded inline-block" style={{ background: impactColors[lvl] }} />
+                {t(`weather.level.${lvl}`)}
+              </span>
+            ))}
+          </>
+        )}
+        <span className="ml-auto text-[10px]">{recent.length} {t('weather.days_recorded', 'días registrados')}</span>
       </div>
     </div>
   );

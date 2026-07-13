@@ -1,128 +1,117 @@
-import { log } from './auto-logger'
+import { log } from './auto-logger';
 
-const SW_URL = '/sw.js'
-const REGISTRATION_KEY = 'wm_erp_sw_registered'
-const VAPID_KEY_STORAGE = 'wm_erp_vapid_key'
+const SW_URL = '/sw.js';
+const REGISTRATION_KEY = 'wm_erp_sw_registered';
+const VAPID_KEY_STORAGE = 'wm_erp_vapid_key';
+
+function sendVapidKey(sw: ServiceWorker) {
+  const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
+  if (vapidKey) {
+    sessionStorage.setItem(VAPID_KEY_STORAGE, vapidKey);
+    sw.postMessage({ type: 'SET_VAPID_KEY', payload: { key: vapidKey } });
+  }
+}
 
 /**
- * Inicializa el Service Worker con inyección de VAPID key
- * 
- * Estrategia:
- * 1. Lee VITE_VAPID_PUBLIC_KEY de import.meta.env
- * 2. La almacena en sessionStorage para que el SW la lea
- * 3. Registra el SW
- * 4. Envía la key via postMessage después de la activación
+ * Registra el Service Worker.
+ * - Detecta actualizaciones y activa el nuevo SW automáticamente.
+ * - Inyecta VAPID key cuando el SW está activo.
  */
 export async function initServiceWorker(): Promise<ServiceWorkerRegistration | null> {
-  // Evitar registro duplicado en la misma sesión
-  if (sessionStorage.getItem(REGISTRATION_KEY)) {
-    return null
-  }
-
   if (!('serviceWorker' in navigator)) {
-    log('warn', 'SWInit', 'Service Workers not supported in this browser')
-    return null
+    log('warn', 'SWInit', 'Service Workers not supported');
+    return null;
   }
 
   try {
-    // 1. Obtener VAPID key de las variables de entorno
-    const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined
-    
-    if (vapidKey) {
-      // 2. Almacenar para que el SW pueda leerla via postMessage
-      sessionStorage.setItem(VAPID_KEY_STORAGE, vapidKey)
-    } else {
-      log('warn', 'SWInit', 'VITE_VAPID_PUBLIC_KEY not configured — push notifications disabled')
-    }
-
-    // 3. Registrar SW
     const registration = await navigator.serviceWorker.register(SW_URL, {
       scope: '/',
       updateViaCache: 'none',
-    })
+    });
 
-    log('info', 'SWInit', `Service Worker registered (scope: ${registration.scope})`, {
-      state: registration.active?.state,
-    })
+    log('info', 'SWInit', `SW registered (scope: ${registration.scope})`);
 
-    // 4. Enviar VAPID key al SW cuando esté listo
-    if (vapidKey && registration.active) {
-      registration.active.postMessage({
-        type: 'SET_VAPID_KEY',
-        payload: { key: vapidKey },
-      })
-    } else if (registration.installing || registration.waiting) {
-      // Esperar a que el SW se active
-      const sw = registration.installing || registration.waiting
-      sw?.addEventListener('statechange', () => {
-        if (sw?.state === 'activated' && vapidKey) {
-          sw.postMessage({
-            type: 'SET_VAPID_KEY',
-            payload: { key: vapidKey },
-          })
-        }
-      })
+    // Inyectar VAPID key al SW activo
+    if (registration.active) {
+      sendVapidKey(registration.active);
     }
 
-    // Marcar como registrado en esta sesión
-    sessionStorage.setItem(REGISTRATION_KEY, 'true')
+    // Detectar nuevo SW en espera → activar automáticamente
+    const onUpdateFound = () => {
+      const newSW = registration.installing;
+      if (!newSW) return;
+      newSW.addEventListener('statechange', () => {
+        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+          // Hay una nueva versión — activar sin esperar recarga manual
+          newSW.postMessage({ type: 'SKIP_WAITING' });
+          log('info', 'SWInit', 'New SW version activated');
+        }
+        if (newSW.state === 'activated') {
+          sendVapidKey(newSW);
+        }
+      });
+    };
+
+    registration.addEventListener('updatefound', onUpdateFound);
+
+    // Recargar cuando el SW controlador cambie (nueva versión activada)
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
 
     // Escuchar mensajes del SW
     navigator.serviceWorker.addEventListener('message', (event) => {
-      const { type, payload } = event.data || {}
-      
+      const { type, payload } = event.data || {};
       switch (type) {
         case 'SYNC_TRIGGERED':
-          log('info', 'SWInit', 'Background sync triggered by SW', payload)
-          break
+          log('info', 'SWInit', 'Background sync triggered', payload);
+          break;
         case 'NOTIFICATION_CLICKED':
-          log('info', 'SWInit', 'Notification clicked', payload)
-          break
+          log('info', 'SWInit', 'Notification clicked', payload);
+          break;
         case 'VAPID_KEY_RECEIVED':
-          log('info', 'SWInit', 'VAPID key confirmed by SW', payload)
-          break
+          log('info', 'SWInit', 'VAPID key confirmed by SW', payload);
+          break;
         case 'VAPID_KEY_MISSING':
-          log('warn', 'SWInit', 'VAPID key missing in SW — push notifications disabled', payload)
-          break
+          log('warn', 'SWInit', 'VAPID key missing — push disabled', payload);
+          break;
         default:
-          break
+          break;
       }
-    })
+    });
 
-    return registration
+    // Verificar actualizaciones cada 60 min
+    setInterval(() => registration.update().catch(() => {}), 60 * 60 * 1000);
 
+    sessionStorage.setItem(REGISTRATION_KEY, 'true');
+    return registration;
   } catch (error) {
-    log('error', 'SWInit', 'Failed to register Service Worker', {
-      error: String(error),
-    })
-    return null
+    log('error', 'SWInit', 'Failed to register SW', { error: String(error) });
+    return null;
   }
 }
 
-/**
- * Desregistra el Service Worker actual
- */
 export async function unregisterServiceWorker(): Promise<boolean> {
-  if (!('serviceWorker' in navigator)) return false
-
+  if (!('serviceWorker' in navigator)) return false;
   try {
-    const registration = await navigator.serviceWorker.getRegistration()
+    const registration = await navigator.serviceWorker.getRegistration();
     if (registration) {
-      const result = await registration.unregister()
+      const result = await registration.unregister();
       if (result) {
-        sessionStorage.removeItem(REGISTRATION_KEY)
-        sessionStorage.removeItem(VAPID_KEY_STORAGE)
-        log('info', 'SWInit', 'Service Worker unregistered')
+        sessionStorage.removeItem(REGISTRATION_KEY);
+        sessionStorage.removeItem(VAPID_KEY_STORAGE);
+        log('info', 'SWInit', 'SW unregistered');
       }
-      return result
+      return result;
     }
-    return true
+    return true;
   } catch (error) {
-    log('error', 'SWInit', 'Failed to unregister Service Worker', {
-      error: String(error),
-    })
-    return false
+    log('error', 'SWInit', 'Failed to unregister SW', { error: String(error) });
+    return false;
   }
 }
 
-export default initServiceWorker
+export default initServiceWorker;

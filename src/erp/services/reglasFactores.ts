@@ -257,29 +257,20 @@ export class MotorReglasFactores {
     factorAplicado: number,
     contexto: ContextoAplicacion
   ): Promise<void> {
-    try {
-      await supabase.from('erp_historial_aplicacion_reglas').insert({
-        proyecto_id: contexto.proyecto_id,
-        renglon_id: contexto.renglon_id,
-        regla_id: regla.id,
-        valor_original: valorOriginal,
-        valor_aplicado: valorAplicado,
-        factor_aplicado: factorAplicado,
-        contexto_aplicacion: contexto,
-        usuario_id: contexto.usuario_id,
-      });
-    } catch (error) {
-      safeLogger.warn('[reglasFactores] Error registrando aplicación, encolando mutación:', error);
-      useErpStore.getState().enqueueMutation('addHistorialAplicacionRegla', {
-        proyecto_id: contexto.proyecto_id,
-        renglon_id: contexto.renglon_id,
-        regla_id: regla.id,
-        valor_original: valorOriginal,
-        valor_aplicado: valorAplicado,
-        factor_aplicado: factorAplicado,
-        contexto_aplicacion: contexto,
-        usuario_id: contexto.usuario_id,
-      });
+    const payload = {
+      proyecto_id: contexto.proyecto_id,
+      renglon_id: contexto.renglon_id,
+      regla_id: regla.id,
+      valor_original: valorOriginal,
+      valor_aplicado: valorAplicado,
+      factor_aplicado: factorAplicado,
+      contexto_aplicacion: contexto,
+      usuario_id: contexto.usuario_id,
+    };
+    useErpStore.getState().enqueueMutation('addHistorialAplicacionRegla', payload);
+    if (navigator.onLine) {
+      const { error } = await supabase.from('erp_historial_aplicacion_reglas').insert(payload);
+      if (error) safeLogger.warn('[reglasFactores] registrarAplicacion sync falló:', error);
     }
   }
 
@@ -313,46 +304,29 @@ export class MotorReglasFactores {
   }
 
   async crearRegla(regla: Partial<ReglaFactor>): Promise<ReglaFactor> {
-    const { data, error } = await supabase
-      .from('erp_reglas_factores')
-      .insert(regla)
-      .select()
-      .single();
-
-    if (error) {
-      safeLogger.warn('[reglasFactores] Error creando regla, encolando mutación:', error);
-      useErpStore.getState().enqueueMutation('addReglaFactor', regla);
-      return { ...regla, id: crypto.randomUUID?.() || Date.now().toString() } as ReglaFactor;
+    const optimistic = { ...regla, id: crypto.randomUUID?.() || Date.now().toString() } as ReglaFactor;
+    useErpStore.getState().enqueueMutation('addReglaFactor', regla);
+    if (navigator.onLine) {
+      const { error } = await supabase.from('erp_reglas_factores').insert(regla);
+      if (error) safeLogger.warn('[reglasFactores] crearRegla sync falló (cola retry):', error);
     }
-    return data;
+    return optimistic;
   }
 
   async actualizarRegla(id: string, regla: Partial<ReglaFactor>): Promise<ReglaFactor> {
-    const { data, error } = await supabase
-      .from('erp_reglas_factores')
-      .update(regla)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      safeLogger.warn('[reglasFactores] Error actualizando regla, encolando mutación:', error);
-      useErpStore.getState().enqueueMutation('updateReglaFactor', { id, ...regla });
-      return { id, ...regla } as ReglaFactor;
+    useErpStore.getState().enqueueMutation('updateReglaFactor', { id, ...regla });
+    if (navigator.onLine) {
+      const { error } = await supabase.from('erp_reglas_factores').update(regla).eq('id', id);
+      if (error) safeLogger.warn('[reglasFactores] actualizarRegla sync falló (cola retry):', error);
     }
-    return data;
+    return { id, ...regla } as ReglaFactor;
   }
 
   async eliminarRegla(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('erp_reglas_factores')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      safeLogger.warn('[reglasFactores] Error eliminando regla, encolando mutación:', error);
-      useErpStore.getState().enqueueMutation('deleteReglaFactor', { id });
-      return;
+    useErpStore.getState().enqueueMutation('deleteReglaFactor', { id });
+    if (navigator.onLine) {
+      const { error } = await supabase.from('erp_reglas_factores').delete().eq('id', id);
+      if (error) safeLogger.warn('[reglasFactores] eliminarRegla sync falló (cola retry):', error);
     }
   }
 

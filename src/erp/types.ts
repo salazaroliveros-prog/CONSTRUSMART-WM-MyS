@@ -1151,6 +1151,8 @@ export interface AppSettings {
   dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD'; currency: 'GTQ' | 'USD';
   sidebarCollapsed: boolean; animationsEnabled: boolean; compactMode: boolean;
   fontSize: 'small' | 'medium' | 'large';
+  notificationSounds?: boolean;
+  toastPosition?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   empresaInfo?: { nombre: string; nit: string; telefono: string; email: string; direccion: string; ciudad: string; pais: string; };
 }
 

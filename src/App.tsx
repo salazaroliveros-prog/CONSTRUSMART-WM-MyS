@@ -12,7 +12,16 @@ import { isSentryInitialized } from '@/lib/sentry';
 
 const Index = lazy(() => import("./pages/Index"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => {
   useVisualSettings();

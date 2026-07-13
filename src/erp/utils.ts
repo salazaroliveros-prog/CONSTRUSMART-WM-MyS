@@ -46,6 +46,7 @@ export type AppSettings = {
   footerEnabled: boolean;
   touchMode: boolean;
   notificationSounds: boolean;
+  toastPosition: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   empresaInfo?: {
     nombre: string;
     nit: string;
@@ -195,6 +196,7 @@ export const APP_SETTINGS_DEFAULTS: AppSettings = {
   footerEnabled: true,
   touchMode: false,
   notificationSounds: true,
+  toastPosition: 'bottom-right',
   empresaInfo: EMPRESA_DEFAULT,
 };
 

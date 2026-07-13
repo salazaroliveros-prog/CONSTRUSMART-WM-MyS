@@ -8,8 +8,9 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { Building2, History } from 'lucide-react';
+import { Building2, History, Activity } from 'lucide-react';
 import { centroCostoFormSchema } from '../store/schemas/admin';
+import { usePerformanceMetrics } from '../hooks/usePerformanceMetrics';
 
 type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
 
@@ -17,7 +18,8 @@ const Administracion: React.FC = () => {
   const { proyectos } = useErp();
   const safeProyectos = Array.isArray(proyectos) ? proyectos : [];
   const { t } = useTranslation();
-  const [tab, setTab] = useState<'centros' | 'logs' | 'validacion'>('centros');
+  const [tab, setTab] = useState<'centros' | 'logs' | 'validacion' | 'rendimiento'>('centros');
+  const { metrics, loading: metricsLoading, error: metricsError, fetch: fetchMetrics } = usePerformanceMetrics();
   const [centrosCosto, setCentrosCosto] = useState<CentroCosto[]>([]);
   const [auditLog, setAuditLog] = useState<LogAuditoria[]>([]);
   const [loading, setLoading] = useState(true);
@@ -212,6 +214,7 @@ const Administracion: React.FC = () => {
           { key: 'centros' as const,    label: t('admin.tab_centros') },
           { key: 'logs' as const,       label: t('admin.tab_logs') },
           { key: 'validacion' as const, label: t('admin.tab_validacion') },
+          { key: 'rendimiento' as const, label: 'Rendimiento DB' },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)} aria-label={t.label}
             className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
@@ -223,6 +226,63 @@ const Administracion: React.FC = () => {
       {tab === 'centros'    && renderCentros()}
       {tab === 'logs'       && renderLogs()}
       {tab === 'validacion' && renderValidacion()}
+      {tab === 'rendimiento' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold flex items-center gap-2"><Activity className="w-4 h-4" /> Métricas de Rendimiento DB</h3>
+            <button onClick={fetchMetrics} disabled={metricsLoading}
+              className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg disabled:opacity-50">
+              {metricsLoading ? 'Cargando...' : 'Actualizar'}
+            </button>
+          </div>
+          {metricsError && <p className="text-sm text-red-500">{metricsError}</p>}
+          {metrics && (
+            <>
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2">Consultas más lentas</h4>
+                {metrics.slow_queries.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Sin datos (pg_stat_statements puede no estar habilitado)</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead><tr className="bg-muted">
+                        <th className="p-2 text-left">Query</th>
+                        <th className="p-2 text-right">Llamadas</th>
+                        <th className="p-2 text-right">Media (ms)</th>
+                        <th className="p-2 text-right">Total (s)</th>
+                      </tr></thead>
+                      <tbody>{metrics.slow_queries.map((q, i) => (
+                        <tr key={i} className="border-t">
+                          <td className="p-2 font-mono max-w-xs truncate">{q.query_preview}</td>
+                          <td className="p-2 text-right">{q.calls}</td>
+                          <td className="p-2 text-right">{q.mean_ms}</td>
+                          <td className="p-2 text-right">{q.total_sec}</td>
+                        </tr>
+                      ))}</tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2">Tamaño de tablas</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {metrics.table_sizes.map(tbl => (
+                    <div key={tbl.table_name} className="bg-muted rounded-lg p-3">
+                      <p className="text-xs font-mono truncate">{tbl.table_name}</p>
+                      <p className="text-sm font-bold">{tbl.total_size}</p>
+                      <p className="text-xs text-muted-foreground">{tbl.live_rows.toLocaleString()} filas</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">Actualizado: {new Date(metrics.checked_at).toLocaleString()}</p>
+            </>
+          )}
+          {!metrics && !metricsLoading && (
+            <p className="text-sm text-muted-foreground">Haz clic en "Actualizar" para cargar las métricas.</p>
+          )}
+        </div>
+      )}
 
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={t('admin.nuevo_centro')}>
