@@ -694,7 +694,42 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
       safeLogger.warn('[deleteProyecto] Proyecto no encontrado:', id);
       return;
     }
-    get().setProyectos(prev => prev.filter(p => p.id !== id));
+    get().setProyectos(prev => prev.filter(x => x.id !== id));
+    // Cascade: remove all related entities
+    get().setMovimientos(prev => prev.filter(x => x.proyectoId !== id));
+    get().setPresupuestos(prev => prev.filter(x => x.proyectoId !== id));
+    get().setHitos(prev => prev.filter(x => x.proyectoId !== id));
+    get().setRiesgos(prev => prev.filter(x => x.proyectoId !== id));
+    get().setAvances(prev => prev.filter(x => x.proyectoId !== id));
+    get().setCuentasCobrar(prev => prev.filter(x => x.proyectoId !== id));
+    get().setCuentasPagar(prev => prev.filter(x => x.proyectoId !== id));
+    get().setOrdenesCambio(prev => prev.filter(x => x.proyectoId !== id));
+    get().setEventos(prev => prev.filter(x => x.proyectoId !== id));
+    get().setBitacora(prev => prev.filter(x => x.proyectoId !== id));
+    get().setEmpleados(prev => prev.filter(x => x.proyectoId !== id));
+    get().setMateriales(prev => prev.filter(x => x.proyectoId !== id));
+    get().setOrdenes(prev => prev.filter(x => x.proyectoId !== id));
+    get().setValesSalida(prev => prev.filter(x => x.proyectoId !== id));
+    get().setSeguimientoEVM(prev => prev.filter(x => x.proyectoId !== id));
+    get().setIncidentes(prev => prev.filter(x => x.proyectoId !== id));
+    get().setPlanos(prev => prev.filter(x => x.proyectoId !== id));
+    get().setRfis(prev => prev.filter(x => x.proyectoId !== id));
+    get().setSubmittals(prev => prev.filter(x => x.proyectoId !== id));
+    get().setActivos(prev => prev.filter(x => x.proyectoId !== id));
+    get().setCuadros(prev => prev.filter(x => x.proyectoId !== id));
+    get().setPruebas(prev => prev.filter(x => x.proyectoId !== id));
+    get().setNcs(prev => prev.filter(x => x.proyectoId !== id));
+    get().setLiberaciones(prev => prev.filter(x => x.proyectoId !== id));
+    get().setDestajos(prev => prev.filter(x => x.proyectoId !== id));
+    get().setProveedores(prev => prev.filter(x => x.proyectoId !== id));
+    get().setLicitaciones(prev => prev.filter(x => x.proyectoId !== id));
+    get().setCotizacionesNegocio(prev => prev.filter(x => x.proyectoId !== id));
+    get().setVentasPaquetes(prev => prev.filter(x => x.proyectoId !== id));
+    get().setCentrosCosto(prev => prev.filter(x => x.proyectoId !== id));
+    get().setCalculosProyecto(prev => prev.filter(x => x.proyectoId !== id));
+    get().setPublicacionesMuro(prev => prev.filter(x => x.proyectoId !== id));
+    // Clear currentProjectId if this was the active project
+    if (get().currentProjectId === id) get().setCurrentProjectId(null);
     get().enqueueMutation('deleteProyecto', { id });
     get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'eliminar', entidad: 'proyecto', entidadId: id, valoresAnteriores: { nombre: p.nombre, estado: p.estado } });
   },
@@ -702,8 +737,41 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     const ids = get().proyectos.map(p => p.id);
     if (ids.length === 0) return;
     const nombres = get().proyectos.map(p => p.nombre);
+    // Cascade: clear all related entity arrays
     get().setProyectos([]);
-  if (ids.includes(get().currentProjectId || '')) get().setCurrentProjectId(null);
+    get().setMovimientos([]);
+    get().setPresupuestos([]);
+    get().setHitos([]);
+    get().setRiesgos([]);
+    get().setAvances([]);
+    get().setCuentasCobrar([]);
+    get().setCuentasPagar([]);
+    get().setOrdenesCambio([]);
+    get().setEventos([]);
+    get().setBitacora([]);
+    get().setEmpleados([]);
+    get().setMateriales([]);
+    get().setOrdenes([]);
+    get().setValesSalida([]);
+    get().setSeguimientoEVM([]);
+    get().setIncidentes([]);
+    get().setPlanos([]);
+    get().setRfis([]);
+    get().setSubmittals([]);
+    get().setActivos([]);
+    get().setCuadros([]);
+    get().setPruebas([]);
+    get().setNcs([]);
+    get().setLiberaciones([]);
+    get().setDestajos([]);
+    get().setProveedores([]);
+    get().setLicitaciones([]);
+    get().setCotizacionesNegocio([]);
+    get().setVentasPaquetes([]);
+    get().setCentrosCosto([]);
+    get().setCalculosProyecto([]);
+    get().setPublicacionesMuro([]);
+    if (ids.includes(get().currentProjectId || '')) get().setCurrentProjectId(null);
     ids.forEach(id => {
       get().enqueueMutation('deleteProyecto', { id });
     });
