@@ -927,6 +927,13 @@
     "error_calculo_pavimento": "Error calculating pavement",
     "error_calculo_red_infraestructura": "Error calculating infrastructure network",
     "error_calculo_muro_contencion": "Error calculating retaining wall",
+    "dosificacion_exito": "Concrete mix design calculated successfully",
+    "acero_exito": "Steel breakdown calculated successfully",
+    "movimiento_tierra_exito": "Earthwork calculated successfully",
+    "climaticos_exito": "Climate parameters calculated successfully",
+    "pavimento_exito": "Pavement calculated successfully",
+    "red_infraestructura_exito": "Infrastructure network calculated successfully",
+    "muro_contencion_exito": "Retaining wall calculated successfully",
     "error_validacion_calculo": "Calculation has validation errors",
     "factor_actualizado_proyecto": "Overhead factor updated for project",
     "factor_guardado_sin_proyecto": "Factor saved (no project)",
@@ -1217,7 +1224,7 @@
     "confirmar_eliminar_titulo": "Delete task",
     "confirmar_eliminar_contenido": "Delete task for \"{{cuadrilla}}\" ({{codigo}})?"
   },
-   "impuestos": {
+  "impuestos": {
     "titulo": "Taxes",
     "iva": "VAT",
     "isr": "Income Tax",

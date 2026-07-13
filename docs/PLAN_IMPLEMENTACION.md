@@ -3,7 +3,7 @@
 ## Resumen de Hallazgos
 
 ### Nota (13/07/2026)
-Este plan fue redactado en una sesión anterior y refleja trabajo mayoritariamente completado. Las correcciones listadas abajo (items 1-47) ya están implementadas. Ver `AGENTS.md` sección "SESIÓN-16" para el análisis de gap actual y `GAP_ANALYSIS_COMPLETO.md` para el inventario completo. Items aún pendientes: pooler, BigNumber, branded types, partitioning, virtual scrolling (Bodega/Movs), Math.fround.
+Este plan fue redactado en una sesión anterior y refleja trabajo mayoritariamente completado. Las correcciones listadas abajo (items 1-47) ya están implementadas. Ver `AGENTS.md` sección "SESIÓN-16" para el análisis de gap actual y `GAP_ANALYSIS_COMPLETO.md` para el inventario completo. Items aún pendientes: BigNumber, branded types Zod, virtual scrolling (Bodega/Movs), Math.fround, table partitioning, 2FA/MFA, rate limiting APIs externas, Weather alerts/umbrales/comparación/calendario. Connection pooler marcado como N/A (app frontend sin backend Node.js propio).
 
 ### Ya Corregidos (Sesión Anterior)
 | # | Archivo | Corrección | Estado |

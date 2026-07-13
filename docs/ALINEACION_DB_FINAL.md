@@ -1,7 +1,7 @@
 # Alineación DB ↔ App — Verificación Final
 
 ## Fecha
-2026-07-09
+2026-07-13 (actualizado desde 2026-07-09)
 
 ## Proyecto
 CONSTRUSMART ERP — Proyecto Supabase: `neygzluxugodiwcuctbj`
@@ -10,14 +10,20 @@ CONSTRUSMART ERP — Proyecto Supabase: `neygzluxugodiwcuctbj`
 
 ## Resumen Ejecutivo
 
-✅ **Alineación total confirmada** mediante verificación directa contra Supabase (service role key).
+✅ **Alineación total confirmada** mediante verificación directa contra Supabase (service role key + REST API).
+
+### Correcciones aplicadas en esta sesión (13/07/2026)
+- Creadas 4 tablas faltantes en remoto: `erp_vales_salida`, `erp_submittals`, `erp_seguimiento`, `erp_ventas_paquetes`
+- Alineados schemas de tablas con app Zod: `erp_vales_salida.renglon_id` nullable, `erp_ventas_paquetes` columnas alineadas a `ventaPaqueteSchema`, `erp_submittals.numero` nullable
+- Removido `erp_solicitudes` de `TABLE_MAP` (entidad no usada en app)
+- Fix `erp_hitos.depends_on` → `depende_de` (jsonb) en remoto
 
 ---
 
 ## Verificación Realizada
 
 ### 1. Tablas `erp_*` ( service role directo )
-- **39/39 tablas** confirmadas existentes en producción.
+- **44/44 tablas** confirmadas existentes en producción (36 en TABLE_MAP + 8 auxiliares).
 - `erp_notificaciones`: **existe**.
 - `erp_proyectos`: **48 columnas** confirmadas.
 

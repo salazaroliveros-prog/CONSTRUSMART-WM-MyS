@@ -135,7 +135,7 @@ const APUAvanzado: React.FC = () => {
     try {
       const resultado = await ServicioMotorCalculo.calcularDosificacion(dosificacion, volumen, departamento || undefined);
       setResultadoDosificacion(resultado);
-      toast.success('Dosificación calculada exitosamente');
+      toast.success(t('apu.dosificacion_exito'));
     } catch (error) {
       toast.error(t('apu.error_calculo_dosificacion'));
       safeLogger.error(error);
@@ -147,9 +147,9 @@ const APUAvanzado: React.FC = () => {
   const handleCalcularAcero = async () => {
     setCalculandoAcero(true);
     try {
-      const resultado = await (ServicioMotorCalculo as unknown).calcularDesgloseAcero?.(acero) || { error: 'Función no implementada' };
+      const resultado = await ServicioMotorCalculo.calcularDesgloseAcero?.(acero) || { error: 'Función no implementada' };
       setResultadoAcero(resultado);
-      toast.success('Desglose de acero calculado exitosamente');
+      toast.success(t('apu.acero_exito'));
     } catch (error) {
       toast.error(t('apu.error_calculo_acero'));
       safeLogger.error(error);
@@ -163,7 +163,7 @@ const APUAvanzado: React.FC = () => {
     try {
       const resultado = await ServicioMotorCalculo.calcularMovimientoTierra(movimientoTierra);
       setResultadoMovimientoTierra(resultado);
-      toast.success('Movimiento de tierra calculado exitosamente');
+      toast.success(t('apu.movimiento_tierra_exito'));
     } catch (error) {
       toast.error(t('apu.error_calculo_movimiento_tierra'));
       safeLogger.error(error);
@@ -177,7 +177,7 @@ const APUAvanzado: React.FC = () => {
     try {
       const resultado = await ServicioMotorCalculo.obtenerFactorClimatico(parametrosClimaticos.departamentoCodigo || undefined);
       setResultadoClimaticos(resultado);
-      toast.success('Parámetros climáticos calculados exitosamente');
+      toast.success(t('apu.climaticos_exito'));
     } catch (error) {
       toast.error(t('apu.error_calculo_climaticos'));
       safeLogger.error(error);
@@ -189,14 +189,14 @@ const APUAvanzado: React.FC = () => {
   const handleCalcularPavimento = async () => {
     setCalculandoPavimento(true);
     try {
-      const resultado = await ServicioMotorCalculo.calcularPavimento(pavimento as unknown as Parameters<typeof ServicioMotorCalculo.calcularPavimento>[0]);
-      const validaciones = await ServicioValidacionCalculos.validarPavimento(pavimento as unknown as Parameters<typeof ServicioValidacionCalculos.validarPavimento>[0], resultado as unknown as Parameters<typeof ServicioValidacionCalculos.validarPavimento>[1]);
+      const resultado = await ServicioMotorCalculo.calcularPavimento(pavimento);
+      const validaciones = await ServicioValidacionCalculos.validarPavimento(pavimento, resultado);
       const esValido = await mostrarValidaciones(validaciones);
       if (!esValido) toast.warning(t('apu.error_validacion_calculo'));
       setResultadoPavimento(resultado);
-      toast.success('Pavimento calculado exitosamente');
+      toast.success(t('apu.pavimento_exito'));
       try {
-        await (registrarCalculo as unknown as (proyectoId: string, tipo: string, data: unknown, resultado: unknown, nota: string) => Promise<void>)(proyectoId || proyectos[0]?.id || '', 'pavimento', pavimento as unknown, resultado as unknown, 'Cálculo manual de pavimento');
+        await registrarCalculo(proyectoId || proyectos[0]?.id || '', 'pavimento', pavimento, resultado, 'Cálculo manual de pavimento');
       } catch (err) { /* ignore */ }
     } catch (error) {
       toast.error(t('apu.error_calculo_pavimento'));
@@ -210,13 +210,13 @@ const APUAvanzado: React.FC = () => {
     setCalculandoRedInfraestructura(true);
     try {
       const resultado = await ServicioMotorCalculo.calcularRedInfraestructura(redInfraestructura);
-      const validaciones = await ServicioValidacionCalculos.validarRedInfraestructura(redInfraestructura as unknown, resultado as unknown);
+      const validaciones = await ServicioValidacionCalculos.validarRedInfraestructura(redInfraestructura, resultado);
       const esValido = mostrarValidaciones(validaciones);
       if (!esValido) toast.warning(t('apu.error_validacion_calculo'));
       setResultadoRedInfraestructura(resultado);
-      toast.success('Red de infraestructura calculada exitosamente');
+      toast.success(t('apu.red_infraestructura_exito'));
       try {
-        await (registrarCalculo as unknown)(proyectoId || proyectos[0]?.id || '', 'red_infraestructura', redInfraestructura as unknown, resultado as unknown, 'Cálculo manual de red de infraestructura');
+        await registrarCalculo(proyectoId || proyectos[0]?.id || '', 'red_infraestructura', redInfraestructura, resultado, 'Cálculo manual de red de infraestructura');
       } catch (err) { /* ignore */ }
     } catch (error) {
       toast.error(t('apu.error_calculo_red_infraestructura'));
@@ -230,13 +230,13 @@ const APUAvanzado: React.FC = () => {
     setCalculandoMuroContencion(true);
     try {
       const resultado = await ServicioMotorCalculo.calcularMuroContencion(muroContencion);
-      const validaciones = await ServicioValidacionCalculos.validarMuroContencion(muroContencion as unknown, resultado as unknown);
+      const validaciones = await ServicioValidacionCalculos.validarMuroContencion(muroContencion, resultado);
       const esValido = mostrarValidaciones(validaciones);
       if (!esValido) toast.warning(t('apu.error_validacion_calculo'));
       setResultadoMuroContencion(resultado);
-      toast.success('Muro de contención calculado exitosamente');
+      toast.success(t('apu.muro_contencion_exito'));
       try {
-        await (registrarCalculo as unknown)(proyectoId || proyectos[0]?.id || '', 'muro_contencion', muroContencion as unknown, resultado as unknown, 'Cálculo manual de muro de contención');
+        await registrarCalculo(proyectoId || proyectos[0]?.id || '', 'muro_contencion', muroContencion, resultado, 'Cálculo manual de muro de contención');
       } catch (err) { /* ignore */ }
     } catch (error) {
       toast.error(t('apu.error_calculo_muro_contencion'));

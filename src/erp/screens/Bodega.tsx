@@ -14,6 +14,7 @@ import { useChartConfig } from '../hooks/useChartConfig';
 import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT_COMPACT, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL } from '../ui';
+import { List as VirtualizedList } from 'react-window';
 
 import { proveedorFormSchema, ordenFormSchema } from '../store/schemas/bodega';
 
@@ -127,10 +128,36 @@ const Bodega: React.FC = () => {
     return sorted;
   }, [materiales]);
 
-  const inp = INPUT_COMPACT;
+const ITEM_HEIGHT = 52;
+const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+  const m = materiales[index];
+  const planificado = m.cantidadPresupuestada ?? 0;
+  const desv = planificado > 0 ? ((m.stock - planificado) / Math.max(planificado, 1)) * 100 : 0;
+  const claseDesv = Math.abs(desv) > 15 ? `${COLOR_DANGER} dark:text-red-400` : Math.abs(desv) > 5 ? `${COLOR_WARNING} dark:text-amber-400` : 'text-emerald-600 dark:text-emerald-400';
+  return (
+    <div style={style} className="flex items-center border-b border-border hover:bg-muted/50">
+      <div className="w-full px-3 py-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 truncate">
+            <span className="truncate max-w-[180px]">{m.nombre}</span>
+            {m.critico && <span className={`text-[10px] bg-red-100 dark:bg-red-900/40 ${COLOR_DANGER} dark:text-red-400 px-1.5 py-0.5 rounded-full`}>{t('bodega.critico')}</span>}
+          </div>
+          <div className="flex items-center gap-3 text-xs">
+            <span className="w-16 text-right"><input type="number" inputMode="decimal" value={m.stock} onChange={e => updateMaterial(m.id, { stock: +e.target.value })} className="w-16 px-1.5 py-1 rounded border border-input bg-background text-foreground text-right focus:outline-none focus:ring-2 focus:ring-ring" /></span>
+            <span className="w-20 text-right">{m.stockMinimo} <span className="text-muted-foreground">{m.unidad}</span></span>
+            <span className={`w-28 text-right ${planificado === 0 ? 'text-muted-foreground italic' : ''}`}>{planificado === 0 ? '—' : `${planificado} ${m.unidad}`}</span>
+            <span className={`w-16 text-right ${claseDesv}`}>{planificado === 0 ? '—' : `${fmtPct(desv)}`}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const inp = INPUT_COMPACT;
 
 
-  if (loading) {
+if (loading) {
     return (
       <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
         <Skeleton className="h-8 w-56" />
@@ -212,45 +239,19 @@ const Bodega: React.FC = () => {
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm" role="table" aria-label={t('bodega.control_stock_aria')}>
-              <thead>
-                  <tr className="text-left text-xs text-muted-foreground border-b border-border">
-                    <th className="px-3 py-2" scope="col">{t('bodega.material')}</th>
-                    <th className="px-3 py-2 text-right" scope="col">{t('bodega.stock')}</th>
-                    <th className="px-3 py-2 text-right" scope="col">{t('bodega.minimo')}</th>
-                    <th className="px-3 py-2 text-right" scope="col">{t('bodega.planificado')}</th>
-                    <th className="px-3 py-2 text-right" scope="col">{t('bodega.desviacion_pct')}</th>
-                  </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {materiales.length === 0 ? (
-                  <tr><td colSpan={5} className="px-3 py-8 text-center text-sm text-muted-foreground"><Warehouse className="w-8 h-8 mx-auto mb-2 opacity-40" aria-hidden="true" />{t('bodega.sin_materiales')}</td></tr>
-                ) : materiales.map(m => {
-                  const planificado = m.cantidadPresupuestada ?? 0;
-                  const desv = planificado > 0 ? ((m.stock - planificado) / Math.max(planificado, 1)) * 100 : 0;
-                  const pct = (m.stock / Math.max(m.stockMinimo * 2, 1)) * 100;
-                  const claseDesv = Math.abs(desv) > 15 ? `${COLOR_DANGER} dark:text-red-400` : Math.abs(desv) > 5 ? `${COLOR_WARNING} dark:text-amber-400` : 'text-emerald-600 dark:text-emerald-400';
-                  return (
-                    <tr key={m.id} className="hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="row">
-                      <td className="px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          <span className="truncate max-w-[180px]">{m.nombre}</span>
-                          {m.critico && <span className={`text-[10px] bg-red-100 dark:bg-red-900/40 ${COLOR_DANGER} dark:text-red-400 px-1.5 py-0.5 rounded-full`}>{t('bodega.critico')}</span>}
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        <input type="number" inputMode="decimal" value={m.stock} onChange={e => updateMaterial(m.id, { stock: +e.target.value })} className="w-16 px-1.5 py-1 rounded border border-input bg-background text-foreground text-right text-xs focus:outline-none focus:ring-2 focus:ring-ring" />
-                      </td>
-                      <td className="px-3 py-2 text-right">{m.stockMinimo} <span className="text-muted-foreground">{m.unidad}</span></td>
-                      <td className="px-3 py-2 text-right">
-                        <span className={planificado === 0 ? 'text-muted-foreground italic' : 'text-foreground'}>{planificado === 0 ? '—' : `${planificado} ${m.unidad}`}</span>
-                      </td>
-                      <td className={`px-3 py-2 text-right ${claseDesv}`}>{planificado === 0 ? '—' : `${fmtPct(desv)}`}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            {materiales.length === 0 ? (
+              <div className="px-3 py-8 text-center text-sm text-muted-foreground"><Warehouse className="w-8 h-8 mx-auto mb-2 opacity-40" aria-hidden="true" />{t('bodega.sin_materiales')}</div>
+            ) : (
+              <VirtualizedList
+                height={Math.min(480, Math.max(200, materiales.length * ITEM_HEIGHT))}
+                itemCount={materiales.length}
+                itemSize={ITEM_HEIGHT}
+                width="100%"
+                aria-label={t('bodega.control_stock_aria')}
+              >
+                {Row}
+              </VirtualizedList>
+            )}
           </div>
           <div className="p-3">
             <Progress value={Math.min(100, Math.max(0, 100 - Math.abs(avgDesv)))} color={avgDesv > 15 ? 'hsl(var(--destructive))' : 'hsl(var(--success))'} />

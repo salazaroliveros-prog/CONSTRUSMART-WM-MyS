@@ -36,9 +36,9 @@ Estos NO son verificables ni implementables desde el código fuente; dependen de
 
 | # | Ítem | Prioridad | Razón de bloqueo | Estado |
 |---|------|-----------|------------------|--------|
-| I1 | Connection pooler configurado | Media | Requiere Dashboard Supabase (Database → Pooling) | ❌ No verificado |
+| I1 | Connection pooler | — | ⚠️ N/A para frontend (app sin backend Node.js propio; todas las queries van por PostgREST/REST API) | N/A |
 | I2 | Partitioning en `erp_movimientos` / `erp_audit_log` | Baja | Requiere acceso DB directo (no hay migración aplicada) | ❌ No implementado |
-| I3 | Rate limiting en API endpoints (incl. API clima) | Media/Baja | Requiere configuar edge/backend o gateway | ❌ No implementado |
+| I3 | Rate limiting en API endpoints (incl. API clima) | Media/Baja | Requiere configurar edge/backend o gateway | ❌ No implementado |
 | I4 | 2FA / MFA real | Baja | Requiere Supabase Auth (proveedor) configurado | ❌ No implementado (enlace solo) |
 
 > Nota: `tokenBucketRef` en `store.tsx` SÍ limita `forceSync` (cliente), pero no es rate-limiting de API.
