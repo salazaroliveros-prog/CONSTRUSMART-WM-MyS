@@ -34,7 +34,7 @@ CREATE INDEX idx_reglas_factores_fechas ON erp_reglas_factores(fecha_inicio, fec
 -- Tabla de historial de aplicación de reglas
 CREATE TABLE IF NOT EXISTS erp_historial_aplicacion_reglas (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
-  proyecto_id text,
+  proyecto_id uuid,
   renglon_id text,
   regla_id uuid NOT NULL REFERENCES erp_reglas_factores(id),
   valor_original numeric(12,2),

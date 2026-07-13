@@ -18,7 +18,6 @@ export const TABLE_MAP: Record<string, string> = {
   erp_comentarios_muro:'comentariosMuro',
   erp_proyecto_weather:'proyectoWeather',
   erp_app_config:'appConfig',
-  erp_solicitudes:'solicitudes',
   erp_archivos_tipo:'archivosTipo',
   erp_auditoria:'auditLog',
   erp_insumos_base:'insumosBase',

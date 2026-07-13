@@ -67,11 +67,11 @@ CREATE TABLE IF NOT EXISTS erp_ordenes_cambio (
   titulo TEXT NOT NULL,
   descripcion TEXT,
   impacto_costo NUMERIC DEFAULT 0,
-  impacto_plazo INTEGER DEFAULT 0,
+  impacto_plazo NUMERIC DEFAULT 0,
   estado TEXT DEFAULT 'solicitud' CHECK (estado IN ('solicitud','revision','aprobado','rechazado')),
   solicitante TEXT NOT NULL,
   solicitante_rol TEXT,
-  aprobador TEXT,
+  aprobador UUID,
   fecha_aprobacion DATE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
