@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import { List as VirtualizedList } from 'react-window';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useErp } from '../store';
+import { useInsumosBaseQuery } from '../hooks/useRefDataQueries';
 import {
   Database, Search, Check, X, RefreshCw, Upload, Download,
   Plus, Edit3, Trash2, ArrowUpDown
@@ -34,7 +36,8 @@ const CONVERSIONES: Record<string, { de: string; a: string; factor: number }[]> 
 
 const BasePrecios: React.FC = () => {
   const { t } = useTranslation();
-  const { insumosBase, addInsumoBase, updateInsumoBase, deleteInsumoBase } = useErp();
+  const { addInsumoBase, updateInsumoBase, deleteInsumoBase } = useErp();
+  const { data: insumosBase = [], isFetching } = useInsumosBaseQuery();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const [search, setSearch] = useState('');
@@ -204,12 +207,69 @@ const BasePrecios: React.FC = () => {
   }
 
   const totalValor = filtered.reduce((a, i) => a + (i.costo_base ?? 0), 0);
+  const ITEM_HEIGHT = 36;
+  const VIRTUAL_THRESHOLD = 50;
+  const shouldVirtualize = filtered.length > VIRTUAL_THRESHOLD;
+
+  const renderInsumoRow = useCallback((ins: typeof filtered[0]) => {
+    const costoBase = ins.costo_base ?? 0;
+    const precioZona = +(costoBase * factorZona).toFixed(2);
+    const inactivo = !ins.activo;
+    return (
+      <tr key={ins.id} className={`border-b border-slate-50 hover:bg-accent ${inactivo ? 'opacity-50' : ''}`}>
+        <td className="py-2 px-2 font-medium text-muted-foreground">
+          {editando === ins.id ? (
+            <input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} className="w-full text-xs px-1 py-0.5 rounded border border-teal-300 outline-none" />
+          ) : ins.nombre}
+        </td>
+        <td className="py-2 px-2">
+          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
+            ins.categoria === 'material' ? 'bg-blue-50 text-blue-600' :
+            ins.categoria === 'mano_obra' ? 'bg-emerald-50 text-emerald-600' :
+            ins.categoria === 'equipo' ? 'bg-purple-50 text-blue-600' :
+            'bg-amber-50 text-amber-600'
+          }`}>
+            {ins.categoria}
+          </span>
+        </td>
+        <td className="py-2 px-2 text-muted-foreground">{ins.unidad}</td>
+        <td className="py-2 px-2 text-right font-semibold text-muted-foreground">
+          {editando === ins.id ? (
+            <input type="number" inputMode="decimal" value={nuevoPrecio} onChange={e => setNuevoPrecio(+e.target.value)} className="w-20 text-xs px-1 py-0.5 rounded border border-teal-300 text-right outline-none" />
+          ) : `Q${costoBase.toFixed(2)}`}
+        </td>
+        <td className="py-2 px-2 text-right font-bold text-teal-600">Q{precioZona.toFixed(2)}</td>
+        <td className="py-2 px-2 text-muted-foreground">{ins.rubro}</td>
+        <td className="py-2 px-2">
+          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${ins.activo ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+            {ins.activo ? t('baseprecios.activo') : t('baseprecios.inactivo')}
+          </span>
+        </td>
+        <td className="py-2 px-2 text-center">
+          {editando === ins.id ? (
+            <div className="flex justify-center gap-1">
+              <button onClick={() => handleGuardarEdicion(ins.id)} className="p-1 text-emerald-500 hover:text-emerald-600" aria-label={t('baseprecios.guardar')}><Check className="w-3 h-3" aria-hidden="true" /></button>
+              <button onClick={() => setEditando(null)} className="p-1 text-muted-foreground hover:text-muted-foreground" aria-label={t('baseprecios.cancelar_edicion')}><X className="w-3 h-3" aria-hidden="true" /></button>
+            </div>
+          ) : (
+            <div className="flex justify-center gap-1">
+              <button onClick={() => { setEditando(ins.id); setNuevoNombre(ins.nombre); setNuevoPrecio(costoBase); setNuevoUnidad(ins.unidad); setNuevoRubro(ins.rubro); }} className="p-1 text-muted-foreground hover:text-teal-500" aria-label={t('baseprecios.editar')}><Edit3 className="w-3 h-3" aria-hidden="true" /></button>
+              <button onClick={() => handleActivarDesactivar(ins.id)} className={`p-1 ${inactivo ? 'text-emerald-400' : 'text-red-400 hover:text-red-500'}`} aria-label={inactivo ? t('baseprecios.activar_btn') : t('baseprecios.eliminar_btn')}>
+                {inactivo ? <RefreshCw className="w-3 h-3" aria-hidden="true" /> : <Trash2 className="w-3 h-3" aria-hidden="true" />}
+              </button>
+            </div>
+          )}
+        </td>
+      </tr>
+    );
+  }, [editando, nuevoNombre, nuevoPrecio, factorZona, t]);
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
           <Database className="w-6 h-6 text-teal-500" /> {t('baseprecios.titulo')}
+          {isFetching && <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" aria-label="Actualizando..." />}
         </h1>
         <div className="flex gap-2 flex-wrap">
           <select
@@ -362,62 +422,30 @@ const BasePrecios: React.FC = () => {
                     <p className="text-xs mt-1">{t('baseprecios.sin_insumos_desc', 'Agrega insumos o ajusta los filtros de búsqueda')}</p>
                   </td>
                 </tr>
-              ) : filtered.map(ins => {
-                const costoBase = ins.costo_base ?? 0;
-                const precioZona = +(costoBase * factorZona).toFixed(2);
-                const inactivo = !ins.activo;
-                return (
-                  <tr key={ins.id} className={`border-b border-slate-50 hover:bg-accent ${inactivo ? 'opacity-50' : ''}`}>
-                    <td className="py-2 px-2 font-medium text-muted-foreground">
-                      {editando === ins.id ? (
-                        <input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} className="w-full text-xs px-1 py-0.5 rounded border border-teal-300 outline-none" />
-                      ) : ins.nombre}
-                    </td>
-                    <td className="py-2 px-2">
-                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
-                        ins.categoria === 'material' ? 'bg-blue-50 text-blue-600' :
-                        ins.categoria === 'mano_obra' ? 'bg-emerald-50 text-emerald-600' :
-                        ins.categoria === 'equipo' ? 'bg-purple-50 text-blue-600' :
-                        'bg-amber-50 text-amber-600'
-                      }`}>
-                        {ins.categoria}
-                      </span>
-                    </td>
-                    <td className="py-2 px-2 text-muted-foreground">{ins.unidad}</td>
-                    <td className="py-2 px-2 text-right font-semibold text-muted-foreground">
-                      {editando === ins.id ? (
-                        <input type="number" inputMode="decimal" value={nuevoPrecio} onChange={e => setNuevoPrecio(+e.target.value)} className="w-20 text-xs px-1 py-0.5 rounded border border-teal-300 text-right outline-none" />
-                      ) : `Q${costoBase.toFixed(2)}`}
-                    </td>
-                    <td className="py-2 px-2 text-right font-bold text-teal-600">
-                      Q{precioZona.toFixed(2)}
-                    </td>
-                    <td className="py-2 px-2 text-muted-foreground">{ins.rubro}</td>
-                    <td className="py-2 px-2">
-                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${ins.activo ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
-                        {ins.activo ? t('baseprecios.activo') : t('baseprecios.inactivo')}
-                      </span>
-                    </td>
-                    <td className="py-2 px-2 text-center">
-                      {editando === ins.id ? (
-                        <div className="flex justify-center gap-1">
-                          <button onClick={() => handleGuardarEdicion(ins.id)} className="p-1 text-emerald-500 hover:text-emerald-600" aria-label={t('baseprecios.guardar')}><Check className="w-3 h-3" aria-hidden="true" /></button>
-                          <button onClick={() => setEditando(null)} className="p-1 text-muted-foreground hover:text-muted-foreground" aria-label={t('baseprecios.cancelar_edicion')}><X className="w-3 h-3" aria-hidden="true" /></button>
-                        </div>
-                      ) : (
-                        <div className="flex justify-center gap-1">
-                          <button onClick={() => { setEditando(ins.id); setNuevoNombre(ins.nombre); setNuevoPrecio(costoBase); setNuevoUnidad(ins.unidad); setNuevoRubro(ins.rubro); }} className="p-1 text-muted-foreground hover:text-teal-500" aria-label={t('baseprecios.editar')}><Edit3 className="w-3 h-3" aria-hidden="true" /></button>
-                          <button onClick={() => handleActivarDesactivar(ins.id)} className={`p-1 ${inactivo ? 'text-emerald-400' : 'text-red-400 hover:text-red-500'}`} aria-label={inactivo ? t('baseprecios.activar_btn') : t('baseprecios.eliminar_btn')}>
-                            {inactivo ? <RefreshCw className="w-3 h-3" aria-hidden="true" /> : <Trash2 className="w-3 h-3" aria-hidden="true" />}
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+              ) : !shouldVirtualize ? (
+                filtered.map(ins => renderInsumoRow(ins))
+              ) : null}
             </tbody>
           </table>
+          {shouldVirtualize && filtered.length > 0 && (
+            <div className="w-full">
+              <VirtualizedList
+                height={Math.min(480, filtered.length * ITEM_HEIGHT)}
+                itemCount={filtered.length}
+                itemSize={ITEM_HEIGHT}
+                width="100%"
+                overscanCount={5}
+              >
+                {({ index, style }: { index: number; style: React.CSSProperties }) => (
+                  <div style={style}>
+                    <table className="w-full text-xs" role="presentation">
+                      <tbody>{renderInsumoRow(filtered[index])}</tbody>
+                    </table>
+                  </div>
+                )}
+              </VirtualizedList>
+            </div>
+          )}
         </div>
         <div className="p-2 bg-muted/30 border-t border-border flex justify-between items-center">
           <span className="text-xs text-muted-foreground">{filtered.length} {t('baseprecios.insumos')} · {t('baseprecios.precio_base_total')}: Q{totalValor.toFixed(2)}</span>

@@ -349,7 +349,7 @@ src/erp/__tests__/concurrency.test.ts  # Test obsoleto (45 líneas)
 | Constantes duplicadas eliminadas | 0 instancias | 0 instancias | ✅ 100% |
 | Cobertura dark mode | 100% colores | 100% colores | ✅ 100% |
 | Uso de ui.ts constants | ≥ 90% estilos | ~60% estilos | ⚠️ 67% |
-| i18n keys limpias | 0 duplicados | 0 duplicados | ✅ 100% |
+| i18n keys limpias | 0 duplicados | 0 duplicados (VERIFICADO 12/07/2026: se detectó y corrigió un duplicado de clave `"weather"` a nivel raíz en es.json/en.json que sombreaba 27 keys; ver `docs/INCONSISTENCIAS_PENDIENTES.md`) |
 | Accesibilidad | 100% aria-label | ~85% elementos | ⚠️ 85% |
 | Tests existentes | Pasan sin modificación | 586/586 pasaron | ✅ 100% |
 | Responsive breakpoints | Consistente | Consistente | ✅ 100% |

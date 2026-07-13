@@ -20,7 +20,7 @@
 > **Nota:** `VITE_SUPABASE_SERVICE_ROLE_KEY` está presente en Vercel (Preview, Production) pero NO en `.env.local`. Agregar al `.env.local` para desarrollo local.
 
 ### Supabase
-- [ ] Migraciones aplicadas hasta `000000000087` — ⚠️ verificar en Supabase Dashboard
+- [ ] Migraciones aplicadas hasta `000000000098` — ⚠️ verificar en Supabase Dashboard (096: integrity check, 097: access log, 098: performance monitoring)
 - [ ] RLS habilitado en todas las tablas operacionales — ⚠️ verificar
 - [ ] Realtime habilitado en tablas críticas — ⚠️ verificar
 - [ ] Auth providers configurados (Google OAuth) — ⚠️ configurar en Supabase Dashboard
@@ -68,7 +68,7 @@
 - [ ] Vercel Analytics habilitado
 - [ ] Supabase Dashboard monitoreando queries
 - [x] Error logging activo (tabla `erp_error_log`) ✅ (verificado en sesiones previas)
-- [ ] Backup automático configurado
+- [x] Backup automático configurado ✅ (.github/workflows/weekly-backup.yml — pg_dump semanal)
 
 ---
 
@@ -81,5 +81,5 @@ Si algo falla:
 
 ---
 
-**Última actualización:** 2026-07-08
+**Última actualización:** 2026-07-12
 **Dominio productivo:** https://construsmart-wm2026.vercel.app

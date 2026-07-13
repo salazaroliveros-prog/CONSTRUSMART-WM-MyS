@@ -2,6 +2,8 @@
 -- Context: 000000000067 was recorded as applied but failed at line 8
 -- (column cliente_id does not exist) causing the whole transaction to roll back.
 -- This migration recreates the indexes with the correct column names.
+-- Fix 2026-07-12: erp_notificaciones created in 093 — wrapped in DO block;
+--                 fixed line-break bug in erp_hitos table name.
 
 -- Proyectos: Filter by client
 CREATE INDEX IF NOT EXISTS idx_erp_proyectos_cliente ON erp_proyectos(cliente);
@@ -24,8 +26,15 @@ CREATE INDEX IF NOT EXISTS idx_erp_hitos_proyecto_id ON erp_hitos(proyecto_id);
 -- Riesgos: Filter by project
 CREATE INDEX IF NOT EXISTS idx_erp_riesgos_proyecto_id ON erp_riesgos(proyecto_id);
 
--- Notificaciones: Filter by project + read status
-CREATE INDEX IF NOT EXISTS idx_erp_notificaciones_proyecto_leido ON erp_notificaciones(proyecto_id, leido);
+-- Notificaciones: table created in migration 093 — guard with DO block to avoid failure on clean start
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'erp_notificaciones' AND relkind = 'r') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_erp_notificaciones_proyecto_leido') THEN
+      CREATE INDEX idx_erp_notificaciones_proyecto_leido ON erp_notificaciones(proyecto_id, leido);
+    END IF;
+  END IF;
+END $$;
 
 -- Ordenes Cambio: Filter by project
 CREATE INDEX IF NOT EXISTS idx_erp_ordenes_cambio_proyecto_id ON erp_ordenes_cambio(proyecto_id);

@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { confirmAction } from '@/lib/confirm-action';
 import { useErp } from '../store';
+import { useMaterialesQuery, useProveedoresQuery } from '../hooks/useRefDataQueries';
 import { fmtQ, fmtPct, todayISO } from '../utils';
 import { useTranslation } from 'react-i18next';
 import { exportStockPDF } from '../export';
@@ -25,7 +26,11 @@ const Bodega: React.FC = () => {
   const paretoConfig = useChartConfig('line', 'default');
   const { t } = useTranslation();
   const ctx = useErp();
-  const { materiales: rawMateriales, updateMaterial, ordenes, updateOrden, addOrden, proveedores, addProveedor, updateProveedor, deleteProveedor, proyectos } = ctx;
+  const { updateMaterial, ordenes, updateOrden, addOrden, addProveedor, updateProveedor, deleteProveedor, proyectos } = ctx;
+  const { data: materialesData } = useMaterialesQuery();
+  const { data: proveedoresData } = useProveedoresQuery();
+  const rawMateriales = materialesData ?? ctx.materiales;
+  const proveedores = proveedoresData ?? ctx.proveedores;
   const materiales = useMemo(() => {
     const seen = new Set<string>();
     return rawMateriales.filter(m => {

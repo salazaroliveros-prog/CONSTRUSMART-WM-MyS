@@ -67,7 +67,4 @@ DROP POLICY IF EXISTS "reglas_factores_read_all" ON erp_reglas_factores;
 CREATE POLICY "reglas_factores_read_all" ON erp_reglas_factores
   FOR SELECT TO authenticated USING (true);
 
--- erp_config_catalogs
-DROP POLICY IF EXISTS "config_catalogs_read_all" ON erp_config_catalogs;
-CREATE POLICY "config_catalogs_read_all" ON erp_config_catalogs
-  FOR SELECT TO authenticated USING (true);
+-- NOTA: erp_config_catalogs eliminada de esta migracion porque esa tabla no existe en el esquema actual ni es referenciada por la app.

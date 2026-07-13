@@ -1,6 +1,8 @@
 import React, { Suspense, lazy, useEffect, useState, createContext, useContext, useMemo, useRef } from 'react';
 import { ErpProvider, useErp } from '@/erp/store';
 import { useSupabaseRealtime } from '@/hooks/useSupabaseRealtime';
+import { useDailyIntegrityCheck } from '@/erp/hooks/useDailyIntegrityCheck';
+import { useAccessLog } from '@/erp/hooks/useAccessLog';
 import { ErrorBoundary } from './ErrorBoundary';
 import { PageTransition } from './Animations';
 import { AntdProvider } from '@/lib/antd-config';
@@ -110,6 +112,8 @@ const AppLoader: React.FC = () => (
 const Shell: React.FC = () => {
   const { view, initializing, appSettings, user, allowedViews, setView, forceSync } = useErp();
   const { sidebarOpen, toggleSidebar, closeSidebar, sidebarCollapsed } = useAppContext();
+  useDailyIntegrityCheck(user?.rol === 'administrador');
+  useAccessLog();
 
   useSupabaseRealtime({
     tablas: ([

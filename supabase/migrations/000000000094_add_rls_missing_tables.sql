@@ -2,97 +2,117 @@
 -- 2026-07-09
 
 -- 1. erp_plantillas_proyectos
-ALTER TABLE erp_plantillas_proyectos ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='erp_plantillas_proyectos') THEN
+    ALTER TABLE erp_plantillas_proyectos ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "plantillas_read" ON erp_plantillas_proyectos;
-DROP POLICY IF EXISTS "plantillas_insert_own" ON erp_plantillas_proyectos;
-DROP POLICY IF EXISTS "plantillas_update_own" ON erp_plantillas_proyectos;
-DROP POLICY IF EXISTS "plantillas_delete_admin" ON erp_plantillas_proyectos;
+    DROP POLICY IF EXISTS "plantillas_read" ON erp_plantillas_proyectos;
+    DROP POLICY IF EXISTS "plantillas_insert_own" ON erp_plantillas_proyectos;
+    DROP POLICY IF EXISTS "plantillas_update_own" ON erp_plantillas_proyectos;
+    DROP POLICY IF EXISTS "plantillas_delete_admin" ON erp_plantillas_proyectos;
 
-CREATE POLICY "plantillas_read" ON erp_plantillas_proyectos
-  FOR SELECT USING (auth.role() = 'authenticated');
+    CREATE POLICY "plantillas_read" ON erp_plantillas_proyectos
+      FOR SELECT USING (auth.role() = 'authenticated');
 
-CREATE POLICY "plantillas_insert_own" ON erp_plantillas_proyectos
-  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+    CREATE POLICY "plantillas_insert_own" ON erp_plantillas_proyectos
+      FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
-CREATE POLICY "plantillas_update_own" ON erp_plantillas_proyectos
-  FOR UPDATE USING (auth.role() = 'authenticated');
+    CREATE POLICY "plantillas_update_own" ON erp_plantillas_proyectos
+      FOR UPDATE USING (auth.role() = 'authenticated');
 
-CREATE POLICY "plantillas_delete_admin" ON erp_plantillas_proyectos
-  FOR DELETE USING (
-    auth.role() = 'authenticated'
-    AND EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-      AND auth.users.email = 'salazaroliveros@gmail.com'
-    )
-  );
+    CREATE POLICY "plantillas_delete_admin" ON erp_plantillas_proyectos
+      FOR DELETE USING (
+        auth.role() = 'authenticated'
+        AND EXISTS (
+          SELECT 1 FROM auth.users
+          WHERE auth.users.id = auth.uid()
+          AND auth.users.email = 'salazaroliveros@gmail.com'
+        )
+      );
+  END IF;
+END $$;
 
 -- 2. erp_comentarios_muro
-ALTER TABLE erp_comentarios_muro ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name='erp_comentarios_muro') THEN
+    ALTER TABLE erp_comentarios_muro ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "comentarios_read" ON erp_comentarios_muro;
-DROP POLICY IF EXISTS "comentarios_insert_own" ON erp_comentarios_muro;
-DROP POLICY IF EXISTS "comentarios_update_own" ON erp_comentarios_muro;
-DROP POLICY IF EXISTS "comentarios_delete_admin" ON erp_comentarios_muro;
+    DROP POLICY IF EXISTS "comentarios_read" ON erp_comentarios_muro;
+    DROP POLICY IF EXISTS "comentarios_insert_own" ON erp_comentarios_muro;
+    DROP POLICY IF EXISTS "comentarios_update_own" ON erp_comentarios_muro;
+    DROP POLICY IF EXISTS "comentarios_delete_admin" ON erp_comentarios_muro;
 
-CREATE POLICY "comentarios_read" ON erp_comentarios_muro
-  FOR SELECT USING (auth.role() = 'authenticated');
+    CREATE POLICY "comentarios_read" ON erp_comentarios_muro
+      FOR SELECT USING (auth.role() = 'authenticated');
 
-CREATE POLICY "comentarios_insert_own" ON erp_comentarios_muro
-  FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND created_by = auth.uid()::text);
+    CREATE POLICY "comentarios_insert_own" ON erp_comentarios_muro
+      FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND created_by = auth.uid()::text);
 
-CREATE POLICY "comentarios_update_own" ON erp_comentarios_muro
-  FOR UPDATE USING (auth.role() = 'authenticated' AND created_by = auth.uid()::text);
+    CREATE POLICY "comentarios_update_own" ON erp_comentarios_muro
+      FOR UPDATE USING (auth.role() = 'authenticated' AND created_by = auth.uid()::text);
 
-CREATE POLICY "comentarios_delete_admin" ON erp_comentarios_muro
-  FOR DELETE USING (
-    auth.role() = 'authenticated'
-    AND EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-      AND auth.users.email = 'salazaroliveros@gmail.com'
-    )
-  );
+    CREATE POLICY "comentarios_delete_admin" ON erp_comentarios_muro
+      FOR DELETE USING (
+        auth.role() = 'authenticated'
+        AND EXISTS (
+          SELECT 1 FROM auth.users
+          WHERE auth.users.id = auth.uid()
+          AND auth.users.email = 'salazaroliveros@gmail.com'
+        )
+      );
+  END IF;
+END $$;
 
 -- 3. erp_ventas_paquetes
-ALTER TABLE erp_ventas_paquetes ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name='erp_ventas_paquetes') THEN
+    ALTER TABLE erp_ventas_paquetes ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "ventas_read" ON erp_ventas_paquetes;
-DROP POLICY IF EXISTS "ventas_insert_auth" ON erp_ventas_paquetes;
-DROP POLICY IF EXISTS "ventas_update_auth" ON erp_ventas_paquetes;
-DROP POLICY IF EXISTS "ventas_delete_admin" ON erp_ventas_paquetes;
+    DROP POLICY IF EXISTS "ventas_read" ON erp_ventas_paquetes;
+    DROP POLICY IF EXISTS "ventas_insert_auth" ON erp_ventas_paquetes;
+    DROP POLICY IF EXISTS "ventas_update_auth" ON erp_ventas_paquetes;
+    DROP POLICY IF EXISTS "ventas_delete_admin" ON erp_ventas_paquetes;
 
-CREATE POLICY "ventas_read" ON erp_ventas_paquetes
-  FOR SELECT USING (auth.role() = 'authenticated');
+    CREATE POLICY "ventas_read" ON erp_ventas_paquetes
+      FOR SELECT USING (auth.role() = 'authenticated');
 
-CREATE POLICY "ventas_insert_auth" ON erp_ventas_paquetes
-  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+    CREATE POLICY "ventas_insert_auth" ON erp_ventas_paquetes
+      FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
-CREATE POLICY "ventas_update_auth" ON erp_ventas_paquetes
-  FOR UPDATE USING (auth.role() = 'authenticated');
+    CREATE POLICY "ventas_update_auth" ON erp_ventas_paquetes
+      FOR UPDATE USING (auth.role() = 'authenticated');
 
-CREATE POLICY "ventas_delete_admin" ON erp_ventas_paquetes
-  FOR DELETE USING (
-    auth.role() = 'authenticated'
-    AND EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-      AND auth.users.email = 'salazaroliveros@gmail.com'
-    )
-  );
+    CREATE POLICY "ventas_delete_admin" ON erp_ventas_paquetes
+      FOR DELETE USING (
+        auth.role() = 'authenticated'
+        AND EXISTS (
+          SELECT 1 FROM auth.users
+          WHERE auth.users.id = auth.uid()
+          AND auth.users.email = 'salazaroliveros@gmail.com'
+        )
+      );
+  END IF;
+END $$;
 
 -- 4. erp_comparaciones_calculos
-ALTER TABLE erp_comparaciones_calculos ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name='erp_comparaciones_calculos') THEN
+    ALTER TABLE erp_comparaciones_calculos ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "comparaciones_read" ON erp_comparaciones_calculos;
-DROP POLICY IF EXISTS "comparaciones_insert_auth" ON erp_comparaciones_calculos;
+    DROP POLICY IF EXISTS "comparaciones_read" ON erp_comparaciones_calculos;
+    DROP POLICY IF EXISTS "comparaciones_insert_auth" ON erp_comparaciones_calculos;
 
-CREATE POLICY "comparaciones_read" ON erp_comparaciones_calculos
-  FOR SELECT USING (auth.role() = 'authenticated');
+    CREATE POLICY "comparaciones_read" ON erp_comparaciones_calculos
+      FOR SELECT USING (auth.role() = 'authenticated');
 
-CREATE POLICY "comparaciones_insert_auth" ON erp_comparaciones_calculos
-  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+    CREATE POLICY "comparaciones_insert_auth" ON erp_comparaciones_calculos
+      FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+  END IF;
+END $$;
 
 -- 5. Tablas de motor de cálculo (lectura autenticados, escritura admin)
 -- erp_movimientos_, erp_movimientos_default, erp_backup_config, erp_monitoring_config
@@ -146,39 +166,29 @@ BEGIN
   END IF;
 END $$;
 
--- 6. Realtime para tablas nuevas
+-- 6. Realtime para tablas nuevas (solo si existen)
 DO $$
+DECLARE t TEXT;
 BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication_tables 
-    WHERE pubname = 'supabase_realtime' AND tablename = 'erp_notificaciones'
-  ) THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE erp_notificaciones;
-  END IF;
-  
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication_tables 
-    WHERE pubname = 'supabase_realtime' AND tablename = 'erp_plantillas_proyectos'
-  ) THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE erp_plantillas_proyectos;
-  END IF;
-  
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication_tables 
-    WHERE pubname = 'supabase_realtime' AND tablename = 'erp_comentarios_muro'
-  ) THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE erp_comentarios_muro;
-  END IF;
-  
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication_tables 
-    WHERE pubname = 'supabase_realtime' AND tablename = 'erp_ventas_paquetes'
-  ) THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE erp_ventas_paquetes;
-  END IF;
+  FOR t IN
+    SELECT unnest(ARRAY['erp_notificaciones','erp_plantillas_proyectos','erp_publicaciones_muro','erp_ventas_paquetes'])
+  LOOP
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name=t) THEN
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname='supabase_realtime' AND tablename=t) THEN
+          EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I', t);
+        END IF;
+      EXCEPTION WHEN duplicate_object THEN NULL; END;
+    END IF;
+  END LOOP;
 END $$;
 
 -- 7. Auditoria: log de cambios
+-- NOTA: este bloque usaba columnas obsoletas (tabla/operacion/id_registro/datos_anteriores/datos_nuevos/usuario_id).
+-- El esquema real de erp_audit_log (migracion 050) usa: table_name/record_id/action/old_data/new_data/changed_by + CHECK action IN ('INSERT','UPDATE','DELETE')
+-- 'MIGRATION_093'/'MIGRATION_094' no pasarian el CHECK, y 'system' (text) no encaja en changed_by (UUID REFERENCES auth.users).
+-- Se comenta para no romper supabase start.
+/*
 INSERT INTO erp_audit_log (tabla, operacion, id_registro, datos_anteriores, datos_nuevos, usuario_id)
 SELECT 'erp_proyectos', 'MIGRATION_093', '', '', 'Migration 093: +25 columnas + erp_notificaciones', 'system'
 WHERE NOT EXISTS (
@@ -190,3 +200,4 @@ SELECT 'rls', 'MIGRATION_094', '', '', 'Migration 094: +RLS 8 tablas', 'system'
 WHERE NOT EXISTS (
   SELECT 1 FROM erp_audit_log WHERE tabla='rls' AND operacion='MIGRATION_094'
 );
+*/

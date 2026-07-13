@@ -3,12 +3,13 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Riesgo } from '../types';
-import { AlertTriangle, Shield, Plus, X, Filter, Clock, CheckCircle, Crosshair, DollarSign, Calendar, User } from 'lucide-react';
+import { AlertTriangle, Shield, Plus, X, Filter, Clock, CheckCircle, Crosshair, DollarSign, Calendar, User, Cloud } from 'lucide-react';
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
 import { todayISO } from '../utils';
 import { canUserDelete } from '@/lib/security';
+import { calculateWeatherImpact } from '../services/weatherService';
 
 type RProb = Riesgo['probabilidad'];
 type RImp = Riesgo['impacto'];
@@ -25,7 +26,7 @@ const calcularNivel = (prob: number, imp: number): Riesgo['nivel'] => {
 
 const Riesgos: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, currentProjectId, setCurrentProjectId, riesgos, addRiesgo, updateRiesgo, deleteRiesgo, addNotificacion, user } = useErp();
+  const { proyectos, currentProjectId, setCurrentProjectId, riesgos, addRiesgo, updateRiesgo, deleteRiesgo, addNotificacion, user, proyectoWeather } = useErp();
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -117,8 +118,42 @@ const Riesgos: React.FC = () => {
   const mitigados = useMemo(() => riesgosFiltrados.filter((r: Riesgo) => r.estado === 'mitigado'), [riesgosFiltrados]);
   const altos = useMemo(() => riesgosFiltrados.filter(r => r.nivel === 'alto' || r.nivel === 'critico'), [riesgosFiltrados]);
   const enSeguimiento = useMemo(() => riesgosFiltrados.filter(r => r.estado === 'en_mitigacion'), [riesgosFiltrados]);
-  
 
+  // Riesgos climáticos automáticos derivados del pronóstico
+  const riesgosClimaticos = useMemo(() => {
+    if (!currentProjectId) return [];
+    const weatherRec = proyectoWeather?.find(w => w.proyectoId === currentProjectId);
+    if (!weatherRec?.weatherData) return [];
+    const impact = weatherRec.impact ?? calculateWeatherImpact(weatherRec.weatherData);
+    if (impact.level === 'low') return [];
+    return impact.factors.map((factor, i) => ({
+      id: `weather-auto-${i}`,
+      factor,
+      recommendation: impact.recommendations[i] ?? impact.recommendations[0] ?? '',
+      level: impact.level,
+      score: impact.score,
+    }));
+  }, [currentProjectId, proyectoWeather]);
+
+  const agregarRiesgoClimatico = (factor: string, recommendation: string) => {
+    const nuevo: Riesgo = {
+      id: crypto.randomUUID(),
+      proyectoId: currentProjectId || '',
+      nombre: `Riesgo climático: ${factor}`,
+      descripcion: factor,
+      tipo: 'ambiental',
+      probabilidad: 3,
+      impacto: 3,
+      nivel: calcularNivel(3, 3),
+      planMitigacion: recommendation,
+      responsable: '',
+      fechaIdentificacion: todayISO(),
+      estado: 'identificado',
+      createdAt: new Date().toISOString(),
+    };
+    addRiesgo(nuevo);
+    toast.success(t('riesgos.registrado', 'Riesgo registrado'));
+  };
 
   if (loading) {
     return (
@@ -257,6 +292,49 @@ const Riesgos: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {riesgosClimaticos.length > 0 && (
+        <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 mb-4 border border-blue-200 dark:border-blue-800">
+          <div className="flex items-center gap-2 mb-3">
+            <Cloud className="w-4 h-4 text-blue-500" />
+            <h3 className="text-sm font-bold text-blue-700 dark:text-blue-300">
+              {t('riesgos.riesgos_climaticos', 'Riesgos Climáticos Detectados')}
+            </h3>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-200 ml-auto">
+              {riesgosClimaticos.length} {t('riesgos.automaticos', 'automáticos')}
+            </span>
+          </div>
+          <div className="space-y-2">
+            {riesgosClimaticos.map(rc => {
+              const yaRegistrado = riesgosFiltrados.some(r =>
+                r.tipo === 'ambiental' && r.descripcion === rc.factor
+              );
+              return (
+                <div key={rc.id} className="flex items-start justify-between gap-2 bg-white/60 dark:bg-black/20 rounded-lg p-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-foreground">{rc.factor}</p>
+                    {rc.recommendation && (
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{rc.recommendation}</p>
+                    )}
+                  </div>
+                  {yaRegistrado ? (
+                    <span className="text-[10px] text-green-600 flex items-center gap-0.5 shrink-0">
+                      <CheckCircle className="w-3 h-3" /> {t('riesgos.registrado_ya', 'Registrado')}
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => agregarRiesgoClimatico(rc.factor, rc.recommendation)}
+                      className="text-[10px] px-2 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shrink-0"
+                    >
+                      + {t('riesgos.agregar', 'Agregar')}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {showForm && (
         <div className="bg-amber-50 rounded-xl p-4 mb-4 border border-amber-200 space-y-2">

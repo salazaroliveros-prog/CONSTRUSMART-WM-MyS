@@ -26,7 +26,9 @@ interface ForecastItem {
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 const CACHE_PREFIX = 'weather_cache_';
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+const CACHE_PREFIX_FORECAST = 'weather_forecast_cache_';
+const CACHE_DURATION_CURRENT  = 30 * 60 * 1000;   // 30 min — clima actual
+const CACHE_DURATION_FORECAST = 7 * 24 * 60 * 60 * 1000; // 7 días — pronóstico
 
 function isOnline(): boolean {
   if (typeof navigator === 'undefined') return true;
@@ -38,20 +40,41 @@ function getCachedData(lat: number, lon: number): WeatherData | null {
     const cacheKey = `${CACHE_PREFIX}${lat}_${lon}`;
     const cached = localStorage.getItem(cacheKey);
     if (!cached) return null;
-    
     const data = JSON.parse(cached) as WeatherData;
     const age = Date.now() - data.fetched_at;
-    
-    if (age > CACHE_DURATION) {
+    if (age > CACHE_DURATION_CURRENT) {
       localStorage.removeItem(cacheKey);
       return null;
     }
-    
     return data;
   } catch (error) {
     safeLogger.error('Error reading weather cache:', error);
     return null;
   }
+}
+
+/** Devuelve el pronóstico cacheado si tiene menos de 7 días. */
+function getCachedForecast(lat: number, lon: number): ForecastItem[] | null {
+  try {
+    const key = `${CACHE_PREFIX_FORECAST}${lat}_${lon}`;
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { data, ts } = JSON.parse(raw) as { data: ForecastItem[]; ts: number };
+    if (Date.now() - ts > CACHE_DURATION_FORECAST) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function setCachedForecast(lat: number, lon: number, data: ForecastItem[]): void {
+  try {
+    const key = `${CACHE_PREFIX_FORECAST}${lat}_${lon}`;
+    localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
+  } catch {}
 }
 
 function setCachedData(data: WeatherData): void {
@@ -66,7 +89,7 @@ function setCachedData(data: WeatherData): void {
 function clearWeatherCache(): void {
   try {
     Object.keys(localStorage)
-      .filter(key => key.startsWith(CACHE_PREFIX))
+      .filter(key => key.startsWith(CACHE_PREFIX) || key.startsWith(CACHE_PREFIX_FORECAST))
       .forEach(key => localStorage.removeItem(key));
   } catch (error) {
     safeLogger.error('Error clearing weather cache:', error);
@@ -146,27 +169,29 @@ export async function getForecast(lat: number, lon: number, days: number = 7): P
     return null;
   }
 
+  // Usar caché de 7 días antes de ir a la red
+  const cachedForecast = getCachedForecast(lat, lon);
+  if (cachedForecast) {
+    safeLogger.info('Using 7-day cached forecast');
+    return cachedForecast;
+  }
+
   if (!isOnline()) {
-    safeLogger.warn('Offline mode - using cached data if available');
-    const cached = getCachedData(lat, lon);
-    return cached?.forecast || null;
+    safeLogger.warn('Offline mode - no forecast cache available');
+    return getCachedData(lat, lon)?.forecast || null;
   }
 
   try {
     const response = await fetchWithRetry(
       `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=es&cnt=${days * 8}`
     );
-
     const data = await response.json();
-    return data.list;
+    const list: ForecastItem[] = data.list;
+    setCachedForecast(lat, lon, list);
+    return list;
   } catch (error) {
     safeLogger.error('Error fetching forecast:', error);
-    const cached = getCachedData(lat, lon);
-    if (cached) {
-      safeLogger.info('Using cached forecast data');
-      return cached.forecast;
-    }
-    return null;
+    return getCachedData(lat, lon)?.forecast || null;
   }
 }
 

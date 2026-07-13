@@ -2,6 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, clearAllData, type UIMode, type AppThemeMode } from '../store';
+import type { AppSettings } from '../utils';
 import { THEMES, type ThemeName, PRIMARY_COLORS } from '@/lib/themes';
 import {
   Layout, Card, Row, Col, Switch, Select, Button, Divider,
@@ -558,6 +559,27 @@ const Ajustes: React.FC = () => {
                   checked={appSettings.notificationSounds !== false}
                   onChange={v => updateAppSettings({ notificationSounds: v })}
                 />
+              </SettingRow>
+
+              <SettingRow
+                icon={<BellOutlined style={{ fontSize: ICON_SIZE }} />}
+                title="Posición de Notificaciones"
+                subtitle="Dónde aparecen los mensajes toast en pantalla"
+              >
+                <Radio.Group
+                  value={appSettings.toastPosition ?? 'bottom-right'}
+                  onChange={e => updateAppSettings({ toastPosition: e.target.value as AppSettings['toastPosition'] })}
+                  optionType="button"
+                  buttonStyle="solid"
+                  size="small"
+                >
+                  <Radio.Button value="top-left">↖ Arr. Izq</Radio.Button>
+                  <Radio.Button value="top-center">↑ Arr. Centro</Radio.Button>
+                  <Radio.Button value="top-right">↗ Arr. Der</Radio.Button>
+                  <Radio.Button value="bottom-left">↙ Abj. Izq</Radio.Button>
+                  <Radio.Button value="bottom-center">↓ Abj. Centro</Radio.Button>
+                  <Radio.Button value="bottom-right">↘ Abj. Der</Radio.Button>
+                </Radio.Group>
               </SettingRow>
 
               <SettingRow

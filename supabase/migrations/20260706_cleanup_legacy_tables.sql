@@ -1,13 +1,3 @@
-drop view if exists public.erp_publicaciones_muro cascade;
-drop table if exists public.erp_seguimiento_evm cascade;
-drop table if exists public.erp_normativas_departamentales cascade;
-drop table if exists public.erp_muro_likes cascade;
-drop table if exists public.erp_audit_log cascade;
-drop table if exists public.centros_costo cascade;
-drop table if exists public.cotizaciones cascade;
-drop table if exists public.pagos_proveedores cascade;
-drop table if exists public.ventas_paquetes cascade;
-drop table if exists public.recepciones_almacen cascade;
-drop table if exists public.activos_herramientas cascade;
-drop table if exists public.cuadro_comparativo_proveedores cascade;
-drop table if exists public.erp_error_logs cascade;
+-- Legacy cleanup disabled: esta migracion usaba nombres de tablas obsoletos
+-- e incluiria DROP de tablas activas (erp_error_logs, erp_audit_log, etc.).
+-- Si se requiere limpieza legacy, debe ejecutarse manualmente con nombres correctos.
