@@ -4,7 +4,7 @@
 -- 1. Crear tabla faltante: erp_notificaciones
 CREATE TABLE IF NOT EXISTS erp_notificaciones (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  proyecto_id TEXT,
+  proyecto_id UUID REFERENCES erp_proyectos(id) ON DELETE SET NULL,
   tipo TEXT NOT NULL DEFAULT 'info',
   titulo TEXT NOT NULL,
   mensaje TEXT,
