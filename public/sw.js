@@ -179,7 +179,7 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(async () => {
         const cached = await caches.match(request);
-        return cached || new Response('', { status: 204 });
+        return cached || new Response(null, { status: 204 });
       })
   );
 });
