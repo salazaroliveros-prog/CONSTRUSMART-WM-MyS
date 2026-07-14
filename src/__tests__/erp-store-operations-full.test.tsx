@@ -888,6 +888,8 @@ describe('10. Renderizado y Carga de Pantallas', () => {
     'ComercialFinanzas', 'Administracion', 'SSOCalidad',
     'GestionDocumental', 'OrdenesCambio', 'Notificaciones',
     'Hitos', 'Riesgos', 'Ajustes', 'Login',
+    'ErrorLog', 'Activos', 'Cuadros', 'ProfitabilityAnalytics',
+    'Weather', 'ResourceConflicts', 'CalidadCumplimiento', 'Auditoria',
   ];
 
   allScreens.forEach(screen => {

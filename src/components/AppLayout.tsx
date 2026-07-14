@@ -89,8 +89,10 @@ const Cuadros             = lazy(() => import('@/erp/screens/Cuadros'));
 const ProfitabilityAnalytics = lazy(() => import('@/erp/screens/ProfitabilityAnalytics'));
 const Weather             = lazy(() => import('@/erp/screens/Weather'));
 const ResourceConflicts   = lazy(() => import('@/erp/screens/ResourceConflicts'));
+const CalidadCumplimiento = lazy(() => import('@/erp/screens/CalidadCumplimiento'));
+const Auditoria           = lazy(() => import('@/erp/screens/Auditoria'));
 
-const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability','weather','conflicts'] as const;
+const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability','weather','conflicts','calidad-cumplimiento','auditoria'] as const;
 
 const SCREEN_SET = new Set<string>(SCREEN_KEYS as readonly string[]);
 
@@ -130,7 +132,6 @@ const Shell: React.FC = () => {
     enabled: true,
     rol: user?.rol,
     onCambio: (payload) => {
-      console.log(`[Realtime] ${payload.tabla}: ${payload.tipo} (${payload.id})`);
       if (forceSync) forceSync();
     },
   });
@@ -207,6 +208,8 @@ const Shell: React.FC = () => {
     profitability:     <ProfitabilityAnalytics />,
     weather:           <Weather />,
     conflicts:         <ResourceConflicts />,
+    'calidad-cumplimiento': <CalidadCumplimiento />,
+    auditoria:          <Auditoria />,
   }), []);
 
   type ScreenKey = (typeof SCREEN_KEYS)[number];

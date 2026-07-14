@@ -9,7 +9,7 @@ import {
   DollarSign, Settings, Flag,
   CreditCard, Landmark,
   Cpu, FileCog,
-  FileText, TrendingUp,
+  FileText, TrendingUp, History,
 } from 'lucide-react';
 
 interface NavItem { id: View; labelKey: string; icon: React.ElementType; group: string }
@@ -36,6 +36,7 @@ const ITEMS: NavItem[] = [
   { id: 'profitability', labelKey:'profitability',  icon: TrendingUp,      group: 'Finanzas' },
   // Sistema
   { id: 'admin-sistema',labelKey:'admin-sistema',   icon: FileCog,         group: 'Sistema' },
+  { id: 'auditoria',   labelKey: 'auditoria',       icon: History,         group: 'Sistema' },
   { id: 'ajustes',     labelKey: 'ajustes',         icon: Settings,        group: 'Sistema' },
 ];
 

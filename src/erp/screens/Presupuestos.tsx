@@ -5,7 +5,7 @@ import { fmtQ, fmtPct } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
-import { Download, Copy, Trash2, Eye, Edit2, Plus, Save, X, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Download, Copy, Trash2, Eye, Edit2, Plus, Save, X, RefreshCw, AlertTriangle, Wallet } from 'lucide-react';
 
 const Presupuestos: React.FC = () => {
   const { t } = useTranslation();
