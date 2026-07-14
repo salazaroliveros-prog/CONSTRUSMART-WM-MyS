@@ -1,17 +1,16 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { conflictDetectionService } from '../services/conflictDetection';
 import { conflictResolutionService } from '../services/conflictResolution';
 import type { ResourceConflict, ConflictType, ConflictSeverity, ConflictStatus, ResolutionSuggestion } from '../types/conflicts';
 import { fmtQ, fmtPct } from '../utils';
-import { 
-  AlertTriangle, Users, Package, Wrench, Calendar, 
-  Filter, CheckCircle, Clock, Zap, TrendingUp, 
-  DollarSign, ArrowRight, X, ChevronDown, ChevronUp,
-  RefreshCw, Download, Eye, EyeOff, Lightbulb
+import {
+  AlertTriangle, Users, Package, Wrench, Calendar,
+  Filter, CheckCircle, Clock, Zap, TrendingUp,
+  DollarSign, ArrowRight, X, RefreshCw, Eye, EyeOff, Lightbulb
 } from 'lucide-react';
-import { CARD, CARD_TITLE, SECTION_TITLE, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY } from '../ui';
+import { CARD, SECTION_TITLE, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, COLOR_PRIMARY } from '../ui';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 

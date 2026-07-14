@@ -711,20 +711,76 @@ flowchart LR
 | 3 | Rate limiting token bucket | ✅ Implementado (store.tsx) | ❌ Marcado como "recomendado" |
 | 3 | Daily integrity checks | ✅ Implementado (migración 096) | ❌ Marcado como "recomendado" |
 
+## SESIÓN-17 (2026-07-13): Gap Analysis A-I — Correcciones de Inconsistencias Store/Store
+
+### Implementado
+1. **GAP-A: Save/Load localStorage Key Mismatch (10+ entidades)** — Fix crítico (HIGH)
+   - Save map en `store.tsx` líneas 562–579: todas las claves camelCase corregidas a snake_case para alinearse con `loadFromStorage`
+   - Entidades: cuentasCobrar→cuentas_cobrar, cuentasPagar→cuentas_pagar, ordenesCambio→ordenes_cambio, publicacionesMuro→publicaciones_muro, pagosProveedor→pagos_proveedor, calculosProyecto→calculos_proyecto, centrosCosto→centros_costo, escalasProduccion→escalas, historialReglas→historial_reglas, normativasDepartamentales→normativas
+   - Impacto: datos guardados en `wm_erp_data_*` ya no se pierden en refresco
+
+2. **GAP-B: State Keys Undefined en create()** — Fix medium
+   - 9 keys añadidas a `zustandStore.ts` create(): `reglasFactores`, `normativasDepartamentales`, `escalasProduccion`, `estacionalidad`, `historialReglas`, `projectProfitabilities`, `clientProfitabilities`, `resourceEfficiencies`, `profitabilityTrends`
+   - Previene TypeError al acceder a estado de motor cálculo antes de fetch
+
+3. **GAP-C: fetchInitialData — 9 Tablas Ausentes** — Fix medium
+   - Añadidas a SECONDARY_TABLES en `zustandStore.ts`: `erp_auditoria`, `erp_reglas_factores`, `erp_normativa_departamental`, `erp_escalas_produccion`, `erp_estacionalidad`, `erp_historial_aplicacion_reglas`, `erp_ajustes_estacionales_actividad`, `erp_calculos_proyecto`, `erp_cumplimiento_normativo`
+   - Ahora se cargan desde Supabase en segundo plano (setTimeout) tras la carga crítica
+
+4. **GAP-D: Realtime — 5 Tablas Suscritas** — Fix medium
+   - Añadidas a subs array en `store.tsx`: `erp_eventos_calendario`, `erp_ordenes_cambio`, `erp_notificaciones`, `erp_error_log`, `erp_insumos_base`
+
+5. **GAP-E: TABLE_MAP Stale Entries** — Fix medium
+   - Removidas 6 entradas sin estado correspondiente: `erp_comentarios_muro`, `erp_app_config`, `erp_archivos_tipo`, `erp_municipios_gt`, `erp_departamentos_gt`, `erp_insumos`
+   - Corregida `erp_historial_aplicacion_reglas` → `historialReglas` (era `historialAplicacionReglas`)
+
+6. **GAP-F: resourceConflicts Dead Code** — Fix low
+   - Removido `resourceConflicts` de interface ErpData, create(), setter, y actions (no se usaba — Proyectos.tsx computa conflicts localmente)
+
+7. **GAP-I: PGRST116 Silent Discard** — Fix medium
+   - Añadido handler en forceSync catch para código `PGRST116` (row not found en UPDATE/DELETE)
+   - Marcas como processed sin reintentar — evita logs de error falsos cuando otro cliente ya eliminó el registro
+
+8. **GAP-J: Realtime INSERT Dedup** — Verificado
+   - Guard `arr.some(item => item.id === normalized.id)` en línea 678 de store.tsx ya previene duplicados
+   - `addXxx` handlers insertan con ID final antes de forceSync → realtime event encuentra ID existente → skip
+
 ### Validación
-- `npx vitest run`: **846/846 tests pass** (26 archivos)
+- `npx vitest run`: **846/846 tests pass** (25 archivos)
 - `npx tsc --noEmit`: **0 errores**
 - `npm run build`: **Exitoso**
-- `.env.local` verificado: apunta a Supabase local (10 containers saludables)
 - Tests de integridad: `integrity.test.ts` (3/3), `auto-repair.test.ts` (27/27), `financiero.test.ts` (35/35)
+
+## SESIÓN-18 (2026-07-13): Virtual Scrolling para Financiero e Impuestos
+
+### Implementado
+**Virtual Scrolling con react-window** en dos screens que mostraban tablas de movimientos sin virtualización:
+
+1. **Financiero.tsx** — Tabla de movimientos filtrados
+   - Importado `List as VirtualizedList` de `react-window`
+   - Extraída lógica de renderizado de fila a `renderRow` con `useCallback`
+   - Eliminado `movimientosFiltrados.slice(0, 100)` (límite duro que ocultaba datos)
+   - Añadido `shouldVirtualize` (activo cuando >100 registros)
+   - Cuando virtualiza: `<VirtualizedList>` con `itemSize=42` dentro de un wrapper `<table>` (mismo patrón que BasePrecios)
+   - Cuando no virtualiza: mantiene `<tbody>` nativo para conjuntos pequeños
+   - Altura del contenedor: `min(480, N * 42)`px
+
+2. **Impuestos.tsx** — Tabla de movimientos del período
+   - Mismo patrón: VirtualizedList con `itemSize=36`, `threshold=50`, `containerHeight=240`
+   - Eliminada dependencia muerta de `TrendingDown`, `Download`, `RefreshCw`, `toast`
+   - Altura del contenedor: `min(240, N * 36)`px (coincide con `max-h-60` original)
+
+### Validación
+- `npx tsc --noEmit`: **0 errores**
+- `npx vitest run`: **846/846 tests pass** (25 archivos)
+- `npm run build`: **Exitoso** (3.52s)
 
 ## Pendientes / Issues Conocidos
 - Build produce warnings de "use client" ignorados (Ant Design v5) — normal
 - web-ifc: 3.6MB chunk — normal para proyecto BIM
-- `reglasFactores.ts` y `motorCalculo.ts` migrados a queue-first (Sesión 16) — sin bypass de mutation queue
 - Sin errores de runtime conocidos
 - BigNumber/decimal.js no implementado — cálculos financieros usan IEEE 754 double
 - Connection pooler no configurado en env/supabase.ts
-- Virtual scrolling pendiente para Bodega y Movimientos
+- Virtual scrolling: Bodega, BasePrecios, Financiero, Impuestos ya tienen react-window ✅
 - Math.fround no usado (DB real(4) pierde precisión)
 - Partitioning no implementado para erp_movimientos y erp_audit_log

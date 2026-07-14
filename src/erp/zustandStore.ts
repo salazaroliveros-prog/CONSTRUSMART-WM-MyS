@@ -12,7 +12,7 @@ import type {
   Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
   CuentaCobrar, CuentaPagar, Hito, Riesgo, PublicacionMuro, ComentarioMuro, PruebaLaboratorio,
   NoConformidad, LiberacionPartida, Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo,
-  PagoProveedor, CotizacionCliente, VentaPaquete,   Destajo, RecepcionAlmacen, Incidente, Rol, CentroCosto, CalculoProyecto, InsumoBase,
+  PagoProveedor, CotizacionCliente, VentaPaquete,   Destajo, RecepcionAlmacen, Incidente, CentroCosto, CalculoProyecto, InsumoBase,
   ReglaFactor, NormativaDepartamental, EscalaProduccion, Estacionalidad, HistorialAplicacionRegla,
   AjusteEstacionalActividad, AplicacionEscala, CumplimientoNormativo,
 } from './types';
@@ -21,7 +21,7 @@ import type { ErrorLogEntry } from './store/schemas/errorLog';
 import type { AppSettings, Mutation, LogAuditoria } from './types';
 import type { ProyectoWeather } from './store/schemas/weather';
 import type { ProjectProfitability, ClientProfitability, ResourceEfficiency, ProfitabilityTrend } from './store/schemas/profitability';
-import type { ResourceConflict } from './types/conflicts';
+
 
 const RATE_LIMIT_MS = 100;
 const lastMutationCall: Record<string, number> = {};
@@ -117,7 +117,7 @@ interface ErpData {
   isOnline: boolean; currentProjectId: string | null; appSettings: AppSettings;
   userRol: string | null; proyectoWeather: ProyectoWeather[];
   errorLogs: ErrorLogEntry[];
-  resourceConflicts: ResourceConflict[];
+
 }
 
 interface ErpActions {
@@ -216,7 +216,6 @@ interface ErpActions {
   enqueueMutation: (type: string, payload: Record<string, any>) => string;
   addAuditEntry: (entry: Omit<LogAuditoria, 'id' | 'createdAt'>) => void;
   setAuditLog: (v: LogAuditoria[] | ((prev: LogAuditoria[]) => LogAuditoria[])) => void;
-  setResourceConflicts: (v: ResourceConflict[] | ((prev: ResourceConflict[]) => ResourceConflict[])) => void;
   getSupplierPerformance: (proveedorId: string) => any;
   getAllSupplierPerformance: (filtroProyectoId?: string) => any[];
   updateAvance: (id: string, patch: Partial<AvanceObra>) => void;
@@ -384,6 +383,10 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_destajos','erp_recepciones','erp_pagos_proveedor',
       'erp_centros_costo','erp_error_log','erp_insumos_base',
       'erp_proyecto_weather',
+      'erp_auditoria','erp_reglas_factores','erp_normativa_departamental',
+      'erp_escalas_produccion','erp_estacionalidad',
+      'erp_historial_aplicacion_reglas','erp_ajustes_estacionales_actividad',
+      'erp_calculos_proyecto','erp_cumplimiento_normativo',
     ] as const;
 
     const fetchTable = async (table: string) => {
@@ -502,6 +505,9 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   ajustesEstacionalesActividad: [], aplicacionEscalas: [], cumplimientoNormativo: [],
   recepciones: [], centrosCosto: [],   plantillas: [],
   insumosBase: [],
+  reglasFactores: [], normativasDepartamentales: [], escalasProduccion: [], estacionalidad: [],
+  historialReglas: [], projectProfitabilities: [], clientProfitabilities: [],
+  resourceEfficiencies: [], profitabilityTrends: [],
   mutationQueue: [], syncMessage: '', syncCooldown: false, syncStatus: 'idle',
   notificaciones: [],
   auditLog: [],
@@ -511,7 +517,6 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   appSettings: APP_SETTINGS_DEFAULTS,
   proyectoWeather: [],
   errorLogs: [],
-  resourceConflicts: [],
 
   setProyectos: (v) => set(typeof v === 'function' ? { proyectos: v(get().proyectos) } : { proyectos: v }),
   setMovimientos: (v) => set(typeof v === 'function' ? { movimientos: v(get().movimientos) } : { movimientos: v }),
@@ -555,7 +560,6 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setInsumosBase: (v) => set(typeof v === 'function' ? { insumosBase: v(get().insumosBase) } : { insumosBase: v }),
   setProyectoWeather: (v) => set(typeof v === 'function' ? { proyectoWeather: v(get().proyectoWeather) } : { proyectoWeather: v }),
   setErrorLogs: (v) => set(typeof v === 'function' ? { errorLogs: v(get().errorLogs) } : { errorLogs: v }),
-  setResourceConflicts: (v) => set(typeof v === 'function' ? { resourceConflicts: v(get().resourceConflicts) } : { resourceConflicts: v }),
   resolveError: (id, notes) => {
     set(s => ({
       errorLogs: s.errorLogs.map(e =>
@@ -1549,7 +1553,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
       get().enqueueMutation('addPlantilla', nuevaPlantilla);
       get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'importar', entidad: 'plantilla', entidadId: nuevaPlantilla.id, valoresNuevos: { nombre: nuevaPlantilla.nombre, origen: plantillaImportada.nombre } });
     } catch (error) {
-      console.error('[importarPlantilla] Error al parsear JSON:', error);
+      safeLogger.error('[importarPlantilla] Error al parsear JSON:', error);
     }
   },
   sugerirPlantillas: (caracteristicas) => {

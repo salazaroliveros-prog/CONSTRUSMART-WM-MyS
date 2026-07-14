@@ -163,7 +163,7 @@ const Proyectos: React.FC = () => {
                 if (ordenamiento === key) setOrdenDescendente(!ordenDescendente);
                 else { setOrdenamiento(key); setOrdenDescendente(true); }
               }}
-              className={`px-2.5 py-1.5 text-xs rounded-lg font-medium transition-colors ${
+              className={`px-2.5 py-1.5 text-xs rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 ordenamiento === key
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted text-muted-foreground hover:bg-muted/80 active:bg-muted'
@@ -178,7 +178,7 @@ const Proyectos: React.FC = () => {
         </div>
         <button
           onClick={() => setVistaLista(!vistaLista)}
-          className={`px-2.5 py-1.5 text-xs rounded-lg font-medium transition-colors ${
+          className={`px-2.5 py-1.5 text-xs rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
             vistaLista ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80 active:bg-muted'
           }`}
           aria-label={vistaLista ? t('proyectos.vista_grid') : t('proyectos.vista_lista')}

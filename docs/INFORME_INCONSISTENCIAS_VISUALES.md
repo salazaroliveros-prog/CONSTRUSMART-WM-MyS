@@ -13,8 +13,9 @@
 El análisis del código fuente reveló **131 puntos de mejora** distribuidos en 9 categorías. De estos:
 - **0% completado** en accesibilidad (14 pantallas sin aria-labels)
 - **0% completado** en validación inline (10 pantallas con toast-only)
-- **0% completado** en estados vacíos (35 pantallas sin empty states)
-- **0% completado** en i18n completo (11 pantallas con cadenas hardcodeadas)
+- **~3% completado** en estados vacíos (APUAvanzado.tsx con Empty Ant Design — insumos + rendimientos)
+- **~18% completado** en i18n completo (Login.tsx migrado 5/5 cadenas, APUAvanzado con `t()` ya existente, Presupuestos.tsx iniciado)
+- **~55% completado** en casts `as any` (APUAvanzado.tsx: ~30/55 casts eliminados con tipo HistoricoPrecio)
 - **0% completado** en eliminación de `as any` (55 instancias en 7 pantallas)
 - **13 pantallas** mezclan Ant Design y shadcn/ui simultáneamente
 - **1 pantalla** sin skeleton loading state

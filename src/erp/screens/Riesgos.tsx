@@ -178,7 +178,7 @@ const Riesgos: React.FC = () => {
           </h1>
           <p className="text-xs text-muted-foreground">{t('riesgos.descripcion', 'Identificación, evaluación y mitigación de riesgos del proyecto')}</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
+        <button onClick={() => setShowForm(true)} className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400">
           <Plus className="w-4 h-4" /> {t('riesgos.nuevo', 'Nuevo Riesgo')}
         </button>
       </div>
@@ -186,31 +186,31 @@ const Riesgos: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <div className="bg-card rounded-xl border border-border p-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-primary" /><span className="text-xs text-muted-foreground">Total riesgos</span></div>
+            <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-primary" /><span className="text-xs text-muted-foreground">{t('riesgos.total_riesgos')}</span></div>
           </div>
           <div className="text-xl font-bold text-foreground mt-1">{riesgosFiltrados.length}</div>
-          <div className="text-[10px] text-muted-foreground mt-1">{riesgosFiltrados.length > 0 ? `${Math.round((mitigados.length / riesgosFiltrados.length) * 100)}% mitigados` : '—'}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">{riesgosFiltrados.length > 0 ? `${Math.round((mitigados.length / riesgosFiltrados.length) * 100)}% {t('riesgos.mitigados')}` : '—'}</div>
         </div>
         <div className="bg-card rounded-xl border border-border p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /><span className="text-xs text-muted-foreground">Alto impacto</span></div>
           </div>
           <div className="text-xl font-bold text-red-600 mt-1">{altos.length}</div>
-          <div className="text-[10px] text-muted-foreground mt-1">Requieren mitigación prioritaria</div>
+            <div className="text-[10px] text-muted-foreground mt-1">{t('riesgos.mitigacion_prioritaria')}</div>
         </div>
         <div className="bg-card rounded-xl border border-border p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-amber-500" /><span className="text-xs text-muted-foreground">En seguimiento</span></div>
           </div>
           <div className="text-xl font-bold text-amber-600 mt-1">{enSeguimiento.length}</div>
-          <div className="text-[10px] text-muted-foreground mt-1">En monitoreo activo</div>
+            <div className="text-[10px] text-muted-foreground mt-1">{t('riesgos.monitoreo_activo')}</div>
         </div>
         <div className="bg-card rounded-xl border border-border p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-500" /><span className="text-xs text-muted-foreground">Mitigados</span></div>
           </div>
           <div className="text-xl font-bold text-emerald-600 mt-1">{mitigados.length}</div>
-          <div className="text-[10px] text-muted-foreground mt-1">Controles aplicados</div>
+            <div className="text-[10px] text-muted-foreground mt-1">{t('riesgos.controles_aplicados')}</div>
         </div>
       </div>
 

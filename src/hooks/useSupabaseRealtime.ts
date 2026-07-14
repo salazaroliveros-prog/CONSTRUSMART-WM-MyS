@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { supabase, hasSupabase } from '@/lib/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { log } from '@/lib/auto-logger';
-import type { Rol } from '@/erp/store';
+import type { RolSistemaSistema } from '@/lib/security';
 
 type TableName =
   | 'erp_proyectos' | 'erp_movimientos' | 'erp_empleados' | 'erp_materiales'
@@ -20,7 +20,7 @@ type TableName =
 
 type ChangeType = 'INSERT' | 'UPDATE' | 'DELETE';
 
-const TABLAS_POR_ROL: Record<Rol, TableName[]> = {
+const TABLAS_POR_ROL: Record<RolSistema, TableName[]> = {
   Administrador: [
     'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
     'erp_notificaciones', 'erp_muro',
@@ -63,7 +63,7 @@ interface RealtimeConfig {
   onCambio: (payload: { tabla: string; tipo: ChangeType; datos: unknown; id: string }) => void;
   filtro?: { columna: string; valor: string };
   enabled?: boolean;
-  rol?: Rol;
+  rol?: RolSistema;
 }
 
 const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000];
@@ -79,7 +79,7 @@ const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000];
  * - Logging de eventos de conexión
  * - Manejo de errores en suscripción
  */
-export function filterByRol(tables: TableName[], rol?: Rol): TableName[] {
+export function filterByRolSistema(tables: TableName[], rol?: RolSistema): TableName[] {
   if (!rol) return tables;
   const allowed = TABLAS_POR_ROL[rol];
   if (!allowed) return tables;
@@ -95,7 +95,7 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
     rol,
   } = config;
 
-  const effectiveTablas = filterByRol(tablas, rol);
+  const effectiveTablas = filterByRolSistema(tablas, rol);
 
   const channelRef = useRef<RealtimeChannel | null>(null);
   const reconnectAttemptRef = useRef(0);

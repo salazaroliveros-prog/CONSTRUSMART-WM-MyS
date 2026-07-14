@@ -751,12 +751,12 @@ export class ServicioMotorCalculo {
       const { data, error } = await query;
 
       if (error) {
-        console.warn('[motorCalculo] Error consultando erp_calculos_proyecto:', error);
+        safeLogger.warn('[motorCalculo] Error consultando erp_calculos_proyecto:', error);
         return [];
       }
       return data ?? [];
     } catch (error) {
-      console.warn('[motorCalculo] Error al obtener historial de cálculos (capturado):', error);
+      safeLogger.warn('[motorCalculo] Error al obtener historial de cálculos (capturado):', error);
       return [];
     }
   }

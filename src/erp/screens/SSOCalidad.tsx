@@ -88,7 +88,7 @@ const SSOCalidad: React.FC = () => {
     };
     addIncidente(nuevo);
     setDiasSinAccidentes(0);
-    toast.success('Incidente reportado');
+    toast.success(t('sso_calidad.incidente_reportado'));
     setShowIncForm(false);
     setIncForm({ tipo: 'accidente', descripcion: '', afectados: '', testigos: '', acciones: '', lat: undefined, lng: undefined });
   };
@@ -125,7 +125,7 @@ const SSOCalidad: React.FC = () => {
       resultado: 'pendiente',
       responsable: pruebaForm.responsable,
     });
-    toast.success('Prueba de laboratorio registrada');
+    toast.success(t('sso_calidad.prueba_lab_registrada'));
     setShowPruebaForm(false);
     setPruebaForm({ tipo: 'concreto', descripcion: '', responsable: '' });
   };
@@ -419,7 +419,7 @@ const SSOCalidad: React.FC = () => {
                 <User className="w-4 h-4 text-muted-foreground" />
                 <input placeholder={t('sso_calidad.supervisor_placeholder', 'Nombre del supervisor')} className="px-3 py-1.5 text-xs rounded-lg border border-border outline-none focus:border-amber-400" />
               </div>
-              <button onClick={() => toast.success('Checklist SSO registrado')} className="px-4 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-600">
+              <button onClick={() => toast.success(t('sso_calidad.checklist_registrado'))} className="px-4 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-600">
                 <Check className="w-3.5 h-3.5 inline mr-1" /> {t('sso_calidad.registrar_checklist', 'Registrar')}
               </button>
             </div>
@@ -496,13 +496,13 @@ const SSOCalidad: React.FC = () => {
                       addNotificacion('general', `Emergencia: ${proyectoActual?.nombre || 'Obra'}`, `¡Emergencia reportada! Ubicación: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`, currentProjectId);
                     },
                     () => {
-                      toast.error('EMERGENCIA reportada (sin ubicación)', { duration: 10000 });
+                  toast.error(t('sso_calidad.emergencia_sin_ubicacion'), { duration: 10000 });
                       addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', currentProjectId);
                     },
                     { enableHighAccuracy: true, timeout: 10000 }
                   );
                 } else {
-                  toast.error('EMERGENCIA reportada', { duration: 10000 });
+                  toast.error(t('sso_calidad.emergencia_reportada'), { duration: 10000 });
                   addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', currentProjectId);
                 }
               }}

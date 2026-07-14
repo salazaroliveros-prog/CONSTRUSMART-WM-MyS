@@ -1,201 +1,149 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { z } from 'zod';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
-import { todayISO } from '../utils';
-import {
-  MessageSquare, Plus, Heart, MessageCircle,
-  CheckCircle2, AlertTriangle, Shield, Calendar, User, Send,
-} from 'lucide-react';
+import { fmtQ } from '../utils';
+import { Heart, MessageCircle, Send, Image, Paperclip } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { z } from 'zod';
+import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
+
+const mensajeSchema = z.object({
+  texto: z.string().min(1, 'Escribe algo para publicar').max(500, 'Máximo 500 caracteres'),
+});
 
 type TipoPublicacion = 'avance' | 'calidad' | 'seguridad' | 'general';
 
+const TIPOS: Record<TipoPublicacion, { label: string; color: string }> = {
+  avance: { label: 'Avance', color: 'text-blue-600' },
+  calidad: { label: 'Calidad', color: 'text-emerald-600' },
+  seguridad: { label: 'Seguridad', color: 'text-red-600' },
+  general: { label: 'General', color: 'text-slate-500' },
+};
+
 const MuroObra: React.FC = () => {
-  const { proyectos, user, publicacionesMuro, addPublicacionMuro, addComentarioMuro, likePublicacionMuro } = useErp();
+  const { t } = useTranslation();
+  const { publicaciones, proyectos, addPublicacionMuro, addComentarioMuro, likePublicacionMuro, currentProjectId } = useErp();
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [filterTipo, setFilterTipo] = useState<TipoPublicacion | 'todos'>('todos');
-  const [proyectoFilter, setProyectoFilter] = useState('');
+  useEffect(() => { setLoading(false); }, []);
+  const [filtroProyecto, setFiltroProyecto] = useState('');
+  const [tipoFiltro, setTipoFiltro] = useState<TipoPublicacion | 'todos'>('todos');
   const [nuevoTexto, setNuevoTexto] = useState('');
   const [nuevoTipo, setNuevoTipo] = useState<TipoPublicacion>('general');
+  const [errores, setErrores] = useState<Record<string, string>>({});
+  const [comentarios, setComentarios] = useState<Record<string, string>>({});
 
-  const publicacionSchema = z.object({
-    texto: z.string().min(1, 'Escribe algo para publicar'),
-    tipo: z.enum(['avance', 'calidad', 'seguridad', 'general'])
-  });
-  const [comentarioInput, setComentarioInput] = useState('');
-  const [comentando, setComentando] = useState<string | null>(null);
-
-  useEffect(() => { setLoading(false); }, []);
-
-  const publicacionesFiltradas = useMemo(() => {
-    let f = publicacionesMuro;
-    if (proyectoFilter) f = f.filter(p => p.proyectoId === proyectoFilter);
-    if (filterTipo !== 'todos') f = f.filter(p => p.tipo === filterTipo);
-    return [...f].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [publicacionesMuro, proyectoFilter, filterTipo]);
+  const filtered = useMemo(() => {
+    return (publicaciones || []).filter(p => {
+      if (currentProjectId && currentProjectId !== 'none' && p.proyectoId !== currentProjectId) return false;
+      if (tipoFiltro !== 'todos' && p.tipo !== tipoFiltro) return false;
+      return true;
+    }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [publicaciones, currentProjectId, tipoFiltro]);
 
   const handlePublicar = () => {
-    const result = publicacionSchema.safeParse({ texto: nuevoTexto, tipo: nuevoTipo });
+    const result = mensajeSchema.safeParse({ texto: nuevoTexto });
     if (!result.success) {
-      const errors: Record<string, string> = {};
-      result.error.errors.forEach(e => {
-        if (e.path[0]) errors[e.path[0] as string] = e.message;
-      });
-      setFormErrors(errors);
+      const fieldErrors = result.error.flatten().fieldErrors;
+      const mapped: Record<string, string> = {};
+      if (fieldErrors.texto) mapped.texto = fieldErrors.texto[0];
+      setErrores(mapped);
       return;
     }
-    setFormErrors({});
+    setErrores({});
     addPublicacionMuro({
-      proyectoId: proyectoFilter || proyectos[0]?.id || '',
-      autor: user?.nombre || 'Anónimo',
-      contenido: nuevoTexto.trim(),
+      proyectoId: currentProjectId || filtroProyecto || 'general',
+      texto: nuevoTexto.trim(),
       tipo: nuevoTipo,
-      fotos: [],
-      createdAt: new Date().toISOString(),
       likes: 0,
       comentarios: [],
-    });
-    toast.success('Publicación creada');
-    setNuevoTexto('');
-    setShowForm(false);
-  };
-
-  const handleComentar = (pubId: string) => {
-    if (!comentarioInput.trim()) return;
-    addComentarioMuro(pubId, {
-      autor: user?.nombre || 'Anónimo',
-      contenido: comentarioInput.trim(),
       createdAt: new Date().toISOString(),
     });
-    setComentarioInput('');
-    setComentando(null);
+    setNuevoTexto('');
+    toast.success(t('muro_obra.publicacion_creada', 'Publicación creada'));
   };
 
-  const tipoConfig: Record<TipoPublicacion, { color: string; bg: string; label: string; icon: React.ElementType }> = {
-    avance: { color: 'text-blue-600', bg: 'bg-blue-50', label: 'Avance', icon: CheckCircle2 },
-    calidad: { color: 'text-emerald-600', bg: 'bg-emerald-50', label: 'Calidad', icon: Shield },
-    seguridad: { color: 'text-amber-600', bg: 'bg-amber-50', label: 'Seguridad', icon: AlertTriangle },
-    general: { color: 'text-muted-foreground', bg: 'bg-muted/30', label: 'General', icon: MessageSquare },
+  const handleComentario = (id: string) => {
+    const texto = comentarios[id]?.trim();
+    if (!texto) return;
+    addComentarioMuro(id, texto);
+    setComentarios(prev => ({ ...prev, [id]: '' }));
+    toast.success(t('muro_obra.comentario_agregado', 'Comentario agregado'));
   };
 
-  if (loading) return <div className="p-4 sm:p-6 max-w-[1000px] mx-auto space-y-4"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 rounded-2xl" /><Skeleton className="h-64 rounded-2xl" /></div>;
+  if (loading) return <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 rounded-2xl" /></div>;
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1000px] mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
-          <MessageSquare className="w-6 h-6 text-indigo-500" /> Muro de Obra
-        </h1>
-        <button onClick={() => { setShowForm(!showForm); if (!showForm) setFormErrors({}); }} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors" aria-label="Crear nueva publicación">
-          <Plus className="w-3.5 h-3.5" aria-hidden="true" /> Nueva Publicación
-        </button>
-      </div>
-
-      <div className="flex flex-wrap gap-2 mb-4">
-        <ProyectoFilter value={proyectoFilter} onChange={setProyectoFilter} proyectos={proyectos} />
-        {(['todos', 'avance', 'calidad', 'seguridad', 'general'] as const).map(t => (
-          <button key={t} onClick={() => setFilterTipo(t)} className={`px-2.5 py-1.5 text-xs rounded-lg font-medium transition-colors ${filterTipo === t ? 'bg-indigo-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted'}`} aria-label={`Filtrar por ${t === 'todos' ? 'Todos' : tipoConfig[t].label}`}>
-            {t === 'todos' ? 'Todos' : tipoConfig[t].label}
-          </button>
-        ))}
-      </div>
-
-      {showForm && (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-4">
-          <div className="flex items-center gap-2 mb-3">
-            <User className="w-4 h-4 text-indigo-500" />
-            <span className="text-sm font-semibold text-muted-foreground">{user?.nombre || 'Anónimo'}</span>
-            <span className="text-xs text-muted-foreground">— {todayISO()}</span>
-          </div>
-          <textarea value={nuevoTexto} onChange={e => setNuevoTexto(e.target.value)} placeholder="¿Qué hay de nuevo en la obra?" rows={3} className="w-full px-3 py-2 text-sm rounded-lg border border-border outline-none focus:border-indigo-400 resize-none mb-3" />
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex gap-1">
-              {(['avance', 'calidad', 'seguridad', 'general'] as const).map(t => {
-                const cfg = tipoConfig[t];
-                return (
-                  <button key={t} onClick={() => setNuevoTipo(t)} className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full font-medium transition-colors ${nuevoTipo === t ? `${cfg.bg} ${cfg.color}` : 'bg-card text-muted-foreground border border-border'}`}>
-                    <cfg.icon className="w-3 h-3" aria-hidden="true" /> {cfg.label}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => setShowForm(false)} className="text-xs px-3 py-1.5 rounded-lg bg-card border border-border text-muted-foreground">Cancelar</button>
-              <button onClick={handlePublicar} className="text-xs px-3 py-1.5 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 font-medium">Publicar</button>
-            </div>
-          </div>
+    <div className="p-4 sm:p-6 max-w-[1200px] mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2"><Image className="w-5 h-5 text-primary" aria-hidden="true" /> {t('muro_obra.titulo', 'Muro de Obra')}</h1>
+        <div className="flex flex-wrap gap-2">
+          <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} />
+          <select value={tipoFiltro} onChange={e => setTipoFiltro(e.target.value as any)} className={`${INPUT} text-xs`} aria-label={t('muro_obra.filtrar_tipo', 'Filtrar por tipo')}>
+            <option value="todos">{t('muro_obra.todos', 'Todos')}</option>
+            {Object.entries(TIPOS).map(([key, cfg]) => <option key={key} value={key}>{cfg.label}</option>)}
+          </select>
         </div>
-      )}
+      </div>
+
+      <div className="bg-card border border-border rounded-2xl p-4 mb-4">
+        <div className="flex gap-2 mb-2">
+          {(['avance', 'calidad', 'seguridad', 'general'] as TipoPublicacion[]).map(tp => (
+            <button key={tp} onClick={() => setNuevoTipo(tp)} aria-label={t('muro_obra.tipo_' + tp, TIPOS[tp].label)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${nuevoTipo === tp ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-accent'}`}>
+              {TIPOS[tp].label}
+            </button>
+          ))}
+        </div>
+        <textarea value={nuevoTexto} onChange={e => { setNuevoTexto(e.target.value); setErrores(prev => ({ ...prev, texto: '' })); }} placeholder={t('muro_obra.placeholder', '¿Qué hay de nuevo en la obra?')} rows={2} className={`${INPUT} resize-none mb-2`} />
+        {errores.texto && <p className="text-xs text-red-500 mb-2">{errores.texto}</p>}
+        <div className="flex justify-end gap-2">
+          <button onClick={() => { setNuevoTexto(''); setErrores({}); }} className={`${BUTTON_SECONDARY} text-xs`}>{t('common.cancelar', 'Cancelar')}</button>
+          <button onClick={handlePublicar} className={`${BUTTON_PRIMARY} text-xs`}>{t('muro_obra.publicar', 'Publicar')}</button>
+        </div>
+      </div>
 
       <div className="space-y-3">
-        {publicacionesFiltradas.length === 0 ? (
-          <div className="bg-card rounded-2xl p-8 text-center text-sm text-muted-foreground border border-border">
-            <MessageSquare className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-            Sin publicaciones aún. ¡Sé el primero en publicar!
-          </div>
-        ) : publicacionesFiltradas.map(pub => {
-          const cfg = tipoConfig[pub.tipo];
+        {filtered.length === 0 && (
+          <div className="text-center py-10 text-muted-foreground"><p className="text-sm">{t('muro_obra.sin_publicaciones', 'Sin publicaciones aún')}</p></div>
+        )}
+        {filtered.map(pub => {
+          const cfg = TIPOS[pub.tipo] || TIPOS.general;
           return (
-            <div key={pub.id} className="bg-card rounded-2xl shadow-sm border border-border p-4">
+            <div key={pub.id} className="bg-card rounded-2xl border border-border p-4">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                  {pub.autor.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-muted-foreground truncate">{pub.autor}</div>
-                  <div className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Calendar className="w-3 h-3" /> {pub.createdAt.slice(0, 10)}
-                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
-                  </div>
-                </div>
+                <span className={`px-2 py-1 rounded text-[10px] font-medium ${cfg.color}`}>{cfg.label}</span>
+                <span className="text-xs text-muted-foreground">{pub.createdAt ? new Date(pub.createdAt).toLocaleDateString('es-GT') : '—'}</span>
               </div>
-
-              <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{pub.contenido}</p>
-
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <button onClick={() => likePublicacionMuro(pub.id)} className="flex items-center gap-1 hover:text-red-500 transition-colors" aria-label={`Me gusta ${pub.likes}`}>
-                  <Heart className="w-3.5 h-3.5" aria-hidden="true" /> {pub.likes}
+              <p className="text-sm text-foreground whitespace-pre-wrap mb-3">{pub.texto}</p>
+              <div className="flex items-center gap-3">
+                <button onClick={() => likePublicacionMuro(pub.id)} aria-label={t('muro_obra.like', 'Me gusta')} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+                  <Heart className="w-4 h-4" aria-hidden="true" /> {pub.likes}
                 </button>
-                <button onClick={() => setComentando(comentando === pub.id ? null : pub.id)} className="flex items-center gap-1 hover:text-indigo-500 transition-colors" aria-label={`Comentarios ${pub.comentarios.length}`}>
-                  <MessageCircle className="w-3.5 h-3.5" aria-hidden="true" /> {pub.comentarios.length}
+                <button onClick={() => {}} aria-label={t('muro_obra.comentar', 'Comentar')} className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+                  <MessageCircle className="w-4 h-4" aria-hidden="true" /> {pub.comentarios.length}
                 </button>
               </div>
-
-              {pub.comentarios.length > 0 && (
-                <div className="mt-2 border-t border-border pt-2 space-y-1.5">
+              {(pub.comentarios || []).length > 0 && (
+                <div className="mt-3 space-y-2">
                   {pub.comentarios.map(c => (
-                    <div key={c.id} className="flex gap-2">
-                      <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[8px] font-bold text-muted-foreground shrink-0 mt-0.5">
-                        {c.autor.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                    <div key={c.id} className="bg-muted/40 rounded-lg p-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-foreground">{c.autor}</span>
+                        <span className="text-[10px] text-muted-foreground">{c.createdAt ? new Date(c.createdAt).toLocaleDateString('es-GT') : '—'}</span>
                       </div>
-                      <div>
-                        <span className="text-xs font-semibold text-muted-foreground">{c.autor}</span>
-                        <span className="text-xs text-muted-foreground ml-1">{c.createdAt.slice(0, 10)}</span>
-                        <p className="text-xs text-muted-foreground">{c.contenido}</p>
-                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{c.texto}</p>
                     </div>
                   ))}
                 </div>
               )}
-
-              {comentando === pub.id && (
-                <div className="mt-2 flex gap-2">
-                  <input
-                    value={comentarioInput}
-                    onChange={e => setComentarioInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleComentar(pub.id)}
-                    placeholder="Escribe un comentario..."
-                    className="flex-1 text-xs px-3 py-1.5 rounded-lg border border-border outline-none focus:border-indigo-400"
-                    autoFocus
-                  />
-                  <button onClick={() => handleComentar(pub.id)} className="px-2 py-1.5 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors">
-                    <Send className="w-3 h-3" />
-                  </button>
-                </div>
-              )}
+              <div className="mt-3 flex gap-2">
+                <input value={comentarios[pub.id] || ''} onChange={e => setComentarios(prev => ({ ...prev, [pub.id]: e.target.value }))} placeholder={t('muro_obra.placeholder_comentario', 'Escribe un comentario...')} className={`${INPUT} text-xs flex-1`} />
+                <button onClick={() => handleComentario(pub.id)} aria-label={t('muro_obra.enviar_comentario', 'Enviar comentario')} className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+                  <Send className="w-3 h-3" aria-hidden="true" />
+                </button>
+              </div>
             </div>
           );
         })}
@@ -205,6 +153,3 @@ const MuroObra: React.FC = () => {
 };
 
 export default MuroObra;
-
-
-

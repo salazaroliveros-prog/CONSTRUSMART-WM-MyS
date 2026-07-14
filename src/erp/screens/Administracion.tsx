@@ -60,7 +60,7 @@ const Administracion: React.FC = () => {
           <div className="flex items-center gap-2">
             <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={safeProyectos} />
             <button onClick={() => { setShowForm(true); reset(); }} aria-label={t('admin.nuevo_centro')}
-              className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">
+              className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               {t('admin.nuevo_centro')}
             </button>
           </div>
@@ -86,7 +86,7 @@ const Administracion: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" role="table" aria-label={t('admin.centros')}>
             <thead>
               <tr className="bg-muted">
                 <th className="text-left p-2" scope="col">{t('admin.codigo')}</th>
@@ -139,7 +139,7 @@ const Administracion: React.FC = () => {
         </div>
       ) : (
         <div className="overflow-x-auto max-h-96 overflow-y-auto">
-          <table className="w-full text-xs">
+          <table className="w-full text-xs" role="table" aria-label={t('admin.logs')}>
             <thead>
               <tr className="bg-muted sticky top-0">
                 <th className="text-left p-2" scope="col">{t('admin.fecha')}</th>
@@ -186,7 +186,7 @@ const Administracion: React.FC = () => {
       </div>
       <button onClick={() => {
         toast.info(t('admin.validacion_ok'));
-      }} aria-label={t('admin.ejecutar_validacion')} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">
+      }} aria-label={t('admin.ejecutar_validacion')} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         {t('admin.ejecutar_validacion')}
       </button>
     </div>
@@ -214,10 +214,10 @@ const Administracion: React.FC = () => {
           { key: 'centros' as const,    label: t('admin.tab_centros') },
           { key: 'logs' as const,       label: t('admin.tab_logs') },
           { key: 'validacion' as const, label: t('admin.tab_validacion') },
-          { key: 'rendimiento' as const, label: 'Rendimiento DB' },
+          { key: 'rendimiento' as const, label: t('admin.tab_rendimiento', 'Rendimiento DB') },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)} aria-label={t.label}
-            className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               tab === t.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
             }`}>{t.label}</button>
         ))}
@@ -229,27 +229,27 @@ const Administracion: React.FC = () => {
       {tab === 'rendimiento' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold flex items-center gap-2"><Activity className="w-4 h-4" /> Métricas de Rendimiento DB</h3>
+            <h3 className="font-semibold flex items-center gap-2"><Activity className="w-4 h-4" aria-hidden="true" /> {t('admin.metricas_rendimiento', 'Métricas de Rendimiento DB')}</h3>
             <button onClick={fetchMetrics} disabled={metricsLoading}
-              className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg disabled:opacity-50">
-              {metricsLoading ? 'Cargando...' : 'Actualizar'}
+              className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              {metricsLoading ? t('admin.cargando', 'Cargando...') : t('admin.actualizar', 'Actualizar')}
             </button>
           </div>
           {metricsError && <p className="text-sm text-red-500">{metricsError}</p>}
           {metrics && (
             <>
               <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-2">Consultas más lentas</h4>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2">{t('admin.consultas_lentas', 'Consultas más lentas')}</h4>
                 {metrics.slow_queries.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Sin datos (pg_stat_statements puede no estar habilitado)</p>
+                  <p className="text-sm text-muted-foreground">{t('admin.sin_datos_rendimiento', 'Sin datos (pg_stat_statements puede no estar habilitado)')}</p>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs">
+                    <table className="w-full text-xs" role="table" aria-label={t('admin.consultas_lentas', 'Consultas más lentas')}>
                       <thead><tr className="bg-muted">
-                        <th className="p-2 text-left">Query</th>
-                        <th className="p-2 text-right">Llamadas</th>
-                        <th className="p-2 text-right">Media (ms)</th>
-                        <th className="p-2 text-right">Total (s)</th>
+                        <th className="p-2 text-left" scope="col">Query</th>
+                        <th className="p-2 text-right" scope="col">{t('admin.llamadas', 'Llamadas')}</th>
+                        <th className="p-2 text-right" scope="col">{t('admin.media_ms', 'Media (ms)')}</th>
+                        <th className="p-2 text-right" scope="col">{t('admin.total_s', 'Total (s)')}</th>
                       </tr></thead>
                       <tbody>{metrics.slow_queries.map((q, i) => (
                         <tr key={i} className="border-t">
@@ -264,22 +264,22 @@ const Administracion: React.FC = () => {
                 )}
               </div>
               <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-2">Tamaño de tablas</h4>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2">{t('admin.tamano_tablas', 'Tamaño de tablas')}</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {metrics.table_sizes.map(tbl => (
                     <div key={tbl.table_name} className="bg-muted rounded-lg p-3">
                       <p className="text-xs font-mono truncate">{tbl.table_name}</p>
                       <p className="text-sm font-bold">{tbl.total_size}</p>
-                      <p className="text-xs text-muted-foreground">{tbl.live_rows.toLocaleString()} filas</p>
+                      <p className="text-xs text-muted-foreground">{tbl.live_rows.toLocaleString()} {t('admin.filas', 'filas')}</p>
                     </div>
                   ))}
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground">Actualizado: {new Date(metrics.checked_at).toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">{t('admin.actualizado_en', 'Actualizado:')} {new Date(metrics.checked_at).toLocaleString()}</p>
             </>
           )}
           {!metrics && !metricsLoading && (
-            <p className="text-sm text-muted-foreground">Haz clic en &quot;Actualizar&quot; para cargar las m&eacute;tricas.</p>
+            <p className="text-sm text-muted-foreground">{t('admin.click_actualizar', 'Haz clic en "Actualizar" para cargar las métricas.')}</p>
           )}
         </div>
       )}
@@ -315,8 +315,8 @@ const Administracion: React.FC = () => {
                   <option value="administrativo">{t('admin.tipo_admin')}</option>
                 </select>
               </div>
-              <button type="submit" className="bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">{t('admin.guardar')}</button>
-              <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted">{t('admin.cancelar')}</button>
+              <button type="submit" className="bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('admin.guardar')}</button>
+              <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('admin.cancelar')}</button>
             </div>
           </form>
         </div>
