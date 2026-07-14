@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Search, DollarSign, Clock, AlertCircle, CheckCircle2, XCircle, TrendingUp, Filter } from 'lucide-react';
+import { Plus, Search, DollarSign, Clock, AlertCircle, CheckCircle2, XCircle, TrendingUp, Filter, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';

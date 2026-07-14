@@ -40,8 +40,6 @@ const PROFITABILITY_KEY = BASE_STORAGE_KEY + '_profitability';
 const AJUSTES_ESTACIONALES_KEY = BASE_STORAGE_KEY + '_ajustes_estacionales';
 const APLICACION_ESCALAS_KEY = BASE_STORAGE_KEY + '_aplicacion_escalas';
 const CUMPLIMIENTO_NORMATIVO_KEY = BASE_STORAGE_KEY + '_cumplimiento_normativo';
-const REORDERING_KEY = BASE_STORAGE_KEY + '_reordering';
-
 function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   try {
     const raw = localStorage.getItem(key);
@@ -66,12 +64,12 @@ function loadObjectFromStorage<T>(key: string, schema: z.ZodTypeAny, fallback: T
   return fallback;
 }
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'baseprecios' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'proveedor-analytics' | 'error-log' | 'activos' | 'cuadros' | 'profitability' | 'weather' | 'conflicts' | 'calidad-cumplimiento';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'baseprecios' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'proveedor-analytics' | 'error-log' | 'activos' | 'cuadros' | 'profitability' | 'weather' | 'conflicts' | 'calidad-cumplimiento' | 'auditoria';
 export type UIMode = 'shadcn' | 'antd';
 export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
 
 export const ALL_VIEWS: View[] = [
-  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability','weather','conflicts','calidad-cumplimiento'
+  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability','weather','conflicts','calidad-cumplimiento','auditoria'
 ];
 
 export const clearAllData = () => {
@@ -170,6 +168,9 @@ const MUTATION_TABLE_MAP: Record<string, string> = {
   addCalculoProyecto:'erp_calculos_proyecto',updateCalculoProyecto:'erp_calculos_proyecto',deleteCalculoProyecto:'erp_calculos_proyecto',
   addRecepcion:'erp_recepciones',updateRecepcion:'erp_recepciones',deleteRecepcion:'erp_recepciones',
   addValeSalida:'erp_vales_salida',updateValeSalida:'erp_vales_salida',deleteValeSalida:'erp_vales_salida',
+  addPublicacionMuro:'erp_muro',
+  updatePublicacionMuro:'erp_muro',
+  deletePublicacionMuro:'erp_muro',
   addComentarioMuro:'erp_muro',
   likePublicacionMuro:'erp_muro',
   addPrueba:'erp_pruebas_laboratorio',updatePrueba:'erp_pruebas_laboratorio',deletePrueba:'erp_pruebas_laboratorio',
@@ -187,6 +188,7 @@ addEstacionalidad:'erp_estacionalidad',updateEstacionalidad:'erp_estacionalidad'
    addAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',updateAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',deleteAjusteEstacionalActividad:'erp_ajustes_estacionales_actividad',
    addHistorialAplicacionRegla:'erp_historial_aplicacion_reglas',validarCalculo:'erp_calculos_proyecto',guardarAlertasCalculo:'erp_calculos_proyecto',registrarAplicacionRegla:'erp_historial_aplicacion_reglas',
    setReglasFactores:'erp_reglas_factores',setNormativasDepartamentales:'erp_normativa_departamental',setEscalasProduccion:'erp_escalas_produccion',setEstacionalidad:'erp_estacionalidad',
+   addProyectoWeather:'erp_proyecto_weather',updateProyectoWeather:'erp_proyecto_weather',deleteProyectoWeather:'erp_proyecto_weather',
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
