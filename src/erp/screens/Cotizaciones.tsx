@@ -270,7 +270,7 @@ const Cotizaciones: React.FC = () => {
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{c.descripcion || c.alcance}</p>
                       <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" aria-hidden="true" /> {c.fecha}</span>
-                        {c.fechaVencimiento && <span className="flex items-center gap-1"><Clock className="w-3 h-3" aria-hidden="true" /> Vence: {c.fechaVencimiento}</span>}
+                        {c.fechaVencimiento && <span className="flex items-center gap-1"><Clock className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.vence')} {c.fechaVencimiento}</span>}
                         {c.clienteNit && <span className="flex items-center gap-1"><FileText className="w-3 h-3" aria-hidden="true" /> NIT: {c.clienteNit}</span>}
                         <span className="font-semibold text-emerald-600">{fmtQ(c.precioVentaTotal)}</span>
                       </div>
@@ -290,7 +290,7 @@ const Cotizaciones: React.FC = () => {
                       <button onClick={() => duplicarCotizacion(c)} className="text-xs bg-muted text-foreground px-3 py-2 rounded hover:bg-muted/80 active:bg-muted/90 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
                         <Copy className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.duplicar')}
                       </button>
-                      <button onClick={() => handleDelete(c.id)} className="text-xs bg-red-50 text-red-600 px-3 py-2 rounded hover:bg-red-100 active:bg-red-200 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
+                      <button onClick={() => handleDelete(c.id)} className="text-xs bg-red-50 text-red-600 px-3 py-2 rounded hover:bg-red-100 active:bg-red-200 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400" aria-label={t('cotizaciones.eliminar')}>
                         <Trash2 className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </div>
@@ -332,7 +332,7 @@ const Cotizaciones: React.FC = () => {
               )}
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.numero')}</label>
-                <input value={formData.numero} onChange={e => setFormData(p => ({ ...p, numero: e.target.value }))} placeholder="COT-001-2026" className={INPUT} />
+                <input value={formData.numero} onChange={e => setFormData(p => ({ ...p, numero: e.target.value }))} placeholder={t('cotizaciones.placeholder_numero')} className={INPUT} />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">{t('cotizaciones.fecha')}</label>
@@ -354,7 +354,7 @@ const Cotizaciones: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.nit')}</label>
-                  <input value={formData.clienteNit} onChange={e => setFormData(p => ({ ...p, clienteNit: e.target.value }))} placeholder="NIT" className={INPUT} />
+                  <input value={formData.clienteNit} onChange={e => setFormData(p => ({ ...p, clienteNit: e.target.value }))} placeholder={t('cotizaciones.nit')} className={INPUT} />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.telefono')}</label>
@@ -362,7 +362,7 @@ const Cotizaciones: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.email')}</label>
-                  <input value={formData.clienteEmail} onChange={e => setFormData(p => ({ ...p, clienteEmail: e.target.value }))} placeholder="correo@ejemplo.com" className={INPUT} />
+                  <input value={formData.clienteEmail} onChange={e => setFormData(p => ({ ...p, clienteEmail: e.target.value }))} placeholder={t('common.email_ejemplo')} className={INPUT} />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.direccion')}</label>
@@ -376,11 +376,11 @@ const Cotizaciones: React.FC = () => {
               <div className="grid grid-cols-1 gap-3">
                 <div>
                   <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.descripcion_corta')}</label>
-                  <input value={formData.descripcion} onChange={e => setFormData(p => ({ ...p, descripcion: e.target.value }))} placeholder="Ej. Diseño de planos para casa unifamiliar" className={INPUT} />
+                  <input value={formData.descripcion} onChange={e => setFormData(p => ({ ...p, descripcion: e.target.value }))} placeholder={t('cotizaciones.placeholder_descripcion')} className={INPUT} />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-foreground uppercase tracking-wider mb-1 block">{t('cotizaciones.alcance')}</label>
-                  <textarea value={formData.alcance} onChange={e => setFormData(p => ({ ...p, alcance: e.target.value }))} placeholder="Describe detalladamente qué incluye esta cotización..." className={`${INPUT} min-h-[80px] resize-none`} rows={3} />
+                  <textarea value={formData.alcance} onChange={e => setFormData(p => ({ ...p, alcance: e.target.value }))} placeholder={t('cotizaciones.placeholder_alcance')} className={`${INPUT} min-h-[80px] resize-none`} rows={3} />
                 </div>
               </div>
             </div>

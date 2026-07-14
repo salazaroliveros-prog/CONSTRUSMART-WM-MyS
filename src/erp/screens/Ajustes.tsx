@@ -86,9 +86,9 @@ const Ajustes: React.FC = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast.success('Respaldo exportado correctamente');
+      toast.success(t('ajustes.respaldo_exportado'));
     } catch (e) {
-      toast.error('No se pudo exportar el respaldo. Verifica el almacenamiento disponible.');
+      toast.error(t('ajustes.error_exportar_respaldo'));
     }
   };
 
@@ -103,21 +103,21 @@ const Ajustes: React.FC = () => {
         const text = await file.text();
         const data = JSON.parse(text);
         if (typeof data !== 'object' || Array.isArray(data)) {
-          toast.error('Formato de archivo inválido');
+          toast.error(t('ajustes.formato_invalido'));
           return;
         }
         const wmKeys = Object.keys(data).filter(k => k.startsWith('wm_'));
         if (wmKeys.length === 0) {
-          toast.warning('El archivo no contiene datos válidos de CONSTRUSMART');
+          toast.warning(t('ajustes.sin_datos_validos'));
           return;
         }
         for (const k of wmKeys) {
           localStorage.setItem(k, data[k]);
         }
-        toast.success(`Importados ${wmKeys.length} registros desde ${file.name}`);
+        toast.success(t('ajustes.importados_exito', { count: wmKeys.length, archivo: file.name }));
         window.location.reload();
       } catch (err) {
-        toast.error('Error al leer el archivo de respaldo');
+        toast.error(t('ajustes.error_leer_respaldo'));
       }
     };
     input.click();
@@ -430,7 +430,7 @@ const Ajustes: React.FC = () => {
               >
                 <Radio.Group
                   value={appSettings.sidebarWidth}
-                  onChange={e => updateAppSettings({ sidebarWidth: e.target.value as string })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAppSettings({ sidebarWidth: e.target.value })}
                   optionType="button"
                   buttonStyle="solid"
                   size="small"

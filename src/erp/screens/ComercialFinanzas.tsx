@@ -5,6 +5,7 @@ import { useErp } from '../store';
 import type { VentaPaquete, Anticipo, AmortizacionItem, CajaChica } from '../types';
 import { Building2, DollarSign, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
+import { fmtQ } from '../utils';
 
 const uid = () => Date.now().toString(36).substr(2, 9);
 
@@ -60,13 +61,14 @@ export const ComercialFinanzas: React.FC = () => {
 
   const INPUT = 'w-full px-3 py-2 border border-input rounded-lg text-sm outline-none focus:border-ring bg-background text-foreground';
   const SELECT = 'w-full px-3 py-2 border border-input rounded-lg text-sm outline-none focus:border-ring bg-background text-foreground';
+  const FOCUS_VISIBLE = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
   const renderVentas = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><Building2 className="w-4 h-4" /> {t('comercial.ventas')}</h2>
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><Building2 className="w-4 h-4" aria-hidden="true" /> {t('comercial.ventas')}</h2>
         <button onClick={() => { setShowForm('venta'); setForm({}); }}
-          className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">{t('comercial.nueva_venta')}</button>
+          className={`bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('comercial.nueva_venta')}</button>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
@@ -90,7 +92,7 @@ export const ComercialFinanzas: React.FC = () => {
         </div>
       ) : (
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" role="table" aria-label={t('comercial.ventas')}>
           <thead>
             <tr className="bg-muted">
               <th className="p-2 text-left" scope="col">{t('comercial.identificador', 'Identificador')}</th>
@@ -105,11 +107,11 @@ export const ComercialFinanzas: React.FC = () => {
               <tr key={v.id} className="border-t hover:bg-muted/50">
                 <td className="p-2 font-medium">{v.identificador}</td>
                 <td className="p-2 text-xs">{v.tipo}</td>
-                <td className="p-2 text-right font-mono">Q{v.precioVenta.toLocaleString()}</td>
+                <td className="p-2 text-right font-mono">{fmtQ(v.precioVenta)}</td>
                 <td className="p-2 text-xs">{v.cliente || '—'}</td>
                 <td className="p-2">
                   <select value={v.estado} onChange={e => updateVenta(v.id, { estado: e.target.value as VentaPaquete['estado'] })}
-                    className={`text-xs px-3 py-2 rounded border outline-none ${
+                    className={`text-xs px-3 py-2 rounded border outline-none ${FOCUS_VISIBLE} ${
                       v.estado === 'disponible' ? 'text-success bg-success/10' :
                       v.estado === 'reservado'  ? 'text-warning bg-warning/10' :
                       v.estado === 'vendido'    ? 'text-info bg-info/10' :
@@ -133,9 +135,9 @@ export const ComercialFinanzas: React.FC = () => {
   const renderAnticipos = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><DollarSign className="w-4 h-4" /> {t('comercial.anticipos')}</h2>
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><DollarSign className="w-4 h-4" aria-hidden="true" /> {t('comercial.anticipos')}</h2>
         <button onClick={() => { setShowForm('anticipo'); setForm({}); }}
-          className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">{t('comercial.nuevo_anticipo', '+ Nuevo Anticipo')}</button>
+          className={`bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('comercial.nuevo_anticipo', '+ Nuevo Anticipo')}</button>
       </div>
       <div className="grid gap-3">
         {anticipos.map(a => {
@@ -148,13 +150,13 @@ export const ComercialFinanzas: React.FC = () => {
                   <span className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${
                     a.estado === 'activo' ? 'bg-warning/10 text-warning' :
                     a.estado === 'amortizado' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
-                  }`}>{a.estado}</span>
+                  }`}>{t('comercial.estado_' + a.estado, a.estado)}</span>
                 </div>
                 <span className="text-xs text-muted-foreground">{a.beneficiario}</span>
               </div>
               <div className="flex items-center gap-4 text-sm">
-                <span className="font-mono text-foreground">{t('comercial.total_label', 'Total')}: Q{a.montoTotal.toFixed(2)}</span>
-                <span className="font-mono text-foreground">{t('comercial.saldo_label', 'Saldo')}: Q{a.saldoPendiente.toFixed(2)}</span>
+                <span className="font-mono text-foreground">{t('comercial.total_label', 'Total')}: {fmtQ(a.montoTotal)}</span>
+                <span className="font-mono text-foreground">{t('comercial.saldo_label', 'Saldo')}: {fmtQ(a.saldoPendiente)}</span>
                 <div className="flex-1 bg-muted rounded-full h-2">
                   <div className="bg-success rounded-full h-2 transition-all" style={{ width: `${pctAmortizado}%` }} />
                 </div>
@@ -173,7 +175,7 @@ export const ComercialFinanzas: React.FC = () => {
                       setAmortInputs(prev => ({ ...prev, [a.id]: '' }));
                       toast.success(t('comercial.amortizacion_registrada', 'Amortización registrada'));
                     }
-                  }} className="bg-success text-success-foreground px-4 py-2.5 rounded-lg text-xs hover:bg-success/90 active:bg-success/80 active:scale-95 min-h-[44px] transition-all">{t('comercial.amortizar', 'Amortizar')}</button>
+                  }} className={`bg-success text-success-foreground px-4 py-2.5 rounded-lg text-xs hover:bg-success/90 active:bg-success/80 active:scale-95 min-h-[44px] transition-all ${FOCUS_VISIBLE}`}>{t('comercial.amortizar', 'Amortizar')}</button>
                 </div>
               )}
               {a.amortizaciones.length > 0 && (
@@ -182,7 +184,7 @@ export const ComercialFinanzas: React.FC = () => {
                   {a.amortizaciones.map(am => (
                     <div key={am.id} className="flex justify-between text-xs text-muted-foreground">
                       <span>{new Date(am.fecha).toLocaleDateString()}</span>
-                      <span className="font-mono">-Q{am.monto.toFixed(2)}</span>
+                      <span className="font-mono">-{fmtQ(am.monto)}</span>
                       {am.referencia && <span className="text-muted-foreground/70">{am.referencia}</span>}
                     </div>
                   ))}
@@ -199,9 +201,9 @@ export const ComercialFinanzas: React.FC = () => {
   const renderCajas = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><Wallet className="w-4 h-4" /> {t('comercial.cajas')}</h2>
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><Wallet className="w-4 h-4" aria-hidden="true" /> {t('comercial.cajas')}</h2>
         <button onClick={() => { setShowForm('caja'); setForm({}); }}
-          className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">{t('comercial.nuevo_gasto', '+ Nuevo Gasto')}</button>
+          className={`bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('comercial.nuevo_gasto', '+ Nuevo Gasto')}</button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
@@ -215,20 +217,20 @@ export const ComercialFinanzas: React.FC = () => {
         </div>
         <div className="p-3 bg-info/10 rounded-lg text-center">
           <p className="text-xs text-info font-medium">{t('comercial.total_aprobado')}</p>
-          <p className="text-xl font-bold text-info">Q{cajasChicas.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.monto, 0).toFixed(2)}</p>
+          <p className="text-xl font-bold text-info">{fmtQ(cajasChicas.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.monto, 0))}</p>
         </div>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" role="table" aria-label={t('comercial.cajas')}>
           <thead>
             <tr className="bg-muted">
-              <th className="p-2 text-left">{t('common.descripcion')}</th>
-              <th className="p-2 text-left">{t('financiero.categoria')}</th>
-              <th className="p-2 text-right">{t('common.monto', 'Monto')}</th>
-              <th className="p-2 text-left">{t('common.fecha')}</th>
-              <th className="p-2 text-left">{t('comercial.solicitante', 'Solicitante')}</th>
-              <th className="p-2 text-left">{t('common.estado')}</th>
+              <th className="p-2 text-left" scope="col">{t('common.descripcion')}</th>
+              <th className="p-2 text-left" scope="col">{t('financiero.categoria')}</th>
+              <th className="p-2 text-right" scope="col">{t('common.monto', 'Monto')}</th>
+              <th className="p-2 text-left" scope="col">{t('common.fecha')}</th>
+              <th className="p-2 text-left" scope="col">{t('comercial.solicitante', 'Solicitante')}</th>
+              <th className="p-2 text-left" scope="col">{t('common.estado')}</th>
             </tr>
           </thead>
           <tbody>
@@ -241,9 +243,9 @@ export const ComercialFinanzas: React.FC = () => {
                     c.categoria === 'herramientas' ? 'bg-accent/10 text-accent-foreground' :
                     c.categoria === 'transporte'   ? 'bg-primary/10 text-primary' :
                     c.categoria === 'comidas'      ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
-                  }`}>{c.categoria}</span>
+                  }`}>{t('comercial.categoria_' + c.categoria, c.categoria)}</span>
                 </td>
-                <td className="p-2 text-right font-mono">Q{c.monto.toFixed(2)}</td>
+                <td className="p-2 text-right font-mono">{fmtQ(c.monto)}</td>
                 <td className="p-2 text-xs">{new Date(c.fechaGasto).toLocaleDateString()}</td>
                 <td className="p-2 text-xs">{c.solicitante}</td>
                 <td className="p-2">
@@ -252,10 +254,9 @@ export const ComercialFinanzas: React.FC = () => {
                     aprobadoPor: e.target.value === 'aprobada' ? (user?.nombre || 'Admin') : undefined,
                     fechaAprobacion: e.target.value === 'aprobada' ? new Date().toISOString() : undefined
                   })}
-                    className={`text-xs px-3 py-2 rounded border outline-none ${
+                    className={`text-xs px-3 py-2 rounded border outline-none ${FOCUS_VISIBLE} ${
                       c.estado === 'aprobada'  ? 'text-success bg-success/10' :
-                      c.estado === 'rechazada' ? 'text-destructive bg-destructive/10' :
-                      'text-warning bg-warning/10'
+                      c.estado === 'rechazada' ? 'text-destructive bg-destructive/10' : 'text-warning bg-warning/10'
                     }`}>
                     <option value="pendiente">{t('comercial.pendiente', 'Pendiente')}</option>
                     <option value="aprobada">{t('comercial.aprobada', 'Aprobada')}</option>
@@ -270,7 +271,6 @@ export const ComercialFinanzas: React.FC = () => {
       {cajasChicas.length === 0 && <div className="text-center py-10 text-muted-foreground"><Wallet className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('comercial.no_hay_gastos')}</p></div>}
     </div>
   );
-
 
   if (loading) {
     return (
@@ -289,8 +289,7 @@ export const ComercialFinanzas: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <h1 className="text-2xl font-black text-foreground mb-4">{t('comercial.titulo')}</h1>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto">
+      <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto" role="tablist">
         {[
           { key: 'ventas',    label: t('comercial.ventas'), icon: Building2 },
           { key: 'anticipos', label: t('comercial.anticipos'), icon: DollarSign },
@@ -298,8 +297,8 @@ export const ComercialFinanzas: React.FC = () => {
         ].map(item => {
           const Icon = item.icon;
           return (
-            <button key={item.key} onClick={() => setTab(item.key as typeof tab)}
-              className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-1.5 ${
+            <button key={item.key} onClick={() => setTab(item.key as typeof tab)} role="tab" aria-selected={tab === item.key}
+              className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-1.5 ${FOCUS_VISIBLE} ${
                 tab === item.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
               }`}><Icon className="w-4 h-4" aria-hidden="true" /> {item.label}</button>
           );
@@ -310,16 +309,14 @@ export const ComercialFinanzas: React.FC = () => {
       {tab === 'anticipos' && renderAnticipos()}
       {tab === 'cajas'     && renderCajas()}
 
-      {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={showForm === 'venta' ? t('comercial.nueva_venta') : showForm === 'anticipo' ? t('comercial.nuevo_anticipo') : t('comercial.nuevo_gasto')}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4 text-foreground">
               {showForm === 'venta'    && t('comercial.modal_nueva_venta', 'Nueva Venta / Paquete')}
               {showForm === 'anticipo' && t('comercial.modal_nuevo_anticipo', 'Nuevo Anticipo')}
               {showForm === 'caja'     && t('comercial.modal_nuevo_gasto', 'Nuevo Gasto de Caja Chica')}
             </h3>
-
             {showForm === 'venta' && (
               <div className="grid gap-3">
                 <div>
@@ -335,18 +332,17 @@ export const ComercialFinanzas: React.FC = () => {
                 <input placeholder={t('comercial.placeholder_identificador', 'Identificador (ej: Torre A - Apt 301)')} className={INPUT} value={form.identificador || ''} onChange={e => setForm({ ...form, identificador: e.target.value })} />
                 <input placeholder={t('comercial.placeholder_precio', 'Precio de venta Q')} type="number" inputMode="decimal" className={INPUT} value={form.precioVenta || ''} onChange={e => setForm({ ...form, precioVenta: +e.target.value })} />
                 <input placeholder={t('comercial.placeholder_cliente', 'Cliente (opcional)')} className={INPUT} value={form.cliente || ''} onChange={e => setForm({ ...form, cliente: e.target.value })} />
-                  <button onClick={() => {
-                    const errors: Record<string, string> = {};
-                    if (!form.proyectoId) errors.proyectoId = t('comercial.error_proyecto');
-                    setFormErrors(errors);
-                    if (Object.keys(errors).length > 0) return;
-                    addVenta({ proyectoId: form.proyectoId, tipo: form.tipo || 'unidad', identificador: form.identificador || 'Nueva unidad', precioVenta: form.precioVenta || 0, precioContrato: form.precioVenta || 0, estado: 'disponible', cliente: form.cliente || undefined });
-                    setShowForm(null);
-                    toast.success(t('comercial.venta_registrada', 'Venta registrada'));
-                  }} className="bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">{t('common.guardar')}</button>
+                <button onClick={() => {
+                  const errors: Record<string, string> = {};
+                  if (!form.proyectoId) errors.proyectoId = t('comercial.error_proyecto');
+                  setFormErrors(errors);
+                  if (Object.keys(errors).length > 0) return;
+                  addVenta({ proyectoId: form.proyectoId, tipo: form.tipo || 'unidad', identificador: form.identificador || 'Nueva unidad', precioVenta: form.precioVenta || 0, precioContrato: form.precioVenta || 0, estado: 'disponible', cliente: form.cliente || undefined });
+                  setShowForm(null);
+                  toast.success(t('comercial.venta_registrada', 'Venta registrada'));
+                }} className={`bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('common.guardar')}</button>
               </div>
             )}
-
             {showForm === 'anticipo' && (
               <div className="grid gap-3">
                 <select className={`${SELECT} ${formErrors.proyectoId ? 'border-red-500' : ''}`} value={form.proyectoId || ''} onChange={e => { setForm({ ...form, proyectoId: e.target.value }); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }}>
@@ -366,10 +362,9 @@ export const ComercialFinanzas: React.FC = () => {
                   addAnticipo({ proyectoId: form.proyectoId, montoTotal: monto, saldoPendiente: monto, tipo: form.tipo || 'proveedor', beneficiario: form.beneficiario || 'Beneficiario', concepto: form.concepto || 'Anticipo', fechaEntrega: new Date().toISOString().split('T')[0], estado: 'activo' });
                   setShowForm(null);
                   toast.success(t('comercial.anticipo_registrado', 'Anticipo registrado'));
-                }} className="bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">{t('common.guardar')}</button>
+                }} className={`bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('common.guardar')}</button>
               </div>
             )}
-
             {showForm === 'caja' && (
               <div className="grid gap-3">
                 <select className={`${SELECT} ${formErrors.proyectoId ? 'border-red-500' : ''}`} value={form.proyectoId || ''} onChange={e => { setForm({ ...form, proyectoId: e.target.value }); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }}>
@@ -389,11 +384,10 @@ export const ComercialFinanzas: React.FC = () => {
                   addCajaChica({ proyectoId: form.proyectoId, monto: form.monto || 0, descripcion: form.descripcion || 'Gasto', categoria: form.categoria || 'materiales', fechaGasto: new Date().toISOString().split('T')[0], solicitante: form.solicitante || 'Usuario', estado: 'pendiente' });
                   setShowForm(null);
                   toast.success(t('comercial.gasto_registrado', 'Gasto registrado'));
-                }} className="bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">{t('common.guardar')}</button>
+                }} className={`bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('common.guardar')}</button>
               </div>
             )}
-
-            <button onClick={() => setShowForm(null)} className="mt-2 w-full px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted">{t('common.cancelar')}</button>
+            <button onClick={() => setShowForm(null)} className={`mt-2 w-full px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted ${FOCUS_VISIBLE}`}>{t('common.cancelar')}</button>
           </div>
         </div>
       )}
@@ -402,4 +396,3 @@ export const ComercialFinanzas: React.FC = () => {
 };
 
 export default ComercialFinanzas;
-

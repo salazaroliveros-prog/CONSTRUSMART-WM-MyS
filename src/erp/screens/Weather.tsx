@@ -1,6 +1,7 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { SkeletonWeather } from '@/components/SkeletonScreens';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { safeLogger } from '@/lib/safeLogger';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { 
@@ -102,7 +103,7 @@ const Weather: React.FC = () => {
         toast.success(t('weather.updated', 'Datos climáticos actualizados'));
       }
     } catch (error) {
-      console.error('Error refreshing weather:', error);
+      safeLogger.error('Error refreshing weather:', error);
       toast.error(t('weather.error_refresh', 'Error al actualizar datos climáticos'));
     } finally {
       setRefreshing(false);
@@ -142,7 +143,7 @@ const Weather: React.FC = () => {
           });
         }
       } catch (error) {
-        console.error('Error loading weather from Supabase:', error);
+        safeLogger.error('Error loading weather from Supabase:', error);
       }
     };
 

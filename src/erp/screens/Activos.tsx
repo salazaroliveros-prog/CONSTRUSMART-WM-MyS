@@ -5,21 +5,10 @@ import { useErp } from '../store';
 import { Search, Wrench, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
+import { fmtQ } from '../utils';
 
 const TIPOS = ['herramienta', 'equipo', 'vehiculo', 'accesorio'] as const;
 const ESTADOS = ['disponible', 'asignado', 'mantenimiento', 'baja'] as const;
-const TIPO_LABEL: Record<string, string> = {
-  herramienta: 'Herramienta',
-  equipo: 'Equipo',
-  vehiculo: 'Vehículo',
-  accesorio: 'Accesorio',
-};
-const ESTADO_LABEL: Record<string, string> = {
-  disponible: 'Disponible',
-  asignado: 'Asignado',
-  mantenimiento: 'En Mantenimiento',
-  baja: 'Dado de Baja',
-};
 
 const Activos: React.FC = () => {
   const { t } = useTranslation();
@@ -73,7 +62,6 @@ const Activos: React.FC = () => {
   };
 
   const remove = (id: string) => {
-    if (t('common.confirmar') !== 'Sí') return;
     setActivos(arr => arr.filter(a => a.id !== id));
     toast.success(t('activos.eliminar_exito'));
   };
@@ -86,7 +74,7 @@ const Activos: React.FC = () => {
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
           <Wrench className="w-6 h-6 text-indigo-500" /> {t('activos.titulo')}
         </h1>
-        <button onClick={openCreate} className="px-3 py-2 rounded-lg bg-indigo-500 text-white text-xs font-medium hover:bg-indigo-600">{t('activos.nuevo_activo')}</button>
+        <button onClick={openCreate} className="px-3 py-2 rounded-lg bg-indigo-500 text-white text-xs font-medium hover:bg-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('activos.nuevo_activo')}</button>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
@@ -96,11 +84,11 @@ const Activos: React.FC = () => {
         </div>
         <select value={tipo} onChange={e => setTipo(e.target.value)} className="text-xs px-3 py-2 rounded-lg border border-border bg-card">
           <option value="todos">{t('activos.todos_tipos')}</option>
-          {TIPOS.map(tp => <option key={tp} value={tp}>{TIPO_LABEL[tp]}</option>)}
+          {TIPOS.map(tp => <option key={tp} value={tp}>{t(`activos.tipo_${tp}`)}</option>)}
         </select>
         <select value={estado} onChange={e => setEstado(e.target.value)} className="text-xs px-3 py-2 rounded-lg border border-border bg-card">
           <option value="todos">{t('activos.todos_estados')}</option>
-          {ESTADOS.map(e => <option key={e} value={e}>{ESTADO_LABEL[e]}</option>)}
+          {ESTADOS.map(e => <option key={e} value={e}>{t(`activos.estado_${e}`)}</option>)}
         </select>
       </div>
 
@@ -108,32 +96,32 @@ const Activos: React.FC = () => {
         <div className="p-3 bg-indigo-50 rounded-lg text-center"><p className="text-xs text-indigo-600">{t('activos.total')}</p><p className="text-xl font-bold text-indigo-700">{activos.length}</p></div>
         <div className="p-3 bg-emerald-50 rounded-lg text-center"><p className="text-xs text-emerald-600">{t('activos.disponibles')}</p><p className="text-xl font-bold text-emerald-700">{activos.filter(a => a.estado === 'disponible').length}</p></div>
         <div className="p-3 bg-amber-50 rounded-lg text-center"><p className="text-xs text-amber-600">{t('activos.asignados')}</p><p className="text-xl font-bold text-amber-700">{activos.filter(a => a.estado === 'asignado').length}</p></div>
-        <div className="p-3 bg-muted/30 rounded-lg text-center"><p className="text-xs text-muted-foreground">{t('activos.valor_total')}</p><p className="text-xl font-bold text-foreground">Q{activos.reduce((s, a) => s + (Number(a.valor) || 0), 0).toLocaleString()}</p></div>
+        <div className="p-3 bg-muted/30 rounded-lg text-center"><p className="text-xs text-muted-foreground">{t('activos.valor_total')}</p><p className="text-xl font-bold text-foreground">{fmtQ(activos.reduce((s, a) => s + (Number(a.valor) || 0), 0))}</p></div>
       </div>
 
       <div className="bg-card rounded-2xl shadow-sm border border-border overflow-x-auto">
-        <table className="w-full text-xs">
+        <table className="w-full text-xs" role="table" aria-label={t('activos.titulo')}>
           <thead><tr className="bg-muted/30">
-            <th className="text-left p-2">{t('activos.columna_codigo')}</th>
-            <th className="text-left p-2">{t('activos.columna_nombre')}</th>
-            <th className="text-left p-2">{t('activos.columna_tipo')}</th>
-            <th className="text-left p-2">{t('activos.columna_estado')}</th>
-            <th className="text-left p-2">{t('activos.columna_ubicacion')}</th>
-            <th className="text-left p-2">{t('activos.columna_valor')}</th>
-            <th className="text-right p-2">{t('activos.columna_acciones')}</th>
+            <th className="text-left p-2" scope="col">{t('activos.columna_codigo')}</th>
+            <th className="text-left p-2" scope="col">{t('activos.columna_nombre')}</th>
+            <th className="text-left p-2" scope="col">{t('activos.columna_tipo')}</th>
+            <th className="text-left p-2" scope="col">{t('activos.columna_estado')}</th>
+            <th className="text-left p-2" scope="col">{t('activos.columna_ubicacion')}</th>
+            <th className="text-left p-2" scope="col">{t('activos.columna_valor')}</th>
+            <th className="text-right p-2" scope="col">{t('activos.columna_acciones')}</th>
           </tr></thead>
           <tbody>
             {filtered.map(a => (
-              <tr key={a.id} className="border-t hover:bg-accent">
+              <tr key={a.id} className="border-t hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="row">
                 <td className="p-2 font-mono text-muted-foreground">{a.codigo}</td>
                 <td className="p-2 font-medium text-muted-foreground">{a.nombre}</td>
-                <td className="p-2 text-muted-foreground">{TIPO_LABEL[a.tipo] || a.tipo}</td>
-                <td className="p-2"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.estado === 'disponible' ? 'bg-emerald-50 text-emerald-600' : a.estado === 'asignado' ? 'bg-amber-50 text-amber-600' : a.estado === 'mantenimiento' ? 'bg-red-50 text-red-600' : 'bg-muted text-muted-foreground'}`}>{ESTADO_LABEL[a.estado] || a.estado}</span></td>
+                <td className="p-2 text-muted-foreground">{t(`activos.tipo_${a.tipo}`)}</td>
+                <td className="p-2"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.estado === 'disponible' ? 'bg-emerald-50 text-emerald-600' : a.estado === 'asignado' ? 'bg-amber-50 text-amber-600' : a.estado === 'mantenimiento' ? 'bg-red-50 text-red-600' : 'bg-muted text-muted-foreground'}`}>{t(`activos.estado_${a.estado}`)}</span></td>
                 <td className="p-2 text-muted-foreground">{proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}</td>
-                <td className="p-2 font-mono">Q{Number(a.valor || 0).toLocaleString()}</td>
+                <td className="p-2 font-mono">{fmtQ(Number(a.valor || 0))}</td>
                 <td className="p-2 text-right">
-                  <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-accent" aria-label={t('activos.editar')}><Edit2 className="w-4 h-4 text-muted-foreground" aria-hidden="true" /></button>
-                  <button onClick={async () => { try { await confirmAction({ title: t('activos.confirmar_eliminar'), okText: 'Eliminar', cancelText: 'Cancelar', variant: 'destructive' }); remove(a.id); } catch {} }} className="p-1.5 rounded hover:bg-accent" aria-label={t('activos.eliminar')}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
+                  <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('activos.editar')} ${a.nombre}`}><Edit2 className="w-4 h-4 text-muted-foreground" aria-hidden="true" /></button>
+                  <button onClick={async () => { try { await confirmAction({ title: t('activos.confirmar_eliminar'), okText: t('common.si'), cancelText: t('common.cancelar'), variant: 'destructive' }); remove(a.id); } catch {} }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('activos.eliminar')} ${a.nombre}`}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
                 </td>
               </tr>
             ))}
@@ -156,14 +144,14 @@ const Activos: React.FC = () => {
                 {formErrors.codigo && <p className="text-xs text-red-500 mt-0.5">{formErrors.codigo}</p>}
               </div>
               <select value={form.tipo} onChange={e => set('tipo', e.target.value)} className="px-3 py-2 border rounded-lg text-sm">
-                {TIPOS.map(tp => <option key={tp} value={tp}>{TIPO_LABEL[tp]}</option>)}
+                {TIPOS.map(tp => <option key={tp} value={tp}>{t(`activos.tipo_${tp}`)}</option>)}
               </select>
               <select value={form.estado} onChange={e => set('estado', e.target.value)} className="px-3 py-2 border rounded-lg text-sm">
-                {ESTADOS.map(e => <option key={e} value={e}>{ESTADO_LABEL[e]}</option>)}
+                {ESTADOS.map(e => <option key={e} value={e}>{t(`activos.estado_${e}`)}</option>)}
               </select>
               <input type="number" inputMode="decimal" value={form.valor} onChange={e => set('valor', Number(e.target.value))} placeholder={t('activos.columna_valor')} className="px-3 py-2 border rounded-lg text-sm" />
-              <button onClick={save} className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm">{t('common.guardar')}</button>
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 border rounded-lg text-xs text-muted-foreground">{t('common.cancelar')}</button>
+              <button onClick={save} className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('common.guardar')}</button>
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 border rounded-lg text-xs text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('common.cancelar')}</button>
             </div>
           </div>
         </div>
@@ -172,5 +160,3 @@ const Activos: React.FC = () => {
   );
 };
 export default Activos;
-
-

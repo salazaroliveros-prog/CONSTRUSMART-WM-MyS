@@ -66,12 +66,12 @@ function loadObjectFromStorage<T>(key: string, schema: z.ZodTypeAny, fallback: T
   return fallback;
 }
 
-export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'baseprecios' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'proveedor-analytics' | 'error-log' | 'activos' | 'cuadros' | 'profitability' | 'weather' | 'conflicts';
+export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'baseprecios' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'proveedor-analytics' | 'error-log' | 'activos' | 'cuadros' | 'profitability' | 'weather' | 'conflicts' | 'calidad-cumplimiento';
 export type UIMode = 'shadcn' | 'antd';
 export type AppThemeMode = 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
 
 export const ALL_VIEWS: View[] = [
-  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability','weather','conflicts'
+  'dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability','weather','conflicts','calidad-cumplimiento'
 ];
 
 export const clearAllData = () => {
@@ -482,6 +482,12 @@ const forceSync = useMemo(() => {
                 ops.DELETE.forEach(m => tableProcessed.push(m.id));
                 return { tableProcessed, tableFailed };
               }
+              if (errObj?.code === 'PGRST116') {
+                safeLogger.debug(`[forceSync] Row not found on ${table} (PGRST116) — discarded silently`);
+                ops.UPDATE.forEach(m => tableProcessed.push(m.id));
+                ops.DELETE.forEach(m => tableProcessed.push(m.id));
+                return { tableProcessed, tableFailed };
+              }
               safeLogger.warn(`[forceSync] Batch ${table} failed:`, error);
               logErrorFromException(err instanceof Error ? err : new Error(error), {
                 component: 'ErpProvider',
@@ -560,23 +566,23 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
         try {
      const s = useErpStore.getState();
      const map: Record<string, any> = {
-       proyectos: s.proyectos, movimientos: s.movimientos, empleados: s.empleados, materiales: s.materiales,
-       ordenes: s.ordenes, proveedores: s.proveedores, eventos: s.eventos, presupuestos: s.presupuestos,
-       avances: s.avances, cuentasCobrar: s.cuentasCobrar, cuentasPagar: s.cuentasPagar,
-       ordenesCambio: s.ordenesCambio, hitos: s.hitos, riesgos: s.riesgos, licitaciones: s.licitaciones,
-       cotizacionesNegocio: s.cotizacionesNegocio,
-          seguimiento_evm: s.seguimientoEVM, incidentes: s.incidentes, publicacionesMuro: s.publicacionesMuro,
-          liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
-          activos: s.activos, cuadros: s.cuadros, pagosProveedor: s.pagosProveedor,
-          destajos: s.destajos, calculosProyecto: s.calculosProyecto, recepciones: s.recepciones, centrosCosto: s.centrosCosto,
-        plantillas: s.plantillas, insumos_base: s.insumosBase, weather: s.proyectoWeather,
-        escalasProduccion: s.escalasProduccion, estacionalidad: s.estacionalidad, historialReglas: s.historialReglas,
-        bitacora: s.bitacora, no_conformidades: s.ncs, pruebas: s.pruebas, ventas_paquetes: s.ventasPaquetes,
-        vales_salida: s.valesSalida, reglas_factores: s.reglasFactores,
-        normativas_departamentales: s.normativasDepartamentales,
-        ajustes_estacionales: s.ajustesEstacionalesActividad, aplicacion_escalas: s.aplicacionEscalas,
-        cumplimiento_normativo: s.cumplimientoNormativo, error_logs: s.errorLogs,
-        };
+        proyectos: s.proyectos, movimientos: s.movimientos, empleados: s.empleados, materiales: s.materiales,
+        ordenes: s.ordenes, proveedores: s.proveedores, eventos: s.eventos, presupuestos: s.presupuestos,
+        avances: s.avances, cuentas_cobrar: s.cuentasCobrar, cuentas_pagar: s.cuentasPagar,
+        ordenes_cambio: s.ordenesCambio, hitos: s.hitos, riesgos: s.riesgos, licitaciones: s.licitaciones,
+        cotizacionesNegocio: s.cotizacionesNegocio,
+           seguimiento_evm: s.seguimientoEVM, incidentes: s.incidentes, publicaciones_muro: s.publicacionesMuro,
+           liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
+           activos: s.activos, cuadros: s.cuadros, pagos_proveedor: s.pagosProveedor,
+           destajos: s.destajos, calculos_proyecto: s.calculosProyecto, recepciones: s.recepciones, centros_costo: s.centrosCosto,
+         plantillas: s.plantillas, insumos_base: s.insumosBase, weather: s.proyectoWeather,
+         escalas: s.escalasProduccion, estacionalidad: s.estacionalidad, historial_reglas: s.historialReglas,
+         bitacora: s.bitacora, no_conformidades: s.ncs, pruebas: s.pruebas, ventas_paquetes: s.ventasPaquetes,
+         vales_salida: s.valesSalida, reglas_factores: s.reglasFactores,
+         normativas: s.normativasDepartamentales,
+         ajustes_estacionales: s.ajustesEstacionalesActividad, aplicacion_escalas: s.aplicacionEscalas,
+         cumplimiento_normativo: s.cumplimientoNormativo, error_logs: s.errorLogs,
+         };
           const quotaCritical = isStorageQuotaCritical();
           for (const [k, v] of Object.entries(map)) {
             try { const value = await compressDataAsync(v); safeSetItem(`${BASE_STORAGE_KEY}_${k}`, value, `${BASE_STORAGE_KEY}_${k}`); } catch {}
@@ -651,6 +657,8 @@ useEffect(() => {
       'erp_bitacora', 'erp_pruebas_laboratorio', 'erp_liberaciones_partida',
       'erp_plantillas_proyectos', 'erp_presupuestos', 'erp_avances',
       'erp_muro', 'erp_ventas_paquetes', 'erp_proyecto_weather',
+      'erp_eventos_calendario', 'erp_ordenes_cambio', 'erp_notificaciones',
+      'erp_error_log', 'erp_insumos_base',
     ];
     
     const promises = subs.map(table => new Promise<void>((resolve, reject) => {

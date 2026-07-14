@@ -695,7 +695,7 @@ export function mostrarValidaciones(alertas: any[]): boolean {
   
   const altas = alertas.filter((a: any) => a.tipo === 'alta');
   if (altas.length > 0) {
-    console.warn('Validaciones altas:', altas);
+    safeLogger.warn('Validaciones altas:', altas);
   }
   
   return true;

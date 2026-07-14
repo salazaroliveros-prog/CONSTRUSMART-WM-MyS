@@ -22,10 +22,10 @@ const Cuadros: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const cuadroSchema = z.object({
-    solicitud: z.string().min(1, 'Solicitud requerida'),
-    proyectoId: z.string().min(1, 'Proyecto requerido'),
+    solicitud: z.string().min(1, t('cuadros.solicitud_requerida', 'Solicitud requerida')),
+    proyectoId: z.string().min(1, t('cuadros.proyecto_requerido', 'Proyecto requerido')),
     estado: z.enum(['abierto', 'cerrado', 'adjudicado']),
-    fechaSolicitud: z.string().min(1, 'Fecha requerida'),
+    fechaSolicitud: z.string().min(1, t('cuadros.fecha_requerida', 'Fecha requerida')),
     adjudicadoA: z.string().optional().default(''),
     observaciones: z.string().optional().default(''),
   });
@@ -98,7 +98,7 @@ const Cuadros: React.FC = () => {
         if (err.path[0]) errors[err.path[0] as string] = err.message;
       });
       setFormErrors(errors);
-      toast.error('Corrige los errores en el formulario');
+      toast.error(t('cuadros.error_formulario', 'Corrige los errores en el formulario'));
       return;
     }
     setFormErrors({});
@@ -119,299 +119,182 @@ const Cuadros: React.FC = () => {
         toast.success(t('cuadros.creado_exito'));
       }
       setShowModal(false);
-      setEditingCuadro(null);
       setFormData({});
+      setEditingCuadro(null);
     } catch (error) {
-      toast.error(t('cuadros.error_guardar'));
+      toast.error(t('common.error', 'Error'));
     }
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      await confirmAction({
-        title: t('cuadros.confirmar_eliminar_titulo'),
-        content: t('cuadros.confirmar_eliminar'),
-        okText: t('cuadros.eliminar'),
-        cancelText: t('common.cancelar'),
-        variant: 'destructive',
-      });
-      await deleteCuadro(id);
-      toast.success(t('cuadros.eliminado_exito'));
-    } catch {
-      // User cancelled
-    }
+    await confirmAction({
+      title: t('cuadros.confirmar_eliminar'),
+      content: t('cuadros.confirmar_eliminar_msg'),
+      okText: t('common.si'),
+      cancelText: t('common.cancelar'),
+      variant: 'destructive',
+    });
+    deleteCuadro(id);
+    toast.success(t('cuadros.eliminado_exito'));
   };
 
-  const getEstadoColor = (estado: string) => {
-    switch (estado) {
-      case 'abierto': return 'text-blue-500 dark:text-blue-400';
-      case 'cerrado': return 'text-gray-500 dark:text-gray-400';
-      case 'adjudicado': return 'text-green-500 dark:text-green-400';
-      default: return 'text-gray-500';
-    }
-  };
-
-  const getEstadoIcon = (estado: string) => {
-    switch (estado) {
-      case 'abierto': return <ClipboardCheck className="w-4 h-4" />;
-      case 'cerrado': return <FileText className="w-4 h-4" />;
-      case 'adjudicado': return <CheckCircle className="w-4 h-4" />;
-      default: return <AlertCircle className="w-4 h-4" />;
-    }
+  const estadoBadge = (estado: string) => {
+    const map: Record<string, string> = {
+      abierto: 'bg-blue-50 text-blue-600',
+      cerrado: 'bg-gray-50 text-gray-600',
+      adjudicado: 'bg-emerald-50 text-emerald-600',
+    };
+    return map[estado] || 'bg-muted text-muted-foreground';
   };
 
   return (
-    <div className="h-full flex flex-col p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-4 flex-shrink-0">
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t('cuadros.titulo')}</h1>
-          <p className="text-sm text-muted-foreground">{t('cuadros.subtitulo')}</p>
+          <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
+            <ClipboardCheck className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> {t('cuadros.titulo')}
+          </h1>
+          <p className="text-xs text-muted-foreground">{t('cuadros.descripcion')}</p>
         </div>
-        <button
-          onClick={() => handleOpenModal()}
-          className={BUTTON_PRIMARY}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          {t('cuadros.nuevo_cuadro')}
+        <button onClick={() => handleOpenModal()} className={`${BUTTON_PRIMARY} flex items-center gap-2`}>
+          <Plus className="w-4 h-4" /> {t('cuadros.nuevo')}
         </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 flex-shrink-0">
-        <div className={CARD}>
-          <div className="flex items-center gap-2 mb-1">
-            <ClipboardCheck className="w-4 h-4 text-primary" />
-            <span className="text-xs text-muted-foreground">{t('cuadros.total')}</span>
-          </div>
-          <div className="text-2xl font-bold text-foreground">{stats.total}</div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="text-xs text-muted-foreground">{t('cuadros.total')}</div>
+          <div className="text-2xl font-bold">{stats.total}</div>
         </div>
-        <div className={CARD}>
-          <div className="flex items-center gap-2 mb-1">
-            <ClipboardCheck className="w-4 h-4 text-blue-500" />
-            <span className="text-xs text-muted-foreground">{t('cuadros.estado_abierto')}</span>
-          </div>
-          <div className="text-2xl font-bold text-blue-500">{stats.abiertos}</div>
+        <div className="bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-100 dark:border-blue-900/50 p-4">
+          <div className="text-xs text-blue-600">{t('cuadros.abiertos')}</div>
+          <div className="text-2xl font-bold text-blue-700">{stats.abiertos}</div>
         </div>
-        <div className={CARD}>
-          <div className="flex items-center gap-2 mb-1">
-            <CheckCircle className="w-4 h-4 text-green-500" />
-            <span className="text-xs text-muted-foreground">{t('cuadros.estado_adjudicado')}</span>
-          </div>
-          <div className="text-2xl font-bold text-green-500">{stats.adjudicados}</div>
+        <div className="bg-gray-50 dark:bg-gray-950/40 rounded-xl border border-gray-100 dark:border-gray-900/50 p-4">
+          <div className="text-xs text-gray-600">{t('cuadros.cerrados')}</div>
+          <div className="text-2xl font-bold text-gray-700">{stats.cerrados}</div>
         </div>
-        <div className={CARD}>
-          <div className="flex items-center gap-2 mb-1">
-            <DollarSign className="w-4 h-4 text-amber-500" />
-            <span className="text-xs text-muted-foreground">{t('cuadros.monto_total')}</span>
-          </div>
-          <div className="text-2xl font-bold text-amber-500">
-            Q {(stats.montoTotal / 1000).toFixed(1)}K
-          </div>
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/50 p-4">
+          <div className="text-xs text-emerald-600">{t('cuadros.adjudicados')}</div>
+          <div className="text-2xl font-bold text-emerald-700">{stats.adjudicados}</div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2 mb-4 flex-shrink-0">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder={t('cuadros.buscar_placeholder')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={INPUT}
-            style={{ paddingLeft: '2.5rem' }}
-          />
+      <div className="bg-card rounded-xl border border-border">
+        <div className="p-3 border-b border-border flex items-center justify-between">
+          <h3 className="font-semibold text-sm">{t('cuadros.lista')}</h3>
+          <div className="flex gap-2">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <input
+                type="text"
+                placeholder={t('cuadros.buscar')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`${INPUT} pl-9 text-sm`}
+                aria-label={t('cuadros.buscar')}
+              />
+            </div>
+            <select value={filterEstado} onChange={(e) => setFilterEstado(e.target.value)} className={`${INPUT} text-sm`}>
+              <option value="all">{t('cuadros.todos_estados')}</option>
+              <option value="abierto">{t('cuadros.abierto')}</option>
+              <option value="cerrado">{t('cuadros.cerrado')}</option>
+              <option value="adjudicado">{t('cuadros.adjudicado')}</option>
+            </select>
+          </div>
         </div>
-        <select
-          value={filterEstado}
-          onChange={(e) => setFilterEstado(e.target.value)}
-          className={INPUT}
-        >
-          <option value="all">{t('cuadros.todos_estados')}</option>
-          <option value="abierto">{t('cuadros.estado_abierto')}</option>
-          <option value="cerrado">{t('cuadros.estado_cerrado')}</option>
-          <option value="adjudicado">{t('cuadros.estado_adjudicado')}</option>
-        </select>
-      </div>
 
-      {/* Table */}
-      <div className={CARD + " flex-1 overflow-hidden flex flex-col"}>
-        <div className="overflow-x-auto flex-1">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_solicitud')}</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_proyecto')}</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_estado')}</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_fecha_solicitud')}</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_fecha_cierre')}</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_adjudicado')}</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('cuadros.columna_cotizaciones')}</th>
-                <th className="text-right p-3 text-xs font-medium text-muted-foreground">{t('activos.columna_acciones')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCuadros.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="text-center p-8 text-muted-foreground">
-                    <ClipboardCheck className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />
-                    {t('cuadros.sin_cuadros')}
-                  </td>
-                </tr>
-              ) : (
-                filteredCuadros.map((cuadro) => {
-                  const proyecto = proyectos.find(p => p.id === cuadro.proyectoId);
-                  const proveedorAdjudicado = cuadro.adjudicadoA ? proveedores.find(p => p.id === cuadro.adjudicadoA) : null;
-                  const mejorCotizacion = cuadro.cotizaciones?.filter((cot: any) => cot.seleccionada)[0];
-                  
+        {filteredCuadros.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground">
+            <ClipboardCheck className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" />
+            <p className="text-sm">{t('cuadros.sin_cuadros')}</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm" role="table" aria-label={t('cuadros.titulo')}>
+              <thead><tr className="border-b border-border bg-muted/30">
+                <th className="text-left p-2" scope="col">{t('cuadros.col_solicitud')}</th>
+                <th className="text-left p-2" scope="col">{t('cuadros.col_proyecto')}</th>
+                <th className="text-left p-2" scope="col">{t('cuadros.col_fecha')}</th>
+                <th className="text-center p-2" scope="col">{t('cuadros.col_estado')}</th>
+                <th className="text-right p-2" scope="col">{t('cuadros.col_monto')}</th>
+                <th className="text-right p-2" scope="col">{t('common.acciones')}</th>
+              </tr></thead>
+              <tbody>
+                {filteredCuadros.map(c => {
+                  const proyecto = proyectos.find(p => p.id === c.proyectoId);
+                  const mejorCot = c.cotizaciones?.filter((cot: any) => cot.seleccionada)[0];
                   return (
-                    <tr key={cuadro.id} className="border-b border-border hover:bg-muted/50">
-                      <td className="p-3 text-sm font-medium">{cuadro.solicitud}</td>
-                      <td className="p-3 text-sm">{proyecto?.nombre || '-'}</td>
-                      <td className="p-3 text-sm">
-                        <div className="flex items-center gap-2">
-                          {getEstadoIcon(cuadro.estado)}
-                          <span className={`capitalize ${getEstadoColor(cuadro.estado)}`}>
-                            {cuadro.estado}
-                          </span>
-                        </div>
+                    <tr key={c.id} className="border-b border-border hover:bg-muted/50">
+                      <td className="p-2 font-medium">{c.solicitud}</td>
+                      <td className="p-2 text-muted-foreground">{proyecto?.nombre || '-'}</td>
+                      <td className="p-2 text-muted-foreground">{c.fechaSolicitud}</td>
+                      <td className="p-2 text-center">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${estadoBadge(c.estado)}`}>
+                          {t(`cuadros.estado_${c.estado}`)}
+                        </span>
                       </td>
-                      <td className="p-3 text-sm text-muted-foreground">{cuadro.fechaSolicitud}</td>
-                      <td className="p-3 text-sm text-muted-foreground">{cuadro.fechaCierre || '-'}</td>
-                      <td className="p-3 text-sm text-muted-foreground">{proveedorAdjudicado?.nombre || '-'}</td>
-                      <td className="p-3 text-sm">
-                        <div className="flex items-center gap-1">
-                          <Building2 className="w-4 h-4 text-muted-foreground" />
-                          <span>{cuadro.cotizaciones?.length || 0}</span>
-                          {mejorCotizacion && (
-                            <span className="text-green-500 text-xs">
-                              (Q {mejorCotizacion.montoTotal.toLocaleString()})
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleOpenModal(cuadro)}
-                            className="text-blue-500 hover:text-blue-600"
-                            aria-label={t('common.editar')}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(cuadro.id)}
-                            className="text-red-500 hover:text-red-600"
-                            aria-label={t('common.eliminar')}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                      <td className="p-2 text-right font-medium">{mejorCot ? fmtQ(mejorCot.montoTotal) : '-'}</td>
+                      <td className="p-2 text-right">
+                        <button onClick={() => handleOpenModal(c)} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('common.editar')} ${c.solicitud}`}><Edit className="w-4 h-4" aria-hidden="true" /></button>
+                        <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded hover:bg-accent text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400" aria-label={`${t('common.eliminar')} ${c.solicitud}`}><Trash2 className="w-4 h-4" aria-hidden="true" /></button>
                       </td>
                     </tr>
                   );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* Modal */}
-      <Dialog open={showModal} onOpenChange={(open) => { if (!open) setShowModal(false); }}>
-        <DialogContent className="max-w-[600px] max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingCuadro ? t('cuadros.editar_cuadro') : t('cuadros.nuevo_cuadro')}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">{t('cuadros.solicitud_label')}</label>
-              <input
-                type="text"
-                value={formData.solicitud || ''}
-                onChange={(e) => { setFormData({ ...formData, solicitud: e.target.value }); setFormErrors(prev => ({ ...prev, solicitud: '' })); }}
-                className={INPUT}
-              />
-              {formErrors.solicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.solicitud}</p>}
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+      {showModal && (
+        <Dialog open={showModal} onOpenChange={(open) => { if (!open) { setShowModal(false); setFormData({}); setEditingCuadro(null); } }}>
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{editingCuadro ? t('cuadros.editar') : t('cuadros.nuevo')}</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-3">
               <div>
-              <label className="block text-sm font-medium mb-1">{t('cuadros.fecha_solicitud_label')}</label>
-              <input
-                type="date"
-                value={formData.fechaSolicitud || ''}
-                onChange={(e) => { setFormData({ ...formData, fechaSolicitud: e.target.value }); setFormErrors(prev => ({ ...prev, fechaSolicitud: '' })); }}
-                className={INPUT}
-              />
-              {formErrors.fechaSolicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.fechaSolicitud}</p>}
-            </div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cuadros.solicitud')}</label>
+                <input value={formData.solicitud || ''} onChange={e => setFormData(p => ({ ...p, solicitud: e.target.value }))} className={`${INPUT} ${formErrors.solicitud ? 'border-red-400' : ''}`} />
+                {formErrors.solicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.solicitud}</p>}
+              </div>
               <div>
-                <label className="block text-sm font-medium mb-1">{t('cuadros.estado_label')}</label>
-                <select
-                  value={formData.estado || 'abierto'}
-                  onChange={(e) => { setFormData({ ...formData, estado: e.target.value as unknown }); setFormErrors(prev => ({ ...prev, estado: '' })); }}
-                  className={INPUT}
-                >
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cuadros.proyecto')}</label>
+                <select value={formData.proyectoId || ''} onChange={e => setFormData(p => ({ ...p, proyectoId: e.target.value }))} className={`${INPUT} ${formErrors.proyectoId ? 'border-red-400' : ''}`}>
+                  <option value="">{t('cuadros.seleccionar_proyecto')}</option>
+                  {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                </select>
+                {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cuadros.fecha_solicitud')}</label>
+                <input type="date" value={formData.fechaSolicitud || ''} onChange={e => setFormData(p => ({ ...p, fechaSolicitud: e.target.value }))} className={`${INPUT} ${formErrors.fechaSolicitud ? 'border-red-400' : ''}`} />
+                {formErrors.fechaSolicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.fechaSolicitud}</p>}
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cuadros.estado')}</label>
+                <select value={formData.estado || 'abierto'} onChange={e => setFormData(p => ({ ...p, estado: e.target.value as any }))} className={INPUT}>
                   <option value="abierto">{t('cuadros.estado_abierto')}</option>
                   <option value="cerrado">{t('cuadros.estado_cerrado')}</option>
                   <option value="adjudicado">{t('cuadros.estado_adjudicado')}</option>
                 </select>
-                {formErrors.estado && <p className="text-xs text-red-500 mt-0.5">{formErrors.estado}</p>}
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cuadros.observaciones')}</label>
+                <textarea value={formData.observaciones || ''} onChange={e => setFormData(p => ({ ...p, observaciones: e.target.value }))} className={`${INPUT} min-h-[80px]`} />
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t('cuadros.proyecto_label')}</label>
-              <select
-                value={formData.proyectoId || ''}
-                onChange={(e) => { setFormData({ ...formData, proyectoId: e.target.value }); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }}
-                className={INPUT}
-              >
-                <option value="">{t('cuadros.seleccionar_proyecto')}</option>
-                {proyectos.map((p) => (
-                  <option key={p.id} value={p.id}>{p.nombre}</option>
-                ))}
-              </select>
-              {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t('cuadros.fecha_cierre_label')}</label>
-              <input
-                type="date"
-                value={formData.fechaCierre || ''}
-                onChange={(e) => setFormData({ ...formData, fechaCierre: e.target.value })}
-                className={INPUT}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t('cuadros.adjudicado_label')}</label>
-              <select
-                value={formData.adjudicadoA || ''}
-                onChange={(e) => setFormData({ ...formData, adjudicadoA: e.target.value })}
-                className={INPUT}
-              >
-                <option value="">{t('cuadros.seleccionar_proveedor')}</option>
-                {proveedores.map((p) => (
-                  <option key={p.id} value={p.id}>{p.nombre}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t('cuadros.observaciones_label')}</label>
-              <textarea
-                value={formData.observaciones || ''}
-                onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
-                className={INPUT}
-                rows={3}
-              />
-            </div>
-          </div>
-          <DialogFooter className="mt-4">
-            <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-lg border border-border text-sm hover:bg-accent">{t('common.cancelar')}</button>
-            <button type="button" onClick={handleSave} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm hover:bg-primary/90 font-medium">{t('common.guardar')}</button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
+            <DialogFooter>
+              <button type="button" onClick={() => { setShowModal(false); setFormData({}); setEditingCuadro(null); }} className={BUTTON_DANGER}>{t('common.cancelar')}</button>
+              <button type="button" onClick={handleSave} className={BUTTON_PRIMARY}>{editingCuadro ? t('common.editar') : t('cuadros.crear')}</button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { safeLogger } from '@/lib/safeLogger';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { generateProfitabilityReport, generateProfitabilityForecast, type ProfitabilityMetrics, type ClientMetrics } from '../services/profitabilityAnalytics';
@@ -86,7 +87,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
       }
     } catch (error) {
       toast.error('Error al exportar reporte');
-      console.error('Export error:', error);
+      safeLogger.error('Export error:', error);
     }
   }, [profitabilityData, exportFormat]);
 

@@ -76,7 +76,7 @@ const PlantillasProyectos: React.FC = () => {
   const [seleccionMultiple, setSeleccionMultiple] = useState<Set<string>>(new Set());
   const [modoSeleccion, setModoSeleccion] = useState(false);
   
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});//AUTO
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<PlantillaFormData>({
     nombre: '',
     descripcion: '',
@@ -136,10 +136,10 @@ const PlantillasProyectos: React.FC = () => {
       const validated = plantillaFormSchema.parse(formData);
       if (editingId) {
         updatePlantilla(editingId, validated);
-        toast.success('Plantilla actualizada correctamente');
+        toast.success(t('plantillas.actualizada_correctamente'));
       } else {
         addPlantilla(validated);
-        toast.success('Plantilla creada correctamente');
+        toast.success(t('plantillas.creada_correctamente'));
       }
       setShowForm(false);
       setEditingId(null);
@@ -173,7 +173,7 @@ const PlantillasProyectos: React.FC = () => {
   const handleSaveStructure = (estructuraData: Partial<Plantilla>) => {
     if (editingPlantilla) {
       updatePlantilla(editingPlantilla.id, estructuraData);
-      toast.success('Estructura de plantilla actualizada');
+      toast.success(t('plantillas.estructura_actualizada'));
       setShowEditorModal(false);
       setEditingPlantilla(null);
     }
@@ -211,7 +211,7 @@ const PlantillasProyectos: React.FC = () => {
       seleccionMultiple.forEach(id => deletePlantilla(id));
       setSeleccionMultiple(new Set());
       setModoSeleccion(false);
-      toast.success(`${seleccionMultiple.size} plantilla${seleccionMultiple.size > 1 ? 's' : ''} eliminada${seleccionMultiple.size > 1 ? 's' : ''}`);
+      toast.success(t('plantillas.eliminada_exito', { count: seleccionMultiple.size }));
     } catch {}
   };
 
@@ -240,7 +240,7 @@ const PlantillasProyectos: React.FC = () => {
 
     setSeleccionMultiple(new Set());
     setModoSeleccion(false);
-    toast.success(`${plantillasSeleccionadas.length} plantilla${plantillasSeleccionadas.length > 1 ? 's' : ''} exportada${plantillasSeleccionadas.length > 1 ? 's' : ''}`);
+    toast.success(t('plantillas.exportada_exito', { count: plantillasSeleccionadas.length }));
   };
 
   const handleDelete = async (id: string) => {
@@ -284,9 +284,9 @@ const PlantillasProyectos: React.FC = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast.success('Plantilla exportada correctamente');
+      toast.success(t('plantillas.exportada_correctamente'));
     } catch (error) {
-      toast.error('Error al exportar plantilla');
+        toast.error(t('plantillas.error_exportar'));
       safeLogger.error(error);
     }
   };
@@ -335,7 +335,7 @@ const PlantillasProyectos: React.FC = () => {
         cancelText: t('common.cancelar'),
       });
       restaurarVersionPlantilla(previewPlantilla.id, version);
-      toast.success('Versión restaurada correctamente');
+      toast.success(t('plantillas.version_restaurada'));
       setShowHistorial(false);
     } catch {}
   };
@@ -409,11 +409,11 @@ const PlantillasProyectos: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Layout className="h-6 w-6" />
-            Plantillas de Proyectos
-          </h1>
-          <p className="text-muted-foreground mt-1">Gestiona plantillas para crear proyectos rápidamente</p>
+      <h1 className="text-2xl font-bold flex items-center gap-2">
+        <Layout className="h-6 w-6" />
+        {t('plantillas.titulo')}
+      </h1>
+      <p className="text-muted-foreground mt-1">{t('plantillas.subtitulo')}</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -421,14 +421,14 @@ const PlantillasProyectos: React.FC = () => {
             className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-muted"
           >
             <BarChart3 className="h-4 w-4" />
-            Dashboard Global
+            {t('plantillas.dashboard_global_btn')}
           </button>
           <button
             onClick={() => setModoSeleccion(!modoSeleccion)}
             className={`flex items-center gap-2 px-4 py-2 border rounded-md ${modoSeleccion ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
           >
             <CheckSquare2 className="h-4 w-4" />
-            {modoSeleccion ? 'Cancelar Selección' : 'Seleccionar'}
+            {modoSeleccion ? t('plantillas.cancelar_seleccion_btn') : t('plantillas.modo_seleccion_btn')}
           </button>
           <button
             onClick={() => setVistaLista(!vistaLista)}
@@ -439,7 +439,7 @@ const PlantillasProyectos: React.FC = () => {
           </button>
           <label className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-muted cursor-pointer">
             <Upload className="h-4 w-4" />
-            Importar
+            {t('plantillas.importar_btn', 'Importar')}
             <input
               type="file"
               accept=".json"
@@ -456,7 +456,7 @@ const PlantillasProyectos: React.FC = () => {
             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Plus className="h-4 w-4" />
-            Nueva Plantilla
+            {t('plantillas.nueva_plantilla_btn')}
           </button>
         </div>
       </div>
@@ -470,20 +470,20 @@ const PlantillasProyectos: React.FC = () => {
             onClick={handleSeleccionarTodas}
             className="text-sm hover:underline"
           >
-            {seleccionMultiple.size === plantillasFiltradas.length ? 'Deseleccionar todas' : 'Seleccionar todas'}
+            {seleccionMultiple.size === plantillasFiltradas.length ? t('plantillas.deseleccionar_todas_btn') : t('plantillas.seleccionar_todas_btn')}
           </button>
           <div className="flex gap-2">
             <button
               onClick={handleBulkExport}
               className="flex items-center gap-1 px-3 py-1 bg-card text-primary rounded text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <Download className="h-3 w-3" /> Exportar
+              <Download className="h-3 w-3" /> {t('plantillas.exportar_btn')}
             </button>
             <button
               onClick={handleBulkDelete}
               className="flex items-center gap-1 px-3 py-1 bg-destructive text-destructive-foreground rounded text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
             >
-              <Trash2 className="h-3 w-3" /> Eliminar
+              <Trash2 className="h-3 w-3" /> {t('plantillas.eliminar_btn')}
             </button>
           </div>
         </div>
@@ -495,17 +495,17 @@ const PlantillasProyectos: React.FC = () => {
             <Search className="absolute left-2.5 top-2.5 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <input
               type="text"
-              placeholder="Buscar plantillas..."
+            placeholder={t('plantillas.buscar_placeholder')}
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="w-full pl-9 pr-3 py-2 border rounded-md text-sm"
-              aria-label="Buscar plantillas por nombre o descripción"
+              aria-label={t('plantillas.buscar_placeholder')}
             />
             {busqueda && (
               <button
                 onClick={() => setBusqueda('')}
                 className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground"
-                aria-label="Limpiar búsqueda"
+              aria-label={t('plantillas.limpiar_busqueda_aria')}
                 type="button"
               >
                 <X className="w-4 h-4" />
@@ -514,43 +514,43 @@ const PlantillasProyectos: React.FC = () => {
           </div>
         </div>
         <div className="flex gap-2 items-center">
-          <span className="text-sm font-medium">Ordenar:</span>
+          <span className="text-sm font-medium">{t('plantillas.ordenar_label')}</span>
           <select
             value={ordenamiento}
             onChange={(e) => setOrdenamiento(e.target.value as string)}
             className="px-3 py-1 border rounded-md text-sm"
-            aria-label="Criterio de ordenamiento"
+              aria-label={t('plantillas.criterio_orden_aria')}
           >
-            <option value="fecha">Fecha</option>
-            <option value="nombre">Nombre</option>
-            <option value="usos">Usos</option>
-            <option value="version">Versión</option>
+            <option value="fecha">{t('plantillas.fecha_header')}</option>
+            <option value="nombre">{t('plantillas.nombre_header')}</option>
+            <option value="usos">{t('plantillas.usos_header')}</option>
+            <option value="version">{t('plantillas.version_header')}</option>
           </select>
           <button
             onClick={() => setOrdenDescendente(!ordenDescendente)}
             className={`p-1 rounded ${ordenDescendente ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-            title={ordenDescendente ? 'Descendente' : 'Ascendente'}
-            aria-label={`Orden ${ordenDescendente ? 'descendente' : 'ascendente'}`}
+            title={ordenDescendente ? t('plantillas.orden_descendente') : t('plantillas.orden_ascendente')}
+            aria-label={ordenDescendente ? t('plantillas.orden_descendente') : t('plantillas.orden_ascendente')}
           >
             <ArrowUpDown className="w-4 h-4" />
           </button>
         </div>
         <div className="flex gap-2 items-center">
-          <span className="text-sm font-medium">Categoría:</span>
+          <span className="text-sm font-medium">{t('plantillas.categoria_label')}</span>
           <button
             onClick={() => setFiltroCategoria('')}
             className={`px-3 py-1 rounded-md text-sm ${filtroCategoria === '' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-            aria-label="Mostrar todas las categorías"
+            aria-label={t('plantillas.mostrar_todas_categorias_aria')}
             role="button"
           >
-            Todas
+            {t('plantillas.todas_cat', 'Todas')}
           </button>
           {CATEGORIAS.map(cat => (
             <button
               key={cat.key}
               onClick={() => setFiltroCategoria(cat.key)}
               className={`px-3 py-1 rounded-md text-sm ${filtroCategoria === cat.key ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-              aria-label={`Filtrar por categoría ${cat.label}`}
+              aria-label={t('plantillas.filtrar_por_categoria_aria', { categoria: cat.label })}
               role="button"
             >
               {cat.label}
@@ -558,29 +558,29 @@ const PlantillasProyectos: React.FC = () => {
           ))}
         </div>
         <div className="flex gap-2 items-center">
-          <span className="text-sm font-medium">Cliente:</span>
+          <span className="text-sm font-medium">{t('plantillas.cliente_label')}</span>
           <button
             onClick={() => setFiltroCliente('')}
             className={`px-3 py-1 rounded-md text-sm ${filtroCliente === '' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-            aria-label="Mostrar todos los clientes"
+            aria-label={t('plantillas.mostrar_todos_clientes_aria')}
             role="button"
           >
-            Todos
+            {t('plantillas.todos_clientes', 'Todos')}
           </button>
           <button
             onClick={() => setFiltroCliente('general')}
             className={`px-3 py-1 rounded-md text-sm ${filtroCliente === 'general' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-            aria-label="Filtrar por plantillas generales"
+            aria-label={t('plantillas.filtrar_por_cliente_aria', { cliente: 'General' })}
             role="button"
           >
-            General
+            {t('plantillas.general_clientes', 'General')}
           </button>
           {Array.from(new Set(plantillas.map(p => p.clienteNombre).filter(Boolean))).slice(0, 5).map(cliente => (
             <button
               key={cliente}
               onClick={() => setFiltroCliente(cliente)}
               className={`px-3 py-1 rounded-md text-sm ${filtroCliente === cliente ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-              aria-label={`Filtrar por cliente ${cliente}`}
+              aria-label={t('plantillas.filtrar_por_cliente_aria', { cliente })}
               role="button"
             >
               {cliente}
@@ -590,11 +590,11 @@ const PlantillasProyectos: React.FC = () => {
         <button
           onClick={() => setFiltroFavoritas(!filtroFavoritas)}
           className={`flex items-center gap-2 px-3 py-1 rounded-md text-sm ${filtroFavoritas ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-muted'}`}
-          aria-label={filtroFavoritas ? 'Mostrar todas las plantillas' : 'Mostrar solo favoritas'}
+          aria-label={filtroFavoritas ? t('plantillas.mostrar_todas_plantillas_aria') : t('plantillas.mostrar_favoritas_btn')}
           role="button"
         >
           <Star className={`w-4 h-4 ${filtroFavoritas ? 'fill-current' : ''}`} aria-hidden="true" />
-          Favoritas
+          {t('plantillas.favoritas_btn', 'Favoritas')}
         </button>
       </div>
 
@@ -607,7 +607,7 @@ const PlantillasProyectos: React.FC = () => {
                 {plantillasDesactualizadas.length} plantilla{plantillasDesactualizadas.length > 1 ? 's' : ''} desactualizada{plantillasDesactualizadas.length > 1 ? 's' : ''}
               </div>
               <div className="text-sm text-amber-700 dark:text-amber-300">
-                Estas plantillas no se han usado en más de 90 días. Considera revisarlas o actualizarlas.
+                {t('plantillas.desactualizadas_aviso', 'Estas plantillas no se han usado en más de 90 días. Considera revisarlas o actualizarlas.')}
               </div>
             </div>
           </div>
@@ -617,8 +617,8 @@ const PlantillasProyectos: React.FC = () => {
       {plantillasFiltradas.length === 0 ? (
         <div className="text-center py-12">
           <Layout className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No hay plantillas</h3>
-          <p className="text-muted-foreground mb-4">Crea tu primera plantilla para empezar</p>
+          <h3 className="text-lg font-semibold mb-2">{t('plantillas.sin_plantillas_titulo')}</h3>
+          <p className="text-muted-foreground mb-4">{t('plantillas.sin_plantillas_desc')}</p>
           <button
             onClick={() => {
               setEditingId(null);
@@ -627,7 +627,7 @@ const PlantillasProyectos: React.FC = () => {
             }}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            Crear Plantilla
+            {t('plantillas.crear_plantilla_btn')}
           </button>
         </div>
       ) : vistaLista ? (
@@ -645,13 +645,13 @@ const PlantillasProyectos: React.FC = () => {
                     />
                   </th>
                 )}
-                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">Nombre</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">Categoría</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">Cliente</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">Usos</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">Versión</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">Creada</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">Acciones</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">{t('plantillas.nombre_header')}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">{t('plantillas.categoria_label')}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">{t('plantillas.cliente_label')}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">{t('plantillas.usos_header')}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">{t('plantillas.version_header')}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">{t('plantillas.creada_colon')}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold" scope="col">{t('plantillas.acciones_header')}</th>
               </tr>
             </thead>
             <tbody>
@@ -671,7 +671,7 @@ const PlantillasProyectos: React.FC = () => {
                     )}
                     <td className="px-4 py-3">
                       <div className="font-medium">{plantilla.nombre}</div>
-                      <div className="text-xs text-muted-foreground truncate max-w-xs">{plantilla.descripcion || 'Sin descripción'}</div>
+                      <div className="text-xs text-muted-foreground truncate max-w-xs">{plantilla.descripcion || t('plantillas.sin_descripcion', 'Sin descripción')}</div>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`${catInfo.color} px-3 py-1.5 rounded text-xs ${catInfo.textColor}`}>
@@ -679,7 +679,7 @@ const PlantillasProyectos: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm">
-                      {plantilla.clienteNombre || <span className="text-muted-foreground">General</span>}
+                      {plantilla.clienteNombre || <span className="text-muted-foreground">{t('plantillas.general_sin_cliente_short', 'General')}</span>}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {plantilla.usosCount || 0}
@@ -695,23 +695,23 @@ const PlantillasProyectos: React.FC = () => {
                         <button
                           onClick={() => toggleFavoritoPlantilla(plantilla.id)}
                           className={`p-1 hover:bg-muted rounded ${plantilla.favorita ? COLOR_WARNING : 'text-muted-foreground'}`}
-                          title={plantilla.favorita ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                          title={plantilla.favorita ? t('plantillas.quitar_favoritos_title') : t('plantillas.agregar_favoritos_title')}
                         >
                           <Star className={`h-4 w-4 ${plantilla.favorita ? 'fill-current' : ''}`} />
                         </button>
-                        <button onClick={() => handlePreview(plantilla)} className="p-1 hover:bg-muted rounded" aria-label={`Ver detalles de ${plantilla.nombre}`}>
+                        <button onClick={() => handlePreview(plantilla)} className="p-1 hover:bg-muted rounded" aria-label={`${t('plantillas.ver_detalles')} ${plantilla.nombre}`}>
                           <Eye className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button onClick={() => handleEdit(plantilla)} className="p-1 hover:bg-muted rounded" aria-label={`Editar ${plantilla.nombre}`}>
+                        <button onClick={() => handleEdit(plantilla)} className="p-1 hover:bg-muted rounded" aria-label={`${t('plantillas.editar_datos')} ${plantilla.nombre}`}>
                           <Edit className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button onClick={() => handleClone(plantilla)} className={`p-1 hover:bg-muted rounded ${COLOR_INFO} dark:text-blue-400`} aria-label={`Clonar ${plantilla.nombre}`}>
+                        <button onClick={() => handleClone(plantilla)} className={`p-1 hover:bg-muted rounded ${COLOR_INFO} dark:text-blue-400`} aria-label={`${t('plantillas.clonar')} ${plantilla.nombre}`}>
                           <Copy className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button onClick={() => handleCrearProyecto(plantilla.id)} className={`p-1 hover:bg-muted rounded ${COLOR_SUCCESS} dark:text-emerald-400`} aria-label={`Crear proyecto desde ${plantilla.nombre}`}>
+                        <button onClick={() => handleCrearProyecto(plantilla.id)} className={`p-1 hover:bg-muted rounded ${COLOR_SUCCESS} dark:text-emerald-400`} aria-label={`${t('plantillas.crear_proyecto')} ${plantilla.nombre}`}>
                           <Copy className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button onClick={() => handleDelete(plantilla.id)} className={`p-1 hover:bg-muted rounded ${COLOR_DANGER} dark:text-red-400`} aria-label={`Eliminar ${plantilla.nombre}`}>
+                        <button onClick={() => handleDelete(plantilla.id)} className={`p-1 hover:bg-muted rounded ${COLOR_DANGER} dark:text-red-400`} aria-label={`${t('plantillas.eliminar_boton')} ${plantilla.nombre}`}>
                           <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </button>
                       </div>
@@ -733,7 +733,7 @@ const PlantillasProyectos: React.FC = () => {
                 className="border rounded-lg p-4 hover:shadow-sm active:shadow-sm transition-all duration-200 hover:scale-[1.02] cursor-default relative focus:outline-none focus:ring-2 focus:ring-ring"
                 tabIndex={0}
                 role="button"
-                aria-label={`Plantilla ${plantilla.nombre}`}
+                aria-label={`${t('plantillas.plantilla_aria')} ${plantilla.nombre}`}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -759,71 +759,71 @@ const PlantillasProyectos: React.FC = () => {
                     <button
                       onClick={() => toggleFavoritoPlantilla(plantilla.id)}
                       className={`p-1 hover:bg-muted rounded transition-colors duration-200 ${plantilla.favorita ? COLOR_WARNING : 'text-muted-foreground'}`}
-                      title={plantilla.favorita ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                      title={plantilla.favorita ? t('plantillas.quitar_favoritos_title') : t('plantillas.agregar_favoritos_title')}
                     >
                       <Star className={`h-4 w-4 ${plantilla.favorita ? 'fill-current' : ''}`} />
                     </button>
                     <button
                       onClick={() => handlePreview(plantilla)}
                       className="p-1 hover:bg-muted rounded transition-colors duration-200"
-                      aria-label={`Ver detalles de ${plantilla.nombre}`}
-                      title="Ver detalles"
+                      aria-label={`${t('plantillas.ver_detalles')} ${plantilla.nombre}`}
+                      title={t('plantillas.ver_detalles')}
                     >
                       <Eye className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => handleEdit(plantilla)}
                       className="p-1 hover:bg-muted rounded transition-colors duration-200"
-                      aria-label={`Editar ${plantilla.nombre}`}
-                      title="Editar datos básicos"
+                      aria-label={`${t('plantillas.editar_datos')} ${plantilla.nombre}`}
+                      title={t('plantillas.editar_datos')}
                     >
                       <Edit className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => handleEditStructure(plantilla)}
                       className={`p-1 hover:bg-muted rounded ${COLOR_PRIMARY} dark:text-indigo-400 transition-colors duration-200`}
-                      aria-label={`Editar estructura de ${plantilla.nombre}`}
-                      title="Editar estructura completa"
+                      aria-label={`${t('plantillas.editar_estructura')} ${plantilla.nombre}`}
+                      title={t('plantillas.editar_estructura')}
                     >
                       <FileEdit className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => handleClone(plantilla)}
                       className={`p-1 hover:bg-muted rounded ${COLOR_INFO} dark:text-blue-400 transition-colors duration-200`}
-                      aria-label={`Clonar ${plantilla.nombre}`}
-                      title="Clonar"
+                      aria-label={`${t('plantillas.clonar')} ${plantilla.nombre}`}
+                      title={t('plantillas.clonar')}
                     >
                       <Copy className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => handleVerHistorial(plantilla)}
                       className={`p-1 hover:bg-muted rounded ${COLOR_PRIMARY} dark:text-purple-400 transition-colors duration-200`}
-                      aria-label={`Ver historial de ${plantilla.nombre}`}
-                      title="Historial de versiones"
+                      aria-label={`${t('plantillas.ver_historial')} ${plantilla.nombre}`}
+                      title={t('plantillas.historial_version')}
                     >
                       <History className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => handleCrearNuevaVersion(plantilla)}
                       className={`p-1 hover:bg-muted rounded ${COLOR_WARNING} dark:text-orange-400 transition-colors duration-200`}
-                      aria-label={`Crear nueva versión de ${plantilla.nombre}`}
-                      title="Nueva versión"
+                      aria-label={`${t('plantillas.nueva_version')} ${plantilla.nombre}`}
+                      title={t('plantillas.nueva_version')}
                     >
                       <GitBranch className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => handleExport(plantilla)}
                       className={`p-1 hover:bg-muted rounded ${COLOR_SUCCESS} dark:text-green-400 transition-colors duration-200`}
-                      aria-label={`Exportar ${plantilla.nombre}`}
-                      title="Exportar"
+                      aria-label={`${t('plantillas.exportar_boton')} ${plantilla.nombre}`}
+                      title={t('plantillas.exportar_btn')}
                     >
                       <Download className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => handleDelete(plantilla.id)}
                       className={`p-1 hover:bg-muted rounded ${COLOR_DANGER} dark:text-red-400 transition-colors duration-200`}
-                      aria-label={`Eliminar ${plantilla.nombre}`}
-                      title="Eliminar"
+                      aria-label={`${t('plantillas.eliminar_boton')} ${plantilla.nombre}`}
+                      title={t('plantillas.eliminar_btn')}
                     >
                       <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </button>
@@ -831,7 +831,7 @@ const PlantillasProyectos: React.FC = () => {
                 </div>
                 <h3 className="font-semibold mb-1">{plantilla.nombre}</h3>
                 <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                  {plantilla.descripcion || 'Sin descripción'}
+                  {plantilla.descripcion || t('plantillas.sin_descripcion')}
                 </p>
                 {plantilla.clienteNombre && (
                   <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
@@ -846,7 +846,7 @@ const PlantillasProyectos: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <TrendingUp className="h-3 w-3" />
-                    <span>{plantilla.usosCount || 0} usos</span>
+                    <span>{plantilla.usosCount || 0} {t('plantillas.usos_label', 'usos')}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
@@ -858,19 +858,19 @@ const PlantillasProyectos: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Package className="h-3 w-3" />
-                    <span>{plantilla.estructuraPresupuesto?.length || 0} renglones</span>
+                    <span>{plantilla.estructuraPresupuesto?.length || 0} {t('plantillas.renglones_label', 'renglones')}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <CheckCircle className="h-3 w-3" />
-                    <span>{plantilla.hitosTemplate?.length || 0} hitos</span>
+                    <span>{plantilla.hitosTemplate?.length || 0} {t('plantillas.hitos_label')}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
-                    <span>{plantilla.riesgosTemplate?.length || 0} riesgos</span>
+                    <span>{plantilla.riesgosTemplate?.length || 0} {t('plantillas.riesgos_label')}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Settings className="h-3 w-3" />
-                    <span>{plantilla.checklistCalidad?.length || 0} checklist</span>
+                    <span>{plantilla.checklistCalidad?.length || 0} {t('plantillas.checklist_label')}</span>
                   </div>
                 </div>
                 <button
@@ -878,7 +878,7 @@ const PlantillasProyectos: React.FC = () => {
                   className="w-full mt-3 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 active:scale-95 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <Copy className="h-4 w-4" />
-                  Crear Proyecto
+                  {t('plantillas.crear_proyecto')}
                 </button>
               </div>
             );
@@ -891,7 +891,7 @@ const PlantillasProyectos: React.FC = () => {
           <div className="bg-background rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">
-                {editingId ? 'Editar Plantilla' : 'Nueva Plantilla'}
+                {editingId ? t('plantillas.editar_plantilla_titulo') : t('plantillas.nueva_plantilla_titulo')}
               </h2>
               <button
                 onClick={() => {
@@ -900,14 +900,14 @@ const PlantillasProyectos: React.FC = () => {
                   setFormData({ nombre: '', descripcion: '', categoria: 'residencial', proyectoOrigenId: '', clienteId: '', clienteNombre: '' });
                 }}
                 className="p-1 hover:bg-muted rounded"
-                aria-label="Cerrar modal"
+                aria-label={t('plantillas.cerrar_modal_aria')}
               >
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Nombre</label>
+                <label className="block text-sm font-medium mb-1">{t('plantillas.nombre_form_label')}</label>
                 <input
                   type="text"
                   value={formData.nombre}
@@ -918,7 +918,7 @@ const PlantillasProyectos: React.FC = () => {
                 {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Descripción</label>
+                <label className="block text-sm font-medium mb-1">{t('plantillas.descripcion_form_label')}</label>
                 <textarea
                   value={formData.descripcion}
                   onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
@@ -928,7 +928,7 @@ const PlantillasProyectos: React.FC = () => {
                 {formErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{formErrors.descripcion}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Categoría</label>
+                <label className="block text-sm font-medium mb-1">{t('plantillas.categoria_form_label')}</label>
                 <select
                   value={formData.categoria}
                   onChange={(e) => setFormData({ ...formData, categoria: e.target.value as string })}
@@ -941,7 +941,7 @@ const PlantillasProyectos: React.FC = () => {
                 {formErrors.categoria && <p className="text-xs text-red-500 mt-0.5">{formErrors.categoria}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Cliente (opcional)</label>
+                <label className="block text-sm font-medium mb-1">{t('plantillas.cliente_form_label')}</label>
                 <select
                   value={formData.clienteId}
                   onChange={(e) => {
@@ -954,7 +954,7 @@ const PlantillasProyectos: React.FC = () => {
                   }}
                   className="w-full px-3 py-2 border rounded-md"
                 >
-                  <option value="">General (sin cliente específico)</option>
+                  <option value="">{t('plantillas.general_sin_cliente')}</option>
                   {Array.from(new Set(proyectos.map(p => p.cliente).filter(Boolean))).map(cliente => (
                     <option key={cliente} value={cliente}>{cliente}</option>
                   ))}
@@ -963,13 +963,13 @@ const PlantillasProyectos: React.FC = () => {
               </div>
               {!editingId && (
                 <div>
-                  <label className="block text-sm font-medium mb-1">Crear desde proyecto existente (opcional)</label>
+                  <label className="block text-sm font-medium mb-1">{t('plantillas.crear_desde_proyecto_label')}</label>
                   <select
                     value={formData.proyectoOrigenId}
                     onChange={(e) => setFormData({ ...formData, proyectoOrigenId: e.target.value })}
                     className="w-full px-3 py-2 border rounded-md"
                   >
-                    <option value="">Selecciona un proyecto...</option>
+                    <option value="">{t('plantillas.selecciona_proyecto_option')}</option>
                     {proyectos.map(p => (
                       <option key={p.id} value={p.id}>{p.nombre}</option>
                     ))}
@@ -982,7 +982,7 @@ const PlantillasProyectos: React.FC = () => {
                   type="submit"
                   className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  {editingId ? 'Actualizar' : 'Crear'}
+                  {editingId ? t('plantillas.actualizar_btn') : t('plantillas.nueva_plantilla_titulo')}
                 </button>
                 <button
                   type="button"
@@ -993,7 +993,7 @@ const PlantillasProyectos: React.FC = () => {
                   }}
                   className="px-4 py-2 border rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  Cancelar
+                  {t('plantillas.cancelar_btn')}
                 </button>
               </div>
             </form>
@@ -1005,14 +1005,14 @@ const PlantillasProyectos: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Vista Previa: {previewPlantilla.nombre}</h2>
+              <h2 className="text-xl font-bold">{t('plantillas.vista_previa_titulo')}: {previewPlantilla.nombre}</h2>
               <button
                 onClick={() => {
                   setShowPreview(false);
                   setPreviewPlantilla(null);
                 }}
                 className="p-1 hover:bg-muted rounded"
-                aria-label="Cerrar vista previa"
+                aria-label={t('plantillas.cerrar_vista_previa_aria')}
               >
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -1020,80 +1020,80 @@ const PlantillasProyectos: React.FC = () => {
             <div className="space-y-4">
               <PlantillaAnalytics plantillaId={previewPlantilla.id} />
               <div>
-                <h3 className="font-semibold mb-2">Información General</h3>
+                <h3 className="font-semibold mb-2">{t('plantillas.info_general_titulo')}</h3>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="text-muted-foreground">Categoría:</span>
+                    <span className="text-muted-foreground">{t('plantillas.categoria_colon')}</span>
                     <span className="ml-2">{previewPlantilla.categoria}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Versión:</span>
+                    <span className="text-muted-foreground">{t('plantillas.version_colon')}</span>
                     <span className="ml-2">{previewPlantilla.version}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Usos:</span>
+                    <span className="text-muted-foreground">{t('plantillas.usos_colon')}</span>
                     <span className="ml-2">{previewPlantilla.usosCount || 0}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Creada:</span>
+                    <span className="text-muted-foreground">{t('plantillas.creada_colon')}</span>
                     <span className="ml-2">{new Date(previewPlantilla.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               </div>
               {previewPlantilla.descripcion && (
                 <div>
-                  <h3 className="font-semibold mb-2">Descripción</h3>
+                  <h3 className="font-semibold mb-2">{t('plantillas.descripcion_section')}</h3>
                   <p className="text-sm text-muted-foreground">{previewPlantilla.descripcion}</p>
                 </div>
               )}
               {previewPlantilla.configuracion && (
                 <div>
-                  <h3 className="font-semibold mb-2">Configuración</h3>
+                  <h3 className="font-semibold mb-2">{t('plantillas.configuracion_section')}</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
-                      <span className="text-muted-foreground">Tipología:</span>
+                      <span className="text-muted-foreground">{t('plantillas.tipologia_label')}</span>
                       <span className="ml-2">{previewPlantilla.configuracion.tipologia}</span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Tipo de obra:</span>
+                      <span className="text-muted-foreground">{t('plantillas.tipo_obra_label')}</span>
                       <span className="ml-2">{previewPlantilla.configuracion.tipoObra}</span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Moneda:</span>
+                      <span className="text-muted-foreground">{t('plantillas.moneda_label')}</span>
                       <span className="ml-2">{previewPlantilla.configuracion.moneda}</span>
                     </div>
                   </div>
                 </div>
               )}
               <div>
-                <h3 className="font-semibold mb-2">Contenido de la Plantilla</h3>
+                <h3 className="font-semibold mb-2">{t('plantillas.contenido_section')}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="border rounded p-3">
                   <div className="text-2xl font-bold">{previewPlantilla.estructuraPresupuesto?.length || 0}</div>
-                    <div className="text-sm text-muted-foreground">Renglones de presupuesto</div>
-                    <div className="text-[10px] text-muted-foreground">Incluye materiales y mano de obra</div>
+                    <div className="text-sm text-muted-foreground">{t('plantillas.renglones_presupuesto')}</div>
+                    <div className="text-[10px] text-muted-foreground">{t('plantillas.renglones_ayuda', 'Incluye materiales y mano de obra')}</div>
                   </div>
                   <div className="border rounded p-3">
                   <div className="text-2xl font-bold">{previewPlantilla.hitosTemplate?.length || 0}</div>
-                    <div className="text-sm text-muted-foreground">Hitos</div>
-                    <div className="text-[10px] text-muted-foreground">Entregables controlados</div>
+                    <div className="text-sm text-muted-foreground">{t('plantillas.hitos_label')}</div>
+                    <div className="text-[10px] text-muted-foreground">{t('plantillas.hitos_ayuda', 'Entregables controlados')}</div>
                   </div>
                   <div className="border rounded p-3">
                   <div className="text-2xl font-bold">{previewPlantilla.riesgosTemplate?.length || 0}</div>
-                    <div className="text-sm text-muted-foreground">Riesgos predefinidos</div>
-                    <div className="text-[10px] text-muted-foreground">Mitigaciones incluidas</div>
+                    <div className="text-sm text-muted-foreground">{t('plantillas.riesgos_predefinidos')}</div>
+                    <div className="text-[10px] text-muted-foreground">{t('plantillas.riesgos_ayuda', 'Mitigaciones incluidas')}</div>
                   </div>
                   <div className="border rounded p-3">
                     <div className="text-2xl font-bold">{previewPlantilla.checklistCalidad?.length || 0}</div>
-                    <div className="text-sm text-muted-foreground">Items de calidad</div>
+                    <div className="text-sm text-muted-foreground">{t('plantillas.items_calidad')}</div>
                   </div>
                 </div>
               </div>
               {previewPlantilla.proyectoOrigenId && (
                 <div>
-                  <h3 className="font-semibold mb-2">Proyecto de Origen</h3>
+                  <h3 className="font-semibold mb-2">{t('plantillas.proyecto_origen_section')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {proyectos.find(p => p.id === previewPlantilla.proyectoOrigenId)?.nombre || 'No encontrado'}
+                    {proyectos.find(p => p.id === previewPlantilla.proyectoOrigenId)?.nombre || t('plantillas.no_encontrado')}
                   </p>
                 </div>
               )}
@@ -1106,14 +1106,14 @@ const PlantillasProyectos: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Historial de Versiones: {previewPlantilla.nombre}</h2>
+              <h2 className="text-xl font-bold">{t('plantillas.historial_titulo')}: {previewPlantilla.nombre}</h2>
               <button
                 onClick={() => {
                   setShowHistorial(false);
                   setPreviewPlantilla(null);
                 }}
                 className="p-1 hover:bg-muted rounded"
-                aria-label="Cerrar historial"
+                aria-label={t('plantillas.cerrar_historial_aria')}
               >
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -1121,12 +1121,12 @@ const PlantillasProyectos: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                 <GitBranch className="h-4 w-4" />
-                <span>Versión actual: {previewPlantilla.version}</span>
+                <span>{t('plantillas.version_actual_label', 'Versión actual')}: {previewPlantilla.version}</span>
               </div>
               {!previewPlantilla.versionHistorial || previewPlantilla.versionHistorial.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <History className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" />
-                  No hay historial de versiones disponible
+                  {t('plantillas.sin_historial_text')}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -1144,7 +1144,7 @@ const PlantillasProyectos: React.FC = () => {
                             {historial.cambios}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            Usuario: {historial.usuario}
+                            {t('plantillas.usuario_label', 'Usuario')}: {historial.usuario}
                           </div>
                         </div>
                         {historial.version !== previewPlantilla.version && (
@@ -1153,14 +1153,14 @@ const PlantillasProyectos: React.FC = () => {
                               onClick={() => restaurarVersionPlantilla(previewPlantilla.id, historial.version)}
                               className="px-3 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
                             >
-                              Restaurar
+                              {t('plantillas.restaurar_boton', 'Restaurar')}
                             </button>
                             {historial.snapshot && (
                               <button
                                 onClick={() => setVersionesComparar({ anterior: historial.snapshot, actual: previewPlantilla })}
                                 className={`px-3 py-1 text-xs bg-amber-50 ${COLOR_WARNING} rounded hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400`}
                               >
-                                Comparar
+                                {t('plantillas.comparar_boton', 'Comparar')}
                               </button>
                             )}
                           </div>
@@ -1179,11 +1179,11 @@ const PlantillasProyectos: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Dashboard Global de Plantillas</h2>
+              <h2 className="text-xl font-bold">{t('plantillas.dashboard_global')}</h2>
               <button
                 onClick={() => setShowGlobalDashboard(false)}
                 className="p-1 hover:bg-muted rounded"
-                aria-label="Cerrar dashboard"
+                aria-label={t('plantillas.cerrar_dashboard_aria')}
               >
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -1197,11 +1197,11 @@ const PlantillasProyectos: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Comparación de Versiones</h2>
+              <h2 className="text-xl font-bold">{t('plantillas.comparacion_titulo')}</h2>
               <button
                 onClick={() => setVersionesComparar(null)}
                 className="p-1 hover:bg-muted rounded"
-                aria-label="Cerrar comparación"
+                aria-label={t('plantillas.cerrar_comparacion_aria')}
               >
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -1229,6 +1229,3 @@ const PlantillasProyectos: React.FC = () => {
 };
 
 export default PlantillasProyectos;
-
-
-

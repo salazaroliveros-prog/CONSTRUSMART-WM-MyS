@@ -1,10 +1,13 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { BarChart3, FileText } from 'lucide-react';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { CATEGORIA_LABEL, fmtQ } from '../utils';
+import { List as VirtualizedList } from 'react-window';
+
+const ROW_HEIGHT = 36;
 
 export const Impuestos: React.FC = () => {
   const { t } = useTranslation();
@@ -33,6 +36,22 @@ export const Impuestos: React.FC = () => {
       return fecha >= fechaInicio && fecha < fechaFin;
     });
   }, [movimientos, proyectoFilter, mesFilter]);
+
+  const shouldVirtualize = movimientosFiltrados.length > 50;
+
+  const renderRow = useCallback((m: typeof movimientos[0], _index: number) => (
+    <tr key={m.id} className="border-t hover:bg-gray-50">
+      <td className="p-2 text-xs">{new Date(m.fecha).toLocaleDateString()}</td>
+      <td className="p-2 text-xs">{m.descripcion}</td>
+      <td className="p-2">
+        <span className={`px-2 py-0.5 rounded text-xs ${
+          m.tipo === 'ingreso' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+        }`}>{m.tipo}</span>
+      </td>
+      <td className="p-2 text-right font-mono text-xs">{fmtQ(m.monto ?? m.costoTotal ?? 0)}</td>
+      <td className="p-2 text-xs text-gray-500">{CATEGORIA_LABEL[m.categoria as keyof typeof CATEGORIA_LABEL] ?? m.categoria}</td>
+    </tr>
+  ), []);
 
   // Cálculos de impuestos
   const calculos = useMemo(() => {
@@ -209,21 +228,26 @@ export const Impuestos: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {movimientosFiltrados.map(m => (
-                <tr key={m.id} className="border-t hover:bg-gray-50">
-                  <td className="p-2 text-xs">{new Date(m.fecha).toLocaleDateString()}</td>
-                  <td className="p-2 text-xs">{m.descripcion}</td>
-                  <td className="p-2">
-                    <span className={`px-2 py-0.5 rounded text-xs ${
-                      m.tipo === 'ingreso' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                    }`}>{m.tipo}</span>
-                  </td>
-                  <td className="p-2 text-right font-mono text-xs">{fmtQ(m.monto ?? m.costoTotal ?? 0)}</td>
-                  <td className="p-2 text-xs text-gray-500">{CATEGORIA_LABEL[m.categoria as keyof typeof CATEGORIA_LABEL] ?? m.categoria}</td>
-                </tr>
-              ))}
+              {!shouldVirtualize && movimientosFiltrados.map((m, i) => renderRow(m, i))}
             </tbody>
           </table>
+          {shouldVirtualize && movimientosFiltrados.length > 0 && (
+            <VirtualizedList
+              height={Math.min(240, movimientosFiltrados.length * ROW_HEIGHT)}
+              itemCount={movimientosFiltrados.length}
+              itemSize={ROW_HEIGHT}
+              width="100%"
+              overscanCount={5}
+            >
+              {({ index, style }: { index: number; style: React.CSSProperties }) => (
+                <div style={style}>
+                  <table className="w-full text-sm" role="presentation">
+                    <tbody>{renderRow(movimientosFiltrados[index], index)}</tbody>
+                  </table>
+                </div>
+              )}
+            </VirtualizedList>
+          )}
         </div>
       )}
       </div>

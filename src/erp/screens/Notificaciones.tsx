@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { usePagination } from '../hooks/usePagination';
-import { PaginationBar } from '../components/PaginationBar';
+import PaginationBar from '../components/PaginationBar';
 import { Bell, Check, CheckCheck, AlertTriangle, ClipboardList, Package, TrendingDown, Activity } from 'lucide-react';
 
 const MAPA_ICONOS: Record<string, React.ReactNode> = {

@@ -7,7 +7,7 @@ interface Props<T> {
   label?: string;
 }
 
-export function PaginationBar<T>({ pagination, label = 'registros' }: Props<T>) {
+export default function PaginationBar<T>({ pagination, label = 'registros' }: Props<T>) {
   const { page, totalPages, from, to, totalItems, hasNext, hasPrev, nextPage, prevPage, setPage } = pagination;
   if (totalPages <= 1) return null;
 

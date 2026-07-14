@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useErp } from '../store';
 import { EMPRESA } from '../utils';
 import { hasSupabase } from '@/lib/supabase';
+import { useTranslation } from 'react-i18next';
 import { Loader2, AlertTriangle, Building2, HardHat, Shield } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ElevatedCard } from '@/components/ui/elevated-card';
 
-const BTN_GOOGLE = 'Iniciar sesión con Google';
-
 const Login: React.FC = () => {
+  const { t } = useTranslation();
   const { signInWithGoogle, setView, user } = useErp();
   const [authError, setAuthError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
     try {
       await signInWithGoogle();
     } catch (err) {
-      setAuthError(err instanceof Error ? err.message : 'Error de autenticación');
+      setAuthError(err instanceof Error ? err.message : t('auth.error_autenticacion'));
     } finally {
       setLoading(false);
     }
@@ -108,8 +108,8 @@ const Login: React.FC = () => {
               </div>
             ) : (
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-foreground">Iniciar Sesión</h2>
-                <p className="text-xs text-muted-foreground mt-1.5">Acceso solo para administrador</p>
+                <h2 className="text-2xl font-bold text-foreground">{t('auth.iniciar_sesion')}</h2>
+                <p className="text-xs text-muted-foreground mt-1.5">{t('auth.solo_admin_puede_acceder', 'Acceso solo para administrador')}</p>
               </div>
             )}
 
@@ -124,7 +124,7 @@ const Login: React.FC = () => {
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
                   <p className="text-xs text-warning-foreground">
-                    Supabase no está configurado. El administrador debe configurar VITE_SUPABASE_URL y VITE_SUPABASE_KEY en el archivo .env
+                    {t('auth.supabase_no_configurado', 'Supabase no está configurado. El administrador debe configurar VITE_SUPABASE_URL y VITE_SUPABASE_KEY en el archivo .env')}
                   </p>
                 </div>
               </div>
@@ -136,12 +136,12 @@ const Login: React.FC = () => {
                 onClick={handleGoogleLogin}
                 disabled={loading || !hasSupabase}
                 className={btn}
-                aria-label={BTN_GOOGLE}
+                aria-label={t('auth.iniciar_sesion_google', 'Iniciar sesión con Google')}
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
-                    <span className="text-gray-500">Iniciando sesión...</span>
+                    <span className="text-gray-500">{t('auth.iniciando_sesion', 'Iniciando sesión...')}</span>
                   </>
                 ) : (
                   <>
@@ -151,19 +151,19 @@ const Login: React.FC = () => {
                       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
-                    {BTN_GOOGLE}
+                    {t('auth.iniciar_sesion_google', 'Iniciar sesión con Google')}
                   </>
                 )}
               </button>
               <p className="text-center text-[10px] text-muted-foreground">
-                Solo el correo autorizado puede acceder
+                {t('auth.solo_admin_puede_acceder', 'Solo el correo autorizado puede acceder')}
               </p>
             </div>
           </ElevatedCard>
 
           {/* Footer info */}
           <p className="text-center text-xs text-muted-foreground/60 mt-6">
-            &copy; {new Date().getFullYear()} {EMPRESA.nombre} &mdash; Todos los derechos reservados
+            &copy; {new Date().getFullYear()} {EMPRESA.nombre} &mdash; {t('auth.todos_derechos_reservados', 'Todos los derechos reservados')}
           </p>
         </div>
       </div>

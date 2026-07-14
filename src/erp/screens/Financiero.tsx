@@ -1,233 +1,192 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useErp } from '../store';
-import { fmtQ, CATEGORIA_LABEL } from '../utils';
-import { ConfigurableLineArea, Donut } from '../components/Charts';
-import ChartToolbar from '../components/ChartToolbar';
-import { useChartConfig } from '../hooks/useChartConfig';
-import MovimientoForm from '../components/MovimientoForm';
-import { Wallet, Trash2, TrendingUp, TrendingDown } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { COLOR_SUCCESS, COLOR_DANGER, COLOR_PRIMARY } from '../ui';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useErp } from '../store';
+import { fmtQ, fmtPct } from '../utils';
+import { BarChart, LineChart, Donut } from '../components/Charts';
+import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { List as VirtualizedList } from 'react-window';
 
-const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4', '#fbbf24', '#ec4899', '#14b8a6', '#a855f7', '#f43f5e'];
+const ROW_HEIGHT = 42;
 
 const Financiero: React.FC = () => {
   const { t } = useTranslation();
-  const { movimientos, deleteMovimiento, proyectos, centrosCosto } = useErp();
-  const [filtro, setFiltro] = useState<'todos' | 'ingreso' | 'gasto'>('todos');
+  const { movimientos, proyectos } = useErp();
+  const [filtroProyecto, setFiltroProyecto] = useState<string>('todos');
+  const [filtroCategoria, setFiltroCategoria] = useState<string>('todos');
+  const [filtroFecha, setFiltroFecha] = useState<string>('mes');
   const [loading, setLoading] = useState(true);
-  const flowConfig = useChartConfig('line', 'default');
-  const donutConfig = useChartConfig('line', 'default');
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 250);
-    return () => clearTimeout(timer);
-  }, []);
+  useEffect(() => { setTimeout(() => setLoading(false), 300); }, []);
 
-
-  const ingresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-  const gastos = movimientos.filter(m => m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-  const utilidad = ingresos - gastos;
-
-  const porCategoria = useMemo(() => {
-    const map: Record<string, number> = {};
-    movimientos.filter(m => m.tipo === 'gasto').forEach(m => { map[m.categoria] = (map[m.categoria] || 0) + (m.monto ?? m.costoTotal ?? 0); });
-    return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([k, v], i) => ({ label: CATEGORIA_LABEL[k as keyof typeof CATEGORIA_LABEL], value: v, color: COLORS[i % COLORS.length] }));
-  }, [movimientos]);
-
-  const centrosCostoData = useMemo(() => {
-    if (centrosCosto && centrosCosto.length > 0) {
-      return centrosCosto.map(cc => {
-        const proyecto = proyectos.find(p => p.id === cc.proyectoId);
-        const ing = movimientos.filter(m => m.proyectoId === cc.proyectoId && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-        const gas = movimientos.filter(m => m.proyectoId === cc.proyectoId && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-        return { 
-          nombre: cc.nombre, 
-          codigo: cc.codigo,
-          tipo: cc.tipo,
-          presupuesto: cc.presupuestoAsignado,
-          gasto: cc.gastoActual,
-          ing, 
-          gas, 
-          margen: ing - gas,
-          proyecto: proyecto?.nombre || 'Sin proyecto'
-        };
-      });
+  const movimientosFiltrados = useMemo(() => {
+    let data = [...movimientos];
+    if (filtroProyecto !== 'todos') data = data.filter(m => m.proyectoId === filtroProyecto);
+    if (filtroCategoria !== 'todos') data = data.filter(m => m.categoria === filtroCategoria);
+    const now = new Date();
+    if (filtroFecha === 'mes') {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      data = data.filter(m => new Date(m.fecha) >= start);
+    } else if (filtroFecha === 'trimestre') {
+      const start = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+      data = data.filter(m => new Date(m.fecha) >= start);
+    } else if (filtroFecha === 'anio') {
+      const start = new Date(now.getFullYear(), 0, 1);
+      data = data.filter(m => new Date(m.fecha) >= start);
     }
-    return proyectos.map(p => {
-      const ing = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'ingreso').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-      const gas = movimientos.filter(m => m.proyectoId === p.id && m.tipo === 'gasto').reduce((a, b) => a + (b.monto ?? b.costoTotal ?? 0), 0);
-      return { nombre: p.nombre, codigo: p.id, tipo: 'directo', presupuesto: 0, gasto: gas, ing, gas, margen: ing - gas, proyecto: p.nombre };
-    });
-  }, [proyectos, movimientos, centrosCosto]);
+    return data;
+  }, [movimientos, filtroProyecto, filtroCategoria, filtroFecha]);
 
-  const cashFlow = useMemo(() => {
-    const monthlyIng = new Array(12).fill(0);
-    const monthlyEgr = new Array(12).fill(0);
-    movimientos.forEach(m => {
-      if (!m.fecha) return;
-      const month = new Date(m.fecha).getMonth();
-      if (Number.isNaN(month)) return;
-      if (m.tipo === 'ingreso') monthlyIng[month] += (m.monto ?? m.costoTotal ?? 0);
-      else if (m.tipo === 'gasto') monthlyEgr[month] += (m.monto ?? m.costoTotal ?? 0);
-    });
-    return { ingresos: monthlyIng, egresos: monthlyEgr };
+  const ingresos = useMemo(() => movimientosFiltrados.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + (m.monto || 0), 0), [movimientosFiltrados]);
+  const egresos = useMemo(() => movimientosFiltrados.filter(m => m.tipo !== 'ingreso').reduce((s, m) => s + (m.monto || 0), 0), [movimientosFiltrados]);
+  const utilidad = useMemo(() => ingresos - egresos, [ingresos, egresos]);
+  const margen = useMemo(() => ingresos > 0 ? utilidad / ingresos : 0, [ingresos, utilidad]);
+
+  const gastosPorCategoria = useMemo(() => {
+    const cats: Record<string, number> = {};
+    movimientosFiltrados.filter(m => m.tipo !== 'ingreso').forEach(m => { cats[m.categoria] = (cats[m.categoria] || 0) + (m.monto || 0); });
+    return Object.entries(cats).map(([cat, val]) => ({ label: t(`movimientos.categoria_${cat}`) || cat, value: val, color: '#ef4444' }));
+  }, [movimientosFiltrados, t]);
+
+  const flujoCaja = useMemo(() => {
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const now = new Date();
+    const data: { label: string; ingresos: number; egresos: number }[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const label = meses[d.getMonth()];
+      const movs = movimientos.filter(m => { const md = new Date(m.fecha); return md.getFullYear() === d.getFullYear() && md.getMonth() === d.getMonth(); });
+      const ing = movs.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + (m.monto || 0), 0);
+      const eg = movs.filter(m => m.tipo !== 'ingreso').reduce((s, m) => s + (m.monto || 0), 0);
+      data.push({ label, ingresos: ing, egresos: eg });
+    }
+    return data;
   }, [movimientos]);
-  const lista = movimientos.filter(m => filtro === 'todos' || m.tipo === filtro);
 
-  if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-        </div>
-        <Skeleton className="h-64 rounded-2xl" />
-        <Skeleton className="h-96 rounded-2xl" />
-      </div>
-    );
-  }
+  const shouldVirtualize = movimientosFiltrados.length > 100;
+
+  const renderRow = useCallback((m: typeof movimientos[0], _index: number) => (
+    <tr key={m.id} className="border-b border-border">
+      <td className="p-2 text-muted-foreground">{new Date(m.fecha).toLocaleDateString()}</td>
+      <td className="p-2">{proyectos.find(p => p.id === m.proyectoId)?.nombre || '-'}</td>
+      <td className="p-2">{t(`movimientos.categoria_${m.categoria}`) || m.categoria}</td>
+      <td className="p-2">{m.descripcion}</td>
+      <td className={`p-2 text-right font-medium ${m.tipo === 'ingreso' ? 'text-emerald-600' : 'text-red-600'}`}>{m.tipo === 'ingreso' ? '+' : '-'}{fmtQ(m.monto)}</td>
+      <td className="p-2 text-right text-muted-foreground">{fmtQ(m.monto)}</td>
+    </tr>
+  ), [proyectos, t]);
+
+  if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-64" /><div className="grid grid-cols-3 gap-3"><Skeleton className="h-24" /><Skeleton className="h-24" /><Skeleton className="h-24" /></div><Skeleton className="h-64" /><Skeleton className="h-96" /></div>;
 
   return (
-    <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto">
-      <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2 mb-2"><Wallet className={`w-5 h-5 sm:w-6 sm:h-6 ${COLOR_PRIMARY}`} aria-hidden="true" /> Control Financiero y Caja</h1>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
-        <div className="relative overflow-hidden bg-emerald-500 text-white rounded-xl sm:rounded-2xl p-3 sm:p-4">
-          <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2" aria-hidden="true" />
-          <div className="text-xl sm:text-2xl font-bold">{fmtQ(ingresos)}</div>
-          <div className="text-[10px] text-white/80">Confirmados y facturados</div>
-        </div>
-        <div className="relative overflow-hidden bg-red-500 text-white rounded-xl sm:rounded-2xl p-3 sm:p-4">
-          <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2" aria-hidden="true" />
-          <div className="text-xl sm:text-2xl font-bold">{fmtQ(gastos)}</div>
-          <div className="text-[10px] text-white/80">Incluye costos indirectos</div>
-        </div>
-        <div className={`relative overflow-hidden ${utilidad >= 0 ? 'bg-primary text-primary-foreground' : 'bg-destructive text-destructive-foreground'} rounded-xl sm:rounded-2xl p-3 sm:p-4`}>
-          <Wallet className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2 opacity-80" aria-hidden="true" />
-          <div className="text-xl sm:text-2xl font-bold">{fmtQ(utilidad)}</div>
-          <div className="text-[10px] opacity-80">Margen real del proyecto</div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 mb-3 sm:mb-4">
-        <div className="lg:col-span-2 bg-card text-card-foreground rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-border">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-bold text-foreground text-sm">Flujo de Caja (12 meses)</h3>
-            <ChartToolbar
-              types={['line', 'area']}
-              currentType={flowConfig.type}
-              onTypeChange={flowConfig.setType}
-              palette={flowConfig.palette}
-              onPaletteChange={flowConfig.setPalette}
-               series={[
-                 { id: 'Ingresos', label: 'Ingresos', color: 'hsl(var(--success))', visible: flowConfig.isVisible('Ingresos') },
-                 { id: 'Egresos', label: 'Egresos', color: 'hsl(var(--destructive))', visible: flowConfig.isVisible('Egresos') },
-               ]}
-              onToggleSeries={flowConfig.toggleSeries}
-              onReset={flowConfig.reset}
-            />
-          </div>
-          <div className="h-44">
-            <ConfigurableLineArea labels={['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']}
-              type={flowConfig.type} palette={flowConfig.palette}
-              series={[
-                { label: 'Ingresos', color: 'hsl(var(--success))', data: cashFlow.ingresos },
-                { label: 'Egresos', color: 'hsl(var(--destructive))', data: cashFlow.egresos },
-              ].filter(s => flowConfig.isVisible(s.label))} />
-          </div>
-        </div>
-        <div className="bg-card text-card-foreground rounded-2xl p-4 shadow-sm border border-border">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-bold text-foreground text-sm">Gastos por Categoría</h3>
-            <ChartToolbar
-              types={['line']}
-              currentType={donutConfig.type}
-              onTypeChange={donutConfig.setType}
-              palette={donutConfig.palette}
-              onPaletteChange={donutConfig.setPalette}
-              onReset={donutConfig.reset}
-            />
-          </div>
-          <div className="flex items-center gap-3">
-             <Donut size={130} data={porCategoria.length ? porCategoria : [{ label: '-', value: 1, color: 'hsl(var(--border))' }]} />
-             <div className="text-xs space-y-1 flex-1 max-h-32 overflow-y-auto">
-               {porCategoria.length > 0 ? porCategoria.map((c, i) => <div key={c.label || `cat-${i}`} className="flex items-center gap-1 justify-between"><span className="flex items-center gap-1 truncate"><span className="w-2 h-2 rounded-full bg-primary" />{c.label || 'Otros'}</span><b className="text-foreground">{fmtQ(c.value)}</b></div>) : <p className="text-muted-foreground text-center py-2">{t('financiero.sin_gastos')}</p>}
-            </div>
-          </div>
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
+          <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" aria-hidden="true" />
+          {t('financiero.titulo')}
+        </h1>
+        <div className="flex gap-2">
+          <select value={filtroProyecto} onChange={e => setFiltroProyecto(e.target.value)} className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm">
+            <option value="todos">{t('financiero.todos_proyectos')}</option>
+            {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+          </select>
+          <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm">
+            <option value="todos">{t('financiero.todas_categorias')}</option>
+          </select>
+          <select value={filtroFecha} onChange={e => setFiltroFecha(e.target.value)} className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm">
+            <option value="mes">{t('financiero.filtro_mes')}</option>
+            <option value="trimestre">{t('financiero.filtro_trimestre')}</option>
+            <option value="anio">{t('financiero.filtro_anio')}</option>
+          </select>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
-        <div className="lg:col-span-2">
-          <div className="bg-card text-card-foreground rounded-xl sm:rounded-2xl shadow-sm border border-border overflow-hidden">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-2 sm:p-3 border-b border-border gap-2">
-              <h3 className="font-bold text-foreground text-sm">Movimientos</h3>
-              <div className="flex gap-1" role="group" aria-label="Filtrar movimientos">
-                {(['todos', 'ingreso', 'gasto'] as const).map(f => (
-                  <button key={f} onClick={() => setFiltro(f)}
-                    aria-pressed={filtro === f}
-                    className={`text-xs px-2.5 py-1 rounded-lg capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${filtro === f ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-muted/80 active:bg-muted'}`}>
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="max-h-96 overflow-y-auto">
-                <div className="overflow-x-auto">
-                <table className="w-full text-xs min-w-[360px]">
-                  <tbody>
-                    {lista.length > 0 ? lista.map(m => (
-                      <tr key={m.id} className="border-b border-border/50 hover:bg-muted/40 transition-colors">
-                        <td className="p-2"><div className="font-semibold text-foreground">{m.descripcion}</div><div className="text-muted-foreground">{CATEGORIA_LABEL[m.categoria] || m.categoria} · {proyectos.find(p => p.id === m.proyectoId)?.nombre || 'Operativo'} · {m.fecha}</div></td>
-                        <td className={`p-2 text-right font-bold ${m.tipo === 'ingreso' ? COLOR_SUCCESS : COLOR_DANGER}`}>{m.tipo === 'ingreso' ? '+' : '-'}{fmtQ(m.costoTotal ?? m.monto)}</td>
-                        <td className="p-2 w-8">
-                          <button onClick={() => deleteMovimiento(m.id)} aria-label={`Eliminar movimiento ${m.descripcion}`}
-                            className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
-                            <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-red-600 dark:hover:text-red-400" aria-hidden="true" />
-                          </button>
-                        </td>
-                      </tr>
-                    )) : <tr><td colSpan={3} className="p-4 text-center text-muted-foreground"><Wallet className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('financiero.no_hay_movimientos')}</td></tr>}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="bg-gradient-to-br from-emerald-500 to-green-600 text-white rounded-xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <ArrowUpRight className="w-5 h-5 opacity-80" aria-hidden="true" />
+            <span className="text-xs opacity-80">{t('financiero.ingresos_sub')}</span>
           </div>
+          <div className="text-2xl font-bold">{fmtQ(ingresos)}</div>
+        </div>
+        <div className="bg-gradient-to-br from-red-500 to-rose-600 text-white rounded-xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <ArrowDownRight className="w-5 h-5 opacity-80" aria-hidden="true" />
+            <span className="text-xs opacity-80">{t('financiero.gastos_sub')}</span>
+          </div>
+          <div className="text-2xl font-bold">{fmtQ(egresos)}</div>
+        </div>
+        <div className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <TrendingUp className="w-5 h-5 opacity-80" aria-hidden="true" />
+            <span className="text-xs opacity-80">{t('financiero.utilidad_sub')}</span>
+          </div>
+          <div className="text-2xl font-bold">{fmtQ(utilidad)}</div>
+          <div className="text-xs opacity-80 mt-1">{fmtPct(margen)} {t('financiero.margen')}</div>
+        </div>
+      </div>
 
-          <div className="bg-card text-card-foreground rounded-2xl shadow-sm mt-4 p-4 border border-border overflow-x-auto">
-            <h3 className="font-bold text-foreground text-sm mb-2">Utilidad Neta por Centro de Costo</h3>
-            <table className="w-full text-xs min-w-[400px]">
-              <thead className="text-muted-foreground"><tr><th className="text-left pb-1">Centro de Costo</th><th className="text-left pb-1">Tipo</th><th className="text-right">Presupuesto</th><th className="text-right">Ingresos</th><th className="text-right">Egresos</th><th className="text-right">Margen</th></tr></thead>
-              <tbody>
-                {centrosCostoData.length > 0 ? centrosCostoData.map(c => (
-                  <tr key={c.codigo} className="border-b border-border/40">
-                    <td className="py-1.5 text-foreground">
-                      <div className="font-medium">{c.nombre}</div>
-                      <div className="text-muted-foreground text-[10px]">{c.proyecto}</div>
-                    </td>
-                    <td className="py-1.5 text-muted-foreground capitalize">{c.tipo}</td>
-                    <td className="text-right text-muted-foreground">{fmtQ(c.presupuesto)}</td>
-                    <td className={`text-right ${COLOR_SUCCESS}`}>{fmtQ(c.ing)}</td>
-                    <td className={`text-right ${COLOR_DANGER}`}>{fmtQ(c.gas)}</td>
-                    <td className={`text-right font-bold ${c.margen >= 0 ? 'text-foreground' : COLOR_DANGER}`}>{fmtQ(c.margen)}</td>
-                  </tr>
-                )) : <tr><td colSpan={6} className="p-4 text-center text-muted-foreground"><TrendingDown className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('financiero.sin_centros_costo')}</td></tr>}
-              </tbody>
-            </table>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-card rounded-xl border border-border p-4">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-blue-500" aria-hidden="true" />
+            {t('financiero.flujo_caja')}
+          </h3>
+          <div className="h-64">
+            <LineChart data={flujoCaja.map(d => ({ ...d, label: d.label }))} />
           </div>
         </div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <Filter className="w-4 h-4 text-amber-500" aria-hidden="true" />
+            {t('financiero.gastos_categoria')}
+          </h3>
+          <div className="h-64">
+            <Donut data={gastosPorCategoria.length > 0 ? gastosPorCategoria : [{ label: t('financiero.sin_datos'), value: 1, color: '#ccc' }]} />
+          </div>
+        </div>
+      </div>
 
-        <div>
-          <h3 className="font-bold text-foreground text-sm mb-2">Registrar Movimiento</h3>
-          <MovimientoForm compact />
+      <div className="bg-card rounded-xl border border-border p-4">
+        <h3 className="font-semibold mb-3 flex items-center gap-2">
+          <Wallet className="w-4 h-4 text-emerald-500" aria-hidden="true" />
+          {t('financiero.movimientos')}
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" role="table" aria-label={t('financiero.movimientos')}>
+            <thead><tr className="border-b border-border">
+              <th className="text-left p-2" scope="col">{t('financiero.col_fecha')}</th>
+              <th className="text-left p-2" scope="col">{t('financiero.col_proyecto')}</th>
+              <th className="text-left p-2" scope="col">{t('financiero.col_categoria')}</th>
+              <th className="text-left p-2" scope="col">{t('financiero.col_descripcion')}</th>
+              <th className="text-right p-2" scope="col">{t('financiero.col_monto')}</th>
+              <th className="text-right p-2" scope="col">{t('financiero.col_saldo')}</th>
+            </tr></thead>
+            <tbody>
+              {!shouldVirtualize && movimientosFiltrados.map((m, i) => renderRow(m, i))}
+              {movimientosFiltrados.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">{t('financiero.sin_movimientos')}</td></tr>}
+            </tbody>
+          </table>
+          {shouldVirtualize && movimientosFiltrados.length > 0 && (
+            <VirtualizedList
+              height={Math.min(480, movimientosFiltrados.length * ROW_HEIGHT)}
+              itemCount={movimientosFiltrados.length}
+              itemSize={ROW_HEIGHT}
+              width="100%"
+              overscanCount={5}
+            >
+              {({ index, style }: { index: number; style: React.CSSProperties }) => (
+                <div style={style}>
+                  <table className="w-full text-sm" role="presentation">
+                    <tbody>{renderRow(movimientosFiltrados[index], index)}</tbody>
+                  </table>
+                </div>
+              )}
+            </VirtualizedList>
+          )}
         </div>
       </div>
     </div>
   );
 };
-
 export default Financiero;

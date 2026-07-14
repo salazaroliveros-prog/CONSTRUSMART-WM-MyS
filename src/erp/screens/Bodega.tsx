@@ -15,13 +15,11 @@ import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2, Trending
 import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT_COMPACT, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL } from '../ui';
 import { List as VirtualizedList } from 'react-window';
-
 import { proveedorFormSchema, ordenFormSchema } from '../store/schemas/bodega';
 
 type ProveedorFormData = z.infer<typeof proveedorFormSchema>;
 type OrdenFormData = z.infer<typeof ordenFormSchema>;
 type ProveedorOption = { id: string; nombre: string };
-
 
 const Bodega: React.FC = () => {
   const paretoConfig = useChartConfig('line', 'default');
@@ -145,8 +143,8 @@ const Row = ({ index, style }: { index: number; style: React.CSSProperties }) =>
           <div className="flex items-center gap-3 text-xs">
             <span className="w-16 text-right"><input type="number" inputMode="decimal" value={m.stock} onChange={e => updateMaterial(m.id, { stock: +e.target.value })} className="w-16 px-1.5 py-1 rounded border border-input bg-background text-foreground text-right focus:outline-none focus:ring-2 focus:ring-ring" /></span>
             <span className="w-20 text-right">{m.stockMinimo} <span className="text-muted-foreground">{m.unidad}</span></span>
-            <span className={`w-28 text-right ${planificado === 0 ? 'text-muted-foreground italic' : ''}`}>{planificado === 0 ? '—' : `${planificado} ${m.unidad}`}</span>
-            <span className={`w-16 text-right ${claseDesv}`}>{planificado === 0 ? '—' : `${fmtPct(desv)}`}</span>
+            <span className={`w-28 text-right ${planificado === 0 ? 'text-muted-foreground italic' : ''}`}>{planificado === 0 ? t('bodega.no_planificado') : `${planificado} ${m.unidad}`}</span>
+            <span className={`w-16 text-right ${claseDesv}`}>{planificado === 0 ? t('bodega.no_planificado') : `${fmtPct(desv)}`}</span>
           </div>
         </div>
       </div>
@@ -155,7 +153,6 @@ const Row = ({ index, style }: { index: number; style: React.CSSProperties }) =>
 };
 
 const inp = INPUT_COMPACT;
-
 
 if (loading) {
     return (
@@ -181,7 +178,7 @@ if (loading) {
         <div className="flex gap-2">
           <button onClick={() => setShowOrden(true)}
             className={`${BUTTON_PRIMARY} flex-1 sm:flex-none justify-center`}>
-            <Plus className="w-4 h-4" aria-hidden="true" /> <span className="hidden sm:inline">{t('common.nuevo')}</span> OC
+            <Plus className="w-4 h-4" aria-hidden="true" /> <span className="hidden sm:inline">{t('common.nuevo')}</span> {t('bodega.oc_abreviatura')}
           </button>
           <button onClick={() => { setShowProveedor(true); setEditingProveedor(null); }}
             className={`${BUTTON_SECONDARY} flex-1 sm:flex-none justify-center`}>
@@ -300,8 +297,6 @@ if (loading) {
                   {o.estado === 'pendiente' && (
                     <div className="flex gap-1 mt-1.5">
                        <button onClick={async () => { try { await confirmAction({ title: t('bodega.aprobar_orden'), content: t('bodega.aprobar_orden_confirm'), centered: true, okText: t('bodega.si_aprobar'), cancelText: t('common.cancelar') }); updateOrden(o.id, { estado: 'aprobado' }); } catch {} }}
-
-
                          aria-label={t('bodega.aprobar_orden_aria', { material: o.material })}
                          className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
                         <Check className="w-3 h-3" aria-hidden="true" /> {t('bodega.aprobar')}
@@ -424,4 +419,3 @@ if (loading) {
 };
 
 export default Bodega;
-
