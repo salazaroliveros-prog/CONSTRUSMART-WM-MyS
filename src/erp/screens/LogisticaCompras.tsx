@@ -55,8 +55,8 @@ export const LogisticaCompras: React.FC = () => {
             <tbody>
               {activos.map(a => (
                 <tr key={a.id} className="border-t hover:bg-muted/50">
-                  <td className="p-2 font-medium">{a.nombre}</td>
-                  <td className="p-2 text-xs">{t('logistica.tipo_' + a.tipo, a.tipo)}</td>
+                  <td className="p-2 font-medium truncate" title={a.nombre}>{a.nombre}</td>
+                  <td className="p-2 text-xs truncate">{t('logistica.tipo_' + a.tipo, a.tipo)}</td>
                   <td className="p-2 text-right font-mono">{fmtQ(a.costo)}</td>
                   <td className="p-2">{a.estado}</td>
                   <td className="p-2 text-right">
