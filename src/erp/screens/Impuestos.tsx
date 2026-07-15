@@ -42,14 +42,14 @@ export const Impuestos: React.FC = () => {
   const renderRow = useCallback((m: typeof movimientos[0], _index: number) => (
     <tr key={m.id} className="border-t hover:bg-gray-50">
       <td className="p-2 text-xs">{new Date(m.fecha).toLocaleDateString()}</td>
-      <td className="p-2 text-xs">{m.descripcion}</td>
+      <td className="p-2 text-xs truncate" title={m.descripcion}>{m.descripcion}</td>
       <td className="p-2">
         <span className={`px-2 py-0.5 rounded text-xs ${
           m.tipo === 'ingreso' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
         }`}>{m.tipo}</span>
       </td>
       <td className="p-2 text-right font-mono text-xs">{fmtQ(m.monto ?? m.costoTotal ?? 0)}</td>
-      <td className="p-2 text-xs text-gray-500">{CATEGORIA_LABEL[m.categoria as keyof typeof CATEGORIA_LABEL] ?? m.categoria}</td>
+      <td className="p-2 text-xs text-gray-500 truncate">{CATEGORIA_LABEL[m.categoria as keyof typeof CATEGORIA_LABEL] ?? m.categoria}</td>
     </tr>
   ), []);
 
