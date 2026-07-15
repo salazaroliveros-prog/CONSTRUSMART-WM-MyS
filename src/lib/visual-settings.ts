@@ -22,4 +22,3 @@ export interface VisualSettings {
 }
 
 export { syncAllVisualSettings } from './theme-manager';
-export type { VisualSettings } from './theme-manager';

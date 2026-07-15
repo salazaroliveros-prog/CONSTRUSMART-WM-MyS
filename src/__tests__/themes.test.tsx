@@ -7,7 +7,7 @@ import {
   syncAnimationsSetting,
   syncAllVisualSettings,
   type ThemeName,
-} from '@/lib/themes';
+} from '@/lib/theme-manager';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 

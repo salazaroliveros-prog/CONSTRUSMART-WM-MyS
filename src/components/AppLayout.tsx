@@ -13,7 +13,7 @@ const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
 const Login = lazy(() => import('@/erp/screens/Login'));
 const QuickActionsFab = lazy(() => import('@/erp/components/QuickActionsFab'));
 const BottomNavigation = lazy(() => import('@/erp/components/BottomNavigation'));
-import { syncAllVisualSettings } from '@/lib/themes';
+import { syncAllVisualSettings } from '@/lib/theme-manager';
 import { EMPRESA } from '@/erp/utils';
 import '@/styles/theme-variables.css';
 

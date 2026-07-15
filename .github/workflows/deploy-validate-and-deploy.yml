@@ -18,9 +18,6 @@ jobs:
       NODE_VERSION: 20
       TIMEOUT_MINUTES: 30
 
-    needs:
-      - build-test
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -155,19 +152,13 @@ print('All validation checks passed!')"
 
       - name: Deploy to Vercel (Production)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        name: Deploy to Production
         uses: amondnet/vercel-action@v26
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: .
-          scope: ${{ secrets.VERCEL_ORG_ID }}
-          project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           version: v1
-          # Deploy only if all validations passed
-          scope: ${{ secrets.VERCEL_ORG_ID }}
-          project-id: ${{ secrets.VERCEL_PROJECT_ID }}
         
       - name: Post-Deploy Validation
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

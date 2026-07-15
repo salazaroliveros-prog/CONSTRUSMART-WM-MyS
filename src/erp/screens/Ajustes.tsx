@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, clearAllData, type UIMode, type AppThemeMode } from '../store';
 import type { AppSettings } from '../utils';
-import { THEMES, type ThemeName, PRIMARY_COLORS } from '@/lib/themes';
+import { THEMES, type ThemeName, PRIMARY_COLORS } from '@/lib/theme-manager';
 import {
   Layout, Card, Row, Col, Switch, Select, Button, Divider,
   Typography, Space, Tabs, Tag, Avatar, Descriptions, Modal,
