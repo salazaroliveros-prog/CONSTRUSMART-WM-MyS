@@ -1855,6 +1855,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
       history: newHistory,
       lastUpdated: impactData.lastUpdated || new Date().toISOString(),
       enabled: true,
+      alertThreshold: existing?.alertThreshold || 'high',
     };
 
     if (existing) {
