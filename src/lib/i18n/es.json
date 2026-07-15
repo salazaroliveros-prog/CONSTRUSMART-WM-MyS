@@ -2247,7 +2247,10 @@
     "workable_days": "Días trabajables",
     "lost_days": "Días perdidos",
     "temp_range": "Rango temp.",
-    "days_recorded": "días registrados"
+    "days_recorded": "días registrados",
+    "multi_project_comparison": "Comparación multi-proyecto",
+    "impact_score": "Puntaje",
+    "no_data": "Sin datos"
   },
   "profitability": {
     "titulo": "Análisis de Rentabilidad",

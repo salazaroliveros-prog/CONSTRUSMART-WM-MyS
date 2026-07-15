@@ -986,6 +986,33 @@ const WeatherHistoryChart: React.FC<{ history: WeatherHistoryItem[] }> = ({ hist
         )}
         <span className="ml-auto text-[10px]">{recent.length} {t('weather.days_recorded', 'días registrados')}</span>
       </div>
+
+      {proyectos.length > 1 && (
+        <div className="mt-6">
+          <h3 className={SECTION_TITLE}>{t('weather.multi_project_comparison', 'Comparación multi-proyecto')}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {proyectos.map((p) => {
+              const pw = proyectoWeather.find(w => w.proyectoId === p.id);
+              const impact = pw?.impact;
+              return (
+                <div key={p.id} className={`rounded-lg border p-3 ${impact?.level === 'critical' ? 'border-red-400 bg-red-50 dark:bg-red-900/20' : impact?.level === 'high' ? 'border-orange-400 bg-orange-50 dark:bg-orange-900/20' : 'border-border bg-muted/20'}`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium truncate">{p.nombre}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${impact?.level === 'critical' ? 'bg-red-100 text-red-700' : impact?.level === 'high' ? 'bg-orange-100 text-orange-700' : impact?.level === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
+                      {impact ? t(`weather.level.${impact.level}`) : t('weather.no_data', 'Sin datos')}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>{t('weather.impact_score', 'Puntaje')}: {impact?.score ?? '-'}</p>
+                    <p>{t('weather.temp', 'Temp')}: {pw?.weatherData?.current?.temp ?? '-'}°C</p>
+                    <p>{t('weather.precipitation', 'Precipitación')}: {pw?.weatherData?.forecast?.slice(0, 4).reduce((s, f) => s + (f.rain?.['3h'] || 0), 0).toFixed(1) ?? '-'} mm</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

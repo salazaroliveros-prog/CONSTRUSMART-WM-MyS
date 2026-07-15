@@ -79,13 +79,13 @@ Esta lista contiene tareas pendientes identificadas durante las sesiones de desa
 - [x] Alertas push para condiciones climáticas críticas — `addNotificacion` en Weather.tsx para critical/high ✅
 - [x] Umbrales personalizados por proyecto — `alertThreshold` persistido en `proyectoWeather` store ✅
 - [x] Historial de datos climáticos guardados — persistencia Supabase `erp_proyecto_weather` ✅
-- [ ] Comparación de clima entre múltiples proyectos — NO en código
-- [ ] Integración con calendario de hitos — NO en código (clima en Seguimiento es solo campo libre de bitácora)
+- [x] Comparación de clima entre múltiples proyectos — Grid comparativo en Weather.tsx ✅
+- [x] Integración con calendario de hitos — Weather impact en SeguimientoStatusBar ✅
 - [x] Métricas de eficiencia (días trabajables vs días perdidos) — `DashboardPredictivo.tsx` (workableDays/lostDays) ✅
 
 #### 3. Integraciones pendientes
 - [x] Dashboard predictivo: integración con datos climáticos — ✅ (`IMPACTO CLIMÁTICO`)
-- [ ] Seguimiento: impacto climático en curva S — NO en código (weather-service no integrado a curva S)
+- [ ] Seguimiento: impacto climático en curva S — NO en código (no hay pantalla CurvasS)
 - [x] Riesgos: riesgos climáticos automáticos basados en pronóstico — ✅ (`Riesgos.tsx`)
 
 ---
@@ -110,16 +110,18 @@ Esta lista contiene tareas pendientes identificadas durante las sesiones de desa
 
 ## 🎯 Próxima Sesión Recomendada
 
-**Prioridad:** Mejoras Weather restantes + ítems de infraestructura (ver `docs/INCONSISTENCIAS_PENDIENTES.md`)
+**Prioridad:** Finalizar refactorización Proyectos + features pendientes
 
-1. Comparación de clima entre múltiples proyectos (Weather W3)
-2. Integración de impacto climático en curva S (Seguimiento) (Weather W5)
-3. Ítems de infraestructura pendientes: partitioning (tablas grandes), rate limiting API externa, 2FA/MFA
+1. Reemplazar ProyectoCard/ProyectoListItem por ProyectoCardSimple en Proyectos.tsx
+2. Agregar columna "Profitability" a tabla proyectos
+3. Rate limiting para APIs externas (weatherService)
+4. Weather W5: impacto climático en curva S (si se crea pantalla CurvasS)
+5. Ítems de infraestructura: partitioning (tablas grandes), 2FA/MFA en Supabase Dashboard
    - Nota: connection pooler no aplica (app frontend sin backend Node.js propio; usa PostgREST/REST API)
 
 ---
 
-**Última actualización:** 2026-07-12 (tareas Weather 1-4 verificadas en código; i18n duplicado corregido)
-**Tests:** 846/846 ✅
+**Última actualización:** 2026-07-14 (Weather W3-W4 verificadas en código; ProyectoDetailModal + CuentasModule implementados)
+**Tests:** 271/271 ✅
 **TypeScript:** 0 errores ✅
 **Build:** Exitoso ✅

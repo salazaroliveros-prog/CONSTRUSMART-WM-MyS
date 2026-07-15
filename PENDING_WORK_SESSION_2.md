@@ -271,17 +271,17 @@ function Proyectos() {
 - [x] Crear `ProfitabilityTable.tsx`
 - [x] Crear `AgingReport.tsx`
 - [x] Refactorizar `Financiero.tsx`
-- [ ] Integrar `CuentasCobrar` inline
-- [ ] Integrar `CuentasPagar` inline
+- [x] Integrar `CuentasCobrar` inline
+- [x] Integrar `CuentasPagar` inline
 - [ ] Agregar columna "Profitability" a tabla proyectos
-- [ ] Testar cálculos
+- [x] Testar cálculos
 
 ### FASE 6 (Proyectos):
 - [x] Crear `ProyectoCardSimple.tsx`
-- [ ] Crear `ProyectoDetailModal.tsx`
-- [ ] Crear tabs dentro del modal
-- [ ] Refactorizar `Proyectos.tsx`
-- [ ] Remover mapa de calor
+- [x] Crear `ProyectoDetailModal.tsx`
+- [x] Crear tabs dentro del modal
+- [ ] Refactorizar `Proyectos.tsx` (parcial: modal detail agregado, falta reemplazar cards por ProyectoCardSimple)
+- [x] Remover mapa de calor
 - [ ] Testar responsive
 
 ### Validación General:

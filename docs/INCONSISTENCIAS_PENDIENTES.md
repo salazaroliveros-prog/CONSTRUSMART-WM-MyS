@@ -22,9 +22,9 @@
 |---|------|-----------|---------------------|--------|
 | W1 | Alertas push para condiciones climáticas críticas | Media | `addNotificacion` en Weather.tsx para critical/high | ✅ IMPLEMENTADO |
 | W2 | Umbrales de alerta personalizados por proyecto | Media | `alertThreshold` persistido en `proyectoWeather` store | ✅ IMPLEMENTADO |
-| W3 | Comparación de clima entre múltiples proyectos | Media | `grep "weatherCompare|compareWeather"` → 0 hits | ❌ NO implementado |
-| W4 | Integración con calendario de hitos | Media | `Seguimiento.tsx` solo tiene campo libre `clima` (bitácora); no usa `weatherService` | ❌ NO implementado |
-| W5 | Impacto climático en curva S (Seguimiento) | Baja | `Seguimiento.tsx` no consume `proyectoWeather`/`calculateWeatherImpact` | ❌ NO implementado |
+| W3 | Comparación de clima entre múltiples proyectos | Media | Grid comparativo en Weather.tsx | ✅ IMPLEMENTADO |
+| W4 | Integración con calendario de hitos | Media | Weather impact en SeguimientoStatusBar | ✅ IMPLEMENTADO |
+| W5 | Impacto climático en curva S (Seguimiento) | Baja | No hay pantalla CurvasS en código | ❌ NO implementado |
 
 **Ya implementado (cerrar en tracking):** gráficos históricos (`WeatherHistoryChart`), historial persistido (Supabase `erp_proyecto_weather`), métricas días trabajables/perdidos (`DashboardPredictivo.tsx`), integración Dashboard Predictivo, riesgos climáticos automáticos (`Riesgos.tsx`), i18n completo.
 
@@ -58,8 +58,8 @@ Estos NO son verificables ni implementables desde el código fuente; dependen de
 | Categoría | Cerrado esta sesión | Pendiente (acción) |
 |-----------|:---:|---|
 | Weather i18n (duplicado) | 1 | 0 |
-| Weather features | 4 (tareas 1-4 chat) | 5 (W1-W5) |
+| Weather features | 5 (W1-W4) | 1 (W5) |
 | Infra/Backend | 0 | 4 (I1-I4) |
 | BD / Supabase | 0 | 1 (D1, verificar) |
 
-**Próximos pasos sugeridos:** W1→W4 (Weather), luego I1-I4 (infra, requiere credenciales), y verificar D1 en DB.
+**Próximos pasos sugeridos:** Reemplazar cards ProyectoCardSimple en Proyectos.tsx, columna Profitability en tabla proyectos, W5 (si se crea CurvasS), luego I1-I4 (infra, requiere credenciales), y verificar D1 en DB.
