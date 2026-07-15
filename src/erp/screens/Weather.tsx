@@ -50,9 +50,26 @@ const Weather: React.FC = () => {
   const [showConstruction, setShowConstruction] = useState(true);
   const [showHistory, setShowHistory] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [alertThreshold, setAlertThreshold] = useState<'low' | 'medium' | 'high' | 'critical'>('high');
+  const [alertThreshold, setAlertThreshold] = useState<'low' | 'medium' | 'high' | 'critical'>(
+    weather?.alertThreshold || 'high'
+  );
 
   useEffect(() => { setLoading(false); }, []);
+
+  useEffect(() => {
+    if (weather?.alertThreshold && weather.alertThreshold !== alertThreshold) {
+      setAlertThreshold(weather.alertThreshold);
+    }
+  }, [weather?.alertThreshold]);
+
+  useEffect(() => {
+    if (!proyecto || !weather) return;
+    if (weather.alertThreshold === alertThreshold) return;
+    updateProyectoWeather(proyecto.id, weather.weatherData, {
+      ...weather.impact,
+      alertThreshold,
+    });
+  }, [alertThreshold, proyecto, weather, updateProyectoWeather]);
 
   const proyecto = currentProjectId ? proyectos.find(p => p.id === currentProjectId) : proyectos[0];
   const weather = proyecto ? proyectoWeather.find(w => w.proyectoId === proyecto.id) : undefined;

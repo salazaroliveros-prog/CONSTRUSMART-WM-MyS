@@ -5,9 +5,10 @@
 -- ============================================================
 
 -- ============================================================
--- PASO 1: CREAR TABLA erp_destajos (Rendimiento Campo)
+-- PASO 1: CREAR/ACTUALIZAR TABLA erp_destajos (Rendimiento Campo)
 -- ============================================================
 
+-- Si la tabla no existe, crearla con el esquema completo
 CREATE TABLE IF NOT EXISTS public.erp_destajos (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   proyecto_id uuid NOT NULL REFERENCES public.erp_proyectos(id) ON DELETE CASCADE,
@@ -18,23 +19,41 @@ CREATE TABLE IF NOT EXISTS public.erp_destajos (
   unidad text NOT NULL,
   horas_trabajadas numeric(10,2) NOT NULL,
   rendimiento_teorico numeric(10,2) NOT NULL,
-  rendimiento_real numeric(10,2) GENERATED ALWAYS AS (
-    CASE WHEN horas_trabajadas > 0 
-         THEN cantidad_ejecutada / horas_trabajadas 
-         ELSE 0 
-    END
-  ) STORED,
-  eficiencia numeric(5,2) GENERATED ALWAYS AS (
-    CASE WHEN rendimiento_teorico > 0 
-         THEN (rendimiento_real / rendimiento_teorico) * 100 
-         ELSE 0 
-    END
-  ) STORED,
+  rendimiento_real numeric(10,2) NOT NULL DEFAULT 0,
+  eficiencia numeric(5,2) NOT NULL DEFAULT 0,
   observaciones text,
   created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   created_at timestamptz DEFAULT now() NOT NULL,
   updated_at timestamptz DEFAULT now() NOT NULL
 );
+
+-- Si la tabla ya existía con el esquema viejo (migración 064), añadir columnas faltantes
+ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS renglon_codigo text;
+ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS cuadrilla text;
+ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS cantidad_ejecutada numeric(10,2);
+ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS unidad text;
+ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS horas_trabajadas numeric(10,2);
+ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS rendimiento_teorico numeric(10,2);
+ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS rendimiento_real numeric(10,2) DEFAULT 0;
+ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL;
+
+-- Migrar datos del esquema viejo al nuevo si es necesario
+UPDATE public.erp_destajos 
+SET 
+  renglon_codigo = COALESCE(concepto, ''),
+  cuadrilla = COALESCE(trabajador, ''),
+  cantidad_ejecutada = COALESCE(cantidad, 0),
+  unidad = COALESCE(unidad, ''),
+  horas_trabajadas = 0,
+  rendimiento_teorico = 0
+WHERE renglon_codigo IS NULL;
+
+-- Eliminar columnas del esquema viejo que no se usan en la app
+ALTER TABLE public.erp_destajos DROP COLUMN IF EXISTS trabajador;
+ALTER TABLE public.erp_destajos DROP COLUMN IF EXISTS concepto;
+ALTER TABLE public.erp_destajos DROP COLUMN IF EXISTS cantidad;
+ALTER TABLE public.erp_destajos DROP COLUMN IF EXISTS precio_unitario;
+ALTER TABLE public.erp_destajos DROP COLUMN IF EXISTS total;
 
 ALTER TABLE public.erp_destajos ENABLE ROW LEVEL SECURITY;
 
