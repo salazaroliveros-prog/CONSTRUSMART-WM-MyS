@@ -37,13 +37,12 @@ jobs:
         run: npm test -- --run
 
       - name: Deploy to Vercel Production
-        uses: amondnet/vercel-action@v26
+        uses: amondnet/vercel-action@v2
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: .
-          version: v1
 
       - name: Post-Deploy Validation
         if: always()
