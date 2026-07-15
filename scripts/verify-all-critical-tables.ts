@@ -1,6 +1,6 @@
 import pg from 'pg';
 
-const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54260/postgres';
 
 async function comprehensiveCheck() {
   const client = new pg.Client({ connectionString: DB_URL });

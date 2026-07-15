@@ -6,8 +6,18 @@
 -- ============================================================
 
 -- ============================================================
--- PASO 1: CREAR TABLA erp_planos (Documentos de Ingeniería)
+-- PASO 1: RECONCILIAR TABLA erp_planos (Documentos de Ingeniería)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_planos' AND column_name = 'fecha_subida'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_planos CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_planos (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -61,8 +71,18 @@ CREATE TRIGGER trg_erp_planos_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 2: CREAR TABLA erp_rfis (Request for Information)
+-- PASO 2: RECONCILIAR TABLA erp_rfis (Request for Information)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_rfis' AND column_name = 'solicitante'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_rfis CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_rfis (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -117,8 +137,18 @@ CREATE TRIGGER trg_erp_rfis_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 3: CREAR TABLA erp_submittals (Submittal Documents)
+-- PASO 3: RECONCILIAR TABLA erp_submittals (Submittal Documents)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_submittals' AND column_name = 'numero'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_submittals CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_submittals (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -176,8 +206,18 @@ CREATE TRIGGER trg_erp_submittals_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 4: CREAR TABLA erp_actividades_herramientas (Activos)
+-- PASO 4: RECONCILIAR TABLA erp_actividades_herramientas (Activos)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_actividades_herramientas' AND column_name = 'proxMantenimiento'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_actividades_herramientas CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_actividades_herramientas (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -236,8 +276,18 @@ CREATE TRIGGER trg_erp_actividades_herramientas_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 5: CREAR TABLA erp_licitaciones (Licitaciones Públicas)
+-- PASO 5: RECONCILIAR TABLA erp_licitaciones (Licitaciones Públicas)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_licitaciones' AND column_name = 'cliente'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_licitaciones CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_licitaciones (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -293,8 +343,18 @@ CREATE TRIGGER trg_erp_licitaciones_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 6: CREAR TABLA erp_solicitudes_cambio_empresa (Meta)
+-- PASO 6: RECONCILIAR TABLA erp_solicitudes_cambio_empresa (Meta)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_solicitudes_cambio_empresa' AND column_name = 'sprint_asignado'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_solicitudes_cambio_empresa CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_solicitudes_cambio_empresa (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,

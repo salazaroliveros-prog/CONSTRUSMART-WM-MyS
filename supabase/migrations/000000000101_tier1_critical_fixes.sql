@@ -1,5 +1,5 @@
 -- ============================================================
--- MIGRACIÓN 0100: TIER 1 - FIXES CRÍTICOS
+-- MIGRACIÓN 0101: TIER 1 - FIXES CRÍTICOS
 -- Fecha: 2026-12-27
 -- Estado: Idempotente (no falla si ya existen)
 -- ============================================================
@@ -53,8 +53,20 @@ ALTER TABLE public.erp_proyectos ADD COLUMN IF NOT EXISTS fecha_reanudacion_esti
 ALTER TABLE public.erp_proyectos ADD COLUMN IF NOT EXISTS version integer DEFAULT 1;
 
 -- ============================================================
--- PASO 2: CREAR TABLA erp_hitos (CRÍTICA - Gantt/Cronograma)
+-- PASO 2: RECONCILIAR TABLA erp_hitos (CRÍTICA - Gantt/Cronograma)
+-- Si existe con el esquema viejo (fecha_planificada), se recrea con
+-- el esquema alineado a la app (fecha, tipo, responsable, depende_de, completado_en)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_hitos' AND column_name = 'fecha_planificada'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_hitos CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_hitos (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -64,7 +76,7 @@ CREATE TABLE IF NOT EXISTS public.erp_hitos (
   fecha date NOT NULL,
   tipo text NOT NULL CHECK (tipo IN ('inicio', 'hito', 'entrega', 'cierre')),
   estado text NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'completado', 'retrasado')),
-  responsable uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  responsable text,
   depende_de uuid[] DEFAULT ARRAY[]::uuid[],
   completado_en timestamptz,
   created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -100,8 +112,20 @@ CREATE TRIGGER trg_erp_hitos_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 3: CREAR TABLA erp_riesgos (CRÍTICA - Gestión Riesgos)
+-- PASO 3: RECONCILIAR TABLA erp_riesgos (CRÍTICA - Gestión Riesgos)
+-- Si existe con el esquema viejo (categoria en vez de tipo, o sin nivel),
+-- se recrea con el esquema alineado a la app
 -- ============================================================
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_riesgos' AND column_name = 'categoria'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_riesgos CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_riesgos (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -111,17 +135,12 @@ CREATE TABLE IF NOT EXISTS public.erp_riesgos (
   tipo text NOT NULL CHECK (tipo IN ('tecnico', 'financiero', 'cronograma', 'legal', 'ambiental', 'seguridad', 'otro')),
   probabilidad integer NOT NULL CHECK (probabilidad BETWEEN 1 AND 5),
   impacto integer NOT NULL CHECK (impacto BETWEEN 1 AND 5),
-  nivel text GENERATED ALWAYS AS (
-    CASE WHEN (probabilidad * impacto) >= 20 THEN 'critico'
-         WHEN (probabilidad * impacto) >= 12 THEN 'alto'
-         WHEN (probabilidad * impacto) >= 6 THEN 'medio'
-         ELSE 'bajo' END
-  ) STORED,
+  nivel text NOT NULL DEFAULT 'bajo' CHECK (nivel IN ('bajo', 'medio', 'alto', 'critico')),
   plan_mitigacion text,
   plan_contingencia text,
-  responsable uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  responsable text,
   fecha_identificacion date NOT NULL DEFAULT CURRENT_DATE,
-  estado text NOT NULL DEFAULT 'identificado' CHECK (estado IN ('identificado', 'en_mitigacion', 'mitigado', 'materializado')),
+  estado text NOT NULL DEFAULT 'identificado' CHECK (estado IN ('identificado', 'en_proceso', 'mitigado', 'materializado')),
   costo_soporte numeric(12,2),
   created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   created_at timestamptz DEFAULT now() NOT NULL,

@@ -3,7 +3,7 @@
 # Script para ejecutar migraciones en Supabase local
 # Usa el archivo de migración creado
 
-DB_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+DB_URL="postgresql://postgres:postgres@127.0.0.1:54260/postgres"
 
 # Leer archivo SQL
 SQL_FILE="supabase/migrations/0100_tier1_critical_fixes.sql"

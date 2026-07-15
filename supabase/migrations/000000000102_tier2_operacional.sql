@@ -5,10 +5,21 @@
 -- ============================================================
 
 -- ============================================================
--- PASO 1: CREAR/ACTUALIZAR TABLA erp_destajos (Rendimiento Campo)
+-- PASO 1: RECONCILIAR TABLA erp_destajos (Rendimiento Campo)
+-- Si existe con el esquema viejo (concepto/trabajador/cantidad),
+-- se recrea con el esquema alineado a la app
 -- ============================================================
 
--- Si la tabla no existe, crearla con el esquema completo
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_destajos' AND column_name = 'concepto'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_destajos CASCADE;
+  END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS public.erp_destajos (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   proyecto_id uuid NOT NULL REFERENCES public.erp_proyectos(id) ON DELETE CASCADE,
@@ -26,34 +37,6 @@ CREATE TABLE IF NOT EXISTS public.erp_destajos (
   created_at timestamptz DEFAULT now() NOT NULL,
   updated_at timestamptz DEFAULT now() NOT NULL
 );
-
--- Si la tabla ya existía con el esquema viejo (migración 064), añadir columnas faltantes
-ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS renglon_codigo text;
-ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS cuadrilla text;
-ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS cantidad_ejecutada numeric(10,2);
-ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS unidad text;
-ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS horas_trabajadas numeric(10,2);
-ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS rendimiento_teorico numeric(10,2);
-ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS rendimiento_real numeric(10,2) DEFAULT 0;
-ALTER TABLE public.erp_destajos ADD COLUMN IF NOT EXISTS created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL;
-
--- Migrar datos del esquema viejo al nuevo si es necesario
-UPDATE public.erp_destajos 
-SET 
-  renglon_codigo = COALESCE(concepto, ''),
-  cuadrilla = COALESCE(trabajador, ''),
-  cantidad_ejecutada = COALESCE(cantidad, 0),
-  unidad = COALESCE(unidad, ''),
-  horas_trabajadas = 0,
-  rendimiento_teorico = 0
-WHERE renglon_codigo IS NULL;
-
--- Eliminar columnas del esquema viejo que no se usan en la app
-ALTER TABLE public.erp_destajos DROP COLUMN IF EXISTS trabajador;
-ALTER TABLE public.erp_destajos DROP COLUMN IF EXISTS concepto;
-ALTER TABLE public.erp_destajos DROP COLUMN IF EXISTS cantidad;
-ALTER TABLE public.erp_destajos DROP COLUMN IF EXISTS precio_unitario;
-ALTER TABLE public.erp_destajos DROP COLUMN IF EXISTS total;
 
 ALTER TABLE public.erp_destajos ENABLE ROW LEVEL SECURITY;
 
@@ -83,8 +66,18 @@ CREATE TRIGGER trg_erp_destajos_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 2: CREAR TABLA erp_ordenes_cambio (Control de Cambios)
+-- PASO 2: RECONCILIAR TABLA erp_ordenes_cambio (Control de Cambios)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_ordenes_cambio' AND column_name = 'impacto_costo'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_ordenes_cambio CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_ordenes_cambio (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -131,8 +124,20 @@ CREATE TRIGGER trg_erp_ordenes_cambio_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 3: CREAR TABLA erp_notificaciones (Sistema de Alertas)
+-- PASO 3: RECONCILIAR TABLA erp_notificaciones (Sistema de Alertas)
+-- Si existe con el esquema viejo (leida en vez de leido, sin referencia_id),
+-- se recrea con el esquema alineado a la app
 -- ============================================================
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_notificaciones' AND column_name = 'leida'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_notificaciones CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_notificaciones (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -208,7 +213,7 @@ BEGIN
   END IF;
 END $$;
 
-CREATE INDEX IF NOT EXISTS idx_notificaciones_usuario ON public.erp_notificaciones(usuario_id) WHERE EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'erp_notificaciones' AND column_name = 'usuario_id' AND table_schema = 'public');
+CREATE INDEX IF NOT EXISTS idx_notificaciones_usuario ON public.erp_notificaciones(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_notificaciones_proyecto ON public.erp_notificaciones(proyecto_id);
 CREATE INDEX IF NOT EXISTS idx_notificaciones_leido ON public.erp_notificaciones(leido);
 CREATE INDEX IF NOT EXISTS idx_notificaciones_tipo ON public.erp_notificaciones(tipo);
@@ -220,8 +225,18 @@ CREATE TRIGGER trg_erp_notificaciones_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 4: CREAR TABLA erp_centros_costo (Contabilidad)
+-- PASO 4: RECONCILIAR TABLA erp_centros_costo (Contabilidad)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_centros_costo' AND column_name = 'porcentaje_ejecucion'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_centros_costo CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_centros_costo (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -274,8 +289,18 @@ CREATE TRIGGER trg_erp_centros_costo_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 5: CREAR TABLA erp_recepciones_almacen (Bodega)
+-- PASO 5: RECONCILIAR TABLA erp_recepciones_almacen (Bodega)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_recepciones_almacen' AND column_name = 'diferencia'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_recepciones_almacen CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_recepciones_almacen (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -324,8 +349,18 @@ CREATE TRIGGER trg_erp_recepciones_almacen_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 6: CREAR TABLA erp_liberaciones_partida (Calidad)
+-- PASO 6: RECONCILIAR TABLA erp_liberaciones_partida (Calidad)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_liberaciones_partida' AND column_name = 'checklist_aprobado'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_liberaciones_partida CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_liberaciones_partida (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -373,8 +408,18 @@ CREATE TRIGGER trg_erp_liberaciones_partida_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 7: CREAR TABLA erp_pruebas_laboratorio (Calidad)
+-- PASO 7: RECONCILIAR TABLA erp_pruebas_laboratorio (Calidad)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_pruebas_laboratorio' AND column_name = 'numero_referencia'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_pruebas_laboratorio CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_pruebas_laboratorio (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -422,8 +467,18 @@ CREATE TRIGGER trg_erp_pruebas_laboratorio_updated
   FOR EACH ROW EXECUTE FUNCTION public.fn_set_updated_at();
 
 -- ============================================================
--- PASO 8: CREAR TABLA erp_no_conformidades (Calidad)
+-- PASO 8: RECONCILIAR TABLA erp_no_conformidades (Calidad)
 -- ============================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'erp_no_conformidades' AND column_name = 'evidencia_cierre'
+  ) THEN
+    DROP TABLE IF EXISTS public.erp_no_conformidades CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.erp_no_conformidades (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
