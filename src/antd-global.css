@@ -1,148 +1,10 @@
-/* ============================================
-   ESTILOS GLOBALES ANT DESIGN + CONSTRUSMART
-   NOTA: El reset de Antd se carga en index.css ANTES de @tailwind base
-   para evitar conflictos de especificidad con Tailwind.
-   Antd v5 maneja su propio reset via ConfigProvider, no necesita
-   importar antd/dist/reset.css.
-   ============================================ */
+/* ============================================================================
+   CONSTRUSMART ERP — Estilos Ant Design Globales
+   NOTA: Las variables de tema se definen en theme-tokens.css.
+   Este archivo solo contiene overrides de componentes Ant Design.
+   ============================================================================ */
 
-/* Variables de tema */
-:root {
-  /* Light mode */
-  --primary-color: #ff8c42;
-  --primary-light: #ff9f54;
-  --primary-dark: #e67e22;
-  
-  --success-color: #52c41a;
-  --warning-color: #faad14;
-  --error-color: #f5222d;
-  --info-color: #1890ff;
-  
-  --text-color: #000000;
-  --text-secondary: #666666;
-  --border-color: #d9d9d9;
-  --bg-base: #ffffff;
-  --bg-secondary: #fafafa;
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 1px 3px -1px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Dark mode */
-[data-theme='dark-pro'] {
-  --primary-color: #00d9ff;
-  --primary-light: #33e1ff;
-  --primary-dark: #00b8d9;
-  
-  --success-color: #95de64;
-  --warning-color: #ffc53d;
-  --error-color: #ff7875;
-  --info-color: #69b1ff;
-  
-  --text-color: #e0e0e0;
-  --text-secondary: #a0a0a0;
-  --border-color: #2a3a4a;
-  --bg-base: #0d1b2a;
-  --bg-secondary: #1b2838;
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 217, 255, 0.2), 0 1px 3px -1px rgba(0, 217, 255, 0.15);
-  --shadow-md: 0 4px 6px -1px rgba(0, 217, 255, 0.25), 0 2px 4px -1px rgba(0, 217, 255, 0.15);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 217, 255, 0.3), 0 4px 6px -2px rgba(0, 217, 255, 0.15);
-}
-
-[data-theme='glassmorphism'] {
-  --primary-color: #00b4d8;
-  --primary-light: #48cae4;
-  --primary-dark: #0096c7;
-  
-  --success-color: #52c41a;
-  --warning-color: #faad14;
-  --error-color: #f5222d;
-  --info-color: #1890ff;
-  
-  --text-color: #1a1a2e;
-  --text-secondary: #4a4a6a;
-  --border-color: rgba(0, 0, 0, 0.08);
-  --bg-base: rgba(240, 248, 255, 0.85);
-  --bg-secondary: rgba(255, 255, 255, 0.7);
-  
-  --shadow-sm: 0 1px 3px rgba(31, 38, 135, 0.1);
-  --shadow-md: 0 4px 12px rgba(31, 38, 135, 0.15);
-  --shadow-lg: 0 8px 32px rgba(31, 38, 135, 0.2);
-}
-
-[data-theme='material3'] {
-  --primary-color: #6750a4;
-  --primary-light: #7c67b8;
-  --primary-dark: #4f378b;
-  
-  --success-color: #4caf50;
-  --warning-color: #ff9800;
-  --error-color: #f44336;
-  --info-color: #2196f3;
-  
-  --text-color: #1c1b1f;
-  --text-secondary: #49454f;
-  --border-color: #cac4d0;
-  --bg-base: #fffbff;
-  --bg-secondary: #f3edf7;
-  
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
-}
-
-[data-theme='neomorphism'] {
-  --primary-color: #6c757d;
-  --primary-light: #868e96;
-  --primary-dark: #495057;
-  
-  --success-color: #52c41a;
-  --warning-color: #faad14;
-  --error-color: #f5222d;
-  --info-color: #1890ff;
-  
-  --text-color: #333333;
-  --text-secondary: #666666;
-  --border-color: transparent;
-  --bg-base: #e4ebf5;
-  --bg-secondary: #d8dfe9;
-  
-  --shadow-sm: 3px 3px 6px #c8d0da, -3px -3px 6px #ffffff;
-  --shadow-md: 6px 6px 12px #c8d0da, -6px -6px 12px #ffffff;
-  --shadow-lg: 9px 9px 18px #c8d0da, -9px -9px 18px #ffffff;
-}
-
-[data-theme='high-contrast'] {
-  --primary-color: #0000ff;
-  --primary-light: #0000cc;
-  --primary-dark: #000099;
-  
-  --success-color: #008000;
-  --warning-color: #8b6914;
-  --error-color: #cc0000;
-  --info-color: #0000ff;
-  
-  --text-color: #000000;
-  --text-secondary: #333333;
-  --border-color: #000000;
-  --bg-base: #ffffff;
-  --bg-secondary: #f0f0f0;
-  
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-}
-
-/* ============================================
-   BOTONES ANT DESIGN
-   ============================================ */
-
+/* Botones */
 .ant-btn {
   font-weight: 500;
   transition: all var(--transition-fast);
@@ -151,93 +13,84 @@
 }
 
 .ant-btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+  background-color: var(--erp-color-primary);
+  border-color: var(--erp-color-primary);
   box-shadow: 0 2px 4px rgba(255, 140, 66, 0.2);
 }
 
 .ant-btn-primary:hover {
-  background-color: var(--primary-light);
-  border-color: var(--primary-light);
+  background-color: var(--erp-color-primary-hover);
+  border-color: var(--erp-color-primary-hover);
   box-shadow: 0 4px 8px rgba(255, 140, 66, 0.3);
   transform: translateY(-2px);
 }
 
 .ant-btn-primary:active {
-  background-color: var(--primary-dark);
-  border-color: var(--primary-dark);
+  background-color: var(--erp-color-primary-active);
+  border-color: var(--erp-color-primary-active);
   transform: translateY(0);
 }
 
 .ant-btn-default {
-  border-color: var(--border-color);
-  color: var(--text-color);
-  background-color: var(--bg-base);
+  border-color: var(--erp-color-border);
+  color: var(--erp-color-text);
+  background-color: var(--erp-color-bg);
 }
 
 .ant-btn-default:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+  border-color: var(--erp-color-primary);
+  color: var(--erp-color-primary);
 }
 
-/* ============================================
-   INPUTS Y FORMULARIOS
-   ============================================ */
-
+/* Inputs y formularios */
 .ant-input,
 .ant-select-selector,
 .ant-picker {
   height: var(--density-input-height, 36px);
   border-radius: 6px;
-  border-color: var(--border-color);
-  background-color: var(--bg-base);
-  color: var(--text-color);
+  border-color: var(--erp-color-border);
+  background-color: var(--erp-color-bg);
+  color: var(--erp-color-text);
   transition: all var(--transition-fast);
 }
 
 .ant-input:hover,
 .ant-select-selector:hover,
 .ant-picker:hover {
-  border-color: var(--primary-color);
+  border-color: var(--erp-color-primary);
 }
 
 .ant-input:focus,
 .ant-select-selector:focus-within {
-  border-color: var(--primary-color);
+  border-color: var(--erp-color-primary);
   box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.2);
 }
 
-/* ============================================
-   TARJETAS
-   ============================================ */
-
+/* Tarjetas */
 .ant-card {
   border-radius: 8px;
-  border-color: var(--border-color);
-  background-color: var(--bg-base);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--erp-color-border);
+  background-color: var(--erp-color-bg);
+  box-shadow: var(--erp-shadow-sm);
   transition: all var(--transition-base);
 }
 
 .ant-card:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--erp-shadow-lg);
   transform: translateY(-4px);
 }
 
-/* ============================================
-   TABLAS
-   ============================================ */
-
+/* Tablas */
 .ant-table {
-  background-color: var(--bg-base);
-  color: var(--text-color);
+  background-color: var(--erp-color-bg);
+  color: var(--erp-color-text);
 }
 
 .ant-table-thead > tr > th {
-  background-color: var(--bg-secondary);
-  color: var(--text-color);
+  background-color: var(--erp-color-bg-secondary);
+  color: var(--erp-color-text);
   font-weight: 600;
-  border-bottom-color: var(--border-color);
+  border-bottom-color: var(--erp-color-border);
 }
 
 .ant-table-tbody > tr:hover > td {
@@ -255,10 +108,7 @@
   white-space: nowrap;
 }
 
-/* ============================================
-   ANIMACIONES
-   ============================================ */
-
+/* Animaciones */
 @keyframes slideInRight {
   from {
     opacity: 0;

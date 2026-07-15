@@ -56,3 +56,6 @@ _archive/
 .vscode/
 .windsurf/
 .zencoder/
+
+.vercel
+.env*

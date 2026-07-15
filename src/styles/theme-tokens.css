@@ -1,0 +1,362 @@
+/* ============================================================================
+   CONSTRUSMART ERP — Theme Tokens (Single Source of Truth)
+   ============================================================================
+   Este archivo define TODOS los tokens de diseño en un solo lugar.
+   Otros archivos (themes.css, antd-global.css, index.css) consumen
+   estas variables en vez de duplicar valores.
+   ============================================================================ */
+
+/* === Tokens base (sin prefijo) — consumidos por Tailwind + componentes UI === */
+:root {
+  /* Paleta base Ant Design */
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 43%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 45%;
+  --destructive-foreground: 210 40% 98%;
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 24 96% 63%;
+  --radius: 0.5rem;
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 144 80% 16%;
+  --warning: 37.5 92.1% 50.2%;
+  --warning-foreground: 35 92% 18%;
+  --info: 198.6 88.7% 48.4%;
+  --info-foreground: 200 90% 14%;
+  --pending: 37.5 92.1% 50.2%;
+  --pending-foreground: 35 92% 18%;
+}
+
+/* === Tokens legacy ERP (--erp-*) — para componentes Ant Design custom === */
+:root {
+  --erp-color-primary: #1677ff;
+  --erp-color-primary-hover: #4096ff;
+  --erp-color-primary-active: #0958d9;
+  --erp-color-primary-bg: #e6f4ff;
+  --erp-color-primary-border: #91caff;
+  --erp-color-bg: #ffffff;
+  --erp-color-bg-secondary: #f5f5f5;
+  --erp-color-bg-tertiary: #fafafa;
+  --erp-color-bg-elevated: #ffffff;
+  --erp-color-text: #1f1f1f;
+  --erp-color-text-secondary: #8c8c8c;
+  --erp-color-text-tertiary: #bfbfbf;
+  --erp-color-text-inverse: #ffffff;
+  --erp-color-border: #d9d9d9;
+  --erp-color-border-secondary: #f0f0f0;
+  --erp-color-success: #52c41a;
+  --erp-color-warning: #faad14;
+  --erp-color-error: #f5222d;
+  --erp-color-info: #1677ff;
+  --erp-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --erp-font-family-selected: var(--erp-font-family);
+  --erp-font-size-xs: 11px;
+  --erp-font-size-sm: 12px;
+  --erp-font-size-base: 14px;
+  --erp-font-size-lg: 16px;
+  --erp-font-size-xl: 20px;
+  --erp-font-size-2xl: 24px;
+  --erp-font-size-3xl: 30px;
+  --erp-font-weight-normal: 400;
+  --erp-font-weight-medium: 500;
+  --erp-font-weight-semibold: 600;
+  --erp-font-weight-bold: 700;
+  --erp-line-height: 1.5715;
+  --erp-spacing-xs: 4px;
+  --erp-spacing-sm: 8px;
+  --erp-spacing-md: 12px;
+  --erp-spacing-base: 16px;
+  --erp-spacing-lg: 24px;
+  --erp-spacing-xl: 32px;
+  --erp-spacing-2xl: 48px;
+  --erp-spacing-selected: var(--erp-spacing-base);
+  --erp-radius-none: 0px;
+  --erp-radius-sm: 4px;
+  --erp-radius-md: 6px;
+  --erp-radius-base: 8px;
+  --erp-radius-lg: 12px;
+  --erp-radius-xl: 16px;
+  --erp-radius-full: 9999px;
+  --erp-radius-selected: var(--erp-radius-base);
+  --erp-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  --erp-shadow-md: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  --erp-shadow-lg: 0 6px 16px -8px rgba(0, 0, 0, 0.08), 0 9px 28px 0 rgba(0, 0, 0, 0.05), 0 12px 48px 16px rgba(0, 0, 0, 0.03);
+  --erp-sidebar-width: 240px;
+  --erp-sidebar-width-collapsed: 64px;
+  --erp-header-height: 56px;
+  --erp-header-height-compact: 48px;
+  --erp-touch-target: 44px;
+  --erp-animation-duration: 300ms;
+  --erp-animation-duration-fast: 150ms;
+  --erp-animation-duration-slow: 500ms;
+  --erp-animation-type: fade;
+  --erp-animation-easing: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --erp-density-padding: 16px;
+  --erp-density-gap: 16px;
+  --erp-density-table-cell: 12px;
+  --erp-density-input-height: 32px;
+  --erp-density-selected: var(--erp-density-table-cell);
+}
+
+/* === Tokens dark-pro === */
+[data-theme='dark-pro'] {
+  --primary: 180 100% 50%;
+  --primary-foreground: 225 50% 15%;
+  --secondary: 280 50% 50%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 326 100% 50%;
+  --accent-foreground: 0 0% 100%;
+  --background: 225 20% 10%;
+  --foreground: 0 0% 88%;
+  --muted: 225 15% 12%;
+  --muted-foreground: 0 0% 63%;
+  --border: 225 20% 18%;
+  --input: 225 25% 8%;
+  --card: 225 15% 12%;
+  --card-foreground: 0 0% 88%;
+  --destructive: 0 90% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 180 100% 50%;
+  --success: 142.1 70.6% 35.3%;
+  --success-foreground: 144 80% 90%;
+  --warning: 37.5 92.1% 40.2%;
+  --warning-foreground: 35 92% 90%;
+  --info: 198.6 88.7% 38.4%;
+  --info-foreground: 200 90% 90%;
+  --pending: 37.5 92.1% 40.2%;
+  --pending-foreground: 35 92% 90%;
+  --erp-color-primary: #00d9ff;
+  --erp-color-primary-hover: #33e1ff;
+  --erp-color-primary-active: #00b8d9;
+  --erp-color-primary-bg: #003545;
+  --erp-color-primary-border: #006680;
+  --erp-color-bg: #0d1b2a;
+  --erp-color-bg-secondary: #1b2838;
+  --erp-color-bg-tertiary: #162230;
+  --erp-color-bg-elevated: #1e3a5f;
+  --erp-color-text: #e0e0e0;
+  --erp-color-text-secondary: #a0a0a0;
+  --erp-color-text-tertiary: #707070;
+  --erp-color-text-inverse: #0d1b2a;
+  --erp-color-border: #2a3a4a;
+  --erp-color-border-secondary: #1e2e3e;
+  --erp-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  --erp-shadow-md: 0 3px 6px -4px rgba(0, 0, 0, 0.3);
+  --erp-shadow-lg: 0 6px 16px -8px rgba(0, 0, 0, 0.4);
+}
+
+/* === Tokens material3 === */
+[data-theme='material3'] {
+  --primary: 268 99% 46%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 174 100% 43%;
+  --secondary-foreground: 0 0% 0%;
+  --accent: 14 100% 60%;
+  --accent-foreground: 0 0% 100%;
+  --background: 324 100% 99%;
+  --foreground: 270 5% 11%;
+  --muted: 270 10% 97%;
+  --muted-foreground: 270 3% 38%;
+  --border: 270 14% 94%;
+  --input: 0 0% 100%;
+  --card: 0 0% 100%;
+  --card-foreground: 270 5% 11%;
+  --destructive: 11 89% 35%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 268 99% 46%;
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 144 80% 16%;
+  --warning: 37.5 92.1% 50.2%;
+  --warning-foreground: 35 92% 18%;
+  --info: 198.6 88.7% 48.4%;
+  --info-foreground: 200 90% 14%;
+  --pending: 37.5 92.1% 50.2%;
+  --pending-foreground: 35 92% 18%;
+  --erp-color-primary: #6750a4;
+  --erp-color-primary-hover: #7c67b8;
+  --erp-color-primary-active: #4f378b;
+  --erp-color-primary-bg: #eaddff;
+  --erp-color-primary-border: #c9b8ff;
+  --erp-color-bg: #fffbff;
+  --erp-color-bg-secondary: #f3edf7;
+  --erp-color-bg-tertiary: #f8f2fa;
+  --erp-color-bg-elevated: #ffffff;
+  --erp-color-text: #1c1b1f;
+  --erp-color-text-secondary: #49454f;
+  --erp-color-text-tertiary: #7a7680;
+  --erp-color-border: #cac4d0;
+  --erp-color-border-secondary: #e7e0ec;
+  --erp-radius-sm: 8px;
+  --erp-radius-md: 12px;
+  --erp-radius-base: 16px;
+  --erp-radius-lg: 20px;
+  --erp-radius-xl: 28px;
+}
+
+/* === Tokens glassmorphism === */
+[data-theme='glassmorphism'] {
+  --primary: 191 100% 42%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 266 100% 45%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 18 99% 55%;
+  --accent-foreground: 0 0% 100%;
+  --background: 210 93% 96%;
+  --foreground: 210 35% 10%;
+  --muted: 193 72% 81%;
+  --muted-foreground: 210 35% 30%;
+  --border: 158 72% 74%;
+  --input: 0 0% 100%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 35% 10%;
+  --destructive: 348 90% 42%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 191 100% 42%;
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 144 80% 16%;
+  --warning: 37.5 92.1% 50.2%;
+  --warning-foreground: 35 92% 18%;
+  --info: 198.6 88.7% 48.4%;
+  --info-foreground: 200 90% 14%;
+  --pending: 37.5 92.1% 50.2%;
+  --pending-foreground: 35 92% 18%;
+  --erp-color-primary: #00b4d8;
+  --erp-color-primary-hover: #48cae4;
+  --erp-color-primary-active: #0096c7;
+  --erp-color-primary-bg: rgba(0, 180, 216, 0.1);
+  --erp-color-primary-border: rgba(0, 180, 216, 0.3);
+  --erp-color-bg: rgba(240, 248, 255, 0.6);
+  --erp-color-bg-secondary: rgba(255, 255, 255, 0.5);
+  --erp-color-bg-elevated: rgba(255, 255, 255, 0.7);
+  --erp-color-text: #1a1a2e;
+  --erp-color-text-secondary: #4a4a6a;
+  --erp-color-border: rgba(0, 0, 0, 0.08);
+  --erp-color-border-secondary: rgba(0, 0, 0, 0.04);
+  --erp-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --erp-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --erp-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* === Tokens neomorphism === */
+[data-theme='neomorphism'] {
+  --primary: 219 8% 42%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 43 100% 49%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 165 47% 41%;
+  --accent-foreground: 0 0% 100%;
+  --background: 211 17% 94%;
+  --foreground: 219 8% 33%;
+  --muted: 212 6% 87%;
+  --muted-foreground: 212 4% 45%;
+  --border: 212 9% 82%;
+  --input: 211 17% 94%;
+  --card: 210 9% 98%;
+  --card-foreground: 219 8% 33%;
+  --destructive: 8 68% 40%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 219 8% 42%;
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 144 80% 16%;
+  --warning: 37.5 92.1% 50.2%;
+  --warning-foreground: 35 92% 18%;
+  --info: 198.6 88.7% 48.4%;
+  --info-foreground: 200 90% 14%;
+  --pending: 37.5 92.1% 50.2%;
+  --pending-foreground: 35 92% 18%;
+  --erp-color-primary: #6c757d;
+  --erp-color-primary-hover: #868e96;
+  --erp-color-primary-active: #495057;
+  --erp-color-primary-bg: #e4ebf5;
+  --erp-color-primary-border: #c8d0da;
+  --erp-color-bg: #e4ebf5;
+  --erp-color-bg-secondary: #d8dfe9;
+  --erp-color-bg-elevated: #eef3f9;
+  --erp-color-text: #333333;
+  --erp-color-text-secondary: #666666;
+  --erp-color-border: transparent;
+  --erp-color-border-secondary: transparent;
+  --erp-shadow-sm: 3px 3px 6px #c8d0da, -3px -3px 6px #ffffff;
+  --erp-shadow-md: 6px 6px 12px #c8d0da, -6px -6px 12px #ffffff;
+  --erp-shadow-lg: 9px 9px 18px #c8d0da, -9px -9px 18px #ffffff;
+}
+
+/* === Tokens high-contrast === */
+[data-theme='high-contrast'] {
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 100%;
+  --secondary-foreground: 0 0% 0%;
+  --accent: 0 0% 100%;
+  --accent-foreground: 0 0% 0%;
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --muted: 0 0% 100%;
+  --muted-foreground: 0 0% 0%;
+  --border: 0 0% 0%;
+  --input: 0 0% 100%;
+  --ring: 0 0% 0%;
+  --destructive: 0 0% 0%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 0 0% 0%;
+  --success-foreground: 0 0% 100%;
+  --warning: 0 0% 0%;
+  --warning-foreground: 0 0% 100%;
+  --info: 0 0% 0%;
+  --info-foreground: 0 0% 100%;
+  --pending: 0 0% 0%;
+  --pending-foreground: 0 0% 100%;
+  --erp-color-primary: #0000ff;
+  --erp-color-primary-hover: #0000cc;
+  --erp-color-primary-active: #000099;
+  --erp-color-primary-bg: #e6e6ff;
+  --erp-color-primary-border: #0000ff;
+  --erp-color-bg: #ffffff;
+  --erp-color-bg-secondary: #f0f0f0;
+  --erp-color-text: #000000;
+  --erp-color-text-secondary: #333333;
+  --erp-color-text-tertiary: #666666;
+  --erp-color-text-inverse: #ffffff;
+  --erp-color-border: #000000;
+  --erp-color-border-secondary: #666666;
+  --erp-shadow-sm: none;
+  --erp-shadow-md: none;
+  --erp-shadow-lg: none;
+}
+
+/* === Fallbacks opcionales por sistema === */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}

@@ -1,8 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
+@import './styles/theme-tokens.css';
 @import './styles/design-tokens.css';
 @import './styles/theme-variables.css';
 @import './styles/themes.css';
+@import './styles/responsive.css';
 
 @tailwind base;
 @tailwind components;
@@ -13,90 +15,25 @@
     font-family: var(--font-family, 'Inter', system-ui, sans-serif);
   }
 
-  /* Density classes applied to body */
   body.density-compact { --density-padding: 8px; --density-gap: 8px; --density-input-height: 28px; --density-table-cell: 6px; --density-selected: 8px; }
   body.density-normal { --density-padding: 16px; --density-gap: 16px; --density-input-height: 32px; --density-table-cell: 8px; --density-selected: 16px; }
   body.density-comfortable { --density-padding: 24px; --density-gap: 24px; --density-input-height: 40px; --density-table-cell: 12px; --density-selected: 24px; }
 
-  /* Sidebar position classes on body */
   body.sidebar-right { --sidebar-position: right; }
   body.sidebar-overlay { --sidebar-position: overlay; }
 
-  /* Auto touch mode detection */
   @media (pointer: coarse) { body { --touch-mode: true; } }
   body.auto-touch-mode button, body.auto-touch-mode input, body.auto-touch-mode select, body.auto-touch-mode textarea { min-height: 44px; }
   body.touch-mode button, body.touch-mode [role="button"] { min-height: 48px; min-width: 48px; }
   body.touch-mode input, body.touch-mode select, body.touch-mode textarea { min-height: 48px; padding: 12px 14px; font-size: 16px; }
   body.touch-mode .card-elevation:hover, body.touch-mode .card-interactive:hover, body.touch-mode .card-kpi:hover { transform: none !important; }
 
-  /* Border radius from settings */
   body.radius-small { --radius-selected: var(--radius-sm); }
   body.radius-medium { --radius-selected: var(--radius-md); }
   body.radius-large { --radius-selected: var(--radius-lg); }
   body.radius-none { --radius-selected: var(--radius-none); }
   body.radius-fullish { --radius-selected: var(--radius-xl); }
   body:not([class*="radius-"]) { --radius-selected: var(--radius-md); }
-
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 43%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 45%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 24 96% 63%;
-    --radius: 0.5rem;
-    --success: 142.1 70.6% 45.3%;
-    --success-foreground: 144 80% 16%;
-    --warning: 37.5 92.1% 50.2%;
-    --warning-foreground: 35 92% 18%;
-    --info: 198.6 88.7% 48.4%;
-    --info-foreground: 200 90% 14%;
-    --pending: 37.5 92.1% 50.2%;
-    --pending-foreground: 35 92% 18%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --success: 142.1 70.6% 35.3%;
-    --success-foreground: 144 80% 90%;
-    --warning: 37.5 92.1% 40.2%;
-    --warning-foreground: 35 92% 90%;
-    --info: 198.6 88.7% 38.4%;
-    --info-foreground: 200 90% 90%;
-    --pending: 37.5 92.1% 40.2%;
-    --pending-foreground: 35 92% 90%;
-  }
 }
 
 @layer base {
