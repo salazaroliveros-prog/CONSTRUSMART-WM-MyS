@@ -51,42 +51,48 @@
 **Instrucciones:**
 1. Ir a Supabase Dashboard → Proyecto `neygzluxugodiwcuctbj`
 2. Ir a SQL Editor
-3. Copiar el contenido de: `supabase/migrations/AUDIT_AND_ALIGN_DATABASE.sql` ⭐ **NUEVO**
+3. Copiar el contenido de: `supabase/migrations/COMPLETE_DATABASE_CLEANUP.sql` ⭐ **FINAL**
 4. Pegar en SQL Editor
 5. Click "Run"
 6. Verificar que muestre:
    ```
-   === AUDITORÍA DE ESQUEMA ACTUAL ===
+   === AUDITORÍA COMPLETA DEL ESQUEMA ===
    Total tablas erp_*: XX
-   ✅ ACTIVA: erp_proyectos
+   ✅ VÁLIDA: erp_proyectos
+   ...
+   ❌ HUÉRFANA: erp_tabla_extra (si existe)
    ...
    ⚠️  OBSOLETA: erp_subcontratos (si existe)
    ...
-   === LIMPIEZA DE TABLAS OBSOLETAS ===
+   === ELIMINACIÓN DE TABLAS HUÉRFANAS ===
+   ✅ Eliminada (huérfana): erp_tabla_extra (si existía)
+   ...
+   === ELIMINACIÓN DE TABLAS OBSOLETAS ===
    ✅ Eliminada: erp_subcontratos (si existía)
-   ✅ Eliminada: erp_rendimientos (si existía)
-   ✅ Eliminada: erp_licitaciones (si existía)
-   ✅ Eliminada: erp_muro (si existía)
-   === CREACIÓN DE TABLAS GEOLÓGICAS ===
+   ...
+   === LIMPIEZA DE DATOS HUÉRFANOS ===
+   ✅ Limpiados X registros huérfanos en erp_movimientos
+   ...
+   === CREACIÓN DE TABLAS GEOLÓFICAS ===
    ✅ Creada: erp_departamentos_gt
    ✅ Creada: erp_municipios_gt
    === VERIFICACIÓN FINAL ===
-   ✅ VERIFICACIÓN COMPLETADA
-      - Departamentos: 22
-      - Municipios: ~90+
-      - Total tablas erp_*: XX
-   ✅ BASE DE DATOS ALINEADA CON LA APLICACIÓN
+   ✅ BASE DE DATOS 100% ALINEADA CON LA APLICACIÓN
+   ✅ NO HAY TABLAS HUÉRFANAS
+   ✅ NO HAY DATOS HUÉRFANOS
    ```
 
 **Qué hace este script (TODO EN UNO):**
-- **AUDITORÍA**: Lista todas las tablas `erp_*` e identifica obsoletas
-- **LIMPIEZA**: Elimina tablas legacy (`erp_subcontratos`, `erp_rendimientos`, `erp_licitaciones`, `erp_muro`)
+- **AUDITORÍA COMPLETA**: Lista todas las tablas `erp_*` y clasifica en válidas, huérfanas u obsoletas
+- **ELIMINACIÓN DE TABLAS HUÉRFANAS**: Elimina tablas que no están en TABLE_MAP del código
+- **ELIMINACIÓN DE TABLAS OBSOLETAS**: Elimina tablas legacy (`erp_subcontratos`, `erp_rendimientos`, `erp_licitaciones`, `erp_muro`)
+- **LIMPIEZA DE DATOS HUÉRFANOS**: Elimina registros con foreign keys inválidos (proyectos eliminados)
 - **CREACIÓN**: Crea tablas geográficas (`erp_departamentos_gt`, `erp_municipios_gt`)
 - **CONFIGURACIÓN**: Índices, RLS, triggers, Realtime
 - **SEED DATA**: Inserta 22 departamentos + ~90 municipios
-- **VERIFICACIÓN**: Verifica alineación completa con la app
+- **VERIFICACIÓN**: Verifica alineación 100% con la app
 
-**Nota:** Este script reemplaza al anterior `APPLY_GEOGRAPHIC_DATA_AUTOMATED.sql` ya que hace TODO (auditoría + limpieza + creación).
+**Nota:** Este script reemplaza a todos los anteriores ya que hace TODO (auditoría + limpieza de tablas + limpieza de datos + creación + configuración).
 
 ---
 
@@ -190,7 +196,7 @@ Todas las guías están en el repo:
 - `AUTOMATED_VS_MANUAL.md` - Resumen ejecutivo de este documento
 
 ### Archivos SQL:
-- `supabase/migrations/AUDIT_AND_ALIGN_DATABASE.sql` - Script TODO-EN-UNO (auditoría + limpieza + creación) ⭐ **NUEVO**
+- `supabase/migrations/COMPLETE_DATABASE_CLEANUP.sql` - Script TODO-EN-UNO (auditoría + limpieza tablas + limpieza datos + creación + configuración) ⭐ **FINAL**
 
 ---
 

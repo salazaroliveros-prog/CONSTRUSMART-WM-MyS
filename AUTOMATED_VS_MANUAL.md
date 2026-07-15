@@ -15,7 +15,7 @@
 - ✅ Migración: `supabase/migrations/20260719_add_geographic_data.sql`
 - ✅ Seed departamentos: `supabase/seed_data/departamentos_gt.sql` (22 departamentos)
 - ✅ Seed municipios: `supabase/seed_data/municipios_gt.sql` (~100 municipios)
-- ✅ Script automatizado: `supabase/migrations/APPLY_GEOGRAPHIC_DATA_AUTOMATED.sql` (todo en un solo script)
+- ✅ Script automatizado FINAL: `supabase/migrations/COMPLETE_DATABASE_CLEANUP.sql` (todo en un solo script)
 
 ### 3. Documentación Completa
 - ✅ `docs/ENVIRONMENT_VARIABLES_GUIDE.md` - Guía de variables de entorno
@@ -39,36 +39,43 @@
 **Pasos:**
 1. Ir a Supabase Dashboard → Proyecto `neygzluxugodiwcuctbj`
 2. Ir a SQL Editor
-3. Copiar el contenido de `supabase/migrations/AUDIT_AND_ALIGN_DATABASE.sql` ⭐ **ACTUALIZADO**
+3. Copiar el contenido de `supabase/migrations/COMPLETE_DATABASE_CLEANUP.sql` ⭐ **FINAL**
 4. Pegar en SQL Editor
 5. Click "Run"
 6. Verificar que muestre:
    ```
-   === AUDITORÍA DE ESQUEMA ACTUAL ===
+   === AUDITORÍA COMPLETA DEL ESQUEMA ===
    Total tablas erp_*: XX
-   ✅ ACTIVA: erp_proyectos
+   ✅ VÁLIDA: erp_proyectos
+   ...
+   ❌ HUÉRFANA: erp_tabla_extra (si existe)
    ...
    ⚠️  OBSOLETA: erp_subcontratos (si existe)
    ...
-   === LIMPIEZA DE TABLAS OBSOLETAS ===
+   === ELIMINACIÓN DE TABLAS HUÉRFANAS ===
+   ✅ Eliminada (huérfana): erp_tabla_extra (si existía)
+   ...
+   === ELIMINACIÓN DE TABLAS OBSOLETAS ===
    ✅ Eliminada: erp_subcontratos (si existía)
-   ✅ Eliminada: erp_rendimientos (si existía)
-   ✅ Eliminada: erp_licitaciones (si existía)
-   ✅ Eliminada: erp_muro (si existía)
-   === CREACIÓN DE TABLAS GEOLÓGICAS ===
-   ✅ Creada: erp_departamentos_gt
-   ✅ Creada: erp_municipios_gt
+   ...
+   === LIMPIEZA DE DATOS HUÉRFANOS ===
+   ✅ Limpiados X registros huérfanos en erp_movimientos
+   ...
    === VERIFICACIÓN FINAL ===
-   ✅ BASE DE DATOS ALINEADA CON LA APLICACIÓN
+   ✅ BASE DE DATOS 100% ALINEADA CON LA APLICACIÓN
+   ✅ NO HAY TABLAS HUÉRFANAS
+   ✅ NO HAY DATOS HUÉRFANOS
    ```
 
 **Nota:** Este script hace TODO en una sola ejecución:
-- **AUDITORÍA**: Lista todas las tablas erp_* e identifica obsoletas
-- **LIMPIEZA**: Elimina tablas legacy (erp_subcontratos, erp_rendimientos, erp_licitaciones, erp_muro)
+- **AUDITORÍA COMPLETA**: Lista todas las tablas erp_* y clasifica en válidas, huérfanas u obsoletas
+- **ELIMINACIÓN DE TABLAS HUÉRFANAS**: Elimina tablas que no están en TABLE_MAP del código
+- **ELIMINACIÓN DE TABLAS OBSOLETAS**: Elimina tablas legacy (erp_subcontratos, erp_rendimientos, erp_licitaciones, erp_muro)
+- **LIMPIEZA DE DATOS HUÉRFANOS**: Elimina registros con foreign keys inválidos (proyectos eliminados)
 - **CREACIÓN**: Crea tablas geográficas (erp_departamentos_gt, erp_municipios_gt)
 - **CONFIGURACIÓN**: Índices, RLS, triggers, Realtime
 - **SEED DATA**: Inserta 22 departamentos + ~90 municipios
-- **VERIFICACIÓN**: Verifica alineación completa con la app
+- **VERIFICACIÓN**: Verifica alineación 100% con la app
 
 ---
 
@@ -144,7 +151,7 @@
 ## 📝 Archivos Clave para Acción Manual
 
 ### Script SQL Automatizado:
-`supabase/migrations/APPLY_GEOGRAPHIC_DATA_AUTOMATED.sql`
+`supabase/migrations/COMPLETE_DATABASE_CLEANUP.sql` ⭐ **FINAL**
 
 ### Guías de Referencia:
 - `docs/GOOGLE_OAUTH_GUIDE.md` - Paso a paso Google OAuth
