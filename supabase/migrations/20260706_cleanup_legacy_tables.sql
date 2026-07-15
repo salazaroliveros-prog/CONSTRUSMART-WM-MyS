@@ -1,3 +1,0 @@
--- Legacy cleanup disabled: esta migracion usaba nombres de tablas obsoletos
--- e incluiria DROP de tablas activas (erp_error_logs, erp_audit_log, etc.).
--- Si se requiere limpieza legacy, debe ejecutarse manualmente con nombres correctos.
