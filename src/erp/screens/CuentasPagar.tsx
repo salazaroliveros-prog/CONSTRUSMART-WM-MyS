@@ -141,15 +141,15 @@ const CuentasPagar: React.FC = () => {
               <tbody>
                 {filtered.map(c => (
                   <tr key={c.id} className="border-b border-border hover:bg-muted/50">
-                    <td className="p-2 font-medium">{c.proveedorNombre}</td>
-                    <td className="p-2 text-muted-foreground">{c.concepto}</td>
+                     <td className="p-2 font-medium truncate" title={c.proveedorNombre}>{c.proveedorNombre}</td>
+                     <td className="p-2 text-muted-foreground truncate" title={c.concepto}>{c.concepto}</td>
                     <td className="p-2 text-right font-medium">{fmtQ(c.monto)}</td>
                     <td className="p-2 text-center">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         c.estado === 'pagada' ? 'bg-emerald-100 text-emerald-700' : c.estado === 'vencida' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
                       }`}>{t(`cuentas_pagar.estado_${c.estado}`)}</span>
                     </td>
-                    <td className="p-2 text-center text-muted-foreground">{c.fechaVencimiento || '-'}</td>
+                     <td className="p-2 text-center text-muted-foreground truncate" title={c.fechaVencimiento || '-'}>{c.fechaVencimiento || '-'}</td>
                     <td className="p-2 text-right">
                       {c.estado !== 'pagada' && (
                         <button onClick={() => handleMarkAsPaid(c.id)} className="text-xs bg-emerald-500 text-white px-2 py-1 rounded hover:bg-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400" aria-label={t('cuentas_pagar.marcar_pagada')}>
