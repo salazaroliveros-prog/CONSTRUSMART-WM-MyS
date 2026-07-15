@@ -13,6 +13,7 @@ import { ServicioMotorCalculo } from '../services/motorCalculo';
 import { registrarCalculo } from '../services/motorCalculo';
 import { ServicioValidacionCalculos, mostrarValidaciones } from '../services/validacionCalculos';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDepartamentos } from '../hooks/useGeographicData';
 
 interface HistoricoPrecio {
   fecha: string;
@@ -58,7 +59,7 @@ const APUAvanzado: React.FC = () => {
   const [departamento, setDepartamento] = useState('');
   const [calculando, setCalculando] = useState(false);
   const [resultadoDosificacion, setResultadoDosificacion] = useState<any>(null);
-  const [departamentos, setDepartamentos] = useState<any[]>([]);
+  const departamentos = useDepartamentos();
 
   const [acero, setAcero] = useState<any>({ elemento: 'columna', grado: 40, estribos: 'estribos', volumenM3: 1 });
   const [resultadoAcero, setResultadoAcero] = useState<any>(null);

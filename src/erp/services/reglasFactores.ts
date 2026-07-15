@@ -268,10 +268,6 @@ export class MotorReglasFactores {
       usuario_id: contexto.usuario_id,
     };
     useErpStore.getState().enqueueMutation('addHistorialAplicacionRegla', payload);
-    if (navigator.onLine) {
-      const { error } = await supabase.from('erp_historial_aplicacion_reglas').insert(payload);
-      if (error) safeLogger.warn('[reglasFactores] registrarAplicacion sync falló:', error);
-    }
   }
 
   async obtenerHistorial(
@@ -306,28 +302,16 @@ export class MotorReglasFactores {
   async crearRegla(regla: Partial<ReglaFactor>): Promise<ReglaFactor> {
     const optimistic = { ...regla, id: crypto.randomUUID?.() || Date.now().toString() } as ReglaFactor;
     useErpStore.getState().enqueueMutation('addReglaFactor', regla);
-    if (navigator.onLine) {
-      const { error } = await supabase.from('erp_reglas_factores').insert(regla);
-      if (error) safeLogger.warn('[reglasFactores] crearRegla sync falló (cola retry):', error);
-    }
     return optimistic;
   }
 
   async actualizarRegla(id: string, regla: Partial<ReglaFactor>): Promise<ReglaFactor> {
     useErpStore.getState().enqueueMutation('updateReglaFactor', { id, ...regla });
-    if (navigator.onLine) {
-      const { error } = await supabase.from('erp_reglas_factores').update(regla).eq('id', id);
-      if (error) safeLogger.warn('[reglasFactores] actualizarRegla sync falló (cola retry):', error);
-    }
     return { id, ...regla } as ReglaFactor;
   }
 
   async eliminarRegla(id: string): Promise<void> {
     useErpStore.getState().enqueueMutation('deleteReglaFactor', { id });
-    if (navigator.onLine) {
-      const { error } = await supabase.from('erp_reglas_factores').delete().eq('id', id);
-      if (error) safeLogger.warn('[reglasFactores] eliminarRegla sync falló (cola retry):', error);
-    }
   }
 
   async obtenerReglaPorId(id: string): Promise<ReglaFactor | null> {

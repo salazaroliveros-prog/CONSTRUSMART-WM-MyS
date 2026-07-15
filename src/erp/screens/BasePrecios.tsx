@@ -3,7 +3,7 @@ import { List as VirtualizedList } from 'react-window';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useErp } from '../store';
-import { useInsumosBaseQuery } from '../hooks/useRefDataQueries';
+import { useInsumosBase } from '../hooks/useRefDataQueries';
 import {
   Database, Search, Check, X, RefreshCw, Upload, Download,
   Plus, Edit3, Trash2, ArrowUpDown
@@ -37,7 +37,7 @@ const CONVERSIONES: Record<string, { de: string; a: string; factor: number }[]> 
 const BasePrecios: React.FC = () => {
   const { t } = useTranslation();
   const { addInsumoBase, updateInsumoBase, deleteInsumoBase } = useErp();
-  const { data: insumosBase = [], isFetching } = useInsumosBaseQuery();
+  const insumosBase = useInsumosBase();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const [search, setSearch] = useState('');
@@ -269,7 +269,6 @@ const BasePrecios: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
           <Database className="w-6 h-6 text-teal-500" /> {t('baseprecios.titulo')}
-          {isFetching && <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" aria-label="Actualizando..." />}
         </h1>
         <div className="flex gap-2 flex-wrap">
           <select
