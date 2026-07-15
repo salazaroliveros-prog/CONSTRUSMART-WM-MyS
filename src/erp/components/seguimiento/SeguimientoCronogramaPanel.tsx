@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../../store';
-import { GanttChart } from '../GanttChart';
+import GanttChart from '../GanttChart';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface SeguimientoCronogramaPanelProps {

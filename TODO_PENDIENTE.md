@@ -91,8 +91,8 @@
 | # | Item | Prioridad | Estado Code | Evidencia |
 |---|------|-----------|-------------|-----------|
 | 1 | Virtual scrolling Bodega.tsx | MEDIUM | ✅ Implementado | `react-window` en Bodega.tsx |
-| 2 | Weather W1: Alertas push críticas | MEDIUM | ❌ No en código | 0 hits de `push.*weather` |
-| 3 | Weather W2: Umbrales por proyecto | MEDIUM | ⚠️ Parcial | Solo global `alertThreshold` |
+| 2 | Weather W1: Alertas push críticas | MEDIUM | ✅ Implementado | `addNotificacion` en Weather.tsx para critical/high |
+| 3 | Weather W2: Umbrales por proyecto | MEDIUM | ✅ Implementado | `alertThreshold` persistido en `proyectoWeather` store |
 | 4 | Weather W3: Comparación multi-proyecto | LOW | ❌ No en código | — |
 | 5 | Weather W4: Integración calendario hitos | LOW | ❌ No en código | `Seguimiento.tsx` usa campo libre `clima` |
 | 6 | Weather W5: Impacto en curva S | LOW | ❌ No en código | — |
@@ -100,6 +100,7 @@
 | 8 | Table partitioning (movimientos/audit) | LOW | ⚠️ Parcial | Solo 1 tabla particionada |
 | 9 | 2FA/MFA real | LOW | ⚠️ Parcial | Enlace a Supabase Auth solo |
 | 10 | Rate limiting APIs externas | MEDIUM | ❌ No en código | Sin throttling en weatherService |
+| 11 | Seguimiento: Paneles Cronograma/Riesgos | HIGH | ✅ Implementado | `SeguimientoCronogramaPanel`, `SeguimientoRiesgosPanel` |
 
 ---
 

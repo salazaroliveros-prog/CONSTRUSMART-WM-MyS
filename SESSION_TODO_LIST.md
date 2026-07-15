@@ -76,8 +76,8 @@ Esta lista contiene tareas pendientes identificadas durante las sesiones de desa
 
 #### 2. Mejoras en el Módulo Weather
 - [x] Gráficos históricos de clima (temperatura, precipitación) — `Weather.tsx` `WeatherHistoryChart` ✅
-- [ ] Alertas push para condiciones climáticas críticas — NO en código
-- [ ] Umbrales personalizados por proyecto — solo `alert_threshold` global ✅ parcial
+- [x] Alertas push para condiciones climáticas críticas — `addNotificacion` en Weather.tsx para critical/high ✅
+- [x] Umbrales personalizados por proyecto — `alertThreshold` persistido en `proyectoWeather` store ✅
 - [x] Historial de datos climáticos guardados — persistencia Supabase `erp_proyecto_weather` ✅
 - [ ] Comparación de clima entre múltiples proyectos — NO en código
 - [ ] Integración con calendario de hitos — NO en código (clima en Seguimiento es solo campo libre de bitácora)
@@ -112,11 +112,9 @@ Esta lista contiene tareas pendientes identificadas durante las sesiones de desa
 
 **Prioridad:** Mejoras Weather restantes + ítems de infraestructura (ver `docs/INCONSISTENCIAS_PENDIENTES.md`)
 
-1. Alertas push para condiciones climáticas críticas (Weather)
-2. Umbrales de alerta personalizados por proyecto
-3. Comparación de clima entre múltiples proyectos
-4. Integración de impacto climático en curva S (Seguimiento)
-5. Ítems de infraestructura pendientes: partitioning (tablas grandes), rate limiting API externa, 2FA/MFA
+1. Comparación de clima entre múltiples proyectos (Weather W3)
+2. Integración de impacto climático en curva S (Seguimiento) (Weather W5)
+3. Ítems de infraestructura pendientes: partitioning (tablas grandes), rate limiting API externa, 2FA/MFA
    - Nota: connection pooler no aplica (app frontend sin backend Node.js propio; usa PostgREST/REST API)
 
 ---
