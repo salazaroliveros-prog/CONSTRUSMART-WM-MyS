@@ -1836,7 +1836,10 @@
     "workable_days": "Workable days",
     "lost_days": "Lost days",
     "temp_range": "Temp. range",
-    "days_recorded": "days recorded"
+    "days_recorded": "days recorded",
+    "multi_project_comparison": "Multi-project comparison",
+    "impact_score": "Impact score",
+    "no_data": "No data"
   },
   "profitability": {
     "titulo": "Profitability Analytics",

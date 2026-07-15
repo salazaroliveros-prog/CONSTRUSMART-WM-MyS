@@ -6,7 +6,7 @@ import { BarChart, LineChart } from '../components/Charts';
 import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { KPICard } from '../components/shared';
-import { ProfitabilityTable, AgingReport } from '../components/financiero';
+import { ProfitabilityTable, CuentasModule } from '../components/financiero';
 
 /**
  * Financiero Screen - Dashboard Financiero Integrado
@@ -325,24 +325,8 @@ const Financiero: React.FC = () => {
         onViewDetails={(projectId) => console.log('View details:', projectId)}
       />
 
-      {/* Aging Reports Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Cuentas Cobrar */}
-        <AgingReport
-          title="Cuentas por Cobrar"
-          buckets={agingCobrar.buckets}
-          totalAmount={agingCobrar.total}
-          overallStatus={agingCobrar.status}
-        />
-
-        {/* Cuentas Pagar */}
-        <AgingReport
-          title="Cuentas por Pagar"
-          buckets={vencimientosPagar.buckets}
-          totalAmount={vencimientosPagar.total}
-          overallStatus={vencimientosPagar.status}
-        />
-      </div>
+      {/* Cuentas Module */}
+      <CuentasModule cuentasCobrar={cuentasCobrar} cuentasPagar={cuentasPagar} />
     </div>
   );
 };

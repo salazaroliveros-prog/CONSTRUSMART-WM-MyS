@@ -50,6 +50,7 @@ const Seguimiento: React.FC = () => {
     riesgos,
     currentProjectId,
     setCurrentProjectId,
+    proyectoWeather,
   } = useErp();
 
   const [activeTab, setActiveTab] = useState<TabType>('analysis');
@@ -61,6 +62,7 @@ const Seguimiento: React.FC = () => {
 
   // Datos del proyecto actual
   const selectedProyecto = proyectos.find((p) => p.id === selectedProyectoId);
+  const selectedWeather = selectedProyecto ? proyectoWeather.find(w => w.proyectoId === selectedProyecto.id) : undefined;
 
   // Enriquecer proyectos con datos financieros
   const proyectosEnriquecidos: ProjectWithData[] = useMemo(() => {
@@ -275,7 +277,7 @@ const Seguimiento: React.FC = () => {
       {/* ============ STATUS BAR ============ */}
       <div className="px-4 sm:px-6 py-4 border-b border-border/30 bg-card/50">
         <div className="max-w-[1600px] mx-auto">
-          <SeguimientoStatusBar proyecto={selectedProyecto} />
+          <SeguimientoStatusBar proyecto={selectedProyecto} weatherImpact={selectedWeather?.impact} />
         </div>
       </div>
 

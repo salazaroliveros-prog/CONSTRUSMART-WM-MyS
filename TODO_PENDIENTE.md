@@ -1,7 +1,7 @@
 # 📋 CONSTRUSMART ERP — Items Pendientes
 
-**Fecha:** 07/07/2026 (actualizado 13/07/2026)
-**Progreso General:** ~99% completado
+**Fecha:** 07/07/2026 (actualizado 14/07/2026)
+**Progreso General:** ~94% completado
 
 **Nota:** Actualizado el 13/07/2026 — Verificación exhaustiva de código contra documentación .md. decimal.js y branded types confirmados como ✅ implementados en `src/erp/money.ts`. 
 
@@ -14,10 +14,10 @@
 | UI/UX — Design System | 100% | 0% |
 | Performance | 100% | 0% |
 | Database & Backend | 95% | 5% |
-| Security | 85% | 15% |
+| Security | 90% | 10% |
 | Testing | 100% | 0% |
 | Documentation | 100% | 0% |
-| **TOTAL** | **~98%** | **~2%** |
+| **TOTAL** | **~94%** | **~6%** |
 
 ---
 
@@ -93,30 +93,36 @@
 | 1 | Virtual scrolling Bodega.tsx | MEDIUM | ✅ Implementado | `react-window` en Bodega.tsx |
 | 2 | Weather W1: Alertas push críticas | MEDIUM | ✅ Implementado | `addNotificacion` en Weather.tsx para critical/high |
 | 3 | Weather W2: Umbrales por proyecto | MEDIUM | ✅ Implementado | `alertThreshold` persistido en `proyectoWeather` store |
-| 4 | Weather W3: Comparación multi-proyecto | LOW | ❌ No en código | — |
-| 5 | Weather W4: Integración calendario hitos | LOW | ❌ No en código | `Seguimiento.tsx` usa campo libre `clima` |
-| 6 | Weather W5: Impacto en curva S | LOW | ❌ No en código | — |
+| 4 | Weather W3: Comparación multi-proyecto | LOW | ✅ Implementado | Grid comparativo en Weather.tsx |
+| 5 | Weather W4: Integración calendario hitos | LOW | ✅ Implementado | Weather impact en SeguimientoStatusBar |
+| 6 | Weather W5: Impacto en curva S | LOW | ❌ No implementado | No hay pantalla CurvasS en código |
 | 7 | Math.fround para real(4) | LOW | ❌ No usado | 0 ocurrencias en código |
 | 8 | Table partitioning (movimientos/audit) | LOW | ⚠️ Parcial | Solo 1 tabla particionada |
 | 9 | 2FA/MFA real | LOW | ⚠️ Parcial | Enlace a Supabase Auth solo |
-| 10 | Rate limiting APIs externas | MEDIUM | ❌ No en código | Sin throttling en weatherService |
+| 10 | Rate limiting APIs externas | MEDIUM | ❌ No implementado | Sin throttling en weatherService |
 | 11 | Seguimiento: Paneles Cronograma/Riesgos | HIGH | ✅ Implementado | `SeguimientoCronogramaPanel`, `SeguimientoRiesgosPanel` |
+| 12 | Proyectos: reemplazar cards por ProyectoCardSimple | MEDIUM | ⚠️ Parcial | ProyectoCardSimple creado, no integrado en Proyectos.tsx |
+| 13 | Agregar columna "Profitability" a tabla proyectos | MEDIUM | ❌ No implementado | — |
 
 ---
 
 ## Acciones Requeridas
 
 ### Implementación Inmediata
-1. Virtual scrolling en Bodega.tsx y Movimientos.tsx
-2. Weather W1-W4 (alertas push, umbrales por proyecto, comparación multi-proyecto, integración calendario)
+1. Reemplazar ProyectoCard/ProyectoListItem por ProyectoCardSimple en Proyectos.tsx
+2. Agregar columna "Profitability" a tabla proyectos
+3. Weather W5: Impacto climático en curva S (si se crea pantalla CurvasS)
+4. Rate limiting para APIs externas (weatherService)
 
 ### Documentación/Configuración
-3. Actualizar TODO_PENDIENTE.md con hallazgos verificación (decisión: marcar ✅ decimal.js y branded types)
+5. Actualizar TODO_PENDIENTE.md, SESSION_TODO_LIST.md, PENDING_WORK_SESSION_2.md
+6. Verificar tabla `erp_publicaciones_muro` en DB (D1)
 
 ### Baja Prioridad
-4. Math.fround (si se añaden columnas real(4))
-5. Extender partitioning a tablas grandes
-6. Configurar 2FA en Supabase Dashboard
+7. Math.fround (si se añaden columnas real(4))
+8. Extender partitioning a tablas grandes
+9. Configurar 2FA en Supabase Dashboard
+10. Testar responsive desktop + mobile (Proyectos/Seguimiento)
 
 ---
 
