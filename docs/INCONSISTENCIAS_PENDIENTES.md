@@ -20,10 +20,10 @@
 
 | # | Ítem | Prioridad | Evidencia en código | Estado |
 |---|------|-----------|---------------------|--------|
-| W1 | Alertas push para condiciones climáticas críticas | Media | `grep "push.*weather|critical.*notif"` → 0 hits en `src/` | ❌ NO implementado |
-| W2 | Umbrales de alerta personalizados por proyecto | Media | Solo existe `alertThreshold` global (`Weather.tsx`); no hay mapa `proyectoId → umbral` | ⚠️ PARCIAL (solo global) |
+| W1 | Alertas push para condiciones climáticas críticas | Media | `addNotificacion` en Weather.tsx para critical/high | ✅ IMPLEMENTADO |
+| W2 | Umbrales de alerta personalizados por proyecto | Media | `alertThreshold` persistido en `proyectoWeather` store | ✅ IMPLEMENTADO |
 | W3 | Comparación de clima entre múltiples proyectos | Media | `grep "weatherCompare|compareWeather"` → 0 hits | ❌ NO implementado |
-| W4 | Integración con calendario de hitos | Media | `Seguimiento.tsx` solo tiene campo libre `clima` (soleado/nublado/lluvia) en bitácora; no usa `weatherService` | ❌ NO implementado |
+| W4 | Integración con calendario de hitos | Media | `Seguimiento.tsx` solo tiene campo libre `clima` (bitácora); no usa `weatherService` | ❌ NO implementado |
 | W5 | Impacto climático en curva S (Seguimiento) | Baja | `Seguimiento.tsx` no consume `proyectoWeather`/`calculateWeatherImpact` | ❌ NO implementado |
 
 **Ya implementado (cerrar en tracking):** gráficos históricos (`WeatherHistoryChart`), historial persistido (Supabase `erp_proyecto_weather`), métricas días trabajables/perdidos (`DashboardPredictivo.tsx`), integración Dashboard Predictivo, riesgos climáticos automáticos (`Riesgos.tsx`), i18n completo.

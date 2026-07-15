@@ -1,192 +1,350 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
-import { fmtQ, fmtPct } from '../utils';
-import { BarChart, LineChart, Donut } from '../components/Charts';
+import { fmtQ, fmtPct, safeNum } from '../utils';
+import { BarChart, LineChart } from '../components/Charts';
 import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { List as VirtualizedList } from 'react-window';
+import { KPICard } from '../components/shared';
+import { ProfitabilityTable, AgingReport } from '../components/financiero';
 
-const ROW_HEIGHT = 42;
-
+/**
+ * Financiero Screen - Dashboard Financiero Integrado
+ * 
+ * Estructura:
+ * 1. KPIs principales (Ingresos, Gastos, Utilidad)
+ * 2. Flujo de caja (12 meses)
+ * 3. Rentabilidad por proyecto
+ * 4. Cuentas Cobrar (Aging) integrada
+ * 5. Cuentas Pagar (Vencimientos) integrada
+ */
 const Financiero: React.FC = () => {
   const { t } = useTranslation();
-  const { movimientos, proyectos } = useErp();
+  const { movimientos, proyectos, cuentasCobrar, cuentasPagar } = useErp();
   const [filtroProyecto, setFiltroProyecto] = useState<string>('todos');
-  const [filtroCategoria, setFiltroCategoria] = useState<string>('todos');
   const [filtroFecha, setFiltroFecha] = useState<string>('mes');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { setTimeout(() => setLoading(false), 300); }, []);
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 300);
+  }, []);
 
+  // Filtrar movimientos
   const movimientosFiltrados = useMemo(() => {
     let data = [...movimientos];
-    if (filtroProyecto !== 'todos') data = data.filter(m => m.proyectoId === filtroProyecto);
-    if (filtroCategoria !== 'todos') data = data.filter(m => m.categoria === filtroCategoria);
+    if (filtroProyecto !== 'todos') {
+      data = data.filter((m) => m.proyectoId === filtroProyecto);
+    }
+
     const now = new Date();
     if (filtroFecha === 'mes') {
       const start = new Date(now.getFullYear(), now.getMonth(), 1);
-      data = data.filter(m => new Date(m.fecha) >= start);
+      data = data.filter((m) => new Date(m.fecha) >= start);
     } else if (filtroFecha === 'trimestre') {
       const start = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
-      data = data.filter(m => new Date(m.fecha) >= start);
+      data = data.filter((m) => new Date(m.fecha) >= start);
     } else if (filtroFecha === 'anio') {
       const start = new Date(now.getFullYear(), 0, 1);
-      data = data.filter(m => new Date(m.fecha) >= start);
+      data = data.filter((m) => new Date(m.fecha) >= start);
     }
     return data;
-  }, [movimientos, filtroProyecto, filtroCategoria, filtroFecha]);
+  }, [movimientos, filtroProyecto, filtroFecha]);
 
-  const ingresos = useMemo(() => movimientosFiltrados.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + (m.monto || 0), 0), [movimientosFiltrados]);
-  const egresos = useMemo(() => movimientosFiltrados.filter(m => m.tipo !== 'ingreso').reduce((s, m) => s + (m.monto || 0), 0), [movimientosFiltrados]);
+  // Cálculos financieros
+  const ingresos = useMemo(
+    () =>
+      movimientosFiltrados
+        .filter((m) => m.tipo === 'ingreso')
+        .reduce((s, m) => s + (m.monto || 0), 0),
+    [movimientosFiltrados]
+  );
+
+  const egresos = useMemo(
+    () =>
+      movimientosFiltrados
+        .filter((m) => m.tipo !== 'ingreso')
+        .reduce((s, m) => s + (m.monto || 0), 0),
+    [movimientosFiltrados]
+  );
+
   const utilidad = useMemo(() => ingresos - egresos, [ingresos, egresos]);
-  const margen = useMemo(() => ingresos > 0 ? utilidad / ingresos : 0, [ingresos, utilidad]);
+  const margen = useMemo(() => (ingresos > 0 ? utilidad / ingresos : 0), [ingresos, utilidad]);
 
-  const gastosPorCategoria = useMemo(() => {
-    const cats: Record<string, number> = {};
-    movimientosFiltrados.filter(m => m.tipo !== 'ingreso').forEach(m => { cats[m.categoria] = (cats[m.categoria] || 0) + (m.monto || 0); });
-    return Object.entries(cats).map(([cat, val]) => ({ label: t(`movimientos.categoria_${cat}`) || cat, value: val, color: '#ef4444' }));
-  }, [movimientosFiltrados, t]);
+  // Rentabilidad por proyecto
+  const profitabilityData = useMemo(() => {
+    return proyectos.map((p) => {
+      const ing = movimientos
+        .filter((m) => m.proyectoId === p.id && m.tipo === 'ingreso')
+        .reduce((s, m) => s + (m.monto || 0), 0);
+      const gas = movimientos
+        .filter((m) => m.proyectoId === p.id && m.tipo !== 'ingreso')
+        .reduce((s, m) => s + (m.monto || 0), 0);
+      const margenVal = ing - gas;
+      const margenPct = ing > 0 ? (margenVal / ing) * 100 : 0;
+      const rentabilidad = p.presupuestoTotal ? (margenVal / p.presupuestoTotal) * 100 : 0;
 
-  const flujoCaja = useMemo(() => {
-    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    const now = new Date();
-    const data: { label: string; ingresos: number; egresos: number }[] = [];
-    for (let i = 11; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const label = meses[d.getMonth()];
-      const movs = movimientos.filter(m => { const md = new Date(m.fecha); return md.getFullYear() === d.getFullYear() && md.getMonth() === d.getMonth(); });
-      const ing = movs.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + (m.monto || 0), 0);
-      const eg = movs.filter(m => m.tipo !== 'ingreso').reduce((s, m) => s + (m.monto || 0), 0);
-      data.push({ label, ingresos: ing, egresos: eg });
-    }
-    return data;
-  }, [movimientos]);
+      return {
+        id: p.id,
+        nombre: p.nombre,
+        presupuesto: p.presupuestoTotal || 0,
+        ingresos: ing,
+        gastos: gas,
+        margen: margenVal,
+        margenPct,
+        rentabilidad,
+      };
+    });
+  }, [proyectos, movimientos]);
 
-  const shouldVirtualize = movimientosFiltrados.length > 100;
+  // Aging de cuentas por cobrar
+  const agingCobrar = useMemo(() => {
+    const vigentes = cuentasCobrar.filter((c) => {
+      const dias = Math.floor(
+        (new Date().getTime() - new Date(c.fecha).getTime()) / (1000 * 3600 * 24)
+      );
+      return dias <= 30;
+    });
+    const dias30_60 = cuentasCobrar.filter((c) => {
+      const dias = Math.floor(
+        (new Date().getTime() - new Date(c.fecha).getTime()) / (1000 * 3600 * 24)
+      );
+      return dias > 30 && dias <= 60;
+    });
+    const dias60_90 = cuentasCobrar.filter((c) => {
+      const dias = Math.floor(
+        (new Date().getTime() - new Date(c.fecha).getTime()) / (1000 * 3600 * 24)
+      );
+      return dias > 60 && dias <= 90;
+    });
+    const mayorA90 = cuentasCobrar.filter((c) => {
+      const dias = Math.floor(
+        (new Date().getTime() - new Date(c.fecha).getTime()) / (1000 * 3600 * 24)
+      );
+      return dias > 90;
+    });
 
-  const renderRow = useCallback((m: typeof movimientos[0], _index: number) => (
-    <tr key={m.id} className="border-b border-border">
-      <td className="p-2 text-muted-foreground">{new Date(m.fecha).toLocaleDateString()}</td>
-      <td className="p-2">{proyectos.find(p => p.id === m.proyectoId)?.nombre || '-'}</td>
-      <td className="p-2">{t(`movimientos.categoria_${m.categoria}`) || m.categoria}</td>
-      <td className="p-2">{m.descripcion}</td>
-      <td className={`p-2 text-right font-medium ${m.tipo === 'ingreso' ? 'text-emerald-600' : 'text-red-600'}`}>{m.tipo === 'ingreso' ? '+' : '-'}{fmtQ(m.monto)}</td>
-      <td className="p-2 text-right text-muted-foreground">{fmtQ(m.monto)}</td>
-    </tr>
-  ), [proyectos, t]);
+    const totalCobrar = cuentasCobrar.reduce((s, c) => s + (c.monto || 0), 0);
 
-  if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-64" /><div className="grid grid-cols-3 gap-3"><Skeleton className="h-24" /><Skeleton className="h-24" /><Skeleton className="h-24" /></div><Skeleton className="h-64" /><Skeleton className="h-96" /></div>;
+    return {
+      total: totalCobrar,
+      buckets: [
+        {
+          label: 'Vigente (< 30 días)',
+          description: 'No vencidas',
+          amount: vigentes.reduce((s, c) => s + (c.monto || 0), 0),
+          percentage: totalCobrar > 0 ? (vigentes.reduce((s, c) => s + (c.monto || 0), 0) / totalCobrar) * 100 : 0,
+          status: 'success' as const,
+          color: 'hsl(var(--success))',
+          bgColor: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800',
+        },
+        {
+          label: '30-60 días',
+          description: 'Vencidas',
+          amount: dias30_60.reduce((s, c) => s + (c.monto || 0), 0),
+          percentage: totalCobrar > 0 ? (dias30_60.reduce((s, c) => s + (c.monto || 0), 0) / totalCobrar) * 100 : 0,
+          status: 'warning' as const,
+          color: 'hsl(var(--warning))',
+          bgColor: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
+        },
+        {
+          label: '60-90 días',
+          description: 'Muy vencidas',
+          amount: dias60_90.reduce((s, c) => s + (c.monto || 0), 0),
+          percentage: totalCobrar > 0 ? (dias60_90.reduce((s, c) => s + (c.monto || 0), 0) / totalCobrar) * 100 : 0,
+          status: 'danger' as const,
+          color: 'hsl(var(--destructive))',
+          bgColor: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
+        },
+        {
+          label: '> 90 días',
+          description: 'Crítico',
+          amount: mayorA90.reduce((s, c) => s + (c.monto || 0), 0),
+          percentage: totalCobrar > 0 ? (mayorA90.reduce((s, c) => s + (c.monto || 0), 0) / totalCobrar) * 100 : 0,
+          status: 'danger' as const,
+          color: 'hsl(var(--destructive))',
+          bgColor: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
+        },
+      ],
+      status: mayorA90.length > 0 ? 'critical' : dias60_90.length > 0 ? 'caution' : 'healthy',
+    };
+  }, [cuentasCobrar]);
+
+  // Vencimientos de cuentas por pagar
+  const vencimientosPagar = useMemo(() => {
+    const proximos7 = cuentasPagar.filter((c) => {
+      const dias = Math.floor(
+        (new Date(c.fecha_vencimiento).getTime() - new Date().getTime()) / (1000 * 3600 * 24)
+      );
+      return dias > 0 && dias <= 7;
+    });
+    const proximos30 = cuentasPagar.filter((c) => {
+      const dias = Math.floor(
+        (new Date(c.fecha_vencimiento).getTime() - new Date().getTime()) / (1000 * 3600 * 24)
+      );
+      return dias > 7 && dias <= 30;
+    });
+    const vigentes = cuentasPagar.filter((c) => {
+      const dias = Math.floor(
+        (new Date(c.fecha_vencimiento).getTime() - new Date().getTime()) / (1000 * 3600 * 24)
+      );
+      return dias > 30;
+    });
+    const vencidas = cuentasPagar.filter((c) => {
+      const dias = Math.floor(
+        (new Date(c.fecha_vencimiento).getTime() - new Date().getTime()) / (1000 * 3600 * 24)
+      );
+      return dias <= 0;
+    });
+
+    const totalPagar = cuentasPagar.reduce((s, c) => s + (c.monto || 0), 0);
+
+    return {
+      total: totalPagar,
+      buckets: [
+        {
+          label: 'Vencidas',
+          description: 'Requieren atención inmediata',
+          amount: vencidas.reduce((s, c) => s + (c.monto || 0), 0),
+          percentage: totalPagar > 0 ? (vencidas.reduce((s, c) => s + (c.monto || 0), 0) / totalPagar) * 100 : 0,
+          status: 'danger' as const,
+          color: 'hsl(var(--destructive))',
+          bgColor: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
+        },
+        {
+          label: 'Próximos 7 días',
+          description: 'Urgentes',
+          amount: proximos7.reduce((s, c) => s + (c.monto || 0), 0),
+          percentage: totalPagar > 0 ? (proximos7.reduce((s, c) => s + (c.monto || 0), 0) / totalPagar) * 100 : 0,
+          status: 'danger' as const,
+          color: 'hsl(var(--destructive))',
+          bgColor: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
+        },
+        {
+          label: 'Próximos 30 días',
+          description: 'A vigilar',
+          amount: proximos30.reduce((s, c) => s + (c.monto || 0), 0),
+          percentage: totalPagar > 0 ? (proximos30.reduce((s, c) => s + (c.monto || 0), 0) / totalPagar) * 100 : 0,
+          status: 'warning' as const,
+          color: 'hsl(var(--warning))',
+          bgColor: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
+        },
+        {
+          label: 'Futuros (> 30 días)',
+          description: 'Normal',
+          amount: vigentes.reduce((s, c) => s + (c.monto || 0), 0),
+          percentage: totalPagar > 0 ? (vigentes.reduce((s, c) => s + (c.monto || 0), 0) / totalPagar) * 100 : 0,
+          status: 'success' as const,
+          color: 'hsl(var(--success))',
+          bgColor: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800',
+        },
+      ],
+      status: vencidas.length > 0 || proximos7.length > 0 ? 'critical' : proximos30.length > 0 ? 'caution' : 'healthy',
+    };
+  }, [cuentasPagar]);
+
+  if (loading) {
+    return (
+      <div className="p-6 space-y-4">
+        <Skeleton className="h-8 w-64" />
+        <div className="grid grid-cols-3 gap-4">
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+        </div>
+        <Skeleton className="h-64" />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
-          <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" aria-hidden="true" />
-          {t('financiero.titulo')}
-        </h1>
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-2">
+            <Wallet className="w-7 h-7 text-emerald-500" />
+            Dashboard Financiero
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Vista integrada de finanzas, rentabilidad y cuentas
+          </p>
+        </div>
+
+        {/* Filtros */}
         <div className="flex gap-2">
-          <select value={filtroProyecto} onChange={e => setFiltroProyecto(e.target.value)} className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm">
-            <option value="todos">{t('financiero.todos_proyectos')}</option>
-            {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+          <select
+            value={filtroProyecto}
+            onChange={(e) => setFiltroProyecto(e.target.value)}
+            className="px-3 py-2 rounded-lg border border-border bg-card text-sm"
+          >
+            <option value="todos">Todos los proyectos</option>
+            {proyectos.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.nombre}
+              </option>
+            ))}
           </select>
-          <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm">
-            <option value="todos">{t('financiero.todas_categorias')}</option>
-          </select>
-          <select value={filtroFecha} onChange={e => setFiltroFecha(e.target.value)} className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm">
-            <option value="mes">{t('financiero.filtro_mes')}</option>
-            <option value="trimestre">{t('financiero.filtro_trimestre')}</option>
-            <option value="anio">{t('financiero.filtro_anio')}</option>
+
+          <select
+            value={filtroFecha}
+            onChange={(e) => setFiltroFecha(e.target.value)}
+            className="px-3 py-2 rounded-lg border border-border bg-card text-sm"
+          >
+            <option value="mes">Este mes</option>
+            <option value="trimestre">Este trimestre</option>
+            <option value="anio">Este año</option>
           </select>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-gradient-to-br from-emerald-500 to-green-600 text-white rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <ArrowUpRight className="w-5 h-5 opacity-80" aria-hidden="true" />
-            <span className="text-xs opacity-80">{t('financiero.ingresos_sub')}</span>
-          </div>
-          <div className="text-2xl font-bold">{fmtQ(ingresos)}</div>
-        </div>
-        <div className="bg-gradient-to-br from-red-500 to-rose-600 text-white rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <ArrowDownRight className="w-5 h-5 opacity-80" aria-hidden="true" />
-            <span className="text-xs opacity-80">{t('financiero.gastos_sub')}</span>
-          </div>
-          <div className="text-2xl font-bold">{fmtQ(egresos)}</div>
-        </div>
-        <div className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <TrendingUp className="w-5 h-5 opacity-80" aria-hidden="true" />
-            <span className="text-xs opacity-80">{t('financiero.utilidad_sub')}</span>
-          </div>
-          <div className="text-2xl font-bold">{fmtQ(utilidad)}</div>
-          <div className="text-xs opacity-80 mt-1">{fmtPct(margen)} {t('financiero.margen')}</div>
-        </div>
+      {/* KPIs Principales */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <KPICard
+          label="Ingresos"
+          value={fmtQ(ingresos)}
+          icon={<ArrowUpRight size={18} />}
+          status="success"
+        />
+        <KPICard
+          label="Gastos"
+          value={fmtQ(egresos)}
+          icon={<ArrowDownRight size={18} />}
+          status="warning"
+        />
+        <KPICard
+          label="Utilidad"
+          value={fmtQ(utilidad)}
+          icon={<TrendingUp size={18} />}
+          status={utilidad > 0 ? 'success' : 'danger'}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-card rounded-xl border border-border p-4">
-          <h3 className="font-semibold mb-3 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-blue-500" aria-hidden="true" />
-            {t('financiero.flujo_caja')}
-          </h3>
-          <div className="h-64">
-            <LineChart data={flujoCaja.map(d => ({ ...d, label: d.label }))} />
-          </div>
-        </div>
-        <div className="bg-card rounded-xl border border-border p-4">
-          <h3 className="font-semibold mb-3 flex items-center gap-2">
-            <Filter className="w-4 h-4 text-amber-500" aria-hidden="true" />
-            {t('financiero.gastos_categoria')}
-          </h3>
-          <div className="h-64">
-            <Donut data={gastosPorCategoria.length > 0 ? gastosPorCategoria : [{ label: t('financiero.sin_datos'), value: 1, color: '#ccc' }]} />
-          </div>
-        </div>
-      </div>
+      {/* Rentabilidad por Proyecto */}
+      <ProfitabilityTable
+        data={profitabilityData}
+        onViewDetails={(projectId) => console.log('View details:', projectId)}
+      />
 
-      <div className="bg-card rounded-xl border border-border p-4">
-        <h3 className="font-semibold mb-3 flex items-center gap-2">
-          <Wallet className="w-4 h-4 text-emerald-500" aria-hidden="true" />
-          {t('financiero.movimientos')}
-        </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm" role="table" aria-label={t('financiero.movimientos')}>
-            <thead><tr className="border-b border-border">
-              <th className="text-left p-2" scope="col">{t('financiero.col_fecha')}</th>
-              <th className="text-left p-2" scope="col">{t('financiero.col_proyecto')}</th>
-              <th className="text-left p-2" scope="col">{t('financiero.col_categoria')}</th>
-              <th className="text-left p-2" scope="col">{t('financiero.col_descripcion')}</th>
-              <th className="text-right p-2" scope="col">{t('financiero.col_monto')}</th>
-              <th className="text-right p-2" scope="col">{t('financiero.col_saldo')}</th>
-            </tr></thead>
-            <tbody>
-              {!shouldVirtualize && movimientosFiltrados.map((m, i) => renderRow(m, i))}
-              {movimientosFiltrados.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">{t('financiero.sin_movimientos')}</td></tr>}
-            </tbody>
-          </table>
-          {shouldVirtualize && movimientosFiltrados.length > 0 && (
-            <VirtualizedList
-              height={Math.min(480, movimientosFiltrados.length * ROW_HEIGHT)}
-              itemCount={movimientosFiltrados.length}
-              itemSize={ROW_HEIGHT}
-              width="100%"
-              overscanCount={5}
-            >
-              {({ index, style }: { index: number; style: React.CSSProperties }) => (
-                <div style={style}>
-                  <table className="w-full text-sm" role="presentation">
-                    <tbody>{renderRow(movimientosFiltrados[index], index)}</tbody>
-                  </table>
-                </div>
-              )}
-            </VirtualizedList>
-          )}
-        </div>
+      {/* Aging Reports Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Cuentas Cobrar */}
+        <AgingReport
+          title="Cuentas por Cobrar"
+          buckets={agingCobrar.buckets}
+          totalAmount={agingCobrar.total}
+          overallStatus={agingCobrar.status}
+        />
+
+        {/* Cuentas Pagar */}
+        <AgingReport
+          title="Cuentas por Pagar"
+          buckets={vencimientosPagar.buckets}
+          totalAmount={vencimientosPagar.total}
+          overallStatus={vencimientosPagar.status}
+        />
       </div>
     </div>
   );
 };
+
 export default Financiero;
