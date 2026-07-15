@@ -266,6 +266,19 @@ export interface Insumo {
   rendimiento?: number;
 }
 
+export interface DepartamentoGT {
+  codigo: string;
+  nombre: string;
+  codigoISO?: string;
+}
+
+export interface MunicipioGT {
+  codigo: string;
+  nombre: string;
+  departamentoCodigo: string;
+  altitudMsnm?: number;
+}
+
 // ... (resto de interfaces existentes sin cambios)
 
 // ============================================================

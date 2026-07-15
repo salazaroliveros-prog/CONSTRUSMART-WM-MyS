@@ -14,7 +14,7 @@ import type {
   NoConformidad, LiberacionPartida, Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo,
   PagoProveedor, CotizacionCliente, VentaPaquete,   Destajo, RecepcionAlmacen, Incidente, CentroCosto, CalculoProyecto, InsumoBase,
   ReglaFactor, NormativaDepartamental, EscalaProduccion, Estacionalidad, HistorialAplicacionRegla,
-  AjusteEstacionalActividad, AplicacionEscala, CumplimientoNormativo,
+  AjusteEstacionalActividad, AplicacionEscala, CumplimientoNormativo, DepartamentoGT, MunicipioGT,
 } from './types';
 import type { Plantilla } from './store/schemas/plantillas';
 import type { ErrorLogEntry } from './store/schemas/errorLog';
@@ -101,6 +101,8 @@ interface ErpData {
   destajos: Destajo[]; calculosProyecto: CalculoProyecto[]; recepciones: RecepcionAlmacen[]; centrosCosto: CentroCosto[];
   plantillas: Plantilla[];
   insumosBase: InsumoBase[];
+  departamentos: DepartamentoGT[];
+  municipios: MunicipioGT[];
   projectProfitabilities: ProjectProfitability[];
   clientProfitabilities: ClientProfitability[];
   resourceEfficiencies: ResourceEfficiency[];
@@ -382,6 +384,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_plantillas_proyectos',
       'erp_destajos','erp_recepciones','erp_pagos_proveedor',
       'erp_centros_costo','erp_error_log','erp_insumos_base',
+      'erp_departamentos_gt','erp_municipios_gt',
       'erp_proyecto_weather',
       'erp_auditoria','erp_reglas_factores','erp_normativa_departamental',
       'erp_escalas_produccion','erp_estacionalidad',
@@ -505,6 +508,8 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   ajustesEstacionalesActividad: [], aplicacionEscalas: [], cumplimientoNormativo: [],
   recepciones: [], centrosCosto: [],   plantillas: [],
   insumosBase: [],
+  departamentos: [],
+  municipios: [],
   reglasFactores: [], normativasDepartamentales: [], escalasProduccion: [], estacionalidad: [],
   historialReglas: [], projectProfitabilities: [], clientProfitabilities: [],
   resourceEfficiencies: [], profitabilityTrends: [],
@@ -558,6 +563,8 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setCentrosCosto: (v) => set(typeof v === 'function' ? { centrosCosto: v(get().centrosCosto) } : { centrosCosto: v }),
   setPlantillas: (v) => set(typeof v === 'function' ? { plantillas: v(get().plantillas) } : { plantillas: v }),
   setInsumosBase: (v) => set(typeof v === 'function' ? { insumosBase: v(get().insumosBase) } : { insumosBase: v }),
+  setDepartamentos: (v) => set(typeof v === 'function' ? { departamentos: v(get().departamentos) } : { departamentos: v }),
+  setMunicipios: (v) => set(typeof v === 'function' ? { municipios: v(get().municipios) } : { municipios: v }),
   setProyectoWeather: (v) => set(typeof v === 'function' ? { proyectoWeather: v(get().proyectoWeather) } : { proyectoWeather: v }),
   setErrorLogs: (v) => set(typeof v === 'function' ? { errorLogs: v(get().errorLogs) } : { errorLogs: v }),
   resolveError: (id, notes) => {

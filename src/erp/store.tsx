@@ -11,10 +11,9 @@ import {
    notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
    licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
    destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema, insumosBaseSchema,
-    auditLogSchema, appSettingsSchema, proyectoWeatherSchema, errorLogSchema, calculoProyectoSchema,
+    appSettingsSchema,
     reglaFactorSchema, normativaDepartamentalSchema, escalaProduccionSchema, estacionalidadSchema,
-    historialAplicacionReglaSchema, projectProfitabilitySchema, clientProfitabilitySchema, resourceEfficiencySchema, profitabilityTrendSchema,
-    ajusteEstacionalActividadSchema, aplicacionEscalaSchema, cumplimientoNormativoSchema,
+    historialAplicacionReglaSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, decompressData, compressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -25,21 +24,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { encryptionManager, migrateSecureStorage } from '@/lib/encryption';
 import { logErrorFromException } from '@/lib/error-logger';
 const BASE_STORAGE_KEY = 'wm_erp_data';
-const QUEUE_KEY = 'wm_erp_queue';
 const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
-const AUDIT_KEY = BASE_STORAGE_KEY + '_audit_log';
 const PLANTILLA_KEY = BASE_STORAGE_KEY + '_plantillas';
-const WEATHER_KEY = BASE_STORAGE_KEY + '_weather';
-const ERROR_LOG_KEY = BASE_STORAGE_KEY + '_error_logs';
-const REGLAS_KEY = BASE_STORAGE_KEY + '_reglas_factores';
-const NORMATIVAS_KEY = BASE_STORAGE_KEY + '_normativas';
-const ESCALAS_KEY = BASE_STORAGE_KEY + '_escalas';
-const ESTACIONALIDAD_KEY = BASE_STORAGE_KEY + '_estacionalidad';
 const HISTORIAL_REGLAS_KEY = BASE_STORAGE_KEY + '_historial_reglas';
-const PROFITABILITY_KEY = BASE_STORAGE_KEY + '_profitability';
-const AJUSTES_ESTACIONALES_KEY = BASE_STORAGE_KEY + '_ajustes_estacionales';
-const APLICACION_ESCALAS_KEY = BASE_STORAGE_KEY + '_aplicacion_escalas';
-const CUMPLIMIENTO_NORMATIVO_KEY = BASE_STORAGE_KEY + '_cumplimiento_normativo';
 function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   try {
     const raw = localStorage.getItem(key);
@@ -288,30 +275,30 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       cuadros: loadFromStorage(BASE_STORAGE_KEY + '_cuadros', cuadroSchema),
       pagosProveedor: loadFromStorage(BASE_STORAGE_KEY + '_pagos_proveedor', pagoProveedorSchema),
       destajos: loadFromStorage(BASE_STORAGE_KEY + '_destajos', destajoSchema),
-calculosProyecto: loadFromStorage(BASE_STORAGE_KEY + '_calculos_proyecto', calculoProyectoSchema),
-       ventasPaquetes: loadFromStorage(BASE_STORAGE_KEY + '_ventas_paquetes', ventaPaqueteSchema),
-       recepciones: loadFromStorage(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema),
-       centrosCosto: loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
-       plantillas: loadFromStorage(PLANTILLA_KEY, plantillaSchema),
-       insumosBase: loadFromStorage(BASE_STORAGE_KEY + '_insumos_base', insumosBaseSchema),
-       proyectoWeather: loadFromStorage(WEATHER_KEY, proyectoWeatherSchema),
-       errorLogs: loadFromStorage(ERROR_LOG_KEY, errorLogSchema),
-       reglasFactores: loadFromStorage(REGLAS_KEY, reglaFactorSchema),
-       normativasDepartamentales: loadFromStorage(NORMATIVAS_KEY, normativaDepartamentalSchema),
-       escalasProduccion: loadFromStorage(ESCALAS_KEY, escalaProduccionSchema),
-       estacionalidad: loadFromStorage(ESTACIONALIDAD_KEY, estacionalidadSchema),
-        historialReglas: loadFromStorage(HISTORIAL_REGLAS_KEY, historialAplicacionReglaSchema),
-        ajustesEstacionalesActividad: loadFromStorage(AJUSTES_ESTACIONALES_KEY, ajusteEstacionalActividadSchema),
-        aplicacionEscalas: loadFromStorage(APLICACION_ESCALAS_KEY, aplicacionEscalaSchema),
-        cumplimientoNormativo: loadFromStorage(CUMPLIMIENTO_NORMATIVO_KEY, cumplimientoNormativoSchema),
-        projectProfitabilities: loadFromStorage(PROFITABILITY_KEY + '_projects', projectProfitabilitySchema),
-       clientProfitabilities: loadFromStorage(PROFITABILITY_KEY + '_clients', clientProfitabilitySchema),
-       resourceEfficiencies: loadFromStorage(PROFITABILITY_KEY + '_resources', resourceEfficiencySchema),
-       profitabilityTrends: loadFromStorage(PROFITABILITY_KEY + '_trends', profitabilityTrendSchema),
-      mutationQueue: (() => { try { const r = localStorage.getItem(QUEUE_KEY); if (!r) return []; const d = decompressData(r); return Array.isArray(d) ? d as Mutation[] : []; } catch { return []; } })(),
+      ventasPaquetes: loadFromStorage(BASE_STORAGE_KEY + '_ventas_paquetes', ventaPaqueteSchema),
+      recepciones: loadFromStorage(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema),
+      centrosCosto: loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
+      plantillas: loadFromStorage(PLANTILLA_KEY, plantillaSchema),
+      insumosBase: loadFromStorage(BASE_STORAGE_KEY + '_insumos_base', insumosBaseSchema),
+      proyectoWeather: [],
+      reglasFactores: [],
+      normativasDepartamentales: [],
+      escalasProduccion: [],
+      estacionalidad: [],
+      historialReglas: loadFromStorage(HISTORIAL_REGLAS_KEY, historialAplicacionReglaSchema),
       notificaciones: loadFromStorage(NOTIF_KEY, notificacionSchema),
-      auditLog: loadFromStorage(AUDIT_KEY, auditLogSchema),
       appSettings: loadObjectFromStorage(BASE_STORAGE_KEY + '_settings', appSettingsSchema, APP_SETTINGS_DEFAULTS),
+      calculosProyecto: [],
+      ajustesEstacionalesActividad: [],
+      aplicacionEscalas: [],
+      cumplimientoNormativo: [],
+      projectProfitabilities: [],
+      clientProfitabilities: [],
+      resourceEfficiencies: [],
+      profitabilityTrends: [],
+      mutationQueue: [],
+      auditLog: [],
+      errorLogs: [],
     });
     if (useErpStore.getState().appSettings.empresaInfo) setEmpresaInfo(useErpStore.getState().appSettings.empresaInfo);
 
@@ -576,31 +563,18 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
            seguimiento_evm: s.seguimientoEVM, incidentes: s.incidentes, publicaciones_muro: s.publicacionesMuro,
            liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
            activos: s.activos, cuadros: s.cuadros, pagos_proveedor: s.pagosProveedor,
-           destajos: s.destajos, calculos_proyecto: s.calculosProyecto, recepciones: s.recepciones, centros_costo: s.centrosCosto,
+           destajos: s.destajos, recepciones: s.recepciones, centros_costo: s.centrosCosto,
          plantillas: s.plantillas, insumos_base: s.insumosBase, weather: s.proyectoWeather,
-         escalas: s.escalasProduccion, estacionalidad: s.estacionalidad, historial_reglas: s.historialReglas,
+         historial_reglas: s.historialReglas,
          bitacora: s.bitacora, no_conformidades: s.ncs, pruebas: s.pruebas, ventas_paquetes: s.ventasPaquetes,
-         vales_salida: s.valesSalida, reglas_factores: s.reglasFactores,
-         normativas: s.normativasDepartamentales,
-         ajustes_estacionales: s.ajustesEstacionalesActividad, aplicacion_escalas: s.aplicacionEscalas,
-         cumplimiento_normativo: s.cumplimientoNormativo, error_logs: s.errorLogs,
+         vales_salida: s.valesSalida,
          };
           const quotaCritical = isStorageQuotaCritical();
           for (const [k, v] of Object.entries(map)) {
             try { const value = await compressDataAsync(v); safeSetItem(`${BASE_STORAGE_KEY}_${k}`, value, `${BASE_STORAGE_KEY}_${k}`); } catch {}
           }
           safeSetItem(`${BASE_STORAGE_KEY}_settings`, JSON.stringify(s.appSettings));
-          try { const q = await compressDataAsync(s.mutationQueue); safeSetItem('wm_erp_queue', q); } catch {}
           try { const n = await compressDataAsync(s.notificaciones); safeSetItem(`${BASE_STORAGE_KEY}_notificaciones`, n); } catch {}
-          try { const a = await compressDataAsync(s.auditLog); safeSetItem(`${BASE_STORAGE_KEY}_audit_log`, a); } catch {}
-          try { const pp = await compressDataAsync(s.projectProfitabilities); safeSetItem(`${PROFITABILITY_KEY}_projects`, pp); } catch {}
-          try { const cp = await compressDataAsync(s.clientProfitabilities); safeSetItem(`${PROFITABILITY_KEY}_clients`, cp); } catch {}
-          try { const re = await compressDataAsync(s.resourceEfficiencies); safeSetItem(`${PROFITABILITY_KEY}_resources`, re); } catch {}
-          try { const pt = await compressDataAsync(s.profitabilityTrends); safeSetItem(`${PROFITABILITY_KEY}_trends`, pt); } catch {}
-          
-          encryptionManager.encryptItem(AUDIT_KEY, s.auditLog, user?.id || 'default')
-            .then(() => safeLogger.log('[Encryption] auditLog encrypted'))
-            .catch(err => safeLogger.warn('[Encryption] Failed to encrypt auditLog:', err));
           
           encryptionManager.encryptItem(BASE_STORAGE_KEY + '_settings', s.appSettings, user?.id || 'default')
             .then(() => safeLogger.log('[Encryption] appSettings encrypted'))
@@ -661,6 +635,7 @@ useEffect(() => {
       'erp_muro', 'erp_ventas_paquetes', 'erp_proyecto_weather',
       'erp_eventos_calendario', 'erp_ordenes_cambio', 'erp_notificaciones',
       'erp_error_log', 'erp_insumos_base',
+      'erp_departamentos_gt', 'erp_municipios_gt',
     ];
     
     const promises = subs.map(table => new Promise<void>((resolve, reject) => {

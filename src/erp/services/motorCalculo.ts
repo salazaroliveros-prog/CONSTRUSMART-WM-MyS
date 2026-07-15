@@ -146,108 +146,48 @@ export class ServicioMotorCalculo {
   /**
    * Obtener todos los departamentos de Guatemala
    */
-  static async obtenerDepartamentos(): Promise<DepartamentoGT[]> {
-    try {
-      const { data, error } = await supabase
-        .from('erp_departamentos_gt')
-        .select('*')
-        .order('nombre');
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      safeLogger.error('Error al obtener departamentos:', error);
-      throw error;
-    }
+  static obtenerDepartamentos(): DepartamentoGT[] {
+    return useErpStore.getState().departamentos || [];
   }
 
   /**
    * Obtener municipios por departamento
    */
-  static async obtenerMunicipiosPorDepartamento(departamentoCodigo: string): Promise<MunicipioGT[]> {
-    try {
-      const { data, error } = await supabase
-        .from('erp_municipios_gt')
-        .select('*')
-        .eq('departamento_codigo', departamentoCodigo)
-        .order('nombre');
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      safeLogger.error('Error al obtener municipios:', error);
-      throw error;
-    }
+  static obtenerMunicipiosPorDepartamento(departamentoCodigo: string): MunicipioGT[] {
+    const municipios = useErpStore.getState().municipios || [];
+    return municipios.filter(m => m.departamentoCodigo === departamentoCodigo);
   }
 
   /**
    * Obtener municipio por código
    */
-  static async obtenerMunicipio(codigo: string): Promise<MunicipioGT | null> {
-    try {
-      const { data, error } = await supabase
-        .from('erp_municipios_gt')
-        .select('*')
-        .eq('codigo', codigo)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
-      }
-      return data;
-    } catch (error) {
-      safeLogger.error('Error al obtener municipio:', error);
-      throw error;
-    }
+  static obtenerMunicipio(codigo: string): MunicipioGT | null {
+    const municipios = useErpStore.getState().municipios || [];
+    return municipios.find(m => m.codigo === codigo) || null;
   }
 
   /**
    * Obtener departamento por código
    */
-  static async obtenerDepartamento(codigo: string): Promise<DepartamentoGT | null> {
-    try {
-      const { data, error } = await supabase
-        .from('erp_departamentos_gt')
-        .select('*')
-        .eq('codigo', codigo)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
-      }
-      return data;
-    } catch (error) {
-      safeLogger.error('Error al obtener departamento:', error);
-      throw error;
-    }
+  static obtenerDepartamento(codigo: string): DepartamentoGT | null {
+    const departamentos = useErpStore.getState().departamentos || [];
+    return departamentos.find(d => d.codigo === codigo) || null;
   }
 
   /**
    * Obtener factor de costo para un municipio específico
    */
-  static async obtenerFactorCostoMunicipio(codigoMunicipio: string): Promise<number> {
-    try {
-      const municipio = await this.obtenerMunicipio(codigoMunicipio);
-      return municipio?.factorCosto || 1.0;
-    } catch (error) {
-      safeLogger.error('Error al obtener factor costo municipio:', error);
-      return 1.0;
-    }
+  static obtenerFactorCostoMunicipio(codigoMunicipio: string): number {
+    const municipio = this.obtenerMunicipio(codigoMunicipio);
+    return municipio?.altitudMsnm ? 1.0 + (municipio.altitudMsnm / 1000) * 0.1 : 1.0;
   }
 
   /**
    * Obtener factor de rendimiento para un municipio específico
    */
-  static async obtenerFactorRendimientoMunicipio(codigoMunicipio: string): Promise<number> {
-    try {
-      const municipio = await this.obtenerMunicipio(codigoMunicipio);
-      return municipio?.factorRendimiento || 1.0;
-    } catch (error) {
-      safeLogger.error('Error al obtener factor rendimiento municipio:', error);
-      return 1.0;
-    }
+  static obtenerFactorRendimientoMunicipio(codigoMunicipio: string): number {
+    const municipio = this.obtenerMunicipio(codigoMunicipio);
+    return municipio?.altitudMsnm ? 1.0 - (municipio.altitudMsnm / 2000) * 0.15 : 1.0;
   }
 
   // ============================================================
@@ -640,25 +580,6 @@ export class ServicioMotorCalculo {
       observaciones: opciones?.observaciones,
     };
     useErpStore.getState().enqueueMutation('registrarCalculo', payload);
-    if (navigator.onLine) {
-      try {
-        const { data, error } = await supabase.rpc('registrar_calculo', {
-          p_proyecto_id: proyectoId,
-          p_renglon_id: opciones?.renglonId,
-          p_tipo_calculo: tipoCalcululo,
-          p_parametros_entrada: parametrosEntrada,
-          p_resultado_calculado: resultadoCalculado,
-          p_costo_total: opciones?.costoTotal,
-          p_costo_unitario: opciones?.costoUnitario,
-          p_usuario_id: opciones?.usuarioId,
-          p_observaciones: opciones?.observaciones
-        });
-        if (error) safeLogger.warn('[motorCalculo] registrar_calculo RPC falló:', error);
-        if (data) return data;
-      } catch (e) {
-        safeLogger.warn('[motorCalculo] registrar_calculo excepción:', e);
-      }
-    }
     return '';
   }
 
@@ -678,20 +599,6 @@ export class ServicioMotorCalculo {
       descripcion: descripcion,
     };
     useErpStore.getState().enqueueMutation('crearSnapshotEstado', payload);
-    if (navigator.onLine) {
-      try {
-        const { data, error } = await supabase.rpc('crear_snapshot_estado', {
-          p_calculo_id: calculoId,
-          p_tipo_snapshot: tipoSnapshot,
-          p_estado_completo: estadoCompleto,
-          p_descripcion: descripcion
-        });
-        if (error) safeLogger.warn('[motorCalculo] crear_snapshot_estado RPC falló:', error);
-        return data;
-      } catch (e) {
-        safeLogger.warn('[motorCalculo] crear_snapshot_estado excepción:', e);
-      }
-    }
     return null;
   }
 
