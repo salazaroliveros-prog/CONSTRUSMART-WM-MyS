@@ -303,21 +303,21 @@ const GestionDocumental: React.FC = () => {
             ) : (
               planos.filter(p => !currentProjectId || p.proyectoId === currentProjectId).map(p => (
                 <div key={p.id} className={`p-3 rounded-lg border ${p.estado === 'vigente' ? 'bg-card border-border' : p.estado === 'obsoleto' ? 'bg-muted border-border opacity-60' : 'bg-warning/10 border-warning/30'}`}>
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-info/10 text-info font-medium">{p.disciplina}</span>
-                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${p.estado === 'vigente' ? 'bg-success/10 text-success' : p.estado === 'obsoleto' ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning'}`}>{p.estado}</span>
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-info/10 text-info font-medium truncate">{p.disciplina}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium shrink-0 ${p.estado === 'vigente' ? 'bg-success/10 text-success' : p.estado === 'obsoleto' ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning'}`}>{p.estado}</span>
                       </div>
-                      <p className="text-sm font-medium text-foreground">{p.nombre}</p>
-                      <div className="flex gap-2 mt-1 text-xs text-muted-foreground">
-                        <span>📄 v{p.version}</span>
-                        <span>📅 {p.fechaSubida}</span>
-                        <span>👤 {p.subidoPor}</span>
+                      <p className="text-sm font-medium text-foreground truncate" title={p.nombre}>{p.nombre}</p>
+                      <div className="flex gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
+                        <span className="truncate">📄 v{p.version}</span>
+                        <span className="truncate">📅 {p.fechaSubida}</span>
+                        <span className="truncate">👤 {p.subidoPor}</span>
                       </div>
-                      {p.descripcion && <p className="text-xs text-muted-foreground mt-1">{p.descripcion}</p>}
+                      {p.descripcion && <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{p.descripcion}</p>}
                     </div>
-                    <div className="flex gap-1 shrink-0 ml-2">
+                    <div className="flex gap-1 shrink-0 flex-col sm:min-w-[44px]">
                       <button onClick={() => addVersionPlano(p.id)} className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600" aria-label={t('gestion_documental.nueva_version', 'Nueva versión')} title={t('gestion_documental.nueva_version', 'Nueva versión')}>+v</button>
                       <button onClick={() => togglePlanoEstado(p.id)} className={`px-2 py-1 rounded text-xs ${p.estado === 'vigente' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}>
                         {p.estado === 'vigente' ? t('gestion_documental.obsoleto', 'Obsoleto') : t('gestion_documental.activar', 'Activar')}
@@ -378,8 +378,8 @@ const GestionDocumental: React.FC = () => {
                         <span className="text-xs font-bold text-warning bg-warning/10 px-1.5 py-0.5 rounded">{r.numero}</span>
                         <span className={`text-xs px-1.5 py-0.5 rounded-full ${r.estado === 'abierto' ? 'bg-destructive/10 text-destructive' : r.estado === 'en_respuesta' ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'}`}>{r.estado.replace(/_/g, ' ')}</span>
                       </div>
-                      <p className="text-sm font-medium text-foreground">{r.titulo}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{r.descripcion}</p>
+                      <p className="text-sm font-medium text-foreground truncate" title={r.titulo}>{r.titulo}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-3">{r.descripcion}</p>
                       <div className="flex gap-2 mt-1 text-xs text-muted-foreground">
                         <span>📅 {r.fechaSolicitud}</span>
                         <span>👤 {r.solicitante}</span>
@@ -466,7 +466,7 @@ const GestionDocumental: React.FC = () => {
                         <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-blue-600 font-medium">{s.categoria}</span>
                         <span className={`text-xs px-1.5 py-0.5 rounded-full ${s.estado === 'aprobado' ? 'bg-emerald-50 text-emerald-600' : s.estado === 'rechazado' ? 'bg-red-50 text-red-500' : s.estado === 'con_comentarios' ? 'bg-amber-50 text-amber-600' : 'bg-muted text-muted-foreground'}`}>{s.estado.replace(/_/g, ' ')}</span>
                       </div>
-                      <p className="text-sm font-medium text-muted-foreground">{s.titulo}</p>
+                      <p className="text-sm font-medium text-muted-foreground truncate" title={s.titulo}>{s.titulo}</p>
                       <div className="flex gap-2 mt-1 text-xs text-muted-foreground">
                         <span>📅 {s.fechaEnvio}</span>
                         <span>🏭 {s.proveedor}</span>
