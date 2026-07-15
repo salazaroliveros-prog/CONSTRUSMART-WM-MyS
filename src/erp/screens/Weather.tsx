@@ -50,9 +50,10 @@ const Weather: React.FC = () => {
   const [showConstruction, setShowConstruction] = useState(true);
   const [showHistory, setShowHistory] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [alertThreshold, setAlertThreshold] = useState<'low' | 'medium' | 'high' | 'critical'>(
-    weather?.alertThreshold || 'high'
-  );
+  const [alertThreshold, setAlertThreshold] = useState<'low' | 'medium' | 'high' | 'critical'>('high');
+
+  const proyecto = currentProjectId ? proyectos.find(p => p.id === currentProjectId) : proyectos[0];
+  const weather = proyecto ? proyectoWeather.find(w => w.proyectoId === proyecto.id) : undefined;
 
   useEffect(() => { setLoading(false); }, []);
 
@@ -60,7 +61,7 @@ const Weather: React.FC = () => {
     if (weather?.alertThreshold && weather.alertThreshold !== alertThreshold) {
       setAlertThreshold(weather.alertThreshold);
     }
-  }, [weather?.alertThreshold]);
+  }, [weather?.alertThreshold, alertThreshold]);
 
   useEffect(() => {
     if (!proyecto || !weather) return;
@@ -70,9 +71,6 @@ const Weather: React.FC = () => {
       alertThreshold,
     });
   }, [alertThreshold, proyecto, weather, updateProyectoWeather]);
-
-  const proyecto = currentProjectId ? proyectos.find(p => p.id === currentProjectId) : proyectos[0];
-  const weather = proyecto ? proyectoWeather.find(w => w.proyectoId === proyecto.id) : undefined;
 
   const refreshWeather = useCallback(async () => {
     if (!proyecto || !(proyecto.lat && proyecto.lng)) {
@@ -142,7 +140,7 @@ const Weather: React.FC = () => {
       }
     }, 30 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [autoRefresh, weather?.weatherData?.fetched_at, refreshWeather]);
+  }, [autoRefresh, weather?.weatherData?.fetched_at, refreshWeather, weather?.weatherData]);
 
   useEffect(() => {
     const loadWeatherFromStorage = async () => {

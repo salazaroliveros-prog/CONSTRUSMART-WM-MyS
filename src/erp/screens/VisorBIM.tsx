@@ -53,7 +53,7 @@ export default function VisorBIM() {
     setFormErrors({});
     setVinculaciones(prev => ({ ...prev, [elementoId]: selRenglon }));
     toast.success(t('visor_bim.vinculacion_creada'));
-  }, [selRenglon]);
+  }, [selRenglon, t]);
 
   const handleDesvincular = useCallback((elementoId: string) => {
     setVinculaciones(prev => {
@@ -62,7 +62,7 @@ export default function VisorBIM() {
       return next;
     });
     toast.success(t('visor_bim.vinculacion_eliminada'));
-  }, []);
+  }, [t]);
 
   const generarCubicacion = useCallback(() => {
     const elementosVinculados = elementosModelo.filter(el => vinculaciones[el.id]);
@@ -81,7 +81,7 @@ export default function VisorBIM() {
     }));
     setCubicacion(resultado);
     toast.success(t('visor_bim.cubicacion_generada'));
-  }, [vinculaciones, renglones, elementosModelo]);
+  }, [vinculaciones, renglones, elementosModelo, t]);
 
   if (loading) {
     return (

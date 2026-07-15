@@ -147,7 +147,7 @@ const BasePrecios: React.FC = () => {
     input.click();
   };
 
-  const handleActivarDesactivar = (id: string) => {
+  const handleActivarDesactivar = useCallback((id: string) => {
     const ins = insumosBase.find(i => i.id === id);
     if (!ins) return;
     if (ins.activo) {
@@ -157,9 +157,9 @@ const BasePrecios: React.FC = () => {
       updateInsumoBase(id, { activo: true, costo_base: 1 });
       toast.success(t('baseprecios.activado'));
     }
-  };
+  }, [insumosBase, deleteInsumoBase, updateInsumoBase, t]);
 
-  const handleGuardarEdicion = (id: string) => {
+  const handleGuardarEdicion = useCallback((id: string) => {
     updateInsumoBase(id, {
       nombre: nuevoNombre || undefined,
       costo_base: nuevoPrecio > 0 ? nuevoPrecio : undefined,
@@ -168,7 +168,7 @@ const BasePrecios: React.FC = () => {
     });
     setEditando(null);
     toast.success(t('baseprecios.actualizado'));
-  };
+  }, [updateInsumoBase, nuevoNombre, nuevoPrecio, nuevoUnidad, nuevoRubro, t]);
 
   const handleAgregar = () => {
     const result = insumoSchema.safeParse({ nombre: nuevoNombre, precio: nuevoPrecio, unidad: nuevoUnidad, rubro: nuevoRubro });
@@ -252,7 +252,7 @@ const BasePrecios: React.FC = () => {
         </td>
       </tr>
     );
-  }, [editando, nuevoNombre, nuevoPrecio, factorZona, t]);
+  }, [editando, nuevoNombre, nuevoPrecio, factorZona, t, handleActivarDesactivar, handleGuardarEdicion]);
 
   if (loading) {
     return (

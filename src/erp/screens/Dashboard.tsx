@@ -41,10 +41,8 @@ const Dashboard: React.FC = () => {
   const barConfig = useChartConfig('bar', 'default');
 
   const proyectos = ctx.proyectos || [];
-  const presupuestos = ctx.presupuestos || [];
   const avances = ctx.avances || [];
   const materiales = ctx.materiales || [];
-  const empleados = ctx.empleados || [];
   const hitos = ctx.hitos || [];
   const cuentasCobrar = ctx.cuentasCobrar || [];
   const cuentasPagar = ctx.cuentasPagar || [];
@@ -53,6 +51,10 @@ const Dashboard: React.FC = () => {
 
   // ============ CÁLCULOS DE KPIs ==============
   const kpi = useMemo(() => {
+    const proyectos = ctx.proyectos || [];
+    const presupuestos = ctx.presupuestos || [];
+    const empleados = ctx.empleados || [];
+
     const activos = proyectos.filter((p) => p.estado === 'ejecucion').length;
     const presupuestoTotal = proyectos.reduce((s, p) => s + (p.presupuestoTotal || 0), 0);
     const montoEjecutado = proyectos.reduce((s, p) => s + (p.montoEjecutado || 0), 0);
@@ -85,7 +87,7 @@ const Dashboard: React.FC = () => {
       utilidadVsMesAnterior,
       margenVsMesAnterior,
     };
-  }, [proyectos, presupuestos, empleados]);
+  }, [ctx]);
 
   // ============ SPARKLINE DATA ==============
   const sparklineProyectos = [8, 9, 10, 11, 10, 12, 12];
