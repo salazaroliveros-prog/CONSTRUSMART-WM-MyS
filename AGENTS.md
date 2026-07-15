@@ -784,3 +784,47 @@ flowchart LR
 - Virtual scrolling: Bodega, BasePrecios, Financiero, Impuestos ya tienen react-window ✅
 - Math.fround no usado (DB real(4) pierde precisión)
 - Partitioning no implementado para erp_movimientos y erp_audit_log
+
+## SESIÓN-19 (2026-07-15): Complete i18n Audit & Fixes — Sesión de Cierre
+
+### Auditado
+- **41 screens** analizadas para uso de `t()` + cobertura en es.json/en.json
+- **17 namespaces** incompletos detectados en auditoría inicial
+
+### Fixes Aplicados — Sintaxis (Código)
+1. **Ajustes.tsx:711** — `description="{t(...)}"` → `description={t(...)}` (string literal vs expression)
+2. **Ajustes.tsx:743** — `` {`{t(...)}`} `` → `{t(...)}` (template literal anidado incorrecto)
+3. **Riesgos.tsx:192** — `` `% {t(...)}` `` → `` `% ${t(...)}` `` (interpolación incorrecta)
+4. **Cotizaciones.tsx:281** — `t('common.cancelar')` → `t('cotizaciones.enviar_cliente')` (key incorrecta)
+5. **MuroObra.tsx** — Namespace `muro_obra.*` → `muro.*` (~10 referencias)
+
+### Fixes Aplicados — Keys Faltantes (es.json + en.json)
+| Namespace | Keys Añadidas |
+|-----------|--------------|
+| `dashboard` | `title`, `subtitle`, `cartera`, `utilidad`, `margen` |
+| `nav.groups` | `planning`, `execution`, `supply`, `finance`, `admin` |
+| `sidebar` | `tagline` |
+| `auth` | `solo_admin_puede_acceder`, `supabase_no_configurado`, `iniciar_sesion_google`, `iniciando_sesion`, `todos_derechos_reservados` |
+| `header` | `volver_tablero` (ES) |
+| `bodega` | `no_planificado`, `oc_abreviatura` (ambos) |
+| `common` | `email_ejemplo`, `categoria` (ambos), `pdf` (EN) |
+| `presupuestos` | 9 keys: `confirmar_eliminar_titulo`, `confirmar_eliminar_contenido`, `eliminado_exito`, `nuevo_presupuesto`, `col_nombre`, `col_proyecto`, `col_total`, `col_estado`, `eliminar` |
+| `crm` | 17 keys: validación (4), columnas (4), estados (4), acciones (2), `editar`, `eliminar` |
+| `cotizaciones` | **45 keys** — namespace completo desde 0 (ES + EN) |
+| `entradasAlmacenOC` | **33 keys** — namespace completo desde 0 (ES + EN) |
+
+### Archivos Modificados
+- `src/lib/i18n/es.json` (+4 namespaces completos, +~80 keys nuevas)
+- `src/lib/i18n/en.json` (+4 namespaces completos, +~80 keys nuevas)
+- `src/erp/screens/Ajustes.tsx` (2 syntax fixes)
+- `src/erp/screens/Riesgos.tsx` (1 syntax fix)
+- `src/erp/screens/Cotizaciones.tsx` (1 key fix)
+- `src/erp/screens/MuroObra.tsx` (namespace rename)
+
+### Validación
+- `npm run build`: **Exitoso** (3.78s, 0 errores)
+- `npx vitest run src/__tests__/ErrorLog.test.tsx`: **18/18 pass**
+
+### Pendiente (no crítico)
+- ~50 keys `t()` con fallback locale (`es`) generan texto en español sin error — funcional pero no completo en EN
+- Namespaces con EN incompleto para ~8 namespaces menores (RRHH, Calidad, conflicts, admin)

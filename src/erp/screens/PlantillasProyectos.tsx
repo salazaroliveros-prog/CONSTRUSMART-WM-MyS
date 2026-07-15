@@ -711,7 +711,7 @@ const PlantillasProyectos: React.FC = () => {
                         <button onClick={() => handleCrearProyecto(plantilla.id)} className={`p-1 hover:bg-muted rounded ${COLOR_SUCCESS} dark:text-emerald-400`} aria-label={`${t('plantillas.crear_proyecto')} ${plantilla.nombre}`}>
                           <Copy className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button onClick={() => handleDelete(plantilla.id)} className={`p-1 hover:bg-muted rounded ${COLOR_DANGER} dark:text-red-400`} aria-label={`${t('plantillas.eliminar_boton')} ${plantilla.nombre}`}>
+                        <button onClick={() => handleDelete(plantilla.id)} className={`p-1 hover:bg-muted rounded ${COLOR_DANGER} dark:text-red-400`} aria-label={`${t('plantillas.eliminar_btn')} ${plantilla.nombre}`}>
                           <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </button>
                       </div>
@@ -814,7 +814,7 @@ const PlantillasProyectos: React.FC = () => {
                     <button
                       onClick={() => handleExport(plantilla)}
                       className={`p-1 hover:bg-muted rounded ${COLOR_SUCCESS} dark:text-green-400 transition-colors duration-200`}
-                      aria-label={`${t('plantillas.exportar_boton')} ${plantilla.nombre}`}
+                      aria-label={`${t('plantillas.exportar_btn')} ${plantilla.nombre}`}
                       title={t('plantillas.exportar_btn')}
                     >
                       <Download className="h-4 w-4" aria-hidden="true" />
@@ -822,7 +822,7 @@ const PlantillasProyectos: React.FC = () => {
                     <button
                       onClick={() => handleDelete(plantilla.id)}
                       className={`p-1 hover:bg-muted rounded ${COLOR_DANGER} dark:text-red-400 transition-colors duration-200`}
-                      aria-label={`${t('plantillas.eliminar_boton')} ${plantilla.nombre}`}
+                      aria-label={`${t('plantillas.eliminar_btn')} ${plantilla.nombre}`}
                       title={t('plantillas.eliminar_btn')}
                     >
                       <Trash2 className="h-4 w-4" aria-hidden="true" />

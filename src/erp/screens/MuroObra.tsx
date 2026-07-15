@@ -61,7 +61,7 @@ const MuroObra: React.FC = () => {
       createdAt: new Date().toISOString(),
     });
     setNuevoTexto('');
-    toast.success(t('muro_obra.publicacion_creada', 'Publicación creada'));
+    toast.success(t('muro.publicacion_creada', 'Publicación creada'));
   };
 
   const handleComentario = (id: string) => {
@@ -69,7 +69,7 @@ const MuroObra: React.FC = () => {
     if (!texto) return;
     addComentarioMuro(id, texto);
     setComentarios(prev => ({ ...prev, [id]: '' }));
-    toast.success(t('muro_obra.comentario_agregado', 'Comentario agregado'));
+    toast.success(t('muro.comentario_agregado', 'Comentario agregado'));
   };
 
   if (loading) return <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 rounded-2xl" /></div>;
@@ -77,11 +77,11 @@ const MuroObra: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1200px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2"><Image className="w-5 h-5 text-primary" aria-hidden="true" /> {t('muro_obra.titulo', 'Muro de Obra')}</h1>
+        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2"><Image className="w-5 h-5 text-primary" aria-hidden="true" /> {t('muro.titulo', 'Muro de Obra')}</h1>
         <div className="flex flex-wrap gap-2">
           <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} />
-          <select value={tipoFiltro} onChange={e => setTipoFiltro(e.target.value as any)} className={`${INPUT} text-xs`} aria-label={t('muro_obra.filtrar_tipo', 'Filtrar por tipo')}>
-            <option value="todos">{t('muro_obra.todos', 'Todos')}</option>
+          <select value={tipoFiltro} onChange={e => setTipoFiltro(e.target.value as any)} className={`${INPUT} text-xs`} aria-label={t('muro.filtrar_tipo', 'Filtrar por tipo')}>
+            <option value="todos">{t('muro.todos', 'Todos')}</option>
             {Object.entries(TIPOS).map(([key, cfg]) => <option key={key} value={key}>{cfg.label}</option>)}
           </select>
         </div>
@@ -90,23 +90,23 @@ const MuroObra: React.FC = () => {
       <div className="bg-card border border-border rounded-2xl p-4 mb-4">
         <div className="flex gap-2 mb-2">
           {(['avance', 'calidad', 'seguridad', 'general'] as TipoPublicacion[]).map(tp => (
-            <button key={tp} onClick={() => setNuevoTipo(tp)} aria-label={t('muro_obra.tipo_' + tp, TIPOS[tp].label)}
+            <button key={tp} onClick={() => setNuevoTipo(tp)} aria-label={t('muro.tipo_' + tp, TIPOS[tp].label)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${nuevoTipo === tp ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-accent'}`}>
               {TIPOS[tp].label}
             </button>
           ))}
         </div>
-        <textarea value={nuevoTexto} onChange={e => { setNuevoTexto(e.target.value); setErrores(prev => ({ ...prev, texto: '' })); }} placeholder={t('muro_obra.placeholder', '¿Qué hay de nuevo en la obra?')} rows={2} className={`${INPUT} resize-none mb-2`} />
+        <textarea value={nuevoTexto} onChange={e => { setNuevoTexto(e.target.value); setErrores(prev => ({ ...prev, texto: '' })); }} placeholder={t('muro.placeholder', '¿Qué hay de nuevo en la obra?')} rows={2} className={`${INPUT} resize-none mb-2`} />
         {errores.texto && <p className="text-xs text-red-500 mb-2">{errores.texto}</p>}
         <div className="flex justify-end gap-2">
           <button onClick={() => { setNuevoTexto(''); setErrores({}); }} className={`${BUTTON_SECONDARY} text-xs`}>{t('common.cancelar', 'Cancelar')}</button>
-          <button onClick={handlePublicar} className={`${BUTTON_PRIMARY} text-xs`}>{t('muro_obra.publicar', 'Publicar')}</button>
+          <button onClick={handlePublicar} className={`${BUTTON_PRIMARY} text-xs`}>{t('muro.publicar', 'Publicar')}</button>
         </div>
       </div>
 
       <div className="space-y-3">
         {filtered.length === 0 && (
-          <div className="text-center py-10 text-muted-foreground"><p className="text-sm">{t('muro_obra.sin_publicaciones', 'Sin publicaciones aún')}</p></div>
+          <div className="text-center py-10 text-muted-foreground"><p className="text-sm">{t('muro.sin_publicaciones', 'Sin publicaciones aún')}</p></div>
         )}
         {filtered.map(pub => {
           const cfg = TIPOS[pub.tipo] || TIPOS.general;
@@ -118,10 +118,10 @@ const MuroObra: React.FC = () => {
               </div>
               <p className="text-sm text-foreground whitespace-pre-wrap mb-3">{pub.texto}</p>
               <div className="flex items-center gap-3">
-                <button onClick={() => likePublicacionMuro(pub.id)} aria-label={t('muro_obra.like', 'Me gusta')} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+                <button onClick={() => likePublicacionMuro(pub.id)} aria-label={t('muro.like', 'Me gusta')} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
                   <Heart className="w-4 h-4" aria-hidden="true" /> {pub.likes}
                 </button>
-                <button onClick={() => {}} aria-label={t('muro_obra.comentar', 'Comentar')} className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+                <button onClick={() => {}} aria-label={t('muro.comentar', 'Comentar')} className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
                   <MessageCircle className="w-4 h-4" aria-hidden="true" /> {pub.comentarios.length}
                 </button>
               </div>
@@ -139,8 +139,8 @@ const MuroObra: React.FC = () => {
                 </div>
               )}
               <div className="mt-3 flex gap-2">
-                <input value={comentarios[pub.id] || ''} onChange={e => setComentarios(prev => ({ ...prev, [pub.id]: e.target.value }))} placeholder={t('muro_obra.placeholder_comentario', 'Escribe un comentario...')} className={`${INPUT} text-xs flex-1`} />
-                <button onClick={() => handleComentario(pub.id)} aria-label={t('muro_obra.enviar_comentario', 'Enviar comentario')} className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+                <input value={comentarios[pub.id] || ''} onChange={e => setComentarios(prev => ({ ...prev, [pub.id]: e.target.value }))} placeholder={t('muro.placeholder_comentario', 'Escribe un comentario...')} className={`${INPUT} text-xs flex-1`} />
+                <button onClick={() => handleComentario(pub.id)} aria-label={t('muro.enviar_comentario', 'Enviar comentario')} className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
                   <Send className="w-3 h-3" aria-hidden="true" />
                 </button>
               </div>

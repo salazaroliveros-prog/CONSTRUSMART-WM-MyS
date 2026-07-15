@@ -5,47 +5,19 @@ dist-debug/
 .env.local
 .env.*.local
 .env.production
-supabase/.temp/
-*.tsbuildinfo
-next-env.d.ts
-test-results/
-playwright-report/
-coverage/
+.env.vercel
 *.log
 .DS_Store
 Thumbs.db
-current-state-snapshot.yml
-app-snapshot.md
-.snap*
-.playwright-mcp/
-.vercel/
-.vscode/
+coverage/
+.cache/
+*.tsbuildinfo
+test-results/
 screenshots/
-session-ses_*.md
-check-*.json
-check-*.js
-# Test helpers
-scripts/test-*.cjs
-snapshot-*.yml
-# Temp validation files
-.tsx-ref-check.*
-eslint_*.txt
-eslint_out.json
-tsc_*.txt
-*.png
-# Temp SQL scripts for manual Supabase Dashboard execution
-APPLY_SECURITY_FIX.sql
-!public/icons/icon-192.png
-!public/icons/icon-512.png
-.vercel
-.env*
-.vercel
-_archive/
 e2e/
-scripts/rotate-api-keys.cjs
-scripts/remote-migrations-via-api.cjs
-
-# AI agent directories (local tools)
+data/
+skills/
+_archive/
 .agents/
 .aider-desk/
 .augment/
@@ -73,15 +45,14 @@ scripts/remote-migrations-via-api.cjs
 .neovate/
 .openhands/
 .pi/
+.playwright-mcp/
 .pochi/
 .qoder/
 .qwen/
 .roo/
 .trae/
+.vercel/
 .vibe/
+.vscode/
 .windsurf/
 .zencoder/
-
-# Local data and installed skills
-data/
-skills/

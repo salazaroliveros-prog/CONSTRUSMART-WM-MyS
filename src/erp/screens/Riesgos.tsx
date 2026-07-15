@@ -189,7 +189,7 @@ const Riesgos: React.FC = () => {
             <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-primary" /><span className="text-xs text-muted-foreground">{t('riesgos.total_riesgos')}</span></div>
           </div>
           <div className="text-xl font-bold text-foreground mt-1">{riesgosFiltrados.length}</div>
-          <div className="text-[10px] text-muted-foreground mt-1">{riesgosFiltrados.length > 0 ? `${Math.round((mitigados.length / riesgosFiltrados.length) * 100)}% {t('riesgos.mitigados')}` : '—'}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">{riesgosFiltrados.length > 0 ? `${Math.round((mitigados.length / riesgosFiltrados.length) * 100)}% ${t('riesgos.mitigados')}` : '—'}</div>
         </div>
         <div className="bg-card rounded-xl border border-border p-4">
           <div className="flex items-center justify-between">

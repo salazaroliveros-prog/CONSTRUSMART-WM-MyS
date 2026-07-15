@@ -138,8 +138,8 @@ const Ajustes: React.FC = () => {
             <Card style={sectionCard} size="small">
               <SettingRow
                 icon={<ExperimentOutlined style={{ fontSize: ICON_SIZE, color: token.colorPrimary }} />}
-                title="Framework UI"
-                subtitle="Elige el motor visual del sistema"
+                title={t("ajustes.framework_ui")}
+                subtitle={t("ajustes.framework_ui_sub")}
               >
                 <Radio.Group
                   value={appSettings.uiMode}
@@ -166,8 +166,8 @@ const Ajustes: React.FC = () => {
                   <Space style={{ width: '100%' }} align="center">
                     <BgColorsOutlined style={{ fontSize: ICON_SIZE, color: token.colorPrimary }} />
                     <div>
-                      <Text strong>Tema Visual</Text>
-                      <br /><Text type="secondary">Elige entre 8 diseños para toda la app</Text>
+                      <Text strong>{t("ajustes.tema_visual")}</Text>
+                      <br /><Text type="secondary">{t("ajustes.tema_visual_sub")}</Text>
                     </div>
                   </Space>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
@@ -230,8 +230,8 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<FontSizeOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Tamaño de Fuente"
-                subtitle="Ajusta el tamaño del texto en toda la app"
+                title={t("ajustes.tamano_fuente")}
+                subtitle={t("ajustes.tamano_fuente_sub")}
               >
                 <Radio.Group
                   value={appSettings.fontSize}
@@ -239,16 +239,16 @@ const Ajustes: React.FC = () => {
                   optionType="button"
                   buttonStyle="solid"
                 >
-                  <Radio.Button value="small">Pequeño</Radio.Button>
-                  <Radio.Button value="medium">Mediano</Radio.Button>
-                  <Radio.Button value="large">Grande</Radio.Button>
+                  <Radio.Button value="small">{t("ajustes.pequeno")}</Radio.Button>
+                  <Radio.Button value="medium">{t("ajustes.mediano")}</Radio.Button>
+                  <Radio.Button value="large">{t("ajustes.grande")}</Radio.Button>
                 </Radio.Group>
               </SettingRow>
 
               <SettingRow
                 icon={<FontSizeOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Tipografía"
-                subtitle="Fuente base del sistema"
+                title={t("ajustes.tipografia")}
+                subtitle={t("ajustes.tipografia_sub")}
               >
                 <Select value={appSettings.fontFamily} onChange={v => updateAppSettings({ fontFamily: v as string })} className={controlWidthClass} options={[
                   { value: 'system-ui', label: 'System UI' },
@@ -261,8 +261,8 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Radio de Bordes"
-                subtitle="Esquinas de cards, botones e inputs"
+                title={t("ajustes.radio_bordes")}
+                subtitle={t("ajustes.radio_bordes_sub")}
               >
                 <Radio.Group
                   value={appSettings.borderRadius}
@@ -270,18 +270,18 @@ const Ajustes: React.FC = () => {
                   optionType="button"
                   buttonStyle="solid"
                 >
-                  <Radio.Button value="none">Ninguno</Radio.Button>
-                  <Radio.Button value="small">Pequeño</Radio.Button>
-                  <Radio.Button value="medium">Mediano</Radio.Button>
-                  <Radio.Button value="large">Grande</Radio.Button>
-                  <Radio.Button value="full">Pill</Radio.Button>
+                  <Radio.Button value="none">{t("ajustes.ninguno")}</Radio.Button>
+                  <Radio.Button value="small">{t("ajustes.pequeno")}</Radio.Button>
+                  <Radio.Button value="medium">{t("ajustes.mediano")}</Radio.Button>
+                  <Radio.Button value="large">{t("ajustes.grande")}</Radio.Button>
+                  <Radio.Button value="full">{t("ajustes.pill")}</Radio.Button>
                 </Radio.Group>
               </SettingRow>
 
               <SettingRow
                 icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Espaciado Global"
-                subtitle="Padding/gaps generales"
+                title={t("ajustes.espaciado_global")}
+                subtitle={t("ajustes.espaciado_global_sub")}
               >
                 <Radio.Group
                   value={appSettings.spacingScale}
@@ -289,16 +289,16 @@ const Ajustes: React.FC = () => {
                   optionType="button"
                   buttonStyle="solid"
                 >
-                  <Radio.Button value="compact">Compacto</Radio.Button>
-                  <Radio.Button value="normal">Normal</Radio.Button>
-                  <Radio.Button value="spacious">Amplio</Radio.Button>
+                  <Radio.Button value="compact">{t("ajustes.compacto")}</Radio.Button>
+                  <Radio.Button value="normal">{t("ajustes.normal")}</Radio.Button>
+                  <Radio.Button value="spacious">{t("ajustes.amplio")}</Radio.Button>
                 </Radio.Group>
               </SettingRow>
 
               <SettingRow
                 icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Densidad de Tablas"
-                subtitle="Altura de filas y celdas"
+                title={t("ajustes.densidad_tablas")}
+                subtitle={t("ajustes.densidad_tablas_sub")}
               >
                 <Radio.Group
                   value={appSettings.densityTable}
@@ -306,9 +306,9 @@ const Ajustes: React.FC = () => {
                   optionType="button"
                   buttonStyle="solid"
                 >
-                  <Radio.Button value="compact">Compacta</Radio.Button>
-                  <Radio.Button value="normal">Normal</Radio.Button>
-                  <Radio.Button value="comfortable">Cómoda</Radio.Button>
+                  <Radio.Button value="compact">{t("ajustes.compacta")}</Radio.Button>
+                  <Radio.Button value="normal">{t("ajustes.normal")}</Radio.Button>
+                  <Radio.Button value="comfortable">{t("ajustes.comoda")}</Radio.Button>
                 </Radio.Group>
               </SettingRow>
 
@@ -326,8 +326,8 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<PlayCircleOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Tipo de Animación"
-                subtitle="Estilo de transición entre pantallas"
+                title={t("ajustes.tipo_animacion")}
+                subtitle={t("ajustes.tipo_animacion_sub")}
               >
                 <Radio.Group
                   value={appSettings.animationType || 'fade'}
@@ -335,17 +335,17 @@ const Ajustes: React.FC = () => {
                   optionType="button"
                   buttonStyle="solid"
                 >
-                  <Radio.Button value="fade">Fundido</Radio.Button>
-                  <Radio.Button value="slide">Deslizar</Radio.Button>
-                  <Radio.Button value="scale">Escalar</Radio.Button>
-                  <Radio.Button value="none">Ninguna</Radio.Button>
+                  <Radio.Button value="fade">{t("ajustes.fundido")}</Radio.Button>
+                  <Radio.Button value="slide">{t("ajustes.deslizar")}</Radio.Button>
+                  <Radio.Button value="scale">{t("ajustes.escalar")}</Radio.Button>
+                  <Radio.Button value="none">{t("ajustes.ninguna")}</Radio.Button>
                 </Radio.Group>
               </SettingRow>
 
               <SettingRow
                 icon={<EyeOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Modo Compacto"
-                subtitle="Reduce espaciado para mostrar más información"
+                title={t("ajustes.modo_compacto")}
+                subtitle={t("ajustes.modo_compacto_sub")}
               >
                 <Switch
                   checked={appSettings.compactMode}
@@ -355,8 +355,8 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<span style={{ fontSize: ICON_SIZE }}>🔗</span>}
-                title="Migas de Pan"
-                subtitle="Navegación jerárquica en la parte superior"
+                title={t("ajustes.migas_pan")}
+                subtitle={t("ajustes.migas_pan_sub")}
               >
                 <Switch
                   checked={appSettings.breadcrumbsEnabled !== false}
@@ -366,8 +366,8 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<span style={{ fontSize: ICON_SIZE }}>📄</span>}
-                title="Pie de Página"
-                subtitle="Mostrar footer con información de la empresa"
+                title={t("ajustes.pie_pagina")}
+                subtitle={t("ajustes.pie_pagina_sub")}
               >
                 <Switch
                   checked={appSettings.footerEnabled !== false}
@@ -377,8 +377,8 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<span style={{ fontSize: ICON_SIZE }}>👆</span>}
-                title="Modo Táctil"
-                subtitle="Optimizado para tablets y pantallas táctiles"
+                title={t("ajustes.modo_tactil")}
+                subtitle={t("ajustes.modo_tactil_sub")}
               >
                 <Switch
                   checked={appSettings.touchMode || false}
@@ -388,8 +388,8 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<SettingOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Posición del Sidebar"
-                subtitle="Lado de la pantalla donde aparece el menú"
+                title={t("ajustes.posicion_sidebar")}
+                subtitle={t("ajustes.posicion_sidebar_sub")}
               >
                 <Radio.Group
                   value={appSettings.sidebarPosition}
@@ -398,16 +398,16 @@ const Ajustes: React.FC = () => {
                   buttonStyle="solid"
                   size="small"
                 >
-                  <Radio.Button value="left">Izquierda</Radio.Button>
-                  <Radio.Button value="right">Derecha</Radio.Button>
+                  <Radio.Button value="left">{t("ajustes.izquierda")}</Radio.Button>
+                  <Radio.Button value="right">{t("ajustes.derecha")}</Radio.Button>
                   <Radio.Button value="overlay">Overlay</Radio.Button>
                 </Radio.Group>
               </SettingRow>
 
               <SettingRow
                 icon={<SettingOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Modo del Sidebar"
-                subtitle="Comportamiento de expansión/colapso"
+                title={t("ajustes.modo_sidebar")}
+                subtitle={t("ajustes.modo_sidebar_sub")}
               >
                 <Radio.Group
                   value={appSettings.sidebarMode}
@@ -416,17 +416,17 @@ const Ajustes: React.FC = () => {
                   buttonStyle="solid"
                   size="small"
                 >
-                  <Radio.Button value="expanded">Expandido</Radio.Button>
-                  <Radio.Button value="collapsed">Colapsado</Radio.Button>
+                  <Radio.Button value="expanded">{t("ajustes.expandido")}</Radio.Button>
+                  <Radio.Button value="collapsed">{t("ajustes.colapsado")}</Radio.Button>
                   <Radio.Button value="hover-expand">Hover Expand</Radio.Button>
-                  <Radio.Button value="mini">Mini</Radio.Button>
+                  <Radio.Button value="mini">{t("ajustes.mini")}</Radio.Button>
                 </Radio.Group>
               </SettingRow>
 
               <SettingRow
                 icon={<SettingOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Ancho del Sidebar"
-                subtitle="Ancho cuando está expandido"
+                title={t("ajustes.ancho_sidebar")}
+                subtitle={t("ajustes.ancho_sidebar_sub")}
               >
                 <Radio.Group
                   value={appSettings.sidebarWidth}
@@ -461,15 +461,15 @@ const Ajustes: React.FC = () => {
                 </Space>
                 <Space>
                   <Badge count={5}><Avatar shape="square" icon={<SettingOutlined />} /></Badge>
-                  <Badge status="success" text={appSettings.appTheme === 'dark' ? 'Modo Oscuro' : 'Modo Claro'} />
+                  <Badge status="success" text={appSettings.appTheme === 'dark' ? t('ajustes.oscuro') : t('ajustes.claro')} />
                 </Space>
                 <Select
                   value={compactModeLabel}
                   onChange={v => updateAppSettings({ compactMode: v === 'compacto' })}
                   className={controlWidthClass}
                   options={[
-                    { value: 'compacto', label: 'Modo compacto' },
-                    { value: 'expandido', label: 'Modo expandido' },
+                    { value: 'compacto', label: t('ajustes.compacto') },
+                    { value: 'expandido', label: t('ajustes.modo_expandido') },
                   ]}
                 />
               </Space>
@@ -480,7 +480,7 @@ const Ajustes: React.FC = () => {
     },
     {
       key: 'generales',
-      label: <span><GlobalOutlined /> Generales</span>,
+      label: <span><GlobalOutlined /> {t('ajustes.generales_tab')}</span>,
       children: (
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={12}>
@@ -488,7 +488,7 @@ const Ajustes: React.FC = () => {
               <SettingRow
                 icon={<GlobalOutlined style={{ fontSize: ICON_SIZE }} />}
                 title={t('ajustes.idioma') || 'Idioma'}
-                subtitle="Idioma de la interfaz"
+                subtitle={t("ajustes.idioma_sub")}
               >
                 <Select value={appSettings.language} onChange={v => updateAppSettings({ language: v })} className={controlWidthClass} options={[
                   { value: 'es', label: '🇬🇹 Español' },
@@ -498,8 +498,8 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<CalendarOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Formato de Fecha"
-                subtitle="Cómo se muestran las fechas"
+                title={t("ajustes.formato_fecha")}
+                subtitle={t("ajustes.formato_fecha_sub")}
               >
                 <Select value={appSettings.dateFormat} onChange={v => updateAppSettings({ dateFormat: v as 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' })} className="w-full sm:w-40 md:w-44" options={[
                   { value: 'DD/MM/YYYY', label: '31/12/2026' },
@@ -510,8 +510,8 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<DollarOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Moneda"
-                subtitle="Símbolo monetario del sistema"
+                title={t("ajustes.moneda")}
+                subtitle={t("ajustes.moneda_sub")}
               >
                 <Select value={appSettings.currency} onChange={v => updateAppSettings({ currency: v as 'GTQ' | 'USD' })} className={controlWidthClass} options={[
                   { value: 'GTQ', label: 'Q (Quetzal GT)' },
@@ -521,22 +521,22 @@ const Ajustes: React.FC = () => {
             </Card>
           </Col>
           <Col xs={24} lg={12}>
-            <Card title="Información del Sistema" style={sectionCard} size="small">
+            <Card title={t("ajustes.informacion_sistema")} style={sectionCard} size="small">
               <Descriptions column={1} size="small" bordered>
-                 <Descriptions.Item label="Proyectos Activos">{safeProyectos.filter(p => p.estado === 'ejecucion').length}</Descriptions.Item>
-                 <Descriptions.Item label="Total Proyectos">{safeProyectos.length}</Descriptions.Item>
-                <Descriptions.Item label="Notificaciones Pendientes">
+                 <Descriptions.Item label={t("ajustes.proyectos_activos")}>{safeProyectos.filter(p => p.estado === 'ejecucion').length}</Descriptions.Item>
+                 <Descriptions.Item label={t("ajustes.total_proyectos")}>{safeProyectos.length}</Descriptions.Item>
+                <Descriptions.Item label={t("ajustes.notificaciones_pendientes")}>
                   <Badge count={notificacionesNoLeidas} showZero>
                     <BellOutlined style={{ fontSize: 16 }} />
                   </Badge>
                 </Descriptions.Item>
-                <Descriptions.Item label="Framework UI Actual">
+                <Descriptions.Item label={t("ajustes.framework_ui_actual")}>
                   <Tag icon={<ExperimentOutlined />} color={appSettings.uiMode === 'antd' ? 'blue' : 'default'}>
                     {appSettings.uiMode === 'antd' ? 'Ant Design' : 'Shadcn UI'}
                   </Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label="Tema">{appSettings.appTheme === 'dark' ? 'Oscuro' : appSettings.appTheme === 'high-contrast' ? 'Alto Contraste' : 'Claro'}</Descriptions.Item>
-                <Descriptions.Item label="Versión">v2.0.0</Descriptions.Item>
+                <Descriptions.Item label={t("ajustes.tema_label")}>{appSettings.appTheme === 'dark' ? 'Oscuro' : appSettings.appTheme === 'high-contrast' ? 'Alto Contraste' : 'Claro'}</Descriptions.Item>
+                <Descriptions.Item label={t("ajustes.version_label")}>v2.0.0</Descriptions.Item>
               </Descriptions>
             </Card>
           </Col>
@@ -545,15 +545,15 @@ const Ajustes: React.FC = () => {
     },
     {
       key: 'notificaciones',
-      label: <span><BellOutlined /> Notificaciones</span>,
+      label: <span><BellOutlined /> {t('ajustes.notificaciones_tab')}</span>,
       children: (
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={12}>
             <Card style={sectionCard} size="small">
               <SettingRow
                 icon={<BellOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Sonidos de Notificación"
-                subtitle="Reproducir sonido al recibir notificaciones"
+                title={t("ajustes.sonidos_notificacion")}
+                subtitle={t("ajustes.sonidos_notificacion_sub")}
               >
                 <Switch
                   checked={appSettings.notificationSounds !== false}
@@ -563,8 +563,8 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<BellOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Posición de Notificaciones"
-                subtitle="Dónde aparecen los mensajes toast en pantalla"
+                title={t("ajustes.posicion_notificaciones")}
+                subtitle={t("ajustes.posicion_notificaciones_sub")}
               >
                 <Radio.Group
                   value={appSettings.toastPosition ?? 'bottom-right'}
@@ -584,8 +584,8 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<BellOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Stock Crítico"
-                subtitle="Alertas cuando el inventario está bajo"
+                title={t("ajustes.stock_critico")}
+                subtitle={t("ajustes.stock_critico_sub")}
               >
                 <Switch checked={appSettings.notificaciones?.stockCritico} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, stockCritico: v } })} />
               </SettingRow>
@@ -608,17 +608,17 @@ const Ajustes: React.FC = () => {
 
               <SettingRow
                 icon={<WarningOutlined style={{ fontSize: ICON_SIZE }} />}
-                title="Desviaciones"
-                subtitle="Alertas de rendimiento y costo"
+                title={t("ajustes.desviaciones")}
+                subtitle={t("ajustes.desviaciones_sub")}
               >
                 <Switch checked={appSettings.notificaciones?.desviaciones} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, desviaciones: v } })} />
               </SettingRow>
             </Card>
           </Col>
           <Col xs={24} lg={12}>
-            <Card title="Estado de Notificaciones" style={sectionCard} size="small">
+            <Card title={t("ajustes.estado_notificaciones")} style={sectionCard} size="small">
               <Space direction="vertical" style={{ width: '100%' }} size={16}>
-                <Statistic title="No leídas" value={notificacionesNoLeidas} prefix={<BellOutlined />} />
+                <Statistic title={t("ajustes.no_leidas")} value={notificacionesNoLeidas} prefix={<BellOutlined />} />
                 <Button type="primary" onClick={marcarTodasLeidas} icon={<CheckCircleOutlined />}>
                   Marcar todas como leídas
                 </Button>
@@ -630,7 +630,7 @@ const Ajustes: React.FC = () => {
     },
     {
       key: 'datos',
-      label: <span><DatabaseOutlined /> Datos</span>,
+      label: <span><DatabaseOutlined /> {t('ajustes.datos_tab')}</span>,
       children: (
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={12}>
@@ -649,10 +649,10 @@ const Ajustes: React.FC = () => {
             </Card>
           </Col>
           <Col xs={24} lg={12}>
-            <Card title="Almacenamiento" style={sectionCard} size="small">
-              <Statistic title="Datos en localStorage" value="~2.4 MB" prefix={<DatabaseOutlined />} />
+            <Card title={t("ajustes.almacenamiento")} style={sectionCard} size="small">
+              <Statistic title={t("ajustes.datos_localstorage")} value="~2.4 MB" prefix={<DatabaseOutlined />} />
               <Divider />
-              <Text type="secondary">Los datos se almacenan localmente y se sincronizan con la nube cuando hay conexión.</Text>
+              <Text type="secondary">{t("ajustes.datos_sincronizacion")}</Text>
             </Card>
           </Col>
         </Row>
@@ -660,7 +660,7 @@ const Ajustes: React.FC = () => {
     },
     {
       key: 'cuenta',
-      label: <span><SafetyOutlined /> Cuenta</span>,
+      label: <span><SafetyOutlined /> {t('ajustes.cuenta_tab')}</span>,
       children: (
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={12}>
@@ -668,7 +668,7 @@ const Ajustes: React.FC = () => {
               <Space align="center" style={{ marginBottom: 24 }}>
                 <Avatar size={64} icon={<UserOutlined />} style={{ backgroundColor: token.colorPrimary }} />
                 <div>
-                  <Title level={5} style={{ margin: 0 }}>{user?.nombre || 'Usuario'}</Title>
+                  <Title level={5} style={{ margin: 0 }}>{user?.nombre || t('ajustes.usuario')}</Title>
                   <Text type="secondary">{user?.rol}</Text>
                 </div>
               </Space>
@@ -683,11 +683,11 @@ const Ajustes: React.FC = () => {
             </Card>
           </Col>
           <Col xs={24} lg={12}>
-            <Card title="Seguridad" style={sectionCard} size="small">
+            <Card title={t("ajustes.seguridad")} style={sectionCard} size="small">
               <Space direction="vertical" style={{ width: '100%' }} size={16}>
-                <Card title="Autenticación de Dos Factores (2FA)" size="small" type="inner">
+                <Card title={t("ajustes.autenticacion_2fa")} size="small" type="inner">
                   <Space direction="vertical" style={{ width: '100%' }} size={12}>
-                    <Text>Protege tu cuenta con verificación en dos pasos.</Text>
+                    <Text>{t("ajustes.protege_cuenta")}</Text>
                     <Button
                       type="primary"
                       icon={<SafetyOutlined />}
@@ -699,16 +699,16 @@ const Ajustes: React.FC = () => {
                       Configurar 2FA en Supabase
                     </Button>
                     <Text type="secondary" style={{ fontSize: 12 }}>
-                      Serás redirigido al panel de Supabase para configurar la autenticación multifactor.
+                      {t("ajustes.redirigido_supabase")}
                     </Text>
                   </Space>
                 </Card>
                 <Divider />
-                <Button icon={<KeyOutlined />} block>Cambiar Contraseña</Button>
+                <Button icon={<KeyOutlined />} block>{t("ajustes.cambiar_contrasena")}</Button>
                 <Divider />
                 <Alert
-                  message="Sesión Segura"
-                  description="La autenticación se maneja mediante Supabase con políticas de RLS (Row Level Security)."
+                  message={t("ajustes.sesion_segura")}
+                  description={t("ajustes.sesion_segura_desc")}
                   type="success"
                   showIcon
                 />
@@ -720,14 +720,14 @@ const Ajustes: React.FC = () => {
     },
     {
       key: 'acerca',
-      label: <span><InfoCircleOutlined /> Acerca de</span>,
+      label: <span><InfoCircleOutlined /> {t('ajustes.acerca_tab')}</span>,
       children: (
         <Card style={sectionCard}>
           <Space direction="vertical" style={{ width: '100%', textAlign: 'center' }} size={16}>
             <Avatar size={80} icon={<InfoCircleOutlined />} style={{ backgroundColor: token.colorPrimary }} />
-            <Title level={3}>ERP CONSTRUSMART</Title>
+            <Title level={3}>{t("ajustes.erp_nombre")}</Title>
             <Text type="secondary">Sistema Integral de Gestión para Proyectos de Construcción</Text>
-            <Tag color="orange" style={{ fontSize: 14, padding: '4px 12px' }}>Versión 2.0.0</Tag>
+            <Tag color="orange" style={{ fontSize: 14, padding: '4px 12px' }}>{t("ajustes.version_tag")}</Tag>
             <Divider />
             <Descriptions column={2} bordered size="small" style={{ maxWidth: 600, margin: '0 auto' }}>
               <Descriptions.Item label="Framework Frontend">React 18 + TypeScript</Descriptions.Item>
@@ -740,7 +740,7 @@ const Ajustes: React.FC = () => {
             </Descriptions>
             <Divider />
             <Text type="secondary" style={{ fontSize: 12 }}>
-              {`"Edificando el Futuro" — Todos los derechos reservados`}
+              {t("ajustes.edificando_futuro")}
             </Text>
           </Space>
         </Card>
@@ -757,7 +757,7 @@ const Ajustes: React.FC = () => {
         {appSettings.appTheme === 'dark' ? 'Oscuro' : 'Claro'}
       </Tag>
       <Tag icon={<BgColorsOutlined />}>
-        Sidebar: {appSettings.sidebarPosition === 'right' ? 'Der' : appSettings.sidebarPosition === 'overlay' ? 'Overlay' : 'Izq'}
+        Sidebar: {appSettings.sidebarPosition === 'right' ? t('ajustes.sidebar_der') : appSettings.sidebarPosition === 'overlay' ? t('ajustes.overlay') : t('ajustes.sidebar_izq')}
       </Tag>
     </Space>
   );
@@ -778,7 +778,7 @@ const Ajustes: React.FC = () => {
           {t('ajustes.titulo')}
         </Title>
         <Text type="secondary" style={{ color: token.colorTextSecondary, fontSize: 13 }}>
-          Personaliza la apariencia, idioma, notificaciones y configuración general del ERP
+          {t("ajustes.subtitulo_desc")}
         </Text>
       </div>
 
@@ -821,3 +821,10 @@ const Ajustes: React.FC = () => {
 };
 
 export default Ajustes;
+
+
+
+
+
+
+

@@ -278,7 +278,7 @@ const Cotizaciones: React.FC = () => {
                     <div className="flex flex-col gap-1">
                       {c.estado === 'borrador' && (
                         <button onClick={() => handleEnviar(c)} className="text-xs bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 active:bg-blue-700 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
-                          <Send className="w-3 h-3" aria-hidden="true" /> {t('common.cancelar')}
+                          <Send className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.enviar_cliente')}
                         </button>
                       )}
                       <button onClick={() => { exportCotizacionPDF(c); }} className="text-xs bg-emerald-500 text-white px-3 py-2 rounded hover:bg-emerald-600 active:bg-emerald-700 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
