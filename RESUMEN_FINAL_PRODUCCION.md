@@ -44,31 +44,49 @@
 
 ## ⚠️ PASOS MANUALES REQUERIDOS (Solo 4 pasos, ~30 min)
 
-### Paso 1: Aplicar Script SQL en Supabase (5 min) ⭐ CRÍTICO
+### Paso 1: Aplicar Script SQL Completo en Supabase (5 min) ⭐ CRÍTICO
 
 **Este es el único paso esencial que requiere acción manual.**
 
 **Instrucciones:**
 1. Ir a Supabase Dashboard → Proyecto `neygzluxugodiwcuctbj`
 2. Ir a SQL Editor
-3. Copiar el contenido de: `supabase/migrations/APPLY_GEOGRAPHIC_DATA_AUTOMATED.sql`
+3. Copiar el contenido de: `supabase/migrations/AUDIT_AND_ALIGN_DATABASE.sql` ⭐ **NUEVO**
 4. Pegar en SQL Editor
 5. Click "Run"
 6. Verificar que muestre:
    ```
-   ✅ Datos geográficos insertados exitosamente
+   === AUDITORÍA DE ESQUEMA ACTUAL ===
+   Total tablas erp_*: XX
+   ✅ ACTIVA: erp_proyectos
+   ...
+   ⚠️  OBSOLETA: erp_subcontratos (si existe)
+   ...
+   === LIMPIEZA DE TABLAS OBSOLETAS ===
+   ✅ Eliminada: erp_subcontratos (si existía)
+   ✅ Eliminada: erp_rendimientos (si existía)
+   ✅ Eliminada: erp_licitaciones (si existía)
+   ✅ Eliminada: erp_muro (si existía)
+   === CREACIÓN DE TABLAS GEOLÓGICAS ===
+   ✅ Creada: erp_departamentos_gt
+   ✅ Creada: erp_municipios_gt
+   === VERIFICACIÓN FINAL ===
+   ✅ VERIFICACIÓN COMPLETADA
       - Departamentos: 22
       - Municipios: ~90+
-   ✅ VERIFICACIÓN COMPLETADA: Todos los datos geográficos están listos
+      - Total tablas erp_*: XX
+   ✅ BASE DE DATOS ALINEADA CON LA APLICACIÓN
    ```
 
-**Qué hace este script:**
-- Crea tablas `erp_departamentos_gt` y `erp_municipios_gt`
-- Configura RLS y policies de seguridad
-- Habilita Realtime para actualizaciones en tiempo real
-- Inserta 22 departamentos de Guatemala
-- Inserta ~100 municipios principales
-- Ejecuta verificación automática
+**Qué hace este script (TODO EN UNO):**
+- **AUDITORÍA**: Lista todas las tablas `erp_*` e identifica obsoletas
+- **LIMPIEZA**: Elimina tablas legacy (`erp_subcontratos`, `erp_rendimientos`, `erp_licitaciones`, `erp_muro`)
+- **CREACIÓN**: Crea tablas geográficas (`erp_departamentos_gt`, `erp_municipios_gt`)
+- **CONFIGURACIÓN**: Índices, RLS, triggers, Realtime
+- **SEED DATA**: Inserta 22 departamentos + ~90 municipios
+- **VERIFICACIÓN**: Verifica alineación completa con la app
+
+**Nota:** Este script reemplaza al anterior `APPLY_GEOGRAPHIC_DATA_AUTOMATED.sql` ya que hace TODO (auditoría + limpieza + creación).
 
 ---
 
@@ -172,7 +190,7 @@ Todas las guías están en el repo:
 - `AUTOMATED_VS_MANUAL.md` - Resumen ejecutivo de este documento
 
 ### Archivos SQL:
-- `supabase/migrations/APPLY_GEOGRAPHIC_DATA_AUTOMATED.sql` - Script TODO en 1
+- `supabase/migrations/AUDIT_AND_ALIGN_DATABASE.sql` - Script TODO-EN-UNO (auditoría + limpieza + creación) ⭐ **NUEVO**
 
 ---
 

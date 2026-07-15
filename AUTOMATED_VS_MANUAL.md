@@ -34,29 +34,41 @@
 
 ## ⚠️ REQUIERE ACCIÓN MANUAL (NO PUEDO HACER AUTOMÁTICAMENTE)
 
-### 1. Aplicar Migración y Seed Data en Supabase (5 minutos)
+### 1. Aplicar Script SQL Completo en Supabase (5 minutos)
 
 **Pasos:**
 1. Ir a Supabase Dashboard → Proyecto `neygzluxugodiwcuctbj`
 2. Ir a SQL Editor
-3. Copiar el contenido de `supabase/migrations/APPLY_GEOGRAPHIC_DATA_AUTOMATED.sql`
+3. Copiar el contenido de `supabase/migrations/AUDIT_AND_ALIGN_DATABASE.sql` ⭐ **ACTUALIZADO**
 4. Pegar en SQL Editor
 5. Click "Run"
 6. Verificar que muestre:
    ```
-   ✅ Datos geográficos insertados exitosamente
-      - Departamentos: 22
-      - Municipios: ~90+
-   ✅ VERIFICACIÓN COMPLETADA: Todos los datos geográficos están listos
+   === AUDITORÍA DE ESQUEMA ACTUAL ===
+   Total tablas erp_*: XX
+   ✅ ACTIVA: erp_proyectos
+   ...
+   ⚠️  OBSOLETA: erp_subcontratos (si existe)
+   ...
+   === LIMPIEZA DE TABLAS OBSOLETAS ===
+   ✅ Eliminada: erp_subcontratos (si existía)
+   ✅ Eliminada: erp_rendimientos (si existía)
+   ✅ Eliminada: erp_licitaciones (si existía)
+   ✅ Eliminada: erp_muro (si existía)
+   === CREACIÓN DE TABLAS GEOLÓGICAS ===
+   ✅ Creada: erp_departamentos_gt
+   ✅ Creada: erp_municipios_gt
+   === VERIFICACIÓN FINAL ===
+   ✅ BASE DE DATOS ALINEADA CON LA APLICACIÓN
    ```
 
 **Nota:** Este script hace TODO en una sola ejecución:
-- Crea tablas `erp_departamentos_gt` y `erp_municipios_gt`
-- Configura RLS y policies
-- Habilita Realtime
-- Inserta 22 departamentos
-- Inserta ~100 municipios principales
-- Ejecuta verificación automática
+- **AUDITORÍA**: Lista todas las tablas erp_* e identifica obsoletas
+- **LIMPIEZA**: Elimina tablas legacy (erp_subcontratos, erp_rendimientos, erp_licitaciones, erp_muro)
+- **CREACIÓN**: Crea tablas geográficas (erp_departamentos_gt, erp_municipios_gt)
+- **CONFIGURACIÓN**: Índices, RLS, triggers, Realtime
+- **SEED DATA**: Inserta 22 departamentos + ~90 municipios
+- **VERIFICACIÓN**: Verifica alineación completa con la app
 
 ---
 
