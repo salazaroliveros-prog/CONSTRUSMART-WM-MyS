@@ -37,12 +37,16 @@ jobs:
         run: npm test -- --run
 
       - name: Deploy to Vercel Production
-        uses: amondnet/vercel-action@v2
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: .
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ] || [ -z "$VERCEL_TOKEN" ]; then
+            echo "::warning::Missing Vercel secrets. Skipping deploy."
+            exit 0
+          fi
+          npx vercel deploy --prod --token "$VERCEL_TOKEN" --yes
 
       - name: Post-Deploy Validation
         if: always()
