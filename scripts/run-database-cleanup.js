@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Connection string PostgreSQL Shared Pooler (formato correcto de Supabase)
-const DB_URL = 'postgresql://postgres.neygzluxugodiwcuctbj:AngelDario2027@aws-1-us-east-1.pooler.supabase.com:5432/postgres';
+// Usar variable de entorno o placeholder
+const DB_URL = process.env.DATABASE_URL || 'postgresql://user:password@host:5432/database';
 
 async function executeSQLScript() {
   const client = new pg.Client({
