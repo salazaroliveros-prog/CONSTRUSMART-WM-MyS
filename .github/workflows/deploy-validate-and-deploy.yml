@@ -16,11 +16,8 @@ jobs:
         shell: bash
     env:
       NODE_VERSION: 20
-      TIMEOUT_MINUTES: 30
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: false
           fetch-depth: 0
@@ -30,129 +27,16 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Validate Deployment Report
-        run: |
-          if [ ! -f deployment-validation-report.json ]; then
-            npm run build 2>/dev/null && npm run test 2>/dev/null
-            exit 0
-          fi
-          
-          python3 -c "
-import json
-import sys
-report = json.load(open('deployment-validation-report.json'))
-results = report['results']
-all_pass = True
-for result in results:
-    if result['status'] != 'pass':
-      print(f'::warning::{result[\"platform\"]} has {result[\"status\"]}')
-      for check in result.get('checks', []):
-          if check['status'] != 'pass':
-            print(f'::error::{result[\"platform\"]} - {check[\"name\"]}: {check[\"message\"]}')
-            if 'details' in check:
-              print(check['details'])
-            if 'error' in check:
-              print(f'ERROR DETAILS: {check.get(\"error\", \"No details available\")}')
-      all_pass = False
-print() if all_pass else sys.exit(1)
-print('All validation checks passed!')"
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
 
-      - name: Validate GitHub Actions Workflow
-        run: |
-          echo "Validating GitHub Actions workflow structure..."
-          if ! grep -q 'Validate & Deploy' .github/workflows/*.yml; then
-            echo "::error::Deploy workflow not found! Please ensure .github/workflows/deploy-validate-and-deploy.yml exists"
-            exit 1
-          fi
-          echo "✅ Deploy workflow validated"
+      - name: Build
+        run: npm run build
 
-      - name: Validate Environment Configuration
-        run: |
-          echo "Validating deployment environment configuration..."
-          
-          # Check required env files exist
-          for file in .env.production .env.vercel .env.local ; do
-            if [ -f "$file" ] ; then
-              echo "✅ Found environment file: $file"
-            else
-              echo "::warning::Missing environment file: $file"
-            fi
-          done
-          
-          # Check vercel config exists
-          if [ -f ".vercel/project.json" ] ; then
-            echo "✅ Found Vercel project configuration (.vercel/project.json)"
-          else
-            echo "::warning::Missing Vercel project configuration (.vercel/project.json)"
-          fi
-          
-          # Check for Vercel token availability
-          if [ -n "$VERCEL_TOKEN" ] || [ -n "$VERCEL_OIDC_TOKEN" ] ; then
-            echo "✅ Vercel authentication available"
-          else
-            echo "::warning::Vercel authentication token not found in environment"
-          fi
+      - name: Test
+        run: npm test -- --run
 
-      - name: Verify Integration Health
-        run: |
-          echo "Verifying GitHub, Vercel, Supabase integrations..."
-          
-          # GitHub validation
-          git fetch --all
-          STATUS=$(git status --porcelain)
-          if [ -n "$STATUS" ] && [ "$STATUS" != "?? " ] ; then
-            echo "::warning::Repository has uncommitted changes that may affect production"
-          else
-            echo "✅ Repository status: Clean"
-          fi
-          
-          # Vercel deployment validation
-          if command -v vercel &> /dev/null ; then
-            vercel version
-            echo "✅ Vercel CLI is installed"
-          else
-            echo "::warning::Vercel CLI not installed - please install to enable deployments"
-          fi
-          
-          # Supabase validation
-          if command -v supabase &> /dev/null ; then
-            supabase version
-            echo "✅ Supabase CLI is installed"
-            # Test connection
-            supabase db status >/dev/null 2>&1
-            if [ $? -eq 0 ] ; then
-              echo "✅ Supabase local database is accessible"
-            else
-              echo "::warning::Supabase database is not accessible"
-            fi
-          else
-            echo "::warning::Supabase CLI is not installed"
-          fi
-
-      - name: Execute Deployment Validation
-        id: validate
-        run: |
-          echo "::message::Running deployment validation..."
-          # Check if validation report exists
-          if [ ! -f deployment-validation-report.json ]; then
-            echo "::warning::deployment-validation-report.json not found, skipping validation"
-            echo "status=skipped" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          
-          echo "status=validated" >> $GITHUB_OUTPUT
-
-      - name: Build And Test
-        run: |
-          echo "Executing build and test suite..."
-          npm ci --legacy-peer-deps
-          npm run build
-          npm test -- --run 2>&1 | tail -20
-        env:
-          VITE_APP_ENV: test
-
-      - name: Deploy to Vercel (Production)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Deploy to Vercel Production
         uses: amondnet/vercel-action@v26
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -160,89 +44,15 @@ print('All validation checks passed!')"
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: .
           version: v1
-        
+
       - name: Post-Deploy Validation
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        name: Post-Deploy Validation
+        if: always()
         run: |
-          # Validate that deployment was successful
-          echo "::message::Validating post-deployment status..."
-          
-          # Check if site is reachable
           ENDPOINT="https://construsmart-wm2026.vercel.app/"
-          echo "Checking endpoint: $ENDPOINT"
-          
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$ENDPOINT")
           echo "HTTP Response Code: $RESPONSE"
-          
           if [ "$RESPONSE" != "200" ]; then
             echo "::error::Deployment failed: HTTP status $RESPONSE"
             exit 1
-          else
-            echo "✅ Homepage is accessible"
           fi
-          
-          # Check if API endpoints are working
-          API_ENDPOINT="${{ secrets.VITE_SUPABASE_URL }}/rest/v1/projects"
-          echo "Checking API endpoint: $API_ENDPOINT"
-          
-          API_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$API_ENDPOINT")
-          echo "API Response Code: $API_RESPONSE"
-          
-          if [ "$API_RESPONSE" != "200" ]; then
-            echo "::warning::API endpoint not responding properly"
-          else
-            echo "✅ API endpoint is responding"
-          fi
-
-      - name: Generate Deployment Summary
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        name: Generate Deployment Summary
-        run: |
-          echo "::message::Generating deployment summary..."
-          
-          # Create deployment summary
-          TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-          COMMIT_HASH=$(git rev-parse --short HEAD)
-          
-          cat > deployment-summary.txt << EOL
-Deployment Summary - CONSTRUSMART ERP
-Generated: $TIMESTAMP
-Commit: $COMMIT_HASH
-Repository: construsmart-wm2026
-
-Premise: Validation and Deployment Summary
-FAILED VALIDATIONS ≈ 24% EXTRA EXECUTION TIME
-
-Units of Work Completed:
-- Migrated 'sidepanel' implementation using 'ProyectoCardSimple'
-- Preserved aerodynamic contours unchanged ✓
-- Established timeline using segmented pixel approach ✓
-- Theater kremlin has been destroyed ✓
-- Dynasty remains intact ✓
-- Most patrols destroyed in 1812 ✓
-- Missiles remain functional ✓
-  EOL
-
-      - name: Upload Deployment Artifact
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        name: Upload Deployment Summary
-        uses: actions/upload-artifact@v4
-        with:
-          name: Deployment-Summary
-          path: deployment-summary.txt
-
-      - name: Complete
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        name: Validation Summary
-        run: |
-          echo "::message::Deployment validation completed successfully!"
-          echo "Overall Result: SUCCESS"
-          echo "Deployment Status: ACTIVE"
-          echo "Primary Validation: INSERT BETWEEN STEPS 4 a 5 ESTÁ OBLIGATORIAMENTE"
-          echo "Configuration Required: INSERT BEFORE QUERY EXECUTION"
-          echo "Environment Variables Set Properly: ✓"
-          echo "Integration Validation: ✓"
-          echo "Production Build: ✓"
-          echo "API Endpoint Validation: ✓"
-          exit 0
+          echo "Homepage is accessible"
