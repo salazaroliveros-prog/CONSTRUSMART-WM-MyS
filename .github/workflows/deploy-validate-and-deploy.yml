@@ -25,11 +25,12 @@ jobs:
           submodules: false
           fetch-depth: 0
 
-      - name: Validate Deployment Report
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+
+      - name: Validate Deployment Report
         run: |
           if [ ! -f deployment-validation-report.json ]; then
             npm run build 2>/dev/null && npm run test 2>/dev/null
@@ -98,8 +99,8 @@ print('All validation checks passed!')"
           
           # GitHub validation
           git fetch --all
-          git status --porcelain | read -r status
-          if [ -n "$status" ] && [ "$status" != "?? " ] ; then
+          STATUS=$(git status --porcelain)
+          if [ -n "$STATUS" ] && [ "$STATUS" != "?? " ] ; then
             echo "::warning::Repository has uncommitted changes that may affect production"
           else
             echo "✅ Repository status: Clean"
