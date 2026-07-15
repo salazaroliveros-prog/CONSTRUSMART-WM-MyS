@@ -98,16 +98,54 @@ END $$;
 DO $$
 DECLARE
   table_record RECORD;
+  view_record RECORD;
   is_valid BOOLEAN;
   is_obsolete BOOLEAN;
+  is_view BOOLEAN;
 BEGIN
   RAISE NOTICE '=== ELIMINACIÓN DE TABLAS HUÉRFANAS ===';
   
+  -- Primero eliminar vistas huérfanas
+  FOR view_record IN 
+    SELECT table_name 
+    FROM information_schema.views 
+    WHERE table_schema = 'public' 
+      AND table_name LIKE 'erp_%'
+    ORDER BY table_name
+  LOOP
+    -- Verificar si es vista válida (está en TABLE_MAP)
+    is_valid := view_record.table_name IN (
+      'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
+      'erp_ordenes_compra', 'erp_proveedores', 'erp_cuentas_cobrar', 'erp_cuentas_pagar',
+      'erp_hitos', 'erp_riesgos', 'erp_cotizaciones_negocio', 'erp_vales_salida',
+      'erp_no_conformidades', 'erp_incidentes', 'erp_publicaciones_muro', 'erp_planos',
+      'erp_rfis', 'erp_submittals', 'erp_activos', 'erp_cuadros', 'erp_pagos_proveedor',
+      'erp_destajos', 'erp_recepciones', 'erp_centros_costo', 'erp_seguimiento',
+      'erp_bitacora', 'erp_plantillas_proyectos', 'erp_notificaciones', 'erp_presupuestos',
+      'erp_avances', 'erp_eventos_calendario', 'erp_ventas_paquetes', 'erp_ordenes_cambio',
+      'erp_pruebas_laboratorio', 'erp_liberaciones_partida', 'erp_error_log',
+      'erp_proyecto_weather', 'erp_auditoria', 'erp_insumos_base',
+      'erp_departamentos_gt', 'erp_municipios_gt', 'erp_reglas_factores',
+      'erp_normativa_departamental', 'erp_escalas_produccion', 'erp_estacionalidad',
+      'erp_historial_aplicacion_reglas', 'erp_ajustes_estacionales_actividad',
+      'erp_calculos_proyecto', 'erp_cumplimiento_normativo',
+      'erp_aplicacion_escalas', 'erp_configuracion', 'erp_solicitudes', 'erp_archivos_tipo'
+    );
+    
+    -- Si no es válida, eliminarla
+    IF NOT is_valid THEN
+      EXECUTE format('DROP VIEW IF EXISTS %I CASCADE', view_record.table_name);
+      RAISE NOTICE '✅ Eliminada (vista huérfana): %', view_record.table_name;
+    END IF;
+  END LOOP;
+  
+  -- Luego eliminar tablas huérfanas
   FOR table_record IN 
     SELECT table_name 
     FROM information_schema.tables 
     WHERE table_schema = 'public' 
       AND table_name LIKE 'erp_%'
+      AND table_type = 'BASE TABLE'
     ORDER BY table_name
   LOOP
     -- Verificar si es tabla válida (está en TABLE_MAP)
@@ -132,7 +170,7 @@ BEGIN
     -- Si no es válida, eliminarla
     IF NOT is_valid THEN
       EXECUTE format('DROP TABLE IF EXISTS %I CASCADE', table_record.table_name);
-      RAISE NOTICE '✅ Eliminada (huérfana): %', table_record.table_name;
+      RAISE NOTICE '✅ Eliminada (tabla huérfana): %', table_record.table_name;
     END IF;
   END LOOP;
   
