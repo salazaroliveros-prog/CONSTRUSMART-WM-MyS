@@ -42,46 +42,24 @@
 
 ---
 
-## ⚠️ PASOS MANUALES REQUERIDOS (Solo 4 pasos, ~30 min)
+## ⚠️ PASOS MANUALES REQUERIDOS (Solo 3 pasos, ~25 min)
 
-### Paso 1: Aplicar Script SQL Completo en Supabase (5 min) ⭐ CRÍTICO
+### Paso 1: Aplicar Script SQL Completo en Supabase ✅ COMPLETADO
 
-**Este es el único paso esencial que requiere acción manual.**
+**Estado:** ✅ Ejecutado exitosamente sin errores
 
-**Instrucciones:**
-1. Ir a Supabase Dashboard → Proyecto `neygzluxugodiwcuctbj`
-2. Ir a SQL Editor
-3. Copiar el contenido de: `supabase/migrations/FINAL_DATABASE_CLEANUP.sql` ⭐ **FINAL - SINTAXIS CORREGIDA**
-4. Pegar en SQL Editor
-5. Click "Run"
-6. Verificar que muestre:
-   ```
-   === ELIMINACIÓN DE TABLAS OBSOLETAS/HUÉRFANAS ===
-   ✅ Eliminada (huérfana): erp_tabla_extra (si existía)
-   ...
-   === CREACIÓN DE TABLAS GEOLÓFICAS ===
-   ✅ Creada: erp_departamentos_gt
-   ✅ Creada: erp_municipios_gt
-   === CONFIGURACIÓN DE REALTIME ===
-   ✅ Agregada a realtime: erp_departamentos_gt
-   ✅ Agregada a realtime: erp_municipios_gt
-   === VERIFICACIÓN FINAL ===
-   ✅ BASE DE DATOS ALINEADA CON LA APLICACIÓN
-   ```
+**Script:** `supabase/migrations/FINAL_DATABASE_CLEANUP.sql`
 
-**Qué hace este script (TODO EN UNO):**
-- **AUDITORÍA COMPLETA**: Lista todas las tablas `erp_*` y clasifica en válidas, huérfanas u obsoletas
-- **ELIMINACIÓN DE TABLAS HUÉRFANAS**: Elimina tablas que no están en TABLE_MAP del código
-- **ELIMINACIÓN DE TABLAS OBSOLETAS**: Elimina tablas legacy (`erp_subcontratos`, `erp_rendimientos`, `erp_licitaciones`, `erp_muro`)
-- **CREACIÓN**: Crea tablas geográficas (`erp_departamentos_gt`, `erp_municipios_gt`)
-- **CONFIGURACIÓN**: Índices, RLS, triggers, Realtime (con sintaxis correcta PostgreSQL)
-- **SEED DATA**: Inserta 22 departamentos + ~90 municipios
-- **VERIFICACIÓN**: Verifica alineación 100% con la app
-
-**Nota:** Este script usa sintaxis PostgreSQL correcta:
-- Verifica `pg_publication_tables` antes de `ALTER PUBLICATION ADD TABLE` (PostgreSQL no soporta `IF NOT EXISTS` en este comando)
-- Usa `$function$` como delimitador para funciones (evita conflictos con bloques `DO $$`)
-- Elimina `ON CONFLICT` (usa check de count en su lugar)
+**Resultado:**
+- ✅ Tablas huérfanas eliminadas
+- ✅ Tablas obsoletas eliminadas (erp_subcontratos, erp_rendimientos, erp_licitaciones, erp_muro)
+- ✅ Tablas geográficas creadas (erp_departamentos_gt, erp_municipios_gt)
+- ✅ Índices configurados
+- ✅ RLS configurado
+- ✅ Triggers configurados
+- ✅ Realtime habilitado
+- ✅ Seed data insertada (22 departamentos + ~90 municipios)
+- ✅ Base de datos alineada con la aplicación
 
 ---
 
