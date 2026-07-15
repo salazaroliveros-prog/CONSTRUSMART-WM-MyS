@@ -226,9 +226,9 @@ const Cuadros: React.FC = () => {
                   const mejorCot = c.cotizaciones?.filter((cot: any) => cot.seleccionada)[0];
                   return (
                     <tr key={c.id} className="border-b border-border hover:bg-muted/50">
-                      <td className="p-2 font-medium">{c.solicitud}</td>
-                      <td className="p-2 text-muted-foreground">{proyecto?.nombre || '-'}</td>
-                      <td className="p-2 text-muted-foreground">{c.fechaSolicitud}</td>
+                      <td className="p-2 font-medium truncate" title={c.solicitud}>{c.solicitud}</td>
+                      <td className="p-2 text-muted-foreground truncate" title={proyecto?.nombre || '-'}>{proyecto?.nombre || '-'}</td>
+                      <td className="p-2 text-muted-foreground truncate">{c.fechaSolicitud}</td>
                       <td className="p-2 text-center">
                         <span className={`px-2 py-1 rounded text-xs font-medium ${estadoBadge(c.estado)}`}>
                           {t(`cuadros.estado_${c.estado}`)}
