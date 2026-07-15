@@ -594,12 +594,12 @@ BEGIN
   
   -- Función update_timestamp
   CREATE OR REPLACE FUNCTION update_timestamp()
-  RETURNS TRIGGER AS $$
+  RETURNS TRIGGER AS $function$
   BEGIN
     NEW.updated_at = NOW();
     RETURN NEW;
   END;
-  $$ LANGUAGE plpgsql;
+  $function$ LANGUAGE plpgsql;
   
   -- Trigger para departamentos
   DROP TRIGGER IF EXISTS trigger_departamentos_updated_at ON erp_departamentos_gt;
