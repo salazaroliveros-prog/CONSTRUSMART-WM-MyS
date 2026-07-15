@@ -152,20 +152,63 @@ CREATE TABLE IF NOT EXISTS public.erp_notificaciones (
 
 ALTER TABLE public.erp_notificaciones ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "erp_notificaciones_select" ON public.erp_notificaciones;
-CREATE POLICY "erp_notificaciones_select" ON public.erp_notificaciones FOR SELECT TO authenticated USING (
-  usuario_id = auth.uid()
-);
+-- Verificar si la columna usuario_id existe antes de crear políticas
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'erp_notificaciones' AND column_name = 'usuario_id' AND table_schema = 'public') THEN
+    -- Políticas basadas en usuario_id
+    DROP POLICY IF EXISTS "erp_notificaciones_select" ON public.erp_notificaciones;
+    CREATE POLICY "erp_notificaciones_select" ON public.erp_notificaciones FOR SELECT TO authenticated USING (
+      usuario_id = auth.uid()
+    );
 
-DROP POLICY IF EXISTS "erp_notificaciones_insert" ON public.erp_notificaciones;
-CREATE POLICY "erp_notificaciones_insert" ON public.erp_notificaciones FOR INSERT TO authenticated WITH CHECK (true);
+    DROP POLICY IF EXISTS "erp_notificaciones_insert" ON public.erp_notificaciones;
+    CREATE POLICY "erp_notificaciones_insert" ON public.erp_notificaciones FOR INSERT TO authenticated WITH CHECK (
+      usuario_id = auth.uid()
+    );
 
-DROP POLICY IF EXISTS "erp_notificaciones_update" ON public.erp_notificaciones;
-CREATE POLICY "erp_notificaciones_update" ON public.erp_notificaciones FOR UPDATE TO authenticated USING (
-  usuario_id = auth.uid()
-);
+    DROP POLICY IF EXISTS "erp_notificaciones_update" ON public.erp_notificaciones;
+    CREATE POLICY "erp_notificaciones_update" ON public.erp_notificaciones FOR UPDATE TO authenticated USING (
+      usuario_id = auth.uid()
+    );
 
-CREATE INDEX IF NOT EXISTS idx_notificaciones_usuario ON public.erp_notificaciones(usuario_id);
+    DROP POLICY IF EXISTS "erp_notificaciones_delete" ON public.erp_notificaciones;
+    CREATE POLICY "erp_notificaciones_delete" ON public.erp_notificaciones FOR DELETE TO authenticated USING (
+      usuario_id = auth.uid()
+    );
+  ELSE
+    -- Si no existe usuario_id, crear políticas basadas en proyecto_id
+    DROP POLICY IF EXISTS "erp_notificaciones_select" ON public.erp_notificaciones;
+    CREATE POLICY "erp_notificaciones_select" ON public.erp_notificaciones FOR SELECT TO authenticated USING (
+      proyecto_id IN (SELECT id FROM erp_proyectos WHERE id IN (
+        SELECT proyecto_id FROM erp_proyecto_miembros WHERE user_id = auth.uid()
+      ))
+    );
+
+    DROP POLICY IF EXISTS "erp_notificaciones_insert" ON public.erp_notificaciones;
+    CREATE POLICY "erp_notificaciones_insert" ON public.erp_notificaciones FOR INSERT TO authenticated WITH CHECK (
+      proyecto_id IN (SELECT id FROM erp_proyectos WHERE id IN (
+        SELECT proyecto_id FROM erp_proyecto_miembros WHERE user_id = auth.uid()
+      ))
+    );
+
+    DROP POLICY IF EXISTS "erp_notificaciones_update" ON public.erp_notificaciones;
+    CREATE POLICY "erp_notificaciones_update" ON public.erp_notificaciones FOR UPDATE TO authenticated USING (
+      proyecto_id IN (SELECT id FROM erp_proyectos WHERE id IN (
+        SELECT proyecto_id FROM erp_proyecto_miembros WHERE user_id = auth.uid()
+      ))
+    );
+
+    DROP POLICY IF EXISTS "erp_notificaciones_delete" ON public.erp_notificaciones;
+    CREATE POLICY "erp_notificaciones_delete" ON public.erp_notificaciones FOR DELETE TO authenticated USING (
+      proyecto_id IN (SELECT id FROM erp_proyectos WHERE id IN (
+        SELECT proyecto_id FROM erp_proyecto_miembros WHERE user_id = auth.uid()
+      ))
+    );
+  END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_notificaciones_usuario ON public.erp_notificaciones(usuario_id) WHERE EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'erp_notificaciones' AND column_name = 'usuario_id' AND table_schema = 'public');
 CREATE INDEX IF NOT EXISTS idx_notificaciones_proyecto ON public.erp_notificaciones(proyecto_id);
 CREATE INDEX IF NOT EXISTS idx_notificaciones_leido ON public.erp_notificaciones(leido);
 CREATE INDEX IF NOT EXISTS idx_notificaciones_tipo ON public.erp_notificaciones(tipo);
