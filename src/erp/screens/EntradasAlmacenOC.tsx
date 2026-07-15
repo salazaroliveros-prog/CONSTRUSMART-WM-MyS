@@ -133,8 +133,8 @@ const EntradasAlmacenOC: React.FC = () => {
 
               return (
                 <tr key={oc.id} className={`border-t border-border ${completada ? 'bg-emerald-50/40 dark:bg-emerald-950/20' : 'hover:bg-muted/50'}`}>
-                  <td className="p-3 font-medium">{oc.proveedor}</td>
-                  <td className="p-3">{oc.material}</td>
+                  <td className="p-3 font-medium truncate" title={oc.proveedor}>{oc.proveedor}</td>
+                  <td className="p-3 truncate" title={oc.material}>{oc.material}</td>
                   <td className="p-3 text-right font-mono">{oc.cantidad}</td>
                   <td className="p-3 text-right font-mono">{fmtQ(oc.monto)}</td>
                   <td className="p-3">
@@ -229,8 +229,8 @@ const EntradasAlmacenOC: React.FC = () => {
                 {historialRecepciones.items.map(r => (
                   <tr key={r.id} className={`border-t border-border ${r.diferencia < 0 ? 'bg-red-50/60 dark:bg-red-950/20' : 'hover:bg-muted/50'}`}>
                     <td className="p-2 text-xs">{new Date(r.fecha).toLocaleDateString()}</td>
-                    <td className="p-2 text-xs">{r.proveedor}</td>
-                    <td className="p-2 text-xs">{r.material}</td>
+                    <td className="p-2 text-xs truncate" title={r.proveedor}>{r.proveedor}</td>
+                    <td className="p-2 text-xs truncate" title={r.material}>{r.material}</td>
                     <td className="p-2 text-right font-mono text-xs">{r.cantidadRecibida}</td>
                     <td className="p-2 text-right font-mono text-xs">{r.cantidadOC}</td>
                     <td className={`p-2 text-right font-mono text-xs ${r.diferencia < 0 ? 'text-red-600 font-bold' : r.diferencia === 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
