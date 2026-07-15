@@ -174,11 +174,11 @@ export const PlanillaDestajos: React.FC = () => {
             {planilla.map(p => (
               <tr key={p.key} className="border-t hover:bg-muted/50">
                 <td className="p-2 font-medium text-foreground">
-                  {p.cuadrilla}
-                  <div className="text-xs text-muted-foreground">{p.renglones.join(', ')}</div>
+                  <span className="truncate block" title={p.cuadrilla}>{p.cuadrilla}</span>
+                  <div className="text-xs text-muted-foreground truncate">{p.renglones.join(', ')}</div>
                 </td>
                 <td className="p-2 text-right font-mono">{p.totalEjecutado.toFixed(2)}</td>
-                <td className="p-2 text-xs">{p.unidad}</td>
+                <td className="p-2 text-xs truncate" title={p.unidad}>{p.unidad}</td>
                 <td className="p-2 text-right">{p.dias}</td>
                 <td className="p-2 text-right">
                   <input type="number" inputMode="decimal" value={tasaPago[p.key] || 150}

@@ -400,8 +400,8 @@ const Riesgos: React.FC = () => {
                   <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{r.tipo}</span>
                   <span className="text-xs text-muted-foreground">{proyectos.find(p => p.id === r.proyectoId)?.nombre || '—'}</span>
                 </div>
-                <p className="text-sm font-semibold text-foreground">{r.nombre}</p>
-                {r.descripcion && <p className="text-xs text-muted-foreground mt-0.5">{r.descripcion}</p>}
+                <p className="text-sm font-semibold text-foreground truncate" title={r.nombre}>{r.nombre}</p>
+                {r.descripcion && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-3">{r.descripcion}</p>}
                 <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
                   <span>P:{r.probabilidad} I:{r.impacto} = {r.probabilidad * r.impacto}pts</span>
                   {r.responsable && <span className="flex items-center gap-1"><User className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {r.responsable}</span>}
