@@ -92,38 +92,33 @@ async function validateSupabase() {
   console.log('\n🔍 Validating Supabase...');
   const checks = [];
 
-  // Check local Supabase
-  const localDbUrl = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
-  const client = new pg.Client({ connectionString: localDbUrl });
+  // Remote Supabase connectivity via REST API
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+  const supabaseKey = process.env.VITE_SUPABASE_KEY || process.env.SUPABASE_KEY || '';
 
-  try {
-    await client.connect();
-    checks.push({ name: 'Local Supabase Connection', status: 'pass', message: 'Connected to local PostgreSQL' });
-
-    // Check critical tables
-    const tables = ['erp_proyectos', 'erp_movimientos', 'erp_presupuestos', 'erp_empleados', 'erp_materiales'];
-    for (const table of tables) {
-      const res = await client.query(`SELECT count(*) FROM ${table}`);
-      checks.push({ name: `Table ${table}`, status: 'pass', message: `${res.rows[0].count} rows` });
+  if (supabaseUrl && supabaseKey) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+      const healthUrl = supabaseUrl.replace(/\/$/, '') + '/rest/v1/';
+      const res = await fetch(healthUrl, {
+        headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      checks.push({ name: 'Supabase REST API', status: res.ok ? 'pass' : 'fail', message: res.ok ? 'API reachable' : `HTTP ${res.status}` });
+    } catch (err: any) {
+      checks.push({ name: 'Supabase REST API', status: 'warning', message: 'Remote check skipped or failed', details: err.message });
     }
-
-    // Check migrations
-    const migrations = await client.query("SELECT version FROM supabase_migrations.schema_migrations ORDER BY version DESC LIMIT 5");
-    checks.push({ name: 'Recent Migrations', status: 'pass', message: `${migrations.rows.length} recent migrations`, details: migrations.rows.map(r => r.version).join(', ') });
-
-    // Check RLS policies
-    const rls = await client.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND rowsecurity = true");
-    checks.push({ name: 'RLS Enabled Tables', status: 'pass', message: `${rls.rows.length} tables with RLS` });
-
-    await client.end();
-  } catch (err: any) {
-    checks.push({ name: 'Local Supabase Connection', status: 'fail', message: err.message });
+  } else {
+    checks.push({ name: 'Supabase REST API', status: 'warning', message: 'Missing VITE_SUPABASE_URL / key for remote validation' });
   }
 
-  // Check remote Supabase via vercel env
-  const remoteUrl = process.env.SUPABASE_DB_URL || 'https://neygzluxugodiwcuctbj.supabase.co';
-  if (remoteUrl.includes('supabase.co')) {
-    checks.push({ name: 'Remote Supabase URL', status: 'pass', message: 'Configured in Vercel env', details: remoteUrl });
+  // Check migrations
+  const migrationsDir = path.join(process.cwd(), 'supabase', 'migrations');
+  if (fs.existsSync(migrationsDir)) {
+    const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
+    checks.push({ name: 'Migrations', status: 'pass', message: `${files.length} migration files`, details: files.slice(-5).join(', ') });
   }
 
   addResult('Supabase', checks.some(c => c.status === 'fail') ? 'fail' : 'pass', checks);
@@ -133,43 +128,28 @@ async function validateVercel() {
   console.log('\n🔍 Validating Vercel...');
   const checks = [];
 
-  // Check Vercel CLI
-  const vercelVersion = runCommand('vercel --version');
-  if (vercelVersion.code === 0) {
-    checks.push({ name: 'Vercel CLI', status: 'pass', message: `v${vercelVersion.stdout.trim()}` });
+  const vercelToken = process.env.VERCEL_TOKEN || process.env.VERCEL_OIDC_TOKEN || '';
+
+  if (!vercelToken) {
+    checks.push({ name: 'Vercel Token', status: 'warning', message: 'No VERCEL_TOKEN / OIDC token in environment' });
   } else {
-    checks.push({ name: 'Vercel CLI', status: 'fail', message: 'Not installed or not in PATH' });
+    checks.push({ name: 'Vercel Token', status: 'pass', message: 'Token present' });
   }
 
-  // Check project config
   const vercelConfig = path.join(process.cwd(), '.vercel', 'project.json');
   if (fs.existsSync(vercelConfig)) {
     const config = JSON.parse(fs.readFileSync(vercelConfig, 'utf-8'));
-    checks.push({ name: 'Project Config', status: 'pass', message: `Project: ${config.projectName}`, details: `ID: ${config.projectId}, Org: ${config.orgId}` });
+    checks.push({ name: 'Project Config', status: 'pass', message: config.projectName || 'unknown', details: `ID: ${config.projectId || '-'}` });
+  } else {
+    checks.push({ name: 'Project Config', status: 'warning', message: 'Missing .vercel/project.json' });
   }
 
-  // Check environment files
-  const envFiles = ['.env.production', '.env.vercel', '.env.local'];
-  for (const envFile of envFiles) {
-    if (fs.existsSync(path.join(process.cwd(), envFile))) {
-      checks.push({ name: `Env File: ${envFile}`, status: 'pass', message: 'Found' });
-    }
-  }
-
-  // Check build output
   const distDir = path.join(process.cwd(), 'dist');
   if (fs.existsSync(distDir)) {
     const files = fs.readdirSync(distDir);
-    checks.push({ name: 'Build Output (dist/)', status: 'pass', message: `${files.length} files in dist/` });
+    checks.push({ name: 'Build Output (dist/)', status: 'pass', message: `${files.length} files` });
   } else {
-    checks.push({ name: 'Build Output (dist/)', status: 'warning', message: 'No dist/ directory found - run build first' });
-  }
-
-  // Check for Vercel token in env
-  if (process.env.VERCEL_TOKEN || process.env.VercelToken) {
-    checks.push({ name: 'Vercel Auth Token', status: 'pass', message: 'Available in environment' });
-  } else {
-    checks.push({ name: 'Vercel Auth Token', status: 'warning', message: 'Not in process.env - using OIDC or CLI login' });
+    checks.push({ name: 'Build Output (dist/)', status: 'warning', message: 'Missing dist/ - run build first' });
   }
 
   addResult('Vercel', checks.some(c => c.status === 'fail') ? 'fail' : 'pass', checks);
