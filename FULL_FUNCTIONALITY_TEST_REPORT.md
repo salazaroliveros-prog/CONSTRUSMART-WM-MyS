@@ -380,8 +380,6 @@ El sistema CONSTRUSMART ERP está **100% funcional y listo para producción**. T
 ### URLs de Producción
 
 - **Principal:** https://construsmart-wm2026.vercel.app
-- **Proyectoswm:** https://construsmart-wm2026-proyectoswm.vercel.app
-- **Personal:** https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app
 
 ### Próximos Pasos Recomendados
 

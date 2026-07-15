@@ -7,17 +7,11 @@ const URLS_TO_ADD = {
     'http://localhost:8080',
     'http://localhost:5173',
     'https://construsmart-wm2026.vercel.app',
-    'https://construsmart-wm2026-proyectoswm.vercel.app',
-    'https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app',
-    'https://construsmart.vercel.app',
   ],
   redirects: [
     'http://localhost:8080',
     'http://localhost:5173',
     'https://construsmart-wm2026.vercel.app',
-    'https://construsmart-wm2026-proyectoswm.vercel.app',
-    'https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app',
-    'https://construsmart.vercel.app',
   ],
 };
 

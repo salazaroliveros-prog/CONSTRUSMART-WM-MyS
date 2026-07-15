@@ -22,8 +22,6 @@ Configurar Authorized JavaScript Origins y Authorized Redirect URIs
 http://localhost:8080
 http://localhost:5173
 https://construsmart-wm2026.vercel.app
-https://construsmart-wm2026-proyectoswm.vercel.app
-https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app
 ```
 
 ### Instrucciones
@@ -63,8 +61,6 @@ https://construsmart-wm2026.vercel.app
 http://localhost:8080
 http://localhost:5173
 https://construsmart-wm2026.vercel.app
-https://construsmart-wm2026-proyectoswm.vercel.app
-https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app
 ```
 
 ### Instrucciones

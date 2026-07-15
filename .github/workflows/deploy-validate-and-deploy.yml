@@ -177,7 +177,7 @@ print('All validation checks passed!')"
           echo "::message::Validating post-deployment status..."
           
           # Check if site is reachable
-          ENDPOINT="https://construsmart.vercel.app/"
+          ENDPOINT="https://construsmart-wm2026.vercel.app/"
           echo "Checking endpoint: $ENDPOINT"
           
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$ENDPOINT")

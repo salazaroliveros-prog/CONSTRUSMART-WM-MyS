@@ -23,9 +23,7 @@ test.describe('Google Cloud Console OAuth Configuration', () => {
       'http://localhost:5173'
     ],
     productionOrigins: [
-      'https://construsmart-wm2026.vercel.app',
-      'https://construsmart-wm2026-proyectoswm.vercel.app',
-      'https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app'
+      'https://construsmart-wm2026.vercel.app'
     ]
   };
 

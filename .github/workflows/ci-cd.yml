@@ -94,5 +94,5 @@ jobs:
           npx vercel deploy --prod --token "$VERCEL_TOKEN" --yes
       - name: Warm production edge cache
         run: |
-          curl -s -o /dev/null -w "%{http_code}" https://construsmart.vercel.app/
-          curl -s -o /dev/null -w "%{http_code}" https://construsmart.vercel.app/index.html
+          curl -s -o /dev/null -w "%{http_code}" https://construsmart-wm2026.vercel.app/
+          curl -s -o /dev/null -w "%{http_code}" https://construsmart-wm2026.vercel.app/index.html

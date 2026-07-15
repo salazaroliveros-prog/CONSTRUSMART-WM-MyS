@@ -10,14 +10,14 @@
 
 ### Google Cloud Console
 - Orígenes JS autorizados presentes y confirmados:
-  - `https://construsmart.vercel.app`
+  - `https://construsmart-wm2026.vercel.app`
   - `https://construsmart-wm2026.vercel.app`
   - `http://localhost:5173`
   - `http://localhost:8080`
 
 - Redirect URIs presentes y confirmados:
   - `https://neygzluxugodiwcuctbj.supabase.co/auth/v1/callback`
-  - `https://construsmart.vercel.app/auth/v1/callback`
+  - `https://construsmart-wm2026.vercel.app/auth/v1/callback`
   - `https://construsmart-wm2026.vercel.app/auth/v1/callback`
 
 ### Supabase Auth

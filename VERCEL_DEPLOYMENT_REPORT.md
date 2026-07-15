@@ -35,8 +35,6 @@ El despliegue en Vercel se ha completado **exitosamente**. La aplicación está 
 ### URLs Disponibles
 
 - **Principal:** https://construsmart-wm2026.vercel.app
-- **Proyectoswm:** https://construsmart-wm2026-proyectoswm.vercel.app
-- **Personal:** https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app
 
 ---
 

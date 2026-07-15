@@ -86,9 +86,7 @@ echo "postgresql://postgres:DB_PASSWORD_PLACEHOLDER@db.neygzluxugodiwcuctbj.supa
    - Editar OAuth 2.0 Client ID
    - Agregar: `http://localhost:8080`
    - Agregar: `http://localhost:5173`
-   - Agregar: `https://construsmart-wm2026.vercel.app`
-   - Agregar: `https://construsmart-wm2026-proyectoswm.vercel.app`
-   - Agregar: `https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app`
+    - Agregar: `https://construsmart-wm2026.vercel.app`
 
 3. **Configurar Authorized Redirect URIs:**
    - Agregar las mismas URLs que en Authorized JavaScript Origins
@@ -112,9 +110,7 @@ echo "postgresql://postgres:DB_PASSWORD_PLACEHOLDER@db.neygzluxugodiwcuctbj.supa
    - Settings → Authentication → Redirect URLs
    - Agregar: `http://localhost:8080`
    - Agregar: `http://localhost:5173`
-   - Agregar: `https://construsmart-wm2026.vercel.app`
-   - Agregar: `https://construsmart-wm2026-proyectoswm.vercel.app`
-   - Agregar: `https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app`
+    - Agregar: `https://construsmart-wm2026.vercel.app`
 
 4. **Configurar Google Provider:**
    - Authentication → Providers → Google

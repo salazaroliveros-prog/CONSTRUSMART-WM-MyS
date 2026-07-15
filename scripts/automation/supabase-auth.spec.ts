@@ -22,9 +22,7 @@ test.describe('Supabase Authentication Configuration', () => {
     redirectURLs: [
       'http://localhost:8080',
       'http://localhost:5173',
-      'https://construsmart-wm2026.vercel.app',
-      'https://construsmart-wm2026-proyectoswm.vercel.app',
-      'https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app'
+      'https://construsmart-wm2026.vercel.app'
     ]
   };
 
