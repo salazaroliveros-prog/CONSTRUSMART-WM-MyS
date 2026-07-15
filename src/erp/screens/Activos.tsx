@@ -113,11 +113,11 @@ const Activos: React.FC = () => {
           <tbody>
             {filtered.map(a => (
               <tr key={a.id} className="border-t hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="row">
-                <td className="p-2 font-mono text-muted-foreground">{a.codigo}</td>
-                <td className="p-2 font-medium text-muted-foreground">{a.nombre}</td>
-                <td className="p-2 text-muted-foreground">{t(`activos.tipo_${a.tipo}`)}</td>
-                <td className="p-2"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.estado === 'disponible' ? 'bg-emerald-50 text-emerald-600' : a.estado === 'asignado' ? 'bg-amber-50 text-amber-600' : a.estado === 'mantenimiento' ? 'bg-red-50 text-red-600' : 'bg-muted text-muted-foreground'}`}>{t(`activos.estado_${a.estado}`)}</span></td>
-                <td className="p-2 text-muted-foreground">{proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}</td>
+                <td className="p-2 font-mono text-muted-foreground truncate" title={a.codigo}>{a.codigo}</td>
+                <td className="p-2 font-medium text-muted-foreground truncate" title={a.nombre}>{a.nombre}</td>
+                <td className="p-2 text-muted-foreground truncate">{t(`activos.tipo_${a.tipo}`)}</td>
+                <td className="p-2 truncate"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${...}`}>{t(...)}</span></td>
+                <td className="p-2 text-muted-foreground truncate" title={...}>{...}</td>
                 <td className="p-2 font-mono">{fmtQ(Number(a.valor || 0))}</td>
                 <td className="p-2 text-right">
                   <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('activos.editar')} ${a.nombre}`}><Edit2 className="w-4 h-4 text-muted-foreground" aria-hidden="true" /></button>

@@ -105,10 +105,10 @@ export const ComercialFinanzas: React.FC = () => {
           <tbody>
             {ventas.map(v => (
               <tr key={v.id} className="border-t hover:bg-muted/50">
-                <td className="p-2 font-medium">{v.identificador}</td>
-                <td className="p-2 text-xs">{v.tipo}</td>
+                <td className="p-2 font-medium truncate" title={v.identificador}>{v.identificador}</td>
+                <td className="p-2 text-xs truncate">{v.tipo}</td>
                 <td className="p-2 text-right font-mono">{fmtQ(v.precioVenta)}</td>
-                <td className="p-2 text-xs">{v.cliente || '—'}</td>
+                <td className="p-2 text-xs truncate" title={v.cliente || '—'}>{v.cliente || '—'}</td>
                 <td className="p-2">
                   <select value={v.estado} onChange={e => updateVenta(v.id, { estado: e.target.value as VentaPaquete['estado'] })}
                     className={`text-xs px-3 py-2 rounded border outline-none ${FOCUS_VISIBLE} ${
@@ -236,7 +236,7 @@ export const ComercialFinanzas: React.FC = () => {
           <tbody>
             {cajasChicas.map(c => (
               <tr key={c.id} className="border-t hover:bg-muted/50">
-                <td className="p-2 text-xs">{c.descripcion}</td>
+                <td className="p-2 text-xs truncate" title={c.descripcion}>{c.descripcion}</td>
                 <td className="p-2">
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${
                     c.categoria === 'materiales'   ? 'bg-info/10 text-info' :
@@ -247,7 +247,7 @@ export const ComercialFinanzas: React.FC = () => {
                 </td>
                 <td className="p-2 text-right font-mono">{fmtQ(c.monto)}</td>
                 <td className="p-2 text-xs">{new Date(c.fechaGasto).toLocaleDateString()}</td>
-                <td className="p-2 text-xs">{c.solicitante}</td>
+                <td className="p-2 text-xs truncate" title={c.solicitante}>{c.solicitante}</td>
                 <td className="p-2">
                   <select value={c.estado} onChange={e => updateCajaChica(c.id, {
                     estado: e.target.value as CajaChica['estado'],
