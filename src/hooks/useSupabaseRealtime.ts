@@ -159,7 +159,7 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
           break;
 
         case 'CHANNEL_ERROR':
-          log('error', 'Realtime', 'Error en canal Realtime', { canal: channelName });
+          log('warn', 'Realtime', 'Error en canal Realtime — reconectando', { canal: channelName });
           scheduleReconnectRef.current();
           break;
 
