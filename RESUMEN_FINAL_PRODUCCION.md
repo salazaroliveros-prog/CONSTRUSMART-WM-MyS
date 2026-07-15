@@ -51,48 +51,37 @@
 **Instrucciones:**
 1. Ir a Supabase Dashboard → Proyecto `neygzluxugodiwcuctbj`
 2. Ir a SQL Editor
-3. Copiar el contenido de: `supabase/migrations/COMPLETE_DATABASE_CLEANUP.sql` ⭐ **FINAL**
+3. Copiar el contenido de: `supabase/migrations/FINAL_DATABASE_CLEANUP.sql` ⭐ **FINAL - SINTAXIS CORREGIDA**
 4. Pegar en SQL Editor
 5. Click "Run"
 6. Verificar que muestre:
    ```
-   === AUDITORÍA COMPLETA DEL ESQUEMA ===
-   Total tablas erp_*: XX
-   ✅ VÁLIDA: erp_proyectos
-   ...
-   ❌ HUÉRFANA: erp_tabla_extra (si existe)
-   ...
-   ⚠️  OBSOLETA: erp_subcontratos (si existe)
-   ...
-   === ELIMINACIÓN DE TABLAS HUÉRFANAS ===
+   === ELIMINACIÓN DE TABLAS OBSOLETAS/HUÉRFANAS ===
    ✅ Eliminada (huérfana): erp_tabla_extra (si existía)
-   ...
-   === ELIMINACIÓN DE TABLAS OBSOLETAS ===
-   ✅ Eliminada: erp_subcontratos (si existía)
-   ...
-   === LIMPIEZA DE DATOS HUÉRFANOS ===
-   ✅ Limpiados X registros huérfanos en erp_movimientos
    ...
    === CREACIÓN DE TABLAS GEOLÓFICAS ===
    ✅ Creada: erp_departamentos_gt
    ✅ Creada: erp_municipios_gt
+   === CONFIGURACIÓN DE REALTIME ===
+   ✅ Agregada a realtime: erp_departamentos_gt
+   ✅ Agregada a realtime: erp_municipios_gt
    === VERIFICACIÓN FINAL ===
-   ✅ BASE DE DATOS 100% ALINEADA CON LA APLICACIÓN
-   ✅ NO HAY TABLAS HUÉRFANAS
-   ✅ NO HAY DATOS HUÉRFANOS
+   ✅ BASE DE DATOS ALINEADA CON LA APLICACIÓN
    ```
 
 **Qué hace este script (TODO EN UNO):**
 - **AUDITORÍA COMPLETA**: Lista todas las tablas `erp_*` y clasifica en válidas, huérfanas u obsoletas
 - **ELIMINACIÓN DE TABLAS HUÉRFANAS**: Elimina tablas que no están en TABLE_MAP del código
 - **ELIMINACIÓN DE TABLAS OBSOLETAS**: Elimina tablas legacy (`erp_subcontratos`, `erp_rendimientos`, `erp_licitaciones`, `erp_muro`)
-- **LIMPIEZA DE DATOS HUÉRFANOS**: Elimina registros con foreign keys inválidos (proyectos eliminados)
 - **CREACIÓN**: Crea tablas geográficas (`erp_departamentos_gt`, `erp_municipios_gt`)
-- **CONFIGURACIÓN**: Índices, RLS, triggers, Realtime
+- **CONFIGURACIÓN**: Índices, RLS, triggers, Realtime (con sintaxis correcta PostgreSQL)
 - **SEED DATA**: Inserta 22 departamentos + ~90 municipios
 - **VERIFICACIÓN**: Verifica alineación 100% con la app
 
-**Nota:** Este script reemplaza a todos los anteriores ya que hace TODO (auditoría + limpieza de tablas + limpieza de datos + creación + configuración).
+**Nota:** Este script usa sintaxis PostgreSQL correcta:
+- Verifica `pg_publication_tables` antes de `ALTER PUBLICATION ADD TABLE` (PostgreSQL no soporta `IF NOT EXISTS` en este comando)
+- Usa `$function$` como delimitador para funciones (evita conflictos con bloques `DO $$`)
+- Elimina `ON CONFLICT` (usa check de count en su lugar)
 
 ---
 
@@ -196,7 +185,7 @@ Todas las guías están en el repo:
 - `AUTOMATED_VS_MANUAL.md` - Resumen ejecutivo de este documento
 
 ### Archivos SQL:
-- `supabase/migrations/COMPLETE_DATABASE_CLEANUP.sql` - Script TODO-EN-UNO (auditoría + limpieza tablas + limpieza datos + creación + configuración) ⭐ **FINAL**
+- `supabase/migrations/FINAL_DATABASE_CLEANUP.sql` - Script TODO-EN-UNO (auditoría + limpieza tablas + creación + configuración) ⭐ **FINAL - SINTAXIS CORREGIDA**
 
 ---
 
