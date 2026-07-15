@@ -116,8 +116,13 @@ const Activos: React.FC = () => {
                 <td className="p-2 font-mono text-muted-foreground truncate" title={a.codigo}>{a.codigo}</td>
                 <td className="p-2 font-medium text-muted-foreground truncate" title={a.nombre}>{a.nombre}</td>
                 <td className="p-2 text-muted-foreground truncate">{t(`activos.tipo_${a.tipo}`)}</td>
-                <td className="p-2 truncate"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${...}`}>{t(...)}</span></td>
-                <td className="p-2 text-muted-foreground truncate" title={...}>{...}</td>
+                <td className="p-2 truncate"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                  a.estado === 'disponible' ? 'bg-emerald-100 text-emerald-700' :
+                  a.estado === 'asignado' ? 'bg-blue-100 text-blue-700' :
+                  a.estado === 'mantenimiento' ? 'bg-amber-100 text-amber-700' :
+                  'bg-gray-100 text-gray-700'
+                }`}>{t(`activos.estado_${a.estado}`)}</span></td>
+                <td className="p-2 text-muted-foreground truncate" title={proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}>{proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}</td>
                 <td className="p-2 font-mono">{fmtQ(Number(a.valor || 0))}</td>
                 <td className="p-2 text-right">
                   <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('activos.editar')} ${a.nombre}`}><Edit2 className="w-4 h-4 text-muted-foreground" aria-hidden="true" /></button>
