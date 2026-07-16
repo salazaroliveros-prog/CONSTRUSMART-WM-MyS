@@ -1,4 +1,4 @@
-## Estado actual (julio 2026) - Deploy corregido
+## Estado actual (julio 2026) - Deploy corregido - Diagnosticando RLS
 
 - Mapa de etapas APP_STAGES definido en src/erp/types.ts.
 - Trazabilidad Presupuesto → Bodega → Dashboard activa: cantidades presupuestadas respaldan métricas plan vs real.
