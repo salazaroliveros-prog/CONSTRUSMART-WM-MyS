@@ -1,4 +1,4 @@
-## Estado actual (julio 2026)
+## Estado actual (julio 2026) - Deploy corregido
 
 - Mapa de etapas APP_STAGES definido en src/erp/types.ts.
 - Trazabilidad Presupuesto → Bodega → Dashboard activa: cantidades presupuestadas respaldan métricas plan vs real.
