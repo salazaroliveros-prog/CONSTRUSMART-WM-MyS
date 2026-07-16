@@ -61,3 +61,23 @@ _archive/
 .env*
 
 *.pdf
+
+# Scripts con credenciales de Supabase (solo para desarrollo local)
+*-production-fixes.mjs
+*-db-alignment.mjs
+*-missing-tables.mjs
+*-proyectos-schema.mjs
+*-prod-migrations.mjs
+
+# Reportes internos de desarrollo
+DATABASE_ALIGNMENT_REPORT_SESION20.md
+DEPLOYMENT_VERIFICATION_SESION20.md
+PRODUCTION_DB_ALIGNMENT_REPORT.md
+SESSION_20_FINAL_REPORT.md
+UI_IMPLEMENTATION_STATUS.md
+
+# Permitir .env.production para Vercel (sin credenciales sensibles)
+!.env.production
+
+.vercel
+.env*
