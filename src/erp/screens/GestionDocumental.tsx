@@ -1,13 +1,14 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { toast } from 'sonner';
-import { FileText, Plus, Upload, Send, MessageSquare, Package } from 'lucide-react';
+import { FileText, Plus, Upload, Send, MessageSquare, Package, X } from 'lucide-react';
 import { INPUT } from '../ui';
 import { todayISO } from '../utils';
 import { z } from 'zod';
 import type { Plano, RFI, Submittal } from '../types';
+import { uploadDocument, validateDocumentFile } from '@/lib/upload-document';
 
 const planoSchema = z.object({
   nombre: z.string().min(1, 'Nombre del plano requerido').max(200, 'Máximo 200 caracteres'),
@@ -44,6 +45,9 @@ const GestionDocumental: React.FC = () => {
 
   const [showPlanoForm, setShowPlanoForm] = useState(false);
   const [planoForm, setPlanoForm] = useState({ nombre: '', disciplina: 'arquitectura' as Plano['disciplina'], version: '1.0', descripcion: '' });
+  const [planoFile, setPlanoFile] = useState<File | null>(null);
+  const [uploadingPlano, setUploadingPlano] = useState(false);
+  const planoFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddPlano = async () => {
     if (!currentProjectId) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
@@ -56,6 +60,27 @@ const GestionDocumental: React.FC = () => {
       return;
     }
     setGdFormErrors({});
+    
+    let fileUrl: string | null = null;
+    if (planoFile) {
+      setUploadingPlano(true);
+      const validation = validateDocumentFile(planoFile);
+      if (!validation.valid) {
+        toast.error(validation.error);
+        setUploadingPlano(false);
+        return;
+      }
+      
+      const documentId = Date.now().toString();
+      fileUrl = await uploadDocument(planoFile, currentProjectId, 'plano', documentId);
+      setUploadingPlano(false);
+      
+      if (!fileUrl) {
+        toast.error('Error al subir el archivo');
+        return;
+      }
+    }
+    
     const nuevo: Plano = {
       id: Date.now().toString(),
       proyectoId: currentProjectId,
@@ -66,6 +91,7 @@ const GestionDocumental: React.FC = () => {
       descripcion: planoForm.descripcion || undefined,
       estado: 'vigente',
       subidoPor: user?.nombre || 'Anónimo',
+      url: fileUrl || undefined,
     };
     const vid = nuevo.id;
     const vers = versiones[vid] || [];
@@ -74,6 +100,8 @@ const GestionDocumental: React.FC = () => {
     toast.success(`Plano "${planoForm.nombre}" v${planoForm.version} subido`);
     setShowPlanoForm(false);
     setPlanoForm({ nombre: '', disciplina: 'arquitectura', version: '1.0', descripcion: '' });
+    setPlanoFile(null);
+    if (planoFileInputRef.current) planoFileInputRef.current.value = '';
   };
 
   const togglePlanoEstado = (id: string) => {
@@ -97,6 +125,9 @@ const GestionDocumental: React.FC = () => {
 
   const [showRFIForm, setShowRFIForm] = useState(false);
   const [rfiForm, setRfiForm] = useState({ titulo: '', descripcion: '', destino: '' });
+  const [rfiFile, setRfiFile] = useState<File | null>(null);
+  const [uploadingRFI, setUploadingRFI] = useState(false);
+  const rfiFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddRFI = async () => {
     if (!currentProjectId) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
@@ -109,6 +140,27 @@ const GestionDocumental: React.FC = () => {
       return;
     }
     setGdFormErrors({});
+    
+    let fileUrl: string | null = null;
+    if (rfiFile) {
+      setUploadingRFI(true);
+      const validation = validateDocumentFile(rfiFile);
+      if (!validation.valid) {
+        toast.error(validation.error);
+        setUploadingRFI(false);
+        return;
+      }
+      
+      const documentId = Date.now().toString();
+      fileUrl = await uploadDocument(rfiFile, currentProjectId, 'rfi', documentId);
+      setUploadingRFI(false);
+      
+      if (!fileUrl) {
+        toast.error('Error al subir el archivo');
+        return;
+      }
+    }
+    
     const count = rfis.filter(r => r.proyectoId === currentProjectId).length + 1;
     const nueva: RFI = {
       id: Date.now().toString(),
@@ -117,14 +169,17 @@ const GestionDocumental: React.FC = () => {
       titulo: rfiResult.data.titulo,
       descripcion: rfiResult.data.descripcion,
       solicitante: user?.nombre || 'Anónimo',
-      destino: rfiForm.destino,
-      estado: 'abierto',
-      fechaSolicitud: todayISO(),
+      destino: rfiResult.data.destino,
+      fechaEnvio: todayISO(),
+      estado: 'pendiente',
+      url: fileUrl || undefined,
     };
     await addRfi(nueva);
-    toast.success(`RFI ${nueva.numero} creado`);
+    toast.success('RFI creado');
     setShowRFIForm(false);
     setRfiForm({ titulo: '', descripcion: '', destino: '' });
+    setRfiFile(null);
+    if (rfiFileInputRef.current) rfiFileInputRef.current.value = '';
   };
 
   const actualizarRFI = (id: string, estado: RFI['estado'], respuesta?: string) => {
@@ -134,6 +189,9 @@ const GestionDocumental: React.FC = () => {
 
   const [showSubForm, setShowSubForm] = useState(false);
   const [subForm, setSubForm] = useState({ titulo: '', descripcion: '', categoria: 'material' as Submittal['categoria'], proveedor: '' });
+  const [subFile, setSubFile] = useState<File | null>(null);
+  const [uploadingSub, setUploadingSub] = useState(false);
+  const subFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddSubmittal = async () => {
     if (!currentProjectId) { toast.error(t('gestion_documental.selecciona_proyecto', 'Selecciona un proyecto')); return; }
@@ -153,6 +211,27 @@ const GestionDocumental: React.FC = () => {
       return;
     }
     setGdFormErrors({});
+    
+    let fileUrl: string | null = null;
+    if (subFile) {
+      setUploadingSub(true);
+      const validation = validateDocumentFile(subFile);
+      if (!validation.valid) {
+        toast.error(validation.error);
+        setUploadingSub(false);
+        return;
+      }
+      
+      const documentId = Date.now().toString();
+      fileUrl = await uploadDocument(subFile, currentProjectId, 'submittal', documentId);
+      setUploadingSub(false);
+      
+      if (!fileUrl) {
+        toast.error('Error al subir el archivo');
+        return;
+      }
+    }
+    
     const nuevo: Submittal = {
       id: Date.now().toString(),
       proyectoId: currentProjectId,
@@ -162,11 +241,14 @@ const GestionDocumental: React.FC = () => {
       proveedor: subForm.proveedor,
       fechaEnvio: todayISO(),
       estado: 'pendiente',
+      url: fileUrl || undefined,
     };
     await addSubmittal(nuevo);
     toast.success('Submittal registrado');
     setShowSubForm(false);
     setSubForm({ titulo: '', descripcion: '', categoria: 'material', proveedor: '' });
+    setSubFile(null);
+    if (subFileInputRef.current) subFileInputRef.current.value = '';
   };
 
   const actualizarSubmittal = (id: string, estado: Submittal['estado']) => {
@@ -287,9 +369,47 @@ const GestionDocumental: React.FC = () => {
                   {_gdFormErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.descripcion}</p>}
                 </div>
               </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1">{t('gestion_documental.archivo', 'Archivo (PDF, Imágenes)')}</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={planoFileInputRef}
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const validation = validateDocumentFile(file);
+                        if (validation.valid) {
+                          setPlanoFile(file);
+                        } else {
+                          toast.error(validation.error);
+                          if (planoFileInputRef.current) planoFileInputRef.current.value = '';
+                        }
+                      }
+                    }}
+                    className="flex-1 text-xs px-3 py-2 rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground"
+                  />
+                  {planoFile && (
+                    <button
+                      onClick={() => {
+                        setPlanoFile(null);
+                        if (planoFileInputRef.current) planoFileInputRef.current.value = '';
+                      }}
+                      className="p-2 rounded-lg hover:bg-accent text-muted-foreground"
+                      aria-label="Remove file"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                {planoFile && <p className="text-xs text-muted-foreground mt-1">{planoFile.name} ({(planoFile.size / 1024).toFixed(1)} KB)</p>}
+              </div>
               <div className="flex gap-2">
-                <button onClick={handleAddPlano} className="flex-1 bg-info hover:bg-info/90 text-info-foreground py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.subir_plano', 'Subir Plano')}</button>
-                <button onClick={() => setShowPlanoForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
+                <button onClick={handleAddPlano} disabled={uploadingPlano} className="flex-1 bg-info hover:bg-info/90 text-info-foreground py-2 rounded-lg text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                  {uploadingPlano ? t('gestion_documental.subiendo', 'Subiendo...') : t('gestion_documental.subir_plano', 'Subir Plano')}
+                </button>
+                <button onClick={() => { setShowPlanoForm(false); setPlanoFile(null); if (planoFileInputRef.current) planoFileInputRef.current.value = ''; }} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
               </div>
             </div>
           )}
@@ -316,6 +436,11 @@ const GestionDocumental: React.FC = () => {
                         <span className="truncate">👤 {p.subidoPor}</span>
                       </div>
                       {p.descripcion && <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{p.descripcion}</p>}
+                      {p.url && (
+                        <a href={p.url} target="_blank" rel="noopener noreferrer" className="text-xs text-info hover:underline mt-1 inline-flex items-center gap-1">
+                          <FileText className="w-3 h-3" /> {t('gestion_documental.ver_archivo', 'Ver archivo')}
+                        </a>
+                      )}
                     </div>
                     <div className="flex gap-1 shrink-0 flex-col sm:min-w-[44px]">
                       <button onClick={() => addVersionPlano(p.id)} className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600" aria-label={t('gestion_documental.nueva_version', 'Nueva versión')} title={t('gestion_documental.nueva_version', 'Nueva versión')}>+v</button>
@@ -356,9 +481,47 @@ const GestionDocumental: React.FC = () => {
                 <input value={rfiForm.destino} onChange={e => { setRfiForm(prev => ({ ...prev, destino: e.target.value })); setGdFormErrors(prev => ({ ...prev, destino: '' })); }} placeholder={t('gestion_documental.rfi_destino_placeholder', 'Destinatario (ej: Arquitecto de proyecto)')} className="w-full px-3 py-2 text-xs rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground" />
                 {_gdFormErrors.destino && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.destino}</p>}
               </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1">{t('gestion_documental.archivo_adjunto', 'Archivo adjunto (opcional)')}</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={rfiFileInputRef}
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const validation = validateDocumentFile(file);
+                        if (validation.valid) {
+                          setRfiFile(file);
+                        } else {
+                          toast.error(validation.error);
+                          if (rfiFileInputRef.current) rfiFileInputRef.current.value = '';
+                        }
+                      }
+                    }}
+                    className="flex-1 text-xs px-3 py-2 rounded-lg border border-input outline-none focus:border-ring bg-background text-foreground"
+                  />
+                  {rfiFile && (
+                    <button
+                      onClick={() => {
+                        setRfiFile(null);
+                        if (rfiFileInputRef.current) rfiFileInputRef.current.value = '';
+                      }}
+                      className="p-2 rounded-lg hover:bg-accent text-muted-foreground"
+                      aria-label="Remove file"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                {rfiFile && <p className="text-xs text-muted-foreground mt-1">{rfiFile.name} ({(rfiFile.size / 1024).toFixed(1)} KB)</p>}
+              </div>
               <div className="flex gap-2">
-                <button onClick={handleAddRFI} className="flex-1 bg-warning hover:bg-warning/90 text-warning-foreground py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.enviar_rfi', 'Enviar RFI')}</button>
-                <button onClick={() => setShowRFIForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
+                <button onClick={handleAddRFI} disabled={uploadingRFI} className="flex-1 bg-warning hover:bg-warning/90 text-warning-foreground py-2 rounded-lg text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                  {uploadingRFI ? t('gestion_documental.enviando', 'Enviando...') : t('gestion_documental.enviar_rfi', 'Enviar RFI')}
+                </button>
+                <button onClick={() => { setShowRFIForm(false); setRfiFile(null); if (rfiFileInputRef.current) rfiFileInputRef.current.value = ''; }} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
               </div>
             </div>
           )}
@@ -390,6 +553,11 @@ const GestionDocumental: React.FC = () => {
                           <p className="text-xs font-bold text-success mb-0.5">{t('gestion_documental.respuesta_label', 'Respuesta')} ({r.fechaRespuesta}):</p>
                           <p className="text-xs text-foreground">{r.respuesta}</p>
                         </div>
+                      )}
+                      {r.url && (
+                        <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-xs text-warning hover:underline mt-1 inline-flex items-center gap-1">
+                          <MessageSquare className="w-3 h-3" /> {t('gestion_documental.ver_archivo', 'Ver archivo')}
+                        </a>
                       )}
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
@@ -444,9 +612,47 @@ const GestionDocumental: React.FC = () => {
                 <textarea value={subForm.descripcion} onChange={e => { setSubForm(prev => ({ ...prev, descripcion: e.target.value })); setGdFormErrors(prev => ({ ...prev, descripcion: '' })); }} placeholder={t('gestion_documental.descripcion_submittal_placeholder', 'Descripción...')} className="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 outline-none focus:border-purple-400 min-h-[50px]" />
                 {_gdFormErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{_gdFormErrors.descripcion}</p>}
               </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1">{t('gestion_documental.archivo_submittal', 'Archivo de submittal (opcional)')}</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={subFileInputRef}
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const validation = validateDocumentFile(file);
+                        if (validation.valid) {
+                          setSubFile(file);
+                        } else {
+                          toast.error(validation.error);
+                          if (subFileInputRef.current) subFileInputRef.current.value = '';
+                        }
+                      }
+                    }}
+                    className="flex-1 text-xs px-3 py-2 rounded-lg border border-purple-200 outline-none focus:border-purple-400"
+                  />
+                  {subFile && (
+                    <button
+                      onClick={() => {
+                        setSubFile(null);
+                        if (subFileInputRef.current) subFileInputRef.current.value = '';
+                      }}
+                      className="p-2 rounded-lg hover:bg-accent text-muted-foreground"
+                      aria-label="Remove file"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                {subFile && <p className="text-xs text-muted-foreground mt-1">{subFile.name} ({(subFile.size / 1024).toFixed(1)} KB)</p>}
+              </div>
               <div className="flex gap-2">
-                <button onClick={handleAddSubmittal} className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-semibold">{t('gestion_documental.registrar_submittal', 'Registrar')}</button>
-                <button onClick={() => setShowSubForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
+                <button onClick={handleAddSubmittal} disabled={uploadingSub} className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                  {uploadingSub ? t('gestion_documental.registrando', 'Registrando...') : t('gestion_documental.registrar_submittal', 'Registrar')}
+                </button>
+                <button onClick={() => { setShowSubForm(false); setSubFile(null); if (subFileInputRef.current) subFileInputRef.current.value = ''; }} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>
               </div>
             </div>
           )}
@@ -472,6 +678,11 @@ const GestionDocumental: React.FC = () => {
                         <span>🏭 {s.proveedor}</span>
                       </div>
                       {s.descripcion && <p className="text-xs text-muted-foreground mt-0.5">{s.descripcion}</p>}
+                      {s.url && (
+                        <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-xs text-purple-500 hover:underline mt-1 inline-flex items-center gap-1">
+                          <Package className="w-3 h-3" /> {t('gestion_documental.ver_archivo', 'Ver archivo')}
+                        </a>
+                      )}
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {s.estado === 'pendiente' && (

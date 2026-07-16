@@ -60,22 +60,22 @@ const CRM: React.FC = () => {
       </div>
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
-        <table className="w-full text-sm" role="table" aria-label={t('crm.titulo')}>
+        <table className="w-full text-sm table-fixed" role="table" aria-label={t('crm.titulo')}>
           <thead><tr className="border-b border-border bg-muted/30">
-            <th className="text-left p-2" scope="col">{t('crm.col_nombre')}</th>
-            <th className="text-left p-2" scope="col">{t('crm.col_cliente')}</th>
-            <th className="text-right p-2" scope="col">{t('crm.col_monto')}</th>
-            <th className="text-center p-2" scope="col">{t('crm.col_probabilidad')}</th>
-            <th className="text-right p-2" scope="col">{t('common.estado')}</th>
-            <th className="text-right p-2" scope="col">{t('common.acciones')}</th>
+            <th className="text-left p-2 w-[30%]" scope="col">{t('crm.col_nombre')}</th>
+            <th className="text-left p-2 w-[25%]" scope="col">{t('crm.col_cliente')}</th>
+            <th className="text-right p-2 w-[15%]" scope="col">{t('crm.col_monto')}</th>
+            <th className="text-center p-2 w-[10%]" scope="col">{t('crm.col_probabilidad')}</th>
+            <th className="text-right p-2 w-[10%]" scope="col">{t('common.estado')}</th>
+            <th className="text-right p-2 w-[10%]" scope="col">{t('common.acciones')}</th>
           </tr></thead>
           <tbody>
             {licitacionesFiltradas.map(l => {
               const estado = ESTADOS.find(e => e.key === l.estado) || ESTADOS[0];
               return (
                 <tr key={l.id} className="border-b border-border hover:bg-muted/50" tabIndex={0} role="row" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(l.id); } }}>
-                  <td className="p-2 font-medium">{l.nombre}</td>
-                  <td className="p-2 text-muted-foreground">{l.cliente}</td>
+                  <td className="p-2 max-w-0"><span className="block truncate font-medium" title={l.nombre}>{l.nombre}</span></td>
+                  <td className="p-2 max-w-0"><span className="block truncate text-muted-foreground" title={l.cliente}>{l.cliente}</span></td>
                   <td className="p-2 text-right">{fmtQ(l.monto)}</td>
                   <td className="p-2 text-center">{l.probabilidad}%</td>
                   <td className="p-2 text-right"><span className={`px-2 py-1 rounded text-xs font-medium ${estado.color} ${estado.textColor}`}>{t(`crm.estado_${l.estado}`)}</span></td>

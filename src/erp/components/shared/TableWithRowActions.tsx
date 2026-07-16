@@ -187,11 +187,17 @@ export function TableWithRowActions<T extends { id?: string }>({
                 <td
                   key={String(col.key)}
                   className={`
-                    p-3
+                    p-3 max-w-0
                     ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}
                   `}
                 >
-                  {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? '-')}
+                  {col.render ? (
+                    col.render(row[col.key], row)
+                  ) : (
+                    <span className="block truncate" title={String(row[col.key] ?? '-')}>
+                      {String(row[col.key] ?? '-')}
+                    </span>
+                  )}
                 </td>
               ))}
               {actions && (

@@ -319,10 +319,10 @@ if (loading) {
           {proveedores.length === 0 ? (
             <div className="col-span-full text-center py-6 text-sm text-muted-foreground"><Star className="w-6 h-6 mx-auto mb-1 opacity-40" aria-hidden="true" />{t('bodega.sin_proveedores')}</div>
           ) : proveedores.map(p => (
-            <div key={p.id} className="bg-muted rounded-xl p-3 flex items-center justify-between">
-              <div>
-                <div className="font-semibold text-sm text-foreground">{p.nombre}</div>
-                <div className="text-xs text-muted-foreground">{p.rubro} · {p.contacto}</div>
+            <div key={p.id} className="bg-muted rounded-xl p-3 flex items-center justify-between gap-2 min-w-0">
+              <div className="min-w-0 flex-1">
+                <div className="font-semibold text-sm text-foreground truncate" title={p.nombre}>{p.nombre}</div>
+                <div className="text-xs text-muted-foreground truncate" title={`${p.rubro} · ${p.contacto}`}>{p.rubro} · {p.contacto}</div>
               </div>
               <div className="flex items-center gap-1">
                 <span aria-label={t('bodega.calificacion_aria', { calificacion: p.calificacion })} className="flex">

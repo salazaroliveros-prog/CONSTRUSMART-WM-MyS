@@ -174,10 +174,21 @@ ALTER TABLE public.erp_planos
   ADD COLUMN IF NOT EXISTS subido_por_texto      text;
 
 -- ── Actualizar defaults en filas existentes ───────────────────────────────────
-UPDATE public.erp_incidentes
-  SET lat = latitud, lng = longitud
-  WHERE (lat IS NULL OR lng IS NULL)
-    AND (latitud IS NOT NULL OR longitud IS NOT NULL);
+-- Solo si las columnas latitud/longitud existen
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'erp_incidentes' 
+    AND table_schema = 'public' 
+    AND column_name = 'latitud'
+  ) THEN
+    UPDATE public.erp_incidentes
+    SET lat = latitud, lng = longitud
+    WHERE (lat IS NULL OR lng IS NULL)
+      AND (latitud IS NOT NULL OR longitud IS NOT NULL);
+  END IF;
+END $$;
 
 UPDATE public.erp_empleados
   SET activo = COALESCE(activo, true)

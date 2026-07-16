@@ -488,21 +488,41 @@ const SSOCalidad: React.FC = () => {
             <button
               onClick={() => {
                 if (!currentProjectId) { toast.error(t('sso_calidad.selecciona_proyecto_emergencia', 'Selecciona un proyecto primero')); return; }
+                const confirmEmergencia = confirm(t('sso_calidad.confirmar_emergencia', '¿Confirmar activación de emergencia? Se notificará a todos los supervisores.'));
+                if (!confirmEmergencia) return;
+                
                 if (navigator.geolocation) {
                   navigator.geolocation.getCurrentPosition(
                     (pos) => {
-                      const msg = `EMERGENCIA en ${proyectoActual?.nombre || 'obra'} - Ubicación: https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                      const locationMsg = `Lat: ${pos.coords.latitude.toFixed(4)}, Lng: ${pos.coords.longitude.toFixed(4)}`;
+                      const mapsUrl = `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                      const msg = `EMERGENCIA en ${proyectoActual?.nombre || 'obra'} - Ubicación: ${locationMsg}`;
+                      
                       toast.error(msg, { duration: 10000 });
-                      addNotificacion('general', `Emergencia: ${proyectoActual?.nombre || 'Obra'}`, `¡Emergencia reportada! Ubicación: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`, currentProjectId);
+                      
+                      addNotificacion('emergencia', `EMERGENCIA: ${proyectoActual?.nombre || 'Obra'}`, 
+                        `¡Emergencia reportada! Ubicación: ${locationMsg}. Mapa: ${mapsUrl}`, 
+                        currentProjectId, true);
+                      
+                      addNotificacion('general', `Emergencia: ${proyectoActual?.nombre || 'Obra'}`, 
+                        `Se ha activado el botón de emergencia. Ubicación: ${locationMsg}`, 
+                        currentProjectId);
                     },
-                    () => {
-                  toast.error(t('sso_calidad.emergencia_sin_ubicacion'), { duration: 10000 });
+                    (error) => {
+                      console.error('Geolocation error:', error);
+                      toast.error(t('sso_calidad.emergencia_sin_ubicacion'), { duration: 10000 });
+                      addNotificacion('emergencia', `EMERGENCIA: ${proyectoActual?.nombre || 'Obra'}`, 
+                        'Se ha activado el botón de emergencia (ubicación no disponible)', 
+                        currentProjectId, true);
                       addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', currentProjectId);
                     },
-                    { enableHighAccuracy: true, timeout: 10000 }
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                   );
                 } else {
                   toast.error(t('sso_calidad.emergencia_reportada'), { duration: 10000 });
+                  addNotificacion('emergencia', `EMERGENCIA: ${proyectoActual?.nombre || 'Obra'}`, 
+                    'Se ha activado el botón de emergencia (geolocalización no disponible)', 
+                    currentProjectId, true);
                   addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', currentProjectId);
                 }
               }}
