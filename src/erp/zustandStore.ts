@@ -417,6 +417,8 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
           const stateKey = TABLE_MAP[table];
           if (stateKey) {
             statePatch[stateKey] = Array.isArray(data) ? data : [];
+          } else {
+            safeLogger.warn(`[fetchInitialData] No state key for table: ${table}`);
           }
           if (authError) authErrorCount++;
         } else {
