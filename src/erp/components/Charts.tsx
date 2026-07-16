@@ -1,6 +1,18 @@
+/**
+ * Charts Components Library
+ * 
+ * Componentes de gráficos reutilizables para la ERP CONSTRUSMART.
+ * Implementados con SVG nativo para máximo rendimiento y accesibilidad.
+ * 
+ * @module erp/components/Charts
+ */
+
 import React, { useState, useEffect } from 'react';
 
 // ─── Color Palettes ──────────────────────────────────────────────────
+/**
+ * Paletas de colores predefinidas para gráficos
+ */
 export const PALETTES: Record<string, string[]> = {
   default: ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4'],
   warm:    ['#ef4444', '#f97316', '#fbbf24', '#f59e0b', '#d97706', '#b45309'],
@@ -8,9 +20,18 @@ export const PALETTES: Record<string, string[]> = {
   mono:    ['#6b7280', '#9ca3af', '#d1d5db', '#4b5563', '#374151', '#1f2937'],
   vivid:   ['#ff006e', '#8338ec', '#3a86ff', '#06d6a0', '#ffbe0b', '#fb5607'],
 };
+
 export type PaletteName = keyof typeof PALETTES;
 export const PALETTE_NAMES = Object.keys(PALETTES) as PaletteName[];
+
+/**
+ * Tipo de dato para gráficos de barras
+ */
 export type BarDatum = { label: string; value: number; color?: string };
+
+/**
+ * Tipo de dato para gráficos de dona
+ */
 export type DonutDatum = { label: string; value: number; color: string };
 
 function pickColor(index: number, palette?: PaletteName, explicit?: string): string {
@@ -57,6 +78,21 @@ const Tooltip: React.FC<TooltipState> = ({ x, y, content, visible }) => {
   );
 };
 
+/**
+ * LineChart - Gráfico de líneas multiserie
+ * Visualiza tendencias temporales con múltiples series animadas
+ * @example
+ * ```tsx
+ * <LineChart 
+ *   series={[
+ *     { label: 'Ingresos', color: '#10b981', data: [100, 150, 200] },
+ *     { label: 'Gastos', color: '#ef4444', data: [80, 120, 180] }
+ *   ]} 
+ *   labels={['Ene', 'Feb', 'Mar']} 
+ *   height={200} 
+ * />
+ * ```
+ */
 export const LineChart: React.FC<{
   series: Series[]; labels?: string[]; height?: number;
 }> = React.memo(({ series, labels, height = H }) => {
@@ -121,6 +157,19 @@ export const LineChart: React.FC<{
 });
 LineChart.displayName = 'LineChart';
 
+/**
+ * AreaChart - Gráfico de área multiserie
+ * Similar a LineChart pero con área rellena debajo de las líneas
+ * @example
+ * ```tsx
+ * <AreaChart 
+ *   series={[
+ *     { label: 'Ingresos', color: '#10b981', data: [100, 150, 200] }
+ *   ]} 
+ *   labels={['Ene', 'Feb', 'Mar']} 
+ * />
+ * ```
+ */
 export const AreaChart: React.FC<{ series: Series[]; labels?: string[] }> = React.memo(({ series, labels }) => {
   const p = useAnimIn(900);
   const [tip, setTip] = useState<TooltipState>({ x: 0, y: 0, content: '', visible: false });
@@ -175,6 +224,18 @@ export const AreaChart: React.FC<{ series: Series[]; labels?: string[] }> = Reac
 });
 AreaChart.displayName = 'AreaChart';
 
+/**
+ * BarChart - Gráfico de barras horizontal
+ * Visualiza datos categóricos con barras horizontales animadas
+ * @example
+ * ```tsx
+ * <BarChart 
+ *   data={[{ label: 'Enero', value: 100 }, { label: 'Febrero', value: 150 }]} 
+ *   height={200} 
+ *   palette="default" 
+ * />
+ * ```
+ */
 export const BarChart: React.FC<{
   data: { label: string; value: number; color?: string }[]; height?: number; palette?: PaletteName;
 }> = React.memo(({ data, height = H, palette }) => {
@@ -233,6 +294,17 @@ export const BarChart: React.FC<{
 });
 BarChart.displayName = 'BarChart';
 
+/**
+ * Donut - Gráfico de dona/pie
+ * Visualiza proporciones con un gráfico circular animado
+ * @example
+ * ```tsx
+ * <Donut 
+ *   data={[{ label: 'Completado', value: 60, color: '#10b981' }]} 
+ *   size={180} 
+ * />
+ * ```
+ */
 export const Donut: React.FC<{
   data: { label: string; value: number; color: string }[]; size?: number;
 }> = React.memo(({ data, size = 150 }) => {
@@ -292,6 +364,19 @@ export const Donut: React.FC<{
 });
 Donut.displayName = 'Donut';
 
+/**
+ * Gauge - Medidor/calibro circular
+ * Muestra un valor dentro de un rango con un medidor visual tipo gauge
+ * @example
+ * ```tsx
+ * <Gauge 
+ *   value={75} 
+ *   max={100} 
+ *   label="Rendimiento" 
+ *   color="#10b981" 
+ * />
+ * ```
+ */
 export const Gauge: React.FC<{
   value: number; max: number; label: string; color?: string;
 }> = React.memo(({ value, max, label, color = '#10b981' }) => {
@@ -320,6 +405,18 @@ export const Gauge: React.FC<{
 });
 Gauge.displayName = 'Gauge';
 
+/**
+ * Progress - Barra de progreso simple
+ * Muestra el progreso de una tarea con una barra horizontal animada
+ * @example
+ * ```tsx
+ * <Progress 
+ *   value={75} 
+ *   color="hsl(var(--primary))" 
+ *   className="w-full" 
+ * />
+ * ```
+ */
 export const Progress: React.FC<{
   value: number; color?: string; bg?: string; className?: string;
 }> = React.memo(({ value, color = 'hsl(var(--primary))', bg = 'hsl(var(--border))', className }) => {
@@ -342,6 +439,18 @@ export const Progress: React.FC<{
 Progress.displayName = 'Progress';
 
 // ─── Configurable Line/Area (soporta cambio de tipo + paleta) ──────
+/**
+ * ConfigurableLineArea - Gráfico configurable línea/área
+ * Gráfico avanzado que permite cambiar entre línea y área dinámicamente
+ * @example
+ * ```tsx
+ * <ConfigurableLineArea 
+ *   series={[{ label: 'Datos', color: '#3b82f6', data: [10, 20, 30] }]} 
+ *   type="line" 
+ *   palette="default" 
+ * />
+ * ```
+ */
 export const ConfigurableLineArea: React.FC<{
   series: Series[];
   labels?: string[];
@@ -415,6 +524,18 @@ export const ConfigurableLineArea: React.FC<{
 ConfigurableLineArea.displayName = 'ConfigurableLineArea';
 
 // Sparkline inline
+/**
+ * Sparkline - Gráfico de línea miniatura inline
+ * Gráfico pequeño para mostrar tendencias en espacios compactos
+ * @example
+ * ```tsx
+ * <Sparkline 
+ *   data={[10, 15, 12, 18, 20, 17, 22]} 
+ *   color="#3b82f6" 
+ *   height={40} 
+ * />
+ * ```
+ */
 export const Sparkline: React.FC<{
   data: number[]; color?: string; height?: number;
 }> = React.memo(({ data, color = 'hsl(var(--primary))', height = 40 }) => {

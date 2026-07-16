@@ -4,9 +4,15 @@ import { syncAllVisualSettings } from '@/lib/visual-settings';
 import type { VisualSettings } from '@/lib/visual-settings';
 
 /**
- * useVisualSettings
- * Escucha cambios en appSettings y aplica clases/variables CSS al body.
- * Compatible con modo offline-first: aplica desde localStorage si no hay store.
+ * Hook para gestionar configuraciones visuales de la aplicación
+ *
+ * Características:
+ * - Escucha cambios en appSettings y aplica clases/variables CSS al body
+ * - Compatible con modo offline-first: aplica desde localStorage si no hay store
+ * - Usa hash para evitar actualizaciones innecesarias
+ * - Proporciona función para resetear configuraciones visuales
+ *
+ * @returns Objeto con función resetVisualSettings
  */
 export function useVisualSettings() {
   const { appSettings } = useErp();
@@ -48,6 +54,9 @@ export function useVisualSettings() {
     syncAllVisualSettings(settingsSnapshot);
   }, [hash, settingsSnapshot]);
 
+  /**
+   * Resetea todas las configuraciones visuales a sus valores por defecto
+   */
   const resetVisualSettings = useCallback(() => {
     if (typeof document === 'undefined') return;
     const body = document.body;

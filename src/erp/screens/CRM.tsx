@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY, SECTION_TITLE, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, BUTTON_DANGER, INPUT, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
 
-const licitacionFormSchema = (t: any) => z.object({
+const licitacionFormSchema = (t: ReturnType<typeof useTranslation>['t']) => z.object({
   nombre: z.string().min(1, t('crm.err_nombre_requerido')).max(200, t('crm.err_nombre_max')),
   proyectoId: z.string().optional().default(''),
   cliente: z.string().min(1, t('crm.err_cliente_requerido')).max(150, t('crm.err_cliente_max')),

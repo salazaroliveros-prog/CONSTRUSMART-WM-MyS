@@ -68,6 +68,7 @@ _archive/
 *-missing-tables.mjs
 *-proyectos-schema.mjs
 *-prod-migrations.mjs
+*.mjs
 
 # Reportes internos de desarrollo
 DATABASE_ALIGNMENT_REPORT_SESION20.md

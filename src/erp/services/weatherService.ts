@@ -74,7 +74,9 @@ function setCachedForecast(lat: number, lon: number, data: ForecastItem[]): void
   try {
     const key = `${CACHE_PREFIX_FORECAST}${lat}_${lon}`;
     localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
-  } catch {}
+  } catch (error) {
+    console.error('Error caching forecast data:', error);
+  }
 }
 
 function setCachedData(data: WeatherData): void {

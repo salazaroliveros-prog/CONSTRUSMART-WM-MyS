@@ -128,7 +128,9 @@ export const PresupuestosList: React.FC<PresupuestosListProps> = ({
                     onClick={async () => {
                       try {
                         await Modal.confirm({ title: 'Eliminar presupuesto', content: '¿Está seguro de eliminar este presupuesto?', centered: true, okText: 'Sí, eliminar', cancelText: 'Cancelar' });
-                      } catch {}
+                      } catch (error) {
+                        console.error('Error al confirmar eliminación:', error);
+                      }
                       onDelete?.(p.id);
                     }}
                     className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"

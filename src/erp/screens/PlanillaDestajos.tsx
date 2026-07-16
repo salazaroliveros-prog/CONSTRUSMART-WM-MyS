@@ -240,7 +240,9 @@ export const PlanillaDestajos: React.FC = () => {
                               variant: 'destructive',
                             });
                             deleteDestajo(d.id);
-                          } catch {}
+                          } catch (error) {
+                            console.error('Error al confirmar eliminación de destajo:', error);
+                          }
                         }}
                         className="text-destructive hover:text-destructive/80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-2 py-1"
                         aria-label={`Eliminar destajo de ${d.cuadrilla}`}

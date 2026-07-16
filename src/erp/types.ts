@@ -279,6 +279,29 @@ export interface MunicipioGT {
   altitudMsnm?: number;
 }
 
+export interface ProyectoWeather {
+  proyectoId: string;
+  temperatura: number;
+  humedad: number;
+  precipitacion: number;
+  viento: number;
+  condicion: string;
+  impact: 'low' | 'medium' | 'high' | 'critical';
+  updatedAt: string;
+}
+
+export interface SupplierPerformance {
+  proveedorId: string;
+  proveedorNombre: string;
+  totalOrdenes: number;
+  ordenesCompletadas: number;
+  ordenesRetrasadas: number;
+  tiempoPromedioEntregaDias: number;
+  calificacionPromedio: number;
+  montoTotalComprado: number;
+  proyectoId?: string;
+}
+
 // ... (resto de interfaces existentes sin cambios)
 
 // ============================================================

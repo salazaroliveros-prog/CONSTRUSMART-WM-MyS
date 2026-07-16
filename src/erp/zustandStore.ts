@@ -15,11 +15,11 @@ import type {
   PagoProveedor, CotizacionCliente, VentaPaquete,   Destajo, RecepcionAlmacen, Incidente, CentroCosto, CalculoProyecto, InsumoBase,
   ReglaFactor, NormativaDepartamental, EscalaProduccion, Estacionalidad, HistorialAplicacionRegla,
   AjusteEstacionalActividad, AplicacionEscala, CumplimientoNormativo, DepartamentoGT, MunicipioGT,
+  ProyectoWeather, SupplierPerformance,
 } from './types';
 import type { Plantilla } from './store/schemas/plantillas';
 import type { ErrorLogEntry } from './store/schemas/errorLog';
 import type { AppSettings, Mutation, LogAuditoria } from './types';
-import type { ProyectoWeather } from './store/schemas/weather';
 import type { ProjectProfitability, ClientProfitability, ResourceEfficiency, ProfitabilityTrend } from './store/schemas/profitability';
 
 
@@ -212,14 +212,14 @@ interface ErpActions {
   actualizarMetricasTodasPlantillas: () => void;
   validarIntegridadPlantilla: (plantillaId: string) => { valido: boolean; errores: string[] };
   toggleFavoritoPlantilla: (plantillaId: string) => void;
-  updateProyectoWeather: (proyectoId: string, weatherData: any, impact: any) => void;
+  updateProyectoWeather: (proyectoId: string, weatherData: Omit<ProyectoWeather, 'proyectoId' | 'updatedAt'>, impact: ProyectoWeather['impact']) => void;
   getProyectoWeather: (proyectoId: string) => ProyectoWeather | undefined;
   setUserRol: (rol: string | null) => void;
-  enqueueMutation: (type: string, payload: Record<string, any>) => string;
+  enqueueMutation: (type: string, payload: Record<string, unknown>) => string;
   addAuditEntry: (entry: Omit<LogAuditoria, 'id' | 'createdAt'>) => void;
   setAuditLog: (v: LogAuditoria[] | ((prev: LogAuditoria[]) => LogAuditoria[])) => void;
-  getSupplierPerformance: (proveedorId: string) => any;
-  getAllSupplierPerformance: (filtroProyectoId?: string) => any[];
+  getSupplierPerformance: (proveedorId: string) => SupplierPerformance | null;
+  getAllSupplierPerformance: (filtroProyectoId?: string) => SupplierPerformance[];
   updateAvance: (id: string, patch: Partial<AvanceObra>) => void;
   updatePublicacionMuro: (id: string, patch: Partial<PublicacionMuro>) => void;
   deletePublicacionMuro: (id: string) => void;
@@ -346,7 +346,9 @@ function normalizarFilaSupabase(row: Record<string, any>): Record<string, any> {
       const geo = JSON.parse(normalized.geoLocation);
       if (geo?.lat) normalized.latitud = geo.lat;
       if (geo?.lng) normalized.longitud = geo.lng;
-    } catch {}
+    } catch (error) {
+      console.error('Error parsing geoLocation:', error);
+    }
   }
   return normalized;
 }
@@ -615,7 +617,9 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     try {
       localStorage.setItem('wm_erp_data_settings', JSON.stringify(next));
       if (next.appTheme) localStorage.setItem('wm_erp_theme', next.appTheme);
-    } catch {}
+    } catch (error) {
+      console.error('Error saving appSettings to localStorage:', error);
+    }
   },
   updateAppSettings: (patch) => {
     const next = { ...get().appSettings, ...patch };
@@ -623,7 +627,9 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     try {
       localStorage.setItem('wm_erp_data_settings', JSON.stringify(next));
       if (patch.appTheme) localStorage.setItem('wm_erp_theme', patch.appTheme);
-    } catch {}
+    } catch (error) {
+      console.error('Error updating appSettings in localStorage:', error);
+    }
   },
   setAuditLog: (v) => set(typeof v === 'function' ? { auditLog: v(get().auditLog) } : { auditLog: v }),
 

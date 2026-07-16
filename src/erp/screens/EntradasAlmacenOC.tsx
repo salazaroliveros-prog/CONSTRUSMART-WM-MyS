@@ -88,7 +88,10 @@ const EntradasAlmacenOC: React.FC = () => {
       toast.success(t('entradasAlmacenOC.recepcion_registrada'));
       setShowForm(null);
       setFormCantidad(0);
-    } catch {}
+    } catch (error) {
+      console.error('Error al registrar recepción:', error);
+      toast.error(t('entradasAlmacenOC.error_recepcion'));
+    }
   };
 
   if (loading) return <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4"><Skeleton className="h-8 w-72" /><div className="grid grid-cols-1 md:grid-cols-2 gap-4"><Skeleton className="h-32 rounded-xl" /><Skeleton className="h-32 rounded-xl" /></div><Skeleton className="h-64 rounded-2xl" /></div>;

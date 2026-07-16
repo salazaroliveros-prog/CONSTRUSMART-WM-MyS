@@ -23,6 +23,74 @@ interface HistoricoPrecio {
   block: number;
 }
 
+interface ResultadoDosificacion {
+  cementoSacos: number;
+  arenaM3: number;
+  piedraM3: number;
+  aguaLt: number;
+  costoTotal: number;
+}
+
+interface AceroParams {
+  elemento: 'columna' | 'viga' | 'losa' | 'muro';
+  grado: number;
+  estribos: 'estribos' | 'espiral' | 'malla';
+  volumenM3: number;
+}
+
+interface ResultadoAcero {
+  desglose: Array<{
+    diametro: number;
+    cantidadKg: number;
+    costoTotal: number;
+    precioUnitarioKg: number;
+  }>;
+  costoTotal: number;
+}
+
+interface ParametrosClimaticos {
+  departamentoCodigo: string;
+  departamento: string;
+  zona: string;
+  mes: string;
+}
+
+interface ResultadoClimaticos {
+  factorCurado: number;
+  factorRendimiento: number;
+  factorProteccion: number;
+  factorAjusteEstacional: number;
+  observaciones: string;
+}
+
+interface ResultadoPavimento {
+  costoUnitarioM2: number;
+  costoTotal: number;
+  factorAjuste: number;
+}
+
+interface ResultadoRedInfraestructura {
+  costoUnitarioMl: number;
+  costoTotal: number;
+  factorAjusteMaterial: number;
+  referenciaNorma: string;
+}
+
+interface ResultadoMuroContencion {
+  costoUnitarioM2: number;
+  costoTotal: number;
+  factorAjusteTotal: number;
+  volumenConcretoM3: number;
+  referenciaNorma: string;
+}
+
+interface ResultadoMovimientoTierra {
+  costoUnitarioM3: number;
+  costoTotal: number;
+  factorAjuste: number;
+  tiempoHoras: number;
+}
+
 type Tab = 'insumos' | 'rendimientos' | 'sobrecosto' | 'calculo' | 'historico' | 'dosificacion' | 'acero' | 'movimientoTierra' | 'parametrosClimaticos' | 'pavimentos' | 'redesInfraestructura' | 'murosContencion';
 
 const FACTOR_DEFAULT: FactorSobrecosto = {
@@ -58,31 +126,31 @@ const APUAvanzado: React.FC = () => {
   const [volumen, setVolumen] = useState(1);
   const [departamento, setDepartamento] = useState('');
   const [calculando, setCalculando] = useState(false);
-  const [resultadoDosificacion, setResultadoDosificacion] = useState<any>(null);
+  const [resultadoDosificacion, setResultadoDosificacion] = useState<ResultadoDosificacion | null>(null);
   const departamentos = useDepartamentos();
 
-  const [acero, setAcero] = useState<any>({ elemento: 'columna', grado: 40, estribos: 'estribos', volumenM3: 1 });
-  const [resultadoAcero, setResultadoAcero] = useState<any>(null);
+  const [acero, setAcero] = useState<AceroParams>({ elemento: 'columna', grado: 40, estribos: 'estribos', volumenM3: 1 });
+  const [resultadoAcero, setResultadoAcero] = useState<ResultadoAcero | null>(null);
   const [calculandoAcero, setCalculandoAcero] = useState(false);
 
   const [movimientoTierra, setMovimientoTierra] = useState<MovimientoTierra>({ tipo: 'excavacion', suelo: 'relleno', profundidad: 'menos_1m', acceso: 'retroexcavadora', drenaje: 'seco', volumen: 1 });
-  const [resultadoMovimientoTierra, setResultadoMovimientoTierra] = useState<any>(null);
+  const [resultadoMovimientoTierra, setResultadoMovimientoTierra] = useState<ResultadoMovimientoTierra | null>(null);
   const [calculandoMovimientoTierra, setCalculandoMovimientoTierra] = useState(false);
 
-  const [parametrosClimaticos, setParametrosClimaticos] = useState<any>({ departamentoCodigo: '', departamento: '', zona: '', mes: '' });
-  const [resultadoClimaticos, setResultadoClimaticos] = useState<any>(null);
+  const [parametrosClimaticos, setParametrosClimaticos] = useState<ParametrosClimaticos>({ departamentoCodigo: '', departamento: '', zona: '', mes: '' });
+  const [resultadoClimaticos, setResultadoClimaticos] = useState<ResultadoClimaticos | null>(null);
   const [calculandoClimaticos, setCalculandoClimaticos] = useState(false);
 
   const [pavimento, setPavimento] = useState<Pavimento>({ uso: 'peatonal', tipo: 'adoquinado', tipoBase: 'c4', tipoSello: 'arena', areaM2: 100 });
-  const [resultadoPavimento, setResultadoPavimento] = useState<any>(null);
+  const [resultadoPavimento, setResultadoPavimento] = useState<ResultadoPavimento | null>(null);
   const [calculandoPavimento, setCalculandoPavimento] = useState(false);
 
   const [redInfraestructura, setRedInfraestructura] = useState<RedInfraestructura>({ tipo: 'agua_potable', diametroPulgadas: 1.0, material: 'pvc', presion: 'media', longitudMl: 100 });
-  const [resultadoRedInfraestructura, setResultadoRedInfraestructura] = useState<any>(null);
+  const [resultadoRedInfraestructura, setResultadoRedInfraestructura] = useState<ResultadoRedInfraestructura | null>(null);
   const [calculandoRedInfraestructura, setCalculandoRedInfraestructura] = useState(false);
 
   const [muroContencion, setMuroContencion] = useState<MuroContencion>({ alturaM: 2.0, tipo: 'gravedad', tipoCimentacion: 'zapata_corrida', tipoSuelo: 'arena', tipoDrenaje: 'sin_drenaje', longitudM: 10 });
-  const [resultadoMuroContencion, setResultadoMuroContencion] = useState<any>(null);
+  const [resultadoMuroContencion, setResultadoMuroContencion] = useState<ResultadoMuroContencion | null>(null);
   const [calculandoMuroContencion, setCalculandoMuroContencion] = useState(false);
 
   const rubros = useMemo(() => {
@@ -544,17 +612,17 @@ const APUAvanzado: React.FC = () => {
           <div>
             <h2 className="font-bold text-muted-foreground text-sm mb-3">Motor de Desglose de Acero</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-              <div><label className="text-xs text-muted-foreground mb-1 block">Elemento</label><select value={acero.elemento} onChange={e => setAcero((d: any) => ({ ...d, elemento: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="columna">Columna</option><option value="viga">Viga</option><option value="losa">Losa</option><option value="muro">Muro</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Grado</label><select value={acero.grado} onChange={e => setAcero((d: any) => ({ ...d, grado: parseInt(e.target.value) }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="40">Grado 40</option><option value="60">Grado 60</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Estribos</label><select value={acero.estribos} onChange={e => setAcero((d: any) => ({ ...d, estribos: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="estribos">Estribos</option><option value="espiral">Espiral</option><option value="malla">Malla Electrosoldada</option></select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Volumen (m³)</label><input type="number" inputMode="decimal" value={acero.volumenM3} onChange={e => setAcero((d: any) => ({ ...d, volumenM3: Math.max(0.1, parseFloat(e.target.value) || 1) }))} min={0.1} step={0.1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Elemento</label><select value={acero.elemento} onChange={e => setAcero((d: AceroParams) => ({ ...d, elemento: e.target.value as AceroParams['elemento'] }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="columna">Columna</option><option value="viga">Viga</option><option value="losa">Losa</option><option value="muro">Muro</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Grado</label><select value={acero.grado} onChange={e => setAcero((d: AceroParams) => ({ ...d, grado: parseInt(e.target.value) }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="40">Grado 40</option><option value="60">Grado 60</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Estribos</label><select value={acero.estribos} onChange={e => setAcero((d: AceroParams) => ({ ...d, estribos: e.target.value as AceroParams['estribos'] }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="estribos">Estribos</option><option value="espiral">Espiral</option><option value="malla">Malla Electrosoldada</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Volumen (m³)</label><input type="number" inputMode="decimal" value={acero.volumenM3} onChange={e => setAcero((d: AceroParams) => ({ ...d, volumenM3: Math.max(0.1, parseFloat(e.target.value) || 1) }))} min={0.1} step={0.1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
               <div className="sm:col-span-2 md:col-span-3">
                 <button onClick={handleCalcularAcero} disabled={calculandoAcero} aria-label={calculandoAcero ? 'Calculando desglose de acero' : 'Calcular desglose de acero'} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoAcero ? t('apu.calculando') : t('apu.calcular_acero')}</button>
               </div>
             </div>
             {resultadoAcero && (
               <div className="mt-4 space-y-3">
-                <div className="bg-muted/30 rounded-xl p-4 border border-border"><h3 className="font-bold text-muted-foreground text-xs mb-3">Desglose por Diámetro</h3><div className="space-y-2">{(resultadoAcero.desglose || []).map((item: any, index: number) => (<div key={index} className="bg-blue-50 rounded-lg p-3 border border-blue-100"><div className="flex items-center justify-between"><span className="text-xs text-blue-600">Diámetro {item.diametro}</span><span className="text-lg font-bold text-blue-700">{item.cantidadKg.toFixed(2)} kg</span></div><div className="text-xs text-muted-foreground mt-1">Costo: Q{item.costoTotal.toFixed(2)} | Precio: Q{item.precioUnitarioKg.toFixed(2)}/kg</div></div>))}</div></div>
+                <div className="bg-muted/30 rounded-xl p-4 border border-border"><h3 className="font-bold text-muted-foreground text-xs mb-3">Desglose por Diámetro</h3><div className="space-y-2">{(resultadoAcero?.desglose || []).map((item, index: number) => (<div key={index} className="bg-blue-50 rounded-lg p-3 border border-blue-100"><div className="flex items-center justify-between"><span className="text-xs text-blue-600">Diámetro {item.diametro}</span><span className="text-lg font-bold text-blue-700">{item.cantidadKg.toFixed(2)} kg</span></div><div className="text-xs text-muted-foreground mt-1">Costo: Q{item.costoTotal.toFixed(2)} | Precio: Q{item.precioUnitarioKg.toFixed(2)}/kg</div></div>))}</div></div>
                 <div className="bg-gradient-to-r from-primary-to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">Costo Total</span><div className="text-2xl font-bold text-white">Q{resultadoAcero.costoTotal?.toFixed(2) || '0.00'}</div></div></div></div>
               </div>
             )}
@@ -587,8 +655,8 @@ const APUAvanzado: React.FC = () => {
             <h2 className="font-bold text-muted-foreground text-sm mb-3">Parámetros Climáticos por Departamento</h2>
             <p className="text-xs text-muted-foreground mb-4">Factores de ajuste por clima para curado de concreto y rendimiento de mano de obra</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-              <div><label className="text-xs text-muted-foreground mb-1 block">Departamento</label><select value={parametrosClimaticos.departamentoCodigo} onChange={e => setParametrosClimaticos((d: any) => ({ ...d, departamentoCodigo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">Seleccione departamento</option>{departamentos.map(dep => (<option key={dep.codigo} value={dep.codigo}>{dep.nombre}</option>))}</select></div>
-              <div><label className="text-xs text-muted-foreground mb-1 block">Mes (opcional)</label><select value={(parametrosClimaticos as any).mes || ''} onChange={e => setParametrosClimaticos((d: any) => ({ ...d, mes: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">Sin estacionalidad</option><option value="enero">Enero</option><option value="febrero">Febrero</option><option value="marzo">Marzo</option><option value="abril">Abril</option><option value="mayo">Mayo</option><option value="junio">Junio</option><option value="julio">Julio</option><option value="agosto">Agosto</option><option value="septiembre">Septiembre</option><option value="octubre">Octubre</option><option value="noviembre">Noviembre</option><option value="diciembre">Diciembre</option></select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Departamento</label><select value={parametrosClimaticos.departamentoCodigo} onChange={e => setParametrosClimaticos((d: ParametrosClimaticos) => ({ ...d, departamentoCodigo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">Seleccione departamento</option>{departamentos.map(dep => (<option key={dep.codigo} value={dep.codigo}>{dep.nombre}</option>))}</select></div>
+              <div><label className="text-xs text-muted-foreground mb-1 block">Mes (opcional)</label><select value={parametrosClimaticos.mes || ''} onChange={e => setParametrosClimaticos((d: ParametrosClimaticos) => ({ ...d, mes: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">Sin estacionalidad</option><option value="enero">Enero</option><option value="febrero">Febrero</option><option value="marzo">Marzo</option><option value="abril">Abril</option><option value="mayo">Mayo</option><option value="junio">Junio</option><option value="julio">Julio</option><option value="agosto">Agosto</option><option value="septiembre">Septiembre</option><option value="octubre">Octubre</option><option value="noviembre">Noviembre</option><option value="diciembre">Diciembre</option></select></div>
               <div className="sm:col-span-2"><button onClick={handleCalcularParametrosClimaticos} disabled={calculandoClimaticos} aria-label={calculandoClimaticos ? 'Calculando parámetros climáticos' : 'Calcular parámetros climáticos'} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoClimaticos ? t('apu.calculando') : t('apu.calcular_climaticos')}</button></div>
             </div>
             {resultadoClimaticos && (

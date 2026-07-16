@@ -41,7 +41,7 @@ interface VersionHistorialItem {
   fecha: string;
   usuario: string;
   cambios: string;
-  snapshot?: any;
+  snapshot?: Partial<Plantilla>;
 }
 
 const CATEGORIAS = [
@@ -147,7 +147,7 @@ const PlantillasProyectos: React.FC = () => {
       setFormErrors({});
     } catch (error) {
       if (error instanceof z.ZodError) {
-        setFormErrors(prev => { const next = { ...prev }; error.errors.forEach((e: any) => { const f = e.path[0]; if (f) next[f] = e.message; }); return next; });
+        setFormErrors(prev => { const next = { ...prev }; error.errors.forEach((e) => { const f = e.path[0]; if (f) next[f] = e.message; }); return next; });
       }
     }
   };
@@ -212,7 +212,10 @@ const PlantillasProyectos: React.FC = () => {
       setSeleccionMultiple(new Set());
       setModoSeleccion(false);
       toast.success(t('plantillas.eliminada_exito', { count: seleccionMultiple.size }));
-    } catch {}
+    } catch (error) {
+      console.error('Error al eliminar plantillas en lote:', error);
+      toast.error(t('plantillas.error_eliminar_lote'));
+    }
   };
 
   const handleBulkExport = () => {
@@ -255,7 +258,10 @@ const PlantillasProyectos: React.FC = () => {
       });
       deletePlantilla(id);
         toast.success(t('plantillas.eliminada'));
-    } catch {}
+    } catch (error) {
+      console.error('Error al eliminar plantilla:', error);
+      toast.error(t('plantillas.error_eliminar'));
+    }
   };
 
   const handleClone = (plantilla: Plantilla) => {
@@ -337,7 +343,10 @@ const PlantillasProyectos: React.FC = () => {
       restaurarVersionPlantilla(previewPlantilla.id, version);
       toast.success(t('plantillas.version_restaurada'));
       setShowHistorial(false);
-    } catch {}
+    } catch (error) {
+      console.error('Error al restaurar versión:', error);
+      toast.error(t('plantillas.error_restaurar'));
+    }
   };
 
   const handlePreview = (plantilla: Plantilla) => {

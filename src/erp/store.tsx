@@ -190,7 +190,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const keys = Object.keys(localStorage).filter(k => k.startsWith('wm_erp_data') || k === 'zustand_erp_store' || k === 'wm_photo' || k === 'wm_google_avatar' || k.startsWith('sb-'));
       keys.forEach(k => localStorage.removeItem(k));
-    } catch {}
+    } catch (error) {
+      console.error('Error clearing localStorage on logout:', error);
+    }
     window.location.reload();
   }, [realLogout]);
 
@@ -198,7 +200,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
      if (authUser) {
        const avatar = authUser.avatar || null;
        if (avatar && typeof window !== 'undefined') {
-         try { localStorage.setItem('wm_google_avatar', avatar); } catch {}
+         try { localStorage.setItem('wm_google_avatar', avatar); } catch (error) {
+           console.error('Error saving avatar to localStorage:', error);
+         }
        }
        return {
          id: authUser.id,
@@ -572,10 +576,14 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
          };
           const quotaCritical = isStorageQuotaCritical();
           for (const [k, v] of Object.entries(map)) {
-            try { const value = await compressDataAsync(v); safeSetItem(`${BASE_STORAGE_KEY}_${k}`, value, `${BASE_STORAGE_KEY}_${k}`); } catch {}
+            try { const value = await compressDataAsync(v); safeSetItem(`${BASE_STORAGE_KEY}_${k}`, value, `${BASE_STORAGE_KEY}_${k}`); } catch (error) {
+              console.error(`Error compressing/saving ${k}:`, error);
+            }
           }
           safeSetItem(`${BASE_STORAGE_KEY}_settings`, JSON.stringify(s.appSettings));
-          try { const n = await compressDataAsync(s.notificaciones); safeSetItem(`${BASE_STORAGE_KEY}_notificaciones`, n); } catch {}
+          try { const n = await compressDataAsync(s.notificaciones); safeSetItem(`${BASE_STORAGE_KEY}_notificaciones`, n); } catch (error) {
+            console.error('Error compressing/saving notificaciones:', error);
+          }
           
           encryptionManager.encryptItem(BASE_STORAGE_KEY + '_settings', s.appSettings, user?.id || 'default')
             .then(() => safeLogger.log('[Encryption] appSettings encrypted'))
@@ -692,10 +700,14 @@ useEffect(() => {
     supabaseSubscriptionsRef.current = true;
   };
   
-  subscribeToRealtime().catch(() => {});
+  subscribeToRealtime().catch((error) => {
+    console.error('Error subscribing to realtime:', error);
+  });
   
   return () => {
-    channelsArr.forEach(ch => { try { ch.unsubscribe(); } catch {} });
+    channelsArr.forEach(ch => { try { ch.unsubscribe(); } catch (error) {
+      console.error('Error unsubscribing from channel:', error);
+    } });
     channelsArr.length = 0;
     supabaseSubscriptionsRef.current = false;
   };

@@ -126,7 +126,15 @@ const Activos: React.FC = () => {
                 <td className="p-2 font-mono">{fmtQ(Number(a.valor || 0))}</td>
                 <td className="p-2 text-right">
                   <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('activos.editar')} ${a.nombre}`}><Edit2 className="w-4 h-4 text-muted-foreground" aria-hidden="true" /></button>
-                  <button onClick={async () => { try { await confirmAction({ title: t('activos.confirmar_eliminar'), okText: t('common.si'), cancelText: t('common.cancelar'), variant: 'destructive' }); remove(a.id); } catch {} }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('activos.eliminar')} ${a.nombre}`}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
+                  <button onClick={async () => { 
+                    try { 
+                      await confirmAction({ title: t('activos.confirmar_eliminar'), okText: t('common.si'), cancelText: t('common.cancelar'), variant: 'destructive' }); 
+                      remove(a.id); 
+                    } catch (error) {
+                      // Usuario canceló la acción
+                      console.log('Acción cancelada por usuario');
+                    } 
+                  }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('activos.eliminar')} ${a.nombre}`}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
                 </td>
               </tr>
             ))}

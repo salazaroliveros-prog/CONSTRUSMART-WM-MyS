@@ -4,6 +4,9 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 import { log } from '@/lib/auto-logger';
 import type { RolSistemaSistema } from '@/lib/security';
 
+/**
+ * Tipos de tablas de la ERP que soportan suscripción Realtime
+ */
 type TableName =
   | 'erp_proyectos' | 'erp_movimientos' | 'erp_empleados' | 'erp_materiales'
   | 'erp_ordenes_compra' | 'erp_proveedores' | 'erp_eventos_calendario'
@@ -18,6 +21,9 @@ type TableName =
   | 'erp_cotizaciones_negocio'
   | 'erp_destajos' | 'erp_recepciones';
 
+/**
+ * Tipos de cambios en Realtime
+ */
 type ChangeType = 'INSERT' | 'UPDATE' | 'DELETE';
 
 const TABLAS_POR_ROL: Record<RolSistema, TableName[]> = {
@@ -58,6 +64,9 @@ const TABLAS_POR_ROL: Record<RolSistema, TableName[]> = {
   ],
 };
 
+/**
+ * Configuración para el hook useSupabaseRealtime
+ */
 interface RealtimeConfig {
   tablas: TableName[];
   onCambio: (payload: { tabla: string; tipo: ChangeType; datos: unknown; id: string }) => void;
@@ -69,15 +78,10 @@ interface RealtimeConfig {
 const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000];
 
 /**
- * Hook de Supabase Realtime con autoreconexión
- * 
- * Características:
- * - Suscripción a múltiples tablas en un solo canal
- * - Reconexión automática con backoff exponencial (1s → 16s)
- * - Filtro opcional por columna/valor (ej: solo cambios en un proyecto)
- * - Limpieza automática al desmontar
- * - Logging de eventos de conexión
- * - Manejo de errores en suscripción
+ * Filtra tablas permitidas según el rol del usuario
+ * @param tables - Lista de tablas a filtrar
+ * @param rol - Rol del usuario
+ * @returns Tablas permitidas para el rol
  */
 export function filterByRolSistema(tables: TableName[], rol?: RolSistema): TableName[] {
   if (!rol) return tables;
@@ -86,6 +90,20 @@ export function filterByRolSistema(tables: TableName[], rol?: RolSistema): Table
   return tables.filter(t => allowed.includes(t));
 }
 
+/**
+ * Hook de Supabase Realtime con autoreconexión
+ *
+ * Características:
+ * - Suscripción a múltiples tablas en un solo canal
+ * - Reconexión automática con backoff exponencial (1s → 16s)
+ * - Filtro opcional por columna/valor (ej: solo cambios en un proyecto)
+ * - Limpieza automática al desmontar
+ * - Logging de eventos de conexión
+ * - Manejo de errores en suscripción
+ *
+ * @param config - Configuración de suscripción
+ * @returns Objeto con función resubscribe y estado de conexión
+ */
 export function useSupabaseRealtime(config: RealtimeConfig) {
   const {
     tablas,
@@ -104,6 +122,9 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
   onCambioRef.current = onCambio;
   const scheduleReconnectRef = useRef<() => void>(() => {});
 
+  /**
+   * Suscribe a las tablas especificadas en un canal Realtime
+   */
   const subscribe = useCallback(() => {
     if (!hasSupabase || !enabled || effectiveTablas.length === 0) return;
 
@@ -177,6 +198,9 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
     channelRef.current = channel;
     }, [effectiveTablas, tablas, filtro, enabled]);
 
+  /**
+   * Programa una reconexión con backoff exponencial
+   */
   const scheduleReconnect = useCallback(() => {
     const attempt = reconnectAttemptRef.current;
     const delay = RECONNECT_DELAYS[Math.min(attempt, RECONNECT_DELAYS.length - 1)];
@@ -212,7 +236,10 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
     };
   }, [enabled, subscribe]);
 
-  // Función para cambiar suscripciones manualmente
+  /**
+   * Función para cambiar suscripciones manualmente
+   * @param nuevasTablas - Nuevas tablas a suscribir (opcional)
+   */
   const resubscribe = useCallback((nuevasTablas?: TableName[]) => {
     if (nuevasTablas) {
       // Forzar recreación del canal con nuevas tablas

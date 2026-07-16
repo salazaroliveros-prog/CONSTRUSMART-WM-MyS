@@ -2,8 +2,14 @@ import { useState, useCallback, useEffect } from 'react';
 import { z } from 'zod';
 import { hasSupabase, supabase } from '@/lib/supabase';
 
+/**
+ * Tipo de rol de usuario en el sistema
+ */
 type Rol = string;
 
+/**
+ * Schema Zod para validar datos de usuario
+ */
 const userSchema = z.object({
   id: z.string(),
   email: z.string().email().optional().default(''),
@@ -12,6 +18,14 @@ const userSchema = z.object({
   avatar: z.string().optional().default(''),
 });
 
+/**
+ * Parsea datos de forma segura usando Zod con fallback
+ * @param schema - Schema Zod para validar
+ * @param data - Datos a validar
+ * @param fallback - Valor a retornar si la validación falla
+ * @param ctx - Contexto opcional para logging
+ * @returns Datos validados o fallback
+ */
 function safeParse<T extends z.ZodTypeAny>(schema: T, data: z.infer<T>, fallback: z.infer<T>, ctx?: string): z.infer<T> {
   try {
     const result = schema.safeParse(data);
@@ -21,10 +35,16 @@ function safeParse<T extends z.ZodTypeAny>(schema: T, data: z.infer<T>, fallback
   }
 }
 
+/**
+ * Interfaz de usuario autenticado
+ */
 export interface AuthUser {
   id: string; email: string; nombre: string; rol: Rol; avatar?: string;
 }
 
+/**
+ * Retorno del hook useAuth
+ */
 export interface UseAuthReturn {
   user: AuthUser | null;
   loading: boolean;
@@ -34,11 +54,28 @@ export interface UseAuthReturn {
   refreshSession: () => Promise<void>;
 }
 
+/**
+ * Hook de autenticación con Supabase y Google OAuth
+ * 
+ * Características:
+ * - Autenticación con Google OAuth
+ * - Gestión de sesión con Supabase
+ * - Validación de usuario con Zod
+ * - Obtención de rol desde tabla profiles
+ * - Manejo de errores
+ * - Refresh de sesión
+ * 
+ * @returns Objeto con estado de autenticación y métodos de acción
+ */
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  /**
+   * Construye el objeto de usuario desde la sesión de Supabase
+   * Obtiene el rol desde la tabla profiles y valida con Zod
+   */
   const buildUserFromSession = useCallback(async () => {
     if (!hasSupabase) {
       setError('Supabase no está configurado. Configura VITE_SUPABASE_URL y VITE_SUPABASE_KEY en .env');
@@ -116,6 +153,9 @@ export function useAuth(): UseAuthReturn {
     return () => subscription.unsubscribe();
   }, [buildUserFromSession]);
 
+  /**
+   * Inicia sesión con Google OAuth
+   */
   const signInWithGoogle = useCallback(async () => {
     if (!hasSupabase) {
       setError('Supabase no está configurado.');
@@ -147,6 +187,9 @@ export function useAuth(): UseAuthReturn {
     }
   }, []);
 
+  /**
+   * Cierra la sesión del usuario
+   */
   const signOut = useCallback(async () => {
     if (!hasSupabase) {
       setUser(null);
@@ -155,11 +198,16 @@ export function useAuth(): UseAuthReturn {
 
     try {
       await supabase.auth.signOut();
-    } catch {}
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
     setUser(null);
     setError('');
   }, []);
 
+  /**
+   * Refresca la sesión del usuario
+   */
   const refreshSession = useCallback(async () => {
     await buildUserFromSession();
   }, [buildUserFromSession]);

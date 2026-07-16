@@ -297,7 +297,9 @@ export function safeSetItem(key: string, value: string, fallbackKey?: string): b
           if (existing && existing.length > value.length) {
             localStorage.removeItem(fallbackKey);
           }
-        } catch {}
+        } catch (error) {
+          console.error('Error removing fallback key:', error);
+        }
       }
       const oldestKeys: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
@@ -309,7 +311,9 @@ export function safeSetItem(key: string, value: string, fallbackKey?: string): b
       });
       while (oldestKeys.length > 3) {
         const k = oldestKeys.shift();
-        if (k) try { localStorage.removeItem(k); } catch {}
+        if (k) try { localStorage.removeItem(k); } catch (error) {
+          console.error('Error removing old key:', error);
+        }
       }
       if (oldestKeys.length > 0) {
         const k = oldestKeys[0];
@@ -321,7 +325,9 @@ export function safeSetItem(key: string, value: string, fallbackKey?: string): b
               localStorage.setItem(k, compressed);
             }
           }
-        } catch {}
+        } catch (error) {
+          console.error('Error compressing data:', error);
+        }
       }
       try {
         localStorage.setItem(key, value);

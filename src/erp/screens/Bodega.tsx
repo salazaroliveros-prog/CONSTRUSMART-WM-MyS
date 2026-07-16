@@ -294,7 +294,15 @@ if (loading) {
                   <div className="text-muted-foreground mt-0.5">{o.proveedor} · {o.cantidad} u · {fmtQ(o.monto)}</div>
                   {o.estado === 'pendiente' && (
                     <div className="flex gap-1 mt-1.5">
-                       <button onClick={async () => { try { await confirmAction({ title: t('bodega.aprobar_orden'), content: t('bodega.aprobar_orden_confirm'), centered: true, okText: t('bodega.si_aprobar'), cancelText: t('common.cancelar') }); updateOrden(o.id, { estado: 'aprobado' }); } catch {} }}
+                       <button onClick={async () => { 
+                         try { 
+                           await confirmAction({ title: t('bodega.aprobar_orden'), content: t('bodega.aprobar_orden_confirm'), centered: true, okText: t('bodega.si_aprobar'), cancelText: t('common.cancelar') }); 
+                           updateOrden(o.id, { estado: 'aprobado' }); 
+                         } catch (error) {
+                           // Usuario canceló la acción
+                           console.log('Acción cancelada por usuario');
+                         } 
+                       }}
                          aria-label={t('bodega.aprobar_orden_aria', { material: o.material })}
                          className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
                         <Check className="w-3 h-3" aria-hidden="true" /> {t('bodega.aprobar')}

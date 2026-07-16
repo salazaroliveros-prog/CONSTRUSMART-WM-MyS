@@ -16,8 +16,12 @@ let rootInstance: { root: Root; container: HTMLDivElement } | null = null
 
 function cleanup() {
   if (rootInstance) {
-    try { rootInstance.root.unmount() } catch {}
-    try { document.body.removeChild(rootInstance.container) } catch {}
+    try { rootInstance.root.unmount() } catch (error) {
+      console.error('Error unmounting root:', error);
+    }
+    try { document.body.removeChild(rootInstance.container) } catch (error) {
+      console.error('Error removing container:', error);
+    }
     rootInstance = null
   }
 }

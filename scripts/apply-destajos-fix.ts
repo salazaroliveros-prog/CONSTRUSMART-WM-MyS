@@ -86,7 +86,9 @@ async function applyMigration() {
     process.exit(0);
   } catch (err) {
     console.error('❌ Error:', err.message);
-    try { await client.end(); } catch {}
+    try { await client.end(); } catch (endError) {
+      console.error('Error closing client:', endError);
+    }
     process.exit(1);
   }
 }

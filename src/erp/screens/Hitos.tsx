@@ -2,13 +2,29 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
-import { fmtQ } from '../utils';
 import { CheckCircle2, Circle, AlertTriangle, Calendar, Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../ui';
 
 type TipoHito = 'entrega' | 'pago' | 'inspeccion' | 'licencia' | 'otro';
+
+interface HitoItem {
+  id: string;
+  proyectoId: string;
+  nombre: string;
+  fecha: string;
+  tipo: TipoHito;
+  completado?: boolean;
+}
+
+interface HitoUpdate {
+  nombre?: string;
+  fecha?: string;
+  tipo?: TipoHito;
+  proyectoId?: string;
+  completado?: boolean;
+}
 
 const TIPOS: Record<TipoHito, { label: string; color: string; icon: React.ReactNode }> = {
   entrega: { label: 'Entrega', color: 'text-purple-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
@@ -53,21 +69,24 @@ const Hitos: React.FC = () => {
     setFormErrors({});
 
     if (editingId) {
-      updateHito(editingId, { nombre: nombre.trim(), fecha, tipo, proyectoId } as any);
+      const updateData: HitoUpdate = { nombre: nombre.trim(), fecha, tipo, proyectoId };
+      updateHito(editingId, updateData);
       toast.success(t('hitos.actualizado', 'Hito actualizado'));
     } else {
-      addHito({ nombre: nombre.trim(), fecha, tipo, proyectoId } as any);
+      const newHito: HitoItem = { id: '', proyectoId, nombre: nombre.trim(), fecha, tipo };
+      addHito(newHito);
       toast.success(t('hitos.creado', 'Hito creado'));
     }
     reset();
   };
 
   const toggleCompletado = (id: string, actual: boolean) => {
-    updateHito(id, { completado: !actual } as any);
+    const updateData: HitoUpdate = { completado: !actual };
+    updateHito(id, updateData);
     toast.success(!actual ? t('hitos.completado', 'Completado') : t('hitos.pendiente', 'Pendiente'));
   };
 
-  const startEdit = (hito: any) => {
+  const startEdit = (hito: HitoItem) => {
     setEditingId(hito.id);
     setFecha(hito.fecha || '');
     setNombre(hito.nombre || '');
