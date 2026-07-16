@@ -52,7 +52,7 @@ const RRHH: React.FC = () => {
     reset,
     formState: { errors },
   } = useForm<EmpleadoFormData>({
-    resolver: zodResolver(empleadoSchema),
+    resolver: zodResolver(empleadoFormSchema),
     defaultValues: {
       nombre: '',
       puesto: '',
