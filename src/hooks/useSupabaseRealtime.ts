@@ -11,7 +11,7 @@ type TableName =
   | 'erp_avances' | 'erp_vales_salida' | 'erp_notificaciones'
   | 'erp_ordenes_cambio' | 'erp_seguimiento' | 'erp_cuentas_cobrar'
   | 'erp_cuentas_pagar' | 'erp_hitos' | 'erp_riesgos'
-  | 'erp_muro' | 'erp_pruebas_laboratorio'
+  | 'erp_publicaciones_muro' | 'erp_pruebas_laboratorio'
   | 'erp_no_conformidades' | 'erp_incidentes' | 'erp_liberaciones_partida'
   | 'erp_planos' | 'erp_rfis' | 'erp_submittals'
   | 'erp_activos' | 'erp_cuadros' | 'erp_ventas_paquetes' | 'erp_pagos_proveedor'
@@ -23,7 +23,7 @@ type ChangeType = 'INSERT' | 'UPDATE' | 'DELETE';
 const TABLAS_POR_ROL: Record<RolSistema, TableName[]> = {
   Administrador: [
     'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
-    'erp_notificaciones', 'erp_muro',
+    'erp_notificaciones', 'erp_publicaciones_muro',
     'erp_presupuestos', 'erp_ordenes_compra', 'erp_avances', 'erp_vales_salida',
     'erp_cotizaciones_negocio', 'erp_licitaciones', 'erp_destajos', 'erp_recepciones',
     'erp_hitos', 'erp_riesgos', 'erp_ordenes_cambio',
@@ -34,7 +34,7 @@ const TABLAS_POR_ROL: Record<RolSistema, TableName[]> = {
   ],
   Gerente: [
     'erp_proyectos', 'erp_movimientos', 'erp_empleados',
-    'erp_notificaciones', 'erp_muro',
+    'erp_notificaciones', 'erp_publicaciones_muro',
     'erp_presupuestos', 'erp_ordenes_compra', 'erp_avances',
     'erp_cotizaciones_negocio', 'erp_licitaciones',
     'erp_hitos', 'erp_riesgos', 'erp_ordenes_cambio',
