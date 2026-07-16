@@ -411,6 +411,15 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       const statePatch: Record<string, any> = {};
       let errorCount = 0;
       let authErrorCount = 0;
+      
+      // Inicializar todas las claves con arrays vacíos por defecto
+      for (const table of CRITICAL_TABLES) {
+        const stateKey = TABLE_MAP[table];
+        if (stateKey) {
+          statePatch[stateKey] = [];
+        }
+      }
+      
       for (const result of results) {
         if (result.status === 'fulfilled' && result.value) {
           const { table, data, authError } = result.value;
@@ -525,7 +534,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   proyectoWeather: [],
   errorLogs: [],
 
-  setProyectos: (v) => set(typeof v === 'function' ? { proyectos: v(get().proyectos) } : { proyectos: v }),
+  setProyectos: (v) => set(typeof v === 'function' ? { proyectos: v(get().proyectos) } : { proyectos: Array.isArray(v) ? v : [] }),
   setMovimientos: (v) => set(typeof v === 'function' ? { movimientos: v(get().movimientos) } : { movimientos: v }),
   setEmpleados: (v) => set(typeof v === 'function' ? { empleados: v(get().empleados) } : { empleados: v }),
   setMateriales: (v) => set(typeof v === 'function' ? { materiales: v(get().materiales) } : { materiales: v }),

@@ -28,17 +28,23 @@ const Proyectos: React.FC = () => {
   const ordenes = useErp(s => s.ordenes);
   const movimientos = useErp(s => s.movimientos);
   const safeProyectos = React.useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]);
+  const safeMovimientos = React.useMemo(() => Array.isArray(movimientos) ? movimientos : [], [movimientos]);
+  const safeEmpleados = React.useMemo(() => Array.isArray(empleados) ? empleados : [], [empleados]);
+  const safeMateriales = React.useMemo(() => Array.isArray(materiales) ? materiales : [], [materiales]);
+  const safeActivos = React.useMemo(() => Array.isArray(activos) ? activos : [], [activos]);
+  const safeHitos = React.useMemo(() => Array.isArray(hitos) ? hitos : [], [hitos]);
+  const safeOrdenes = React.useMemo(() => Array.isArray(ordenes) ? ordenes : [], [ordenes]);
 
   const resourceConflicts = React.useMemo(() => {
     return conflictDetectionService.detectAllConflicts(
-      empleados || [],
-      materiales || [],
-      activos || [],
+      safeEmpleados,
+      safeMateriales,
+      safeActivos,
       safeProyectos,
-      hitos || [],
-      ordenes || []
+      safeHitos,
+      safeOrdenes
     );
-  }, [empleados, materiales, activos, safeProyectos, hitos, ordenes]);
+  }, [safeEmpleados, safeMateriales, safeActivos, safeProyectos, safeHitos, safeOrdenes]);
 
   const criticalConflicts = React.useMemo(() => {
     return resourceConflicts.filter(c => c.severidad === 'critico' || c.severidad === 'alto');
@@ -76,7 +82,7 @@ const Proyectos: React.FC = () => {
 
   const projectProfitability = useMemo(() => {
     const map = new Map<string, number>();
-    (movimientos || []).forEach(m => {
+    safeMovimientos.forEach(m => {
       if (!m.proyectoId) return;
       const current = map.get(m.proyectoId) || 0;
       const delta = m.tipo === 'ingreso' ? (m.monto || 0) : -(m.monto || 0);
