@@ -376,7 +376,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_cuentas_cobrar','erp_cuentas_pagar','erp_ordenes_cambio',
       'erp_hitos','erp_riesgos','erp_licitaciones','erp_cotizaciones_negocio',
       'erp_vales_salida','erp_no_conformidades','erp_incidentes',
-      'erp_muro','erp_planos',
+      'erp_publicaciones_muro','erp_planos',
       'erp_rfis','erp_submittals','erp_activos',
       'erp_eventos_calendario','erp_bitacora','erp_seguimiento',
       'erp_liberaciones_partida','erp_notificaciones','erp_cuadros',

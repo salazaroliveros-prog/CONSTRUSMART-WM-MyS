@@ -32,15 +32,24 @@ interface ProyectoFormProps {
   ETAPAS: readonly string[];
   tipoObraLabel: Record<string, string>;
   etapaLabel: Record<string, string>;
+  estadoLabel?: Record<string, string>;
   t: (key: string, options?: any) => string;
 }
+
+const DEFAULT_ESTADO_LABEL: Record<string, string> = {
+  planeacion: 'Planeación',
+  ejecucion: 'Ejecución',
+  pausado: 'Pausado',
+  finalizado: 'Finalizado',
+};
 
 const ProyectoForm: React.FC<ProyectoFormProps> = ({
   show, editingId, onSubmit, onClose, register, handleSubmit, reset, setValue, watch, errors,
   submitting, selectedTemplate, setSelectedTemplate, templateSearch, setTemplateSearch,
   sugerencias, plantillas, coords, setCoords, subtipologias, setSubtipologias, TIPOS_OBRA, ETAPAS,
-  tipoObraLabel, etapaLabel, t
+  tipoObraLabel, etapaLabel, estadoLabel: estadoLabelProp, t
 }) => {
+  const estadoLabel = estadoLabelProp ?? DEFAULT_ESTADO_LABEL;
   React.useEffect(() => {
     if (selectedTemplate && !editingId) {
       const template = plantillas.find(p => p.id === selectedTemplate);
@@ -67,7 +76,6 @@ const ProyectoForm: React.FC<ProyectoFormProps> = ({
 
   const handleClose = () => {
     setSelectedTemplate('');
-    setSugerencias([]);
     setTemplateSearch('');
     onClose();
   };

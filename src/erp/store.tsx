@@ -337,15 +337,16 @@ function checkTokenBucket(): boolean {
   useEffect(() => {
     if (!isOnline) return;
     const tick = () => {
+      if (!user) { keepAliveRef.current = setTimeout(tick, 600000); return; }
       const status = useErpStore.getState().syncStatus;
       if (status === 'idle' || status === 'error') fetchInitialData(1);
       keepAliveRef.current = setTimeout(tick, 600000);
     };
     keepAliveRef.current = setTimeout(tick, 600000);
-    const onVis = () => { if (document.visibilityState === 'visible') fetchInitialData(1); };
+    const onVis = () => { if (document.visibilityState === 'visible' && user) fetchInitialData(1); };
     document.addEventListener('visibilitychange', onVis);
     return () => { clearTimeout(keepAliveRef.current); document.removeEventListener('visibilitychange', onVis); };
-  }, [isOnline]);
+  }, [isOnline, user]);
 
 const syncInProgressRef = useRef(false);
 const forceSync = useMemo(() => {
