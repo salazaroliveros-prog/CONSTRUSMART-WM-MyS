@@ -131,12 +131,7 @@ const APUAvanzado: React.FC = () => {
   };
 
   useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    const data = ServicioMotorCalculo.obtenerDepartamentos();
-    if (!cancelled) setDepartamentos(data);
-    if (!cancelled) setLoading(false);
-    return () => { cancelled = true; };
+    setLoading(false);
   }, []);
 
   const handleCalcularDosificacion = async () => {
