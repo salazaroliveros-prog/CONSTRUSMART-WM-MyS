@@ -13,14 +13,15 @@ const RendimientoCampo: React.FC = () => {
   useEffect(() => { setLoading(false); }, []);
   const [proyectoFilter, setProyectoFilter] = useState('');
   const BASE = 'rendimiento_campo';
+  const safeRendimientoCampo = useMemo(() => Array.isArray(rendimientoCampo) ? rendimientoCampo : [], [rendimientoCampo]);
 
   const items = useMemo(() => {
-    return rendimientoCampo.filter(r => {
+    return safeRendimientoCampo.filter(r => {
       if (!proyectoFilter && !currentProjectId) return true;
       const pid = currentProjectId && currentProjectId !== 'none' ? currentProjectId : proyectoFilter;
       return r.proyectoId === pid;
     });
-  }, [rendimientoCampo, proyectoFilter, currentProjectId]);
+  }, [safeRendimientoCampo, proyectoFilter, currentProjectId]);
 
   if (loading) return <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 rounded-2xl" /></div>;
 
