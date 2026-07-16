@@ -372,16 +372,6 @@
       "finance": "💰 FINANZAS",
       "admin": "🔧 ADMIN"
     },
-    "grupos": {
-      "tablero": "📊 TABLERO",
-      "proyectos": "🏗️ PROYECTOS",
-      "finanzas": "💰 FINANZAS",
-      "bodega": "📦 BODEGA",
-      "rrhh": "👷 RRHH",
-      "calidad": "✅ CALIDAD",
-      "admin": "🔧 ADMIN",
-      "herramientas": "🛠️ HERRAMIENTAS"
-    },
     "items": {
       "dashboard": "Dashboard",
       "predictivo": "Dashboard Predictivo",

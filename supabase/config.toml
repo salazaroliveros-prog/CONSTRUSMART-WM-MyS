@@ -149,7 +149,18 @@ enabled = true
 # in emails.
 site_url = "https://construsmart-wm2026.vercel.app"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://construsmart-wm2026.vercel.app/**", "http://localhost:5173/**", "http://localhost:8080/**"]
+additional_redirect_urls = [
+  "https://construsmart-wm2026.vercel.app/**",
+  "http://localhost:8080/**",
+  "https://construsmart-wm2026-proyectoswm.vercel.app/",
+  "https://construsmart-wm2026-proyectoswm.vercel.app/**",
+  "https://construsmart-*-wm2026-proyectoswm.vercel.app",
+  "https://construsmart-*-wm2026-proyectoswm.vercel.app/**",
+  "https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app/",
+  "https://construsmart-wm2026-salazaroliveros-prog-proyectoswm.vercel.app/**",
+  "https://construsmart-*-wm2026-salazaroliveros-prog-proyectoswm.vercel.app",
+  "https://construsmart-*-wm2026-salazaroliveros-prog-proyectoswm.vercel.app/**"
+]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to the local API URL (http://127.0.0.1:<port>/auth/v1).

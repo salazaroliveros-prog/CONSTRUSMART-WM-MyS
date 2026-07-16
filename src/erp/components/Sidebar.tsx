@@ -40,7 +40,8 @@ const ITEMS: NavItem[] = [
   // NIVEL 1: VISIBILIDAD INTEGRAL
   { id: 'dashboard', labelKey: 'dashboard', icon: LayoutDashboard, group: '' },
   { id: 'proyectos', labelKey: 'proyectos', icon: Building2, group: '' },
-  { id: 'riesgos', labelKey: 'alertas_riesgos', icon: AlertTriangle, group: '' },
+  { id: 'notificaciones', labelKey: 'notificaciones', icon: Bell, group: '' },
+  { id: 'riesgos', labelKey: 'riesgos', icon: AlertTriangle, group: '' },
 
   // NIVEL 2: PLANIFICACIÓN & DISEÑO
   { id: 'presupuestos', labelKey: 'presupuestos', icon: Calculator, group: 'Planificación' },
@@ -50,24 +51,24 @@ const ITEMS: NavItem[] = [
 
   // NIVEL 3: EJECUCIÓN & MONITOREO
   { id: 'seguimiento', labelKey: 'seguimiento', icon: ClipboardCheck, group: 'Ejecución' },
-  { id: 'ordenes-cambio', labelKey: 'ordenes_cambio', icon: FileText, group: 'Ejecución' },
-  { id: 'rendimiento-campo', labelKey: 'rendimiento_campo', icon: TrendingUp, group: 'Ejecución' },
+  { id: 'ordenes-cambio', labelKey: 'ordenes-cambio', icon: FileText, group: 'Ejecución' },
+  { id: 'rendimiento-campo', labelKey: 'rendimiento-campo', icon: TrendingUp, group: 'Ejecución' },
 
   // NIVEL 4: SUMINISTRO & LOGÍSTICA
   { id: 'bodega', labelKey: 'bodega', icon: Warehouse, group: 'Suministro' },
   { id: 'logistica', labelKey: 'logistica', icon: Cpu, group: 'Suministro' },
-  { id: 'entradas-almacen', labelKey: 'entradas_almacen', icon: FileText, group: 'Suministro' },
+  { id: 'entradas-almacen', labelKey: 'entradas-almacen', icon: FileText, group: 'Suministro' },
 
   // NIVEL 5: FINANCIERO & CUENTAS
   { id: 'financiero', labelKey: 'financiero', icon: Wallet, group: 'Finanzas' },
-  { id: 'cuentas-cobrar', labelKey: 'cuentas_cobrar', icon: TrendingUp, group: 'Finanzas' },
-  { id: 'cuentas-pagar', labelKey: 'cuentas_pagar', icon: TrendingUp, group: 'Finanzas' },
+  { id: 'cuentas-cobrar', labelKey: 'cuentas-cobrar', icon: TrendingUp, group: 'Finanzas' },
+  { id: 'cuentas-pagar', labelKey: 'cuentas-pagar', icon: TrendingUp, group: 'Finanzas' },
   { id: 'profitability', labelKey: 'profitability', icon: TrendingUp, group: 'Finanzas' },
 
   // NIVEL 6: GENTE & ADMINISTRACIÓN
   { id: 'rrhh', labelKey: 'rrhh', icon: Users, group: 'Administración' },
-  { id: 'conflicts', labelKey: 'conflictos_recursos', icon: AlertTriangle, group: 'Administración' },
-  { id: 'admin-sistema', labelKey: 'admin_sistema', icon: FileCog, group: 'Administración' },
+  { id: 'conflicts', labelKey: 'conflicts', icon: AlertTriangle, group: 'Administración' },
+  { id: 'admin-sistema', labelKey: 'admin-sistema', icon: FileCog, group: 'Administración' },
   { id: 'ajustes', labelKey: 'ajustes', icon: FileCog, group: 'Administración' },
 ];
 
@@ -279,7 +280,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
 
               {/* Grouped items */}
               {groups!.map((group) => {
-                const groupItemsx = groupedItems.filter((it) => it.group === group);
+                const groupItems = groupedItems.filter((it) => it.group === group);
                 const dotColor = GROUP_COLORS[group] || 'bg-muted-foreground';
 
                 return (
@@ -292,7 +293,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                       </span>
                     </div>
                     <div className="space-y-0.5">
-                      {groupItemsx.map(renderNavItem)}
+                      {groupItems.map(renderNavItem)}
                     </div>
                   </div>
                 );
