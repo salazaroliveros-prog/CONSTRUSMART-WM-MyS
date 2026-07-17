@@ -252,7 +252,7 @@ const DashboardPredictivo: React.FC = () => {
             {renglonesConAvance.length > 0 && (
               <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
                 <div className="divide-y divide-slate-50 max-h-64 overflow-y-auto">
-                  {renglonesConAvance.sort((a, b) => a.desviacion - b.desviacion).map(r => (
+                  {[...renglonesConAvance].sort((a, b) => a.desviacion - b.desviacion).map(r => (
                     <div key={r.id} className="p-3 hover:bg-accent">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <div className="flex items-center gap-1.5 min-w-0">

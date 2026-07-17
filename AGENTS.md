@@ -170,8 +170,10 @@
 - Namespaces completos: rendimiento_campo, admin, cuentas_cobrar, plantillas, cuentas_pagar, auth, sso_calidad, logistica, hitos, baseprecios, reportes, apu, ordenes_cambio, header, notificaciones, visor_bim, riesgos, comercial
 
 ## Edge Functions
-- No hay edge functions implementadas — todo el acceso a datos se hace vía cliente Supabase con RLS
-- `database-access` (scaffold stub) fue eliminado por no tener referencias ni uso
+- ✅ Edge Functions implementadas: `calcular-proyecto` (Deno) para cálculos intensivos en servidor
+- Ubicación: `supabase/functions/calcular-proyecto/index.ts`
+- Funciones: dosificación de concreto, movimiento de tierra, pavimentos, rentabilidad
+- Todo el acceso a datos se hace vía cliente Supabase con RLS + Edge Functions para procesos intensivos
 
 ## Auditoría de Inconsistencias (Resuelta 100%)
 - **Radio dual**: `borderRadius` removido de `cssVarMap` en `theme-manager.ts` → solo se escribe en `html.style` vía `syncAllVisualSettings`
@@ -181,12 +183,15 @@
 - **Fecha sin locale hardcoded**: `formatDateFmt()` reemplaza `toLocaleDateString('es-GT')` en Notificaciones.tsx
 
 ## Issues Conocidos / No Implementados
-- BigNumber/decimal.js no implementado — cálculos financieros usan IEEE 754 double
-- Decimal Zod branded types no implementados
+- ✅ Decimal.js implementado — cálculos financieros con precisión BigDecimal (decimal.js@10.6.0)
+- ✅ Decimal Zod branded types implementados (DecimalValue)
+- ✅ Virtual scrolling implementado — componente VirtualTable.tsx con react-window, threshold VIRTUAL_SCROLL_THRESHOLD=50
+- ✅ Context menu unificado implementado — TableContextMenu.tsx con acciones comunes para todas las tablas
+- ✅ Tests de integración e2e implementados — e2e-workflow.test.tsx (7 flujos completos)
+- ✅ API pública implementada — publicApi.ts + migration 067 (erp_api_keys, RPC functions)
+- ✅ Partitioning implementado — migration 068 (erp_movimientos, erp_audit_log particionadas por fecha mensual)
 - Conexión pooler no aplica (frontend sin backend Node.js propio)
-- Virtual scrolling: Bodega ya tiene threshold guard (VIRTUAL_THRESHOLD=50); Movimientos no tiene pantalla dedicada (datos en EntradasAlmacenOC/LogisticaCompras con paginación/bajo volumen)
 - Math.fround no usado para DB real(4)
-- Partitioning no implementado para erp_movimientos y erp_audit_log
 - ~363 keys añadidas a en.json (sesión previa) + 52 keys añadidas a es.json (bisimetría completa) — i18n completa bidireccional
 - Build produce warnings de "use client" (Ant Design v5) — normal
 - web-ifc: 3.6MB chunk — normal para proyecto BIM
@@ -196,6 +201,8 @@
 - `000000000064` → schema_alignment_code_db (version columns, destajos/recepciones/pagos/centros_costo/error_logs)
 - `000000000065` → db_app_alignment_complete (created_at/updated_at, RLS on 5 motor calculo tables, realtime 10 tables)
 - `000000000066` → security_advisor_fixes (drop 40+ permissive policies, RLS 5 tables, revoke anon SELECT)
+- `000000000067` → api_publica (erp_api_keys, RPC functions para integraciones externas)
+- `000000000068` → partitioning (erp_movimientos, erp_audit_log particionadas por fecha mensual)
 
 ## Archivos Clave
 - `src/erp/store.tsx`: ErpProvider, contexto, loadFromStorage, forceSync

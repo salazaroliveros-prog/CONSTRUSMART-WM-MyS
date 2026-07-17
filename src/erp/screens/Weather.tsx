@@ -172,15 +172,20 @@ const Weather: React.FC = () => {
   const scheduling = useMemo(() => weather?.schedulingWindows || [], [weather?.schedulingWindows]);
 
   const groupedForecast = useMemo(() => {
-    const days: Map<string, typeof forecast> = new Map();
+    const days: Map<string, { items: typeof forecast; avgTemp: number }> = new Map();
     forecast.forEach(item => {
       const date = new Date(item.dt * 1000).toISOString().slice(0, 10);
       if (!days.has(date)) {
-        days.set(date, []);
+        days.set(date, { items: [], avgTemp: 0 });
       }
-      days.get(date)!.push(item);
+      const day = days.get(date)!;
+      day.items.push(item);
+      day.avgTemp += item.main.temp;
     });
-    return Array.from(days.values());
+    return Array.from(days.values()).map(day => ({
+      items: day.items,
+      avgTemp: day.items.length > 0 ? day.avgTemp / day.items.length : 0,
+    }));
   }, [forecast]);
 
   const getImpactColor = (level: string) => {
@@ -726,9 +731,9 @@ const Weather: React.FC = () => {
                 </button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                {groupedForecast.slice(0, 7).map((dayData, index) => {
-                  const date = new Date(dayData[0].dt * 1000).toISOString().slice(0, 10);
-                  const window = scheduling.find(w => w.date === date);
+                 {groupedForecast.slice(0, 7).map((dayData, index) => {
+                   const date = new Date(dayData.items[0].dt * 1000).toISOString().slice(0, 10);
+                   const window = scheduling.find(w => w.date === date);
                   if (!window) return null;
 
                   return (
@@ -779,10 +784,9 @@ const Weather: React.FC = () => {
                 </button>
               </div>
               <div className="space-y-3">
-                {groupedForecast.slice(0, 5).map((dayData, index) => {
-                  const date = new Date(dayData[0].dt * 1000).toISOString().slice(0, 10);
-                  const avgTemp = dayData.reduce((sum, f) => sum + f.main.temp, 0) / dayData.length;
-                  const icon = dayData[4]?.weather[0]?.icon || dayData[0]?.weather[0]?.icon;
+                 {groupedForecast.slice(0, 5).map((dayData, index) => {
+                   const date = new Date(dayData.items[0].dt * 1000).toISOString().slice(0, 10);
+                   const icon = dayData.items[4]?.weather[0]?.icon || dayData.items[0]?.weather[0]?.icon;
 
                   return (
                     <div key={date} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
@@ -795,16 +799,16 @@ const Weather: React.FC = () => {
                           />
                         )}
                         <div>
-                          <div className="font-medium">{formatDate(date)}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {dayData[0]?.weather[0]?.description && formatWeatherDescription(dayData[0].weather[0].description)}
-                          </div>
+                           <div className="font-medium">{formatDate(date)}</div>
+                           <div className="text-xs text-muted-foreground">
+                             {dayData.items[0]?.weather[0]?.description && formatWeatherDescription(dayData.items[0].weather[0].description)}
+                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold">{Math.round(avgTemp)}°C</div>
+                        <div className="font-bold">{Math.round(dayData.avgTemp)}°C</div>
                         <div className="text-xs text-muted-foreground">
-                          {Math.round(dayData[0].main.temp_min)}° / {Math.round(dayData[0].main.temp_max)}°
+                          {Math.round(dayData.items[0].main.temp_min)}° / {Math.round(dayData.items[0].main.temp_max)}°
                         </div>
                       </div>
                     </div>

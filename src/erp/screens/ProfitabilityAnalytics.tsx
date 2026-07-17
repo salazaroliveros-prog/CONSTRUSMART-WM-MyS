@@ -164,6 +164,23 @@ const PROFITABILITYAnalytics: React.FC = () => {
 
   const { projectProfitabilities, clientProfitabilities, trends, resourceEfficiencies, pricingOptimizations } = profitabilityData;
 
+  const barChartData = useMemo(() => projectProfitabilities.map(p => {
+    const proyecto = proyectos.find(proj => proj.id === p.proyectoId);
+    return {
+      label: proyecto?.nombre?.substring(0, 20) || 'Desconocido',
+      value: p.margenBruto,
+      color: RENTABILIDAD_COLORS[p.estadoRentabilidad],
+    };
+  }), [projectProfitabilities, proyectos]);
+
+  const donutChartData = useMemo(() => clientProfitabilities.map(c => ({
+    label: c.cliente.substring(0, 15),
+    value: c.utilidadTotal,
+    color: `hsl(var(--${SEGMENTO_COLORS[c.segmento]?.replace('bg-', '') || 'primary'})`,
+  })), [clientProfitabilities]);
+
+  const sortedClientProfitabilities = useMemo(() => [...clientProfitabilities].sort((a, b) => b.utilidadTotal - a.utilidadTotal), [clientProfitabilities]);
+
   const TABS = [
     { id: 'proyectos' as const, label: t('profitability.por_proyecto'), icon: Building2 },
     { id: 'clientes' as const, label: t('profitability.por_cliente'), icon: Users },
@@ -326,14 +343,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
                 </h3>
                 <div className="h-64">
                   <BarChart
-                    data={projectProfitabilities.map(p => {
-                      const proyecto = proyectos.find(proj => proj.id === p.proyectoId);
-                      return {
-                        label: proyecto?.nombre?.substring(0, 20) || 'Desconocido',
-                        value: p.margenBruto,
-                        color: RENTABILIDAD_COLORS[p.estadoRentabilidad],
-                      };
-                    })}
+                    data={barChartData}
                     height={240}
                   />
                 </div>
@@ -426,14 +436,10 @@ const PROFITABILITYAnalytics: React.FC = () => {
                 Segmentación de Clientes
               </h3>
               <div className="h-64">
-                 <Donut
-                   data={clientProfitabilities.map(c => ({
-                     label: c.cliente.substring(0, 15),
-                     value: c.utilidadTotal,
-                     color: `hsl(var(--${SEGMENTO_COLORS[c.segmento]?.replace('bg-', '') || 'primary'})`,
-                   }))}
-                   height={240}
-                 />
+                  <Donut
+                    data={donutChartData}
+                    height={240}
+                  />
               </div>
             </div>
 
@@ -472,9 +478,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {clientProfitabilities
-                  .sort((a, b) => b.utilidadTotal - a.utilidadTotal)
-                  .map(c => (
+                {sortedClientProfitabilities.map(c => (
                     <tr key={c.id} className="border-b border-border hover:bg-muted/50">
                       <td className="p-3 font-medium">{c.cliente}</td>
                       <td className="text-right p-3">{c.proyectosCount}</td>
