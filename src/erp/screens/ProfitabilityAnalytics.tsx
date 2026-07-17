@@ -52,6 +52,14 @@ const PROFITABILITYAnalytics: React.FC = () => {
     return generateProfitabilityReport(proyectos, movimientos, empleados || [], materiales || [], ordenes || []);
   }, [proyectos, movimientos, empleados, materiales, ordenes]);
 
+  const {
+    projectProfitabilities = [],
+    clientProfitabilities = [],
+    trends = [],
+    resourceEfficiencies = [],
+    pricingOptimizations = [],
+  } = profitabilityData || {};
+
   const filteredProjects = useMemo(() => {
     if (!currentProjectId || currentProjectId === 'none') return proyectos || [];
     return (proyectos || []).filter(p => p.id === currentProjectId);
@@ -89,7 +97,6 @@ const PROFITABILITYAnalytics: React.FC = () => {
 
   const profitabilityKpis = useMemo(() => {
     if (!profitabilityData) return null;
-    const { projectProfitabilities } = profitabilityData;
     return {
       totalUtilidad: projectProfitabilities.reduce((sum, p) => sum + p.utilidadBruta, 0),
       avgMargen: projectProfitabilities.length > 0
@@ -98,7 +105,24 @@ const PROFITABILITYAnalytics: React.FC = () => {
       proyectosRiesgosos: projectProfitabilities.filter(p => p.estadoRentabilidad === 'riesgoso' || p.estadoRentabilidad === 'critico').length,
       proyectosExcelentes: projectProfitabilities.filter(p => p.estadoRentabilidad === 'excelente').length,
     };
-  }, [profitabilityData]);
+  }, [profitabilityData, projectProfitabilities]);
+
+  const barChartData = useMemo(() => (projectProfitabilities.length ? projectProfitabilities.map(p => {
+    const proyecto = proyectos.find(proj => proj.id === p.proyectoId);
+    return {
+      label: proyecto?.nombre?.substring(0, 20) || 'Desconocido',
+      value: p.margenBruto,
+      color: RENTABILIDAD_COLORS[p.estadoRentabilidad],
+    };
+  }) : []), [projectProfitabilities, proyectos]);
+
+  const donutChartData = useMemo(() => (clientProfitabilities.length ? clientProfitabilities.map(c => ({
+    label: c.cliente.substring(0, 15),
+    value: c.utilidadTotal,
+    color: `hsl(var(--${SEGMENTO_COLORS[c.segmento]?.replace('bg-', '') || 'primary'})`,
+  })) : []), [clientProfitabilities]);
+
+  const sortedClientProfitabilities = useMemo(() => [...clientProfitabilities].sort((a, b) => b.utilidadTotal - a.utilidadTotal), [clientProfitabilities]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -161,25 +185,6 @@ const PROFITABILITYAnalytics: React.FC = () => {
       </div>
     );
   }
-
-  const { projectProfitabilities, clientProfitabilities, trends, resourceEfficiencies, pricingOptimizations } = profitabilityData;
-
-  const barChartData = useMemo(() => projectProfitabilities.map(p => {
-    const proyecto = proyectos.find(proj => proj.id === p.proyectoId);
-    return {
-      label: proyecto?.nombre?.substring(0, 20) || 'Desconocido',
-      value: p.margenBruto,
-      color: RENTABILIDAD_COLORS[p.estadoRentabilidad],
-    };
-  }), [projectProfitabilities, proyectos]);
-
-  const donutChartData = useMemo(() => clientProfitabilities.map(c => ({
-    label: c.cliente.substring(0, 15),
-    value: c.utilidadTotal,
-    color: `hsl(var(--${SEGMENTO_COLORS[c.segmento]?.replace('bg-', '') || 'primary'})`,
-  })), [clientProfitabilities]);
-
-  const sortedClientProfitabilities = useMemo(() => [...clientProfitabilities].sort((a, b) => b.utilidadTotal - a.utilidadTotal), [clientProfitabilities]);
 
   const TABS = [
     { id: 'proyectos' as const, label: t('profitability.por_proyecto'), icon: Building2 },

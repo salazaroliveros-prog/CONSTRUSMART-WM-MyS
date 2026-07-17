@@ -40,14 +40,14 @@ const Dashboard: React.FC = () => {
   const ctx = useErp();
   const barConfig = useChartConfig('bar', 'default');
 
-  const proyectos = ctx.proyectos || [];
-  const avances = ctx.avances || [];
-  const materiales = ctx.materiales || [];
-  const hitos = ctx.hitos || [];
-  const cuentasCobrar = ctx.cuentasCobrar || [];
-  const cuentasPagar = ctx.cuentasPagar || [];
-  const riesgos = ctx.riesgos || [];
-  const ordenesCambio = ctx.ordenes || [];
+  const proyectos = useMemo(() => ctx.proyectos || [], [ctx.proyectos]);
+  const avances = useMemo(() => ctx.avances || [], [ctx.avances]);
+  const materiales = useMemo(() => ctx.materiales || [], [ctx.materiales]);
+  const hitos = useMemo(() => ctx.hitos || [], [ctx.hitos]);
+  const cuentasCobrar = useMemo(() => ctx.cuentasCobrar || [], [ctx.cuentasCobrar]);
+  const cuentasPagar = useMemo(() => ctx.cuentasPagar || [], [ctx.cuentasPagar]);
+  const riesgos = useMemo(() => ctx.riesgos || [], [ctx.riesgos]);
+  const ordenesCambio = useMemo(() => ctx.ordenes || [], [ctx.ordenes]);
 
   // ============ CÁLCULOS DE KPIs ==============
   const kpi = useMemo(() => {

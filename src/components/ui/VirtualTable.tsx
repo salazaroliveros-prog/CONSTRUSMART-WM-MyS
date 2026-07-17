@@ -162,8 +162,9 @@ export function VirtualTable<T extends Record<string, any>>({
             itemSize={rowHeight}
             width={totalWidth}
             itemData={data}
-            children={Row}
-          />
+          >
+            {Row}
+          </List>
         </div>
       </div>
     </div>
