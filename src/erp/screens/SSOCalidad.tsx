@@ -228,6 +228,11 @@ const SSOCalidad: React.FC = () => {
     return { tipos, counts, maxCount };
   }, [incidentes, currentProjectId]);
 
+  const incidentesFiltrados = useMemo(() => incidentes.filter(i => !currentProjectId || i.proyectoId === currentProjectId), [incidentes, currentProjectId]);
+  const pruebasFiltradas = useMemo(() => pruebas.filter(p => !currentProjectId || p.proyectoId === currentProjectId), [pruebas, currentProjectId]);
+  const ncsFiltrados = useMemo(() => ncs.filter(n => !currentProjectId || n.proyectoId === currentProjectId), [ncs, currentProjectId]);
+  const liberacionesFiltradas = useMemo(() => liberaciones.filter(l => !currentProjectId || l.proyectoId === currentProjectId), [liberaciones, currentProjectId]);
+
   if (loading) {
     return (
       <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
@@ -346,13 +351,13 @@ const SSOCalidad: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {incidentes.filter(i => !currentProjectId || i.proyectoId === currentProjectId).length === 0 ? (
+            {incidentesFiltrados.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Shield className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p className="text-sm">{t('sso_calidad.sin_incidentes', 'Sin incidentes registrados')}</p>
               </div>
             ) : (
-              incidentes.filter(i => !currentProjectId || i.proyectoId === currentProjectId).map(inc => {
+              incidentesFiltrados.map(inc => {
                 const proy = proyectos.find(p => p.id === inc.proyectoId);
                 return (
                   <div key={inc.id} className={`p-3 rounded-lg border ${inc.estado === 'cerrado' ? 'bg-muted/30 border-border opacity-60' : 'bg-card border-border'}`}>
@@ -600,13 +605,13 @@ const SSOCalidad: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {pruebas.filter(p => !currentProjectId || p.proyectoId === currentProjectId).length === 0 ? (
+            {pruebasFiltradas.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <FlaskConical className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p className="text-sm">{t('sso_calidad.sin_pruebas', 'Sin pruebas registradas')}</p>
               </div>
             ) : (
-              pruebas.filter(p => !currentProjectId || p.proyectoId === currentProjectId).map(p => (
+              pruebasFiltradas.map(p => (
                 <div key={p.id} className="p-3 bg-card rounded-lg border border-border">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
@@ -694,13 +699,13 @@ const SSOCalidad: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {ncs.filter(n => !currentProjectId || n.proyectoId === currentProjectId).length === 0 ? (
+            {ncsFiltrados.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <XCircle className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p className="text-sm">{t('sso_calidad.sin_nc', 'Sin no conformidades')}</p>
               </div>
             ) : (
-              ncs.filter(n => !currentProjectId || n.proyectoId === currentProjectId).map(nc => (
+              ncsFiltrados.map(nc => (
                 <div key={nc.id} className={`p-3 rounded-lg border ${nc.estado === 'cerrado' ? 'bg-emerald-50 border-emerald-200' : 'bg-card border-border'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
@@ -788,13 +793,13 @@ const SSOCalidad: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {liberaciones.filter(l => !currentProjectId || l.proyectoId === currentProjectId).length === 0 ? (
+            {liberacionesFiltradas.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Layers className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p className="text-sm">{t('sso_calidad.sin_liberaciones', 'Sin solicitudes de liberación')}</p>
               </div>
             ) : (
-              liberaciones.filter(l => !currentProjectId || l.proyectoId === currentProjectId).map(l => (
+              liberacionesFiltradas.map(l => (
                 <div key={l.id} className={`p-3 rounded-lg border ${l.estado === 'liberado' ? 'bg-emerald-50 border-emerald-200' : l.estado === 'rechazado' ? 'bg-red-50 border-red-200' : 'bg-card border-border'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
