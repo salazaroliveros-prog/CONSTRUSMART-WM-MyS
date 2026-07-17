@@ -1,10 +1,10 @@
-import { RenglonPresupuesto, CotizacionCliente, Material } from './types';
+import { RenglonPresupuesto, SubRenglon, Material, CotizacionCliente } from './types';
 import { sanitizarTexto } from '@/lib/security';
-import { EMPRESA, fmtQ, costoDirectoUnitario, precioUnitarioVenta, TIPOLOGIA_LABEL, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD, HERRAMIENTA_MENOR, downloadBlob, sanitizeCSV } from './utils';
+import { EMPRESA, fmtQ, fmtPct, costoDirectoUnitario, precioUnitarioVenta, TIPOLOGIA_LABEL, COSTOS_INDIRECTOS, ADMINISTRACION, IMPREVISTOS, UTILIDAD, HERRAMIENTA_MENOR, downloadBlob, sanitizeCSV } from './utils';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import type { ProjectProfitability, ClientProfitability, ResourceEfficiency, ProfitabilityTrend, PricingOptimization } from './store/schemas/profitability';
+import type { ProjectProfitability, ClientProfitability, ResourceEfficiency, ProfitabilityTrend } from './store/schemas/profitability';
 
 const calcRow = (r: RenglonPresupuesto) => {
   const cd = costoDirectoUnitario(r.costoMateriales, r.costoManoObra, r.costoEquipo);
@@ -12,9 +12,9 @@ const calcRow = (r: RenglonPresupuesto) => {
   return { cd, pv, total: pv * r.cantidad };
 };
 
-const _resumenCache = new WeakMap<RenglonPresupuesto[], ReturnType<typeof getResumenMateriales>>();
+const _resumenCache = new WeakMap<RenglonPresupuesto[], { nombre: string; unidad: string; cantidad: number; total: number }[]>();
 
-const getResumenMateriales = (renglones: RenglonPresupuesto[]) => {
+const getResumenMateriales = (renglones: RenglonPresupuesto[]): { nombre: string; unidad: string; cantidad: number; total: number }[] => {
   const cached = _resumenCache.get(renglones);
   if (cached) return cached;
   const materiales: Record<string, { unidad: string; cantidad: number; total: number }> = {};
@@ -569,7 +569,6 @@ export const exportCotizacionPDF = (cotizacion: CotizacionCliente) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 14;
-  const contentWidth = pageWidth - 2 * margin;
   let y = margin;
 
   const ORANGE = [249, 115, 22] as const;

@@ -229,25 +229,15 @@ export const Impuestos: React.FC = () => {
             </thead>
             <tbody>
               {!shouldVirtualize && movimientosFiltrados.map((m, i) => renderRow(m, i))}
-            </tbody>
-          </table>
-          {shouldVirtualize && movimientosFiltrados.length > 0 && (
-            <VirtualizedList
-              height={Math.min(240, movimientosFiltrados.length * ROW_HEIGHT)}
-              itemCount={movimientosFiltrados.length}
-              itemSize={ROW_HEIGHT}
-              width="100%"
-              overscanCount={5}
-            >
-              {({ index, style }: { index: number; style: React.CSSProperties }) => (
-                <div style={style}>
+              {shouldVirtualize && movimientosFiltrados.length > 0 && (
+                <div className="overflow-auto" style={{ maxHeight: Math.min(240, movimientosFiltrados.length * ROW_HEIGHT) }}>
                   <table className="w-full text-sm" role="presentation">
-                    <tbody>{renderRow(movimientosFiltrados[index], index)}</tbody>
+                    <tbody>{movimientosFiltrados.map((m, i) => renderRow(m, i))}</tbody>
                   </table>
                 </div>
               )}
-            </VirtualizedList>
-          )}
+            </tbody>
+          </table>
         </div>
       )}
       </div>

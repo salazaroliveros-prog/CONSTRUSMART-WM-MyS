@@ -1,8 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
-import { logErrorFromException } from '@/lib/error-logger';
 import { useErpStore } from '@/erp/zustandStore';
-import { Estacionalidad } from '@/erp/types';
 import { estacionalidadSchema } from '@/erp/store/schemas/calculos';
 import { safeParseArray } from '@/erp/utils';
 

@@ -4,15 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { toast } from 'sonner';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Eye, Link2, Unlink, Ruler, TrendingUp, Construction, Download, ZoomIn, ZoomOut, RotateCcw, Maximize } from 'lucide-react';
 
 type TabBIM = 'visor' | 'vincular' | 'cubicacion' | 'avance';
@@ -21,7 +18,6 @@ export default function VisorBIM() {
   const { t } = useTranslation();
   const { proyectos, presupuestos, currentProjectId, setCurrentProjectId, setView } = useErp();
   const [tab, setTab] = useState<TabBIM>('visor');
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<any>(null);
   const [vinculaciones, setVinculaciones] = useState<Record<string, string>>({});
   const [selRenglon, setSelRenglon] = useState('');
   const [cubicacion, setCubicacion] = useState<any[]>([]);

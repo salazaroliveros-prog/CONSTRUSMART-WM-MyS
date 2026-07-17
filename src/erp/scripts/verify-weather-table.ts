@@ -1,8 +1,6 @@
-import pg from 'pg';
+import { Client } from 'pg';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-
-const { Client } = pg;
 
 async function verifyWeatherTable() {
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -48,7 +46,7 @@ async function verifyWeatherTable() {
     `);
 
     console.log('\n📊 Columns:');
-    columns.rows.forEach(col => {
+    columns.rows.forEach((col: unknown) => {
       console.log(`  - ${col.column_name}: ${col.data_type} (nullable: ${col.is_nullable})`);
     });
 
@@ -74,7 +72,7 @@ async function verifyWeatherTable() {
     `);
 
     console.log('\n🔒 Constraints:');
-    constraints.rows.forEach(constraint => {
+    constraints.rows.forEach((constraint: unknown) => {
       console.log(`  - ${constraint.constraint_name}: ${constraint.constraint_type}`);
     });
 
@@ -86,7 +84,7 @@ async function verifyWeatherTable() {
     `);
 
     console.log('\n📇 Indexes:');
-    indexes.rows.forEach(idx => {
+    indexes.rows.forEach((idx: unknown) => {
       console.log(`  - ${idx.indexname}`);
     });
 
@@ -101,7 +99,7 @@ async function verifyWeatherTable() {
     if (policies.rows.length === 0) {
       console.log('❌ No RLS policies found - SECURITY RISK!');
     } else {
-      policies.rows.forEach(policy => {
+      policies.rows.forEach((policy: unknown) => {
         console.log(`  - ${policy.policyname}: ${policy.cmd} (${policy.roles})`);
       });
       console.log('✅ RLS policies configured');
@@ -115,7 +113,7 @@ async function verifyWeatherTable() {
     `);
 
     console.log('\n⚡ Triggers:');
-    triggers.rows.forEach(trigger => {
+    triggers.rows.forEach((trigger: unknown) => {
       console.log(`  - ${trigger.trigger_name}: ${trigger.event_manipulation} (${trigger.action_timing})`);
     });
 
@@ -145,7 +143,7 @@ async function verifyWeatherTable() {
     if (fkCheck.rows.length === 0) {
       console.log('❌ No foreign key to erp_proyectos found');
     } else {
-      fkCheck.rows.forEach(fk => {
+      fkCheck.rows.forEach((fk: unknown) => {
         console.log(`  - ${fk.constraint_name}: ${fk.column_name} → ${fk.foreign_table_name}.${fk.foreign_column_name}`);
       });
       console.log('✅ Foreign key to erp_proyectos configured');

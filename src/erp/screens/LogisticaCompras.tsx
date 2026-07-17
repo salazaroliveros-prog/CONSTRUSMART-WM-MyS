@@ -13,7 +13,7 @@ const FOCUS_VISIBLE = 'focus-visible:outline-none focus-visible:ring-2 focus-vis
 
 export const LogisticaCompras: React.FC = () => {
   const { t } = useTranslation();
-  const { proveedores, user } = useErp();
+  const { proveedores } = useErp();
 
   const [tab, setTab] = useState<'activos' | 'cuadros' | 'pagos'>('activos');
   const [loading, setLoading] = useState(true);

@@ -167,9 +167,16 @@ export interface CuentaPagar {
 }
 
 // ✅ ACTUALIZADO: RenglonPresupuesto con predecesores (Gantt)
+export interface SubRenglon {
+  nombreMaterial: string;
+  unidad: string;
+  cantidadUnitaria: number;
+  precioUnitario: number;
+}
+
 export interface RenglonPresupuesto {
   id: string;
-  presupuestoId: string; // ✅ NUEVO FK
+  presupuestoId: string;
   proyectoId: string;
   codigo: string;
   nombre: string;
@@ -180,9 +187,10 @@ export interface RenglonPresupuesto {
   costoManoObra: number;
   costoEquipo: number;
   cantidad: number;
-  avanceFisico?: number; // ✅ NUEVO
-  avanceFinanciero?: number; // ✅ NUEVO
-  predecesores?: string[]; // ✅ NUEVO - IDs renglones predecesores para Gantt
+  avanceFisico?: number;
+  avanceFinanciero?: number;
+  predecesores?: string[];
+  subRenglones?: SubRenglon[];
   insumos?: Insumo[];
   createdAt?: string;
   updatedAt?: string;
@@ -307,6 +315,68 @@ export interface SupplierPerformance {
 // ============================================================
 // ESTADO DE SINCRONIZACIÓN
 // ============================================================
+
+export interface ActivoLogistica {
+  id: string;
+  nombre: string;
+  tipo: string;
+  costo: number;
+  estado: string;
+}
+
+export interface CuadroComparativo {
+  id: string;
+  proveedorId: string;
+  descripcion: string;
+  montoTotal: number;
+  estado: string;
+}
+
+export interface PagoProveedor {
+  id: string;
+  proveedorId: string;
+  monto: number;
+  estado: string;
+  fecha: string;
+}
+
+export interface OrdenCambio {
+  id: string;
+  proyectoId: string;
+  titulo: string;
+  descripcion: string;
+  solicitante: string;
+  solicitanteRol: string;
+  estado: 'solicitud' | 'revision' | 'aprobado' | 'rechazado';
+  impactoCosto: number;
+  impactoPlazo: number;
+  aprobador?: string;
+  fechaAprobacion?: string;
+  createdAt: string;
+}
+
+export interface Material {
+  nombre: string;
+  categoria: string;
+  unidad: string;
+  stock: number;
+  stockMinimo: number;
+}
+
+export interface CotizacionCliente {
+  numero: string;
+  fechaVencimiento?: string;
+  clienteNombre: string;
+  clienteNit?: string;
+  clienteTelefono?: string;
+  clienteEmail?: string;
+  clienteDireccion?: string;
+  descripcion?: string;
+  alcance?: string;
+  renglones: RenglonPresupuesto[];
+  precioVentaTotal: number;
+  notas?: string;
+}
 
 /*
 ✅ TIER 1 COMPLETADA - Tipos Sincronizados:

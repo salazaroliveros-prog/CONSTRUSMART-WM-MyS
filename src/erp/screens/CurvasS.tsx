@@ -5,7 +5,6 @@ import {
   LineChart, TrendingUp, TrendingDown, AlertTriangle, ChevronDown,
   CloudSun, Download, FileText, Minus, Cloud, Sun, CloudRain, Wind, Activity
 } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { fmtQ, fmtPct, todayISO } from '../utils';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -117,7 +116,7 @@ function getImpactColor(level: string | undefined): string {
   }
 }
 
-const SVGRenderer: React.FC<{ data: SCurveDataPoint[]; metrics: EVMMetrics }> = ({ data, metrics }) => {
+const SVGRenderer: React.FC<{ data: SCurveDataPoint[] }> = ({ data }) => {
   if (data.length === 0) return null;
   const maxVal = Math.max(...data.map(d => Math.max(d.planned, d.earned, d.actual, d.weatherAdjusted))) * 1.1;
   const w = 600;
@@ -385,7 +384,7 @@ const CurvasS: React.FC = () => {
                 </p>
                 {weatherScore > 0 && (
                   <div className="pt-2 space-y-1">
-                    {selectedWeather.impact.factors.slice(0, 2).map((f, i) => (
+                    {selectedWeather.impact.factors.slice(0, 2).map((f: string, i: number) => (
                       <p key={i} className="flex items-start gap-1">
                         <Minus className="w-3 h-3 mt-0.5 shrink-0" aria-hidden="true" />
                         <span>{f}</span>

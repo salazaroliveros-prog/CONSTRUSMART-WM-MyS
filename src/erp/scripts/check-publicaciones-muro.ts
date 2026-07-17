@@ -78,8 +78,8 @@ CREATE INDEX idx_erp_publicaciones_muro_autor_id ON public.erp_publicaciones_mur
       console.log('✅ SELECT works - table exists and is accessible');
       console.log(`📊 Sample data: ${data.length > 0 ? 'Yes' : 'Empty table'}`);
     }
-  } catch (e) {
-    console.log(`❌ Exception: ${e}`);
+  } catch (e: unknown) {
+    console.log(`❌ Exception: ${e instanceof Error ? e.message : String(e)}`);
   }
 
   // Intento 2: Verificar si es un VIEW
