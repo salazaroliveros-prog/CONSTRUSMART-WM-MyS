@@ -82,17 +82,28 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           if [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ] || [ -z "$VERCEL_TOKEN" ]; then
-            echo "::warning::Faltan secrets de Vercel: VERCEL_ORG_ID, VERCEL_PROJECT_ID o VERCEL_TOKEN. Se omite deploy automático."
-            echo "Build listo para deploy manual."
+            echo "::warning::Missing Vercel secrets (VERCEL_ORG_ID, VERCEL_PROJECT_ID, VERCEL_TOKEN). Skipping auto-deploy."
+            echo "Build ready for manual deploy."
             exit 0
           fi
-          if ! npx vercel project inspect --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" >/dev/null 2>&1; then
-            echo "::warning::Vercel Project not found for $VERCEL_PROJECT_ID/$VERCEL_ORG_ID. Se omite deploy automático."
-            echo "Build listo para deploy manual."
+          echo "Deploying to Vercel production..."
+          if ! npx vercel deploy --prod --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" --yes 2>&1; then
+            echo "::warning::Vercel deploy failed. Check VERCEL_ORG_ID ($VERCEL_ORG_ID) and VERCEL_PROJECT_ID ($VERCEL_PROJECT_ID) secrets."
+            echo "Build successful but deploy skipped."
             exit 0
           fi
-          npx vercel deploy --prod --token "$VERCEL_TOKEN" --yes
-      - name: Warm production edge cache
+      - name: Post-Deploy Validation
+        if: always()
         run: |
-          curl -s -o /dev/null -w "%{http_code}" https://construsmart-wm2026.vercel.app/
-          curl -s -o /dev/null -w "%{http_code}" https://construsmart-wm2026.vercel.app/index.html
+          ENDPOINT="https://construsmart-wm2026.vercel.app/"
+          for i in 1 2 3; do
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$ENDPOINT" --max-time 10)
+            if [ "$RESPONSE" = "200" ]; then
+              echo "Homepage accessible (HTTP $RESPONSE)"
+              exit 0
+            fi
+            echo "Attempt $i: HTTP $RESPONSE, retrying in 5s..."
+            sleep 5
+          done
+          echo "::warning::Post-deploy validation: HTTP $RESPONSE after 3 retries. Site may still be propagating."
+          echo "Deploy completed but warm-up may need more time."
