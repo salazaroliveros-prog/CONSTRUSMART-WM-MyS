@@ -79,13 +79,13 @@ const Dashboard: React.FC = () => {
   }, [ctx]);
 
   // ============ ALERTAS EJECUTIVAS ==============
-  const criticalRisks = riesgos.filter((r) => r.probabilidad >= 4 && r.impacto >= 4);
-  const highRisks = riesgos.filter((r) => (r.probabilidad + r.impacto) >= 6 && (r.probabilidad + r.impacto) < 8);
-  const projectVariances = proyectos.filter((p) => {
+  const criticalRisks = useMemo(() => riesgos.filter((r) => r.probabilidad >= 4 && r.impacto >= 4), [riesgos]);
+  const highRisks = useMemo(() => riesgos.filter((r) => (r.probabilidad + r.impacto) >= 6 && (r.probabilidad + r.impacto) < 8), [riesgos]);
+  const projectVariances = useMemo(() => proyectos.filter((p) => {
     const variance = Math.abs((p.avanceFisico || 0) - (p.avanceFinanciero || 0));
     return variance > 5;
-  });
-  const overdueTasks = ordenesCambio.filter((oc) => oc.estado === 'solicitada');
+  }), [proyectos]);
+  const overdueTasks = useMemo(() => ordenesCambio.filter((oc) => oc.estado === 'solicitada'), [ordenesCambio]);
 
   const alerts = [
     ...(criticalRisks.length > 0
@@ -127,17 +127,6 @@ const Dashboard: React.FC = () => {
   ];
 
   // ============ TABLA DE PROYECTOS ==============
-  const projectStatusData: ProjectStatusRow[] = proyectos.map((p) => ({
-    id: p.id,
-    nombre: p.nombre,
-    estado: p.estado as 'ejecucion' | 'planeacion' | 'pausado' | 'finalizado',
-    avanceFisico: p.avanceFisico || 0,
-    avanceFinanciero: p.avanceFinanciero || 0,
-    variacion: (p.avanceFisico || 0) - (p.avanceFinanciero || 0),
-    presupuestoTotal: p.presupuestoTotal || 0,
-    montoEjecutado: p.montoEjecutado || 0,
-  }));
-
   const projectColumns: Column<ProjectStatusRow>[] = [
     {
       key: 'nombre',
@@ -209,10 +198,24 @@ const Dashboard: React.FC = () => {
   ];
 
   // ============ DATOS FINANCIEROS ==============
-  const ingresos = cuentasCobrar.reduce((s, c) => s + (c.monto || 0), 0);
-  const egresos = cuentasPagar.reduce((s, c) => s + (c.monto || 0), 0);
-  const cobrado = cuentasCobrar.filter((c) => c.estado === 'pagado').reduce((s, c) => s + (c.monto || 0), 0);
-  const pagado = cuentasPagar.filter((c) => c.estado === 'pagado').reduce((s, c) => s + (c.monto || 0), 0);
+  const ingresos = useMemo(() => cuentasCobrar.reduce((s, c) => s + (c.monto || 0), 0), [cuentasCobrar]);
+  const egresos = useMemo(() => cuentasPagar.reduce((s, c) => s + (c.monto || 0), 0), [cuentasPagar]);
+  const cobrado = useMemo(() => cuentasCobrar.filter((c) => c.estado === 'pagado').reduce((s, c) => s + (c.monto || 0), 0), [cuentasCobrar]);
+  const pagado = useMemo(() => cuentasPagar.filter((c) => c.estado === 'pagado').reduce((s, c) => s + (c.monto || 0), 0), [cuentasPagar]);
+
+  const proyectosEnEjecucion = useMemo(() => proyectos.filter((p) => p.estado === 'ejecucion'), [proyectos]);
+  const projectStatusData = useMemo(() => proyectos.map((p) => ({
+    id: p.id,
+    nombre: p.nombre,
+    estado: p.estado as 'ejecucion' | 'planeacion' | 'pausado' | 'finalizado',
+    avanceFisico: p.avanceFisico || 0,
+    avanceFinanciero: p.avanceFinanciero || 0,
+    variacion: (p.avanceFisico || 0) - (p.avanceFinanciero || 0),
+    presupuestoTotal: p.presupuestoTotal || 0,
+    montoEjecutado: p.montoEjecutado || 0,
+  })), [proyectos]);
+  const materialesEnStock = useMemo(() => materiales.filter((m) => m.stock > m.stockMinimo), [materiales]);
+  const materialesCriticos = useMemo(() => materiales.filter((m) => m.stock < m.stockMinimo), [materiales]);
 
   if (!ctx) return null;
 
@@ -272,12 +275,21 @@ const Dashboard: React.FC = () => {
             Proyectos en Ejecución
           </h2>
           <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
-            {proyectos.filter((p) => p.estado === 'ejecucion').length} activos
+            {proyectosEnEjecucion.length} activos
           </span>
         </div>
 
         <TableWithRowActions
-          data={projectStatusData.filter((p) => p.estado === 'ejecucion')}
+          data={proyectosEnEjecucion.map((p) => ({
+            id: p.id,
+            nombre: p.nombre,
+            estado: p.estado as 'ejecucion' | 'planeacion' | 'pausado' | 'finalizado',
+            avanceFisico: p.avanceFisico || 0,
+            avanceFinanciero: p.avanceFinanciero || 0,
+            variacion: (p.avanceFisico || 0) - (p.avanceFinanciero || 0),
+            presupuestoTotal: p.presupuestoTotal || 0,
+            montoEjecutado: p.montoEjecutado || 0,
+          }))}
           columns={projectColumns}
           actions={[
             {
@@ -343,13 +355,13 @@ const Dashboard: React.FC = () => {
               <div className="flex justify-between items-center mb-1">
                 <span className="text-xs text-muted-foreground">En Stock</span>
                 <span className="text-sm font-semibold text-emerald-600">
-                  {materiales.filter((m) => m.stock > m.stockMinimo).length}
+                  {materialesEnStock.length}
                 </span>
               </div>
               <Progress
                 value={
                   materiales.length > 0
-                    ? (materiales.filter((m) => m.stock > m.stockMinimo).length / materiales.length) * 100
+                    ? (materialesEnStock.length / materiales.length) * 100
                     : 0
                 }
                 color="hsl(var(--success))"
@@ -360,13 +372,13 @@ const Dashboard: React.FC = () => {
               <div className="flex justify-between items-center mb-1">
                 <span className="text-xs text-muted-foreground">Crítico</span>
                 <span className="text-sm font-semibold text-red-600">
-                  {materiales.filter((m) => m.stock < m.stockMinimo).length}
+                  {materialesCriticos.length}
                 </span>
               </div>
               <Progress
                 value={
                   materiales.length > 0
-                    ? (materiales.filter((m) => m.stock < m.stockMinimo).length / materiales.length) * 100
+                    ? (materialesCriticos.length / materiales.length) * 100
                     : 0
                 }
                 color="hsl(var(--destructive))"

@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { Incidente, PruebaLaboratorio, NoConformidad, LiberacionPartida } from '../types';
@@ -207,9 +207,9 @@ const SSOCalidad: React.FC = () => {
   };
 
   // === ESTADÍSTICAS ===
-  const totalIncidentes = incidentes.filter(i => !currentProjectId || i.proyectoId === currentProjectId).length;
-  const incidentesAbiertos = incidentes.filter(i => i.estado !== 'cerrado' && (!currentProjectId || i.proyectoId === currentProjectId)).length;
-  const tasaIncidencia = proyectos.length > 0 ? ((totalIncidentes / proyectos.length) * 100).toFixed(1) : '0';
+  const totalIncidentes = useMemo(() => incidentes.filter(i => !currentProjectId || i.proyectoId === currentProjectId).length, [incidentes, currentProjectId]);
+  const incidentesAbiertos = useMemo(() => incidentes.filter(i => i.estado !== 'cerrado' && (!currentProjectId || i.proyectoId === currentProjectId)).length, [incidentes, currentProjectId]);
+  const tasaIncidencia = useMemo(() => proyectos.length > 0 ? ((totalIncidentes / proyectos.length) * 100).toFixed(1) : '0', [proyectos.length, totalIncidentes]);
 
   const tabs = [
     { id: 'incidentes' as TabSSO, label: t('sso_calidad.tab_incidentes', 'Incidentes'), icon: AlertTriangle },
@@ -220,6 +220,13 @@ const SSOCalidad: React.FC = () => {
     { id: 'nc' as TabSSO, label: t('sso_calidad.tab_nc', 'No Conformidades'), icon: XCircle },
     { id: 'liberaciones' as TabSSO, label: t('sso_calidad.tab_liberaciones', 'Liberación'), icon: CheckCircle },
   ];
+
+  const incidentesPorTipo = useMemo(() => {
+    const tipos = ['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro'] as const;
+    const counts = tipos.map(t => incidentes.filter(i => i.tipo === t && (!currentProjectId || i.proyectoId === currentProjectId)).length);
+    const maxCount = Math.max(1, ...counts);
+    return { tipos, counts, maxCount };
+  }, [incidentes, currentProjectId]);
 
   if (loading) {
     return (
@@ -454,11 +461,11 @@ const SSOCalidad: React.FC = () => {
               </div>
               <div className="bg-card rounded-2xl shadow-sm border border-border p-4">
                 <h3 className="font-bold text-xs text-muted-foreground mb-3">{t('sso_calidad.incidentes_por_tipo', 'Incidentes por Tipo')}</h3>
-                <div className="space-y-2">
-                  {(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro'] as const).map(tipo => {
-                    const count = incidentes.filter(i => i.tipo === tipo && (!currentProjectId || i.proyectoId === currentProjectId)).length;
-                    const maxCount = Math.max(1, ...(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro'] as const).map(t => incidentes.filter(i => i.tipo === t && (!currentProjectId || i.proyectoId === currentProjectId)).length));
-                    return (
+                  <div className="space-y-2">
+                    {incidentesPorTipo.tipos.map((tipo, idx) => {
+                      const count = incidentesPorTipo.counts[idx];
+                      const maxCount = incidentesPorTipo.maxCount;
+                      return (
                       <div key={tipo} className="flex items-center gap-2">
                         <span className="text-[10px] text-muted-foreground w-28">{tipo.replace(/_/g, ' ')}</span>
                         <div className="flex-1 h-4 bg-muted rounded-full overflow-hidden">
