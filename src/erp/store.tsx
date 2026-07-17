@@ -104,6 +104,10 @@ export const useErp = () => {
   return useMemo(() => ({ ...zState, ...ctx }), [zState, ctx]);
 };
 
+export function useErpSlice<T>(selector: (state: ErpStore) => T): T {
+  return useErpStore(selector);
+}
+
 export const useCurrentProject = () => {
   const { currentProjectId, setCurrentProjectId, currentProject } = useErp();
   return useMemo(() => ({

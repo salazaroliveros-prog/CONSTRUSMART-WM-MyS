@@ -355,7 +355,11 @@ function normalizarFilaSupabase(row: Record<string, any>): Record<string, any> {
   return normalized;
 }
 
+const fetchInitialDataInProgressRef = { current: false };
+
 export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
+  if (fetchInitialDataInProgressRef.current) return false;
+  fetchInitialDataInProgressRef.current = true;
   const startTime = performance.now();
   try {
     useErpStore.setState({ syncStatus: 'loading', syncError: undefined });
@@ -478,6 +482,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       const duration = performance.now() - startTime;
       recordSyncMetric(duration, true, CRITICAL_TABLES.length);
       (window as any).__FETCH_RETRY = 0;
+      fetchInitialDataInProgressRef.current = false;
       return true;
     }
     
@@ -489,6 +494,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
     const duration = performance.now() - startTime;
     recordSyncMetric(duration, false, 0);
     (window as any).__FETCH_RETRY = 0;
+    fetchInitialDataInProgressRef.current = false;
     return false;
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
@@ -504,11 +510,13 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
         syncStatus: 'error', 
         syncError: 'Error de conexión tras múltiples reintentos. Revise su conexión o configure Supabase correctamente.' 
       });
+      fetchInitialDataInProgressRef.current = false;
       return false;
     }
     const backoff = Math.min(1000 * Math.pow(2, Math.min(next, 5)), 30000);
     safeLogger.warn(`[fetchInitialData] Reintento ${next + 1} en ${backoff}ms (keepAlive)`);
     await new Promise(r => setTimeout(r, backoff));
+    fetchInitialDataInProgressRef.current = false;
     return fetchInitialData(attempt + 1);
   }
 };

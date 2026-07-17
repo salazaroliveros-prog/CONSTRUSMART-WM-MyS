@@ -92,6 +92,49 @@ const CalidadCumplimiento = lazy(() => import('@/erp/screens/CalidadCumplimiento
 const Auditoria           = lazy(() => import('@/erp/screens/Auditoria'));
 const CurvasS             = lazy(() => import('@/erp/screens/CurvasS'));
 
+const MemDashboard          = React.memo(Dashboard);
+const MemProyectos          = React.memo(Proyectos);
+const MemPresupuestos       = React.memo(Presupuestos);
+const MemSeguimiento        = React.memo(Seguimiento);
+const MemFinanciero         = React.memo(Financiero);
+const MemRRHH               = React.memo(RRHH);
+const MemBodega             = React.memo(Bodega);
+const MemCRM                = React.memo(CRM);
+const MemAPUAvanzado        = React.memo(APUAvanzado);
+const MemBasePrecios        = React.memo(BasePrecios);
+const MemMuroObra           = React.memo(MuroObra);
+const MemOrdenesCambio      = React.memo(OrdenesCambio);
+const MemNotificaciones     = React.memo(Notificaciones);
+const MemSSOCalidad         = React.memo(SSOCalidad);
+const MemGestionDocumental  = React.memo(GestionDocumental);
+const MemVisorBIM           = React.memo(VisorBIM);
+const MemDashboardPredictivo = React.memo(DashboardPredictivo);
+const MemExportacionInteligente = React.memo(ExportacionInteligente);
+const MemLogisticaCompras   = React.memo(LogisticaCompras);
+const MemRendimientoCampo   = React.memo(RendimientoCampo);
+const MemComercialFinanzas  = React.memo(ComercialFinanzas);
+const MemAdministracion     = React.memo(Administracion);
+const MemPlanillaDestajos   = React.memo(PlanillaDestajos);
+const MemImpuestos          = React.memo(Impuestos);
+const MemEntradasAlmacen    = React.memo(EntradasAlmacen);
+const MemAjustes            = React.memo(Ajustes);
+const MemHitos              = React.memo(Hitos);
+const MemRiesgos            = React.memo(Riesgos);
+const MemCuentasCobrar      = React.memo(CuentasCobrar);
+const MemCuentasPagar       = React.memo(CuentasPagar);
+const MemCotizaciones       = React.memo(Cotizaciones);
+const MemPlantillasProyectos = React.memo(PlantillasProyectos);
+const MemProveedorAnalytics = React.memo(ProveedorAnalytics);
+const MemErrorLog           = React.memo(ErrorLog);
+const MemActivos            = React.memo(Activos);
+const MemCuadros            = React.memo(Cuadros);
+const MemProfitabilityAnalytics = React.memo(ProfitabilityAnalytics);
+const MemWeather            = React.memo(Weather);
+const MemResourceConflicts  = React.memo(ResourceConflicts);
+const MemCalidadCumplimiento = React.memo(CalidadCumplimiento);
+const MemAuditoria          = React.memo(Auditoria);
+const MemCurvasS            = React.memo(CurvasS);
+
 const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability','weather','conflicts','calidad-cumplimiento','auditoria','curvas-s'] as const;
 
 const SCREEN_SET = new Set<string>(SCREEN_KEYS as readonly string[]);
@@ -170,48 +213,48 @@ const Shell: React.FC = () => {
   const viewName = typeof view === 'string' ? view.split(':')[0] : 'dashboard';
 
   const screens: Record<string, React.ReactNode> = useMemo(() => ({
-    dashboard:         <Dashboard />,
-    proyectos:         <Proyectos />,
-    presupuestos:      <Presupuestos />,
-    seguimiento:       <Seguimiento />,
-    financiero:        <Financiero />,
-    rrhh:              <RRHH />,
-    bodega:            <Bodega />,
-    crm:               <CRM />,
-    apu:               <APUAvanzado />,
-    baseprecios:       <BasePrecios />,
-    muro:              <MuroObra />,
-    'ordenes-cambio':  <OrdenesCambio />,
-    notificaciones:    <Notificaciones />,
-    'sso-calidad':     <SSOCalidad />,
-    documentos:        <GestionDocumental />,
-    'visor-bim':       <VisorBIM />,
-    predictivo:        <DashboardPredictivo />,
-    exportacion:       <ExportacionInteligente />,
-    logistica:         <LogisticaCompras />,
-    'rendimiento-campo': <RendimientoCampo />,
-    'comercial-fin':   <ComercialFinanzas />,
-    'admin-sistema':   <Administracion />,
-    'planilla-destajos': <PlanillaDestajos />,
-    impuestos:         <Impuestos />,
-    'entradas-almacen': <EntradasAlmacen />,
-    ajustes:           <Ajustes />,
-    hitos:             <Hitos />,
-    riesgos:           <Riesgos />,
-    'cuentas-cobrar':  <CuentasCobrar />,
-    'cuentas-pagar':   <CuentasPagar />,
-    cotizaciones:      <Cotizaciones />,
-    plantillas:        <PlantillasProyectos />,
-    'proveedor-analytics': <ProveedorAnalytics />,
-    'error-log':       <ErrorLog />,
-    activos:           <Activos />,
-    cuadros:           <Cuadros />,
-    profitability:     <ProfitabilityAnalytics />,
-    weather:           <Weather />,
-    conflicts:         <ResourceConflicts />,
-    'calidad-cumplimiento': <CalidadCumplimiento />,
-    auditoria:          <Auditoria />,
-    'curvas-s':         <CurvasS />,
+    dashboard:         <MemDashboard />,
+    proyectos:         <MemProyectos />,
+    presupuestos:      <MemPresupuestos />,
+    seguimiento:       <MemSeguimiento />,
+    financiero:        <MemFinanciero />,
+    rrhh:              <MemRRHH />,
+    bodega:            <MemBodega />,
+    crm:               <MemCRM />,
+    apu:               <MemAPUAvanzado />,
+    baseprecios:       <MemBasePrecios />,
+    muro:              <MemMuroObra />,
+    'ordenes-cambio':  <MemOrdenesCambio />,
+    notificaciones:    <MemNotificaciones />,
+    'sso-calidad':     <MemSSOCalidad />,
+    documentos:        <MemGestionDocumental />,
+    'visor-bim':       <MemVisorBIM />,
+    predictivo:        <MemDashboardPredictivo />,
+    exportacion:       <MemExportacionInteligente />,
+    logistica:         <MemLogisticaCompras />,
+    'rendimiento-campo': <MemRendimientoCampo />,
+    'comercial-fin':   <MemComercialFinanzas />,
+    'admin-sistema':   <MemAdministracion />,
+    'planilla-destajos': <MemPlanillaDestajos />,
+    impuestos:         <MemImpuestos />,
+    'entradas-almacen': <MemEntradasAlmacen />,
+    ajustes:           <MemAjustes />,
+    hitos:             <MemHitos />,
+    riesgos:           <MemRiesgos />,
+    'cuentas-cobrar':  <MemCuentasCobrar />,
+    'cuentas-pagar':   <MemCuentasPagar />,
+    cotizaciones:      <MemCotizaciones />,
+    plantillas:        <MemPlantillasProyectos />,
+    'proveedor-analytics': <MemProveedorAnalytics />,
+    'error-log':       <MemErrorLog />,
+    activos:           <MemActivos />,
+    cuadros:           <MemCuadros />,
+    profitability:     <MemProfitabilityAnalytics />,
+    weather:           <MemWeather />,
+    conflicts:         <MemResourceConflicts />,
+    'calidad-cumplimiento': <MemCalidadCumplimiento />,
+    auditoria:          <MemAuditoria />,
+    'curvas-s':         <MemCurvasS />,
   }), []);
 
   type ScreenKey = (typeof SCREEN_KEYS)[number];

@@ -57,24 +57,25 @@ export default function Notificaciones() {
 
   React.useEffect(() => { setLoading(false); }, []);
 
-  const noLeidas = notificaciones.filter(n => !n.leido);
+  const noLeidas = React.useMemo(() => notificaciones.filter(n => !n.leido), [notificaciones]);
 
   React.useEffect(() => {
     if (noLeidas.length > prevNoLeidasCount.current) playSound();
     prevNoLeidasCount.current = noLeidas.length;
   }, [noLeidas.length, playSound]);
-  const leidas = notificaciones.filter(n => n.leido);
+
+  const leidas = React.useMemo(() => notificaciones.filter(n => n.leido), [notificaciones]);
 
   const baseList = tab === 'alertas' ? noLeidas : notificaciones;
-  const filtradas = baseList
+  const filtradas = React.useMemo(() => baseList
     .filter(n => !filtroTipo || n.tipo === filtroTipo)
     .filter(n => !filtroProyecto || n.proyectoId === filtroProyecto)
     .filter(n => {
       const toggleKey = TIPO_TOGGLE_MAP[n.tipo];
       return !toggleKey || appSettings.notificaciones?.[toggleKey as keyof typeof appSettings.notificaciones] !== false;
-    });
+    }), [baseList, filtroTipo, filtroProyecto, appSettings]);
 
-  const tiposExistentes = [...new Set(notificaciones.map(n => n.tipo))];
+  const tiposExistentes = React.useMemo(() => [...new Set(notificaciones.map(n => n.tipo))], [notificaciones]);
   const paginacion = usePagination(filtradas, 20);
 
   const getProyectoNombre = (proyectoId?: string) => {
