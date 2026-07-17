@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { toast } from 'sonner';
@@ -38,6 +38,10 @@ const GestionDocumental: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => { setLoading(false); }, []);
+
+  const planosFiltrados = useMemo(() => planos.filter(p => !currentProjectId || p.proyectoId === currentProjectId), [planos, currentProjectId]);
+  const rfisFiltrados = useMemo(() => rfis.filter(r => r.estado !== 'cerrado' && (!currentProjectId || r.proyectoId === currentProjectId)), [rfis, currentProjectId]);
+  const submittalsFiltrados = useMemo(() => submittals.filter(s => s.estado === 'pendiente' && (!currentProjectId || s.proyectoId === currentProjectId)), [submittals, currentProjectId]);
 
   const [versiones, setVersiones] = useState<Record<string, string[]>>({});
   const [_gdFormErrors, setGdFormErrors] = useState<Record<string, string>>({});
@@ -304,15 +308,15 @@ const GestionDocumental: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
           <div className="text-xs text-muted-foreground">{t('gestion_documental.kpi_planos', 'Planos')}</div>
-          <div className="text-lg font-bold text-foreground">{planos.filter(p => !currentProjectId || p.proyectoId === currentProjectId).length}</div>
+          <div className="text-lg font-bold text-foreground">{planosFiltrados.length}</div>
         </div>
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
           <div className="text-xs text-muted-foreground">{t('gestion_documental.kpi_rfis', 'RFIs Activos')}</div>
-          <div className="text-lg font-bold text-warning">{rfis.filter(r => r.estado !== 'cerrado' && (!currentProjectId || r.proyectoId === currentProjectId)).length}</div>
+          <div className="text-lg font-bold text-warning">{rfisFiltrados.length}</div>
         </div>
         <div className="bg-card text-card-foreground rounded-xl p-3 border border-border">
           <div className="text-xs text-muted-foreground">{t('gestion_documental.kpi_submittals', 'Submittals Pendientes')}</div>
-          <div className="text-lg font-bold text-info">{submittals.filter(s => s.estado === 'pendiente' && (!currentProjectId || s.proyectoId === currentProjectId)).length}</div>
+          <div className="text-lg font-bold text-info">{submittalsFiltrados.length}</div>
         </div>
       </div>
 
@@ -415,13 +419,13 @@ const GestionDocumental: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {planos.filter(p => !currentProjectId || p.proyectoId === currentProjectId).length === 0 ? (
+            {planosFiltrados.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="w-10 h-10 mx-auto mb-2 text-muted-foreground/60" />
                 <p className="text-sm">{t('gestion_documental.sin_planos', 'Sin planos registrados')}</p>
               </div>
             ) : (
-              planos.filter(p => !currentProjectId || p.proyectoId === currentProjectId).map(p => (
+              planosFiltrados.map(p => (
                 <div key={p.id} className={`p-3 rounded-lg border ${p.estado === 'vigente' ? 'bg-card border-border' : p.estado === 'obsoleto' ? 'bg-muted border-border opacity-60' : 'bg-warning/10 border-warning/30'}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
@@ -527,13 +531,13 @@ const GestionDocumental: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {rfis.filter(r => !currentProjectId || r.proyectoId === currentProjectId).length === 0 ? (
+            {rfisFiltrados.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <MessageSquare className="w-10 h-10 mx-auto mb-2 text-muted-foreground/60" />
                 <p className="text-sm">{t('gestion_documental.sin_rfis', 'Sin RFIs registrados')}</p>
               </div>
             ) : (
-              rfis.filter(r => !currentProjectId || r.proyectoId === currentProjectId).map(r => (
+              rfisFiltrados.map(r => (
                 <div key={r.id} className={`p-3 rounded-lg border ${r.estado === 'cerrado' ? 'bg-success/10 border-success/30' : 'bg-card border-border'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
@@ -658,13 +662,13 @@ const GestionDocumental: React.FC = () => {
           )}
 
           <div className="space-y-2">
-            {submittals.filter(s => !currentProjectId || s.proyectoId === currentProjectId).length === 0 ? (
+            {submittalsFiltrados.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Package className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p className="text-sm">{t('gestion_documental.sin_submittals', 'Sin submittals registrados')}</p>
               </div>
             ) : (
-              submittals.filter(s => !currentProjectId || s.proyectoId === currentProjectId).map(s => (
+              submittalsFiltrados.map(s => (
                 <div key={s.id} className={`p-3 rounded-lg border ${s.estado === 'aprobado' ? 'bg-emerald-50 border-emerald-200' : 'bg-card border-border'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
