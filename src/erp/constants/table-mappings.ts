@@ -28,4 +28,5 @@ export const TABLE_MAP: Record<string, string> = {
   erp_ajustes_estacionales_actividad:'ajustesEstacionalesActividad',
   erp_calculos_proyecto:'calculosProyecto',
   erp_cumplimiento_normativo:'cumplimientoNormativo',
+  erp_aplicacion_escalas:'aplicacionEscalas',
 };
