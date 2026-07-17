@@ -62,7 +62,7 @@ export default function ErrorLog() {
     return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
   }, [errorLogs]);
 
-  const filtradas = errorLogs
+  const filtradas = React.useMemo(() => errorLogs
     .filter(e => !filterSeverity || e.severity === filterSeverity)
     .filter(e => {
       if (filterStatus === 'open') return !e.resolved;
@@ -92,7 +92,7 @@ export default function ErrorLog() {
       else if (sortKey === 'errorType') cmp = (a.errorType || '').localeCompare(b.errorType || '');
       else if (sortKey === 'errorMessage') cmp = a.errorMessage.localeCompare(b.errorMessage);
       return sortDir === 'descend' ? -cmp : cmp;
-    });
+    }), [errorLogs, filterSeverity, filterStatus, currentProjectId, search, dateFrom, dateTo, sortKey, sortDir]);
 
   const totalPages = Math.ceil(filtradas.length / pageSize);
   const pageData = filtradas.slice((page - 1) * pageSize, page * pageSize);

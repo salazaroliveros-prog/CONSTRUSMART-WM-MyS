@@ -80,7 +80,7 @@ export default function Auditoria() {
     return Array.from(set).sort();
   }, [auditLog]);
 
-  const filtradas = auditLog
+  const filtradas = React.useMemo(() => auditLog
     .filter(e => !filterEntidad || e.entidad === filterEntidad)
     .filter(e => !filterAccion || e.accion === filterAccion)
     .filter(e => !filterUsuario || e.usuarioNombre === filterUsuario)
@@ -97,7 +97,7 @@ export default function Auditoria() {
       const from = dateFrom ? new Date(dateFrom).getTime() : 0;
       const to = dateTo ? new Date(dateTo + 'T23:59:59').getTime() : Infinity;
       return d >= from && d <= to;
-    });
+    }), [auditLog, filterEntidad, filterAccion, filterUsuario, currentProjectId, search, dateFrom, dateTo]);
 
   const sorted = React.useMemo(() => {
     const arr = [...filtradas];

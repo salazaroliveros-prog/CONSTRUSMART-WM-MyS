@@ -15,8 +15,8 @@ const DashboardPredictivo: React.FC = () => {
   const presupuesto = presupuestos.find(p => p.proyectoId === currentProjectId);
 
   // --- Cálculos ---
-  const gastos = movimientos.filter(m => m.proyectoId === currentProjectId && (m.tipo === 'gasto' || m.tipo === 'egreso'));
-  const totalGastos = gastos.reduce((a, m) => a + (m.costoTotal ?? m.monto), 0);
+  const gastos = useMemo(() => movimientos.filter(m => m.proyectoId === currentProjectId && (m.tipo === 'gasto' || m.tipo === 'egreso')), [movimientos, currentProjectId]);
+  const totalGastos = useMemo(() => gastos.reduce((a, m) => a + (m.costoTotal ?? m.monto), 0), [gastos]);
 
   // Costo final proyectado (EAC = AC + (BAC - EV) / CPI)
   const BAC = proyecto?.presupuestoTotal || presupuesto?.totalCalculado || 0;
@@ -52,14 +52,16 @@ const DashboardPredictivo: React.FC = () => {
     });
   }, [presupuesto, avances, currentProjectId, fechaInicio, fechaFin]);
 
-  const riesgosAltos = renglonesConAvance.filter(r => r.pctAvance < 50 && r.desviacion < -20);
-  const riesgosMedios = renglonesConAvance.filter(r => r.desviacion < -10 && r.desviacion >= -20);
-  const actividadesSaludables = renglonesConAvance.filter(r => r.desviacion >= -10);
+  const riesgosAltos = useMemo(() => renglonesConAvance.filter(r => r.pctAvance < 50 && r.desviacion < -20), [renglonesConAvance]);
+  const riesgosMedios = useMemo(() => renglonesConAvance.filter(r => r.desviacion < -10 && r.desviacion >= -20), [renglonesConAvance]);
+  const actividadesSaludables = useMemo(() => renglonesConAvance.filter(r => r.desviacion >= -10), [renglonesConAvance]);
 
   // Costo de MO por día
-  const costoMOPorDia = empleados
+  const costoMOPorDia = useMemo(() => empleados
     .filter(e => e.activo && (!currentProjectId || e.proyectoIds.includes(currentProjectId)))
-    .reduce((a, e) => a + e.salarioDiario, 0);
+    .reduce((a, e) => a + e.salarioDiario, 0), [empleados, currentProjectId]);
+
+  const proyectosActivos = useMemo(() => proyectos.filter(p => p.estado === 'ejecucion' || p.estado === 'planeacion'), [proyectos]);
 
   if (loading) {
     return (
@@ -87,7 +89,7 @@ const DashboardPredictivo: React.FC = () => {
           aria-label="Seleccionar proyecto para dashboard predictivo"
         >
           <option value="">— Todos los proyectos —</option>
-          {proyectos.filter(p => p.estado === 'ejecucion' || p.estado === 'planeacion').map(p => (
+          {proyectosActivos.map(p => (
             <option key={p.id} value={p.id}>{p.nombre}</option>
           ))}
         </select>

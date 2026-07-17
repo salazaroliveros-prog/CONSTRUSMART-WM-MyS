@@ -78,8 +78,8 @@ const OrdenesCambio: React.FC = () => {
     rechazado: { color: 'text-red-600', bg: 'bg-red-50', label: t('ordenes_cambio.estado_rechazado', 'Rechazado') },
   };
 
-  const pendientes = ordenesCambio.filter(o => o.estado === 'solicitud' || o.estado === 'revision').length;
-  const costoTotal = ordenesCambio.filter(o => o.estado === 'aprobado').reduce((a, o) => a + o.impactoCosto, 0);
+  const pendientes = useMemo(() => ordenesCambio.filter(o => o.estado === 'solicitud' || o.estado === 'revision').length, [ordenesCambio]);
+  const costoTotal = useMemo(() => ordenesCambio.filter(o => o.estado === 'aprobado').reduce((a, o) => a + o.impactoCosto, 0), [ordenesCambio]);
 
   if (loading) return <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 rounded-2xl" /></div>;
 

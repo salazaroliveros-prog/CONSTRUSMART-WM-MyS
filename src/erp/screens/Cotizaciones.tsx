@@ -85,6 +85,13 @@ const Cotizaciones: React.FC = () => {
     return [...cotizaciones].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [cotizaciones]);
 
+  const kpis = useMemo(() => ({
+    total: cotizaciones.length,
+    enviadas: cotizaciones.filter(c => c.estado === 'enviada').length,
+    aprobadas: cotizaciones.filter(c => c.estado === 'aprobada').length,
+    montoAprobado: cotizaciones.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.precioVentaTotal, 0),
+  }), [cotizaciones]);
+
   const resetForm = () => {
     setFormData({
       proyectoId: '',
@@ -225,12 +232,12 @@ const Cotizaciones: React.FC = () => {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: t('cotizaciones.total'), value: cotizaciones.length, color: 'bg-blue-50 text-blue-600' },
-          { label: t('cotizaciones.enviadas'), value: cotizaciones.filter(c => c.estado === 'enviada').length, color: 'bg-amber-50 text-amber-600' },
-          { label: t('cotizaciones.aprobadas'), value: cotizaciones.filter(c => c.estado === 'aprobada').length, color: 'bg-emerald-50 text-emerald-600' },
-          { label: t('cotizaciones.monto_aprobado'), value: fmtQ(cotizaciones.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.precioVentaTotal, 0)), color: 'bg-purple-50 text-blue-600' },
-        ].map((kpi, i) => (
+         {[
+           { label: t('cotizaciones.total'), value: kpis.total, color: 'bg-blue-50 text-blue-600' },
+           { label: t('cotizaciones.enviadas'), value: kpis.enviadas, color: 'bg-amber-50 text-amber-600' },
+           { label: t('cotizaciones.aprobadas'), value: kpis.aprobadas, color: 'bg-emerald-50 text-emerald-600' },
+           { label: t('cotizaciones.monto_aprobado'), value: fmtQ(kpis.montoAprobado), color: 'bg-purple-50 text-blue-600' },
+         ].map((kpi, i) => (
           <div key={i} className={`${kpi.color} rounded-xl p-3 border`}>
             <div className="text-xs font-medium opacity-70 mb-1">{kpi.label}</div>
             <div className="text-lg font-bold">{kpi.value}</div>

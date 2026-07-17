@@ -57,6 +57,19 @@ const PROFITABILITYAnalytics: React.FC = () => {
     return (proyectos || []).filter(p => p.id === currentProjectId);
   }, [proyectos, currentProjectId]);
 
+  const profitabilityKpis = useMemo(() => {
+    if (!profitabilityData) return null;
+    const { projectProfitabilities } = profitabilityData;
+    return {
+      totalUtilidad: projectProfitabilities.reduce((sum, p) => sum + p.utilidadBruta, 0),
+      avgMargen: projectProfitabilities.length > 0
+        ? projectProfitabilities.reduce((sum, p) => sum + p.margenBruto, 0) / projectProfitabilities.length
+        : 0,
+      proyectosRiesgosos: projectProfitabilities.filter(p => p.estadoRentabilidad === 'riesgoso' || p.estadoRentabilidad === 'critico').length,
+      proyectosExcelentes: projectProfitabilities.filter(p => p.estadoRentabilidad === 'excelente').length,
+    };
+  }, [profitabilityData]);
+
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -121,13 +134,6 @@ const PROFITABILITYAnalytics: React.FC = () => {
 
   const { projectProfitabilities, clientProfitabilities, trends, resourceEfficiencies, pricingOptimizations } = profitabilityData;
 
-  const totalUtilidad = projectProfitabilities.reduce((sum, p) => sum + p.utilidadBruta, 0);
-  const avgMargen = projectProfitabilities.length > 0 
-    ? projectProfitabilities.reduce((sum, p) => sum + p.margenBruto, 0) / projectProfitabilities.length 
-    : 0;
-  const proyectosRiesgosos = projectProfitabilities.filter(p => p.estadoRentabilidad === 'riesgoso' || p.estadoRentabilidad === 'critico').length;
-  const proyectosExcelentes = projectProfitabilities.filter(p => p.estadoRentabilidad === 'excelente').length;
-
   const TABS = [
     { id: 'proyectos' as const, label: t('profitability.por_proyecto'), icon: Building2 },
     { id: 'clientes' as const, label: t('profitability.por_cliente'), icon: Users },
@@ -190,7 +196,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[10px] text-white/80 uppercase tracking-wide">{t('profitability.utilidad_total')}</p>
-              <p className="text-xl sm:text-2xl font-bold mt-1">{fmtQ(totalUtilidad)}</p>
+               <p className="text-xl sm:text-2xl font-bold mt-1">{fmtQ(profitabilityKpis!.totalUtilidad)}</p>
             </div>
             <DollarSign className="w-8 h-8 text-white/20" aria-hidden="true" />
           </div>
@@ -204,7 +210,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[10px] text-white/80 uppercase tracking-wide">{t('profitability.margen_promedio')}</p>
-              <p className="text-xl sm:text-2xl font-bold mt-1">{fmtPct(avgMargen)}</p>
+               <p className="text-xl sm:text-2xl font-bold mt-1">{fmtPct(profitabilityKpis!.avgMargen)}</p>
             </div>
             <Target className="w-8 h-8 text-white/20" aria-hidden="true" />
           </div>
@@ -218,7 +224,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[10px] text-white/80 uppercase tracking-wide">{t('profitability.proyectos_riesgosos')}</p>
-              <p className="text-xl sm:text-2xl font-bold mt-1">{proyectosRiesgosos}</p>
+               <p className="text-xl sm:text-2xl font-bold mt-1">{profitabilityKpis!.proyectosRiesgosos}</p>
             </div>
             <AlertTriangle className="w-8 h-8 text-white/20" aria-hidden="true" />
           </div>
@@ -232,7 +238,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[10px] text-white/80 uppercase tracking-wide">{t('profitability.proyectos_excelentes')}</p>
-              <p className="text-xl sm:text-2xl font-bold mt-1">{proyectosExcelentes}</p>
+               <p className="text-xl sm:text-2xl font-bold mt-1">{profitabilityKpis!.proyectosExcelentes}</p>
             </div>
             <Award className="w-8 h-8 text-white/20" aria-hidden="true" />
           </div>

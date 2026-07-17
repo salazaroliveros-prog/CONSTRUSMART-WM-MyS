@@ -23,12 +23,12 @@ const RRHH: React.FC = () => {
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [filtroProyecto, setFiltroProyecto] = React.useState('');
 
-  const empleadosFiltrados = filtroProyecto ? empleados.filter(e => e.proyectoId === filtroProyecto) : empleados;
+  const empleadosFiltrados = useMemo(() => filtroProyecto ? empleados.filter(e => e.proyectoId === filtroProyecto) : empleados, [filtroProyecto, empleados]);
 
   const pago = useCallback((e: typeof empleados[0]) => e.salarioDiario * e.diasTrabajados, []);
-  const pagoFSR = (e: typeof empleados[0]) => factorSalarioReal(e.salarioDiario) * e.diasTrabajados;
-  const totalPlanilla = empleadosFiltrados.reduce((a, e) => a + pago(e), 0);
-  const totalFSR = empleadosFiltrados.reduce((a, e) => a + pagoFSR(e), 0);
+  const pagoFSR = useCallback((e: typeof empleados[0]) => factorSalarioReal(e.salarioDiario) * e.diasTrabajados, []);
+  const totalPlanilla = useMemo(() => empleadosFiltrados.reduce((a, e) => a + pago(e), 0), [empleadosFiltrados, pago]);
+  const totalFSR = useMemo(() => empleadosFiltrados.reduce((a, e) => a + pagoFSR(e), 0), [empleadosFiltrados, pagoFSR]);
 
   const porProyecto = useMemo(() => {
     const colors = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444'];

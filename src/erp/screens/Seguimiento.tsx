@@ -102,6 +102,22 @@ const Seguimiento: React.FC = () => {
     }));
   }, [proyectosEnriquecidos]);
 
+  const bitacoraEntries = useMemo(() => {
+    if (!selectedProyecto) return [];
+    return bitacora
+      .filter((b) => b.proyectoId === selectedProyecto.id)
+      .sort((a, b) => b.fecha.localeCompare(a.fecha))
+      .map((b) => ({
+        id: b.id,
+        fecha: b.fecha,
+        clima: b.clima,
+        personal: b.personalPresente,
+        maquinaria: b.maquinaria,
+        tareas: b.tareasRealizadas,
+        observaciones: b.observaciones,
+      }));
+  }, [bitacora, selectedProyecto]);
+
   const columns: Column<(typeof tableData)[0]>[] = [
     {
       key: 'nombre',
@@ -190,22 +206,7 @@ const Seguimiento: React.FC = () => {
       case 'bitacora':
         return (
           <SeguimientoBitacoraPanel
-            entries={
-              selectedProyecto
-                ? bitacora
-                    .filter((b) => b.proyectoId === selectedProyecto.id)
-                    .sort((a, b) => b.fecha.localeCompare(a.fecha))
-                    .map((b) => ({
-                      id: b.id,
-                      fecha: b.fecha,
-                      clima: b.clima,
-                      personal: b.personalPresente,
-                      maquinaria: b.maquinaria,
-                      tareas: b.tareasRealizadas,
-                      observaciones: b.observaciones,
-                    }))
-                : []
-            }
+            entries={bitacoraEntries}
             onAdd={() => console.log('Add bitacora')}
             onEdit={(entry) => console.log('Edit', entry)}
             onDelete={(id) => console.log('Delete', id)}
