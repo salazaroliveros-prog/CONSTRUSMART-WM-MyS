@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { sanitizarObjeto, canUserDelete } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
 import { supabase, projectRef } from '@/lib/supabase';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance, validateForeignKey as validateForeignKeyInArray } from './utils';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance, validateForeignKey as validateForeignKeyInArray, __setActiveCurrency, __setActiveDateFormat } from './utils';
+import i18n from '@/lib/i18n';
 import { recordSyncMetric } from '@/lib/metrics';
 import { logErrorFromException } from '@/lib/error-logger';
 import { TABLE_MAP } from './constants/table-mappings';
@@ -614,6 +615,9 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setAppSettings: (v) => {
     const next = typeof v === 'function' ? v(get().appSettings) : v;
     set({ appSettings: next });
+    if (next.language) i18n.changeLanguage(next.language);
+    if (next.currency) __setActiveCurrency(next.currency);
+    if (next.dateFormat) __setActiveDateFormat(next.dateFormat);
     try {
       localStorage.setItem('wm_erp_data_settings', JSON.stringify(next));
       if (next.appTheme) localStorage.setItem('wm_erp_theme', next.appTheme);
@@ -624,6 +628,15 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   updateAppSettings: (patch) => {
     const next = { ...get().appSettings, ...patch };
     set({ appSettings: next });
+    if (patch.language && patch.language !== get().appSettings.language) {
+      i18n.changeLanguage(patch.language);
+    }
+    if (patch.currency) {
+      __setActiveCurrency(patch.currency);
+    }
+    if (patch.dateFormat) {
+      __setActiveDateFormat(patch.dateFormat);
+    }
     try {
       localStorage.setItem('wm_erp_data_settings', JSON.stringify(next));
       if (patch.appTheme) localStorage.setItem('wm_erp_theme', patch.appTheme);

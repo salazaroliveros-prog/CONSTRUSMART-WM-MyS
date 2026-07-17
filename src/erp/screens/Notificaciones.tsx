@@ -5,6 +5,7 @@ import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { usePagination } from '../hooks/usePagination';
 import PaginationBar from '../components/PaginationBar';
+import { formatDateFmt } from '../utils';
 import { Bell, Check, CheckCheck, AlertTriangle, ClipboardList, Package, TrendingDown, Activity } from 'lucide-react';
 
 const MAPA_ICONOS: Record<string, React.ReactNode> = {
@@ -34,6 +35,13 @@ const MAPA_LABEL: Record<string, string> = {
   general: 'General',
 };
 
+const TIPO_TOGGLE_MAP: Record<string, string> = {
+  stock_critico: 'stockCritico',
+  orden_cambio_pendiente: 'ordenesCambio',
+  avance_registrado: 'avancesObra',
+  desviacion_rendimiento: 'desviaciones',
+};
+
 import { useNotificationSound } from '../hooks/useNotificationSound';
 
 export default function Notificaciones() {
@@ -60,7 +68,11 @@ export default function Notificaciones() {
   const baseList = tab === 'alertas' ? noLeidas : notificaciones;
   const filtradas = baseList
     .filter(n => !filtroTipo || n.tipo === filtroTipo)
-    .filter(n => !filtroProyecto || n.proyectoId === filtroProyecto);
+    .filter(n => !filtroProyecto || n.proyectoId === filtroProyecto)
+    .filter(n => {
+      const toggleKey = TIPO_TOGGLE_MAP[n.tipo];
+      return !toggleKey || appSettings.notificaciones?.[toggleKey as keyof typeof appSettings.notificaciones] !== false;
+    });
 
   const tiposExistentes = [...new Set(notificaciones.map(n => n.tipo))];
   const paginacion = usePagination(filtradas, 20);
@@ -73,7 +85,9 @@ export default function Notificaciones() {
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
-    return d.toLocaleDateString('es-GT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const datePart = formatDateFmt(iso);
+    const timePart = d.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' });
+    return `${datePart} ${timePart}`;
   };
 
   if (loading) {

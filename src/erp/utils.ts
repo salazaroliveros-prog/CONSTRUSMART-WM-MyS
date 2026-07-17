@@ -14,6 +14,11 @@ import { Categoria, Tipologia } from './types';
  * NOTA: No confundir con src/lib/utils.ts que solo contiene la función cn() para shadcn/ui
  */
 
+export let __activeCurrency: 'GTQ' | 'USD' = 'GTQ';
+export let __activeDateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' = 'DD/MM/YYYY';
+export function __setActiveCurrency(c: 'GTQ' | 'USD') { __activeCurrency = c; }
+export function __setActiveDateFormat(d: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD') { __activeDateFormat = d; }
+
 export const safeParseArray = <T>(value: unknown, schema: { safeParse: (data: unknown) => { success: boolean; data?: T } }): T[] => {
   if (!Array.isArray(value)) return [];
   return value
@@ -29,7 +34,6 @@ export type AppSettings = {
   language: 'es' | 'en';
   dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
   currency: 'GTQ' | 'USD';
-  sidebarCollapsed: boolean;
   sidebarPosition: 'left' | 'right' | 'overlay';
   sidebarMode: 'expanded' | 'collapsed' | 'hover-expand' | 'mini';
   sidebarWidth: 240 | 280 | 320;
@@ -45,6 +49,12 @@ export type AppSettings = {
   breadcrumbsEnabled: boolean;
   footerEnabled: boolean;
   touchMode: boolean;
+  notificaciones: {
+    stockCritico: boolean;
+    ordenesCambio: boolean;
+    avancesObra: boolean;
+    desviaciones: boolean;
+  };
   notificationSounds: boolean;
   toastPosition: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   empresaInfo?: {
@@ -179,7 +189,6 @@ export const APP_SETTINGS_DEFAULTS: AppSettings = {
   language: 'es',
   dateFormat: 'DD/MM/YYYY',
   currency: 'GTQ',
-  sidebarCollapsed: false,
   sidebarPosition: 'left',
   sidebarMode: 'expanded',
   sidebarWidth: 240,
@@ -195,6 +204,7 @@ export const APP_SETTINGS_DEFAULTS: AppSettings = {
   breadcrumbsEnabled: true,
   footerEnabled: true,
   touchMode: false,
+  notificaciones: { stockCritico: true, ordenesCambio: true, avancesObra: true, desviaciones: true },
   notificationSounds: true,
   toastPosition: 'bottom-right',
   empresaInfo: EMPRESA_DEFAULT,
@@ -404,13 +414,34 @@ export const precioUnitarioVentaConFactores = (
   return base * (1 + factors.utilidad);
 };
 
-export const fmtQ = (n: number) =>
-  'Q ' + (n || 0).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const CURRENCY_CONFIG: Record<'GTQ' | 'USD', { prefix: string; locale: string }> = {
+  GTQ: { prefix: 'Q ', locale: 'es-GT' },
+  USD: { prefix: '$ ', locale: 'en-US' },
+};
+export const fmtQ = (n: number) => {
+  const cfg = CURRENCY_CONFIG[__activeCurrency] || CURRENCY_CONFIG.GTQ;
+  return cfg.prefix + (n || 0).toLocaleString(cfg.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
 
+const NUM_LOCALE: Record<'GTQ' | 'USD', string> = { GTQ: 'es-GT', USD: 'en-US' };
 export const fmtNum = (n: number) =>
-  (n || 0).toLocaleString('es-GT', { maximumFractionDigits: 2 });
+  (n || 0).toLocaleString(NUM_LOCALE[__activeCurrency] || 'es-GT', { maximumFractionDigits: 2 });
 
 export const fmtPct = (n: number) => `${(n || 0).toFixed(1)}%`;
+
+export function formatDateFmt(iso: string): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const year = d.getFullYear();
+  switch (__activeDateFormat) {
+    case 'MM/DD/YYYY': return `${month}/${day}/${year}`;
+    case 'YYYY-MM-DD': return `${year}-${month}-${day}`;
+    default: return `${day}/${month}/${year}`;
+  }
+}
 
 export interface SupplierPerformanceMetrics {
   proveedorId: string;

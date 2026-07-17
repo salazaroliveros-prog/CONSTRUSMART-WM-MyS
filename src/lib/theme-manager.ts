@@ -80,6 +80,12 @@ export interface VisualSettings {
   animationType?: string;
   breadcrumbsEnabled?: boolean;
   footerEnabled?: boolean;
+  sidebarMode?: string;
+  sidebarWidth?: number;
+  sidebarMiniWidth?: number;
+  appTheme?: string;
+  primaryColor?: string;
+  uiMode?: string;
 }
 
 export function isValidTheme(theme: unknown): theme is ThemeName {
@@ -130,10 +136,6 @@ const cssVarMap: Record<string, (v: unknown) => [string, string] | null> = {
   fontSize: (v) => {
     const sizes: Record<string, string> = { small: '14px', medium: '16px', large: '18px' };
     return ['--vs-font-size-base', sizes[v as string] || '16px'];
-  },
-  borderRadius: (v) => {
-    const radii: Record<string, string> = { none: '0px', small: '4px', medium: '8px', large: '16px', full: '9999px' };
-    return ['--radius-selected', radii[v as string] || '8px'];
   },
   spacingScale: (v) => {
     const scales: Record<string, string> = { compact: '8px', normal: '16px', spacious: '24px' };
@@ -238,6 +240,10 @@ export function syncAllVisualSettings(settings: VisualSettings): void {
 
   if (settings.sidebarWidth) {
     html.style.setProperty('--sidebar-width', `${Math.max(180, Math.min(320, settings.sidebarWidth))}px`);
+  }
+
+  if (settings.sidebarMiniWidth) {
+    html.style.setProperty('--sidebar-mini-width', `${Math.max(60, Math.min(85, settings.sidebarMiniWidth))}px`);
   }
 
   if (settings.breadcrumbsEnabled !== undefined) {

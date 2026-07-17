@@ -152,6 +152,7 @@ const Shell: React.FC = () => {
       sidebarPosition: appSettings.sidebarPosition,
       sidebarMode: appSettings.sidebarMode,
       sidebarWidth: appSettings.sidebarWidth,
+      sidebarMiniWidth: appSettings.sidebarMiniWidth,
       breadcrumbsEnabled: appSettings.breadcrumbsEnabled,
       footerEnabled: appSettings.footerEnabled,
       touchMode: appSettings.touchMode,
@@ -162,7 +163,7 @@ const Shell: React.FC = () => {
     appSettings.uiMode, appSettings.animationsEnabled, appSettings.fontSize,
     appSettings.fontFamily, appSettings.borderRadius, appSettings.spacingScale,
     appSettings.densityTable, appSettings.sidebarPosition, appSettings.sidebarMode,
-    appSettings.sidebarWidth, appSettings.breadcrumbsEnabled, appSettings.footerEnabled,
+    appSettings.sidebarWidth, appSettings.sidebarMiniWidth, appSettings.breadcrumbsEnabled, appSettings.footerEnabled,
     appSettings.touchMode,
   ]);
 

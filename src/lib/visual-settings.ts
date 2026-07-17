@@ -19,6 +19,12 @@ export interface VisualSettings {
   animationType?: string;
   breadcrumbsEnabled?: boolean;
   footerEnabled?: boolean;
+  sidebarMode?: string;
+  sidebarWidth?: number;
+  sidebarMiniWidth?: number;
+  appTheme?: string;
+  primaryColor?: string;
+  uiMode?: string;
 }
 
 export { syncAllVisualSettings } from './theme-manager';

@@ -34,7 +34,6 @@ export const appSettingsSchema = z.object({
   language: z.enum(['es','en'] as const).default('es'),
   dateFormat: z.enum(['DD/MM/YYYY','MM/DD/YYYY','YYYY-MM-DD'] as const).default('DD/MM/YYYY'),
   currency: z.enum(['GTQ','USD'] as const).default('GTQ'),
-  sidebarCollapsed: z.boolean().default(false),
   sidebarPosition: z.enum(['left','right','overlay'] as const).default('left'),
   sidebarMode: z.enum(['expanded','collapsed','hover-expand','mini'] as const).default('expanded'),
   sidebarWidth: z.union([z.literal(240), z.literal(280), z.literal(320)]).default(240),
@@ -55,6 +54,8 @@ export const appSettingsSchema = z.object({
     avancesObra: z.boolean().default(true),
     desviaciones: z.boolean().default(true),
   }).default({ stockCritico: true, ordenesCambio: true, avancesObra: true, desviaciones: true }),
+  notificationSounds: z.boolean().default(true),
+  toastPosition: z.enum(['top-left','top-center','top-right','bottom-left','bottom-center','bottom-right'] as const).default('bottom-right'),
   empresaInfo: z.object({
     nombre: z.string().optional(),
     nit: z.string().optional(),

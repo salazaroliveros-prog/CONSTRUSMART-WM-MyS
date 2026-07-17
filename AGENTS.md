@@ -6,6 +6,15 @@
 - **Estado sobre progreso**: El archivo documenta el estado actual del sistema. Las sesiones individuales no se registran cronológicamente a menos que cambien el estado del sistema.
 - **Priorización contextual**: Los items se priorizan basándose en severidad (HIGH/MEDIUM/LOW) y dependencias entre módulos, no en plazos artificiales.
 
+## Arquitectura (Migración 100% Completa)
+- **43/43 screens** en `src/erp/screens/` — lazy-importadas via `React.lazy()` en AppLayout.tsx
+- **Store**: `src/erp/store.tsx` (ErpProvider) + `src/erp/store/zustandStore.ts` + 18 schemas Zod en `src/erp/store/schemas/`
+- **Types**: Todo centralizado en `src/erp/types/` (index.ts exporta conflicts, curvas, errors)
+- **Services**: 10+ servicios en `src/erp/services/` (curvasService, conflictDetection, weatherService, motorCalculo, etc.)
+- **Components**: ~30+ componentes en `src/erp/components/` (Header, Sidebar, financiero, proyectos, seguimiento, shared)
+- **Hooks**: 11 hooks en `src/erp/hooks/` (useAccessLog, useApuWorker, useChartConfig, etc.)
+- **Sin referencias legacy**: No quedan stores, types, screens ni services fuera de `src/erp/`
+
 ## Stack
 - React 18.3 + TypeScript 5.5 + Vite 5.4
 - Ant Design 5.29.3, React Query, Three.js/web-ifc
@@ -39,23 +48,25 @@
 - Schemas duplicados prohibidos — mantener solo `eventoSchema` y `bitacoraSchema`
 - El `CuadroComparativo` almacena referencias ligeras (`proveedorId + montoTotal`); la resolución a datos CRM completos se hace por join en render con `cotizacionesNegocio`
 
-## Tests
-- `src/__tests__/erp-operacion-integral.test.tsx`: 78 tests
+## Tests (879 tests, 26 files)
 - `src/__tests__/erp-store-operations-full.test.tsx`: 254 tests
-- `src/lib/__tests__/auto-repair.test.ts`: 27 tests
-- `src/erp/__tests__/integrity.test.ts`: 3 tests
-- `src/erp/__tests__/store.ordenes.test.ts`: 3 tests
-- `src/erp/__tests__/store.presupuestos.test.ts`: 4 tests
-- `src/erp/__tests__/zustand-migration.test.ts`: 6 tests
-- `src/erp/__tests__/e2e-proyecto.test.ts`: 1 test
-- `src/erp/__tests__/store.test.ts`: 10 tests
-- `src/erp/__tests__/financiero.test.ts`: 35 tests
-- `src/erp/__tests__/utils.test.ts`: 21 tests
 - `src/__tests__/erp-estilos-ui.test.tsx`: 72 tests
 - `src/__tests__/erp-validacion-funcional.test.tsx`: 57 tests
-- `src/__tests__/filtro-proyecto.test.tsx`: 5 tests
+- `src/__tests__/erp-operacion-integral.test.tsx`: 78 tests
+- `src/__tests__/components-ui.test.tsx`: 72 tests
+- `src/__tests__/accessibility.test.tsx`: 21 tests
 - `src/__tests__/ErrorLog.test.tsx`: 18 tests
-- Combined: **~879 tests** across 26 test files
+- `src/__tests__/filtro-proyecto.test.tsx`: 5 tests
+- `src/lib/__tests__/auto-repair.test.ts`: 27 tests
+- `src/erp/__tests__/financiero.test.ts`: 35 tests
+- `src/erp/__tests__/utils.test.ts`: 21 tests
+- `src/erp/__tests__/store.test.ts`: 10 tests
+- `src/erp/__tests__/zustand-migration.test.ts`: 6 tests
+- `src/erp/__tests__/store.presupuestos.test.ts`: 4 tests
+- `src/erp/__tests__/store.ordenes.test.ts`: 3 tests
+- `src/erp/__tests__/integrity.test.ts`: 3 tests
+- `src/erp/__tests__/validate-fk.test.ts`: 7 tests
+- `src/erp/__tests__/e2e-proyecto.test.ts`: 1 test
 
 ## Completitud Visual de la ERP (100%)
 
@@ -78,13 +89,13 @@
 - WCAG AA compliant (4.5:1 ratio mínimo)
 
 ### Skeleton Screens (100%)
-- Cotizaciones.tsx, Seguimiento.tsx, Hitos.tsx y todas las 38 screens
+- Cotizaciones.tsx, Seguimiento.tsx, Hitos.tsx y todas las 43 screens
 
 ### Métricas de Completitud
 
 | Categoría | % | Estado |
 |-----------|---|--------|
-| **Pantallas implementadas** | 100% (38/38) | ✅ |
+| **Pantallas implementadas** | 100% (43/43) | ✅ |
 | **Componentes globales** | 100% | ✅ |
 | **Consistencia visual** | 100% | ✅ |
 | **Responsive design** | 100% | ✅ |
@@ -108,11 +119,11 @@
 - Selector visual en Proyectos.tsx con búsqueda, tarjetas interactivas, sugerencias inteligentes
 
 ### Data Flow: Frontend ←→ Backend (100% integrity)
-- **38/38 screens** consumen datos via `useErp()` o `useErpStore()` — cero llamadas directas a `supabase.from()` en screens
+- **43/43 screens** consumen datos via `useErp()` o `useErpStore()` — cero llamadas directas a `supabase.from()` en screens
 - **34+ tablas activas** sincronizadas via mutation queue (offline-first)
 - **28 canales realtime** para sincronización multi-cliente
 - **localStorage persistence** con validación Zod + compresión lz-string
-- **Error boundaries** en todas las 38 screens lazy-loaded
+- **Error boundaries** en todas las 43 screens lazy-loaded
 
 ### RBAC + Seguridad
 - `allowedViews` usa `getViewsByRole(user.rol)`
@@ -128,7 +139,7 @@
 - Offline-first: mutation queue con retry (max 3) y manejo FK 23503
 - Exponential backoff: `min(1000ms * 2^attempt, 30000ms)`, max 10 retries
 - Compresión lz-string para datos >10KB
-- Lazy loading: 38 screens, Header, Sidebar
+- Lazy loading: 43 screens, Header, Sidebar
 - Bundle splitting: 50+ chunks
 - Batch forceSync: chunkArray + BATCH_SIZE=50
 - Web Worker para compresión (compression.worker.ts)
@@ -158,6 +169,17 @@
 - 363 keys de es.json faltantes en en.json — añadidas (18 namespaces completados)
 - Namespaces completos: rendimiento_campo, admin, cuentas_cobrar, plantillas, cuentas_pagar, auth, sso_calidad, logistica, hitos, baseprecios, reportes, apu, ordenes_cambio, header, notificaciones, visor_bim, riesgos, comercial
 
+## Edge Functions
+- No hay edge functions implementadas — todo el acceso a datos se hace vía cliente Supabase con RLS
+- `database-access` (scaffold stub) fue eliminado por no tener referencias ni uso
+
+## Auditoría de Inconsistencias (Resuelta 100%)
+- **Radio dual**: `borderRadius` removido de `cssVarMap` en `theme-manager.ts` → solo se escribe en `html.style` vía `syncAllVisualSettings`
+- **sidebarMiniWidth**: añadido a `VisualSettings` (ambos archivos), `syncAllVisualSettings` escribe `--sidebar-mini-width` (capped 60-85px), AppLayout lo pasa
+- **VisualSettings incompleto**: añadidos `sidebarMode`, `sidebarWidth`, `sidebarMiniWidth`, `appTheme`, `primaryColor`, `uiMode`
+- **Sub-toggles notificaciones**: `Notificaciones.tsx` ahora filtra por `TIPO_TOGGLE_MAP` → `appSettings.notificaciones`
+- **Fecha sin locale hardcoded**: `formatDateFmt()` reemplaza `toLocaleDateString('es-GT')` en Notificaciones.tsx
+
 ## Issues Conocidos / No Implementados
 - BigNumber/decimal.js no implementado — cálculos financieros usan IEEE 754 double
 - Decimal Zod branded types no implementados
@@ -179,7 +201,7 @@
 - `src/erp/store.tsx`: ErpProvider, contexto, loadFromStorage, forceSync
 - `src/erp/store/zustandStore.ts`: ErpState, ErpActions, TABLE_MAP, SUPABASE_TABLES
 - `src/erp/store/schemas/`: 18 schemas Zod canónicos
-- `src/erp/screens/`: 42 screens lazy-importadas en AppLayout.tsx
+- `src/erp/screens/`: 43 screens lazy-importadas en AppLayout.tsx
 - `src/lib/i18n/es.json`: ~950 keys (source of truth — 52 añadidas para bisimetría con en.json)
 - `src/lib/i18n/en.json`: ~950 keys (completo — 363 keys añadidas, 58 namespaces)
 - `src/__tests__/ErrorLog.test.tsx`: 18 tests (usa /^Ver$/ para el aria-label del botón de detalle)

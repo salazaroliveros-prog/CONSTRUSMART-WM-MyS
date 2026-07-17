@@ -15,7 +15,7 @@ import {
     reglaFactorSchema, normativaDepartamentalSchema, escalaProduccionSchema, estacionalidadSchema,
     historialAplicacionReglaSchema,
 } from './store/schemas';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, decompressData, compressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel } from './utils';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, decompressData, compressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel, __setActiveCurrency, __setActiveDateFormat } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { hasSupabase, assertSupabase, supabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
@@ -304,7 +304,10 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       auditLog: [],
       errorLogs: [],
     });
-    if (useErpStore.getState().appSettings.empresaInfo) setEmpresaInfo(useErpStore.getState().appSettings.empresaInfo);
+    const loadedSettings = useErpStore.getState().appSettings;
+    if (loadedSettings.empresaInfo) setEmpresaInfo(loadedSettings.empresaInfo);
+    __setActiveCurrency(loadedSettings.currency);
+    __setActiveDateFormat(loadedSettings.dateFormat);
 
     migrateSecureStorage(user?.id).catch(err => safeLogger.warn('[Encryption] Migration error:', err));
   // eslint-disable-next-line react-hooks/exhaustive-deps
