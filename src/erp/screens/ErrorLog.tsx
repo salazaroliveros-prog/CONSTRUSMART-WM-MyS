@@ -97,12 +97,12 @@ export default function ErrorLog() {
   const totalPages = Math.ceil(filtradas.length / pageSize);
   const pageData = filtradas.slice((page - 1) * pageSize, page * pageSize);
 
-  const stats = {
+  const stats = React.useMemo(() => ({
     total: errorLogs.length,
     open: errorLogs.filter(e => !e.resolved).length,
     resolved: errorLogs.filter(e => e.resolved).length,
     critical: errorLogs.filter(e => e.severity === 'critical' && !e.resolved).length,
-  };
+  }), [errorLogs]);
 
   const getProyectoNombre = (pid?: string | null) => {
     if (!pid) return '';

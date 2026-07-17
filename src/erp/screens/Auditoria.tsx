@@ -117,12 +117,12 @@ export default function Auditoria() {
   const safePage = Math.min(page, totalPages);
   const paginated = sorted.slice((safePage - 1) * pageSize, safePage * pageSize);
 
-  const stats = {
+  const stats = React.useMemo(() => ({
     total: auditLog.length,
     creaciones: auditLog.filter(e => e.accion === 'crear' || e.accion === 'clonar' || e.accion === 'importar' || e.accion === 'crear_proyecto_desde_plantilla').length,
     actualizaciones: auditLog.filter(e => e.accion === 'actualizar' || e.accion === 'actualizar_presupuesto' || e.accion.startsWith('cambio_estado')).length,
     eliminaciones: auditLog.filter(e => e.accion === 'eliminar' || e.accion === 'eliminar_todo').length,
-  };
+  }), [auditLog]);
 
   const showDetail = (record: LogAuditoria) => {
     setSelectedEntry(record);

@@ -128,6 +128,9 @@ const PlantillasProyectos: React.FC = () => {
     });
   }, [plantillas]);
 
+  const clientesPlantilla = useMemo(() => Array.from(new Set(plantillas.map(p => p.clienteNombre).filter(Boolean))).slice(0, 5), [plantillas]);
+  const clientesProyecto = useMemo(() => Array.from(new Set(proyectos.map(p => p.cliente).filter(Boolean))), [proyectos]);
+
   const categoriaInfo = CATEGORIAS.find(c => c.key === formData.categoria) || CATEGORIAS[0];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -584,7 +587,7 @@ const PlantillasProyectos: React.FC = () => {
           >
             {t('plantillas.general_clientes', 'General')}
           </button>
-          {Array.from(new Set(plantillas.map(p => p.clienteNombre).filter(Boolean))).slice(0, 5).map(cliente => (
+          {clientesPlantilla.map(cliente => (
             <button
               key={cliente}
               onClick={() => setFiltroCliente(cliente)}
@@ -964,7 +967,7 @@ const PlantillasProyectos: React.FC = () => {
                   className="w-full px-3 py-2 border rounded-md"
                 >
                   <option value="">{t('plantillas.general_sin_cliente')}</option>
-                  {Array.from(new Set(proyectos.map(p => p.cliente).filter(Boolean))).map(cliente => (
+                  {clientesProyecto.map(cliente => (
                     <option key={cliente} value={cliente}>{cliente}</option>
                   ))}
                 </select>
