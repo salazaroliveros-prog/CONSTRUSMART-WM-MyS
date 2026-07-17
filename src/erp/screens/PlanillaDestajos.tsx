@@ -79,7 +79,7 @@ export const PlanillaDestajos: React.FC = () => {
     return { ...g, tasa, pagoSemanal: g.totalEjecutado * tasa };
   }), [grupos, tasaPago]);
 
-  const totalPagar = planilla.reduce((a, p) => a + p.pagoSemanal, 0);
+  const totalPagar = useMemo(() => planilla.reduce((a, p) => a + p.pagoSemanal, 0), [planilla]);
 
   const handleSubmitForm = () => {
     const result = destajoSchema.safeParse(formData);

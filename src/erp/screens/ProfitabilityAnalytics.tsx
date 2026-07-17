@@ -57,6 +57,36 @@ const PROFITABILITYAnalytics: React.FC = () => {
     return (proyectos || []).filter(p => p.id === currentProjectId);
   }, [proyectos, currentProjectId]);
 
+  const forecasts = useMemo(() => {
+    return filteredProjects.slice(0, 4).map(proyecto => ({
+      proyecto,
+      forecast: generateProfitabilityForecast(
+        {
+          proyectoId: proyecto.id,
+          tipoProyeccion: 'rentabilidad',
+          fechaBase: new Date().toISOString().split('T')[0],
+          diasProyeccion: selectedForecastPeriod,
+        },
+        projectProfitabilities.filter(p => p.proyectoId === proyecto.id),
+        proyecto
+      ),
+    }));
+  }, [filteredProjects, projectProfitabilities, selectedForecastPeriod]);
+
+  const resourceEfficiencyData = useMemo(() => {
+    return ['mano_obra', 'materiales', 'equipo', 'subcontratos'].map(tipo => {
+      const tipoData = resourceEfficiencies.filter(r => r.tipoRecurso === tipo);
+      const avgEficiencia = tipoData.length > 0
+        ? tipoData.reduce((sum, r) => sum + r.eficiencia, 0) / tipoData.length
+        : 0;
+      const avgDesperdicio = tipoData.length > 0
+        ? tipoData.reduce((sum, r) => sum + r.desperdicio, 0) / tipoData.length
+        : 0;
+      const alertasCount = tipoData.filter(r => r.alertaDesviacion).length;
+      return { tipo, tipoData, avgEficiencia, avgDesperdicio, alertasCount };
+    });
+  }, [resourceEfficiencies]);
+
   const profitabilityKpis = useMemo(() => {
     if (!profitabilityData) return null;
     const { projectProfitabilities } = profitabilityData;
@@ -492,17 +522,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {filteredProjects.slice(0, 4).map(proyecto => {
-              const forecast = generateProfitabilityForecast(
-                {
-                  proyectoId: proyecto.id,
-                  tipoProyeccion: 'rentabilidad',
-                  fechaBase: new Date().toISOString().split('T')[0],
-                  diasProyeccion: selectedForecastPeriod,
-                },
-                projectProfitabilities.filter(p => p.proyectoId === proyecto.id),
-                proyecto
-              );
+            {forecasts.map(({ proyecto, forecast }) => {
 
               return (
                 <div key={proyecto.id} className={`${CARD} rounded-xl p-4`}>
@@ -575,16 +595,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
           <h2 className={SECTION_TITLE}>Eficiencia de Recursos</h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {['mano_obra', 'materiales', 'equipo', 'subcontratos'].map(tipo => {
-              const tipoData = resourceEfficiencies.filter(r => r.tipoRecurso === tipo);
-              const avgEficiencia = tipoData.length > 0 
-                ? tipoData.reduce((sum, r) => sum + r.eficiencia, 0) / tipoData.length 
-                : 0;
-              const avgDesperdicio = tipoData.length > 0 
-                ? tipoData.reduce((sum, r) => sum + r.desperdicio, 0) / tipoData.length 
-                : 0;
-              const alertasCount = tipoData.filter(r => r.alertaDesviacion).length;
-
+            {resourceEfficiencyData.map(({ tipo, tipoData, avgEficiencia, avgDesperdicio, alertasCount }) => {
               const tipoLabels: Record<string, string> = {
                 mano_obra: 'Mano de Obra',
                 materiales: 'Materiales',
