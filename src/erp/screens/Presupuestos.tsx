@@ -41,7 +41,14 @@ const Presupuestos: React.FC = () => {
   };
 
   const handleEditPresupuesto = (id: string) => {
+    const p = presupuestos.find(pr => pr.id === id);
+    if (!p) return;
     setEditPresupuestoId(id);
+    setFormNombre(p.nombre || '');
+    setFormProyectoId(p.proyectoId);
+    setFormTipologia((p as any).tipologia || 'residencial');
+    setFormEstado(p.estado);
+    setFormMoneda((p as any).moneda || 'GTQ');
     setShowForm(true);
   };
 
@@ -101,18 +108,6 @@ const Presupuestos: React.FC = () => {
     }
     resetForm();
     setShowForm(false);
-  };
-
-  const handleEditPresupuesto = (id: string) => {
-    const p = presupuestos.find(pr => pr.id === id);
-    if (!p) return;
-    setEditPresupuestoId(id);
-    setFormNombre(p.nombre || '');
-    setFormProyectoId(p.proyectoId);
-    setFormTipologia((p as any).tipologia || 'residencial');
-    setFormEstado(p.estado);
-    setFormMoneda((p as any).moneda || 'GTQ');
-    setShowForm(true);
   };
 
   if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-64" /><Skeleton className="h-64 w-full" /></div>;
