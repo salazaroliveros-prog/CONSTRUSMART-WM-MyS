@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -125,13 +125,15 @@ const Bodega: React.FC = () => {
   }, [materiales]);
 
 const ITEM_HEIGHT = 52;
-const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
-  const m = materiales[index];
+const VIRTUAL_THRESHOLD = 50;
+const shouldVirtualize = materiales.length > VIRTUAL_THRESHOLD;
+
+const renderMaterialRow = useCallback((m: typeof materiales[0]) => {
   const planificado = m.cantidadPresupuestada ?? 0;
   const desv = planificado > 0 ? ((m.stock - planificado) / Math.max(planificado, 1)) * 100 : 0;
   const claseDesv = Math.abs(desv) > 15 ? `${COLOR_DANGER} dark:text-red-400` : Math.abs(desv) > 5 ? `${COLOR_WARNING} dark:text-amber-400` : 'text-emerald-600 dark:text-emerald-400';
   return (
-    <div style={style} className="flex items-center border-b border-border hover:bg-muted/50">
+    <div className="flex items-center border-b border-border hover:bg-muted/50">
       <div className="w-full px-3 py-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 truncate">
@@ -148,7 +150,7 @@ const Row = ({ index, style }: { index: number; style: React.CSSProperties }) =>
       </div>
     </div>
   );
-};
+}, [materiales, updateMaterial, t]);
 
 const inp = INPUT_COMPACT;
 
@@ -236,16 +238,23 @@ if (loading) {
           <div className="overflow-x-auto">
             {materiales.length === 0 ? (
               <div className="px-3 py-8 text-center text-sm text-muted-foreground"><Warehouse className="w-8 h-8 mx-auto mb-2 opacity-40" aria-hidden="true" />{t('bodega.sin_materiales')}</div>
-            ) : (
+            ) : shouldVirtualize ? (
               <VirtualizedList
                 height={Math.min(480, Math.max(200, materiales.length * ITEM_HEIGHT))}
                 itemCount={materiales.length}
                 itemSize={ITEM_HEIGHT}
                 width="100%"
+                overscanCount={5}
                 aria-label={t('bodega.control_stock_aria')}
               >
-                {Row}
+                {({ index, style }: { index: number; style: React.CSSProperties }) => (
+                  <div style={style}>{renderMaterialRow(materiales[index])}</div>
+                )}
               </VirtualizedList>
+            ) : (
+              materiales.map((m, i) => (
+                <div key={m.id || i}>{renderMaterialRow(m)}</div>
+              ))
             )}
           </div>
           <div className="p-3">

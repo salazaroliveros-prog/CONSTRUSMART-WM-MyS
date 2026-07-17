@@ -65,12 +65,6 @@ const Dashboard: React.FC = () => {
     const clientes = new Set(proyectos.map((p) => p.clienteId)).size;
     const utilidad = presupuestoTotal - montoEjecutado;
 
-    // Trend (vs mes anterior - simulado)
-    const proyectosVsMesAnterior = 2;
-    const carteraVsMesAnterior = 15;
-    const utilidadVsMesAnterior = 8;
-    const margenVsMesAnterior = -1.2;
-
     return {
       proyectos: proyectos.length,
       activos,
@@ -81,19 +75,8 @@ const Dashboard: React.FC = () => {
       margenProm: Number.isFinite(margenProm) ? margenProm : 0,
       clientes,
       empleados: empleados.length,
-      // Trends
-      proyectosVsMesAnterior,
-      carteraVsMesAnterior,
-      utilidadVsMesAnterior,
-      margenVsMesAnterior,
     };
   }, [ctx]);
-
-  // ============ SPARKLINE DATA ==============
-  const sparklineProyectos = [8, 9, 10, 11, 10, 12, 12];
-  const sparklineCartera = [1800, 1900, 2000, 2150, 2200, 2280, 2300];
-  const sparklineUtilidad = [250, 260, 270, 280, 290, 300, 290];
-  const sparklineMargen = [14.2, 13.8, 13.5, 13.2, 12.8, 12.5, 12.5];
 
   // ============ ALERTAS EJECUTIVAS ==============
   const criticalRisks = riesgos.filter((r) => r.probabilidad >= 4 && r.impacto >= 4);
@@ -113,7 +96,7 @@ const Dashboard: React.FC = () => {
             title: 'Riesgos Críticos Identificados',
             description: `${criticalRisks.length} riesgos de alta probabilidad e impacto requieren atención inmediata`,
             count: criticalRisks.length,
-            action: { label: 'Ver Riesgos', onClick: () => {} },
+            action: { label: 'Ver Riesgos', onClick: () => ctx.setView('riesgos') },
           },
         ]
       : []),
@@ -125,7 +108,7 @@ const Dashboard: React.FC = () => {
             title: 'Variaciones Presupuestarias Detectadas',
             description: `${projectVariances.length} proyectos muestran desviaciones > 5%`,
             count: projectVariances.length,
-            action: { label: 'Analizar', onClick: () => {} },
+            action: { label: 'Analizar', onClick: () => ctx.setView('seguimiento') },
           },
         ]
       : []),
@@ -137,7 +120,7 @@ const Dashboard: React.FC = () => {
             title: 'Órdenes de Cambio Pendientes',
             description: `${overdueTasks.length} órdenes de cambio requieren revisión`,
             count: overdueTasks.length,
-            action: { label: 'Revisar', onClick: () => {} },
+            action: { label: 'Revisar', onClick: () => ctx.setView('ordenes-cambio') },
           },
         ]
       : []),
@@ -253,52 +236,28 @@ const Dashboard: React.FC = () => {
         <KPICard
           label={t('dashboard.proyectos')}
           value={kpi.proyectos}
-          trend={{
-            percentage: kpi.proyectosVsMesAnterior,
-            direction: kpi.proyectosVsMesAnterior > 0 ? 'up' : 'down',
-            period: 'vs mes anterior',
-          }}
           icon={<TrendingUp size={18} />}
-          sparklineData={sparklineProyectos}
           status="info"
         />
 
         <KPICard
           label={t('dashboard.cartera')}
           value={fmtQ(kpi.cartera)}
-          trend={{
-            percentage: kpi.carteraVsMesAnterior,
-            direction: kpi.carteraVsMesAnterior > 0 ? 'up' : 'down',
-            period: 'vs mes anterior',
-          }}
           icon={<DollarSign size={18} />}
-          sparklineData={sparklineCartera}
           status="success"
         />
 
         <KPICard
           label={t('dashboard.utilidad')}
           value={fmtQ(kpi.utilidad)}
-          trend={{
-            percentage: kpi.utilidadVsMesAnterior,
-            direction: kpi.utilidadVsMesAnterior > 0 ? 'up' : 'down',
-            period: 'vs mes anterior',
-          }}
           icon={<CheckCircle2 size={18} />}
-          sparklineData={sparklineUtilidad}
           status={kpi.utilidad > 0 ? 'success' : 'danger'}
         />
 
         <KPICard
           label={t('dashboard.margen')}
           value={fmtPct(kpi.margenProm)}
-          trend={{
-            percentage: kpi.margenVsMesAnterior,
-            direction: kpi.margenVsMesAnterior > 0 ? 'up' : 'down',
-            period: 'vs mes anterior',
-          }}
           icon={<TrendingUp size={18} />}
-          sparklineData={sparklineMargen}
           status={kpi.margenProm > 15 ? 'success' : kpi.margenProm > 10 ? 'warning' : 'danger'}
         />
       </div>

@@ -5,13 +5,10 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import MarkerClusterGroup from 'react-leaflet-cluster';
-import { Card, Select, Button, DatePicker, Row, Col, Statistic } from 'antd';
 import { Filter, Download, MapPin, Building2, TrendingUp, Layers } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import type { Proyecto } from '../types';
 import ProjectMapSidebar from './ProjectMapSidebar';
-
-const { RangePicker } = DatePicker;
 
 const estadoColor = (p: { avanceFisico: number; avanceFinanciero: number; estado: string }) => {
   const dev = p.avanceFinanciero - p.avanceFisico;
@@ -142,81 +139,89 @@ const HeatMap: React.FC<{ proyectos: Proyecto[] }> = ({ proyectos }) => {
 
   return (
     <div className="space-y-4">
-      <Card>
+      <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
         <div className="flex items-center gap-4 mb-4">
           <Filter className="w-5 h-5" />
           <h3 className="font-semibold">Filtros Avanzados</h3>
         </div>
-        <Row gutter={16}>
-          <Col span={6}>
-            <Select
-              placeholder="Estado"
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-3">
+          <div className="lg:col-span-3">
+            <select
               value={filters.estado}
-              onChange={(value) => setFilters({ ...filters, estado: value })}
-              className="w-full"
+              onChange={(e) => setFilters({ ...filters, estado: e.target.value })}
+              className="w-full h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {estados.map(estado => (
-                <Select.Option key={estado} value={estado}>
+                <option key={estado} value={estado}>
                   {estado === 'todos' ? 'Todos' : estado}
-                </Select.Option>
+                </option>
               ))}
-            </Select>
-          </Col>
-          <Col span={6}>
-            <Select
-              placeholder="Categoría"
+            </select>
+          </div>
+          <div className="lg:col-span-3">
+            <select
               value={filters.categoria}
-              onChange={(value) => setFilters({ ...filters, categoria: value })}
-              className="w-full"
+              onChange={(e) => setFilters({ ...filters, categoria: e.target.value })}
+              className="w-full h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {categorias.map(cat => (
-                <Select.Option key={cat} value={cat}>
+                <option key={cat} value={cat}>
                   {cat === 'todos' ? 'Todas' : cat}
-                </Select.Option>
+                </option>
               ))}
-            </Select>
-          </Col>
-          <Col span={8}>
-            <RangePicker
-              placeholder={['Fecha Inicio', 'Fecha Fin']}
-              onChange={(dates) => setFilters({ ...filters, fechaInicio: dates })}
-              className="w-full"
-            />
-          </Col>
-          <Col span={4}>
-            <Button
-              icon={<Download className="w-4 h-4" />}
+            </select>
+          </div>
+          <div className="lg:col-span-4">
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={filters.fechaInicio?.[0] || ''}
+                onChange={(e) => setFilters({ ...filters, fechaInicio: [e.target.value, filters.fechaInicio?.[1] || ''] })}
+                className="flex-1 h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Fecha Inicio"
+              />
+              <input
+                type="date"
+                value={filters.fechaFin?.[1] || ''}
+                onChange={(e) => setFilters({ ...filters, fechaFin: [filters.fechaFin?.[0] || '', e.target.value] })}
+                className="flex-1 h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Fecha Fin"
+              />
+            </div>
+          </div>
+          <div className="lg:col-span-2">
+            <button
               onClick={handleExport}
-              className="w-full"
+              className="w-full h-9 inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 text-sm font-medium hover:bg-primary/90 transition-colors"
             >
+              <Download className="w-4 h-4" />
               Exportar
-            </Button>
-          </Col>
-        </Row>
-      </Card>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {regionalStats && (
-        <Card>
+        <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-4 mb-4">
             <TrendingUp className="w-5 h-5" />
             <h3 className="font-semibold">Estadísticas Regionales</h3>
           </div>
-          <Row gutter={16}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Object.entries(regionalStats).map(([region, stats]) => (
-              <Col span={8} key={region}>
-                <Statistic
-                  title={region}
-                  value={stats.count}
-                  suffix="proyectos"
-                  prefix={<Building2 className="w-4 h-4" />}
-                />
-                <div className="text-sm text-gray-500 mt-1">
+              <div key={region} className="p-3 bg-background rounded-lg border border-border">
+                <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                  <Building2 className="w-4 h-4" />
+                  <span className="text-xs font-medium">{region}</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{stats.count} <span className="text-sm font-normal text-muted-foreground">proyectos</span></p>
+                <div className="text-sm text-muted-foreground mt-1">
                   ${stats.presupuesto.toLocaleString()}
                 </div>
-              </Col>
+              </div>
             ))}
-          </Row>
-        </Card>
+          </div>
+        </div>
       )}
 
       <div className="flex gap-4">
@@ -269,7 +274,7 @@ const HeatMap: React.FC<{ proyectos: Proyecto[] }> = ({ proyectos }) => {
       </div>
 
       {filteredProyectos.length > 1 && (
-        <Card>
+        <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-4 mb-4">
             <MapPin className="w-5 h-5" />
             <h3 className="font-semibold">Análisis de Proximidad</h3>
@@ -305,7 +310,7 @@ const HeatMap: React.FC<{ proyectos: Proyecto[] }> = ({ proyectos }) => {
               );
             })}
           </div>
-        </Card>
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Search, ArrowUpDown, List, Grid3x3, Plus, Trash2, X } from 'lucide-react';
-import { Modal, message } from 'antd';
+
 import { toast } from 'sonner';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, BUTTON_DANGER } from '../../ui';
 

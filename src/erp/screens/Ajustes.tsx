@@ -4,29 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { useErp, clearAllData, type UIMode, type AppThemeMode } from '../store';
 import type { AppSettings } from '../utils';
 import { THEMES, type ThemeName, PRIMARY_COLORS } from '@/lib/theme-manager';
+import { toast } from 'sonner';
 import {
-  Layout, Card, Row, Col, Switch, Select, Button, Divider,
-  Typography, Space, Tabs, Tag, Avatar, Descriptions, Modal,
-  Radio, Tooltip, Badge, Alert, Statistic, theme as antTheme,
-} from 'antd';
-import {
-  SettingOutlined, GlobalOutlined, BellOutlined,
-  SafetyOutlined, InfoCircleOutlined, DatabaseOutlined,
-  MoonOutlined, SunOutlined, BgColorsOutlined,
-  FontSizeOutlined, EyeOutlined, KeyOutlined,
-  DownloadOutlined, UploadOutlined, DeleteOutlined,
-  CheckCircleOutlined, ExperimentOutlined, UserOutlined, ImportOutlined,
-
-  CalendarOutlined, DollarOutlined, WarningOutlined,
-  PlayCircleOutlined, FileTextOutlined, RiseOutlined,
-} from '@ant-design/icons';
-
-const { Title, Text } = Typography;
+  Settings, Globe, Bell, Shield, Info, Database, Moon, Sun,
+  Palette, Type, Eye, Key, Download, Upload, Trash2, CheckCircle,
+  FlaskConical, User, FileInput, Calendar, DollarSign, AlertTriangle,
+  PlayCircle, FileText, TrendingUp,
+} from 'lucide-react';
 
 const ICON_SIZE = 18;
-const dividerStyle: React.CSSProperties = { margin: '12px 0' };
-const rowStyle: React.CSSProperties = { marginBottom: 16 };
-const iconPrimaryStyle: React.CSSProperties = { fontSize: ICON_SIZE, color: 'inherit' };
 const controlWidthClass = 'w-full sm:w-40 md:w-44';
 const halfWidthClass = 'w-full sm:w-44 md:w-52';
 
@@ -38,23 +24,109 @@ interface SettingRowProps {
 }
 
 const SettingRow: React.FC<SettingRowProps> = ({ icon, title, subtitle, children }) => (
-  <div style={rowStyle}>
-    <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }} size="middle">
-      <Space>
-        {icon}
+  <div className="mb-4">
+    <div className="flex items-center justify-between w-full gap-3">
+      <div className="flex items-center gap-2 min-w-0">
+        <span className="flex-shrink-0 text-muted-foreground">{icon}</span>
         <div>
-          <Text strong style={{ fontSize: 14 }}>{title}</Text>
-          {subtitle ? (
-            <>
-              <br />
-              <Text type="secondary" style={{ fontSize: 12 }}>{subtitle}</Text>
-            </>
-          ) : null}
+          <p className="text-sm font-medium text-foreground m-0">{title}</p>
+          {subtitle ? <p className="text-xs text-muted-foreground m-0">{subtitle}</p> : null}
         </div>
-      </Space>
-      <div style={{ flexShrink: 0 }}>{children}</div>
-    </Space>
-    <Divider style={dividerStyle} />
+      </div>
+      <div className="flex-shrink-0">{children}</div>
+    </div>
+    <hr className="my-3 border-t border-border" />
+  </div>
+);
+
+const RadioGroup: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: React.ReactNode }[];
+  size?: 'small' | 'middle' | 'large';
+  className?: string;
+}> = ({ value, onChange, options, size = 'middle', className = '' }) => {
+  const sizeClasses = size === 'small' ? 'text-xs px-2 py-1' : size === 'large' ? 'text-sm px-4 py-2.5' : 'text-sm px-3 py-1.5';
+  return (
+    <div className={`inline-flex rounded-lg border border-input bg-background overflow-hidden ${className}`}>
+      {options.map(opt => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onChange(opt.value)}
+          data-state={value === opt.value ? 'on' : 'off'}
+          aria-pressed={value === opt.value}
+          className={`${sizeClasses} transition-colors ${
+            value === opt.value
+              ? 'bg-primary text-primary-foreground font-medium shadow-sm'
+              : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent'
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const Switch: React.FC<{
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  'aria-label'?: string;
+}> = ({ checked, onChange, 'aria-label': ariaLabel }) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    aria-label={ariaLabel}
+    onClick={() => onChange(!checked)}
+    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+      checked ? 'bg-primary' : 'bg-input'
+    }`}
+  >
+    <span
+      className={`pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform ${
+        checked ? 'translate-x-4' : 'translate-x-0'
+      }`}
+    />
+  </button>
+);
+
+const Select: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  className?: string;
+}> = ({ value, onChange, options, className = '' }) => (
+  <select
+    value={value}
+    onChange={e => onChange(e.target.value)}
+    className={`h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${className}`}
+  >
+    {options.map(opt => (
+      <option key={opt.value} value={opt.value}>{opt.label}</option>
+    ))}
+  </select>
+);
+
+const ColorRadioGroup: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+}> = ({ value, onChange }) => (
+  <div className="inline-flex gap-1.5 flex-wrap">
+    {PRIMARY_COLORS.map(c => (
+      <button
+        key={c.value}
+        type="button"
+        onClick={() => onChange(c.value)}
+        aria-label={c.label}
+        title={c.label}
+        className={`w-7 h-7 rounded-full cursor-pointer transition-all ${
+          value === c.value ? 'ring-2 ring-offset-2 ring-ring scale-110' : 'ring-0'
+        }`}
+        style={{ backgroundColor: c.value }}
+      />
+    ))}
   </div>
 );
 
@@ -64,9 +136,9 @@ const Ajustes: React.FC = () => {
   const safeProyectos = Array.isArray(proyectos) ? proyectos : [];
   const [resetModal, setResetModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('apariencia');
 
   useEffect(() => { setLoading(false); }, []);
-  const { token } = antTheme.useToken();
 
   const compactModeLabel = appSettings.compactMode ? 'compacto' : 'expandido';
 
@@ -81,13 +153,13 @@ const Ajustes: React.FC = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `construsmart_backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.download = `construsmart_backup_${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       toast.success(t('ajustes.respaldo_exportado'));
-    } catch (e) {
+    } catch {
       toast.error(t('ajustes.error_exportar_respaldo'));
     }
   };
@@ -116,715 +188,827 @@ const Ajustes: React.FC = () => {
         }
         toast.success(t('ajustes.importados_exito', { count: wmKeys.length, archivo: file.name }));
         window.location.reload();
-      } catch (err) {
+      } catch {
         toast.error(t('ajustes.error_leer_respaldo'));
       }
     };
     input.click();
   };
 
-  const sectionCard: React.CSSProperties = {
-    borderRadius: token.borderRadiusLG,
-    boxShadow: token.boxShadow,
-  };
-
-  const tabItems = [
-    {
-      key: 'apariencia',
-      label: <span><BgColorsOutlined /> {t('ajustes.apariencia')}</span>,
-      children: (
-        <Row gutter={[24, 24]}>
-          <Col xs={24} lg={12}>
-            <Card style={sectionCard} size="small">
-              <SettingRow
-                icon={<ExperimentOutlined style={{ fontSize: ICON_SIZE, color: token.colorPrimary }} />}
-                title={t("ajustes.framework_ui")}
-                subtitle={t("ajustes.framework_ui_sub")}
-              >
-                <Radio.Group
-                  value={appSettings.uiMode}
-                  onChange={e => updateAppSettings({ uiMode: e.target.value as UIMode })}
-                  optionType="button"
-                  buttonStyle="solid"
-                  size="middle"
-                >
-                  <Tooltip title="Estilo actual con Tailwind + Shadcn">
-                    <Radio.Button value="shadcn">
-                      <Space><BgColorsOutlined /> Clásico</Space>
-                    </Radio.Button>
-                  </Tooltip>
-                  <Tooltip title="Ant Design - Diseño moderno profesional">
-                    <Radio.Button value="antd">
-                      <Space><ExperimentOutlined /> Moderno</Space>
-                    </Radio.Button>
-                  </Tooltip>
-                </Radio.Group>
-              </SettingRow>
-
-              <div style={rowStyle}>
-                <Space style={{ width: '100%' }} direction="vertical" size={0}>
-                  <Space style={{ width: '100%' }} align="center">
-                    <BgColorsOutlined style={{ fontSize: ICON_SIZE, color: token.colorPrimary }} />
-                    <div>
-                      <Text strong>{t("ajustes.tema_visual")}</Text>
-                      <br /><Text type="secondary">{t("ajustes.tema_visual_sub")}</Text>
-                    </div>
-                  </Space>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
-                    {(Object.entries(THEMES) as [ThemeName, typeof THEMES[ThemeName]][]).map(([key, t]) => (
-                      <Tooltip key={key} title={t.description}>
-                        <div
-                          onClick={() => updateAppSettings({ appTheme: key as AppThemeMode })}
-                          style={{
-                            cursor: 'pointer',
-                            padding: '6px 14px',
-                            borderRadius: 8,
-                            border: `2px solid ${appSettings.appTheme === key ? t.colors.primary : token.colorBorder}`,
-                            background: t.colors.background,
-                            color: t.colors.foreground,
-                            fontWeight: appSettings.appTheme === key ? 700 : 400,
-                            fontSize: 13,
-                            transition: 'all 0.2s',
-                            boxShadow: appSettings.appTheme === key ? `0 0 0 3px ${t.colors.primary}33` : 'none',
-                            display: 'flex', alignItems: 'center', gap: 6,
-                          }}
-                        >
-                          <span style={{ width: 12, height: 12, borderRadius: '50%', background: t.colors.primary, display: 'inline-block', flexShrink: 0 }} />
-                          {t.label}
-                        </div>
-                      </Tooltip>
-                    ))}
-                  </div>
-                </Space>
-              </div>
-              <Divider style={dividerStyle} />
-
-              <SettingRow
-                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE, color: appSettings.primaryColor }} />}
-                title={t('ajustes.color_principal') || 'Color Principal'}
-                subtitle={t('ajustes.color_principal_sub') || 'Personaliza el color primario de la marca'}
-              >
-                <Radio.Group
-                  value={appSettings.primaryColor}
-                  onChange={e => updateAppSettings({ primaryColor: e.target.value })}
-                  optionType="button"
-                  buttonStyle="solid"
-                  size="small"
-                >
-                  {PRIMARY_COLORS.map(c => (
-                    <Tooltip title={c.label} key={c.value}>
-                      <Radio.Button
-                        value={c.value}
-                        aria-label={c.label}
-                        style={{
-                          backgroundColor: c.value,
-                          width: 28,
-                          height: 28,
-                          border: appSettings.primaryColor === c.value ? '2px solid #000' : 'none',
-                        }}
-                      />
-                    </Tooltip>
-                  ))}
-                </Radio.Group>
-              </SettingRow>
-
-              <SettingRow
-                icon={<FontSizeOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.tamano_fuente")}
-                subtitle={t("ajustes.tamano_fuente_sub")}
-              >
-                <Radio.Group
-                  value={appSettings.fontSize}
-                  onChange={e => updateAppSettings({ fontSize: e.target.value as 'small' | 'medium' | 'large' })}
-                  optionType="button"
-                  buttonStyle="solid"
-                >
-                  <Radio.Button value="small">{t("ajustes.pequeno")}</Radio.Button>
-                  <Radio.Button value="medium">{t("ajustes.mediano")}</Radio.Button>
-                  <Radio.Button value="large">{t("ajustes.grande")}</Radio.Button>
-                </Radio.Group>
-              </SettingRow>
-
-              <SettingRow
-                icon={<FontSizeOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.tipografia")}
-                subtitle={t("ajustes.tipografia_sub")}
-              >
-                <Select value={appSettings.fontFamily} onChange={v => updateAppSettings({ fontFamily: v as string })} className={controlWidthClass} options={[
-                  { value: 'system-ui', label: 'System UI' },
-                  { value: 'inter', label: 'Inter' },
-                  { value: 'roboto', label: 'Roboto' },
-                  { value: 'open-sans', label: 'Open Sans' },
-                  { value: 'poppins', label: 'Poppins' },
-                ]} />
-              </SettingRow>
-
-              <SettingRow
-                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.radio_bordes")}
-                subtitle={t("ajustes.radio_bordes_sub")}
-              >
-                <Radio.Group
-                  value={appSettings.borderRadius}
-                  onChange={e => updateAppSettings({ borderRadius: e.target.value as string })}
-                  optionType="button"
-                  buttonStyle="solid"
-                >
-                  <Radio.Button value="none">{t("ajustes.ninguno")}</Radio.Button>
-                  <Radio.Button value="small">{t("ajustes.pequeno")}</Radio.Button>
-                  <Radio.Button value="medium">{t("ajustes.mediano")}</Radio.Button>
-                  <Radio.Button value="large">{t("ajustes.grande")}</Radio.Button>
-                  <Radio.Button value="full">{t("ajustes.pill")}</Radio.Button>
-                </Radio.Group>
-              </SettingRow>
-
-              <SettingRow
-                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.espaciado_global")}
-                subtitle={t("ajustes.espaciado_global_sub")}
-              >
-                <Radio.Group
-                  value={appSettings.spacingScale}
-                  onChange={e => updateAppSettings({ spacingScale: e.target.value as string })}
-                  optionType="button"
-                  buttonStyle="solid"
-                >
-                  <Radio.Button value="compact">{t("ajustes.compacto")}</Radio.Button>
-                  <Radio.Button value="normal">{t("ajustes.normal")}</Radio.Button>
-                  <Radio.Button value="spacious">{t("ajustes.amplio")}</Radio.Button>
-                </Radio.Group>
-              </SettingRow>
-
-              <SettingRow
-                icon={<BgColorsOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.densidad_tablas")}
-                subtitle={t("ajustes.densidad_tablas_sub")}
-              >
-                <Radio.Group
-                  value={appSettings.densityTable}
-                  onChange={e => updateAppSettings({ densityTable: e.target.value as string })}
-                  optionType="button"
-                  buttonStyle="solid"
-                >
-                  <Radio.Button value="compact">{t("ajustes.compacta")}</Radio.Button>
-                  <Radio.Button value="normal">{t("ajustes.normal")}</Radio.Button>
-                  <Radio.Button value="comfortable">{t("ajustes.comoda")}</Radio.Button>
-                </Radio.Group>
-              </SettingRow>
-
-              <SettingRow
-                icon={<PlayCircleOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t('ajustes.animaciones') || 'Animaciones'}
-                subtitle={t('ajustes.animaciones_sub') || 'Transiciones suaves entre pantallas'}
-              >
-                <Switch
-                  checked={appSettings.animationsEnabled}
-                  onChange={v => updateAppSettings({ animationsEnabled: v })}
-                  aria-label={t('ajustes.animaciones') || 'Animaciones'}
-                />
-              </SettingRow>
-
-              <SettingRow
-                icon={<PlayCircleOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.tipo_animacion")}
-                subtitle={t("ajustes.tipo_animacion_sub")}
-              >
-                <Radio.Group
-                  value={appSettings.animationType || 'fade'}
-                  onChange={e => updateAppSettings({ animationType: e.target.value as string })}
-                  optionType="button"
-                  buttonStyle="solid"
-                >
-                  <Radio.Button value="fade">{t("ajustes.fundido")}</Radio.Button>
-                  <Radio.Button value="slide">{t("ajustes.deslizar")}</Radio.Button>
-                  <Radio.Button value="scale">{t("ajustes.escalar")}</Radio.Button>
-                  <Radio.Button value="none">{t("ajustes.ninguna")}</Radio.Button>
-                </Radio.Group>
-              </SettingRow>
-
-              <SettingRow
-                icon={<EyeOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.modo_compacto")}
-                subtitle={t("ajustes.modo_compacto_sub")}
-              >
-                <Switch
-                  checked={appSettings.compactMode}
-                  onChange={v => updateAppSettings({ compactMode: v })}
-                />
-              </SettingRow>
-
-              <SettingRow
-                icon={<span style={{ fontSize: ICON_SIZE }}>🔗</span>}
-                title={t("ajustes.migas_pan")}
-                subtitle={t("ajustes.migas_pan_sub")}
-              >
-                <Switch
-                  checked={appSettings.breadcrumbsEnabled !== false}
-                  onChange={v => updateAppSettings({ breadcrumbsEnabled: v })}
-                />
-              </SettingRow>
-
-              <SettingRow
-                icon={<span style={{ fontSize: ICON_SIZE }}>📄</span>}
-                title={t("ajustes.pie_pagina")}
-                subtitle={t("ajustes.pie_pagina_sub")}
-              >
-                <Switch
-                  checked={appSettings.footerEnabled !== false}
-                  onChange={v => updateAppSettings({ footerEnabled: v })}
-                />
-              </SettingRow>
-
-              <SettingRow
-                icon={<span style={{ fontSize: ICON_SIZE }}>👆</span>}
-                title={t("ajustes.modo_tactil")}
-                subtitle={t("ajustes.modo_tactil_sub")}
-              >
-                <Switch
-                  checked={appSettings.touchMode || false}
-                  onChange={v => updateAppSettings({ touchMode: v })}
-                />
-              </SettingRow>
-
-              <SettingRow
-                icon={<SettingOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.posicion_sidebar")}
-                subtitle={t("ajustes.posicion_sidebar_sub")}
-              >
-                <Radio.Group
-                  value={appSettings.sidebarPosition}
-                  onChange={e => updateAppSettings({ sidebarPosition: e.target.value as string })}
-                  optionType="button"
-                  buttonStyle="solid"
-                  size="small"
-                >
-                  <Radio.Button value="left">{t("ajustes.izquierda")}</Radio.Button>
-                  <Radio.Button value="right">{t("ajustes.derecha")}</Radio.Button>
-                  <Radio.Button value="overlay">Overlay</Radio.Button>
-                </Radio.Group>
-              </SettingRow>
-
-              <SettingRow
-                icon={<SettingOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.modo_sidebar")}
-                subtitle={t("ajustes.modo_sidebar_sub")}
-              >
-                <Radio.Group
-                  value={appSettings.sidebarMode}
-                  onChange={e => updateAppSettings({ sidebarMode: e.target.value as string })}
-                  optionType="button"
-                  buttonStyle="solid"
-                  size="small"
-                >
-                  <Radio.Button value="expanded">{t("ajustes.expandido")}</Radio.Button>
-                  <Radio.Button value="collapsed">{t("ajustes.colapsado")}</Radio.Button>
-                  <Radio.Button value="hover-expand">Hover Expand</Radio.Button>
-                  <Radio.Button value="mini">{t("ajustes.mini")}</Radio.Button>
-                </Radio.Group>
-              </SettingRow>
-
-              <SettingRow
-                icon={<SettingOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.ancho_sidebar")}
-                subtitle={t("ajustes.ancho_sidebar_sub")}
-              >
-                <Radio.Group
-                  value={appSettings.sidebarWidth}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAppSettings({ sidebarWidth: e.target.value })}
-                  optionType="button"
-                  buttonStyle="solid"
-                  size="small"
-                >
-                  <Radio.Button value={240}>240px</Radio.Button>
-                  <Radio.Button value={280}>280px</Radio.Button>
-                  <Radio.Button value={320}>320px</Radio.Button>
-                </Radio.Group>
-              </SettingRow>
-            </Card>
-          </Col>
-
-          <Col xs={24} lg={12}>
-            <Card title="Previsualización en Vivo" style={sectionCard} size="small">
-              <Alert
-                message="Vista previa del tema activo"
-                description="Los cambios se aplican en tiempo real. El color primario y tema se reflejan en todos los componentes de Ant Design."
-                type="info"
-                showIcon
-                style={{ marginBottom: 16 }}
-              />
-              <Space direction="vertical" style={{ width: '100%' }} size={12}>
-                <Tag color={appSettings.primaryColor}>Color Primario: {appSettings.primaryColor}</Tag>
-                <Space>
-                  <Button type="primary">Botón Primario</Button>
-                  <Button>Botón Secundario</Button>
-                  <Button type="primary" danger>Peligro</Button>
-                </Space>
-                <Space>
-                  <Badge count={5}><Avatar shape="square" icon={<SettingOutlined />} /></Badge>
-                  <Badge status="success" text={appSettings.appTheme === 'dark' ? t('ajustes.oscuro') : t('ajustes.claro')} />
-                </Space>
-                <Select
-                  value={compactModeLabel}
-                  onChange={v => updateAppSettings({ compactMode: v === 'compacto' })}
-                  className={controlWidthClass}
-                  options={[
-                    { value: 'compacto', label: t('ajustes.compacto') },
-                    { value: 'expandido', label: t('ajustes.modo_expandido') },
-                  ]}
-                />
-              </Space>
-            </Card>
-          </Col>
-        </Row>
-      ),
-    },
-    {
-      key: 'generales',
-      label: <span><GlobalOutlined /> {t('ajustes.generales_tab')}</span>,
-      children: (
-        <Row gutter={[24, 24]}>
-          <Col xs={24} lg={12}>
-            <Card style={sectionCard} size="small">
-              <SettingRow
-                icon={<GlobalOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t('ajustes.idioma') || 'Idioma'}
-                subtitle={t("ajustes.idioma_sub")}
-              >
-                <Select value={appSettings.language} onChange={v => updateAppSettings({ language: v })} className={controlWidthClass} options={[
-                  { value: 'es', label: '🇬🇹 Español' },
-                  { value: 'en', label: '🇺🇸 English' },
-                ]} />
-              </SettingRow>
-
-              <SettingRow
-                icon={<CalendarOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.formato_fecha")}
-                subtitle={t("ajustes.formato_fecha_sub")}
-              >
-                <Select value={appSettings.dateFormat} onChange={v => updateAppSettings({ dateFormat: v as 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' })} className="w-full sm:w-40 md:w-44" options={[
-                  { value: 'DD/MM/YYYY', label: '31/12/2026' },
-                  { value: 'MM/DD/YYYY', label: '12/31/2026' },
-                  { value: 'YYYY-MM-DD', label: '2026-12-31' },
-                ]} />
-              </SettingRow>
-
-              <SettingRow
-                icon={<DollarOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.moneda")}
-                subtitle={t("ajustes.moneda_sub")}
-              >
-                <Select value={appSettings.currency} onChange={v => updateAppSettings({ currency: v as 'GTQ' | 'USD' })} className={controlWidthClass} options={[
-                  { value: 'GTQ', label: 'Q (Quetzal GT)' },
-                  { value: 'USD', label: '$ (Dólar US)' },
-                ]} />
-              </SettingRow>
-            </Card>
-          </Col>
-          <Col xs={24} lg={12}>
-            <Card title={t("ajustes.informacion_sistema")} style={sectionCard} size="small">
-              <Descriptions column={1} size="small" bordered>
-                 <Descriptions.Item label={t("ajustes.proyectos_activos")}>{safeProyectos.filter(p => p.estado === 'ejecucion').length}</Descriptions.Item>
-                 <Descriptions.Item label={t("ajustes.total_proyectos")}>{safeProyectos.length}</Descriptions.Item>
-                <Descriptions.Item label={t("ajustes.notificaciones_pendientes")}>
-                  <Badge count={notificacionesNoLeidas} showZero>
-                    <BellOutlined style={{ fontSize: 16 }} />
-                  </Badge>
-                </Descriptions.Item>
-                <Descriptions.Item label={t("ajustes.framework_ui_actual")}>
-                  <Tag icon={<ExperimentOutlined />} color={appSettings.uiMode === 'antd' ? 'blue' : 'default'}>
-                    {appSettings.uiMode === 'antd' ? 'Ant Design' : 'Shadcn UI'}
-                  </Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label={t("ajustes.tema_label")}>{appSettings.appTheme === 'dark' ? 'Oscuro' : appSettings.appTheme === 'high-contrast' ? 'Alto Contraste' : 'Claro'}</Descriptions.Item>
-                <Descriptions.Item label={t("ajustes.version_label")}>v2.0.0</Descriptions.Item>
-              </Descriptions>
-            </Card>
-          </Col>
-        </Row>
-      ),
-    },
-    {
-      key: 'notificaciones',
-      label: <span><BellOutlined /> {t('ajustes.notificaciones_tab')}</span>,
-      children: (
-        <Row gutter={[24, 24]}>
-          <Col xs={24} lg={12}>
-            <Card style={sectionCard} size="small">
-              <SettingRow
-                icon={<BellOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.sonidos_notificacion")}
-                subtitle={t("ajustes.sonidos_notificacion_sub")}
-              >
-                <Switch
-                  checked={appSettings.notificationSounds !== false}
-                  onChange={v => updateAppSettings({ notificationSounds: v })}
-                />
-              </SettingRow>
-
-              <SettingRow
-                icon={<BellOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.posicion_notificaciones")}
-                subtitle={t("ajustes.posicion_notificaciones_sub")}
-              >
-                <Radio.Group
-                  value={appSettings.toastPosition ?? 'bottom-right'}
-                  onChange={e => updateAppSettings({ toastPosition: e.target.value as AppSettings['toastPosition'] })}
-                  optionType="button"
-                  buttonStyle="solid"
-                  size="small"
-                >
-                  <Radio.Button value="top-left">↖ Arr. Izq</Radio.Button>
-                  <Radio.Button value="top-center">↑ Arr. Centro</Radio.Button>
-                  <Radio.Button value="top-right">↗ Arr. Der</Radio.Button>
-                  <Radio.Button value="bottom-left">↙ Abj. Izq</Radio.Button>
-                  <Radio.Button value="bottom-center">↓ Abj. Centro</Radio.Button>
-                  <Radio.Button value="bottom-right">↘ Abj. Der</Radio.Button>
-                </Radio.Group>
-              </SettingRow>
-
-              <SettingRow
-                icon={<BellOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.stock_critico")}
-                subtitle={t("ajustes.stock_critico_sub")}
-              >
-                <Switch checked={appSettings.notificaciones?.stockCritico} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, stockCritico: v } })} />
-              </SettingRow>
-
-              <SettingRow
-                icon={<FileTextOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t('ajustes.ordenes_cambio') || 'Órdenes de Cambio'}
-                subtitle={t('ajustes.ordenes_cambio_sub') || 'Notificar OC pendientes de revisión'}
-              >
-                <Switch checked={appSettings.notificaciones?.ordenesCambio} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, ordenesCambio: v } })} />
-              </SettingRow>
-
-              <SettingRow
-                icon={<RiseOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t('ajustes.avances_obra') || 'Avances de Obra'}
-                subtitle={t('ajustes.avances_obra_sub') || 'Registro de avances físicos'}
-              >
-                <Switch checked={appSettings.notificaciones?.avancesObra} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, avancesObra: v } })} />
-              </SettingRow>
-
-              <SettingRow
-                icon={<WarningOutlined style={{ fontSize: ICON_SIZE }} />}
-                title={t("ajustes.desviaciones")}
-                subtitle={t("ajustes.desviaciones_sub")}
-              >
-                <Switch checked={appSettings.notificaciones?.desviaciones} onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, desviaciones: v } })} />
-              </SettingRow>
-            </Card>
-          </Col>
-          <Col xs={24} lg={12}>
-            <Card title={t("ajustes.estado_notificaciones")} style={sectionCard} size="small">
-              <Space direction="vertical" style={{ width: '100%' }} size={16}>
-                <Statistic title={t("ajustes.no_leidas")} value={notificacionesNoLeidas} prefix={<BellOutlined />} />
-                <Button type="primary" onClick={marcarTodasLeidas} icon={<CheckCircleOutlined />}>
-                  Marcar todas como leídas
-                </Button>
-              </Space>
-            </Card>
-          </Col>
-        </Row>
-      ),
-    },
-    {
-      key: 'datos',
-      label: <span><DatabaseOutlined /> {t('ajustes.datos_tab')}</span>,
-      children: (
-        <Row gutter={[24, 24]}>
-          <Col xs={24} lg={12}>
-            <Card style={sectionCard} size="small">
-              <Space direction="vertical" style={{ width: '100%' }} size={16}>
-                <Button icon={<DownloadOutlined />} block size="large" onClick={exportBackup}>
-                  Exportar copia de seguridad
-                </Button>
-                <Button icon={<ImportOutlined />} block size="large" onClick={importBackup}>
-                  Importar datos
-                </Button>
-                <Button icon={<DeleteOutlined />} danger block size="large" onClick={() => setResetModal(true)}>
-                  Restablecer datos de fábrica
-                </Button>
-              </Space>
-            </Card>
-          </Col>
-          <Col xs={24} lg={12}>
-            <Card title={t("ajustes.almacenamiento")} style={sectionCard} size="small">
-              <Statistic title={t("ajustes.datos_localstorage")} value="~2.4 MB" prefix={<DatabaseOutlined />} />
-              <Divider />
-              <Text type="secondary">{t("ajustes.datos_sincronizacion")}</Text>
-            </Card>
-          </Col>
-        </Row>
-      ),
-    },
-    {
-      key: 'cuenta',
-      label: <span><SafetyOutlined /> {t('ajustes.cuenta_tab')}</span>,
-      children: (
-        <Row gutter={[24, 24]}>
-          <Col xs={24} lg={12}>
-            <Card style={sectionCard} size="small">
-              <Space align="center" style={{ marginBottom: 24 }}>
-                <Avatar size={64} icon={<UserOutlined />} style={{ backgroundColor: token.colorPrimary }} />
-                <div>
-                  <Title level={5} style={{ margin: 0 }}>{user?.nombre || t('ajustes.usuario')}</Title>
-                  <Text type="secondary">{user?.rol}</Text>
-                </div>
-              </Space>
-              <Descriptions column={1} size="small">
-                <Descriptions.Item label="Rol">
-                  <Tag color="blue">{user?.rol}</Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label="ID de Usuario">
-                  <Text copyable style={{ fontSize: 12 }}>{user?.id}</Text>
-                </Descriptions.Item>
-              </Descriptions>
-            </Card>
-          </Col>
-          <Col xs={24} lg={12}>
-            <Card title={t("ajustes.seguridad")} style={sectionCard} size="small">
-              <Space direction="vertical" style={{ width: '100%' }} size={16}>
-                <Card title={t("ajustes.autenticacion_2fa")} size="small" type="inner">
-                  <Space direction="vertical" style={{ width: '100%' }} size={12}>
-                    <Text>{t("ajustes.protege_cuenta")}</Text>
-                    <Button
-                      type="primary"
-                      icon={<SafetyOutlined />}
-                      block
-                      href="https://supabase.com/dashboard/project/_/auth/mfa"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Configurar 2FA en Supabase
-                    </Button>
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                      {t("ajustes.redirigido_supabase")}
-                    </Text>
-                  </Space>
-                </Card>
-                <Divider />
-                <Button icon={<KeyOutlined />} block>{t("ajustes.cambiar_contrasena")}</Button>
-                <Divider />
-                <Alert
-                  message={t("ajustes.sesion_segura")}
-                  description={t("ajustes.sesion_segura_desc")}
-                  type="success"
-                  showIcon
-                />
-              </Space>
-            </Card>
-          </Col>
-        </Row>
-      ),
-    },
-    {
-      key: 'acerca',
-      label: <span><InfoCircleOutlined /> {t('ajustes.acerca_tab')}</span>,
-      children: (
-        <Card style={sectionCard}>
-          <Space direction="vertical" style={{ width: '100%', textAlign: 'center' }} size={16}>
-            <Avatar size={80} icon={<InfoCircleOutlined />} style={{ backgroundColor: token.colorPrimary }} />
-            <Title level={3}>{t("ajustes.erp_nombre")}</Title>
-            <Text type="secondary">Sistema Integral de Gestión para Proyectos de Construcción</Text>
-            <Tag color="orange" style={{ fontSize: 14, padding: '4px 12px' }}>{t("ajustes.version_tag")}</Tag>
-            <Divider />
-            <Descriptions column={2} bordered size="small" style={{ maxWidth: 600, margin: '0 auto' }}>
-              <Descriptions.Item label="Framework Frontend">React 18 + TypeScript</Descriptions.Item>
-              <Descriptions.Item label="UI Principal">Shadcn UI + Ant Design</Descriptions.Item>
-              <Descriptions.Item label="Backend">Supabase (PostgreSQL)</Descriptions.Item>
-              <Descriptions.Item label="Visualización">recharts + D3.js</Descriptions.Item>
-              <Descriptions.Item label="BIM">Three.js + web-ifc</Descriptions.Item>
-              <Descriptions.Item label="Estilos">Tailwind CSS + antd tokens</Descriptions.Item>
-              <Descriptions.Item label="Desarrollado por" span={2}>CONSTRUCTORA WM · © 2026</Descriptions.Item>
-            </Descriptions>
-            <Divider />
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {t("ajustes.edificando_futuro")}
-            </Text>
-          </Space>
-        </Card>
-      ),
-    },
+  const tabs = [
+    { key: 'apariencia', icon: Palette, label: t('ajustes.apariencia') },
+    { key: 'generales', icon: Globe, label: t('ajustes.generales_tab') },
+    { key: 'notificaciones', icon: Bell, label: t('ajustes.notificaciones_tab') },
+    { key: 'datos', icon: Database, label: t('ajustes.datos_tab') },
+    { key: 'cuenta', icon: Shield, label: t('ajustes.cuenta_tab') },
+    { key: 'acerca', icon: Info, label: t('ajustes.acerca_tab') },
   ];
 
   const visualTab = (
-    <Space style={{ paddingRight: 24, paddingBottom: 16 }} className="hidden sm:inline-flex">
-      <Tag icon={<ExperimentOutlined />} color={appSettings.uiMode === 'antd' ? 'processing' : 'default'}>
-        UI: {appSettings.uiMode === 'antd' ? 'Ant Design' : 'Shadcn'}
-      </Tag>
-      <Tag icon={appSettings.appTheme === 'dark' ? <MoonOutlined /> : <SunOutlined />}>
-        {appSettings.appTheme === 'dark' ? 'Oscuro' : 'Claro'}
-      </Tag>
-      <Tag icon={<BgColorsOutlined />}>
+    <div className="hidden sm:inline-flex items-center gap-2 pr-6 pb-4">
+      <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium ${
+        appSettings.uiMode === 'antd' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'bg-muted text-muted-foreground'
+      }`}>
+        <FlaskConical className="h-3.5 w-3.5" />
+        UI: {appSettings.uiMode === 'antd' ? t('ajustes.antd') : t('ajustes.shadcn')}
+      </span>
+      <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+        {appSettings.appTheme === 'dark' ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
+        {appSettings.appTheme === 'dark' ? t('ajustes.oscuro') : t('ajustes.claro')}
+      </span>
+      <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+        <Palette className="h-3.5 w-3.5" />
         Sidebar: {appSettings.sidebarPosition === 'right' ? t('ajustes.sidebar_der') : appSettings.sidebarPosition === 'overlay' ? t('ajustes.overlay') : t('ajustes.sidebar_izq')}
-      </Tag>
-    </Space>
+      </span>
+    </div>
   );
 
   if (loading) {
     return (
-      <Layout style={{ padding: 24, minHeight: '100%', background: 'transparent' }}>
-        <Skeleton active paragraph={{ rows: 10 }} />
-      </Layout>
+      <div className="flex flex-col p-6 min-h-full">
+        <Skeleton className="h-4 w-full" />
+        <div className="mt-4 space-y-3">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-4 w-4/5" />
+          <Skeleton className="h-4 w-3/5" />
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+          <Skeleton className="h-4 w-5/6" />
+        </div>
+      </div>
     );
   }
 
   return (
-    <Layout style={{ padding: 24, minHeight: '100%', background: 'transparent' }}>
-      <div style={{ marginBottom: 24 }}>
-        <Title level={3} style={{ margin: 0, color: token.colorText, fontSize: 22, fontWeight: 700 }}>
-          <SettingOutlined style={{ marginRight: 8, color: token.colorPrimary }} />
+    <div className="flex flex-col p-6 min-h-full">
+      <div className="mb-6">
+        <h3 className="m-0 text-foreground text-[22px] font-bold flex items-center gap-2">
+          <Settings className="h-[22px] w-[22px] text-primary" />
           {t('ajustes.titulo')}
-        </Title>
-        <Text type="secondary" style={{ color: token.colorTextSecondary, fontSize: 13 }}>
-          {t("ajustes.subtitulo_desc")}
-        </Text>
+        </h3>
+        <p className="text-muted-foreground text-sm m-0 mt-1">
+          {t('ajustes.subtitulo_desc')}
+        </p>
       </div>
 
-      <Card
-        style={{ ...sectionCard, borderRadius: token.borderRadiusLG, overflow: 'hidden', background: token.colorBgContainer }}
-        styles={{ body: { padding: 0 } }}
-      >
-        <Tabs
-          defaultActiveKey="apariencia"
-          items={tabItems}
-          size="large"
-          tabBarStyle={{ paddingLeft: 24, paddingTop: 16, marginBottom: 0 }}
-          tabBarExtraContent={visualTab}
-          className="settings-tabs"
-        />
-      </Card>
+      <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between border-b border-border">
+          <div className="flex overflow-x-auto" role="tablist">
+            {tabs.map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.key}
+                  role="tab"
+                  aria-selected={activeTab === tab.key}
+                  data-state={activeTab === tab.key ? 'active' : 'inactive'}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap border-b-2 ${
+                    activeTab === tab.key
+                      ? 'border-primary text-primary bg-primary/5'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+          {visualTab}
+        </div>
 
-      <Modal
-        title={t('ajustes.restablecer_titulo', 'Restablecer datos de fábrica')}
-        open={resetModal}
-        onOk={() => {
-          clearAllData();
-          setResetModal(false);
-        }}
-        onCancel={() => setResetModal(false)}
-        okText={t('ajustes.restablecer')}
-        cancelText={t('common.cancelar')}
-        okButtonProps={{ danger: true, style: { minHeight: 44 } }}
-        style={{ width: '95vw', maxWidth: 520 }}
-      >
-        <Alert
-          message={t('ajustes.restablecer_alerta_titulo', '¿Estás seguro?')}
-          description={t('ajustes.restablecer_alerta_desc', 'Esta acción eliminará todos los datos locales y restaurará la configuración predeterminada. Los datos en la nube no se verán afectados.')}
-          type="warning"
-          showIcon
-        />
-      </Modal>
-    </Layout>
+        <div className="p-6">
+          {activeTab === 'apariencia' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <SettingRow
+                  icon={<FlaskConical className="h-[18px] w-[18px] text-primary" />}
+                  title={t('ajustes.framework_ui')}
+                  subtitle={t('ajustes.framework_ui_sub')}
+                >
+                  <RadioGroup
+                    value={appSettings.uiMode}
+                    onChange={v => updateAppSettings({ uiMode: v as UIMode })}
+                    options={[
+                      { value: 'shadcn', label: <><Palette className="h-3.5 w-3.5 inline-block mr-1" />{t('ajustes.clasico')}</> },
+                      { value: 'antd', label: <><FlaskConical className="h-3.5 w-3.5 inline-block mr-1" />{t('ajustes.moderno')}</> },
+                    ]}
+                  />
+                </SettingRow>
+
+                <div className="mb-4">
+                  <div className="flex flex-col w-full gap-0">
+                    <div className="flex items-center gap-2">
+                      <Palette className="h-[18px] w-[18px] text-primary" />
+                      <div>
+                        <span className="text-sm font-medium text-foreground">{t('ajustes.tema_visual')}</span>
+                        <br /><span className="text-xs text-muted-foreground">{t('ajustes.tema_visual_sub')}</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 flex-wrap mt-3">
+                      {(Object.entries(THEMES) as [ThemeName, typeof THEMES[ThemeName]][]).map(([key, theme]) => (
+                        <button
+                          key={key}
+                          type="button"
+                          title={theme.description}
+                          onClick={() => updateAppSettings({ appTheme: key as AppThemeMode })}
+                          className={`cursor-pointer px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+                            appSettings.appTheme === key ? 'ring-2 ring-offset-1' : 'ring-1 ring-border'
+                          }`}
+                          style={{
+                            backgroundColor: theme.colors.background,
+                            color: theme.colors.foreground,
+                            borderColor: appSettings.appTheme === key ? theme.colors.primary : undefined,
+                            fontWeight: appSettings.appTheme === key ? 700 : 400,
+                          }}
+                        >
+                          <span className="w-3 h-3 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: theme.colors.primary }} />
+                          {theme.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <hr className="my-3 border-t border-border" />
+
+                <SettingRow
+                  icon={<Palette className="h-[18px] w-[18px]" style={{ color: appSettings.primaryColor }} />}
+                  title={t('ajustes.color_principal') || 'Color Principal'}
+                  subtitle={t('ajustes.color_principal_sub') || 'Personaliza el color primario de la marca'}
+                >
+                  <ColorRadioGroup
+                    value={appSettings.primaryColor}
+                    onChange={v => updateAppSettings({ primaryColor: v })}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Type className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.tamano_fuente')}
+                  subtitle={t('ajustes.tamano_fuente_sub')}
+                >
+                  <RadioGroup
+                    value={appSettings.fontSize}
+                    onChange={v => updateAppSettings({ fontSize: v as 'small' | 'medium' | 'large' })}
+                    options={[
+                      { value: 'small', label: t('ajustes.pequeno') },
+                      { value: 'medium', label: t('ajustes.mediano') },
+                      { value: 'large', label: t('ajustes.grande') },
+                    ]}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Type className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.tipografia')}
+                  subtitle={t('ajustes.tipografia_sub')}
+                >
+                  <Select
+                    value={appSettings.fontFamily}
+                    onChange={v => updateAppSettings({ fontFamily: v as string })}
+                    className={controlWidthClass}
+                    options={[
+                      { value: 'system-ui', label: t('ajustes.font_system_ui') },
+                      { value: 'inter', label: t('ajustes.font_inter') },
+                      { value: 'roboto', label: t('ajustes.font_roboto') },
+                      { value: 'open-sans', label: t('ajustes.font_open_sans') },
+                      { value: 'poppins', label: t('ajustes.font_poppins') },
+                    ]}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Palette className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.radio_bordes')}
+                  subtitle={t('ajustes.radio_bordes_sub')}
+                >
+                  <RadioGroup
+                    value={appSettings.borderRadius}
+                    onChange={v => updateAppSettings({ borderRadius: v })}
+                    options={[
+                      { value: 'none', label: t('ajustes.ninguno') },
+                      { value: 'small', label: t('ajustes.pequeno') },
+                      { value: 'medium', label: t('ajustes.mediano') },
+                      { value: 'large', label: t('ajustes.grande') },
+                      { value: 'full', label: t('ajustes.pill') },
+                    ]}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Palette className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.espaciado_global')}
+                  subtitle={t('ajustes.espaciado_global_sub')}
+                >
+                  <RadioGroup
+                    value={appSettings.spacingScale}
+                    onChange={v => updateAppSettings({ spacingScale: v })}
+                    options={[
+                      { value: 'compact', label: t('ajustes.compacto') },
+                      { value: 'normal', label: t('ajustes.normal') },
+                      { value: 'spacious', label: t('ajustes.amplio') },
+                    ]}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Palette className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.densidad_tablas')}
+                  subtitle={t('ajustes.densidad_tablas_sub')}
+                >
+                  <RadioGroup
+                    value={appSettings.densityTable}
+                    onChange={v => updateAppSettings({ densityTable: v })}
+                    options={[
+                      { value: 'compact', label: t('ajustes.compacta') },
+                      { value: 'normal', label: t('ajustes.normal') },
+                      { value: 'comfortable', label: t('ajustes.comoda') },
+                    ]}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<PlayCircle className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.animaciones') || 'Animaciones'}
+                  subtitle={t('ajustes.animaciones_sub') || 'Transiciones suaves entre pantallas'}
+                >
+                  <Switch
+                    checked={appSettings.animationsEnabled}
+                    onChange={v => updateAppSettings({ animationsEnabled: v })}
+                    aria-label={t('ajustes.animaciones') || 'Animaciones'}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<PlayCircle className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.tipo_animacion')}
+                  subtitle={t('ajustes.tipo_animacion_sub')}
+                >
+                  <RadioGroup
+                    value={appSettings.animationType || 'fade'}
+                    onChange={v => updateAppSettings({ animationType: v })}
+                    options={[
+                      { value: 'fade', label: t('ajustes.fundido') },
+                      { value: 'slide', label: t('ajustes.deslizar') },
+                      { value: 'scale', label: t('ajustes.escalar') },
+                      { value: 'none', label: t('ajustes.ninguna') },
+                    ]}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Eye className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.modo_compacto')}
+                  subtitle={t('ajustes.modo_compacto_sub')}
+                >
+                  <Switch
+                    checked={appSettings.compactMode}
+                    onChange={v => updateAppSettings({ compactMode: v })}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<span className="text-base">🔗</span>}
+                  title={t('ajustes.migas_pan')}
+                  subtitle={t('ajustes.migas_pan_sub')}
+                >
+                  <Switch
+                    checked={appSettings.breadcrumbsEnabled !== false}
+                    onChange={v => updateAppSettings({ breadcrumbsEnabled: v })}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<span className="text-base">📄</span>}
+                  title={t('ajustes.pie_pagina')}
+                  subtitle={t('ajustes.pie_pagina_sub')}
+                >
+                  <Switch
+                    checked={appSettings.footerEnabled !== false}
+                    onChange={v => updateAppSettings({ footerEnabled: v })}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<span className="text-base">👆</span>}
+                  title={t('ajustes.modo_tactil')}
+                  subtitle={t('ajustes.modo_tactil_sub')}
+                >
+                  <Switch
+                    checked={appSettings.touchMode || false}
+                    onChange={v => updateAppSettings({ touchMode: v })}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Settings className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.posicion_sidebar')}
+                  subtitle={t('ajustes.posicion_sidebar_sub')}
+                >
+                  <RadioGroup
+                    value={appSettings.sidebarPosition}
+                    onChange={v => updateAppSettings({ sidebarPosition: v })}
+                    size="small"
+                    options={[
+                      { value: 'left', label: t('ajustes.izquierda') },
+                      { value: 'right', label: t('ajustes.derecha') },
+                      { value: 'overlay', label: t('ajustes.overlay') },
+                    ]}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Settings className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.modo_sidebar')}
+                  subtitle={t('ajustes.modo_sidebar_sub')}
+                >
+                  <RadioGroup
+                    value={appSettings.sidebarMode}
+                    onChange={v => updateAppSettings({ sidebarMode: v })}
+                    size="small"
+                    options={[
+                      { value: 'expanded', label: t('ajustes.expandido') },
+                      { value: 'collapsed', label: t('ajustes.colapsado') },
+                      { value: 'hover-expand', label: t('ajustes.hover_expand') },
+                      { value: 'mini', label: t('ajustes.mini') },
+                    ]}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Settings className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.ancho_sidebar')}
+                  subtitle={t('ajustes.ancho_sidebar_sub')}
+                >
+                  <RadioGroup
+                    value={appSettings.sidebarWidth}
+                    onChange={v => updateAppSettings({ sidebarWidth: v })}
+                    size="small"
+                    options={[
+                      { value: '240', label: '240px' },
+                      { value: '280', label: '280px' },
+                      { value: '320', label: '320px' },
+                    ]}
+                  />
+                </SettingRow>
+              </div>
+
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <h4 className="text-sm font-semibold mb-4">{t('ajustes.previsualizacion_vivo')}</h4>
+                <div className="rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950 p-3 mb-4">
+                  <div className="flex gap-2">
+                    <Info className="h-4 w-4 mt-0.5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-200 m-0">{t('ajustes.vista_previa_tema')}</p>
+                      <p className="text-xs text-blue-700 dark:text-blue-300 m-0 mt-0.5">{t('ajustes.cambios_tiempo_real')}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-3 w-full">
+                  <span className="inline-flex items-center rounded-md border border-input bg-background px-2.5 py-0.5 text-xs font-medium text-foreground shadow-sm" style={{ borderColor: appSettings.primaryColor, color: appSettings.primaryColor }}>
+                    {t('ajustes.color_primario')}: {appSettings.primaryColor}
+                  </span>
+                  <div className="flex gap-2 flex-wrap">
+                    <button type="button" className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('ajustes.boton_primario')}</button>
+                    <button type="button" className="inline-flex items-center justify-center rounded-md border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('ajustes.boton_secundario')}</button>
+                    <button type="button" className="inline-flex items-center justify-center rounded-md bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 h-9 px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('ajustes.peligro')}</button>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="relative inline-flex">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded bg-muted text-muted-foreground">
+                        <Settings className="h-4 w-4" />
+                      </span>
+                      <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1">5</span>
+                    </span>
+                    <span className="flex items-center gap-1.5 text-sm">
+                      <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+                      {appSettings.appTheme === 'dark' ? t('ajustes.oscuro') : t('ajustes.claro')}
+                    </span>
+                  </div>
+                  <Select
+                    value={compactModeLabel}
+                    onChange={v => updateAppSettings({ compactMode: v === 'compacto' })}
+                    className={controlWidthClass}
+                    options={[
+                      { value: 'compacto', label: t('ajustes.compacto') },
+                      { value: 'expandido', label: t('ajustes.modo_expandido') },
+                    ]}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'generales' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <SettingRow
+                  icon={<Globe className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.idioma') || 'Idioma'}
+                  subtitle={t('ajustes.idioma_sub')}
+                >
+                  <Select
+                    value={appSettings.language}
+                    onChange={v => updateAppSettings({ language: v })}
+                    className={controlWidthClass}
+                    options={[
+                      { value: 'es', label: '🇬🇹 Español' },
+                      { value: 'en', label: '🇺🇸 English' },
+                    ]}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Calendar className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.formato_fecha')}
+                  subtitle={t('ajustes.formato_fecha_sub')}
+                >
+                  <Select
+                    value={appSettings.dateFormat}
+                    onChange={v => updateAppSettings({ dateFormat: v as 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' })}
+                    className={controlWidthClass}
+                    options={[
+                      { value: 'DD/MM/YYYY', label: '31/12/2026' },
+                      { value: 'MM/DD/YYYY', label: '12/31/2026' },
+                      { value: 'YYYY-MM-DD', label: '2026-12-31' },
+                    ]}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<DollarSign className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.moneda')}
+                  subtitle={t('ajustes.moneda_sub')}
+                >
+                  <Select
+                    value={appSettings.currency}
+                    onChange={v => updateAppSettings({ currency: v as 'GTQ' | 'USD' })}
+                    className={controlWidthClass}
+                    options={[
+                      { value: 'GTQ', label: 'Q (Quetzal GT)' },
+                      { value: 'USD', label: '$ (Dólar US)' },
+                    ]}
+                  />
+                </SettingRow>
+              </div>
+
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <h4 className="text-sm font-semibold mb-4">{t('ajustes.informacion_sistema')}</h4>
+                <div className="rounded-lg border border-border overflow-hidden text-sm">
+                  <dl className="m-0">
+                    <div className="grid grid-cols-[1fr_2fr] border-b border-border last:border-b-0">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium border-r border-border">{t('ajustes.proyectos_activos')}</dt>
+                      <dd className="px-3 py-2 m-0 text-foreground">{safeProyectos.filter(p => p.estado === 'ejecucion').length}</dd>
+                    </div>
+                    <div className="grid grid-cols-[1fr_2fr] border-b border-border last:border-b-0">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium border-r border-border">{t('ajustes.total_proyectos')}</dt>
+                      <dd className="px-3 py-2 m-0 text-foreground">{safeProyectos.length}</dd>
+                    </div>
+                    <div className="grid grid-cols-[1fr_2fr] border-b border-border last:border-b-0">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium border-r border-border">{t('ajustes.notificaciones_pendientes')}</dt>
+                      <dd className="px-3 py-2 m-0">
+                        <span className="relative inline-flex">
+                          <Bell className="h-4 w-4 text-muted-foreground" />
+                          {notificacionesNoLeidas > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[16px] h-4 px-1">{notificacionesNoLeidas}</span>
+                          )}
+                        </span>
+                      </dd>
+                    </div>
+                    <div className="grid grid-cols-[1fr_2fr] border-b border-border last:border-b-0">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium border-r border-border">{t('ajustes.framework_ui_actual')}</dt>
+                      <dd className="px-3 py-2 m-0">
+                        <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium ${
+                          appSettings.uiMode === 'antd' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'bg-muted text-muted-foreground'
+                        }`}>
+                          <FlaskConical className="h-3 w-3" />
+                          {appSettings.uiMode === 'antd' ? t('ajustes.antd') : t('ajustes.shadcn')}
+                        </span>
+                      </dd>
+                    </div>
+                    <div className="grid grid-cols-[1fr_2fr] border-b border-border last:border-b-0">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium border-r border-border">{t('ajustes.tema_label')}</dt>
+                      <dd className="px-3 py-2 m-0 text-foreground">{appSettings.appTheme === 'dark' ? t('ajustes.oscuro') : appSettings.appTheme === 'high-contrast' ? t('ajustes.alto_contraste') : t('ajustes.claro')}</dd>
+                    </div>
+                    <div className="grid grid-cols-[1fr_2fr] border-b border-border last:border-b-0">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium border-r border-border">{t('ajustes.version_label')}</dt>
+                      <dd className="px-3 py-2 m-0 text-foreground">{t('ajustes.version_tag')}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'notificaciones' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <SettingRow
+                  icon={<Bell className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.sonidos_notificacion')}
+                  subtitle={t('ajustes.sonidos_notificacion_sub')}
+                >
+                  <Switch
+                    checked={appSettings.notificationSounds !== false}
+                    onChange={v => updateAppSettings({ notificationSounds: v })}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Bell className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.posicion_notificaciones')}
+                  subtitle={t('ajustes.posicion_notificaciones_sub')}
+                >
+                  <RadioGroup
+                    value={appSettings.toastPosition ?? 'bottom-right'}
+                    onChange={v => updateAppSettings({ toastPosition: v as AppSettings['toastPosition'] })}
+                    size="small"
+                    options={[
+                      { value: 'top-left', label: '↖ Arr. Izq' },
+                      { value: 'top-center', label: '↑ Arr. Centro' },
+                      { value: 'top-right', label: '↗ Arr. Der' },
+                      { value: 'bottom-left', label: '↙ Abj. Izq' },
+                      { value: 'bottom-center', label: '↓ Abj. Centro' },
+                      { value: 'bottom-right', label: '↘ Abj. Der' },
+                    ]}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<Bell className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.stock_critico')}
+                  subtitle={t('ajustes.stock_critico_sub')}
+                >
+                  <Switch
+                    checked={appSettings.notificaciones?.stockCritico}
+                    onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, stockCritico: v } })}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<FileText className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.ordenes_cambio') || 'Órdenes de Cambio'}
+                  subtitle={t('ajustes.ordenes_cambio_sub') || 'Notificar OC pendientes de revisión'}
+                >
+                  <Switch
+                    checked={appSettings.notificaciones?.ordenesCambio}
+                    onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, ordenesCambio: v } })}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<TrendingUp className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.avances_obra') || 'Avances de Obra'}
+                  subtitle={t('ajustes.avances_obra_sub') || 'Registro de avances físicos'}
+                >
+                  <Switch
+                    checked={appSettings.notificaciones?.avancesObra}
+                    onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, avancesObra: v } })}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  icon={<AlertTriangle className="h-[18px] w-[18px]" />}
+                  title={t('ajustes.desviaciones')}
+                  subtitle={t('ajustes.desviaciones_sub')}
+                >
+                  <Switch
+                    checked={appSettings.notificaciones?.desviaciones}
+                    onChange={v => updateAppSettings({ notificaciones: { ...appSettings.notificaciones, desviaciones: v } })}
+                  />
+                </SettingRow>
+              </div>
+
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <h4 className="text-sm font-semibold mb-4">{t('ajustes.estado_notificaciones')}</h4>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-2">
+                    <Bell className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground m-0">{t('ajustes.no_leidas')}</p>
+                      <p className="text-2xl font-bold text-foreground m-0">{notificacionesNoLeidas}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={marcarTodasLeidas}
+                    className="inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground shadow hover:bg-primary/90 h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    {t('ajustes.marcar_todas_leidas')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'datos' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <div className="flex flex-col gap-4">
+                  <button
+                    type="button"
+                    onClick={exportBackup}
+                    className="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground w-full h-12 px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <Download className="h-4 w-4" />
+                    {t('ajustes.exportar_backup')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={importBackup}
+                    className="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground w-full h-12 px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <FileInput className="h-4 w-4" />
+                    {t('ajustes.importar_datos')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setResetModal(true)}
+                    className="inline-flex items-center justify-center gap-2 rounded-md bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 w-full h-12 px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {t('ajustes.restablecer_fabrica')}
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <h4 className="text-sm font-semibold mb-4">{t('ajustes.almacenamiento')}</h4>
+                <div className="flex items-center gap-2 mb-4">
+                  <Database className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs text-muted-foreground m-0">{t('ajustes.datos_localstorage')}</p>
+                    <p className="text-2xl font-bold text-foreground m-0">~2.4 MB</p>
+                  </div>
+                </div>
+                <hr className="my-3 border-t border-border" />
+                <p className="text-xs text-muted-foreground m-0">{t('ajustes.datos_sincronizacion')}</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'cuenta' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                    <User className="h-8 w-8" />
+                  </div>
+                  <div>
+                    <h5 className="text-base font-semibold m-0 text-foreground">{user?.nombre || t('ajustes.usuario')}</h5>
+                    <p className="text-sm text-muted-foreground m-0">{user?.rol}</p>
+                  </div>
+                </div>
+                <div className="rounded-lg border border-border overflow-hidden text-sm">
+                  <dl className="m-0">
+                    <div className="grid grid-cols-[1fr_2fr] border-b border-border last:border-b-0">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium border-r border-border">{t('ajustes.rol')}</dt>
+                      <dd className="px-3 py-2 m-0">
+                        <span className="inline-flex items-center rounded-md bg-blue-100 dark:bg-blue-900 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300">{user?.rol}</span>
+                      </dd>
+                    </div>
+                    <div className="grid grid-cols-[1fr_2fr] border-b border-border last:border-b-0">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium border-r border-border">{t('ajustes.id_usuario')}</dt>
+                      <dd className="px-3 py-2 m-0">
+                        <span className="text-xs text-foreground cursor-pointer hover:text-primary" title={t('ajustes.copiar')} onClick={() => { navigator.clipboard.writeText(user?.id || ''); toast.success(t('ajustes.copiado')); }}>{user?.id}</span>
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <h4 className="text-sm font-semibold mb-4">{t('ajustes.seguridad')}</h4>
+                <div className="flex flex-col gap-4">
+                  <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4">
+                    <h5 className="text-sm font-medium mb-2">{t('ajustes.autenticacion_2fa')}</h5>
+                    <div className="flex flex-col gap-3">
+                      <p className="text-sm text-muted-foreground m-0">{t('ajustes.protege_cuenta')}</p>
+                      <a
+                        href="https://supabase.com/dashboard/project/_/auth/mfa"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground shadow hover:bg-primary/90 w-full h-10 px-4 text-sm font-medium transition-colors"
+                      >
+                        <Shield className="h-4 w-4" />
+                        {t('ajustes.configurar_2fa')}
+                      </a>
+                      <p className="text-xs text-muted-foreground m-0">{t('ajustes.redirigido_supabase')}</p>
+                    </div>
+                  </div>
+                  <hr className="border-t border-border" />
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground w-full h-10 px-4 text-sm font-medium transition-colors"
+                  >
+                    <Key className="h-4 w-4" />
+                    {t('ajustes.cambiar_contrasena')}
+                  </button>
+                  <hr className="border-t border-border" />
+                  <div className="rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950 p-3">
+                    <div className="flex gap-2">
+                      <CheckCircle className="h-4 w-4 mt-0.5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-green-800 dark:text-green-200 m-0">{t('ajustes.sesion_segura')}</p>
+                        <p className="text-xs text-green-700 dark:text-green-300 m-0 mt-0.5">{t('ajustes.sesion_segura_desc')}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'acerca' && (
+            <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+              <div className="flex flex-col items-center gap-4 text-center">
+                <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                  <Info className="h-10 w-10" />
+                </div>
+                <h3 className="text-lg font-bold m-0 text-foreground">{t('ajustes.erp_nombre')}</h3>
+                <p className="text-sm text-muted-foreground m-0">{t('ajustes.sistema_integral')}</p>
+                <span className="inline-flex items-center rounded-md bg-orange-100 dark:bg-orange-900 px-3 py-1 text-sm font-medium text-orange-700 dark:text-orange-300">{t('ajustes.version_tag')}</span>
+                <hr className="w-full border-t border-border my-2" />
+                <div className="rounded-lg border border-border overflow-hidden text-sm w-full max-w-[600px] mx-auto">
+                  <dl className="m-0 grid grid-cols-2">
+                    <div className="border-b border-border border-r">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium">{t('ajustes.about_framework_frontend')}</dt>
+                      <dd className="px-3 py-2 m-0 text-foreground">{t('ajustes.about_react_ts')}</dd>
+                    </div>
+                    <div className="border-b border-border">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium">{t('ajustes.about_ui_principal')}</dt>
+                      <dd className="px-3 py-2 m-0 text-foreground">{t('ajustes.about_shadcn_ui')}</dd>
+                    </div>
+                    <div className="border-b border-border border-r">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium">{t('ajustes.about_backend')}</dt>
+                      <dd className="px-3 py-2 m-0 text-foreground">{t('ajustes.about_supabase')}</dd>
+                    </div>
+                    <div className="border-b border-border">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium">{t('ajustes.about_visualizacion')}</dt>
+                      <dd className="px-3 py-2 m-0 text-foreground">{t('ajustes.about_recharts')}</dd>
+                    </div>
+                    <div className="border-b border-border border-r">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium">{t('ajustes.about_bim')}</dt>
+                      <dd className="px-3 py-2 m-0 text-foreground">{t('ajustes.about_threejs')}</dd>
+                    </div>
+                    <div className="border-b border-border">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium">{t('ajustes.about_estilos')}</dt>
+                      <dd className="px-3 py-2 m-0 text-foreground">{t('ajustes.about_tailwind')}</dd>
+                    </div>
+                    <div className="col-span-2">
+                      <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium border-r border-border">{t('ajustes.desarrollado_por')}</dt>
+                      <dd className="px-3 py-2 m-0 text-foreground">{t('ajustes.about_constructora')}</dd>
+                    </div>
+                  </dl>
+                </div>
+                <hr className="w-full border-t border-border" />
+                <p className="text-xs text-muted-foreground m-0">{t('ajustes.edificando_futuro')}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {resetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setResetModal(false)}>
+          <div className="bg-background rounded-xl border shadow-lg w-[95vw] max-w-[520px] p-6" onClick={e => e.stopPropagation()}>
+            <h4 className="text-lg font-semibold mb-4 text-foreground">{t('ajustes.restablecer_titulo', 'Restablecer datos de fábrica')}</h4>
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950 p-3 mb-6">
+              <div className="flex gap-2">
+                <AlertTriangle className="h-4 w-4 mt-0.5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200 m-0">{t('ajustes.restablecer_alerta_titulo', '¿Estás seguro?')}</p>
+                  <p className="text-xs text-yellow-700 dark:text-yellow-300 m-0 mt-0.5">{t('ajustes.restablecer_alerta_desc', 'Esta acción eliminará todos los datos locales y restaurará la configuración predeterminada. Los datos en la nube no se verán afectados.')}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setResetModal(false)}
+                className="inline-flex items-center justify-center rounded-md border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-11 px-4 text-sm font-medium transition-colors"
+              >
+                {t('common.cancelar')}
+              </button>
+              <button
+                type="button"
+                onClick={() => { clearAllData(); setResetModal(false); }}
+                className="inline-flex items-center justify-center rounded-md bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 h-11 px-4 text-sm font-medium transition-colors"
+              >
+                {t('ajustes.restablecer')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
 export default Ajustes;
-
-
-
-
-
-
-

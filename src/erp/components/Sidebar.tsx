@@ -25,6 +25,20 @@ import {
   TrendingUp,
   History,
   AlertTriangle,
+  Handshake,
+  MessageSquare,
+  Shield,
+  Wrench,
+  ClipboardList,
+  BadgePercent,
+  Download,
+  Table2,
+  BugIcon,
+  Search,
+  LineChart,
+  CloudSun,
+  Box,
+  ChartColumnBig,
 } from 'lucide-react';
 
 interface NavItem {
@@ -48,38 +62,64 @@ const ITEMS: NavItem[] = [
   { id: 'apu', labelKey: 'apu', icon: Receipt, group: 'Planificación' },
   { id: 'hitos', labelKey: 'hitos', icon: Target, group: 'Planificación' },
   { id: 'plantillas', labelKey: 'plantillas', icon: Copy, group: 'Planificación' },
+  { id: 'baseprecios', labelKey: 'baseprecios', icon: Calculator, group: 'Planificación' },
+  { id: 'crm', labelKey: 'crm', icon: Handshake, group: 'Planificación' },
+  { id: 'cotizaciones', labelKey: 'cotizaciones', icon: FileText, group: 'Planificación' },
 
   // NIVEL 3: EJECUCIÓN & MONITOREO
   { id: 'seguimiento', labelKey: 'seguimiento', icon: ClipboardCheck, group: 'Ejecución' },
+  { id: 'curvas-s', labelKey: 'curvas', icon: LineChart, group: 'Ejecución' },
   { id: 'ordenes-cambio', labelKey: 'ordenes-cambio', icon: FileText, group: 'Ejecución' },
   { id: 'rendimiento-campo', labelKey: 'rendimiento-campo', icon: TrendingUp, group: 'Ejecución' },
+  { id: 'muro', labelKey: 'muro', icon: MessageSquare, group: 'Ejecución' },
+  { id: 'documentos', labelKey: 'documentos', icon: FileText, group: 'Ejecución' },
 
   // NIVEL 4: SUMINISTRO & LOGÍSTICA
   { id: 'bodega', labelKey: 'bodega', icon: Warehouse, group: 'Suministro' },
   { id: 'logistica', labelKey: 'logistica', icon: Cpu, group: 'Suministro' },
   { id: 'entradas-almacen', labelKey: 'entradas-almacen', icon: FileText, group: 'Suministro' },
+  { id: 'activos', labelKey: 'activos', icon: Wrench, group: 'Suministro' },
+  { id: 'planilla-destajos', labelKey: 'planilla-destajos', icon: ClipboardList, group: 'Suministro' },
+  { id: 'proveedor-analytics', labelKey: 'proveedor-analytics', icon: ChartColumnBig, group: 'Suministro' },
 
   // NIVEL 5: FINANCIERO & CUENTAS
   { id: 'financiero', labelKey: 'financiero', icon: Wallet, group: 'Finanzas' },
   { id: 'cuentas-cobrar', labelKey: 'cuentas-cobrar', icon: TrendingUp, group: 'Finanzas' },
   { id: 'cuentas-pagar', labelKey: 'cuentas-pagar', icon: TrendingUp, group: 'Finanzas' },
   { id: 'profitability', labelKey: 'profitability', icon: TrendingUp, group: 'Finanzas' },
+  { id: 'impuestos', labelKey: 'impuestos', icon: BadgePercent, group: 'Finanzas' },
+  { id: 'exportacion', labelKey: 'exportacion', icon: Download, group: 'Finanzas' },
+  { id: 'comercial-fin', labelKey: 'comercial-fin', icon: TrendingUp, group: 'Finanzas' },
+  { id: 'cuadros', labelKey: 'cuadros', icon: Table2, group: 'Finanzas' },
 
-  // NIVEL 6: GENTE & ADMINISTRACIÓN
+  // NIVEL 6: CALIDAD & CUMPLIMIENTO
+  { id: 'sso-calidad', labelKey: 'sso-calidad', icon: ShieldCheck, group: 'Calidad' },
+  { id: 'calidad-cumplimiento', labelKey: 'calidad-cumplimiento', icon: Shield, group: 'Calidad' },
+
+  // NIVEL 7: GENTE & ADMINISTRACIÓN
   { id: 'rrhh', labelKey: 'rrhh', icon: Users, group: 'Administración' },
   { id: 'conflicts', labelKey: 'conflicts', icon: AlertTriangle, group: 'Administración' },
   { id: 'admin-sistema', labelKey: 'admin-sistema', icon: FileCog, group: 'Administración' },
   { id: 'ajustes', labelKey: 'ajustes', icon: FileCog, group: 'Administración' },
+  { id: 'error-log', labelKey: 'error-log', icon: BugIcon, group: 'Administración' },
+  { id: 'auditoria', labelKey: 'auditoria', icon: Search, group: 'Administración' },
+  { id: 'predictivo', labelKey: 'predictivo', icon: LineChart, group: 'Administración' },
+
+  // NIVEL 8: HERRAMIENTAS
+  { id: 'weather', labelKey: 'weather', icon: CloudSun, group: 'Herramientas' },
+  { id: 'visor-bim', labelKey: 'visor-bim', icon: Box, group: 'Herramientas' },
 ];
 
-const GROUP_ORDER = ['', 'Planificación', 'Ejecución', 'Suministro', 'Finanzas', 'Administración'];
+const GROUP_ORDER = ['', 'Planificación', 'Ejecución', 'Suministro', 'Finanzas', 'Calidad', 'Administración', 'Herramientas'];
 
 const GROUP_LABELS: Record<string, string> = {
   'Planificación': 'planning',
   'Ejecución': 'execution',
   'Suministro': 'supply',
   'Finanzas': 'finance',
+  'Calidad': 'quality',
   'Administración': 'admin',
+  'Herramientas': 'tools',
 };
 
 const GROUP_COLORS: Record<string, string> = {
@@ -87,7 +127,9 @@ const GROUP_COLORS: Record<string, string> = {
   'Ejecución': 'bg-emerald-500',
   'Suministro': 'bg-orange-500',
   'Finanzas': 'bg-yellow-500',
+  'Calidad': 'bg-purple-500',
   'Administración': 'bg-gray-500',
+  'Herramientas': 'bg-sky-500',
 };
 
 const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {

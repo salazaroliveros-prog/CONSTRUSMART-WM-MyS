@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from 'antd';
+
 import { Building2, Calendar, DollarSign, MapPin, TrendingUp, User, Clock, AlertCircle } from 'lucide-react';
 import type { Proyecto } from '../types';
 
@@ -36,7 +36,7 @@ const ProjectMapSidebar: React.FC<ProjectMapSidebarProps> = ({ proyecto, onClose
           </button>
         </div>
 
-        <Card className="mb-4">
+        <div className="bg-card border border-border rounded-xl p-4 shadow-sm mb-4">
           <div className="space-y-3">
             <div className="flex items-start gap-3">
               <Building2 className="w-5 h-5 text-blue-500 mt-0.5" />
@@ -91,9 +91,10 @@ const ProjectMapSidebar: React.FC<ProjectMapSidebarProps> = ({ proyecto, onClose
               </div>
             )}
           </div>
-        </Card>
+        </div>
 
-        <Card title="Métricas de Progreso">
+        <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
+          <h4 className="text-base font-semibold mb-3 text-foreground">Métricas de Progreso</h4>
           <div className="space-y-3">
             <div>
               <div className="flex justify-between text-sm mb-1">
@@ -128,7 +129,7 @@ const ProjectMapSidebar: React.FC<ProjectMapSidebarProps> = ({ proyecto, onClose
               </span>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );

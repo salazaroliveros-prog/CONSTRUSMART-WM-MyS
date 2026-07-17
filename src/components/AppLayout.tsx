@@ -5,8 +5,7 @@ import { useDailyIntegrityCheck } from '@/erp/hooks/useDailyIntegrityCheck';
 import { useAccessLog } from '@/erp/hooks/useAccessLog';
 import { ErrorBoundary } from './ErrorBoundary';
 import { PageTransition } from './Animations';
-import { AntdProvider } from '@/lib/antd-config';
-import type { ThemeMode } from '@/lib/antd-config';
+
 
 const Header = lazy(() => import('@/erp/components/Header'));
 const Sidebar = lazy(() => import('@/erp/components/Sidebar'));
@@ -91,8 +90,9 @@ const Weather             = lazy(() => import('@/erp/screens/Weather'));
 const ResourceConflicts   = lazy(() => import('@/erp/screens/ResourceConflicts'));
 const CalidadCumplimiento = lazy(() => import('@/erp/screens/CalidadCumplimiento'));
 const Auditoria           = lazy(() => import('@/erp/screens/Auditoria'));
+const CurvasS             = lazy(() => import('@/erp/screens/CurvasS'));
 
-const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability','weather','conflicts','calidad-cumplimiento','auditoria'] as const;
+const SCREEN_KEYS = ['dashboard','proyectos','presupuestos','seguimiento','financiero','rrhh','bodega','crm','apu','baseprecios','muro','ordenes-cambio','notificaciones','sso-calidad','documentos','visor-bim','predictivo','exportacion','logistica','rendimiento-campo','comercial-fin','admin-sistema','planilla-destajos','impuestos','entradas-almacen','ajustes','hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones','plantillas','proveedor-analytics','error-log','activos','cuadros','profitability','weather','conflicts','calidad-cumplimiento','auditoria','curvas-s'] as const;
 
 const SCREEN_SET = new Set<string>(SCREEN_KEYS as readonly string[]);
 
@@ -210,6 +210,7 @@ const Shell: React.FC = () => {
     conflicts:         <ResourceConflicts />,
     'calidad-cumplimiento': <CalidadCumplimiento />,
     auditoria:          <Auditoria />,
+    'curvas-s':         <CurvasS />,
   }), []);
 
   type ScreenKey = (typeof SCREEN_KEYS)[number];
@@ -288,7 +289,6 @@ const Shell: React.FC = () => {
 
   const AppLayoutContent: React.FC = () => {
     const { appSettings, initializing, user } = useErp();
-    const antdMode: ThemeMode = appSettings.appTheme || 'ant-design';
 
     if (initializing) {
       return <AppLoader />;
@@ -304,11 +304,7 @@ const Shell: React.FC = () => {
       );
     }
 
-    return (
-      <AntdProvider mode={antdMode}>
-        <Shell />
-      </AntdProvider>
-    );
+    return <Shell />;
   };
 
 const AppLayout: React.FC = () => (

@@ -27,11 +27,11 @@ interface HitoUpdate {
 }
 
 const TIPOS: Record<TipoHito, { label: string; color: string; icon: React.ReactNode }> = {
-  entrega: { label: 'Entrega', color: 'text-purple-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
-  pago: { label: 'Pago', color: 'text-emerald-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
-  inspeccion: { label: 'Inspección', color: 'text-amber-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
-  licencia: { label: 'Licencia', color: 'text-blue-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
-  otro: { label: 'Otro', color: 'text-slate-500', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
+  entrega: { label: t('hitos.tipo_entrega'), color: 'text-purple-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
+  pago: { label: t('hitos.tipo_pago'), color: 'text-emerald-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
+  inspeccion: { label: t('hitos.tipo_inspeccion'), color: 'text-amber-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
+  licencia: { label: t('hitos.tipo_licencia'), color: 'text-blue-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
+  otro: { label: t('hitos.tipo_otro'), color: 'text-slate-500', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
 };
 
 const Hitos: React.FC = () => {

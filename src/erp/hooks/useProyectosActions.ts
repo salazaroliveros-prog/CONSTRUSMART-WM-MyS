@@ -2,8 +2,8 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Modal, message } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { useErp } from '../store';
 import type { Proyecto } from '../types';
 import { todayISO } from '../utils';
@@ -152,14 +152,14 @@ export const useProyectosActions = (options: { onCreated?: () => void } = {}) =>
     try {
       if (editingId) {
         updateProyecto(editingId, { ...data, lat: coords.lat, lng: coords.lng });
-        message.success(t('proyectos.proyecto_actualizado', { nombre: data.nombre }));
+        toast.success(t('proyectos.proyecto_actualizado', { nombre: data.nombre }));
       } else {
         if (selectedTemplate) {
           crearProyectoDesdePlantilla(selectedTemplate, { ...data, lat: coords.lat, lng: coords.lng });
-          message.success(t('proyectos.proyecto_creado_plantilla', { nombre: data.nombre }));
+          toast.success(t('proyectos.proyecto_creado_plantilla', { nombre: data.nombre }));
         } else {
           addProyecto({ ...data, avanceFisico: 0, avanceFinanciero: 0, lat: coords.lat || 14.6349, lng: coords.lng || -90.5069, moneda: data.moneda || 'GTQ' });
-          message.success(t('proyectos.proyecto_creado', { nombre: data.nombre }));
+          toast.success(t('proyectos.proyecto_creado', { nombre: data.nombre }));
         }
       }
       reset();
@@ -171,7 +171,7 @@ export const useProyectosActions = (options: { onCreated?: () => void } = {}) =>
       setShow(false);
       onCreatedRef.current?.();
     } catch {
-      message.error(t('proyectos.error_guardar'));
+      toast.error(t('proyectos.error_guardar'));
     } finally {
       setSubmitting(false);
     }
@@ -181,7 +181,7 @@ export const useProyectosActions = (options: { onCreated?: () => void } = {}) =>
     switch (accion) {
       case 'iniciar':
         updateProyecto(p.id, { estado: 'ejecucion', etapa: 'preconstruccion', fechaInicioReal: todayISO() });
-        message.success(t('proyectos.proyecto_iniciado', { nombre: p.nombre }));
+        toast.success(t('proyectos.proyecto_iniciado', { nombre: p.nombre }));
         break;
       case 'pausar':
         setPauseModal({ proyectoId: p.id, nombre: p.nombre });
@@ -191,23 +191,23 @@ export const useProyectosActions = (options: { onCreated?: () => void } = {}) =>
         break;
       case 'reanudar':
         updateProyecto(p.id, { estado: 'ejecucion' });
-        message.success(t('proyectos.proyecto_reanudado', { nombre: p.nombre }));
+        toast.success(t('proyectos.proyecto_reanudado', { nombre: p.nombre }));
         break;
       case 'finalizar':
         updateProyecto(p.id, { estado: 'finalizado', etapa: 'cierre', avanceFisico: 100, avanceFinanciero: 100, fechaFinEstimada: todayISO() });
-        message.success(t('proyectos.proyecto_finalizado', { nombre: p.nombre }));
+        toast.success(t('proyectos.proyecto_finalizado', { nombre: p.nombre }));
         break;
       case 'reabrir':
         updateProyecto(p.id, { estado: 'planeacion', etapa: 'planificacion', avanceFisico: 0, avanceFinanciero: 0 });
-        message.info(t('proyectos.proyecto_reabierto', { nombre: p.nombre }));
+        toast.info(t('proyectos.proyecto_reabierto', { nombre: p.nombre }));
         break;
     }
   }, [updateProyecto, t]);
 
   const confirmarPausa = useCallback(() => {
     if (!pauseModal) return;
-    if (!pauseReason.trim()) { message.error(t('proyectos.motivo_pausa_requerido')); return; }
-    if (!pauseAutorizador.trim()) { message.error(t('proyectos.autorizador_requerido')); return; }
+    if (!pauseReason.trim()) { toast.error(t('proyectos.motivo_pausa_requerido')); return; }
+    if (!pauseAutorizador.trim()) { toast.error(t('proyectos.autorizador_requerido')); return; }
     updateProyecto(pauseModal.proyectoId, {
       estado: 'pausado',
       motivoPausa: pauseReason.trim(),
@@ -215,48 +215,25 @@ export const useProyectosActions = (options: { onCreated?: () => void } = {}) =>
       fechaPausa: todayISO(),
       fechaReanudacionEstimada: pauseReanudacion || undefined,
     });
-    message.warning(t('proyectos.proyecto_pausado', { nombre: pauseModal.nombre }), { content: t('proyectos.proyecto_pausado_desc', { motivo: pauseReason }) });
+    toast.warning(t('proyectos.proyecto_pausado', { nombre: pauseModal.nombre }));
     setPauseModal(null);
     setPauseReason('');
     setPauseAutorizador('');
     setPauseReanudacion('');
   }, [pauseModal, pauseReason, pauseAutorizador, pauseReanudacion, updateProyecto, t]);
 
-  const handleDelete = useCallback(async (p: Proyecto) => {
-    try {
-      await Modal.confirm({
-        title: t('proyectos.eliminar_proyecto'),
-        content: t('proyectos.confirmar_eliminar', { nombre: p.nombre }),
-        centered: true,
-        okText: t('common.si'),
-        cancelText: t('common.cancelar'),
-        okType: 'danger',
-      });
+  const handleDelete = useCallback((p: Proyecto) => {
+    if (window.confirm(t('proyectos.confirmar_eliminar', { nombre: p.nombre }))) {
       deleteProyecto(p.id);
-      message.success(t('proyectos.proyecto_eliminado', { nombre: p.nombre }));
-    } catch (error) {
-      if (error instanceof Error) return;
-      message.error(t('common.error'));
+      toast.success(t('proyectos.proyecto_eliminado', { nombre: p.nombre }));
     }
   }, [deleteProyecto, t]);
 
-  const limpiarProyectos = useCallback(async () => {
+  const limpiarProyectos = useCallback(() => {
     if (!proyectos.length) return;
-    try {
-      await Modal.confirm({
-        title: t('proyectos.eliminar_todos'),
-        content: t('proyectos.confirmar_eliminar_todos', { count: proyectos.length }),
-        centered: true,
-        okText: t('common.si'),
-        cancelText: t('common.cancelar'),
-        okType: 'danger',
-        width: 520,
-      });
+    if (window.confirm(t('proyectos.confirmar_eliminar_todos', { count: proyectos.length }))) {
       clearProyectos();
-      message.success(t('proyectos.proyectos_eliminados'));
-    } catch (error) {
-      if (error instanceof Error) return;
-      message.error(t('common.error'));
+      toast.success(t('proyectos.proyectos_eliminados'));
     }
   }, [proyectos.length, clearProyectos, t]);
 

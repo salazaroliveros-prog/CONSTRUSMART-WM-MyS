@@ -73,7 +73,7 @@ const CRM: React.FC = () => {
             {licitacionesFiltradas.map(l => {
               const estado = ESTADOS.find(e => e.key === l.estado) || ESTADOS[0];
               return (
-                <tr key={l.id} className="border-b border-border hover:bg-muted/50" tabIndex={0} role="row" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(l.id); } }}>
+                <tr key={l.id} className="border-b border-border hover:bg-muted/50" tabIndex={0} role="row">
                   <td className="p-2 max-w-0"><span className="block truncate font-medium" title={l.nombre}>{l.nombre}</span></td>
                   <td className="p-2 max-w-0"><span className="block truncate text-muted-foreground" title={l.cliente}>{l.cliente}</span></td>
                   <td className="p-2 text-right">{fmtQ(l.monto)}</td>
@@ -81,7 +81,7 @@ const CRM: React.FC = () => {
                   <td className="p-2 text-right"><span className={`px-2 py-1 rounded text-xs font-medium ${estado.color} ${estado.textColor}`}>{t(`crm.estado_${l.estado}`)}</span></td>
                   <td className="p-2 text-right">
                     <button onClick={(e) => { e.stopPropagation(); setEditingId(l.id); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('crm.editar')} ${l.nombre}`}><Pencil className="w-4 h-4" aria-hidden="true" /></button>
-                    <button onClick={(e) => { e.stopPropagation(); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('crm.eliminar')} ${l.nombre}`}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
+                    <button onClick={(e) => { e.stopPropagation(); deleteLicitacion(l.id); toast.success(t('crm.eliminado_exito')); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('crm.eliminar')} ${l.nombre}`}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
                   </td>
                 </tr>
               );

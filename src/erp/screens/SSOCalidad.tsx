@@ -11,32 +11,32 @@ import {
 import { todayISO } from '../utils';
 import { z } from 'zod';
 
-// Zod schemas
-const incidenteSchema = z.object({
-  tipo: z.enum(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro']),
-  descripcion: z.string().min(1, 'Descripción requerida').max(1000, 'Máximo 1000 caracteres'),
-  afectados: z.string().min(1, 'Indica los afectados').max(500, 'Máximo 500 caracteres'),
-});
-const pruebaSchema = z.object({
-  tipo: z.enum(['concreto', 'suelo', 'acero', 'asfalto', 'otro']),
-  descripcion: z.string().min(1, 'Descripción requerida').max(500, 'Máximo 500 caracteres'),
-  responsable: z.string().min(1, 'Responsable requerido').max(100, 'Máximo 100 caracteres'),
-});
-const ncSchema = z.object({
-  descripcion: z.string().min(1, 'Descripción requerida').max(1000, 'Máximo 1000 caracteres'),
-  categoria: z.enum(['material', 'proceso', 'documento', 'instalacion', 'otro']),
-  detectadoPor: z.string().min(1, 'Indica quién detectó').max(100, 'Máximo 100 caracteres'),
-});
-const liberacionSchema = z.object({
-  renglonNombre: z.string().min(1, 'Actividad/partida requerida').max(200, 'Máximo 200 caracteres'),
-  solicitante: z.string().max(100, 'Máximo 100 caracteres').optional().default(''),
-  supervisor: z.string().max(100, 'Máximo 100 caracteres').optional().default(''),
-});
+type TabSSO = 'incidentes' | 'checklist-sso' | 'estadisticas' | 'emergencia' | 'pruebas' | 'nc' | 'liberaciones';
 
 type TabSSO = 'incidentes' | 'checklist-sso' | 'estadisticas' | 'emergencia' | 'pruebas' | 'nc' | 'liberaciones';
 
 const SSOCalidad: React.FC = () => {
   const { t } = useTranslation();
+  const incidenteSchema = z.object({
+    tipo: z.enum(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro']),
+    descripcion: z.string().min(1, t('sso_calidad.descripcion_requerida')).max(1000, t('sso_calidad.max_1000_caracteres')),
+    afectados: z.string().min(1, t('sso_calidad.afectados_requerido')).max(500, t('sso_calidad.max_500_caracteres')),
+  });
+  const pruebaSchema = z.object({
+    tipo: z.enum(['concreto', 'suelo', 'acero', 'asfalto', 'otro']),
+    descripcion: z.string().min(1, t('sso_calidad.descripcion_requerida')).max(500, t('sso_calidad.max_500_caracteres')),
+    responsable: z.string().min(1, t('sso_calidad.responsable_requerido')).max(100, t('sso_calidad.max_100_caracteres')),
+  });
+  const ncSchema = z.object({
+    descripcion: z.string().min(1, t('sso_calidad.descripcion_requerida')).max(1000, t('sso_calidad.max_1000_caracteres')),
+    categoria: z.enum(['material', 'proceso', 'documento', 'instalacion', 'otro']),
+    detectadoPor: z.string().min(1, t('sso_calidad.detectado_por_requerido')).max(100, t('sso_calidad.max_100_caracteres')),
+  });
+  const liberacionSchema = z.object({
+    renglonNombre: z.string().min(1, t('sso_calidad.actividad_requerida')).max(200, t('sso_calidad.max_200_caracteres')),
+    solicitante: z.string().max(100, t('sso_calidad.max_100_caracteres')).optional().default(''),
+    supervisor: z.string().max(100, t('sso_calidad.max_100_caracteres')).optional().default(''),
+  });
   const { proyectos, user, addNotificacion, incidentes, addIncidente, updateIncidente, pruebas, addPrueba, updatePrueba, ncs, addNC, updateNC, liberaciones, addLiberacion, updateLiberacion } = useErp();
   const [tab, setTab] = useState<TabSSO>('incidentes');
   const [currentProjectId, setCurrentProjectId] = useState('');
@@ -60,7 +60,7 @@ const SSOCalidad: React.FC = () => {
   const [incForm, setIncForm] = useState({ tipo: 'accidente' as Incidente['tipo'], descripcion: '', afectados: '', testigos: '', acciones: '', lat: undefined as number | undefined, lng: undefined as number | undefined });
 
   const handleAddIncidente = () => {
-    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
+    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: t('sso_calidad.selecciona_proyecto') })); return; }
     const result = incidenteSchema.safeParse({ tipo: incForm.tipo, descripcion: incForm.descripcion, afectados: incForm.afectados });
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -80,7 +80,7 @@ const SSOCalidad: React.FC = () => {
       afectados: incForm.afectados,
       testigos: incForm.testigos || undefined,
       accionesInmediatas: incForm.acciones || undefined,
-      reportadoPor: user?.nombre || 'Anónimo',
+      reportadoPor: user?.nombre || t('sso_calidad.anonimo'),
       latitud: incForm.lat,
       longitud: incForm.lng,
       fotos: [],
@@ -94,10 +94,10 @@ const SSOCalidad: React.FC = () => {
   };
 
   const capturarGeoIncidente = () => {
-    if (!navigator.geolocation) { toast.error('Geolocalización no soportada'); return; }
+    if (!navigator.geolocation) { toast.error(t('sso_calidad.geolocalizacion_no_soportada')); return; }
     navigator.geolocation.getCurrentPosition(
-      (pos) => { setIncForm(prev => ({ ...prev, lat: pos.coords.latitude, lng: pos.coords.longitude })); toast.success('Ubicación capturada'); },
-      () => toast.error('No se pudo obtener ubicación'),
+      (pos) => { setIncForm(prev => ({ ...prev, lat: pos.coords.latitude, lng: pos.coords.longitude })); toast.success(t('sso_calidad.ubicacion_capturada')); },
+      () => toast.error(t('sso_calidad.no_ubicacion')),
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
@@ -107,7 +107,7 @@ const SSOCalidad: React.FC = () => {
   const [pruebaForm, setPruebaForm] = useState({ tipo: 'concreto' as PruebaLaboratorio['tipo'], descripcion: '', responsable: '' });
 
   const handleAddPrueba = () => {
-    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
+    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: t('sso_calidad.selecciona_proyecto') })); return; }
     const result = pruebaSchema.safeParse(pruebaForm);
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -132,7 +132,7 @@ const SSOCalidad: React.FC = () => {
 
   const actualizarResultadoPrueba = (id: string, resultado: PruebaLaboratorio['resultado']) => {
     updatePrueba(id, { resultado, fechaResultado: todayISO() });
-    toast.success(`Resultado actualizado: ${resultado}`);
+    toast.success(t('sso_calidad.resultado_actualizado', { resultado }));
   };
 
   // === NC FORM ===
@@ -140,7 +140,7 @@ const SSOCalidad: React.FC = () => {
   const [ncForm, setNcForm] = useState({ descripcion: '', categoria: 'material' as NoConformidad['categoria'], detectadoPor: '' });
 
   const handleAddNC = () => {
-    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
+    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: t('sso_calidad.selecciona_proyecto') })); return; }
     const result = ncSchema.safeParse(ncForm);
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -161,14 +161,14 @@ const SSOCalidad: React.FC = () => {
       detectadoPor: ncForm.detectadoPor,
       estado: 'detectado',
     });
-    toast.success(`NC ${codigo} registrada`);
+    toast.success(t('sso_calidad.nc_registrada', { codigo }));
     setShowNCForm(false);
     setNcForm({ descripcion: '', categoria: 'material', detectadoPor: '' });
   };
 
   const actualizarEstadoNC = (id: string, estado: NoConformidad['estado'], planAccion?: string) => {
     updateNC(id, { estado, ...(planAccion ? { planAccion } : {}), ...(estado === 'cerrado' ? { fechaCierre: todayISO() } : {}) });
-    toast.success(`NC actualizada: ${estado}`);
+    toast.success(t('sso_calidad.nc_actualizada', { estado }));
   };
 
   // === LIBERACION FORM ===
@@ -176,7 +176,7 @@ const SSOCalidad: React.FC = () => {
   const [libForm, setLibForm] = useState({ renglonId: '', renglonNombre: '', solicitante: '', supervisor: '' });
 
   const handleAddLiberacion = () => {
-    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: 'Selecciona un proyecto' })); return; }
+    if (!currentProjectId) { setSsFormErrors(prev => ({ ...prev, proyecto: t('sso_calidad.selecciona_proyecto') })); return; }
     const result = liberacionSchema.safeParse(libForm);
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -191,19 +191,19 @@ const SSOCalidad: React.FC = () => {
       renglonId: libForm.renglonId || Date.now().toString(),
       renglonNombre: libForm.renglonNombre,
       fechaSolicitud: todayISO(),
-      solicitante: libForm.solicitante || user?.nombre || 'Anónimo',
+      solicitante: libForm.solicitante || user?.nombre || t('sso_calidad.anonimo'),
       supervisor: libForm.supervisor || '',
       checklistAprobado: false,
       estado: 'pendiente',
     });
-    toast.success('Solicitud de liberación creada');
+    toast.success(t('sso_calidad.liberacion_creada'));
     setShowLibForm(false);
     setLibForm({ renglonId: '', renglonNombre: '', solicitante: '', supervisor: '' });
   };
 
   const actualizarLiberacion = (id: string, estado: LiberacionPartida['estado']) => {
     updateLiberacion(id, { estado, ...(estado !== 'pendiente' ? { fechaLiberacion: todayISO() } : {}), checklistAprobado: estado === 'liberado' });
-    toast.success(`Liberación ${estado}`);
+    toast.success(t('sso_calidad.liberacion_actualizada', { estado }));
   };
 
   // === ESTADÍSTICAS ===
@@ -396,17 +396,17 @@ const SSOCalidad: React.FC = () => {
           <div className="bg-card rounded-2xl shadow-sm border border-border p-4">
             <div className="space-y-2">
               {[
-                { id: 'epi', label: 'Todo el personal usa EPP completo (casco, chaleco, botas)' },
-                { id: 'senalizacion', label: 'Señalización de seguridad visible en áreas de riesgo' },
-                { id: 'extintores', label: 'Extintores en sitio, con carga vigente' },
-                { id: 'botiquin', label: 'Botiquín de primeros auxilios completo' },
-                { id: 'andamios', label: 'Andamios/plataformas estables con barandas' },
-                { id: 'electrica', label: 'Instalaciones eléctricas protegidas (no cables expuestos)' },
-                { id: 'orden', label: 'Área de trabajo ordenada y libre de obstáculos' },
-                { id: 'excavacion', label: 'Excavaciones con apuntalamiento y señalización' },
-                { id: 'alturas', label: 'Trabajos en altura con arnés y línea de vida' },
-                { id: 'herramientas', label: 'Herramientas manuales y eléctricas en buen estado' },
-                { id: 'induccion', label: 'Inducción SSO firmada por todo el personal nuevo' },
+                { id: 'epi', label: t('sso_calidad.check_epi') },
+                { id: 'senalizacion', label: t('sso_calidad.check_senalizacion') },
+                { id: 'extintores', label: t('sso_calidad.check_extintores') },
+                { id: 'botiquin', label: t('sso_calidad.check_botiquin') },
+                { id: 'andamios', label: t('sso_calidad.check_andamios') },
+                { id: 'electrica', label: t('sso_calidad.check_electrica') },
+                { id: 'orden', label: t('sso_calidad.check_orden') },
+                { id: 'excavacion', label: t('sso_calidad.check_excavacion') },
+                { id: 'alturas', label: t('sso_calidad.check_alturas') },
+                { id: 'herramientas', label: t('sso_calidad.check_herramientas') },
+                { id: 'induccion', label: t('sso_calidad.check_induccion') },
               ].map(item => (
                 <label key={item.id} className="flex items-center gap-2 p-2 hover:bg-accent rounded-lg cursor-pointer">
                   <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-amber-500 focus:ring-amber-400" />
@@ -494,36 +494,37 @@ const SSOCalidad: React.FC = () => {
                 if (navigator.geolocation) {
                   navigator.geolocation.getCurrentPosition(
                     (pos) => {
-                      const locationMsg = `Lat: ${pos.coords.latitude.toFixed(4)}, Lng: ${pos.coords.longitude.toFixed(4)}`;
+                      const locationMsg = `${t('sso_calidad.emergencia_lat')}: ${pos.coords.latitude.toFixed(4)}, ${t('sso_calidad.emergencia_lng')}: ${pos.coords.longitude.toFixed(4)}`;
                       const mapsUrl = `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                      const msg = `EMERGENCIA en ${proyectoActual?.nombre || 'obra'} - Ubicación: ${locationMsg}`;
+                      const nombreObra = proyectoActual?.nombre || t('sso_calidad.obra_default');
+                      const msg = t('sso_calidad.emergencia_msg_toast', { nombreObra, locationMsg });
                       
                       toast.error(msg, { duration: 10000 });
                       
-                      addNotificacion('emergencia', `EMERGENCIA: ${proyectoActual?.nombre || 'Obra'}`, 
-                        `¡Emergencia reportada! Ubicación: ${locationMsg}. Mapa: ${mapsUrl}`, 
+                      addNotificacion('emergencia', t('sso_calidad.emergencia_notif_titulo_emerg', { nombreObra }), 
+                        t('sso_calidad.emergencia_notif_emerg_body', { locationMsg, mapsUrl }), 
                         currentProjectId, true);
                       
-                      addNotificacion('general', `Emergencia: ${proyectoActual?.nombre || 'Obra'}`, 
-                        `Se ha activado el botón de emergencia. Ubicación: ${locationMsg}`, 
+                      addNotificacion('general', t('sso_calidad.emergencia_notif_titulo_gral', { nombreObra }), 
+                        t('sso_calidad.emergencia_notif_gral_body', { locationMsg }), 
                         currentProjectId);
                     },
                     (error) => {
                       console.error('Geolocation error:', error);
                       toast.error(t('sso_calidad.emergencia_sin_ubicacion'), { duration: 10000 });
-                      addNotificacion('emergencia', `EMERGENCIA: ${proyectoActual?.nombre || 'Obra'}`, 
-                        'Se ha activado el botón de emergencia (ubicación no disponible)', 
+                      addNotificacion('emergencia', t('sso_calidad.emergencia_notif_titulo_emerg', { nombreObra: proyectoActual?.nombre || t('sso_calidad.obra_default') }), 
+                        t('sso_calidad.emergencia_sin_ubicacion_body'), 
                         currentProjectId, true);
-                      addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', currentProjectId);
+                      addNotificacion('general', t('sso_calidad.emergencia_obra_notif'), t('sso_calidad.emergencia_activada_notif'), currentProjectId);
                     },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                   );
                 } else {
                   toast.error(t('sso_calidad.emergencia_reportada'), { duration: 10000 });
-                  addNotificacion('emergencia', `EMERGENCIA: ${proyectoActual?.nombre || 'Obra'}`, 
-                    'Se ha activado el botón de emergencia (geolocalización no disponible)', 
+                  addNotificacion('emergencia', t('sso_calidad.emergencia_notif_titulo_emerg', { nombreObra: proyectoActual?.nombre || t('sso_calidad.obra_default') }), 
+                    t('sso_calidad.emergencia_sin_geo_body'), 
                     currentProjectId, true);
-                  addNotificacion('general', 'Emergencia en obra', 'Se ha activado el botón de emergencia', currentProjectId);
+                  addNotificacion('general', t('sso_calidad.emergencia_obra_notif'), t('sso_calidad.emergencia_activada_notif'), currentProjectId);
                 }
               }}
               className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-bold text-xs shadow-sm shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center flex-col"
@@ -794,7 +795,7 @@ const SSOCalidad: React.FC = () => {
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                           l.estado === 'liberado' ? 'bg-emerald-100 text-emerald-600' : l.estado === 'rechazado' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
                         }`}>{l.estado}</span>
-                        {l.checklistAprobado && <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded flex items-center gap-0.5"><CheckCircle className="w-3 h-3" aria-hidden="true" /> Checklist OK</span>}
+                        {l.checklistAprobado && <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded flex items-center gap-0.5"><CheckCircle className="w-3 h-3" aria-hidden="true" /> {t('sso_calidad.checklist_ok')}</span>}
                       </div>
                       <p className="text-sm font-medium text-muted-foreground">{l.renglonNombre}</p>
                       <div className="flex gap-2 mt-1 text-[10px] text-muted-foreground">

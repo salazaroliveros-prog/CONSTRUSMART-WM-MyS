@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppContext } from '@/components/AppLayout';
 import { LayoutGrid, DollarSign, FileText, Warehouse, MoreHorizontal, ChevronUp } from 'lucide-react';
 
@@ -7,23 +8,24 @@ interface BottomNavigationProps {
   onViewChange: (view: string) => void;
 }
 
-const MORE_ITEMS = [
-  { key: 'presupuestos', label: 'Presupuestos', icon: LayoutGrid },
-  { key: 'bodega', label: 'Bodega', icon: Warehouse },
-  { key: 'financiero', label: 'Financiero', icon: DollarSign },
-  { key: 'proyectos', label: 'Proyectos', icon: FileText },
-];
-
 const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentView, onViewChange }) => {
+  const { t } = useTranslation();
   useAppContext();
   const [open, setOpen] = useState(false);
 
+  const MORE_ITEMS = [
+    { key: 'presupuestos', label: t('nav.items.presupuestos'), icon: LayoutGrid },
+    { key: 'bodega', label: t('nav.items.bodega'), icon: Warehouse },
+    { key: 'financiero', label: t('nav.items.financiero'), icon: DollarSign },
+    { key: 'proyectos', label: t('nav.items.proyectos'), icon: FileText },
+  ];
+
   const navItems = [
-    { key: 'dashboard', icon: LayoutGrid, label: 'Dashboard' },
-    { key: 'proyectos', icon: FileText, label: 'Proyectos' },
-    { key: 'financiero', icon: DollarSign, label: 'Financiero' },
-    { key: 'bodega', icon: Warehouse, label: 'Bodega' },
-    { key: 'mas', icon: MoreHorizontal, label: 'Más' },
+    { key: 'dashboard', icon: LayoutGrid, label: t('nav.items.dashboard') },
+    { key: 'proyectos', icon: FileText, label: t('nav.items.proyectos') },
+    { key: 'financiero', icon: DollarSign, label: t('nav.items.financiero') },
+    { key: 'bodega', icon: Warehouse, label: t('nav.items.bodega') },
+    { key: 'mas', icon: MoreHorizontal, label: t('common.mas') },
   ];
 
   const handleNavClick = (key: string) => {
@@ -64,8 +66,8 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentView, onView
       {open && (
         <div className="absolute bottom-full left-0 right-0 bg-card border-t border-border rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.12)]">
           <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
-            <span className="text-xs font-semibold text-foreground">Más módulos</span>
-            <button onClick={() => setOpen(false)} className="p-1 rounded-md text-muted-foreground hover:text-foreground" aria-label="Cerrar menú">
+            <span className="text-xs font-semibold text-foreground">{t('common.mas_modulos')}</span>
+            <button onClick={() => setOpen(false)} className="p-1 rounded-md text-muted-foreground hover:text-foreground" aria-label={t('common.cerrar_menu')}>
               <ChevronUp className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>

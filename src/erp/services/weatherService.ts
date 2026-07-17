@@ -30,6 +30,24 @@ const CACHE_PREFIX_FORECAST = 'weather_forecast_cache_';
 const CACHE_DURATION_CURRENT  = 30 * 60 * 1000;   // 30 min — clima actual
 const CACHE_DURATION_FORECAST = 7 * 24 * 60 * 60 * 1000; // 7 días — pronóstico
 
+const WEATHER_RATE_LIMIT_MS = 60000;
+const WEATHER_MAX_CALLS = 10;
+const weatherCallTimestamps: number[] = [];
+
+function checkWeatherRateLimit(): boolean {
+  const now = Date.now();
+  const windowStart = now - WEATHER_RATE_LIMIT_MS;
+  while (weatherCallTimestamps.length > 0 && weatherCallTimestamps[0] < windowStart) {
+    weatherCallTimestamps.shift();
+  }
+  if (weatherCallTimestamps.length >= WEATHER_MAX_CALLS) {
+    safeLogger.warn('[Weather RateLimit] Excedido límite de 10 llamadas por minuto');
+    return false;
+  }
+  weatherCallTimestamps.push(now);
+  return true;
+}
+
 function isOnline(): boolean {
   if (typeof navigator === 'undefined') return true;
   return navigator.onLine;
@@ -133,6 +151,12 @@ export async function getCurrentWeather(lat: number, lon: number): Promise<Curre
     return null;
   }
 
+  if (!checkWeatherRateLimit()) {
+    safeLogger.warn('[Weather] Rate limit alcanzado, usando caché');
+    const cached = getCachedData(lat, lon);
+    return cached?.current || null;
+  }
+
   if (!isOnline()) {
     safeLogger.warn('Offline mode - using cached data if available');
     const cached = getCachedData(lat, lon);
@@ -169,6 +193,13 @@ export async function getForecast(lat: number, lon: number, days: number = 7): P
   if (!API_KEY) {
     safeLogger.warn('OpenWeatherMap API key not configured');
     return null;
+  }
+
+  if (!checkWeatherRateLimit()) {
+    safeLogger.warn('[Weather] Rate limit alcanzado, usando caché de pronóstico');
+    const cachedForecast = getCachedForecast(lat, lon);
+    if (cachedForecast) return cachedForecast;
+    return getCachedData(lat, lon)?.forecast || null;
   }
 
   // Usar caché de 7 días antes de ir a la red

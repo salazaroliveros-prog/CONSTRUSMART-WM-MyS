@@ -92,7 +92,7 @@ export function getViewsByRole(rol: RolSistema): View[] {
     'impuestos','entradas-almacen','ajustes',
     'hitos','riesgos','cuentas-cobrar','cuentas-pagar','cotizaciones',
     'plantillas','proveedor-analytics','error-log','activos','cuadros','profitability','weather',
-    'calidad-cumplimiento','auditoria'
+    'calidad-cumplimiento','auditoria','curvas-s'
   ];
 
   switch (rol) {

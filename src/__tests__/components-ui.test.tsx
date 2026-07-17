@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import {
   ElevatedCard,
   ElevatedCardHeader,
@@ -25,6 +25,8 @@ import {
   SkeletonCard,
   LoadingSpinner,
 } from '@/components/Animations';
+
+afterEach(cleanup);
 
 // ─── ElevatedCard ─────────────────────────────────────────────────────────────
 

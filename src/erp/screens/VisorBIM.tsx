@@ -47,7 +47,7 @@ export default function VisorBIM() {
 
   const handleVincular = useCallback((elementoId: string) => {
     if (!selRenglon) {
-      setFormErrors({ renglon: 'Selecciona un renglón para vincular' });
+      setFormErrors({ renglon: t('visor_bim.error_selecciona_renglon') });
       return;
     }
     setFormErrors({});
@@ -67,13 +67,13 @@ export default function VisorBIM() {
   const generarCubicacion = useCallback(() => {
     const elementosVinculados = elementosModelo.filter(el => vinculaciones[el.id]);
     if (elementosVinculados.length === 0) {
-      setFormErrors({ vincular: 'Vincula al menos un elemento del modelo antes de generar la cubicación' });
+      setFormErrors({ vincular: t('visor_bim.error_vincular_primero') });
       return;
     }
     setFormErrors({});
     const resultado = elementosVinculados.map(el => ({
       elemento: el.nombre,
-      renglon: renglones.find(r => r.id === vinculaciones[el.id])?.nombre || 'Desconocido',
+      renglon: renglones.find(r => r.id === vinculaciones[el.id])?.nombre || t('visor_bim.desconocido'),
       cantidad: el.cantidad,
       unidad: el.unidad,
       precioUnitario: renglones.find(r => r.id === vinculaciones[el.id])?.precioUnitario || 0,
@@ -99,22 +99,22 @@ export default function VisorBIM() {
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Eye className="w-6 h-6" />
             <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-              BIM - Vinculación ERP
+              {t('visor_bim.titulo')}
             </span>
           </h1>
-          <p className="text-xs text-gray-500 mt-1">Vincula elementos del modelo IFC con el ERP y extrae cubicaciones</p>
+          <p className="text-xs text-gray-500 mt-1">{t('visor_bim.descripcion')}</p>
         </div>
       </div>
 
       {/* Selector de proyecto */}
       <div className="bg-card rounded-xl shadow-sm border border-border p-3">
-        <Label className="text-xs text-gray-600">Proyecto</Label>
+        <Label className="text-xs text-gray-600">{t('visor_bim.proyecto')}</Label>
         <select
           value={currentProjectId || ''}
           onChange={e => setCurrentProjectId(e.target.value)}
           className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
         >
-          <option value="">Selecciona un proyecto</option>
+          <option value="">{t('visor_bim.selecciona_proyecto')}</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
       </div>
@@ -122,17 +122,17 @@ export default function VisorBIM() {
       {!currentProjectId && (
         <div className="text-center py-12 text-muted-foreground">
           <Eye className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-          <p className="text-sm">Selecciona un proyecto para ver el modelo BIM</p>
+          <p className="text-sm">{t('visor_bim.selecciona_proyecto_ver')}</p>
         </div>
       )}
 
       {currentProjectId && (
       <Tabs value={tab} onValueChange={v => setTab(v as TabBIM)} className="space-y-4">
         <TabsList>
-          <TabsTrigger value="visor"><Eye className="w-4 h-4 mr-1" /> Visor 3D</TabsTrigger>
-          <TabsTrigger value="vincular"><Link2 className="w-4 h-4 mr-1" /> Vincular Renglones</TabsTrigger>
-          <TabsTrigger value="cubicacion"><Ruler className="w-4 h-4 mr-1" /> Cubicación</TabsTrigger>
-          <TabsTrigger value="avance"><TrendingUp className="w-4 h-4 mr-1" /> Avance vs Campo</TabsTrigger>
+          <TabsTrigger value="visor"><Eye className="w-4 h-4 mr-1" /> {t('visor_bim.tab_visor')}</TabsTrigger>
+          <TabsTrigger value="vincular"><Link2 className="w-4 h-4 mr-1" /> {t('visor_bim.tab_vincular')}</TabsTrigger>
+          <TabsTrigger value="cubicacion"><Ruler className="w-4 h-4 mr-1" /> {t('visor_bim.tab_cubicacion')}</TabsTrigger>
+          <TabsTrigger value="avance"><TrendingUp className="w-4 h-4 mr-1" /> {t('visor_bim.tab_avance')}</TabsTrigger>
         </TabsList>
 
         {/* Visor 3D simulado */}
@@ -141,9 +141,9 @@ export default function VisorBIM() {
             <div className="aspect-video bg-slate-900 rounded-lg flex items-center justify-center relative overflow-hidden">
               <div className="text-white text-center">
                 <Maximize className="w-16 h-16 mx-auto mb-3 opacity-30" />
-                <p className="text-sm opacity-70">Visor 3D - Carga tu modelo IFC</p>
+                <p className="text-sm opacity-70">{t('visor_bim.visor_3d_carga')}</p>
                 <Button size="sm" className="mt-3">
-                  <Download className="w-4 h-4 mr-1" /> Cargar Modelo
+                  <Download className="w-4 h-4 mr-1" /> {t('visor_bim.cargar_modelo')}
                 </Button>
               </div>
             </div>
@@ -154,12 +154,12 @@ export default function VisorBIM() {
         <TabsContent value="vincular" className="space-y-3">
           <Card className="p-4">
             <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
-              <Construction className="w-5 h-5" /> Elementos del Modelo BIM
+              <Construction className="w-5 h-5" /> {t('visor_bim.elementos_modelo')}
             </h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-              <Label className="text-xs text-blue-800">Renglón a vincular</Label>
+              <Label className="text-xs text-blue-800">{t('visor_bim.renglon_a_vincular')}</Label>
               <select value={selRenglon} onChange={e => { setSelRenglon(e.target.value); setFormErrors(prev => ({ ...prev, renglon: '' })); }} className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${formErrors.renglon ? 'border-red-500 bg-red-50' : 'border-blue-200'}`}>
-                <option value="">— Renglón —</option>
+                <option value="">{t('visor_bim.renglon_placeholder')}</option>
                 {renglones.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
               </select>
               {formErrors.renglon && <p className="text-xs text-red-500 mt-1">{formErrors.renglon}</p>}
@@ -169,16 +169,16 @@ export default function VisorBIM() {
                 <Card key={el.id} className="p-3 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium">{el.nombre}</p>
-                    <p className="text-xs text-gray-500">{el.tipo} · {el.cantidad} {el.unidad}</p>
+                    <p className="text-xs text-gray-500">{el.tipo}{t('visor_bim.separador')}{el.cantidad} {el.unidad}</p>
                   </div>
                   <div className="flex gap-2">
                     {vinculaciones[el.id] ? (
                       <Badge variant="secondary" className="cursor-pointer" onClick={() => handleDesvincular(el.id)}>
-                        <Unlink className="w-3 h-3 mr-1" /> Desvincular
+                        <Unlink className="w-3 h-3 mr-1" /> {t('visor_bim.desvincular')}
                       </Badge>
                     ) : (
                       <Badge variant="default" className="cursor-pointer" onClick={() => handleVincular(el.id)}>
-                        <Link2 className="w-3 h-3 mr-1" /> Vincular
+                        <Link2 className="w-3 h-3 mr-1" /> {t('visor_bim.vincular')}
                       </Badge>
                     )}
                   </div>
@@ -192,20 +192,20 @@ export default function VisorBIM() {
         <TabsContent value="cubicacion" className="space-y-3">
           <Card className="p-4">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-foreground">Cubicación</h3>
+              <h3 className="font-bold text-foreground">{t('visor_bim.tab_cubicacion')}</h3>
               <Button size="sm" onClick={generarCubicacion}>
-                <Ruler className="w-4 h-4 mr-1" /> Generar
+                <Ruler className="w-4 h-4 mr-1" /> {t('visor_bim.generar')}
               </Button>
             </div>
             {cubicacion.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Elemento</TableHead>
-                    <TableHead>Renglón</TableHead>
-                    <TableHead>Cantidad</TableHead>
-                    <TableHead>Precio Unit.</TableHead>
-                    <TableHead>Total</TableHead>
+                    <TableHead>{t('visor_bim.tabla_elemento')}</TableHead>
+                    <TableHead>{t('visor_bim.tabla_renglon')}</TableHead>
+                    <TableHead>{t('visor_bim.tabla_cantidad')}</TableHead>
+                    <TableHead>{t('visor_bim.tabla_precio_unit')}</TableHead>
+                    <TableHead>{t('visor_bim.tabla_total')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -214,15 +214,15 @@ export default function VisorBIM() {
                       <TableCell className="text-xs">{item.elemento}</TableCell>
                       <TableCell className="text-xs">{item.renglon}</TableCell>
                       <TableCell className="text-xs">{item.cantidad} {item.unidad}</TableCell>
-                      <TableCell className="text-xs">Q{item.precioUnitario.toFixed(2)}</TableCell>
-                      <TableCell className="text-xs font-bold">Q{item.total.toFixed(2)}</TableCell>
+                      <TableCell className="text-xs">{t('visor_bim.moneda')}{item.precioUnitario.toFixed(2)}</TableCell>
+                      <TableCell className="text-xs font-bold">{t('visor_bim.moneda')}{item.total.toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             ) : (<>
               {formErrors.vincular && <p className="text-xs text-red-500 text-center py-2 bg-red-50 rounded-lg mb-2">{formErrors.vincular}</p>}
-            <p className="text-xs text-gray-400 text-center py-6">Vincula elementos para generar la cubicación.</p>
+            <p className="text-xs text-gray-400 text-center py-6">{t('visor_bim.cubicacion_vacia')}</p>
             </>)}
           </Card>
         </TabsContent>
@@ -230,15 +230,15 @@ export default function VisorBIM() {
         {/* Avance vs Campo */}
         <TabsContent value="avance" className="space-y-3">
           <Card className="p-4">
-            <h3 className="font-bold text-foreground mb-3">Avance vs Campo</h3>
-            <p className="text-xs text-gray-500">Comparativa entre avance modelado en BIM y avance físico registrado en campo.</p>
+            <h3 className="font-bold text-foreground mb-3">{t('visor_bim.avance_vs_campo')}</h3>
+            <p className="text-xs text-gray-500">{t('visor_bim.comparativa')}</p>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="p-4 bg-blue-50 rounded-lg">
-                <p className="text-xs text-blue-600 font-bold">MODELADO (BIM)</p>
+                <p className="text-xs text-blue-600 font-bold">{t('visor_bim.modelado_bim')}</p>
                 <p className="text-2xl font-bold text-blue-700">78%</p>
               </div>
               <div className="p-4 bg-emerald-50 rounded-lg">
-                <p className="text-xs text-emerald-600 font-bold">CAMPO (ERP)</p>
+                <p className="text-xs text-emerald-600 font-bold">{t('visor_bim.campo_erp')}</p>
                 <p className="text-2xl font-bold text-emerald-700">72%</p>
               </div>
             </div>
