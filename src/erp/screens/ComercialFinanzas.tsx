@@ -63,6 +63,19 @@ export const ComercialFinanzas: React.FC = () => {
   const SELECT = 'w-full px-3 py-2 border border-input rounded-lg text-sm outline-none focus:border-ring bg-background text-foreground';
   const FOCUS_VISIBLE = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
+  const ventasKpis = useMemo(() => ({
+    disponibles: ventas.filter(v => v.estado === 'disponible').length,
+    reservados: ventas.filter(v => v.estado === 'reservado').length,
+    vendidos: ventas.filter(v => v.estado === 'vendido').length,
+    entregados: ventas.filter(v => v.estado === 'entregado').length,
+  }), [ventas]);
+
+  const cajasKpis = useMemo(() => ({
+    pendientes: cajasChicas.filter(c => c.estado === 'pendiente').length,
+    aprobadas: cajasChicas.filter(c => c.estado === 'aprobada').length,
+    totalAprobado: cajasChicas.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.monto, 0),
+  }), [cajasChicas]);
+
   const renderVentas = () => (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -72,17 +85,17 @@ export const ComercialFinanzas: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        {[
-          { label: t('comercial.disponibles'), estado: 'disponible', color: 'text-success bg-success/10' },
-          { label: t('comercial.reservados'),  estado: 'reservado',  color: 'text-warning bg-warning/10' },
-          { label: t('comercial.vendidos'),    estado: 'vendido',    color: 'text-info bg-info/10' },
-          { label: t('comercial.entregados'),  estado: 'entregado',  color: 'text-muted-foreground bg-muted' },
-        ].map(({ label, estado, color }) => (
-          <div key={estado} className={`p-3 rounded-lg text-center ${color}`}>
-            <p className="text-xs font-medium">{label}</p>
-            <p className="text-xl font-bold">{ventas.filter(v => v.estado === estado).length}</p>
-          </div>
-        ))}
+         {[
+           { label: t('comercial.disponibles'), estado: 'disponible', color: 'text-success bg-success/10' },
+           { label: t('comercial.reservados'),  estado: 'reservado',  color: 'text-warning bg-warning/10' },
+           { label: t('comercial.vendidos'),    estado: 'vendido',    color: 'text-info bg-info/10' },
+           { label: t('comercial.entregados'),  estado: 'entregado',  color: 'text-muted-foreground bg-muted' },
+         ].map(({ label, estado, color }) => (
+           <div key={estado} className={`p-3 rounded-lg text-center ${color}`}>
+             <p className="text-xs font-medium">{label}</p>
+             <p className="text-xl font-bold">{ventasKpis[estado as keyof typeof ventasKpis]}</p>
+           </div>
+         ))}
       </div>
 
       {ventas.length === 0 ? (
@@ -209,15 +222,15 @@ export const ComercialFinanzas: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="p-3 bg-warning/10 rounded-lg text-center">
           <p className="text-xs text-warning font-medium">{t('comercial.pendientes')}</p>
-          <p className="text-xl font-bold text-warning">{cajasChicas.filter(c => c.estado === 'pendiente').length}</p>
+          <p className="text-xl font-bold text-warning">{cajasKpis.pendientes}</p>
         </div>
         <div className="p-3 bg-success/10 rounded-lg text-center">
           <p className="text-xs text-success font-medium">{t('comercial.aprobados')}</p>
-          <p className="text-xl font-bold text-success">{cajasChicas.filter(c => c.estado === 'aprobada').length}</p>
+          <p className="text-xl font-bold text-success">{cajasKpis.aprobadas}</p>
         </div>
         <div className="p-3 bg-info/10 rounded-lg text-center">
           <p className="text-xs text-info font-medium">{t('comercial.total_aprobado')}</p>
-          <p className="text-xl font-bold text-info">{fmtQ(cajasChicas.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.monto, 0))}</p>
+          <p className="text-xl font-bold text-info">{fmtQ(cajasKpis.totalAprobado)}</p>
         </div>
       </div>
 

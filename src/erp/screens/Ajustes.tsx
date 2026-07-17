@@ -133,7 +133,8 @@ const ColorRadioGroup: React.FC<{
 const Ajustes: React.FC = () => {
   const { t } = useTranslation();
   const { appSettings, updateAppSettings, user, proyectos, notificacionesNoLeidas, marcarTodasLeidas } = useErp();
-  const safeProyectos = Array.isArray(proyectos) ? proyectos : [];
+  const safeProyectos = useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]);
+  const proyectosEnEjecucion = useMemo(() => safeProyectos.filter(p => p.estado === 'ejecucion').length, [safeProyectos]);
   const [resetModal, setResetModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('apariencia');
@@ -663,7 +664,7 @@ const Ajustes: React.FC = () => {
                   <dl className="m-0">
                     <div className="grid grid-cols-[1fr_2fr] border-b border-border last:border-b-0">
                       <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium border-r border-border">{t('ajustes.proyectos_activos')}</dt>
-                      <dd className="px-3 py-2 m-0 text-foreground">{safeProyectos.filter(p => p.estado === 'ejecucion').length}</dd>
+                       <dd className="px-3 py-2 m-0 text-foreground">{proyectosEnEjecucion}</dd>
                     </div>
                     <div className="grid grid-cols-[1fr_2fr] border-b border-border last:border-b-0">
                       <dt className="bg-muted/50 px-3 py-2 text-muted-foreground font-medium border-r border-border">{t('ajustes.total_proyectos')}</dt>

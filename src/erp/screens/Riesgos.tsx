@@ -119,6 +119,28 @@ const Riesgos: React.FC = () => {
   const altos = useMemo(() => riesgosFiltrados.filter(r => r.nivel === 'alto' || r.nivel === 'critico'), [riesgosFiltrados]);
   const enSeguimiento = useMemo(() => riesgosFiltrados.filter(r => r.estado === 'en_mitigacion'), [riesgosFiltrados]);
 
+  const riesgoCountsByCell = useMemo(() => {
+    const counts: Record<string, Riesgo[]> = {};
+    for (const r of riesgosFiltrados) {
+      if (r.estado === 'mitigado') continue;
+      const key = `${r.probabilidad}-${r.impacto}`;
+      if (!counts[key]) counts[key] = [];
+      counts[key].push(r);
+    }
+    return counts;
+  }, [riesgosFiltrados]);
+
+  const riesgoCountsByNivel = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const r of riesgosFiltrados) {
+      if (r.estado === 'mitigado') continue;
+      counts[r.nivel] = (counts[r.nivel] || 0) + 1;
+    }
+    return counts;
+  }, [riesgosFiltrados]);
+
+  const activosCount = useMemo(() => riesgosFiltrados.filter(r => r.estado !== 'mitigado').length, [riesgosFiltrados]);
+
   // Riesgos climáticos automáticos derivados del pronóstico
   const riesgosClimaticos = useMemo(() => {
     if (!currentProjectId) return [];
@@ -245,7 +267,7 @@ const Riesgos: React.FC = () => {
                   const nivel = calcularNivel(prob as 1|2|3|4|5, imp as 1|2|3|4|5);
                   const colorMap: Record<string, string> = { bajo: 'bg-emerald-100', medio: 'bg-amber-100', alto: 'bg-orange-100', critico: 'bg-red-100' };
                   const dotColorMap: Record<string, string> = { bajo: 'bg-emerald-500', medio: 'bg-amber-500', alto: 'bg-orange-500', critico: 'bg-red-500' };
-                  const riesgosEnCelda = riesgosFiltrados.filter(r => r.probabilidad === prob && r.impacto === imp && r.estado !== 'mitigado');
+                   const riesgosEnCelda = riesgoCountsByCell[`${prob}-${imp}`] || [];
                   return (
                     <div key={`${prob}-${imp}`} className={`w-[44px] h-[44px] rounded relative ${colorMap[nivel]} flex items-center justify-center font-bold text-[10px]`}>
                       <span className="text-muted-foreground">{prob * imp}</span>
@@ -273,7 +295,7 @@ const Riesgos: React.FC = () => {
             <p className="text-xs text-muted-foreground mb-2">{t('riesgos.riesgos_por_nivel', 'Riesgos por nivel:')}</p>
             <div className="space-y-1.5">
               {(['critico', 'alto', 'medio', 'bajo'] as const).map(nivel => {
-                const count = riesgosFiltrados.filter(r => r.nivel === nivel && r.estado !== 'mitigado').length;
+                 const count = riesgoCountsByNivel[nivel] || 0;
                 const colorMap: Record<string, string> = { bajo: 'bg-emerald-100 text-emerald-700', medio: 'bg-amber-100 text-amber-700', alto: 'bg-orange-100 text-orange-700', critico: 'bg-red-100 text-red-700' };
                 return (
                   <div key={nivel} className={`flex items-center justify-between px-2 py-1 rounded-lg text-xs ${colorMap[nivel]}`}>
@@ -283,7 +305,7 @@ const Riesgos: React.FC = () => {
                 );
               })}
             </div>
-            {riesgosFiltrados.filter(r => r.estado !== 'mitigado').length === 0 && (
+             {activosCount === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 <Shield className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" />
                 <p className="text-xs">{t('riesgos.sin_riesgos_activos', 'Sin riesgos activos')}</p>

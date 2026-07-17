@@ -38,6 +38,7 @@ const BasePrecios: React.FC = () => {
   const { t } = useTranslation();
   const { addInsumoBase, updateInsumoBase, deleteInsumoBase } = useErp();
   const insumosBase = useInsumosBase();
+  const inactivosCount = useMemo(() => insumosBase.filter(i => !i.activo).length, [insumosBase]);
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const [search, setSearch] = useState('');
@@ -310,7 +311,7 @@ const BasePrecios: React.FC = () => {
         </div>
         <div className="bg-card rounded-xl p-3 border border-border">
           <div className="text-xs text-muted-foreground">{t('baseprecios.inactivos')}</div>
-          <div className="text-lg font-bold text-red-600">{insumosBase.filter(i => !i.activo).length}</div>
+          <div className="text-lg font-bold text-red-600">{inactivosCount}</div>
         </div>
       </div>
 

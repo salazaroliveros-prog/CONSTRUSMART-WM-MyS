@@ -15,8 +15,7 @@ import { usePerformanceMetrics } from '../hooks/usePerformanceMetrics';
 type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
 
 const Administracion: React.FC = () => {
-  const { proyectos } = useErp();
-  const safeProyectos = Array.isArray(proyectos) ? proyectos : [];
+  const safeProyectos = useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]); // eslint-disable-line react-hooks/exhaustive-deps
   const { t } = useTranslation();
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion' | 'rendimiento'>('centros');
   const { metrics, loading: metricsLoading, error: metricsError, fetch: fetchMetrics } = usePerformanceMetrics();
@@ -47,11 +46,19 @@ const Administracion: React.FC = () => {
   const INPUT_BASE = 'w-full px-3 py-2 border rounded-lg text-sm outline-none focus:border-ring bg-background text-foreground';
   const inp = (hasErr: boolean) => `${INPUT_BASE} ${hasErr ? 'border-destructive' : 'border-input'}`;
 
-  const renderCentros = () => {
-    const centrosFiltered = filtroProyecto ? centrosCosto.filter(c => c.proyectoId === filtroProyecto) : centrosCosto;
-    const totalPresupuesto = centrosFiltered.reduce((a, c) => a + c.presupuestoAsignado, 0);
-    const totalGasto = centrosFiltered.reduce((a, c) => a + c.gastoActual, 0);
+  const centrosData = useMemo(() => {
+    const filtered = filtroProyecto ? centrosCosto.filter(c => c.proyectoId === filtroProyecto) : centrosCosto;
+    const totalPresupuesto = filtered.reduce((a, c) => a + c.presupuestoAsignado, 0);
+    const totalGasto = filtered.reduce((a, c) => a + c.gastoActual, 0);
     const pctEjecucion = totalPresupuesto > 0 ? (totalGasto / totalPresupuesto) * 100 : 0;
+    return { filtered, totalPresupuesto, totalGasto, pctEjecucion };
+  }, [centrosCosto, filtroProyecto]);
+
+  const centrosConSobreCosto = useMemo(() => centrosCosto.filter(c => c.gastoActual > c.presupuestoAsignado).length, [centrosCosto]);
+  const proyectosEnEjecucion = useMemo(() => safeProyectos.filter(p => p.estado === 'ejecucion').length, [safeProyectos]);
+
+  const renderCentros = () => {
+    const { filtered: centrosFiltered, totalPresupuesto, totalGasto, pctEjecucion } = centrosData;
 
     return (
       <div>
@@ -177,11 +184,11 @@ const Administracion: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="p-4 bg-success/10 rounded-lg border border-success/30">
           <p className="text-sm font-semibold text-success">{t('admin.validacion_cc')}</p>
-          <p className="text-xs text-muted-foreground mt-1">{centrosCosto.length} {t('admin.centros')}, {centrosCosto.filter(c => c.gastoActual > c.presupuestoAsignado).length} {t('admin.con_sobrecosto')}</p>
+           <p className="text-xs text-muted-foreground mt-1">{centrosCosto.length} {t('admin.centros')}, {centrosConSobreCosto} {t('admin.con_sobrecosto')}</p>
         </div>
         <div className="p-4 bg-info/10 rounded-lg border border-info/30">
           <p className="text-sm font-semibold text-info">{t('admin.validacion_proy')}</p>
-           <p className="text-xs text-muted-foreground mt-1">{safeProyectos.length} {t('admin.proyectos')}, {safeProyectos.filter(p => p.estado === 'ejecucion').length} {t('admin.en_ejecucion')}</p>
+            <p className="text-xs text-muted-foreground mt-1">{safeProyectos.length} {t('admin.proyectos')}, {proyectosEnEjecucion} {t('admin.en_ejecucion')}</p>
         </div>
       </div>
       <button onClick={() => {

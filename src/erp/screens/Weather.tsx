@@ -852,10 +852,10 @@ const WeatherHistoryChart: React.FC<{ history: WeatherHistoryItem[] }> = ({ hist
     low: '#22c55e', medium: '#f59e0b', high: '#f97316', critical: '#ef4444'
   };
 
-  const workableDays = recent.filter(h => h.impactLevel === 'low' || h.impactLevel === 'medium').length;
-  const lostDays = recent.filter(h => h.impactLevel === 'high' || h.impactLevel === 'critical').length;
-  const avgTemp = recent.length ? (recent.reduce((s, h) => s + h.temp, 0) / recent.length).toFixed(1) : '—';
-  const totalPrecip = recent.reduce((s, h) => s + h.precipitation, 0).toFixed(1);
+  const workableDays = useMemo(() => recent.filter(h => h.impactLevel === 'low' || h.impactLevel === 'medium').length, [recent]);
+  const lostDays = useMemo(() => recent.filter(h => h.impactLevel === 'high' || h.impactLevel === 'critical').length, [recent]);
+  const avgTemp = useMemo(() => recent.length ? (recent.reduce((s, h) => s + h.temp, 0) / recent.length).toFixed(1) : '—', [recent]);
+  const totalPrecip = useMemo(() => recent.reduce((s, h) => s + h.precipitation, 0).toFixed(1), [recent]);
 
   return (
     <div className="space-y-3">
