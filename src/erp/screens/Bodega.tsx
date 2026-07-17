@@ -150,7 +150,7 @@ const renderMaterialRow = useCallback((m: typeof materiales[0]) => {
       </div>
     </div>
   );
-}, [materiales, updateMaterial, t]);
+}, [updateMaterial, t]);
 
 const inp = INPUT_COMPACT;
 

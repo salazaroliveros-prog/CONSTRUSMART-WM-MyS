@@ -89,7 +89,7 @@ const Proyectos: React.FC = () => {
       map.set(m.proyectoId, current + delta);
     });
     return map;
-  }, [movimientos]);
+  }, [safeMovimientos]);
 
   if (show === undefined) return null;
 

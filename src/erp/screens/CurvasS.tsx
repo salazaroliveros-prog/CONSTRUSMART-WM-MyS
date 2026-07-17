@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import {
   LineChart, TrendingUp, TrendingDown, AlertTriangle, ChevronDown,
-  CloudSun, Download, FileText, Minus, Cloud, Sun, CloudRain, Wind
+  CloudSun, Download, FileText, Minus, Cloud, Sun, CloudRain, Wind, Activity
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fmtQ, fmtPct, todayISO } from '../utils';
