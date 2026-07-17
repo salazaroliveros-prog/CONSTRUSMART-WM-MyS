@@ -48,6 +48,7 @@ const Bodega: React.FC = () => {
   const criticos = useMemo(() => materiales.filter(m => m.stock < m.stockMinimo), [materiales]);
   const pendientes = useMemo(() => ordenes.filter(o => o.estado === 'pendiente'), [ordenes]);
   const conPlan = useMemo(() => materiales.filter(m => typeof m.cantidadPresupuestada === 'number' && m.cantidadPresupuestada > 0), [materiales]);
+  const valorInventario = useMemo(() => materiales.reduce((a, m) => a + m.stock * m.precio, 0), [materiales]);
 
   const coverage = useMemo(() => {
     if (conPlan.length === 0) return 0;
@@ -206,7 +207,7 @@ if (loading) {
           <div className={`text-xs ${COLOR_WARNING} dark:text-amber-400`}>{t('bodega.oc_por_aprobar')}</div>
         </div>
         <div className={KPI_CARD}>
-          <div className="text-lg sm:text-2xl font-bold text-foreground truncate">{fmtQ(materiales.reduce((a, m) => a + m.stock * m.precio, 0))}</div>
+          <div className="text-lg sm:text-2xl font-bold text-foreground truncate">{fmtQ(valorInventario)}</div>
           <div className="text-xs text-muted-foreground">{t('bodega.valor_inventario')}</div>
         </div>
         <div className="bg-violet-50 dark:bg-violet-950/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-violet-100 dark:border-violet-900/50">

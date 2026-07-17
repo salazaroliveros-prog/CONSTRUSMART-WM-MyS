@@ -37,6 +37,10 @@ const Activos: React.FC = () => {
     });
   }, [activos, q, tipo, estado]);
 
+  const activosDisponibles = useMemo(() => activos.filter(a => a.estado === 'disponible').length, [activos]);
+  const activosAsignados = useMemo(() => activos.filter(a => a.estado === 'asignado').length, [activos]);
+  const valorTotalActivos = useMemo(() => activos.reduce((s, a) => s + (Number(a.valor) || 0), 0), [activos]);
+
   const openCreate = () => { setEditId(null); setForm(empty); setShowForm(true); };
   const openEdit = (a: typeof activos[0]) => {
     setEditId(a.id);
@@ -94,9 +98,9 @@ const Activos: React.FC = () => {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <div className="p-3 bg-indigo-50 rounded-lg text-center"><p className="text-xs text-indigo-600">{t('activos.total')}</p><p className="text-xl font-bold text-indigo-700">{activos.length}</p></div>
-        <div className="p-3 bg-emerald-50 rounded-lg text-center"><p className="text-xs text-emerald-600">{t('activos.disponibles')}</p><p className="text-xl font-bold text-emerald-700">{activos.filter(a => a.estado === 'disponible').length}</p></div>
-        <div className="p-3 bg-amber-50 rounded-lg text-center"><p className="text-xs text-amber-600">{t('activos.asignados')}</p><p className="text-xl font-bold text-amber-700">{activos.filter(a => a.estado === 'asignado').length}</p></div>
-        <div className="p-3 bg-muted/30 rounded-lg text-center"><p className="text-xs text-muted-foreground">{t('activos.valor_total')}</p><p className="text-xl font-bold text-foreground">{fmtQ(activos.reduce((s, a) => s + (Number(a.valor) || 0), 0))}</p></div>
+        <div className="p-3 bg-emerald-50 rounded-lg text-center"><p className="text-xs text-emerald-600">{t('activos.disponibles')}</p><p className="text-xl font-bold text-emerald-700">{activosDisponibles}</p></div>
+        <div className="p-3 bg-amber-50 rounded-lg text-center"><p className="text-xs text-amber-600">{t('activos.asignados')}</p><p className="text-xl font-bold text-amber-700">{activosAsignados}</p></div>
+        <div className="p-3 bg-muted/30 rounded-lg text-center"><p className="text-xs text-muted-foreground">{t('activos.valor_total')}</p><p className="text-xl font-bold text-foreground">{fmtQ(valorTotalActivos)}</p></div>
       </div>
 
       <div className="bg-card rounded-2xl shadow-sm border border-border overflow-x-auto">
