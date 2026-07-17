@@ -45,9 +45,85 @@ const CRM: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filtroProyecto, setFiltroProyecto] = useState('');
+  const [formNombre, setFormNombre] = useState('');
+  const [formCliente, setFormCliente] = useState('');
+  const [formMonto, setFormMonto] = useState(0);
+  const [formProbabilidad, setFormProbabilidad] = useState(50);
+  const [formEstado, setFormEstado] = useState<Licitacion['estado']>('activa');
+  const [formProyectoId, setFormProyectoId] = useState('');
+  const [formFechaLimite, setFormFechaLimite] = useState('');
+  const [formNotas, setFormNotas] = useState('');
   const licitacionesFiltradas = useMemo(() => licitaciones.filter(l => !filtroProyecto || l.proyectoId === filtroProyecto), [licitaciones, filtroProyecto]);
 
   if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-64" /><Skeleton className="h-64 w-full" /></div>;
+
+  const resetForm = () => {
+    setFormNombre('');
+    setFormCliente('');
+    setFormMonto(0);
+    setFormProbabilidad(50);
+    setFormEstado('activa');
+    setFormProyectoId('');
+    setFormFechaLimite('');
+    setFormNotas('');
+    setEditingId(null);
+  };
+
+  const handleSubmit = () => {
+    const errors: Record<string, string> = {};
+    if (!formNombre.trim()) errors.nombre = t('crm.err_nombre_requerido');
+    if (!formCliente.trim()) errors.cliente = t('crm.err_cliente_requerido');
+    if (formMonto < 0) errors.monto = t('crm.err_monto_min');
+    if (Object.keys(errors).length > 0) {
+      toast.error(Object.values(errors)[0]);
+      return;
+    }
+    const data = {
+      nombre: formNombre.trim(),
+      cliente: formCliente.trim(),
+      monto: formMonto,
+      probabilidad: formProbabilidad,
+      estado: formEstado,
+      proyectoId: formProyectoId || undefined,
+      fechaLimite: formFechaLimite || undefined,
+      notas: formNotas || undefined,
+      documentos: [],
+    };
+    if (editingId) {
+      updateLicitacion(editingId, data);
+      toast.success(t('crm.actualizada_exito', 'Licitación actualizada'));
+    } else {
+      addLicitacion({ ...data, createdAt: new Date().toISOString() });
+      toast.success(t('crm.creada_exito', 'Licitación creada'));
+    }
+    resetForm();
+    setShowForm(false);
+  };
+
+  const handleEdit = (l: Licitacion) => {
+    setEditingId(l.id);
+    setFormNombre(l.nombre);
+    setFormCliente(l.cliente);
+    setFormMonto(l.monto);
+    setFormProbabilidad(l.probabilidad);
+    setFormEstado(l.estado);
+    setFormProyectoId(l.proyectoId || '');
+    setFormFechaLimite(l.fechaLimite || '');
+    setFormNotas(l.notas || '');
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    await confirmAction({
+      title: t('crm.confirmar_eliminar_titulo', 'Confirmar eliminación'),
+      content: t('crm.confirmar_eliminar_contenido', '¿Eliminar esta licitación?'),
+      okText: t('common.si'),
+      cancelText: t('common.cancelar'),
+      variant: 'destructive',
+    });
+    deleteLicitacion(id);
+    toast.success(t('crm.eliminado_exito'));
+  };
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
@@ -56,7 +132,7 @@ const CRM: React.FC = () => {
           <Target className="w-5 h-5 sm:w-6 sm:h-6 text-violet-500" aria-hidden="true" />
           {t('crm.titulo')}
         </h1>
-        <button onClick={() => setShowForm(true)} className="px-3 py-2 bg-violet-500 text-white rounded-lg text-sm hover:bg-violet-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('crm.nueva_licitacion')}</button>
+        <button onClick={() => { resetForm(); setShowForm(true); }} className="px-3 py-2 bg-violet-500 text-white rounded-lg text-sm hover:bg-violet-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('crm.nueva_licitacion')}</button>
       </div>
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
@@ -80,8 +156,8 @@ const CRM: React.FC = () => {
                   <td className="p-2 text-center">{l.probabilidad}%</td>
                   <td className="p-2 text-right"><span className={`px-2 py-1 rounded text-xs font-medium ${estado.color} ${estado.textColor}`}>{t(`crm.estado_${l.estado}`)}</span></td>
                   <td className="p-2 text-right">
-                    <button onClick={(e) => { e.stopPropagation(); setEditingId(l.id); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('crm.editar')} ${l.nombre}`}><Pencil className="w-4 h-4" aria-hidden="true" /></button>
-                    <button onClick={(e) => { e.stopPropagation(); deleteLicitacion(l.id); toast.success(t('crm.eliminado_exito')); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('crm.eliminar')} ${l.nombre}`}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
+                     <button onClick={(e) => { e.stopPropagation(); handleEdit(l); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('crm.editar')} ${l.nombre}`}><Pencil className="w-4 h-4" aria-hidden="true" /></button>
+                     <button onClick={(e) => { e.stopPropagation(); handleDelete(l.id); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('crm.eliminar')} ${l.nombre}`}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
                   </td>
                 </tr>
               );
@@ -89,6 +165,56 @@ const CRM: React.FC = () => {
           </tbody>
         </table>
       </div>
+      {showForm && (
+        <div className={MODAL_OVERLAY} role="dialog" aria-modal="true" aria-label={editingId ? t('crm.editar') : t('crm.nueva_licitacion')} onClick={() => { setShowForm(false); resetForm(); }}>
+          <div className={MODAL_PANEL} onClick={e => e.stopPropagation()}>
+            <div className={MODAL_HEADER}>
+              <h2 className={MODAL_TITLE}>{editingId ? t('crm.editar') : t('crm.nueva_licitacion')}</h2>
+              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className={MODAL_CLOSE} aria-label={t('common.cerrar')}><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-4 sm:p-6 space-y-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('crm.col_nombre')}</label>
+                <input value={formNombre} onChange={e => setFormNombre(e.target.value)} className={INPUT} placeholder={t('crm.nombre_placeholder')} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('crm.col_cliente')}</label>
+                <input value={formCliente} onChange={e => setFormCliente(e.target.value)} className={INPUT} placeholder={t('crm.cliente_placeholder')} />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('crm.col_monto')}</label>
+                  <input type="number" inputMode="decimal" value={formMonto || ''} onChange={e => setFormMonto(+e.target.value)} className={INPUT} />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('crm.col_probabilidad')}</label>
+                  <input type="number" value={formProbabilidad} onChange={e => setFormProbabilidad(Math.min(100, Math.max(0, +e.target.value)))} className={INPUT} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('crm.estado')}</label>
+                  <select value={formEstado} onChange={e => setFormEstado(e.target.value as Licitacion['estado'])} className={INPUT}>
+                    {ESTADOS.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('crm.fecha_limite', 'Fecha límite')}</label>
+                  <input type="date" value={formFechaLimite} onChange={e => setFormFechaLimite(e.target.value)} className={INPUT} />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('crm.notas', 'Notas')}</label>
+                <textarea value={formNotas} onChange={e => setFormNotas(e.target.value)} className={`${INPUT} min-h-[60px]`} placeholder={t('crm.notas_placeholder')} />
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleSubmit} className={`${BUTTON_PRIMARY}`}>{editingId ? t('common.guardar') : t('crm.nueva_licitacion')}</button>
+                <button onClick={() => { setShowForm(false); resetForm(); }} className={`${BUTTON_SECONDARY}`}>{t('common.cancelar')}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -329,6 +329,7 @@ interface ErpActions {
   addLiberacion: (l: Omit<LiberacionPartida, 'id'>) => void;
   updateLiberacion: (id: string, patch: Partial<LiberacionPartida>) => void;
   deleteLiberacion: (id: string) => void;
+  syncPresupuestoAprobadoToProyecto: (presupuesto: Presupuesto) => void;
 }
 
 export type ErpStore = ErpData & ErpActions;
@@ -1060,6 +1061,9 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     const n = { ...p, id: uid(), version: 1 } as Presupuesto;
     get().setPresupuestos(prev => [n, ...prev]);
     get().enqueueMutation('addPresupuesto', n);
+    if (['aprobado', 'revisado'].includes(n.estado)) {
+      get().syncPresupuestoAprobadoToProyecto(n);
+    }
   },
   updatePresupuesto: (id, patch) => {
     const existing = get().presupuestos.find(p => p.id === id);
@@ -1078,12 +1082,64 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     if (patch.renglones && patch.renglones.length !== (existing.renglones?.length || 0)) cambios.renglones = { anterior: (existing.renglones?.length || 0), nuevo: patch.renglones.length };
     get().setPresupuestos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
     get().enqueueMutation('updatePresupuesto', { id, ...patch });
+    if (['aprobado', 'revisado'].includes(patch.estado) && existing.estado !== patch.estado) {
+      get().syncPresupuestoAprobadoToProyecto({ ...existing, ...patch });
+    }
     if (Object.keys(cambios).length > 0) {
       get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'actualizar_presupuesto', entidad: 'presupuesto', entidadId: id, valoresAnteriores: Object.fromEntries(Object.entries(cambios).map(([k, v]) => [k, v.anterior])), valoresNuevos: Object.fromEntries(Object.entries(cambios).map(([k, v]) => [k, v.nuevo])) });
     }
   },
   deletePresupuesto: (id) => { get().setPresupuestos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deletePresupuesto', { id }); },
   getPresupuestoByProyecto: (proyectoId) => get().presupuestos.find(p => p.proyectoId === proyectoId),
+
+  syncPresupuestoAprobadoToProyecto: (presupuesto: Presupuesto) => {
+    if (!presupuesto.proyectoId) return;
+    if (!['aprobado', 'revisado'].includes(presupuesto.estado)) return;
+    const proyecto = get().proyectos.find(p => p.id === presupuesto.proyectoId);
+    if (!proyecto) return;
+    if (proyecto.estado !== 'planeacion') return;
+    const patch: Partial<Proyecto> = {};
+    if (presupuesto.totalCalculado > 0 && (!proyecto.presupuestoTotal || proyecto.presupuestoTotal === 0)) {
+      patch.presupuestoTotal = presupuesto.totalCalculado;
+    }
+    if (presupuesto.totalCalculado > 0 && (!proyecto.montoContrato || proyecto.montoContrato === 0)) {
+      patch.montoContrato = presupuesto.totalCalculado;
+    }
+    if (!proyecto.presupuestoActualId) {
+      patch.presupuestoActualId = presupuesto.id;
+    }
+    if (presupuesto.renglones && presupuesto.renglones.length > 0) {
+      const factores = presupuesto.renglones.map(r => r.factorSobrecosto).filter(Boolean);
+      if (factores.length > 0) {
+        const utilidad = factores[0].utilidad || 0;
+        const base = factores[0].indirectos || 0;
+        patch.factorSobrecosto = { indirectos: base, administracion: base * 0.4, imprevistos: base * 0.2, utilidad };
+      }
+    }
+    if (proyecto.avanceFisico === undefined) {
+      patch.avanceFisico = 0;
+    }
+    if (proyecto.avanceFinanciero === undefined) {
+      patch.avanceFinanciero = 0;
+    }
+    if ((!proyecto.fechaInicio || proyecto.fechaInicio === '') && presupuesto.fechaCreacion) {
+      patch.fechaInicio = presupuesto.fechaCreacion.split('T')[0];
+    }
+    const fechaInicioParaFin = patch.fechaInicio || proyecto.fechaInicio;
+    if ((!proyecto.fechaFin || proyecto.fechaFin === '') && proyecto.plazoSemanas && fechaInicioParaFin) {
+      const inicio = new Date(fechaInicioParaFin);
+      const fin = new Date(inicio.getTime() + (proyecto.plazoSemanas * 7 * 24 * 60 * 60 * 1000));
+      patch.fechaFin = fin.toISOString().split('T')[0];
+    }
+    if (Object.keys(patch).length > 0) {
+      try {
+        get().updateProyecto(presupuesto.proyectoId, patch);
+        get().addAuditEntry({ usuarioNombre: 'sistema', accion: 'sync_presupuesto_aprobado', entidad: 'proyecto', entidadId: presupuesto.proyectoId, valoresNuevos: { presupuestoId: presupuesto.id, camposSincronizados: Object.keys(patch) } });
+      } catch (err) {
+        safeLogger.warn('[syncPresupuestoAprobadoToProyecto] Error:', err);
+      }
+    }
+  },
 
   addLicitacion: (l) => { const n = { ...l, id: uid() }; get().setLicitaciones(prev => [n, ...prev]); get().enqueueMutation('addLicitacion', n); },
   updateLicitacion: (id, patch) => { get().setLicitaciones(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateLicitacion', { id, ...patch }); },

@@ -313,6 +313,28 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const syncExistingApprovedBudgets = () => {
+      try {
+        const state = useErpStore.getState();
+        if (!state.presupuestos || !state.proyectos) return;
+        state.presupuestos
+          .filter(p => ['aprobado', 'revisado'].includes(p.estado) && p.proyectoId)
+          .forEach(p => {
+            const proyecto = state.proyectos.find(pr => pr.id === p.proyectoId);
+            if (proyecto && proyecto.estado === 'planeacion') {
+              state.syncPresupuestoAprobadoToProyecto(p);
+            }
+          });
+      } catch (err) {
+        safeLogger.warn('[InitSync] Error sincronizando presupuestos aprobados:', err);
+      }
+    };
+    const timer = setTimeout(syncExistingApprovedBudgets, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
 const tokenBucketRef = useRef({ tokens: 5, lastRefill: Date.now(), maxTokens: 10, refillRate: 5 });
 const isOnlineRef = useRef(isOnline);
 const supabaseSubscriptionsRef = useRef(false);

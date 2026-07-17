@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { fmtQ, fmtPct } from '../utils';
+import type { Presupuesto } from '../types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
@@ -15,6 +16,11 @@ const Presupuestos: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editPresupuestoId, setEditPresupuestoId] = useState<string | null>(null);
   const [filtroProyecto, setFiltroProyecto] = useState<string>('todos');
+  const [formNombre, setFormNombre] = useState('');
+  const [formProyectoId, setFormProyectoId] = useState('');
+  const [formTipologia, setFormTipologia] = useState<Presupuesto['tipologia']>('residencial');
+  const [formEstado, setFormEstado] = useState<Presupuesto['estado']>('borrador');
+  const [formMoneda, setFormMoneda] = useState<string>('GTQ');
 
   useEffect(() => { setTimeout(() => setLoading(false), 300); }, []);
 
@@ -50,6 +56,63 @@ const Presupuestos: React.FC = () => {
     deletePresupuesto(id);
     if (selectedId === id) setSelectedId(null);
     toast.success(t('presupuestos.eliminado_exito'));
+  };
+
+  const resetForm = () => {
+    setFormNombre('');
+    setFormProyectoId('');
+    setFormTipologia('residencial');
+    setFormEstado('borrador');
+    setFormMoneda('GTQ');
+    setEditPresupuestoId(null);
+  };
+
+  const handleSubmitPresupuesto = () => {
+    if (!formNombre.trim()) {
+      toast.error(t('presupuestos.nombre_requerido', 'Nombre requerido'));
+      return;
+    }
+    if (!formProyectoId) {
+      toast.error(t('presupuestos.proyecto_requerido', 'Proyecto requerido'));
+      return;
+    }
+    if (editPresupuestoId) {
+      updatePresupuesto(editPresupuestoId, {
+        nombre: formNombre.trim(),
+        proyectoId: formProyectoId,
+        tipologia: formTipologia,
+        estado: formEstado,
+        moneda: formMoneda,
+      });
+      toast.success(t('presupuestos.actualizado_exito', 'Presupuesto actualizado'));
+    } else {
+      addPresupuesto({
+        nombre: formNombre.trim(),
+        proyectoId: formProyectoId,
+        tipologia: formTipologia,
+        estado: formEstado,
+        version: 1,
+        totalCalculado: 0,
+        renglones: [],
+        fechaCreacion: new Date().toISOString(),
+        moneda: formMoneda,
+      });
+      toast.success(t('presupuestos.creado_exito', 'Presupuesto creado'));
+    }
+    resetForm();
+    setShowForm(false);
+  };
+
+  const handleEditPresupuesto = (id: string) => {
+    const p = presupuestos.find(pr => pr.id === id);
+    if (!p) return;
+    setEditPresupuestoId(id);
+    setFormNombre(p.nombre || '');
+    setFormProyectoId(p.proyectoId);
+    setFormTipologia((p as any).tipologia || 'residencial');
+    setFormEstado(p.estado);
+    setFormMoneda((p as any).moneda || 'GTQ');
+    setShowForm(true);
   };
 
   if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-64" /><Skeleton className="h-64 w-full" /></div>;
@@ -88,6 +151,59 @@ const Presupuestos: React.FC = () => {
           </tbody>
         </table>
       </div>
+      {showForm && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={editPresupuestoId ? t('presupuestos.editar') : t('presupuestos.nuevo_presupuesto')}>
+          <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold mb-4 text-foreground">{editPresupuestoId ? t('presupuestos.editar') : t('presupuestos.nuevo_presupuesto')}</h3>
+            <div className="grid gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('presupuestos.nombre')}</label>
+                <input value={formNombre} onChange={e => setFormNombre(e.target.value)} className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground outline-none focus:border-ring" placeholder={t('presupuestos.nombre_placeholder')} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('presupuestos.proyecto')}</label>
+                <select value={formProyectoId} onChange={e => setFormProyectoId(e.target.value)} className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground outline-none focus:border-ring">
+                  <option value="">{t('presupuestos.seleccionar_proyecto')}</option>
+                  {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('presupuestos.tipologia')}</label>
+                  <select value={formTipologia} onChange={e => setFormTipologia(e.target.value as Presupuesto['tipologia'])} className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground outline-none focus:border-ring">
+                    <option value="residencial">Residencial</option>
+                    <option value="comercial">Comercial</option>
+                    <option value="industrial">Industrial</option>
+                    <option value="civil">Civil</option>
+                    <option value="publica">Pública</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('presupuestos.moneda')}</label>
+                  <select value={formMoneda} onChange={e => setFormMoneda(e.target.value)} className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground outline-none focus:border-ring">
+                    <option value="GTQ">GTQ</option>
+                    <option value="USD">USD</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('presupuestos.estado')}</label>
+                <select value={formEstado} onChange={e => setFormEstado(e.target.value as Presupuesto['estado'])} className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground outline-none focus:border-ring">
+                  <option value="borrador">Borrador</option>
+                  <option value="aprobado">Aprobado</option>
+                  <option value="revisado">Revisado</option>
+                  <option value="rechazado">Rechazado</option>
+                  <option value="anulado">Anulado</option>
+                </select>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleSubmitPresupuesto} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">{editPresupuestoId ? t('common.guardar') : t('presupuestos.crear')}</button>
+                <button onClick={() => { setShowForm(false); resetForm(); }} className="px-4 py-2 border border-border rounded-lg text-sm text-muted-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('common.cancelar')}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

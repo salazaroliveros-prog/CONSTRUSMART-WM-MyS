@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
+import type { CuentaCobrar } from '../types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Search, DollarSign, Clock, AlertCircle, CheckCircle2, XCircle, TrendingUp, Filter, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -16,6 +17,13 @@ const CuentasCobrar: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState<string>('todos');
+  const [formProyectoId, setFormProyectoId] = useState('');
+  const [formCliente, setFormCliente] = useState('');
+  const [formConcepto, setFormConcepto] = useState('');
+  const [formMonto, setFormMonto] = useState(0);
+  const [formFechaVencimiento, setFormFechaVencimiento] = useState('');
+  const [formEstado, setFormEstado] = useState('pendiente');
+  const [formNotas, setFormNotas] = useState('');
 
   useEffect(() => { setTimeout(() => setLoading(false), 300); }, []);
 
@@ -39,7 +47,31 @@ const CuentasCobrar: React.FC = () => {
     return { total, pendientes, cobradas, vencidas, montoTotal, montoCobrado };
   }, [filtered]);
 
-  const handleSave = (data: any) => {
+  const handleSave = () => {
+    if (!formProyectoId) {
+      toast.error(t('cuentas_cobrar.proyecto_requerido', 'Proyecto requerido'));
+      return;
+    }
+    if (!formCliente.trim()) {
+      toast.error(t('cuentas_cobrar.cliente_requerido', 'Cliente requerido'));
+      return;
+    }
+    if (!formConcepto.trim()) {
+      toast.error(t('cuentas_cobrar.concepto_requerido', 'Concepto requerido'));
+      return;
+    }
+    const data = {
+      proyectoId: formProyectoId,
+      cliente: formCliente.trim(),
+      clienteNombre: formCliente.trim(),
+      concepto: formConcepto.trim(),
+      monto: formMonto || 0,
+      saldoPendiente: formMonto || 0,
+      fechaEmision: new Date().toISOString().split('T')[0],
+      fechaVencimiento: formFechaVencimiento || new Date().toISOString().split('T')[0],
+      estado: formEstado as CuentaCobrar['estado'],
+      notas: formNotas || undefined,
+    };
     if (editingId) {
       updateCuentaCobrar(editingId, data);
       toast.success(t('cuentas_cobrar.actualizada'));
@@ -49,6 +81,13 @@ const CuentasCobrar: React.FC = () => {
     }
     setShowForm(false);
     setEditingId(null);
+    setFormProyectoId('');
+    setFormCliente('');
+    setFormConcepto('');
+    setFormMonto(0);
+    setFormFechaVencimiento('');
+    setFormEstado('pendiente');
+    setFormNotas('');
   };
 
   const handleDelete = async (id: string) => {
@@ -155,7 +194,7 @@ const CuentasCobrar: React.FC = () => {
                           <CheckCircle2 className="w-3 h-3" aria-hidden="true" />
                         </button>
                       )}
-                      <button onClick={() => { setEditingId(c.id); setShowForm(true); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('common.editar')}><Plus className="w-3 h-3" aria-hidden="true" /></button>
+                      <button onClick={() => { setEditingId(c.id); setFormProyectoId(c.proyectoId); setFormCliente(c.cliente || c.clienteNombre); setFormConcepto(c.concepto); setFormMonto(c.monto); setFormFechaVencimiento(c.fechaVencimiento); setFormEstado(c.estado); setFormNotas(c.notas || ''); setShowForm(true); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('common.editar')}><Plus className="w-3 h-3" aria-hidden="true" /></button>
                       <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded hover:bg-accent text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400" aria-label={t('common.eliminar')}><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
                     </td>
                   </tr>
@@ -165,6 +204,56 @@ const CuentasCobrar: React.FC = () => {
           </div>
         )}
       </div>
+      {showForm && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={editingId ? t('cuentas_cobrar.editar') : t('cuentas_cobrar.nueva_cuenta')}>
+          <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold mb-4 text-foreground">{editingId ? t('cuentas_cobrar.editar') : t('cuentas_cobrar.nueva_cuenta')}</h3>
+            <div className="grid gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_cobrar.col_cliente')}</label>
+                <select value={formProyectoId} onChange={e => setFormProyectoId(e.target.value)} className={INPUT}>
+                  <option value="">{t('cuentas_cobrar.seleccionar_proyecto')}</option>
+                  {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_cobrar.col_cliente')}</label>
+                <input value={formCliente} onChange={e => setFormCliente(e.target.value)} className={INPUT} placeholder={t('cuentas_cobrar.cliente_placeholder')} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_cobrar.col_concepto')}</label>
+                <input value={formConcepto} onChange={e => setFormConcepto(e.target.value)} className={INPUT} placeholder={t('cuentas_cobrar.concepto_placeholder')} />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_cobrar.col_monto')}</label>
+                  <input type="number" inputMode="decimal" value={formMonto || ''} onChange={e => setFormMonto(+e.target.value)} className={INPUT} />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_cobrar.col_vencimiento')}</label>
+                  <input type="date" value={formFechaVencimiento} onChange={e => setFormFechaVencimiento(e.target.value)} className={INPUT} />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_cobrar.col_estado')}</label>
+                <select value={formEstado} onChange={e => setFormEstado(e.target.value)} className={INPUT}>
+                  <option value="pendiente">{t('cuentas_cobrar.pendiente')}</option>
+                  <option value="cobrada">{t('cuentas_cobrar.cobrada')}</option>
+                  <option value="vencida">{t('cuentas_cobrar.vencida')}</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_cobrar.notas', 'Notas')}</label>
+                <textarea value={formNotas} onChange={e => setFormNotas(e.target.value)} className={`${INPUT} min-h-[60px]`} placeholder={t('cuentas_cobrar.notas_placeholder', 'Notas adicionales')} />
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleSave} className={`${BUTTON_PRIMARY}`}>{editingId ? t('common.guardar') : t('cuentas_cobrar.nueva_cuenta')}</button>
+                <button onClick={() => { setShowForm(false); setEditingId(null); }} className={`${BUTTON_SECONDARY}`}>{t('common.cancelar')}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

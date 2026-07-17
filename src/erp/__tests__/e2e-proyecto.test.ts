@@ -14,8 +14,8 @@ describe('E2E: flujo completo de inicio de proyecto', () => {
       activos: [], cuadros: [], pagosProveedor: [], destajos: [],
       recepciones: [],
       mutationQueue: [], syncMessage: '', syncCooldown: false, notificaciones: [],
-      isOnline: true, selectedProyectoId: null,
-      appSettings: { uiMode: 'antd', appTheme: 'ant-design', primaryColor: '#ff8c42', language: 'es', dateFormat: 'DD/MM/YYYY', currency: 'GTQ', sidebarCollapsed: false, animationsEnabled: true, compactMode: false, fontSize: 'medium', empresaInfo: { nombre: 'X', nit: '1', telefono: '', email: '', direccion: '', ciudad: '', pais: '' } },
+      isOnline: true, appSettings: { uiMode: 'antd', appTheme: 'ant-design', primaryColor: '#ff8c42', language: 'es', dateFormat: 'DD/MM/YYYY', currency: 'GTQ', sidebarCollapsed: false, animationsEnabled: true, compactMode: false, fontSize: 'medium', empresaInfo: { nombre: 'X', nit: '1', telefono: '', email: '', direccion: '', ciudad: '', pais: '' } },
+      auditLog: [], errorLogs: [],
     });
   });
 
@@ -63,5 +63,46 @@ describe('E2E: flujo completo de inicio de proyecto', () => {
     const finalProyecto = get().proyectos.find(p => p.id === realId);
     console.log('finalProyecto', finalProyecto);
     expect(finalProyecto?.estado).toBe('finalizado');
+  });
+
+  it('flujo sync: presupuesto aprobado actualiza automaticamente el proyecto en planeacion', () => {
+    const get = () => useErpStore.getState();
+
+    get().addProyecto({
+      id: 'proy-sync-e2e', nombre: 'Proyecto Sync E2E', ubicacion: 'Zona 5', tipologia: 'comercial',
+      presupuestoTotal: 0, montoContrato: 0, cliente: 'Cliente Sync',
+      fechaInicio: '', fechaFin: '', avanceFisico: 0, avanceFinanciero: 0,
+      estado: 'planeacion', descripcion: '', tipoObra: 'nueva',
+      clienteNit: '', clienteTelefono: '', clienteEmail: '', direccion: '',
+      ciudad: '', departamento: '', codigoPostal: '', pais: 'Guatemala',
+      areaConstruccion: undefined, numPisos: undefined, plazoSemanas: 52,
+      ingenieroResidente: '', supervisor: '', arquitecto: '',
+      numeroExpediente: '', numeroLicencia: '', margenUtilidadObjetivo: undefined,
+      moneda: 'GTQ', etapa: 'planificacion', lat: null, lng: null,
+      latitud: null, longitud: null, factorSobrecosto: undefined,
+      motivoPausa: '', pausadoPor: '', fechaPausa: '', fechaReanudacionEstimada: '', version: 1,
+    } as any);
+    const realProyectoId = get().proyectos[0].id;
+
+    get().addPresupuesto({
+      id: 'pres-sync-e2e', proyectoId: realProyectoId, tipologia: 'comercial',
+      renglones: [], estado: 'aprobado', totalCalculado: 250000, costoDirectoTotal: 200000,
+      fechaCreacion: '2026-02-01T00:00:00.000Z', fechaActualizacion: '2026-02-01T00:00:00.000Z',
+      versionPresupuesto: 1, notas: null,
+    } as any);
+    const realPresupuestoId = get().presupuestos[0].id;
+
+    const proyecto = get().proyectos.find(p => p.id === realProyectoId)!;
+    expect(proyecto.presupuestoTotal).toBe(250000);
+    expect(proyecto.montoContrato).toBe(250000);
+    expect(proyecto.presupuestoActualId).toBe(realPresupuestoId);
+    expect(proyecto.avanceFisico).toBe(0);
+    expect(proyecto.avanceFinanciero).toBe(0);
+    expect(proyecto.fechaInicio).toBe('2026-02-01');
+    expect(proyecto.fechaFin).toBe('2027-01-31');
+
+    const audit = get().auditLog.find(e => e.accion === 'sync_presupuesto_aprobado');
+    expect(audit).toBeDefined();
+    expect(audit!.entidadId).toBe(realProyectoId);
   });
 });
