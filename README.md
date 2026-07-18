@@ -1,34 +1,45 @@
-## Estado actual (julio 2026) - Deploy corregido - Diagnosticando RLS
-
-- Mapa de etapas APP_STAGES definido en src/erp/types.ts.
-- Trazabilidad Presupuesto → Bodega → Dashboard activa: cantidades presupuestadas respaldan métricas plan vs real.
-- Filtro global ProyectoFilter unificado en vistas principales.
-- Motor de Cálculo APU: 8 motores paramétricos (Fases 1-5 completas).
-- Suite: 846/846 tests verdes (25 archivos). Build: 0 errores.
-- Pantallas: 40 (100% implementadas, accesibles, con skeleton loading).
-- Módulo Weather con persistencia Supabase, export PDF/Excel y widget en Dashboard.
-- Design system unificado: 5 temas, densidad, fuente, animaciones, sidebar configurable.
-- Auditoría de accesos (erp_access_log), integrity check diario, performance monitoring DB.
-- CI/CD: backup semanal GitHub Actions + Lighthouse CI en PRs.
-- Regresión visual Playwright (8 pantallas desktop + 3 mobile).
-
 # ERP CONSTRUSMART — Gestión Constructora Integral
 
-ERP web para gestión constructora con módulos de proyectos, presupuestos APU, finanzas, RRHH, bodega, seguimiento EVM, CRM, logística y más. Frontend React + TypeScript + Vite con capa de datos local y sincronización opcional a Supabase.
+ERP web para gestión constructora con módulos de proyectos, presupuestos APU, finanzas, RRHH, bodega, seguimiento EVM, CRM, logística y más.
 
 **Deploy:** https://construsmart-wm2026.vercel.app/
 
 ---
 
-## Stack
+## Estado del Proyecto (Julio 2026)
 
-- React 18 + TypeScript + Vite
-- TailwindCSS + shadcn/ui
-- React Router v6
-- Supabase (autenticación + base de datos + storage)
-- Zod + react-hook-form
-- html2canvas + jspdf (exportación PDF)
-- Three.js + web-ifc (visor BIM IFC)
+| Métrica | Valor |
+|---------|-------|
+| Screens implementadas | **43/43 (100%)** |
+| Tests | **1029/1030 (99.9%)** — 33+ archivos |
+| Accesibilidad WCAG | AA Compliant (100%) |
+| Temas visuales | 8 temas implementados |
+| Store Zustand | 33+ entidades sincronizadas |
+| Realtime | 57 tablas habilitadas |
+| RLS | 52/52 tablas con políticas |
+| Migraciones DB | 000001 → 000124 (124 aplicadas) |
+| Build | 0 errores |
+| Deploy | Vercel automático |
+
+---
+
+## Stack Tecnológico
+
+| Capa | Tecnología |
+|------|-----------|
+| Frontend | React 18.3 + TypeScript 5.5 + Vite 8.1 |
+| UI | Ant Design 5.29 + Tailwind CSS 3.4 + shadcn/ui (48 primitivas Radix UI) |
+| Estado | Context Store (ErpProvider) + Zustand 5 |
+| Backend | Supabase (PostgreSQL + Auth + Realtime + Storage) |
+| Validación | Zod 3.23 + react-hook-form |
+| Exportación | jsPDF + html2canvas + xlsx |
+| 3D/BIM | Three.js + web-ifc |
+| Gráficos | Recharts + chart.js |
+| Mapas | Leaflet + markercluster |
+| Virtualización | react-window |
+| Offline | Service Worker (PWA) + lz-string |
+| Testing | Vitest + Testing Library + Playwright + axe-core |
+| CI/CD | GitHub Actions + Vercel |
 
 ---
 
@@ -56,34 +67,17 @@ Supabase Dashboard → Authentication → URL Configuration:
 - **Redirect URLs:** `http://localhost:8080/**`, `https://construsmart-wm2026.vercel.app/**`
 
 Google Cloud Console → OAuth 2.0 Client ID:
+- **Authorized JavaScript origins:** `http://localhost:8080`, `https://construsmart-wm2026.vercel.app`
 - **Authorized redirect URI:** `https://neygzluxugodiwcuctbj.supabase.co/auth/v1/callback?provider=google`
 
 ### Migraciones SQL
 
-Ejecutar en orden desde `supabase/migrations/`:
-1. `000000000001_full_schema_and_policies.sql` — Schema base y políticas RLS iniciales
-2. `000000000002_add_erp_presupuestos_table.sql` — Presupuestos persistentes y timestamp trigger
-3. `000000000003_add_remaining_tables.sql` — Tablas adicionales: auditoría, destajos, cajas chicas, activos, cotizaciones, anticipos, pagos, ventas, centros costo
-4. `000000000004_seed_data.sql` — Datos semilla (insumos, rendimientos, proyectos demo)
-5. `000000000005_storage_buckets.sql` — Buckets de storage opcionales
-6. `000000000006_add_vales_salida_and_fixes.sql` — Vales de salida y correcciones de integridad
-7. `000000000007_add_avatar_and_fix_roles.sql` — Avatar y roles de usuario
-8. `000000000008_add_pausado_status.sql` — Estatus adicional para proyectos/ordenes
+```bash
+supabase migration up          # Aplicar migraciones locales
+supabase db push               # Push a Supabase remoto
+```
 
-### Corrección de seguridad final
-Ejecutar `sql/fix_rls_security_policies.sql` después de aplicar las migraciones para asegurar que todas las políticas RLS sean granulares y coherentes con la aplicación.
-Usa la cadena de conexión de Supabase que está en tu `.env` local para ejecutar el script desde el SQL Editor o via CLI.
-
----
-
-## Scripts
-
-| Comando | Descripción |
-|---------|-------------|
-| `npm run dev` | Dev server (puerto 8080) |
-| `npm run build` | Build producción |
-| `npm run lint` | ESLint |
-| `npm run test` | Vitest |
+Las migraciones están en `supabase/migrations/` (124 archivos, 000000000001 → 000000000124).
 
 ---
 
@@ -111,126 +105,104 @@ erp_proyectos                      erp_presupuestos
 ### Store/Context Pattern
 
 ```
-ErpProvider (Root State)
-├─ proyectos, presupuestos, movimientos, empleados, materiales
-├─ ordenesCompra, proveedores, eventos, bitacora
-├─ selectedProyectoId — para vinculación proyecto→presupuesto
-├─ presupuestos[] — todos los presupuestos con proyectosId FK
-├─ addPresupuesto(data) → INSERT Supabase + updateProyecto()
-├─ updatePresupuesto(id, patch) → UPDATE Supabase
-├─ deletePresupuesto(id) → DELETE Supabase
-└─ getPresupuestoByProyecto(id) → selector para UI
+ErpProvider (Root State) ── zustandStore (State + Actions)
+├─ 33+ entidades (proyectos, presupuestos, movimientos, etc.)
+├─ selectedProyectoId — vinculación proyecto→presupuesto
+├─ Mutation Queue (offline-first con retry exponencial)
+├─ forceSync → INSERT/UPDATE/DELETE a Supabase
+├─ fetchInitialData → carga desde Supabase en primer auth
+└─ scheduleHealthCheck → monitorea estado del store cada 10 min
 ```
 
-### Flujo de Navegación
+### Offline-First
 
-```
-Proyectos                         Presupuestos
-  └─ Lista                          └─ Proyecto preseleccionado
-     └─ Click [📊 Presupuesto]          ├─ Tipología cargada
-        └─ setSelectedProyectoId()      ├─ Renglones anteriores
-           └─ setView('presupuestos')   └─ Guardar → actualiza proyecto
-```
+1. Las mutaciones se encolan en `mutationQueue` (indexedDB/localStorage)
+2. `forceSync` procesa la cola cuando hay conexión
+3. Exponential backoff: `min(1000ms * 2^attempt, 30000ms)`, max 10 retries
+4. Catch FK 23503 con logging y retry
+5. Compresión lz-string para datos >10KB
+6. Service Worker (sw.js v7) para PWA offline
 
 ---
 
-## Módulos del Sistema (40 pantallas)
+## Módulos del Sistema (43 pantallas)
 
-| # | Módulo | Archivo | Estado |
-|---|--------|---------|--------|
-| 1 | Dashboard (KPIs + Curva S + Alertas + Módulos) | `Dashboard.tsx` | ✅ |
-| 2 | Proyectos (CRUD + mapa calor + avances) | `Proyectos.tsx` | ✅ |
-| 3 | Presupuestos (motor APU 45 renglones, FSR + vinculación) | `Presupuestos.tsx` | ✅ |
-| 4 | Financiero (Cash Flow real/proyectado, alertas déficit) | `Financiero.tsx` | ✅ |
-| 5 | RRHH (empleados, FSR, asignación proyectos) | `RRHH.tsx` | ✅ |
-| 6 | Bodega (Pareto 80/20, OC por rol, alertas stock) | `Bodega.tsx` | ✅ |
-| 7 | Seguimiento (EVM + Gantt + bitácora + calidad + SSO) | `Seguimiento.tsx` | ✅ |
-| 8 | CRM / Pipeline Kanban (5 columnas, KPIs) | `CRM.tsx` | ✅ |
-| 9 | Login/Registro + RBAC (5 roles) | `Login.tsx` | ✅ |
-| 10 | Logística/Compras (activos, cotizaciones, pagos) | `LogisticaCompras.tsx` | ✅ |
-| 11 | Rendimiento Campo (destajos, vales, plantillas) | `RendimientoCampo.tsx` | ✅ |
-| 12 | Comercial/Finanzas (ventas, anticipos, cajas chicas) | `ComercialFinanzas.tsx` | ✅ |
-| 13 | Administración (centros costo, auditoría, validación) | `Administracion.tsx` | ✅ |
-| 14 | GanttChart (cronograma interactivo) | `GanttChart.tsx` | ✅ |
-| 15 | APU Avanzado (motor cálculo paramétrico) | `APUAvanzado.tsx` | ✅ |
-| 16 | Base de Precios (catálogo insumos) | `BasePrecios.tsx` | ✅ |
-| 17 | Ajustes (design system, temas, densidad) | `Ajustes.tsx` | ✅ |
-| 18 | Dashboard Predictivo (EAC, ETC, BI) | `DashboardPredictivo.tsx` | ✅ |
-| 19 | Weather (clima, impacto obra, persistencia) | `Weather.tsx` | ✅ |
-| 20 | Exportación Inteligente (PDF/CSV/JSON) | `ExportacionInteligente.tsx` | ✅ |
-| 21 | Muro de Obra (feed colaborativo) | `MuroObra.tsx` | ✅ |
-| 22 | Hitos (milestones + calendario) | `Hitos.tsx` | ✅ |
-| 23 | Riesgos (matriz calor + mitigación) | `Riesgos.tsx` | ✅ |
-| 24 | Notificaciones (alertas + historial) | `Notificaciones.tsx` | ✅ |
-| 25 | SSO / Calidad (incidentes, checklist) | `SSOCalidad.tsx` | ✅ |
-| 26 | Gestión Documental (planos, RFI, submittals) | `GestionDocumental.tsx` | ✅ |
-| 27 | Órdenes de Cambio (flujo aprobación) | `OrdenesCambio.tsx` | ✅ |
-| 28 | Cuentas por Cobrar | `CuentasCobrar.tsx` | ✅ |
-| 29 | Cuentas por Pagar | `CuentasPagar.tsx` | ✅ |
-| 30 | Cotizaciones (cuadro comparativo) | `Cotizaciones.tsx` | ✅ |
-| 31 | Activos y Herramientas | `Activos.tsx` | ✅ |
-| 32 | Entradas Almacén vs OC | `EntradasAlmacenOC.tsx` | ✅ |
-| 33 | Planilla Destajos | `PlanillaDestajos.tsx` | ✅ |
-| 34 | Plantillas de Proyectos | `PlantillasProyectos.tsx` | ✅ |
-| 35 | Impuestos (ISR/IVA) | `Impuestos.tsx` | ✅ |
-| 36 | Cuadros Comparativos | `Cuadros.tsx` | ✅ |
-| 37 | Visor BIM (Three.js + web-ifc) | `VisorBIM.tsx` | ✅ |
-| 38 | Profitability Analytics | `ProfitabilityAnalytics.tsx` | ✅ |
-| 39 | Proveedor Analytics | `ProveedorAnalytics.tsx` | ✅ |
-| 40 | Resource Conflicts | `ResourceConflicts.tsx` | ✅ |
+| # | Módulo | Archivo | View Key |
+|---|--------|---------|----------|
+| 1 | Dashboard (KPIs + Curva S + Alertas) | `Dashboard.tsx` | `dashboard` |
+| 2 | Proyectos (CRUD + KPI + Mapa Calor) | `Proyectos.tsx` | `proyectos` |
+| 3 | Presupuestos (motor APU, vinculación) | `Presupuestos.tsx` | `presupuestos` |
+| 4 | Financiero (Cash Flow real/proyectado) | `Financiero.tsx` | `financiero` |
+| 5 | RRHH (empleados, FSR, asignación) | `RRHH.tsx` | `rrhh` |
+| 6 | Bodega (Pareto 80/20, alertas stock) | `Bodega.tsx` | `bodega` |
+| 7 | Seguimiento (EVM + Gantt + bitácora) | `Seguimiento.tsx` | `seguimiento` |
+| 8 | CRM / Pipeline Kanban (5 columnas) | `CRM.tsx` | `crm` |
+| 9 | Login/Registro + RBAC (5 roles) | `Login.tsx` | `login` |
+| 10 | Logística/Compras | `LogisticaCompras.tsx` | `logistica` |
+| 11 | Rendimiento Campo (destajos, vales) | `RendimientoCampo.tsx` | `rendimiento-campo` |
+| 12 | Comercial/Finanzas (ventas, anticipos) | `ComercialFinanzas.tsx` | `comercial` |
+| 13 | Administración (centros costo, auditoría) | `Administracion.tsx` | `admin` |
+| 14 | GanttChart (cronograma interactivo) | `GanttChart.tsx` | `gantt` |
+| 15 | APU Avanzado (motor paramétrico) | `APUAvanzado.tsx` | `apu-avanzado` |
+| 16 | Base de Precios (catálogo insumos) | `BasePrecios.tsx` | `baseprecios` |
+| 17 | Ajustes (design system, temas, densidad) | `Ajustes.tsx` | `ajustes` |
+| 18 | Dashboard Predictivo (EAC, ETC, BI) | `DashboardPredictivo.tsx` | `dashboard-predictivo` |
+| 19 | Weather (clima, impacto obra) | `Weather.tsx` | `weather` |
+| 20 | Exportación Inteligente (PDF/CSV/JSON) | `ExportacionInteligente.tsx` | `exportacion` |
+| 21 | Muro de Obra (feed colaborativo) | `MuroObra.tsx` | `muro-obra` |
+| 22 | Hitos (milestones + calendario) | `Hitos.tsx` | `hitos` |
+| 23 | Riesgos (matriz calor + mitigación) | `Riesgos.tsx` | `riesgos` |
+| 24 | Notificaciones (alertas + historial) | `Notificaciones.tsx` | `notificaciones` |
+| 25 | SSO / Calidad (incidentes, checklist) | `SSOCalidad.tsx` | `sso-calidad` |
+| 26 | Gestión Documental (planos, RFI) | `GestionDocumental.tsx` | `gestion-documental` |
+| 27 | Órdenes de Cambio (flujo aprobación) | `OrdenesCambio.tsx` | `ordenes-cambio` |
+| 28 | Cuentas por Cobrar | `CuentasCobrar.tsx` | `cuentas-cobrar` |
+| 29 | Cuentas por Pagar | `CuentasPagar.tsx` | `cuentas-pagar` |
+| 30 | Cotizaciones (cuadro comparativo) | `Cotizaciones.tsx` | `cotizaciones` |
+| 31 | Activos y Herramientas | `Activos.tsx` | `activos` |
+| 32 | Entradas Almacén vs OC | `EntradasAlmacenOC.tsx` | `entradas-almacen` |
+| 33 | Planilla Destajos | `PlanillaDestajos.tsx` | `planilla-destajos` |
+| 34 | Plantillas de Proyectos | `PlantillasProyectos.tsx` | `plantillas` |
+| 35 | Impuestos (ISR/IVA) | `Impuestos.tsx` | `impuestos` |
+| 36 | Cuadros Comparativos | `Cuadros.tsx` | `cuadros` |
+| 37 | Visor BIM (Three.js + web-ifc) | `VisorBIM.tsx` | `visor-bim` |
+| 38 | Profitability Analytics | `ProfitabilityAnalytics.tsx` | `profitability` |
+| 39 | Proveedor Analytics | `ProveedorAnalytics.tsx` | `proveedor-analytics` |
+| 40 | Resource Conflicts | `ResourceConflicts.tsx` | `resource-conflicts` |
+| 41 | Auditoría (logs, KPIs, export CSV) | `Auditoria.tsx` | `auditoria` |
+| 42 | Calidad y Cumplimiento | `CalidadCumplimiento.tsx` | `calidad` |
+| 43 | Error Log (modal resolución, charts) | `ErrorLog.tsx` | `error-log` |
 
 ---
 
 ## Funcionalidades Detalladas
 
-### Presupuestos y Sub-Renglones
+### APU (Análisis de Precios Unitarios)
 
-Los **sub-renglones** permiten desglosar materiales por cada renglón del presupuesto:
-
-- **Agregar:** Click [+ Material] en renglón expandido
-- **Campos:** Material, Cant/u, Unidad, Precio
-- **Cálculo automático:** Total = cantidadUnitaria × cantidadRenglon × precioUnitario
-- **Consolidación:** Resumen automático agrupa materiales por nombre+unidad
-- **Exportación:** PDF incluye resumen de materiales + desglose APU; CSV incluye sección `=== RESUMEN DE MATERIALES ===`
-
-**Mejoras implementadas:**
-- Catálogo de 24 insumos base con precios de referencia
-- Validación de precios (0, negativo, >Q10,000)
-- Plantillas de sub-renglones (Concreto, Acero, Muro, Encofrado)
-- Historial de cambios en presupuestos
-- Comparativa entre versiones
-
-### APU Avanzado (Análisis de Precios Unitarios)
-
+- 8 motores paramétricos (Fases 1-5 completas)
 - Catálogo de 24 insumos base por rubro
-- Factor de sobrecosto configurable por proyecto (indirectos, admin, imprevistos, utilidad)
+- Factor de sobrecosto configurable por proyecto
 - Cálculo: CD = materiales + MO + equipo, PV = CD × factor_sobrecosto
+- Sub-renglones: desglose de materiales por renglón
+- Cubicación automática: concreto, acero, mampostería, encofrado, excavación
 - Histórico de precios con gráfica de tendencia (5 trimestres)
-
-### Cubicación Automática
-
-| Tipo | Fórmula |
-|------|---------|
-| Concreto | m³ = largo × ancho × alto (con desperdicio %) |
-| Acero | kg = ∅² × cantidad × longitud × 0.006165 |
-| Mampostería | piezas = área × factor piezas/m² × (1 + desperdicio%) |
-| Encofrado | m² = 2(l×a + a×h) área de contacto |
-| Excavación | m³ = l×a×h × factor expansión |
+- Plantillas de sub-renglones (Concreto, Acero, Muro, Encofrado)
 
 ### Control de Campo (Móvil/PWA)
 
-- **Bitácora digital:** Fecha, clima, personal, maquinaria, tareas, fotos, firma electrónica, geolocalización
-- **Avance de obra:** % físico, cantidad ejecutada, foto geolocalizada, avance financiero automático
-- **Control de materiales:** Recepción vs OC, vales de salida, conteo cíclico, kits por renglón, alertas stock crítico
-- **Checkpoints de calidad:** Checklist por actividad, SSO diario, firma supervisor+residente, evidencia fotográfica
-- **Offline-first:** IndexedDB, cola de sincronización (mutationQueue), sync automático al reconectar
+- Bitácora digital con fecha, clima, personal, maquinaria, tareas, fotos, firma electrónica, geolocalización
+- Avance de obra: % físico, cantidad ejecutada, foto geolocalizada
+- Control de materiales: recepción vs OC, vales de salida, conteo cíclico
+- Checkpoints de calidad por actividad
+- Offline-first con cola de sincronización
 
 ### Seguimiento y EVM
 
 - Curva S programada vs real con función sigmoide
 - Flujo de caja proyectado vs ejecutado (12 meses)
-- Alertas predictivas: desviación >10%, proyección sobrecosto, quema horas hombre
-- Valor Ganado (EVM): Variación de Costo y Tiempo
+- Alertas predictivas: desviación >10%, proyección sobrecosto
+- Valor Ganado (EVM): Variación de Costo y Tiempo (EAC = BAC/CPI)
+- Gantt chart interactivo (react-resizable-panels)
 
 ### Cadena de Suministro
 
@@ -239,12 +211,13 @@ Los **sub-renglones** permiten desglosar materiales por cada renglón del presup
 - Entradas de almacén vs OC con validación de cantidades
 - Vales de salida imputados a renglón específico
 - Control de activos y herramientas por operador/cuadrilla
+- Pareto 80/20, alertas stock crítico
 
 ### Finanzas y Comercial
 
 - Cash Flow real/proyectado con alertas de déficit
 - Cajas chicas con carga de facturas y aprobación
-- Gestión y amortización de anticipos
+- Amortización de anticipos
 - Pipeline de ventas (disponible/reservado/vendido/entregado)
 - Programación de pagos a proveedores con alertas vencidos
 - Planilla de destajos (pago semanal por volumen)
@@ -262,30 +235,50 @@ Los **sub-renglones** permiten desglosar materiales por cada renglón del presup
 
 ### Notificaciones en Tiempo Real
 
-- Sistema in-app con panel de notificaciones y badge en Header
+- Sistema in-app con panel + badge en Header
 - Web Notification API (permiso del navegador)
-- Eventos: checklist rechazado, orden de cambio pendiente, stock crítico, desviación rendimiento, avance registrado
+- Eventos: checklist rechazado, orden de cambio, stock crítico, desviación rendimiento
 - Persistencia en localStorage
-
-### Colaboración
-
-- **Muro de obra:** Feed cronológico, texto+fotos+documentos, comentarios, menciones @usuario, filtros por tipo
-- **Órdenes de cambio:** Solicitud con impacto costo/plazo, flujo aprobación (Residente→Gerente→Admin), trazabilidad
-- **Notificaciones:** Likes, comentarios, badges por tipo
-
-### Cumplimiento y Calidad
-
-- **SSO:** Reporte incidentes, checklist diario (11 items), estadísticas días sin accidentes, botón emergencia con geolocalización
-- **Control calidad:** Pruebas laboratorio (concreto, suelos, acero), no conformidades (NC→plan→cierre), liberación de partidas
-- **Gestión documental:** Planos por disciplina+versión, RFI (Request for Information), Submittals, historial de versiones
+- 57 tablas con realtime habilitado
 
 ### BIM / IFC
 
-- Visor IFC en navegador con Three.js + web-ifc
+- Visor IFC con Three.js + web-ifc
 - Orbitar, zoom, seccionar (clipping plane), auto rotate
 - Vincular elementos BIM con renglones de presupuesto
 - Comparativa avance físico: modelo BIM vs campo
 - Cubicación desde modelo IFC
+
+### Cumplimiento y Calidad
+
+- SSO: Reporte incidentes, checklist diario (11 items), estadísticas días sin accidentes
+- Control calidad: pruebas laboratorio (concreto, suelos, acero), NC → plan → cierre
+- Gestión documental: planos por disciplina+versión, RFI, Submittals
+
+### Plantillas de Proyectos
+
+- Dashboard con métricas (total, por categoría, más usadas, favoritas)
+- Modal de edición completa (presupuesto, hitos, riesgos, checklist)
+- Bulk actions: selección múltiple, eliminar/exportar en lote
+- Diff visual de versiones (PlantillaVersionDiff.tsx)
+- Selector visual en Proyectos.tsx con sugerencias inteligentes
+
+### Weather
+
+- Clima actual + pronóstico 7 días
+- Persistencia en Supabase
+- Widget en Dashboard
+- Export PDF/Excel
+- Impacto en obra por condiciones climáticas
+
+### Auditoría
+
+- Pantalla Auditoria.tsx con KPIs, filtros (tabla/usuario/operación/fecha)
+- LogAuditoría con persistencia localStorage (últimos 200)
+- Dashboard: cards de Integridad de Datos y Performance de Queries
+- ErrorLog con modal de resolución, chart de errores por tipo
+- `addAuditEntry` integrado en addProyecto/updateProyecto/deleteProyecto
+- error-db-logger.ts (logErrorToDatabase, resolveErrorInDatabase, cleanupOldErrorsInDatabase)
 
 ### Dashboard Predictivo y BI
 
@@ -296,51 +289,260 @@ Los **sub-renglones** permiten desglosar materiales por cada renglón del presup
 
 ---
 
-## Google OAuth Setup
+## Estructura del Proyecto
 
-Ver `SUPABASE_GOOGLE_OAUTH_SETUP.md` (archivo eliminado — contenido consolidado aquí):
+```
+src/
+├── __tests__/              # 17 tests globales
+├── components/             # Componentes compartidos
+│   ├── ui/                 # 48 primitivas shadcn/ui
+│   ├── AppLayout.tsx       # Layout principal con 43 lazy screens
+│   ├── ErrorBoundary.tsx
+│   ├── SkeletonScreens.tsx
+│   └── SyncStatusBadge.tsx
+├── erp/
+│   ├── __tests__/          # 13 tests específicos ERP
+│   ├── components/         # 27+ componentes ERP
+│   │   ├── financiero/
+│   │   ├── proyectos/      # 16 componentes
+│   │   ├── seguimiento/    # 7 componentes
+│   │   └── shared/         # 7 componentes
+│   ├── hooks/              # 11 hooks
+│   ├── screens/            # 43 screens (lazy-loaded)
+│   ├── services/           # 11 servicios
+│   ├── store/              # Estado (schemas/ + zustandStore.ts)
+│   │   └── schemas/        # 19 schemas Zod canónicos
+│   ├── store.tsx           # ErpProvider, contexto, loadFromStorage, forceSync
+│   ├── types/              # Types + extensiones
+│   ├── utils/              # calculations, colors, reordering
+│   └── data/               # Catálogos presupuestos
+├── hooks/                  # 6 hooks globales
+├── lib/                    # Utilidades (i18n, themes, supabase, etc.)
+│   ├── i18n/               # es.json (~950 keys) + en.json (~950 keys)
+│   ├── __tests__/          # 3 tests
+│   ├── theme-manager.ts    # 8 temas + sync visual settings
+│   └── decimalUtils.ts     # Decimal.js precision BigDecimal
+├── middleware/              # rateLimit.ts
+├── styles/                 # design-tokens, themes, responsive
+└── workers/                # apu-calc.worker + compression.worker
 
-### Supabase Dashboard
-- **Site URL:** `http://localhost:8080`
-- **Redirect URLs:** `http://localhost:8080`, `http://localhost:8080/**`, `https://construsmart-wm2026.vercel.app/**`
-
-### Google Cloud Console
-- **Authorized JavaScript origins:** `http://localhost:8080`, `http://localhost`, `https://construsmart-wm2026.vercel.app`
-- **Authorized redirect URIs:** `https://neygzluxugodiwcuctbj.supabase.co/auth/v1/callback?provider=google`
-
-### Troubleshooting
-- **Callback URL mismatch:** Redirect URI en Google Cloud no coincide con Supabase
-- **Sigue redirigiendo al login:** Verificar Site URL = `http://localhost:8080` en Supabase Dashboard
-- **PKCE flow:** Implementado con `flowType: 'pkce'` y `exchangeCodeForSession()`
+supabase/
+├── migrations/             # 124 migraciones SQL
+├── functions/              # Edge Function: calcular-proyecto (Deno)
+├── seed_data/              # departamentos_gt + municipios_gt
+└── config.toml
+```
 
 ---
 
-## Pendientes Conocidos
+## Tests (33+ archivos, 1029/1030 pasando)
 
-| # | Item | Tipo | Estado |
-|---|------|------|--------|
-| 1 | Seed data en Supabase | Operación | ✅ Ejecutado |
-| 2 | Migraciones SQL (hasta 095) | Operación | ✅ Ejecutadas (95 migraciones) |
-| 3 | Tablas sync Supabase | Feature | ✅ 30+ entidades sincronizadas |
-| 4 | Overlay de planos vs modelo en Visor BIM | Feature | ❌ No implementado |
-| 5 | Internacionalización (i18n) | Feature | ✅ Implementado (es.json + en.json, 633+ keys) |
-| 6 | Google OAuth verificación de dominio | Seguridad | ❌ No verificado |
-| 7 | Refresh token rotation en Supabase | Seguridad | ❌ No implementado |
-| 8 | Motor de Cálculo APU (Fases 1-5) | Feature | ✅ 8 motores + geografía + normativa + escalas + estacionalidad |
-| 9 | Plantillas de Proyectos | Feature | ✅ Dashboard + Editor + Diff + Analytics |
-| 10 | Destajos → Store | Feature | ✅ Schema + handlers + Supabase sync |
-| 11 | Recepciones → Store | Feature | ✅ Schema + handlers + sync |
+### Tests Unitarios Globales (`src/__tests__/`)
+| Archivo | Tests | Área |
+|---------|-------|------|
+| `erp-store-operations-full.test.tsx` | 254 | Operaciones store |
+| `erp-estilos-ui.test.tsx` | 72 | Estilos UI |
+| `components-ui.test.tsx` | 72 | Componentes |
+| `erp-validacion-funcional.test.tsx` | 57 | Validación funcional |
+| `erp-comprehensive-system.test.tsx` | — | Sistema integral |
+| `accessibility.test.tsx` | 21 | Accesibilidad axe-core |
+| `ErrorLog.test.tsx` | 18 | Error log |
+| `filtro-proyecto.test.tsx` | 5 | Filtro proyectos |
+| `design-tokens.test.tsx` | — | Design tokens |
+| `themes.test.tsx` | — | Temas |
+| `theme-manager.test.tsx` | — | Theme manager |
+| `erp-money.test.tsx` | — | Precisión monetaria |
+| `erp-kpis-data-integrity.test.tsx` | — | KPIs integridad |
+| `supabase-bilateral-sync.test.ts` | — | Sync bilateral |
+| `calculation-engine.test.ts` | — | Motor cálculo |
+| `db-alignment.test.tsx` | — | Alineación DB |
+| `session3-comprehensive.test.tsx` | — | Tests sesión 3 |
+
+### Tests ERP (`src/erp/__tests__/`)
+| Archivo | Tests | Área |
+|---------|-------|------|
+| `financiero.test.ts` | 35 | Financiero |
+| `utils.test.ts` | 21 | Utilidades |
+| `store.test.ts` | 10 | Store |
+| `validate-fk.test.ts` | 7 | FK validation |
+| `zustand-migration.test.ts` | 6 | Migración Zustand |
+| `store.presupuestos.test.ts` | 4 | Presupuestos store |
+| `store.ordenes.test.ts` | 3 | Órdenes store |
+| `integrity.test.ts` | 3 | Integridad |
+| `e2e-proyecto.test.ts` | 1 | E2E proyecto |
+| `apu-motor.test.ts` | — | APU motor |
+| `store.sync-presupuesto.test.ts` | — | Sync presupuesto |
+| `timestamps.test.ts` | — | Timestamps |
+| `weather.test.ts` | — | Weather |
+
+### Tests Librería (`src/lib/__tests__/`)
+| Archivo | Tests | Área |
+|---------|-------|------|
+| `auto-repair.test.ts` | 27 | Auto-repair |
+| `error-db-logger.test.ts` | — | Error DB logger |
+| `i18n-screens.test.ts` | — | i18n screens |
+
+### Comandos
+```bash
+npm run test              # Vitest (unitarios)
+npm run test -- --coverage  # Con cobertura
+npm run test:e2e          # Playwright E2E
+npm run test:visual       # Regresión visual
+```
 
 ---
 
-## Notas de Seguridad
+## Edge Functions (Deno)
 
-- No se usan claves o tokens hardcodeados
-- API Key Supabase movida a `.env`
-- RLS implementado con políticas por rol
-- Logs de auditoría imborrables (`logs_sistema` + trigger `fn_log_audit`)
-- Modo offline/local soportado sin Supabase
+- `supabase/functions/calcular-proyecto/index.ts`
+- Dosificación de concreto, movimiento de tierra, pavimentos, rentabilidad
+- Acceso a datos vía cliente Supabase con RLS
 
 ---
 
-*Última actualización: 2026-07-12*
+## Base de Datos
+
+### Tablas Principales (34+ sincronizadas)
+
+| Tabla | Propósito |
+|-------|-----------|
+| `erp_proyectos` | Proyectos de construcción |
+| `erp_presupuestos` | Presupuestos APU |
+| `erp_movimientos` | Movimientos financieros (particionada por mes) |
+| `erp_audit_log` | Logs de auditoría (particionada por mes) |
+| `erp_empleados` | RRHH |
+| `erp_materiales` | Bodega/inventarios |
+| `erp_ordenes_compra` | Órdenes de compra |
+| `erp_proveedores` | Proveedores |
+| `erp_hitos` | Hitos |
+| `erp_riesgos` | Riesgos |
+| `erp_crm_pipeline` | CRM/Kanban |
+| `erp_plantillas_proyectos` | Plantillas |
+| `erp_cotizaciones` | Cotizaciones |
+| `erp_cuentas_cobrar` | Cuentas por cobrar |
+| `erp_cuentas_pagar` | Cuentas por pagar |
+| `erp_departamentos_gt` | Departamentos Guatemala |
+| `erp_municipios_gt` | Municipios Guatemala |
+| `erp_api_keys` | API pública |
+| `erp_error_logs` | Logs de error |
+| `erp_access_log` | Logs de acceso |
+| +15 más | Resto de entidades |
+
+### Migraciones DB Aplicadas (124)
+
+| Migración | Descripción |
+|-----------|-------------|
+| 000001 → 000062 | Schema base, RLS, Realtime, motor cálculo, seguridad, índices, auditoría |
+| 000063 | Fix critical gaps (plantillas, exec_sql RPC) |
+| 000064 | Schema alignment code-db (version columns, destajos/recepciones/pagos) |
+| 000065 | DB-app alignment (created_at/updated_at, RLS 5 tablas motor cálculo) |
+| 000066 | Security advisor fixes (drop 40+ permissive policies, revoke anon SELECT) |
+| 000067 | API pública (erp_api_keys, RPC functions) |
+| 000068 | Partitioning (erp_movimientos, erp_audit_log por mes) |
+| 000069 → 000124 | RLS corrections, missing tables, alignment, geographic data, cleanup |
+
+### RLS (Row Level Security)
+
+- 52/52 tablas con políticas RLS granulares
+- 40+ políticas permisivas eliminadas (migration 066)
+- anon SELECT revocado de 62+ tablas operacionales
+- exec_sql RPC restringido a postgres owner
+- Roles: administrador, gerente, residente, compras, bodeguero
+
+---
+
+## Almacenamiento y Sincronización
+
+- **localStorage** con validación Zod + compresión lz-string
+- **Mutation Queue**: offline-first con retry exponencial (max 10)
+- **forceSync**: batch INSERT/UPDATE/DELETE (BATCH_SIZE=50)
+- **fetchInitialData**: carga desde Supabase en primer auth
+- **Realtime**: 57 tablas con suscripciones
+- **Service Worker**: PWA offline (sw.js v7)
+- **Rate limiting**: token bucket
+- **scheduleHealthCheck**: monitoreo cada 10 min
+
+---
+
+## Estilos y Temas
+
+### 8 Temas Implementados
+| Tema | Variante |
+|------|----------|
+| Ant Design | light / dark |
+| Material 3 | light / dark |
+| Dark Pro | dark |
+| Glassmorphism | light / dark |
+| Neomorphism | light / dark |
+
+### Design System
+- Design tokens CSS en `src/styles/design-tokens.css`
+- Tema variables en `src/styles/theme-variables.css`
+- Theme manager en `src/lib/theme-manager.ts`
+- Visual settings sincronizadas vía `syncAllVisualSettings`
+- Responsive CSS en `src/styles/responsive.css`
+- Accesibilidad WCAG AA (contrast ratio 4.5:1 mínimo)
+
+---
+
+## Scripts Disponibles
+
+```bash
+npm run dev                  # Dev server (puerto 8080)
+npm run build                # Build producción
+npm run typecheck            # TypeScript check
+npm run lint                 # ESLint
+npm run lint:fix             # ESLint auto-fix
+npm run test                 # Vitest unitarios
+npm run test:e2e             # Playwright E2E
+npm run test:visual          # Regresión visual
+npm run preview              # Preview build
+npm run seed:supabase        # Seed datos reales
+npm run security:audit       # Auditoría seguridad
+npm run backup:create        # Backup DB
+npm run backup:verify        # Verificar backup
+```
+
+---
+
+## Issues Conocidos / Deuda Técnica
+
+| # | Item | Estado |
+|---|------|--------|
+| 1 | Google OAuth verificación de dominio | Pendiente (configuración manual en GCP) |
+| 2 | Overlay planos vs modelo en Visor BIM | Pendiente |
+| 3 | Refresh token rotation en Supabase | Pendiente |
+| 4 | Redondeo cosmético en cálculo de avance (66.67 vs 67) | Cosmético |
+| 5 | Build warnings "use client" (Ant Design v5) | Normal |
+| 6 | web-ifc: 3.6MB chunk | Normal para proyecto BIM |
+
+---
+
+## Convenciones de Desarrollo
+
+Ver `AGENTS.md` para notas detalladas para agentes.
+
+- **Sin comentarios** en código fuente (`//` o `/* */`)
+- **Schemas Zod**: `z.enum([...] as const)`, alineados 1:1 con interfaces TypeScript
+- **i18n**: `t()` con formato `{{key}}` (no `{key}`)
+- **Store**: usar `loadFromStorage` con schema canónico
+- **Vistas**: `View` type + lazy import + `ALLOWED` por rol
+- **Decimal.js**: precisión BigDecimal para cálculos financieros
+
+---
+
+## Despliegue
+
+- **Vercel**: https://construsmart-wm2026.vercel.app/
+- **CI/CD**: GitHub Actions + Vercel automático
+- **Backup**: GitHub Actions semanal
+- **Lighthouse CI**: en PRs
+- **Regresión visual**: Playwright (8 desktop + 3 mobile)
+
+---
+
+## Licencia
+
+Proyecto privado — CONSTRUSMART ERP
+
+*Última actualización: 2026-07-18*

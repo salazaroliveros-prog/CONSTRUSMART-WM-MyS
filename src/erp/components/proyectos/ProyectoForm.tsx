@@ -73,21 +73,23 @@ const ProyectoForm: React.FC<ProyectoFormProps> = ({
     }
   }, [watch, setSubtipologias]);
 
+  const cliente = watch('cliente');
+  const nit = watch('clienteNit');
+  const telefono = watch('clienteTelefono');
+  const email = watch('clienteEmail');
+  const direccion = watch('direccion');
+  const ciudad = watch('ciudad');
   const clienteError = React.useMemo(() => {
-    const cliente = watch('cliente');
-    const nit = watch('clienteNit');
-    const telefono = watch('clienteTelefono');
-    const email = watch('clienteEmail');
     try {
       if (cliente && nit && telefono && email) {
-        clienteFormSchema.parse({ cliente, nit, telefono, email, direccion: watch('direccion'), ciudad: watch('ciudad') });
+        clienteFormSchema.parse({ cliente, nit, telefono, email, direccion, ciudad });
       }
     } catch (e: any) {
       const msg = e?.errors?.[0]?.message || 'Datos de cliente inválidos';
       return msg;
     }
     return null;
-  }, [watch('cliente'), watch('clienteNit'), watch('clienteTelefono'), watch('clienteEmail'), watch('direccion'), watch('ciudad')]);
+  }, [cliente, nit, telefono, email, direccion, ciudad]);
 
   if (!show) return null;
 
