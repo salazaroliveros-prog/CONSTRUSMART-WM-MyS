@@ -29,6 +29,16 @@ const Financiero: React.FC = () => {
     setTimeout(() => setLoading(false), 300);
   }, []);
 
+  if (loading || proyectos.length === 0) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <Wallet className="w-16 h-16 text-muted-foreground/30 mb-4" aria-hidden="true" />
+        <h2 className="text-xl font-bold text-foreground mb-2">{t('financiero.titulo')}</h2>
+        <p className="text-muted-foreground">{t('financiero.sin_datos')}</p>
+      </div>
+    );
+  }
+
   // Filtrar movimientos
   const movimientosFiltrados = useMemo(() => {
     let data = [...movimientos];
@@ -95,16 +105,6 @@ const Financiero: React.FC = () => {
     });
   }, [proyectos, movimientos]);
 
-  if (!loading && proyectos.length === 0) {
-    return (
-      <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <Wallet className="w-16 h-16 text-muted-foreground/30 mb-4" aria-hidden="true" />
-        <h2 className="text-xl font-bold text-foreground mb-2">{t('financiero.titulo')}</h2>
-        <p className="text-muted-foreground">{t('financiero.sin_datos')}</p>
-      </div>
-    );
-  }
-
   const agingCobrar = useMemo(() => {
     const vigentes = cuentasCobrar.filter((c) => {
       const dias = Math.floor(
@@ -152,7 +152,7 @@ const Financiero: React.FC = () => {
           percentage: totalCobrar > 0 ? (dias30_60.reduce((s, c) => s + (c.monto || 0), 0) / totalCobrar) * 100 : 0,
           status: 'warning' as const,
           color: 'hsl(var(--warning))',
-          bgColor: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
+          bgColor: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-emerald-800',
         },
         {
           label: '60-90 días',
@@ -233,7 +233,7 @@ const Financiero: React.FC = () => {
           percentage: totalPagar > 0 ? (proximos30.reduce((s, c) => s + (c.monto || 0), 0) / totalPagar) * 100 : 0,
           status: 'warning' as const,
           color: 'hsl(var(--warning))',
-          bgColor: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
+          bgColor: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-red-800',
         },
         {
           label: 'Futuros (> 30 días)',
@@ -249,18 +249,20 @@ const Financiero: React.FC = () => {
     };
   }, [cuentasPagar]);
 
-  if (loading) {
-    return (
-      <div className="p-6 space-y-4">
-        <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-3 gap-4">
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-        </div>
-        <Skeleton className="h-64" />
+  const loadingSkeleton = (
+    <div className="p-6 space-y-4">
+      <Skeleton className="h-8 w-64" />
+      <div className="grid grid-cols-3 gap-4">
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
       </div>
-    );
+      <Skeleton className="h-64" />
+    </div>
+  );
+
+  if (loading) {
+    return loadingSkeleton;
   }
 
   return (
