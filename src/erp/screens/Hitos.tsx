@@ -26,16 +26,15 @@ interface HitoUpdate {
   completado?: boolean;
 }
 
-const TIPOS: Record<TipoHito, { label: string; color: string; icon: React.ReactNode }> = {
-  entrega: { label: t('hitos.tipo_entrega'), color: 'text-purple-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
-  pago: { label: t('hitos.tipo_pago'), color: 'text-emerald-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
-  inspeccion: { label: t('hitos.tipo_inspeccion'), color: 'text-amber-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
-  licencia: { label: t('hitos.tipo_licencia'), color: 'text-blue-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
-  otro: { label: t('hitos.tipo_otro'), color: 'text-slate-500', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
-};
-
 const Hitos: React.FC = () => {
   const { t } = useTranslation();
+  const TIPOS: Record<TipoHito, { label: string; color: string; icon: React.ReactNode }> = {
+    entrega: { label: t('hitos.tipo_entrega', 'Entrega'), color: 'text-purple-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
+    pago: { label: t('hitos.tipo_pago', 'Pago'), color: 'text-emerald-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
+    inspeccion: { label: t('hitos.tipo_inspeccion', 'Inspección'), color: 'text-amber-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
+    licencia: { label: t('hitos.tipo_licencia', 'Licencia'), color: 'text-blue-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
+    otro: { label: t('hitos.tipo_otro', 'Otro'), color: 'text-slate-500', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
+  };
   const { hitos, proyectos, addHito, updateHito, currentProjectId, setCurrentProjectId } = useErp();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);

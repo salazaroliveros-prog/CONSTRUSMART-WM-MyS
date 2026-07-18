@@ -21,7 +21,7 @@ import PlantillaEditorModal from '../components/PlantillaEditorModal';
 import PlantillaVersionDiff from '../components/PlantillaVersionDiff';
 
 const plantillaFormSchema = z.object({
-  nombre: z.string().min(1, t('plantillas.nombre_requerido')).max(200, t('plantillas.max_caracteres')),
+  nombre: z.string().min(1, 'Nombre requerido').max(200, 'Máximo 200 caracteres'),
   descripcion: z.string().max(500).optional().default(''),
   categoria: z.enum(['residencial', 'comercial', 'industrial', 'civil', 'publica']).default('residencial'),
   proyectoOrigenId: z.string().optional().default(''),
@@ -44,16 +44,15 @@ interface VersionHistorialItem {
   snapshot?: Partial<Plantilla>;
 }
 
-const CATEGORIAS = [
-  { key: 'residencial' as const, label: t('plantillas.cat_residencial'), icon: Home, color: 'bg-blue-50 border-blue-300', textColor: 'text-blue-600' },
-  { key: 'comercial' as const, label: t('plantillas.cat_comercial'), icon: Building2, color: 'bg-emerald-50 border-emerald-300', textColor: 'text-emerald-600' },
-  { key: 'industrial' as const, label: t('plantillas.cat_industrial'), icon: Factory, color: 'bg-orange-50 border-orange-300', textColor: 'text-orange-600' },
-  { key: 'civil' as const, label: t('plantillas.cat_civil'), icon: Building, color: 'bg-purple-50 border-purple-300', textColor: 'text-blue-600' },
-  { key: 'publica' as const, label: t('plantillas.cat_publica'), icon: Landmark, color: 'bg-rose-50 border-rose-300', textColor: 'text-rose-600' },
-] as const;
-
 const PlantillasProyectos: React.FC = () => {
   const { t } = useTranslation();
+  const CATEGORIAS = [
+    { key: 'residencial' as const, label: t('plantillas.cat_residencial'), icon: Home, color: 'bg-blue-50 border-blue-300', textColor: 'text-blue-600' },
+    { key: 'comercial' as const, label: t('plantillas.cat_comercial'), icon: Building2, color: 'bg-emerald-50 border-emerald-300', textColor: 'text-emerald-600' },
+    { key: 'industrial' as const, label: t('plantillas.cat_industrial'), icon: Factory, color: 'bg-orange-50 border-orange-300', textColor: 'text-orange-600' },
+    { key: 'civil' as const, label: t('plantillas.cat_civil'), icon: Building, color: 'bg-purple-50 border-purple-300', textColor: 'text-blue-600' },
+    { key: 'publica' as const, label: t('plantillas.cat_publica'), icon: Landmark, color: 'bg-rose-50 border-rose-300', textColor: 'text-rose-600' },
+  ] as const;
   const { plantillas, proyectos, addPlantilla, updatePlantilla, deletePlantilla, clonarPlantilla, exportarPlantilla, importarPlantilla, crearProyectoDesdePlantilla, crearNuevaVersionPlantilla, restaurarVersionPlantilla, validarIntegridadPlantilla, toggleFavoritoPlantilla } = useErp();
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
