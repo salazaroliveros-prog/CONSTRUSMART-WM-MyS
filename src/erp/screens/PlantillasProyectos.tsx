@@ -421,8 +421,8 @@ const PlantillasProyectos: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
         <div>
-      <h1 className="text-2xl font-bold flex items-center gap-2">
-        <Layout className="h-6 w-6" />
+      <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
+        <Layout className="h-6 w-6" aria-hidden="true" />
         {t('plantillas.titulo')}
       </h1>
       <p className="text-muted-foreground mt-1">{t('plantillas.subtitulo')}</p>

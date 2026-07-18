@@ -189,11 +189,11 @@ export default function Auditoria() {
     <div className="p-4 max-w-6xl mx-auto space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+          <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
             <History className="h-6 w-6 text-purple-500" aria-hidden="true" />
             {t('auditoria.titulo')}
           </h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             {t('auditoria.total', { total: stats.total })} · {t('auditoria.creaciones', { count: stats.creaciones })} · {t('auditoria.actualizaciones', { count: stats.actualizaciones })} · {t('auditoria.eliminaciones', { count: stats.eliminaciones })}
           </p>
         </div>

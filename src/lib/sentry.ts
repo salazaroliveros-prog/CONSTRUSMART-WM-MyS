@@ -7,7 +7,9 @@ export async function initSentry(): Promise<void> {
   if (sentryInitialized) return;
   const dsn = import.meta.env.VITE_SENTRY_DSN;
   if (!dsn) {
-    console.warn('[Sentry] VITE_SENTRY_DSN no configurada. Sentry no se inicializará.');
+    if (import.meta.env.DEV) {
+      console.warn('[Sentry] VITE_SENTRY_DSN no configurada. Sentry no se inicializará.');
+    }
     return;
   }
   try {

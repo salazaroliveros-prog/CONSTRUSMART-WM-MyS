@@ -93,13 +93,13 @@ export default function VisorBIM() {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Eye className="w-6 h-6" />
+          <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
+            <Eye className="w-6 h-6" aria-hidden="true" />
             <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
               {t('visor_bim.titulo')}
             </span>
           </h1>
-          <p className="text-xs text-gray-500 mt-1">{t('visor_bim.descripcion')}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('visor_bim.descripcion')}</p>
         </div>
       </div>
 

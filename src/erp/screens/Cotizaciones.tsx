@@ -222,7 +222,7 @@ const Cotizaciones: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t('cotizaciones.titulo')}</h1>
+          <h1 className="text-lg sm:text-xl font-black text-foreground">{t('cotizaciones.titulo')}</h1>
           <p className="text-sm text-muted-foreground">{t('cotizaciones.descripcion')}</p>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('cotizaciones.nueva')}>

@@ -448,27 +448,35 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
     const criticalResults = await Promise.allSettled(CRITICAL_TABLES.map(fetchTable));
     const { statePatch: criticalPatch, errorCount: criticalErrors, authErrorCount: criticalAuthErrors } = processResults(criticalResults);
 
-    if (Object.keys(criticalPatch).length > 0 && criticalAuthErrors === 0) {
+    if (Object.keys(criticalPatch).length > 0) {
       useErpStore.setState({ 
         ...criticalPatch, 
-        syncStatus: 'synced', 
+        syncStatus: criticalAuthErrors === 0 && criticalErrors === 0 ? 'synced' : 'error', 
         lastSyncedAt: new Date().toISOString(), 
-        syncError: criticalErrors > 0 ? `${criticalErrors} tablas críticas fallaron pero otras cargaron correctamente` : undefined 
+        syncError: criticalAuthErrors > 0 ? `${criticalAuthErrors} tablas críticas con error de autenticación` : (criticalErrors > 0 ? `${criticalErrors} tablas críticas fallaron pero otras cargaron correctamente` : undefined) 
       });
       safeLogger.log(`[fetchInitialData] Cargados datos críticos de ${Object.keys(criticalPatch).length} tablas desde Supabase`);
-    } else if (criticalAuthErrors > 0) {
-      safeLogger.warn('[fetchInitialData] Errores de autenticación/autorización en tablas críticas; se preserva state local');
+    } else {
+      useErpStore.setState({ 
+        syncStatus: 'error', 
+        syncError: criticalAuthErrors > 0 ? 'Errores de autenticación en tablas críticas' : 'No se pudieron cargar datos críticos. Verifique la conexión a Supabase.',
+        lastSyncedAt: new Date().toISOString() 
+      });
+      safeLogger.warn('[fetchInitialData] No se pudieron cargar datos críticos');
     }
 
     setTimeout(async () => {
       const secondaryResults = await Promise.allSettled(SECONDARY_TABLES.map(fetchTable));
       const { statePatch: secondaryPatch, errorCount: secondaryErrors, authErrorCount: secondaryAuthErrors } = processResults(secondaryResults);
 
-      if (Object.keys(secondaryPatch).length > 0 && secondaryAuthErrors === 0) {
-        useErpStore.setState(secondaryPatch);
+      if (Object.keys(secondaryPatch).length > 0) {
+        useErpStore.setState({
+          ...secondaryPatch,
+          syncError: secondaryAuthErrors > 0 ? `${secondaryAuthErrors} tablas secundarias con error de autenticación` : (secondaryErrors > 0 ? `${secondaryErrors} tablas secundarias fallaron` : undefined)
+        });
         safeLogger.log(`[fetchInitialData] Cargados datos secundarios de ${Object.keys(secondaryPatch).length} tablas desde Supabase`);
-      } else if (secondaryAuthErrors > 0) {
-        safeLogger.warn('[fetchInitialData] Errores de autenticación/autorización en tablas secundarias; se preserva state local');
+      } else {
+        safeLogger.warn('[fetchInitialData] No se pudieron cargar datos secundarios');
       }
       const totalErrors = criticalErrors + secondaryErrors;
       if (totalErrors > 0) {
@@ -478,7 +486,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       }
     }, 100);
 
-    if (Object.keys(criticalPatch).length > 0 && criticalAuthErrors === 0) {
+    if (Object.keys(criticalPatch).length > 0) {
       const duration = performance.now() - startTime;
       recordSyncMetric(duration, true, CRITICAL_TABLES.length);
       (window as any).__FETCH_RETRY = 0;
@@ -486,11 +494,6 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       return true;
     }
     
-    useErpStore.setState({ 
-      syncStatus: 'error', 
-      syncError: 'No se pudieron cargar datos críticos. Verifique la conexión a Supabase.',
-      lastSyncedAt: new Date().toISOString() 
-    });
     const duration = performance.now() - startTime;
     recordSyncMetric(duration, false, 0);
     (window as any).__FETCH_RETRY = 0;

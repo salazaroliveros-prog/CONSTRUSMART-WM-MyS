@@ -218,7 +218,7 @@ export default function ErrorLog() {
     <div className="p-4 max-w-6xl mx-auto space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">{t('error_log.titulo')}</h1>
+          <h1 className="text-lg sm:text-xl font-black text-foreground">{t('error_log.titulo')}</h1>
           <p className="text-sm text-muted-foreground">
             {t('error_log.subtitulo', { total: stats.total, open: stats.open, resolved: stats.resolved, critical: stats.critical })}
           </p>

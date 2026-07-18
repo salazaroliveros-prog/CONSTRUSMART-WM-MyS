@@ -239,16 +239,21 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [authLoading]);
 
   const fetchedRef = useRef(false);
+  const [fetchKey, setFetchKey] = useState(0);
   useEffect(() => {
-    if (authUser && !fetchedRef.current) {
-      fetchedRef.current = true;
-      fetchInitialData();
-    }
-  }, [authUser]);
+    fetchedRef.current = false;
+    setFetchKey(k => k + 1);
+  }, [authUser?.id]);
+
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    fetchInitialData();
+  }, [fetchKey]);
 
   const initializedRef = useRef(false);
   useEffect(() => {
-    if (!authUser || initializedRef.current) return;
+    if (initializedRef.current) return;
     initializedRef.current = true;
     useErpStore.setState({
       proyectos: loadFromStorage(BASE_STORAGE_KEY + '_proyectos', proyectoSchema),
@@ -312,9 +317,12 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (loadedSettings.empresaInfo) setEmpresaInfo(loadedSettings.empresaInfo);
     __setActiveCurrency(loadedSettings.currency);
     __setActiveDateFormat(loadedSettings.dateFormat);
+  }, []);
 
-    migrateSecureStorage(user?.id).catch(err => safeLogger.warn('[Encryption] Migration error:', err));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (user?.id) {
+      migrateSecureStorage(user?.id).catch(err => safeLogger.warn('[Encryption] Migration error:', err));
+    }
   }, [user?.id]);
 
   useEffect(() => {
