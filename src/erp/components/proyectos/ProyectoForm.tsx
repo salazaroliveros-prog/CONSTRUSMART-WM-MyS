@@ -73,7 +73,7 @@ const ProyectoForm: React.FC<ProyectoFormProps> = ({
     }
   }, [watch, setSubtipologias]);
 
-  const validarCamposCliente = () => {
+  const clienteError = React.useMemo(() => {
     const cliente = watch('cliente');
     const nit = watch('clienteNit');
     const telefono = watch('clienteTelefono');
@@ -87,9 +87,7 @@ const ProyectoForm: React.FC<ProyectoFormProps> = ({
       return msg;
     }
     return null;
-  };
-
-  const clienteError = React.useMemo(() => validarCamposCliente(), [watch('cliente'), watch('clienteNit'), watch('clienteTelefono'), watch('clienteEmail'), watch('direccion'), watch('ciudad')]);
+  }, [watch('cliente'), watch('clienteNit'), watch('clienteTelefono'), watch('clienteEmail'), watch('direccion'), watch('ciudad')]);
 
   if (!show) return null;
 
