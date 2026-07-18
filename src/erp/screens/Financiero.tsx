@@ -70,17 +70,6 @@ const Financiero: React.FC = () => {
   const utilidad = useMemo(() => ingresos - egresos, [ingresos, egresos]);
   const margen = useMemo(() => (ingresos > 0 ? utilidad / ingresos : 0), [ingresos, utilidad]);
 
-  if (!loading && proyectos.length === 0) {
-    return (
-      <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <Wallet className="w-16 h-16 text-muted-foreground/30 mb-4" aria-hidden="true" />
-        <h2 className="text-xl font-bold text-foreground mb-2">{t('financiero.titulo')}</h2>
-        <p className="text-muted-foreground">{t('financiero.sin_datos')}</p>
-      </div>
-    );
-  }
-
-  // Rentabilidad por proyecto
   const profitabilityData = useMemo(() => {
     return proyectos.map((p) => {
       const ing = movimientos
@@ -106,7 +95,16 @@ const Financiero: React.FC = () => {
     });
   }, [proyectos, movimientos]);
 
-  // Aging de cuentas por cobrar
+  if (!loading && proyectos.length === 0) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <Wallet className="w-16 h-16 text-muted-foreground/30 mb-4" aria-hidden="true" />
+        <h2 className="text-xl font-bold text-foreground mb-2">{t('financiero.titulo')}</h2>
+        <p className="text-muted-foreground">{t('financiero.sin_datos')}</p>
+      </div>
+    );
+  }
+
   const agingCobrar = useMemo(() => {
     const vigentes = cuentasCobrar.filter((c) => {
       const dias = Math.floor(
@@ -179,7 +177,6 @@ const Financiero: React.FC = () => {
     };
   }, [cuentasCobrar]);
 
-  // Vencimientos de cuentas por pagar
   const vencimientosPagar = useMemo(() => {
     const proximos7 = cuentasPagar.filter((c) => {
       const dias = Math.floor(
