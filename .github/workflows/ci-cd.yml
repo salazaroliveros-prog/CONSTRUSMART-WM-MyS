@@ -5,14 +5,7 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main]
-
-env:
-  VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-  VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
-  VITE_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.VITE_SUPABASE_SERVICE_ROLE_KEY }}
-  VITE_ADMIN_EMAIL: ${{ secrets.VITE_ADMIN_EMAIL }}
-  VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY || '' }}
-  NODE_ENV: test
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -21,11 +14,9 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: 'npm'
       - run: npm ci --legacy-peer-deps
       - run: npm run lint
@@ -35,11 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: 'npm'
       - run: npm ci --legacy-peer-deps
       - run: npm run typecheck
@@ -49,14 +38,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: 'npm'
       - run: npm ci --legacy-peer-deps
-      - run: npm test
+      - env:
+          CI: true
+        run: npm test -- --run
 
   deploy:
     name: Build & Deploy
@@ -69,7 +58,7 @@ jobs:
           submodules: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: 'npm'
       - run: npm ci --legacy-peer-deps
       - run: npm run build
