@@ -420,14 +420,6 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       let errorCount = 0;
       let authErrorCount = 0;
       
-      // Inicializar todas las claves con arrays vacíos por defecto
-      for (const table of CRITICAL_TABLES) {
-        const stateKey = TABLE_MAP[table];
-        if (stateKey) {
-          statePatch[stateKey] = [];
-        }
-      }
-      
       for (const result of results) {
         if (result.status === 'fulfilled' && result.value) {
           const { table, data, authError } = result.value;

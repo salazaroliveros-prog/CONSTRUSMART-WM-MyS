@@ -62,6 +62,7 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+      - run: git config --global user.name "Construsmart WM" && git config --global user.email "ops@construsmart.local"
       - run: npm ci --legacy-peer-deps
       - run: npm run build
         env:
@@ -78,7 +79,7 @@ jobs:
             exit 0
           fi
           echo "Deploying to Vercel production..."
-          if ! npx vercel deploy --prod --token "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" --yes 2>&1; then
+          if ! npx vercel deploy --prod --token "$VERCEL_TOKEN" --scope proyectoswm --yes 2>&1; then
             echo "::warning::Vercel deploy failed. Check VERCEL_ORG_ID ($VERCEL_ORG_ID) and VERCEL_PROJECT_ID ($VERCEL_PROJECT_ID) secrets."
             echo "Build successful but deploy skipped."
             exit 0
