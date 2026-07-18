@@ -10,24 +10,28 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-let mockEmpleados: any[] = [];
+let mockNotificaciones: any[] = [];
 let mockProyectos: any[] = [];
-
-beforeEach(() => {
-  mockProyectos = [{ id: 'proj-1', nombre: 'Torre Norte' }];
-  mockEmpleados = [
-    { id: 'emp-1', nombre: 'Juan Perez', rol: 'supervisor', proyectoId: 'proj-1' },
-  ];
-});
 
 vi.mock('../erp/store', () => ({
   useErp: () => ({
-    empleados: mockEmpleados,
+    notificaciones: mockNotificaciones,
     proyectos: mockProyectos,
+    appSettings: {},
+    markNotificacionLeida: vi.fn(),
+    marcarTodasLeidas: vi.fn(),
   }),
 }));
 
-import RRHH from '../erp/screens/RRHH';
+vi.mock('../hooks/useNotificationSound', () => ({
+  useNotificationSound: () => vi.fn(),
+}));
+
+vi.mock('../components/PaginationBar', () => ({
+  default: () => null,
+}));
+
+import Notificaciones from '../erp/screens/Notificaciones';
 
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', {
@@ -45,13 +49,21 @@ beforeAll(() => {
   });
 });
 
+beforeEach(() => {
+  mockProyectos = [{ id: 'proj-1', nombre: 'Torre Norte' }];
+  mockNotificaciones = [
+    { id: 'n-1', tipo: 'stock_critico', titulo: 'Stock Bajo', mensaje: 'Stock bajo en cemento', leido: false, proyectoId: 'proj-1', createdAt: new Date().toISOString() },
+  ];
+});
+
 afterEach(cleanup);
 
-describe('RRHH Screen', () => {
-  it('renderiza empleados', async () => {
-    render(<RRHH />);
+describe('Notificaciones Screen', () => {
+  it('renderiza notificaciones', async () => {
+    render(<Notificaciones />);
     await waitFor(() => {
-      expect(screen.getByText('Juan Perez')).toBeInTheDocument();
+      expect(screen.getByText('Stock Bajo')).toBeInTheDocument();
+      expect(screen.getByText('Stock bajo en cemento')).toBeInTheDocument();
     });
   });
 });

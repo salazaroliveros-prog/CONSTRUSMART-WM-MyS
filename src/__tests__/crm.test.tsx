@@ -10,24 +10,27 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-let mockEmpleados: any[] = [];
+let mockLicitaciones: any[] = [];
 let mockProyectos: any[] = [];
 
 beforeEach(() => {
   mockProyectos = [{ id: 'proj-1', nombre: 'Torre Norte' }];
-  mockEmpleados = [
-    { id: 'emp-1', nombre: 'Juan Perez', rol: 'supervisor', proyectoId: 'proj-1' },
+  mockLicitaciones = [
+    { id: 'lic-1', nombre: 'Licitacion 1', clienteId: 'cli-1', monto: 500000, probabilidad: 80, estado: 'activa' },
   ];
 });
 
 vi.mock('../erp/store', () => ({
   useErp: () => ({
-    empleados: mockEmpleados,
+    licitaciones: mockLicitaciones,
     proyectos: mockProyectos,
+    addLicitacion: vi.fn(),
+    updateLicitacion: vi.fn(),
+    deleteLicitacion: vi.fn(),
   }),
 }));
 
-import RRHH from '../erp/screens/RRHH';
+import CRM from '../erp/screens/CRM';
 
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', {
@@ -47,11 +50,11 @@ beforeAll(() => {
 
 afterEach(cleanup);
 
-describe('RRHH Screen', () => {
-  it('renderiza empleados', async () => {
-    render(<RRHH />);
+describe('CRM Screen', () => {
+  it('renderiza licitaciones', async () => {
+    render(<CRM />);
     await waitFor(() => {
-      expect(screen.getByText('Juan Perez')).toBeInTheDocument();
+      expect(screen.getByText('Licitacion 1')).toBeInTheDocument();
     });
   });
 });
