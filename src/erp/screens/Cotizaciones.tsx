@@ -417,7 +417,7 @@ const Cotizaciones: React.FC = () => {
         <div className={MODAL_OVERLAY} role="dialog" aria-modal="true">
           <div className={`${MODAL_PANEL} max-w-4xl`}>
             <div className={MODAL_HEADER}>
-              <h2 className={MODAL_TITLE} truncate title={t('cotizaciones.calculadora')}>{t('cotizaciones.calculadora')}</h2>
+              <h2 className={`${MODAL_TITLE} truncate`} title={t('cotizaciones.calculadora')}>{t('cotizaciones.calculadora')}</h2>
               <button type="button" onClick={() => setShowCalculadora(false)} className={MODAL_CLOSE} aria-label={t('common.cerrar')}>
                 <X className="w-5 h-5" />
               </button>

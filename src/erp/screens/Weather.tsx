@@ -541,7 +541,7 @@ const Weather: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <CARD>
               <div className="flex items-center justify-between mb-4">
-                <h3 className={CARD_TITLE} truncate title={t('weather.current_conditions', 'Condiciones Actuales')}>{t('weather.current_conditions', 'Condiciones Actuales')}</h3>
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.current_conditions', 'Condiciones Actuales')}>{t('weather.current_conditions', 'Condiciones Actuales')}</h3>
                 {currentWeather?.weather[0] && (
                   <img
                     src={getWeatherIconUrl(currentWeather.weather[0].icon)}
@@ -570,7 +570,7 @@ const Weather: React.FC = () => {
 
             <CARD>
               <div className="flex items-center justify-between mb-4">
-                <h3 className={CARD_TITLE} truncate title={t('weather.settings', 'Configuración')}>{t('weather.settings', 'Configuración')}</h3>
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.settings', 'Configuración')}>{t('weather.settings', 'Configuración')}</h3>
                 <Settings className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
               </div>
               <div className="space-y-3">
@@ -605,7 +605,7 @@ const Weather: React.FC = () => {
           {showConstruction && metrics && (
             <CARD>
               <div className="flex items-center justify-between mb-4">
-                <h3 className={CARD_TITLE} truncate title={t('weather.construction_metrics', 'Métricas de Construcción')}>{t('weather.construction_metrics', 'Métricas de Construcción')}</h3>
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.construction_metrics', 'Métricas de Construcción')}>{t('weather.construction_metrics', 'Métricas de Construcción')}</h3>
                 <button
                   onClick={() => setShowConstruction(!showConstruction)}
                   className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -705,7 +705,7 @@ const Weather: React.FC = () => {
           {showHistory && weather?.history && weather.history.length > 1 && (
             <CARD>
               <div className="flex items-center justify-between mb-4">
-                <h3 className={CARD_TITLE} truncate title={t('weather.history_chart', 'Historial Climático')}>{t('weather.history_chart', 'Historial Climático')}</h3>
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.history_chart', 'Historial Climático')}>{t('weather.history_chart', 'Historial Climático')}</h3>
                 <button
                   onClick={() => setShowHistory(!showHistory)}
                   className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -721,7 +721,7 @@ const Weather: React.FC = () => {
           {showScheduling && scheduling.length > 0 && (
             <CARD>
               <div className="flex items-center justify-between mb-4">
-                <h3 className={CARD_TITLE} truncate title={t('weather.scheduling_windows', 'Ventanas de Programación')}>{t('weather.scheduling_windows', 'Ventanas de Programación')}</h3>
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.scheduling_windows', 'Ventanas de Programación')}>{t('weather.scheduling_windows', 'Ventanas de Programación')}</h3>
                 <button
                   onClick={() => setShowScheduling(!showScheduling)}
                   className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -774,7 +774,7 @@ const Weather: React.FC = () => {
           {showDetails && groupedForecast.length > 0 && (
             <CARD>
               <div className="flex items-center justify-between mb-4">
-                <h3 className={CARD_TITLE} truncate title={t('weather.forecast', 'Pronóstico')}>{t('weather.forecast', 'Pronóstico')}</h3>
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.forecast', 'Pronóstico')}>{t('weather.forecast', 'Pronóstico')}</h3>
                 <button
                   onClick={() => setShowDetails(!showDetails)}
                   className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
