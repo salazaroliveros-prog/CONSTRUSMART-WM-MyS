@@ -1,7 +1,9 @@
 /**
  * Rate Limiter Middleware - PRIORITY 1 Implementation
  * 
- * Previene ataques de fuerza bruta limitando solicitudes por IP
+ * ⚠️ SERVER-ONLY: Este archivo usa módulos Node.js (express-rate-limit, redis)
+ * y NO debe importarse desde código frontend/browser. Excluir del bundle de Vite.
+ * 
  * Ubicación: src/middleware/rateLimit.ts
  * 
  * SESSION 3 - PRIORITY 1 IMPLEMENTATION

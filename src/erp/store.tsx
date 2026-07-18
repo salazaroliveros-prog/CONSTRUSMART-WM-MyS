@@ -616,7 +616,10 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
           
           encryptionManager.encryptItem(BASE_STORAGE_KEY + '_settings', s.appSettings, user?.id || 'default')
             .then(() => safeLogger.log('[Encryption] appSettings encrypted'))
-            .catch(err => safeLogger.warn('[Encryption] Failed to encrypt appSettings:', err));
+            .catch(err => {
+              try { localStorage.removeItem('enc_' + (BASE_STORAGE_KEY + '_settings')); } catch {}
+              safeLogger.warn('[Encryption] Failed to encrypt appSettings:', err);
+            });
           
           if (quotaCritical) safeLogger.warn('[Storage] Cuota de localStorage casi llena — usando compresión');
         } catch (e) { safeLogger.warn('[Storage] Error al persistir:', e); }

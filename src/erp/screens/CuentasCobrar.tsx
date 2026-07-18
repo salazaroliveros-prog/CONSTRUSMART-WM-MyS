@@ -25,7 +25,10 @@ const CuentasCobrar: React.FC = () => {
   const [formEstado, setFormEstado] = useState('pendiente');
   const [formNotas, setFormNotas] = useState('');
 
-  useEffect(() => { setTimeout(() => setLoading(false), 300); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filtered = useMemo(() => {
     return (cuentasCobrar || []).filter(c => {

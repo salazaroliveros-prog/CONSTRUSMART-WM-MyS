@@ -189,6 +189,9 @@ const ExportacionInteligente: React.FC = () => {
 
       const reportDiv = document.createElement('div');
       reportDiv.style.cssText = `padding: 30px; font-family: Arial, sans-serif; max-width: 800px; background: ${themeTokens.bg}; color: ${themeTokens.text};`;
+      // innerHTML seguro: contenido solo para renderizado PDF via html2canvas,
+      // datos desde store interno, strings usuario-sanitizados con sanitizarTexto,
+      // numeros/formato controlado, colores desde CSS variables de la app.
       reportDiv.innerHTML = `
         <div style="text-align:center;border-bottom:3px solid ${themeTokens.primary};padding-bottom:15px;margin-bottom:20px">
           <h1 style="margin:0;color:${themeTokens.text}">CONSTRUCTORA WM</h1>

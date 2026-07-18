@@ -370,11 +370,11 @@ const APUAvanzado: React.FC = () => {
       </div>
 
       <div className="flex flex-wrap gap-1 mb-4 bg-muted rounded-xl p-1 shadow-sm border border-border">
-        {TABS.map(t => {
-          const Icon = t.icon;
+        {TABS.map(tab => {
+          const Icon = tab.icon;
           return (
-            <button key={t.id} onClick={() => setTab(t.id)} aria-label={t('apu.ver_pestana', { tab: t.label })} className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${tab === t.id ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-background'}`}>
-              <Icon className="w-3.5 h-3.5" /> {t.label}
+            <button key={tab.id} onClick={() => setTab(tab.id)} aria-label={t('apu.ver_pestana', { tab: tab.label })} className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${tab === tab.id ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-background'}`}>
+              <Icon className="w-3.5 h-3.5" /> {tab.label}
             </button>
           );
         })}

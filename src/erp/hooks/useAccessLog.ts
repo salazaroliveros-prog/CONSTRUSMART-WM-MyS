@@ -6,15 +6,18 @@ type AccessEvent = 'sign_in' | 'sign_out' | 'session_refresh' | 'sign_in_failed'
 async function logAccess(event: AccessEvent, userId?: string, email?: string, provider?: string) {
   if (!hasSupabase) return;
   try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user?.id) return;
+
     await supabase.from('erp_access_log').insert({
-      user_id: userId ?? null,
-      email: email ?? null,
+      user_id: userId ?? session.user.id,
+      email: email ?? session.user.email,
       event,
-      provider: provider ?? null,
+      provider: provider ?? (session.user.app_metadata as any)?.provider ?? null,
       user_agent: navigator.userAgent.slice(0, 200),
     });
-  } catch {
-    // Non-critical — never throw
+  } catch (error) {
+    console.warn('[useAccessLog] Failed to log access:', error);
   }
 }
 

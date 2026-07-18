@@ -22,7 +22,10 @@ const Presupuestos: React.FC = () => {
   const [formEstado, setFormEstado] = useState<Presupuesto['estado']>('borrador');
   const [formMoneda, setFormMoneda] = useState<string>('GTQ');
 
-  useEffect(() => { setTimeout(() => setLoading(false), 300); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const presupuestosFiltrados = useMemo(() => {
     if (filtroProyecto === 'todos') return presupuestos;

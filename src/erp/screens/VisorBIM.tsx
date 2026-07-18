@@ -38,7 +38,8 @@ export default function VisorBIM() {
   const renglones = useMemo(() => presupuestoActual?.renglones || [], [presupuestoActual]);
 
   React.useEffect(() => {
-    setTimeout(() => setLoading(false), 400);
+    const timer = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleVincular = useCallback((elementoId: string) => {

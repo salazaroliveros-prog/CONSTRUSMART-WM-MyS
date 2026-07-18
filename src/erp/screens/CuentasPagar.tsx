@@ -25,7 +25,10 @@ const CuentasPagar: React.FC = () => {
   const [formEstado, setFormEstado] = useState('pendiente');
   const [formFacturaUrl, setFormFacturaUrl] = useState('');
 
-  useEffect(() => { setTimeout(() => setLoading(false), 300); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filtered = useMemo(() => {
     return (cuentasPagar || []).filter(c => {

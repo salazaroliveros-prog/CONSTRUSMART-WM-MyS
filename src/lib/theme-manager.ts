@@ -286,13 +286,15 @@ export function initializeTheme(): void {
     const saved = localStorage.getItem('wm_erp_data_settings');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (parsed?.compactMode) {
-        document.documentElement.classList.add('compact');
-      }
-      if (parsed?.primaryColor) {
-        const hsl = hexToHSL(parsed.primaryColor);
-        document.documentElement.style.setProperty('--primary-hue', hsl);
-        document.documentElement.style.setProperty('--primary', hsl);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        if ((parsed as any).compactMode) {
+          document.documentElement.classList.add('compact');
+        }
+        if ((parsed as any).primaryColor) {
+          const hsl = hexToHSL((parsed as any).primaryColor);
+          document.documentElement.style.setProperty('--primary-hue', hsl);
+          document.documentElement.style.setProperty('--primary', hsl);
+        }
       }
     }
   } catch {
