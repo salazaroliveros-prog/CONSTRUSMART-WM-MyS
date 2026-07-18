@@ -78,7 +78,11 @@ async function trimCache(cacheName, maxEntries) {
 async function cacheAndTrim(cacheName, request, response, maxEntries) {
   if (!response || response.status !== 200 || response.type === 'error') return;
   const cache = await caches.open(cacheName);
-  await cache.put(request, response);
+  try {
+    await cache.put(request, response);
+  } catch {
+    return;
+  }
   await trimCache(cacheName, maxEntries);
 }
 
