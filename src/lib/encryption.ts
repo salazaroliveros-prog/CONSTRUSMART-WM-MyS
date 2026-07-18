@@ -130,6 +130,36 @@ export function generateEncryptionKey(): string {
   return crypto.randomBytes(32).toString('hex');
 }
 
+const ENCRYPTED_PREFIX = 'enc_';
+
+export async function migrateSecureStorage(userId: string): Promise<void> {
+  const keys: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('wm_erp_') && !k.startsWith(ENCRYPTED_PREFIX)) {
+      keys.push(k);
+    }
+  }
+  for (const k of keys) {
+    try {
+      const raw = localStorage.getItem(k);
+      if (!raw) continue;
+      const encrypted = encryptSensitive(JSON.stringify({ userId, data: raw }));
+      localStorage.setItem(ENCRYPTED_PREFIX + k, encrypted);
+    } catch {
+      console.warn('[Encryption] Migration warning for key:', k);
+    }
+  }
+}
+
+export const encryptionManager = {
+  async encryptItem(key: string, value: unknown, userId: string): Promise<void> {
+    const payload = JSON.stringify({ userId, data: value });
+    const encrypted = encryptSensitive(payload);
+    localStorage.setItem(ENCRYPTED_PREFIX + key, encrypted);
+  },
+};
+
 export default {
   encryptSensitive,
   decryptSensitive,
@@ -137,4 +167,6 @@ export default {
   decryptObject,
   validateEncryptionSetup,
   generateEncryptionKey,
+  migrateSecureStorage,
+  encryptionManager,
 };
