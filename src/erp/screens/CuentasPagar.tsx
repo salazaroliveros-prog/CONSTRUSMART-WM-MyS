@@ -11,7 +11,8 @@ import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
 
 const CuentasPagar: React.FC = () => {
   const { t } = useTranslation();
-  const { cuentasPagar, proveedores, addCuentaPagar, updateCuentaPagar, deleteCuentaPagar } = useErp();
+  const { cuentasPagar, proveedores, proyectos: proyectosCuenta, addCuentaPagar, updateCuentaPagar, deleteCuentaPagar } = useErp();
+  const proyectos = proyectosCuenta || [];
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);

@@ -123,7 +123,7 @@ const Hitos: React.FC = () => {
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-0.5 block">{t('hitos.tipo', 'Tipo')}</label>
-              <select value={tipo} onChange={e => setTipo(e.target.value as TipoHito)} className={INPUT}>{('entrega,pago,inspeccion,licencia,otro' as TipoHito[]).map(tp => <option key={tp} value={tp}>{TIPOS[tp]?.label || tp}</option>)}</select>
+              <select value={tipo} onChange={e => setTipo(e.target.value as TipoHito)} className={INPUT}>{['entrega','pago','inspeccion','licencia','otro'].map(tp => <option key={tp} value={tp}>{TIPOS[tp]?.label || tp}</option>)}</select>
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-0.5 block">{t('hitos.proyecto', 'Proyecto')}</label>
