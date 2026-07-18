@@ -10,7 +10,7 @@ import { Download, Copy, Trash2, Eye, Edit2, Plus, Save, X, RefreshCw, AlertTria
 
 const Presupuestos: React.FC = () => {
   const { t } = useTranslation();
-  const { presupuestos, proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto, renglones, addRenglon, updateRenglon, deleteRenglon } = useErp();
+  const { presupuestos, proyectos, addPresupuesto, updatePresupuesto, deletePresupuesto } = useErp();
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -35,8 +35,8 @@ const Presupuestos: React.FC = () => {
   const selectedPresupuesto = presupuestos.find(p => p.id === selectedId) || null;
   const renglonesDelPresupuesto = useMemo(() => {
     if (!selectedPresupuesto) return [];
-    return renglones.filter(r => r.presupuestoId === selectedPresupuesto.id);
-  }, [renglones, selectedPresupuesto]);
+    return (selectedPresupuesto.renglones || []).filter(r => r.presupuestoId === selectedPresupuesto.id);
+  }, [selectedPresupuesto]);
 
   const handleCreatePresupuesto = () => {
     setEditPresupuestoId(null);

@@ -24,7 +24,7 @@ const TIPOS: Record<TipoPublicacion, { label: string; color: string }> = {
 
 const MuroObra: React.FC = () => {
   const { t } = useTranslation();
-  const { publicaciones, proyectos, addPublicacionMuro, addComentarioMuro, likePublicacionMuro, currentProjectId } = useErp();
+  const { publicaciones: publicacionesMuro, proyectos, addPublicacionMuro, addComentarioMuro, likePublicacionMuro, currentProjectId } = useErp();
   const [loading, setLoading] = useState(true);
   useEffect(() => { setLoading(false); }, []);
   const [filtroProyecto, setFiltroProyecto] = useState('');
@@ -35,12 +35,12 @@ const MuroObra: React.FC = () => {
   const [comentarios, setComentarios] = useState<Record<string, string>>({});
 
   const filtered = useMemo(() => {
-    return (publicaciones || []).filter(p => {
+    return (publicacionesMuro || []).filter(p => {
       if (currentProjectId && currentProjectId !== 'none' && p.proyectoId !== currentProjectId) return false;
       if (tipoFiltro !== 'todos' && p.tipo !== tipoFiltro) return false;
       return true;
     }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [publicaciones, currentProjectId, tipoFiltro]);
+  }, [publicacionesMuro, currentProjectId, tipoFiltro]);
 
   const handlePublicar = () => {
     const result = mensajeSchema.safeParse({ texto: nuevoTexto });
