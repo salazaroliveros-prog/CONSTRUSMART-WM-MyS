@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { hitoSchema } from './seguimiento';
 
 export const eventoSchema = z.object({
   id: z.string(),
@@ -37,4 +38,4 @@ export const bitacoraSchema = z.object({
   createdAt: z.string().default(new Date().toISOString()),
 });
 
-export const hitoFormSchema = seguimiento.hitoSchema.omit({ id: true, estado: true, dependeDe: true, completadoEn: true, createdAt: true });
+export const hitoFormSchema = hitoSchema.omit({ id: true, estado: true, dependeDe: true, completadoEn: true, createdAt: true });
