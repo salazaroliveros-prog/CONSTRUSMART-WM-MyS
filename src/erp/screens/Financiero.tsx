@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { fmtQ, fmtPct, safeNum } from '../utils';
-import { BarChart, LineChart } from '../components/Charts';
 import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { KPICard } from '../components/shared';
@@ -19,21 +18,28 @@ const Financiero: React.FC = () => {
     setTimeout(() => setLoading(false), 300);
   }, []);
 
-  if (loading || proyectos.length === 0) {
-    return (
-      <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <Wallet className="w-16 h-16 text-muted-foreground/30 mb-4" aria-hidden="true" />
-        <h2 className="text-xl font-bold text-foreground mb-2">{t('financiero.titulo')}</h2>
-        <p className="text-muted-foreground">{t('financiero.sin_datos')}</p>
+  const emptyState = (
+    <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
+      <Wallet className="w-16 h-16 text-muted-foreground/30 mb-4" aria-hidden="true" />
+      <h2 className="text-xl font-bold text-foreground mb-2">{t('financiero.titulo')}</h2>
+      <p className="text-muted-foreground">{t('financiero.sin_datos')}</p>
+    </div>
+  );
+  const skeleton = (
+    <div className="p-6 space-y-4">
+      <Skeleton className="h-8 w-64" />
+      <div className="grid grid-cols-3 gap-4">
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
       </div>
-    );
-  }
+      <Skeleton className="h-64" />
+    </div>
+  );
 
   const movimientosFiltrados = useMemo(() => {
     let data = [...movimientos];
-    if (filtroProyecto !== 'todos') {
-      data = data.filter((m) => m.proyectoId === filtroProyecto);
-    }
+    if (filtroProyecto !== 'todos') data = data.filter((m) => m.proyectoId === filtroProyecto);
 
     const now = new Date();
     if (filtroFecha === 'mes') {
@@ -153,6 +159,12 @@ const Financiero: React.FC = () => {
       status: vencidas.length > 0 || proximos7.length > 0 ? 'critical' : proximos30.length > 0 ? 'caution' : 'healthy',
     };
   }, [cuentasPagar]);
+
+  if (loading) return skeleton;
+
+  if (proyectos.length === 0) {
+    return emptyState;
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-6">
