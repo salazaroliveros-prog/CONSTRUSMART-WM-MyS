@@ -182,7 +182,7 @@ const EntradasAlmacenOC: React.FC = () => {
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={t('entradasAlmacenOC.registrar_recepcion')}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <h3 className="font-bold mb-4">{t('entradasAlmacenOC.registrar_recepcion')}</h3>
+            <h3 className="font-bold mb-4 truncate" title={t('entradasAlmacenOC.registrar_recepcion')}>{t('entradasAlmacenOC.registrar_recepcion')}</h3>
             <p className="text-sm text-muted-foreground mb-3">
               {t('entradasAlmacenOC.oc_info', { material: ordenes.find(o => o.id === showForm)?.material, proveedor: ordenes.find(o => o.id === showForm)?.proveedor })}
             </p>

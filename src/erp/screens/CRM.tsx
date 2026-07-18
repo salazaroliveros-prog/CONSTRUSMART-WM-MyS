@@ -56,6 +56,15 @@ const CRM: React.FC = () => {
   const licitacionesFiltradas = useMemo(() => licitaciones.filter(l => !filtroProyecto || l.proyectoId === filtroProyecto), [licitaciones, filtroProyecto]);
 
   if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-64" /><Skeleton className="h-64 w-full" /></div>;
+  if (licitacionesFiltradas.length === 0) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <Briefcase className="w-16 h-16 text-muted-foreground/30 mb-4" aria-hidden="true" />
+        <h2 className="text-xl font-bold text-foreground mb-2">{t('crm.titulo')}</h2>
+        <p className="text-muted-foreground">{t('crm.sin_licitaciones')}</p>
+      </div>
+    );
+  }
 
   const resetForm = () => {
     setFormNombre('');
@@ -169,7 +178,7 @@ const CRM: React.FC = () => {
         <div className={MODAL_OVERLAY} role="dialog" aria-modal="true" aria-label={editingId ? t('crm.editar') : t('crm.nueva_licitacion')} onClick={() => { setShowForm(false); resetForm(); }}>
           <div className={MODAL_PANEL} onClick={e => e.stopPropagation()}>
             <div className={MODAL_HEADER}>
-              <h2 className={MODAL_TITLE}>{editingId ? t('crm.editar') : t('crm.nueva_licitacion')}</h2>
+              <h2 className={MODAL_TITLE + " truncate"} title={editingId ? t('crm.editar') : t('crm.nueva_licitacion')}>{editingId ? t('crm.editar') : t('crm.nueva_licitacion')}</h2>
               <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className={MODAL_CLOSE} aria-label={t('common.cerrar')}><X className="w-5 h-5" /></button>
             </div>
             <div className="p-4 sm:p-6 space-y-3">

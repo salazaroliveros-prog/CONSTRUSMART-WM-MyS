@@ -349,7 +349,7 @@ const BasePrecios: React.FC = () => {
 
       {showAgregar && (
         <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mb-4">
-          <h3 className="font-bold text-muted-foreground text-sm mb-3">{t('baseprecios.nuevo_insumo')}</h3>
+          <h3 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('baseprecios.nuevo_insumo')}>{t('baseprecios.nuevo_insumo')}</h3>
 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
              <div>
                <input value={nuevoNombre} onChange={e => { setNuevoNombre(e.target.value); setFormErrors(prev => ({ ...prev, nombre: '' })); }} placeholder={t('baseprecios.nombre_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-emerald-400 w-full" />

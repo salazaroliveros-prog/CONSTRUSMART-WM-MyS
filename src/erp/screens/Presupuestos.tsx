@@ -111,6 +111,15 @@ const Presupuestos: React.FC = () => {
   };
 
   if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-64" /><Skeleton className="h-64 w-full" /></div>;
+  if (presupuestosFiltrados.length === 0) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <Wallet className="w-16 h-16 text-muted-foreground/30 mb-4" aria-hidden="true" />
+        <h2 className="text-xl font-bold text-foreground mb-2">{t('presupuestos.titulo')}</h2>
+        <p className="text-muted-foreground">{t('presupuestos.sin_presupuestos')}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
@@ -149,7 +158,7 @@ const Presupuestos: React.FC = () => {
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={editPresupuestoId ? t('presupuestos.editar') : t('presupuestos.nuevo_presupuesto')}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
-            <h3 className="font-bold mb-4 text-foreground">{editPresupuestoId ? t('presupuestos.editar') : t('presupuestos.nuevo_presupuesto')}</h3>
+            <h3 className="font-bold mb-4 text-foreground truncate" title={editPresupuestoId ? t('presupuestos.editar') : t('presupuestos.nuevo_presupuesto')}>{editPresupuestoId ? t('presupuestos.editar') : t('presupuestos.nuevo_presupuesto')}</h3>
             <div className="grid gap-3">
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">{t('presupuestos.nombre')}</label>

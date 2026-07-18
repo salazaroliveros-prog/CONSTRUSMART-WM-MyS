@@ -57,7 +57,7 @@ const Login: React.FC = () => {
               className="w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(249,115,22,0.5)]"
             />
           </div>
-          <h1 className="text-4xl font-black leading-tight text-white drop-shadow-lg">
+          <h1 className="text-4xl font-black leading-tight text-white drop-shadow-lg truncate" title={EMPRESA.nombre}>
             {EMPRESA.nombre}
           </h1>
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 text-primary-foreground">

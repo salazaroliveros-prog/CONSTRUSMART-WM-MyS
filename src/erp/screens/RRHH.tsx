@@ -264,7 +264,7 @@ const RRHH: React.FC = () => {
       </div>
 
       <div className={CARD + " mt-4"}>
-        <h3 className={CARD_TITLE}>
+        <h3 className={CARD_TITLE + " truncate"} title={editingId ? t('rrhh.editEmployee') : t('rrhh.newEmployee')}>
           {editingId ? t('rrhh.editEmployee') : t('rrhh.newEmployee')}
         </h3>
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

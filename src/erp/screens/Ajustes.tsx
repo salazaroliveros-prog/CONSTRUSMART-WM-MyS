@@ -932,7 +932,7 @@ const Ajustes: React.FC = () => {
                 <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
                   <Info className="h-10 w-10" />
                 </div>
-                <h3 className="text-lg font-bold m-0 text-foreground">{t('ajustes.erp_nombre')}</h3>
+                <h3 className="text-lg font-bold m-0 text-foreground truncate" title={t('ajustes.erp_nombre')}>{t('ajustes.erp_nombre')}</h3>
                 <p className="text-sm text-muted-foreground m-0">{t('ajustes.sistema_integral')}</p>
                 <span className="inline-flex items-center rounded-md bg-orange-100 dark:bg-orange-900 px-3 py-1 text-sm font-medium text-orange-700 dark:text-orange-300">{t('ajustes.version_tag')}</span>
                 <hr className="w-full border-t border-border my-2" />

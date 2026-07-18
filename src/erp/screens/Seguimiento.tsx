@@ -180,9 +180,7 @@ const Seguimiento: React.FC = () => {
 
             {/* Tabla de todos los proyectos */}
             <div className="bg-card border border-border rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-foreground mb-3">
-                Estado General de Proyectos
-              </h3>
+              <h3 className="text-sm font-semibold text-foreground mb-3 truncate" title="Estado General de Proyectos">Estado General de Proyectos</h3>
               <TableWithRowActions
                 data={tableData}
                 columns={columns}

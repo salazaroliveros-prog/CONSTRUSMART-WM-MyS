@@ -242,7 +242,7 @@ const ProveedorAnalytics: React.FC = () => {
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3 sm:p-4">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" aria-hidden="true" />
-            <h3 className="font-semibold text-red-700 dark:text-red-400 text-sm sm:text-base">{t('proveedor_analytics.riesgo_detectado')}</h3>
+            <h3 className="font-semibold text-red-700 dark:text-red-400 text-sm sm:text-base truncate" title={t('proveedor_analytics.riesgo_detectado')}>{t('proveedor_analytics.riesgo_detectado')}</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {riesgos.slice(0, 6).map((riesgo, i) => (
@@ -265,7 +265,7 @@ const ProveedorAnalytics: React.FC = () => {
         <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3 sm:p-4">
           <div className="flex items-center gap-2 mb-2">
             <Award className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" aria-hidden="true" />
-            <h3 className="font-semibold text-emerald-700 dark:text-emerald-400 text-sm sm:text-base">{t('proveedor_analytics.recomendados')}</h3>
+            <h3 className="font-semibold text-emerald-700 dark:text-emerald-400 text-sm sm:text-base truncate" title={t('proveedor_analytics.recomendados')}>{t('proveedor_analytics.recomendados')}</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {recomendaciones.map((rec, i) => (

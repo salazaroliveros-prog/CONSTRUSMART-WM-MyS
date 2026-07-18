@@ -110,7 +110,7 @@ const Hitos: React.FC = () => {
 
       {formOpen && (
         <div className="bg-card border border-border rounded-2xl p-4 mb-4">
-          <h3 className="text-sm font-semibold mb-2">{editingId ? t('hitos.editar', 'Editar hito') : t('hitos.crear', 'Crear hito')}</h3>
+          <h3 className="text-sm font-semibold mb-2 truncate" title={editingId ? t('hitos.editar', 'Editar hito') : t('hitos.crear', 'Crear hito')}>{editingId ? t('hitos.editar', 'Editar hito') : t('hitos.crear', 'Crear hito')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <label className="text-xs text-muted-foreground mb-0.5 block">{t('hitos.nombre', 'Nombre')}</label>

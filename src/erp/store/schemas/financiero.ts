@@ -67,18 +67,3 @@ export const ventaPaqueteSchema = z.object({
   planPago: z.string().optional(),
   notas: z.string().optional(),
 });
-
-export const ordenCambioSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string().min(1, 'proyectoId es requerido'),
-  titulo: z.string().default(''),
-  descripcion: z.string().default(''),
-  impactoCosto: z.number().default(0),
-  impactoPlazo: z.number().default(0),
-  estado: z.enum(['solicitud','revision','aprobado','rechazado'] as const).default('solicitud'),
-  solicitante: z.string().default(''),
-  solicitanteRol: z.string().default(''),
-  aprobador: z.string().nullable().optional(),
-  fechaAprobacion: z.string().nullable().optional(),
-  createdAt: z.string().default(new Date().toISOString()),
-});

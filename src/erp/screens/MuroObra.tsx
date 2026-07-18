@@ -77,7 +77,7 @@ const MuroObra: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1200px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2"><Image className="w-5 h-5 text-primary" aria-hidden="true" /> {t('muro.titulo', 'Muro de Obra')}</h1>
+        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2 truncate" title={t('muro.titulo', 'Muro de Obra')}><Image className="w-5 h-5 text-primary" aria-hidden="true" /> {t('muro.titulo', 'Muro de Obra')}</h1>
         <div className="flex flex-wrap gap-2">
           <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={proyectos} />
           <select value={tipoFiltro} onChange={e => setTipoFiltro(e.target.value as any)} className={`${INPUT} text-xs`} aria-label={t('muro.filtrar_tipo', 'Filtrar por tipo')}>

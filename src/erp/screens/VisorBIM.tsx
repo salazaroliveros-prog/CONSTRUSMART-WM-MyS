@@ -188,7 +188,7 @@ export default function VisorBIM() {
         <TabsContent value="cubicacion" className="space-y-3">
           <Card className="p-4">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-foreground">{t('visor_bim.tab_cubicacion')}</h3>
+              <h3 className="font-bold text-foreground truncate" title={t('visor_bim.tab_cubicacion')}>{t('visor_bim.tab_cubicacion')}</h3>
               <Button size="sm" onClick={generarCubicacion}>
                 <Ruler className="w-4 h-4 mr-1" /> {t('visor_bim.generar')}
               </Button>
@@ -226,7 +226,7 @@ export default function VisorBIM() {
         {/* Avance vs Campo */}
         <TabsContent value="avance" className="space-y-3">
           <Card className="p-4">
-            <h3 className="font-bold text-foreground mb-3">{t('visor_bim.avance_vs_campo')}</h3>
+            <h3 className="font-bold text-foreground mb-3 truncate" title={t('visor_bim.avance_vs_campo')}>{t('visor_bim.avance_vs_campo')}</h3>
             <p className="text-xs text-gray-500">{t('visor_bim.comparativa')}</p>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="p-4 bg-blue-50 rounded-lg">

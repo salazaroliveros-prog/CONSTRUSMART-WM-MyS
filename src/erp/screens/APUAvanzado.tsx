@@ -384,7 +384,7 @@ const APUAvanzado: React.FC = () => {
         {tab === 'insumos' && (
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-              <h2 className="font-bold text-foreground text-sm">{t('apu.catalogo_insumos_base')}</h2>
+              <h2 className="font-bold text-foreground text-sm truncate" title={t('apu.catalogo_insumos_base')}>{t('apu.catalogo_insumos_base')}</h2>
               <div className="flex flex-wrap gap-2">
                 <select value={rubroFilter} onChange={e => setRubroFilter(e.target.value)} className="text-xs px-2 py-1.5 rounded-lg border border-input outline-none bg-background text-foreground">
                   <option value="">{t('apu.todos_rubros')}</option>
@@ -437,7 +437,7 @@ const APUAvanzado: React.FC = () => {
         {tab === 'rendimientos' && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold text-muted-foreground text-sm">{t('apu.rendimientos_cuadrilla')}</h2>
+              <h2 className="font-bold text-muted-foreground text-sm truncate" title={t('apu.rendimientos_cuadrilla')}>{t('apu.rendimientos_cuadrilla')}</h2>
               <div className="relative">
                 <Search className="absolute left-2 top-1.5 w-3.5 h-3.5 text-muted-foreground" />
                 <input value={searchRend} onChange={e => setSearchRend(e.target.value)} placeholder={t('apu.buscar_actividad')} className="pl-7 pr-3 py-1.5 text-xs rounded-lg border border-border outline-none focus:border-orange-400 w-full sm:w-44" />
@@ -510,8 +510,8 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'dosificacion' && (
           <div>
-            <h2 className="font-bold text-muted-foreground text-sm mb-3">{t('apu.dosificacion_titulo')}</h2>
-            <p className="text-xs text-muted-foreground mb-4">{t('apu.dosificacion_descripcion')}</p>
+<h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.dosificacion_titulo')}>{t('apu.dosificacion_titulo')}</h2>
+<p className="text-xs text-muted-foreground mb-4 truncate" title={t('apu.dosificacion_descripcion')}>{t('apu.dosificacion_descripcion')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.resistencia')}</label><select value={dosificacion.resistencia} onChange={e => setDosificacion(d => ({ ...d, resistencia: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="2000psi">2000 psi</option><option value="2500psi">2500 psi</option><option value="3000psi">3000 psi</option><option value="3500psi">3500 psi</option><option value="4000psi">4000 psi</option><option value="4500psi">4500 psi</option><option value="5000psi">5000 psi</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.tipo_elemento')}</label><select value={dosificacion.tipo} onChange={e => setDosificacion(d => ({ ...d, tipo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="cimentacion">{t('apu.dosif_cimentacion')}</option><option value="estructura">{t('apu.dosif_estructura')}</option><option value="losa">{t('apu.dosif_losa')}</option><option value="pavimento">{t('apu.dosif_pavimento')}</option><option value="muro">{t('apu.dosif_muro')}</option></select></div>
@@ -529,7 +529,7 @@ const APUAvanzado: React.FC = () => {
             {resultadoDosificacion && (
               <div className="mt-4 space-y-3">
                 <div className="bg-muted/30 rounded-xl p-4 border border-border">
-                  <h3 className="font-bold text-muted-foreground text-xs mb-3">{t('apu.cantidades_calculadas')}</h3>
+                  <h3 className="font-bold text-muted-foreground text-xs mb-3 truncate" title={t('apu.cantidades_calculadas')}>{t('apu.cantidades_calculadas')}</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-100"><div className="text-xs text-blue-600 mb-1">{t('apu.cemento')}</div><div className="text-lg font-bold text-blue-700">{resultadoDosificacion.cementoSacos.toFixed(1)} sacos</div></div>
                     <div className="bg-amber-50 rounded-lg p-3 border border-amber-100"><div className="text-xs text-amber-600 mb-1">{t('apu.arena')}</div><div className="text-lg font-bold text-amber-700">{resultadoDosificacion.arenaM3.toFixed(2)} m³</div></div>
@@ -555,8 +555,8 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'calculo' && (
           <div>
-            <h2 className="font-bold text-muted-foreground text-sm mb-3">{t('apu.calculo_automatico')}</h2>
-            <p className="text-xs text-muted-foreground mb-4">{t('apu.ejemplo_renglon')}</p>
+<h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.calculo_automatico')}>{t('apu.calculo_automatico')}</h2>
+<p className="text-xs text-muted-foreground mb-4 truncate" title={t('apu.ejemplo_renglon')}>{t('apu.ejemplo_renglon')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
               <div className="bg-blue-50 rounded-xl p-4 border border-blue-100"><div className="flex items-center gap-1.5 mb-1"><Wrench className="w-3.5 h-3.5 text-blue-500" /><span className="text-xs font-medium text-blue-600">{t('apu.materiales_label')}</span></div><div className="text-xl font-bold text-blue-700">Q{calculos.cd.materiales.toFixed(2)}</div></div>
               <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100"><div className="flex items-center gap-1.5 mb-1"><Users className="w-3.5 h-3.5 text-emerald-500" /><span className="text-xs font-medium text-emerald-600">{t('apu.mano_obra_label')}</span></div><div className="text-xl font-bold text-emerald-700">Q{calculos.cd.manoObra.toFixed(2)}</div></div>
@@ -585,8 +585,8 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'historico' && (
           <div>
-            <h2 className="font-bold text-muted-foreground text-sm mb-3">{t('apu.historico_titulo')}</h2>
-            <p className="text-xs text-muted-foreground mb-4">{t('apu.historico_descripcion')}</p>
+<h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.historico_titulo')}>{t('apu.historico_titulo')}</h2>
+<p className="text-xs text-muted-foreground mb-4 truncate" title={t('apu.historico_descripcion')}>{t('apu.historico_descripcion')}</p>
             {historial.length > 0 ? (<>
               <div className="relative h-40 mb-4 bg-muted/30 rounded-xl p-3 border border-border">
                 <div className="flex items-end gap-1 h-full">{historial.map((h: HistoricoPrecio, i: number) => { const maxVal = Math.max(...historial.map(x => x.cemento)); const hPct = (h.cemento / (maxVal || 1)) * 100; return (<div key={i} className="flex-1 flex flex-col items-center gap-1"><span className="text-[10px] text-muted-foreground font-medium">{h.cemento}</span><div className="w-full bg-orange-400 rounded-t transition-all" style={{ height: `${Math.max(0, hPct)}%`, minHeight: 8 }} /><span className="text-[8px] text-muted-foreground">{h.fecha.slice(2)}</span></div>); })}</div>
@@ -610,7 +610,7 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'acero' && (
           <div>
-            <h2 className="font-bold text-muted-foreground text-sm mb-3">{t('apu.acero_titulo')}</h2>
+            <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.acero_titulo')}>{t('apu.acero_titulo')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.elemento_acero')}</label><select value={acero.elemento} onChange={e => setAcero((d: AceroParams) => ({ ...d, elemento: e.target.value as AceroParams['elemento'] }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="columna">{t('apu.acero_elem_columna')}</option><option value="viga">{t('apu.acero_elem_viga')}</option><option value="losa">{t('apu.acero_elem_losa')}</option><option value="muro">{t('apu.acero_elem_muro')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.grado_acero')}</label><select value={acero.grado} onChange={e => setAcero((d: AceroParams) => ({ ...d, grado: parseInt(e.target.value) }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="40">{t('apu.grado_40')}</option><option value="60">{t('apu.grado_60')}</option></select></div>
@@ -631,7 +631,7 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'movimientoTierra' && (
           <div>
-            <h2 className="font-bold text-muted-foreground text-sm mb-3">{t('apu.mov_tierra_titulo')}</h2>
+            <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.mov_tierra_titulo')}>{t('apu.mov_tierra_titulo')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.mov_tipo')}</label><select value={movimientoTierra.tipo} onChange={e => setMovimientoTierra(d => ({ ...d, tipo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="excavacion">{t('apu.mov_excavacion')}</option><option value="relleno">{t('apu.mov_relleno')}</option><option value="compactacion">{t('apu.mov_compactacion')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.mov_suelo')}</label><select value={movimientoTierra.suelo} onChange={e => setMovimientoTierra(d => ({ ...d, suelo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="relleno">{t('apu.mov_relleno_suelo')}</option><option value="arcilla">{t('apu.mov_arcilla')}</option><option value="arena">{t('apu.mov_arena_suelo')}</option><option value="roca_blanda">{t('apu.mov_roca_blanda')}</option><option value="roca_dura">{t('apu.mov_roca_dura')}</option></select></div>
@@ -652,8 +652,8 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'parametrosClimaticos' && (
           <div>
-            <h2 className="font-bold text-muted-foreground text-sm mb-3">{t('apu.climaticos_titulo')}</h2>
-            <p className="text-xs text-muted-foreground mb-4">{t('apu.climaticos_descripcion')}</p>
+<h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.climaticos_titulo')}>{t('apu.climaticos_titulo')}</h2>
+<p className="text-xs text-muted-foreground mb-4 truncate" title={t('apu.climaticos_descripcion')}>{t('apu.climaticos_descripcion')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.departamento_label')}</label><select value={parametrosClimaticos.departamentoCodigo} onChange={e => setParametrosClimaticos((d: ParametrosClimaticos) => ({ ...d, departamentoCodigo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">{t('apu.seleccione_departamento')}</option>{departamentos.map(dep => (<option key={dep.codigo} value={dep.codigo}>{dep.nombre}</option>))}</select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.mes_opcional')}</label><select value={parametrosClimaticos.mes || ''} onChange={e => setParametrosClimaticos((d: ParametrosClimaticos) => ({ ...d, mes: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">{t('apu.sin_estacionalidad')}</option><option value="enero">{t('apu.mes_enero')}</option><option value="febrero">{t('apu.mes_febrero')}</option><option value="marzo">{t('apu.mes_marzo')}</option><option value="abril">{t('apu.mes_abril')}</option><option value="mayo">{t('apu.mes_mayo')}</option><option value="junio">{t('apu.mes_junio')}</option><option value="julio">{t('apu.mes_julio')}</option><option value="agosto">{t('apu.mes_agosto')}</option><option value="septiembre">{t('apu.mes_septiembre')}</option><option value="octubre">{t('apu.mes_octubre')}</option><option value="noviembre">{t('apu.mes_noviembre')}</option><option value="diciembre">{t('apu.mes_diciembre')}</option></select></div>
@@ -661,7 +661,7 @@ const APUAvanzado: React.FC = () => {
             </div>
             {resultadoClimaticos && (
               <div className="mt-4 space-y-3">
-                <div className="bg-muted/30 rounded-xl p-4 border border-border"><h3 className="font-bold text-muted-foreground text-xs mb-3">{t('apu.climaticos_factores_titulo')}</h3><div className="grid grid-cols-1 sm:grid-cols-3 gap-3"><div className="bg-blue-50 rounded-lg p-3 border border-blue-100"><div className="text-xs text-blue-600 mb-1">{t('apu.climaticos_factor_curado')}</div><div className="text-lg font-bold text-blue-700">{resultadoClimaticos.factorCurado?.toFixed(2) || '1.00'}</div></div><div className="bg-amber-50 rounded-lg p-3 border border-amber-100"><div className="text-xs text-amber-600 mb-1">{t('apu.climaticos_factor_rendimiento')}</div><div className="text-lg font-bold text-amber-700">{resultadoClimaticos.factorRendimiento?.toFixed(2) || '1.00'}</div></div><div className="bg-stone-50 rounded-lg p-3 border border-stone-100"><div className="text-xs text-stone-600 mb-1">{t('apu.climaticos_factor_proteccion')}</div><div className="text-lg font-bold text-stone-700">{resultadoClimaticos.factorProteccion?.toFixed(2) || '1.00'}</div></div></div></div>
+                 <div className="bg-muted/30 rounded-xl p-4 border border-border"><h3 className="font-bold text-muted-foreground text-xs mb-3 truncate" title={t('apu.climaticos_factores_titulo')}>{t('apu.climaticos_factores_titulo')}</h3><div className="grid grid-cols-1 sm:grid-cols-3 gap-3"><div className="bg-blue-50 rounded-lg p-3 border border-blue-100"><div className="text-xs text-blue-600 mb-1">{t('apu.climaticos_factor_curado')}</div><div className="text-lg font-bold text-blue-700">{resultadoClimaticos.factorCurado?.toFixed(2) || '1.00'}</div></div><div className="bg-amber-50 rounded-lg p-3 border border-amber-100"><div className="text-xs text-amber-600 mb-1">{t('apu.climaticos_factor_rendimiento')}</div><div className="text-lg font-bold text-amber-700">{resultadoClimaticos.factorRendimiento?.toFixed(2) || '1.00'}</div></div><div className="bg-stone-50 rounded-lg p-3 border border-stone-100"><div className="text-xs text-stone-600 mb-1">{t('apu.climaticos_factor_proteccion')}</div><div className="text-lg font-bold text-stone-700">{resultadoClimaticos.factorProteccion?.toFixed(2) || '1.00'}</div></div></div></div>
                 <div className="bg-gradient-to-r from-primary-to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">{t('apu.climaticos_ajuste_estacional')}</span><div className="text-2xl font-bold text-white">{resultadoClimaticos.factorAjusteEstacional?.toFixed(2) || '1.00'}</div></div><div className="text-right"><span className="text-xs text-white/80">{t('apu.climaticos_observaciones')}</span><div className="text-sm font-bold text-white">{resultadoClimaticos.observaciones || ''}</div></div></div></div>
               </div>
             )}
@@ -670,7 +670,7 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'pavimentos' && (
           <div>
-            <h2 className="font-bold text-muted-foreground text-sm mb-3">{t('apu.pavimentos_titulo')}</h2>
+            <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.pavimentos_titulo')}>{t('apu.pavimentos_titulo')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.pav_uso')}</label><select value={pavimento.uso} onChange={e => setPavimento(d => ({ ...d, uso: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="peatonal">{t('apu.pav_peatonal')}</option><option value="vehicular_liviano">{t('apu.pav_vehicular_liviano')}</option><option value="vehicular_medio">{t('apu.pav_vehicular_medio')}</option><option value="vehicular_pesado">{t('apu.pav_vehicular_pesado')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.pav_tipo')}</label><select value={pavimento.tipo} onChange={e => setPavimento(d => ({ ...d, tipo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="adoquinado">{t('apu.pav_adoquinado')}</option><option value="concreto">{t('apu.pav_concreto')}</option><option value="asfaltico">{t('apu.pav_asfaltico')}</option><option value="interlock">{t('apu.pav_interlock')}</option><option value="ceramico">{t('apu.pav_ceramico')}</option></select></div>
@@ -691,7 +691,7 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'redesInfraestructura' && (
           <div>
-            <h2 className="font-bold text-muted-foreground text-sm mb-3">{t('apu.redes_titulo')}</h2>
+            <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.redes_titulo')}>{t('apu.redes_titulo')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.redes_tipo')}</label><select value={redInfraestructura.tipo} onChange={e => setRedInfraestructura(d => ({ ...d, tipo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="agua_potable">{t('apu.redes_agua_potable')}</option><option value="alcantarillado_sanitario">{t('apu.redes_alcantarillado_sanitario')}</option><option value="alcantarillado_pluvial">{t('apu.redes_alcantarillado_pluvial')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.redes_diametro')}</label><select value={redInfraestructura.diametroPulgadas} onChange={e => setRedInfraestructura(d => ({ ...d, diametroPulgadas: parseFloat(e.target.value) }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="0.5">0.5&quot;</option><option value="1.0">1.0&quot;</option><option value="2.0">2.0&quot;</option><option value="3.0">3.0&quot;</option><option value="4.0">4.0&quot;</option><option value="6.0">6.0&quot;</option><option value="8.0">8.0&quot;</option></select></div>
@@ -711,7 +711,7 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'murosContencion' && (
           <div>
-            <h2 className="font-bold text-muted-foreground text-sm mb-3">{t('apu.muros_titulo')}</h2>
+            <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.muros_titulo')}>{t('apu.muros_titulo')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.altura_m')}</label><input type="number" inputMode="decimal" value={muroContencion.alturaM} onChange={e => setMuroContencion(d => ({ ...d, alturaM: Math.max(1, parseFloat(e.target.value) || 1) }))} min={1} max={10} step={0.5} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.muros_tipo_muro')}</label><select value={muroContencion.tipo} onChange={e => setMuroContencion(d => ({ ...d, tipo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="gravedad">{t('apu.muros_gravedad')}</option><option value="cantiliver">Cantilever</option><option value="atirantado">{t('apu.muros_atirantado')}</option><option value="tipo celular">{t('apu.muros_tipo_celular')}</option><option value="pantalla">{t('apu.muros_pantalla')}</option></select></div>

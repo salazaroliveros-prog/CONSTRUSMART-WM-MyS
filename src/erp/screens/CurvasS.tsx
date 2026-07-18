@@ -6,6 +6,7 @@ import {
   CloudSun, Download, FileText, Minus, Cloud, Sun, CloudRain, Wind, Activity
 } from 'lucide-react';
 import { fmtQ, fmtPct, todayISO } from '../utils';
+import { Skeleton } from '@/components/ui/skeleton';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -156,11 +157,6 @@ const SVGRenderer: React.FC<{ data: SCurveDataPoint[] }> = ({ data }) => {
       })}
       <g>
         {makePath(data.map(d => d.planned), 'none')}
-        {/*
-          We color paths via overlays to avoid inline styles.
-          Using dedicated paths with CSS class can't carry stroke.
-          Using fill="none" stroke="..." works directly.
-        */}
         {data.length > 1 && (
           <>
             <path d={data.map((d, i) => `${i === 0 ? 'M' : 'L'}${xScale(i).toFixed(1)},${yScale(d.planned).toFixed(1)}`).join(' ')}
@@ -182,6 +178,8 @@ const CurvasS: React.FC = () => {
   const { t } = useTranslation();
   const { proyectos, currentProjectId, setCurrentProjectId, proyectoWeather } = useErp();
   const [selectedProyectoId, setSelectedProyectoId] = useState<string>(currentProjectId || proyectos[0]?.id || '');
+  const [loading, setLoading] = useState(true);
+  React.useEffect(() => { setLoading(false); }, []);
 
   const selectedProyecto = proyectos.find(p => p.id === selectedProyectoId);
   const selectedWeather = selectedProyecto
@@ -244,6 +242,15 @@ const CurvasS: React.FC = () => {
     XLSX.utils.book_append_sheet(wb, ws, 'CurvasS');
     XLSX.writeFile(wb, `curvas-s-${selectedProyectoId || 'general'}.xlsx`);
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
 
   if (!selectedProyecto && proyectos.length === 0) {
     return (
@@ -365,7 +372,7 @@ const CurvasS: React.FC = () => {
 
           {selectedWeather?.impact && (
             <div className={`rounded-2xl p-4 border ${getImpactColor(weatherLevel)}`}>
-              <h3 className="text-xs font-semibold mb-2 flex items-center gap-1.5">
+              <h3 className="text-xs font-semibold mb-2 flex items-center gap-1.5 truncate" title={t('curvas.impacto_clima_productividad')}>
                 {getWeatherIcon(weatherLevel)}
                 {t('curvas.impacto_clima_productividad')}
               </h3>

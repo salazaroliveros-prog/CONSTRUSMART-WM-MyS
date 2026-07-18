@@ -2056,6 +2056,46 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     set((state) => ({ ajustesEstacionalesActividad: state.ajustesEstacionalesActividad.filter((a) => a.id !== id) }));
     get().enqueueMutation('deleteAjusteEstacionalActividad', { id });
   },
+  updateReglaFactor: (id, patch) => {
+    const updated = get().reglasFactores.map((r) => (r.id === id ? { ...r, ...patch } : r));
+    set((state) => ({ reglasFactores: updated }));
+    get().enqueueMutation('updateReglaFactor', { id, patch });
+  },
+  updateNormativaDepartamental: (id, patch) => {
+    const updated = get().normativasDepartamentales.map((n) => (n.id === id ? { ...n, ...patch } : n));
+    set((state) => ({ normativasDepartamentales: updated }));
+    get().enqueueMutation('updateNormativaDepartamental', { id, patch });
+  },
+  updateEscalaProduccion: (id, patch) => {
+    const updated = get().escalasProduccion.map((e) => (e.id === id ? { ...e, ...patch } : e));
+    set((state) => ({ escalasProduccion: updated }));
+    get().enqueueMutation('updateEscalaProduccion', { id, patch });
+  },
+  updateEstacionalidad: (id, patch) => {
+    const updated = get().estacionalidad.map((e) => (e.id === id ? { ...e, ...patch } : e));
+    set((state) => ({ estacionalidad: updated }));
+    get().enqueueMutation('updateEstacionalidad', { id, patch });
+  },
+  updateAjusteEstacionalActividad: (id, patch) => {
+    const updated = get().ajustesEstacionalesActividad.map((a) => (a.id === id ? { ...a, ...patch } : a));
+    set((state) => ({ ajustesEstacionalesActividad: updated }));
+    get().enqueueMutation('updateAjusteEstacionalActividad', { id, patch });
+  },
+  updateAplicacionEscala: (id, patch) => {
+    const updated = get().aplicacionEscalas.map((a) => (a.id === id ? { ...a, ...patch } : a));
+    set((state) => ({ aplicacionEscalas: updated }));
+    get().enqueueMutation('updateAplicacionEscala', { id, patch });
+  },
+  updateCalculoProyecto: (id, patch) => {
+    const updated = get().calculosProyecto.map((c) => (c.id === id ? { ...c, ...patch } : c));
+    set((state) => ({ calculosProyecto: updated }));
+    get().enqueueMutation('updateCalculoProyecto', { id, patch });
+  },
+  updateCumplimientoNormativo: (id, patch) => {
+    const updated = get().cumplimientoNormativo.map((c) => (c.id === id ? { ...c, ...patch } : c));
+    set((state) => ({ cumplimientoNormativo: updated }));
+    get().enqueueMutation('updateCumplimientoNormativo', { id, patch });
+  },
   setReglasFactores: (v) => {
     set((state) => ({ reglasFactores: typeof v === 'function' ? (v as (s: ReglaFactor[]) => ReglaFactor[])(state.reglasFactores) : v }));
     get().enqueueMutation('setReglasFactores', typeof v === 'function' ? (v as (s: ReglaFactor[]) => ReglaFactor[])(get().reglasFactores) : v as ReglaFactor[]);

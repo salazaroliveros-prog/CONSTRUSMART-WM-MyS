@@ -271,7 +271,7 @@ const Dashboard: React.FC = () => {
       {/* ============ TABLA DE PROYECTOS EN EJECUCIÓN ============ */}
       <div className="bg-card border border-border rounded-xl p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-lg font-semibold text-foreground truncate" title="Proyectos en Ejecución">
             Proyectos en Ejecución
           </h2>
           <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
@@ -313,7 +313,7 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Flujo Financiero */}
         <div className="lg:col-span-2 bg-card border border-border rounded-xl p-4">
-          <h3 className="text-base font-semibold text-foreground mb-4">Situación Financiera</h3>
+          <h3 className="text-base font-semibold text-foreground mb-4 truncate" title="Situación Financiera">Situación Financiera</h3>
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
               <p className="text-xs text-muted-foreground mb-1">Cobrado</p>
@@ -349,7 +349,7 @@ const Dashboard: React.FC = () => {
 
         {/* Stock de Materiales */}
         <div className="bg-card border border-border rounded-xl p-4">
-          <h3 className="text-base font-semibold text-foreground mb-4">Inventario</h3>
+          <h3 className="text-base font-semibold text-foreground mb-4 truncate" title="Inventario">Inventario</h3>
           <div className="space-y-3">
             <div>
               <div className="flex justify-between items-center mb-1">

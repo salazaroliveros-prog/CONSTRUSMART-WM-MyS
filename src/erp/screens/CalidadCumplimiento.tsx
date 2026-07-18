@@ -1,9 +1,27 @@
 import React from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const CalidadCumplimiento: React.FC = () => {
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => { setLoading(false); }, []);
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-4">
+        <Skeleton className="h-8 w-64" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+        </div>
+        <Skeleton className="h-40" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
-      <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Cumplimiento de Calidad</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 truncate" title="Cumplimiento de Calidad">Cumplimiento de Calidad</h1>
       <p className="text-muted-foreground mb-6">
         Monitoreo de cumplimiento normativo y estándares de calidad por proyecto.
       </p>

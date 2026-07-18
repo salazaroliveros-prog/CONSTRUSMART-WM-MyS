@@ -319,7 +319,7 @@ const Riesgos: React.FC = () => {
         <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 mb-4 border border-blue-200 dark:border-blue-800">
           <div className="flex items-center gap-2 mb-3">
             <Cloud className="w-4 h-4 text-blue-500" />
-            <h3 className="text-sm font-bold text-blue-700 dark:text-blue-300">
+            <h3 className="text-sm font-bold text-blue-700 dark:text-blue-300 truncate" title={t('riesgos.riesgos_climaticos', 'Riesgos Climáticos Detectados')}>
               {t('riesgos.riesgos_climaticos', 'Riesgos Climáticos Detectados')}
             </h3>
             <span className="text-xs px-2 py-0.5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-200 ml-auto">

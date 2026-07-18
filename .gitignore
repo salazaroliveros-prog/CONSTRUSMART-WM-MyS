@@ -60,6 +60,11 @@ _archive/
 .vercel
 .env*
 
+# Build output and internal reports
+build_output.txt
+SESSION_TODO_LIST.md
+*.txt
+
 *.pdf
 
 # Scripts con credenciales de Supabase (solo para desarrollo local)
@@ -77,8 +82,13 @@ PRODUCTION_DB_ALIGNMENT_REPORT.md
 SESSION_20_FINAL_REPORT.md
 UI_IMPLEMENTATION_STATUS.md
 
+# Archivos temporales y artefactos de consola
+console.log('
+{if(regex.test(line)){console.log(f+'
+execute_migration_*.bat
+
+# Directorios que contienen datos sensibles
+database-access/
+
 # Permitir .env.production para Vercel (sin credenciales sensibles)
 !.env.production
-
-.vercel
-.env*

@@ -70,6 +70,16 @@ const Financiero: React.FC = () => {
   const utilidad = useMemo(() => ingresos - egresos, [ingresos, egresos]);
   const margen = useMemo(() => (ingresos > 0 ? utilidad / ingresos : 0), [ingresos, utilidad]);
 
+  if (!loading && proyectos.length === 0) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <Wallet className="w-16 h-16 text-muted-foreground/30 mb-4" aria-hidden="true" />
+        <h2 className="text-xl font-bold text-foreground mb-2">{t('financiero.titulo')}</h2>
+        <p className="text-muted-foreground">{t('financiero.sin_datos')}</p>
+      </div>
+    );
+  }
+
   // Rentabilidad por proyecto
   const profitabilityData = useMemo(() => {
     return proyectos.map((p) => {
@@ -261,7 +271,7 @@ const Financiero: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-2 truncate" title="Dashboard Financiero">
             <Wallet className="w-7 h-7 text-emerald-500" />
             Dashboard Financiero
           </h1>

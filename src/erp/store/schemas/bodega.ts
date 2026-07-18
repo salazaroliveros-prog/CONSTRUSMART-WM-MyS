@@ -55,41 +55,6 @@ export const ordenSchema = z.object({
   version: z.number().optional(),
 });
 
-export const proveedorSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string().min(1, 'proyectoId es requerido'),
-  nombre: z.string(),
-  contacto: z.string().nullable().optional().default(''),
-  rubro: z.string().nullable().optional(),
-  calificacion: z.number().nullable().optional(),
-  telefono: z.string().optional().default(''),
-  email: z.string().optional().default(''),
-  categoria: z.preprocess(v => {
-    if (typeof v === 'string' && !['materiales','mano_obra','equipo','subcontrato','administracion','transporte','imprevistos','marketing','licencias','seguros','otros'].includes(v)) return 'otros';
-    return v;
-  }, z.enum(['materiales','mano_obra','equipo','subcontrato','administracion','transporte','imprevistos','marketing','licencias','seguros','otros'] as const)).default('materiales'),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-}).transform(d => ({
-  ...d,
-  contacto: d.contacto ?? '',
-  telefono: d.telefono ?? '',
-  email: d.email ?? '',
-}));
-
-export const proveedorFormSchema = z.object({
-  nombre: z.string(),
-  contacto: z.string().nullable().optional().default(''),
-  rubro: z.string().nullable().optional(),
-  calificacion: z.number().nullable().optional(),
-  telefono: z.string().optional().default(''),
-  email: z.string().optional().default(''),
-  categoria: z.preprocess(v => {
-    if (typeof v === 'string' && !['materiales','mano_obra','equipo','subcontrato','administracion','transporte','imprevistos','marketing','licencias','seguros','otros'].includes(v)) return 'otros';
-    return v;
-  }, z.enum(['materiales','mano_obra','equipo','subcontrato','administracion','transporte','imprevistos','marketing','licencias','seguros','otros'] as const)).default('materiales'),
-});
-
 export const ordenFormSchema = ordenSchema.omit({ id: true, fecha: true, estado: true, total: true, items: true, stockActualizado: true, version: true }).extend({
   proveedor: z.string().min(1, 'Proveedor requerido'),
   proveedorId: z.string().optional().default(''),

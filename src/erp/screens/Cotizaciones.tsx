@@ -417,7 +417,7 @@ const Cotizaciones: React.FC = () => {
         <div className={MODAL_OVERLAY} role="dialog" aria-modal="true">
           <div className={`${MODAL_PANEL} max-w-4xl`}>
             <div className={MODAL_HEADER}>
-              <h2 className={MODAL_TITLE}>{t('cotizaciones.calculadora')}</h2>
+              <h2 className={MODAL_TITLE} truncate title={t('cotizaciones.calculadora')}>{t('cotizaciones.calculadora')}</h2>
               <button type="button" onClick={() => setShowCalculadora(false)} className={MODAL_CLOSE} aria-label={t('common.cerrar')}>
                 <X className="w-5 h-5" />
               </button>
@@ -462,7 +462,7 @@ const Cotizaciones: React.FC = () => {
 
               {selectedCalculadora === 'pavimentos' && (
                 <div className="bg-muted/30 p-4 rounded-xl border">
-                  <h3 className="font-semibold mb-3 text-sm">{t('cotizaciones.pavimentos')}</h3>
+                  <h3 className="font-semibold mb-3 text-sm truncate" title={t('cotizaciones.pavimentos')}>{t('cotizaciones.pavimentos')}</h3>
                   <p className="text-xs text-muted-foreground mb-4">
                     {t('cotizaciones.pavimentos')}
                   </p>
@@ -478,7 +478,7 @@ const Cotizaciones: React.FC = () => {
 
               {selectedCalculadora === 'redesInfraestructura' && (
                 <div className="bg-muted/30 p-4 rounded-xl border">
-                  <h3 className="font-semibold mb-3 text-sm">{t('cotizaciones.redes_infraestructura')}</h3>
+                  <h3 className="font-semibold mb-3 text-sm truncate" title={t('cotizaciones.redes_infraestructura')}>{t('cotizaciones.redes_infraestructura')}</h3>
                   <p className="text-xs text-muted-foreground mb-4">
                     {t('cotizaciones.redes_infraestructura')}
                   </p>
@@ -494,7 +494,7 @@ const Cotizaciones: React.FC = () => {
 
               {selectedCalculadora === 'murosContencion' && (
                 <div className="bg-muted/30 p-4 rounded-xl border">
-                  <h3 className="font-semibold mb-3 text-sm">{t('cotizaciones.muros_contencion')}</h3>
+                  <h3 className="font-semibold mb-3 text-sm truncate" title={t('cotizaciones.muros_contencion')}>{t('cotizaciones.muros_contencion')}</h3>
                   <p className="text-xs text-muted-foreground mb-4">
                     {t('cotizaciones.muros_contencion')}
                   </p>

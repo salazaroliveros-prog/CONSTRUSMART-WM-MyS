@@ -629,7 +629,7 @@ const PlantillasProyectos: React.FC = () => {
       {plantillasFiltradas.length === 0 ? (
         <div className="text-center py-12">
           <Layout className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">{t('plantillas.sin_plantillas_titulo')}</h3>
+          <h3 className="text-lg font-semibold mb-2 truncate" title={t('plantillas.sin_plantillas_titulo')}>{t('plantillas.sin_plantillas_titulo')}</h3>
           <p className="text-muted-foreground mb-4">{t('plantillas.sin_plantillas_desc')}</p>
           <button
             onClick={() => {
@@ -902,7 +902,7 @@ const PlantillasProyectos: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">
+              <h2 className="text-xl font-bold truncate" title={editingId ? t('plantillas.editar_plantilla_titulo') : t('plantillas.nueva_plantilla_titulo')}>
                 {editingId ? t('plantillas.editar_plantilla_titulo') : t('plantillas.nueva_plantilla_titulo')}
               </h2>
               <button
@@ -1017,7 +1017,7 @@ const PlantillasProyectos: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">{t('plantillas.vista_previa_titulo')}: {previewPlantilla.nombre}</h2>
+              <h2 className="text-xl font-bold truncate" title={t('plantillas.vista_previa_titulo') + ': ' + previewPlantilla.nombre}>{t('plantillas.vista_previa_titulo')}: {previewPlantilla.nombre}</h2>
               <button
                 onClick={() => {
                   setShowPreview(false);
@@ -1032,7 +1032,7 @@ const PlantillasProyectos: React.FC = () => {
             <div className="space-y-4">
               <PlantillaAnalytics plantillaId={previewPlantilla.id} />
               <div>
-                <h3 className="font-semibold mb-2">{t('plantillas.info_general_titulo')}</h3>
+                <h3 className="font-semibold mb-2 truncate" title="{t('plantillas.info_general_titulo')}">{t('plantillas.info_general_titulo')}</h3>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-muted-foreground">{t('plantillas.categoria_colon')}</span>
@@ -1054,13 +1054,13 @@ const PlantillasProyectos: React.FC = () => {
               </div>
               {previewPlantilla.descripcion && (
                 <div>
-                  <h3 className="font-semibold mb-2">{t('plantillas.descripcion_section')}</h3>
+                  <h3 className="font-semibold mb-2 truncate" title="{t('plantillas.descripcion_section')}">{t('plantillas.descripcion_section')}</h3>
                   <p className="text-sm text-muted-foreground">{previewPlantilla.descripcion}</p>
                 </div>
               )}
               {previewPlantilla.configuracion && (
                 <div>
-                  <h3 className="font-semibold mb-2">{t('plantillas.configuracion_section')}</h3>
+                  <h3 className="font-semibold mb-2 truncate" title="{t('plantillas.configuracion_section')}">{t('plantillas.configuracion_section')}</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <span className="text-muted-foreground">{t('plantillas.tipologia_label')}</span>
@@ -1078,7 +1078,7 @@ const PlantillasProyectos: React.FC = () => {
                 </div>
               )}
               <div>
-                <h3 className="font-semibold mb-2">{t('plantillas.contenido_section')}</h3>
+                <h3 className="font-semibold mb-2 truncate" title="{t('plantillas.contenido_section')}">{t('plantillas.contenido_section')}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="border rounded p-3">
                   <div className="text-2xl font-bold">{previewPlantilla.estructuraPresupuesto?.length || 0}</div>
@@ -1103,7 +1103,7 @@ const PlantillasProyectos: React.FC = () => {
               </div>
               {previewPlantilla.proyectoOrigenId && (
                 <div>
-                  <h3 className="font-semibold mb-2">{t('plantillas.proyecto_origen_section')}</h3>
+                  <h3 className="font-semibold mb-2 truncate" title="{t('plantillas.proyecto_origen_section')}">{t('plantillas.proyecto_origen_section')}</h3>
                   <p className="text-sm text-muted-foreground">
                     {proyectos.find(p => p.id === previewPlantilla.proyectoOrigenId)?.nombre || t('plantillas.no_encontrado')}
                   </p>
@@ -1118,7 +1118,7 @@ const PlantillasProyectos: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">{t('plantillas.historial_titulo')}: {previewPlantilla.nombre}</h2>
+              <h2 className="text-xl font-bold truncate" title={t('plantillas.historial_titulo') + ': ' + previewPlantilla.nombre}>{t('plantillas.historial_titulo')}: {previewPlantilla.nombre}</h2>
               <button
                 onClick={() => {
                   setShowHistorial(false);
@@ -1191,7 +1191,7 @@ const PlantillasProyectos: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">{t('plantillas.dashboard_global')}</h2>
+              <h2 className="text-xl font-bold truncate" title={t('plantillas.dashboard_global')}>{t('plantillas.dashboard_global')}</h2>
               <button
                 onClick={() => setShowGlobalDashboard(false)}
                 className="p-1 hover:bg-muted rounded"
@@ -1209,7 +1209,7 @@ const PlantillasProyectos: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">{t('plantillas.comparacion_titulo')}</h2>
+              <h2 className="text-xl font-bold truncate" title={t('plantillas.comparacion_titulo')}>{t('plantillas.comparacion_titulo')}</h2>
               <button
                 onClick={() => setVersionesComparar(null)}
                 className="p-1 hover:bg-muted rounded"

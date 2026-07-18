@@ -465,7 +465,7 @@ const SSOCalidad: React.FC = () => {
                 </div>
               </div>
               <div className="bg-card rounded-2xl shadow-sm border border-border p-4">
-                <h3 className="font-bold text-xs text-muted-foreground mb-3">{t('sso_calidad.incidentes_por_tipo', 'Incidentes por Tipo')}</h3>
+                <h3 className="font-bold text-xs text-muted-foreground mb-3 truncate" title={t('sso_calidad.incidentes_por_tipo', 'Incidentes por Tipo')}>{t('sso_calidad.incidentes_por_tipo', 'Incidentes por Tipo')}</h3>
                   <div className="space-y-2">
                     {incidentesPorTipo.tipos.map((tipo, idx) => {
                       const count = incidentesPorTipo.counts[idx];
@@ -495,7 +495,7 @@ const SSOCalidad: React.FC = () => {
             <div className="w-20 h-20 mx-auto rounded-full bg-red-100 flex items-center justify-center animate-pulse">
               <AlertTriangle className="w-10 h-10 text-red-600" />
             </div>
-            <h2 className="text-xl font-black text-red-600">{t('sso_calidad.boton_emergencia_titulo', 'Botón de Emergencia')}</h2>
+            <h2 className="text-xl font-black text-red-600 truncate" title={t('sso_calidad.boton_emergencia_titulo', 'Botón de Emergencia')}>{t('sso_calidad.boton_emergencia_titulo', 'Botón de Emergencia')}</h2>
             <p className="text-sm text-muted-foreground">{t('sso_calidad.boton_emergencia_desc', 'Activa este botón en caso de una emergencia real en obra. Se notificará a todos los supervisores y se enviará tu ubicación.')}</p>
             <button
               onClick={() => {

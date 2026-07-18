@@ -411,7 +411,7 @@ export default function Auditoria() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { setDetailModalOpen(false); setSelectedEntry(null); }}>
           <div className="bg-card border border-border rounded-xl shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">{t('auditoria.detalle_titulo', { id: selectedEntry?.id.slice(0, 8) || '' })}</h3>
+              <h3 className="text-lg font-semibold truncate" title={t('auditoria.detalle_titulo', { id: selectedEntry?.id.slice(0, 8) || '' })}>{t('auditoria.detalle_titulo', { id: selectedEntry?.id.slice(0, 8) || '' })}</h3>
               <button onClick={() => { setDetailModalOpen(false); setSelectedEntry(null); }} className="text-muted-foreground hover:text-foreground p-1" aria-label={t('auditoria.cerrar')}>X</button>
             </div>
             {selectedEntry && (

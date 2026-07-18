@@ -74,7 +74,7 @@ export function ProyectoCardSimple({
           <h3 className="font-bold text-foreground truncate group-hover:text-primary transition-colors">
             {proyecto.nombre}
           </h3>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1 truncate" title={proyecto.etapa ? proyecto.etapa.charAt(0).toUpperCase() + proyecto.etapa.slice(1) : 'Sin etapa'}>
             {proyecto.etapa ? proyecto.etapa.charAt(0).toUpperCase() + proyecto.etapa.slice(1) : 'Sin etapa'}
           </p>
         </div>
@@ -107,7 +107,7 @@ export function ProyectoCardSimple({
             <DollarSign size={14} />
             Presupuesto
           </span>
-          <span className="font-semibold text-foreground">{fmtQ(presupuesto)}</span>
+          <span className="font-semibold text-foreground truncate ml-2" title={fmtQ(presupuesto)}>{fmtQ(presupuesto)}</span>
         </div>
 
         <div className="flex items-center justify-between">
@@ -115,7 +115,7 @@ export function ProyectoCardSimple({
             <Building2 size={14} />
             Ejecutado
           </span>
-          <span className="font-semibold text-amber-600 dark:text-amber-400">
+          <span className="font-semibold text-amber-600 dark:text-amber-400 truncate ml-2" title={fmtQ(ejecutado)}>
             {fmtQ(ejecutado)}
           </span>
         </div>

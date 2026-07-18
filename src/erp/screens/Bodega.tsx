@@ -15,7 +15,8 @@ import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2, Trending
 import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT_COMPACT, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL } from '../ui';
 import { List as VirtualizedList } from 'react-window';
-import { proveedorFormSchema, ordenFormSchema } from '../store/schemas/bodega';
+import { ordenFormSchema } from '../store/schemas/bodega';
+import { proveedorFormSchema } from '../store/schemas/crm';
 
 type ProveedorFormData = z.infer<typeof proveedorFormSchema>;
 type OrdenFormData = z.infer<typeof ordenFormSchema>;
@@ -267,7 +268,7 @@ if (loading) {
         <div className="space-y-4">
           <div className={CARD}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-foreground text-sm">{t('bodega.pareto_inventario')}</h3>
+              <h3 className="font-bold text-foreground text-sm truncate" title={t('bodega.pareto_inventario')}>{t('bodega.pareto_inventario')}</h3>
               <ChartToolbar
                 types={['bar']}
                 currentType={paretoConfig.type}
@@ -282,7 +283,7 @@ if (loading) {
 
           <div className={`${CARD} overflow-hidden`}>
             <div className="p-3 border-b border-border">
-              <h3 className="font-bold text-foreground text-sm">{t('bodega.ordenes_por_aprobar')}</h3>
+              <h3 className="font-bold text-foreground text-sm truncate" title={t('bodega.ordenes_por_aprobar')}>{t('bodega.ordenes_por_aprobar')}</h3>
             </div>
             <div className="divide-y divide-border max-h-56 overflow-y-auto">
               {ordenes.length === 0 ? (
@@ -369,7 +370,7 @@ if (loading) {
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmitProv(onAddProveedor)}
             className={MODAL_PANEL}>
             <div className="flex items-center justify-between mb-3">
-              <h2 id="modal-proveedor-title" className="font-bold text-lg text-foreground">{editingProveedor ? t('bodega.editar_proveedor') : t('bodega.nuevo_proveedor')}</h2>
+              <h2 id="modal-proveedor-title" className="font-bold text-lg text-foreground truncate" title={editingProveedor ? t('bodega.editar_proveedor') : t('bodega.nuevo_proveedor')}>{editingProveedor ? t('bodega.editar_proveedor') : t('bodega.nuevo_proveedor')}</h2>
               <button type="button" onClick={() => setShowProveedor(false)} aria-label={t('bodega.cerrar_dialogo')}
                 className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 <X className="w-5 h-5" aria-hidden="true" />
@@ -398,7 +399,7 @@ if (loading) {
           <form onClick={e => e.stopPropagation()} onSubmit={handleSubmitOrd(onAddOrden)}
             className={MODAL_PANEL}>
             <div className="flex items-center justify-between mb-3">
-              <h2 id="modal-orden-title" className="font-bold text-lg text-foreground">{t('bodega.nueva_orden_compra')}</h2>
+              <h2 id="modal-orden-title" className="font-bold text-lg text-foreground truncate" title={t('bodega.nueva_orden_compra')}>{t('bodega.nueva_orden_compra')}</h2>
               <button type="button" onClick={() => setShowOrden(false)} aria-label={t('bodega.cerrar_dialogo')}
                 className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 <X className="w-5 h-5" aria-hidden="true" />

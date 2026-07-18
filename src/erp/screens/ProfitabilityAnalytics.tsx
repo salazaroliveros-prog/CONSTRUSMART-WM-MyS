@@ -179,7 +179,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
       <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
         <div className="text-center py-12">
           <Calculator className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-          <h2 className="text-xl font-semibold mb-2">{t('profitability.datos_insuficientes')}</h2>
+          <h2 className="text-xl font-semibold mb-2 truncate" title={t('profitability.datos_insuficientes')}>{t('profitability.datos_insuficientes')}</h2>
           <p className="text-muted-foreground">{t('profitability.requeridos_proyectos_movimientos')}</p>
         </div>
       </div>

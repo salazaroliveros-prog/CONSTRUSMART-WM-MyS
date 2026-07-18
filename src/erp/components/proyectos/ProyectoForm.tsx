@@ -5,6 +5,7 @@ import { TIPOLOGIA_LABEL } from '../../utils';
 import { INPUT, BUTTON_PRIMARY, COLOR_WARNING } from '../../ui';
 import MapPicker from '../../components/MapPicker';
 import { obtenerSubtipologias } from '../../services/motorCalculo';
+import { clienteFormSchema, proveedorFormSchema } from '../../store/schemas/crm';
 
 interface ProyectoFormProps {
   show: boolean;
@@ -71,6 +72,24 @@ const ProyectoForm: React.FC<ProyectoFormProps> = ({
       obtenerSubtipologias(tipologia).then(setSubtipologias).catch(() => setSubtipologias([]));
     }
   }, [watch, setSubtipologias]);
+
+  const validarCamposCliente = () => {
+    const cliente = watch('cliente');
+    const nit = watch('clienteNit');
+    const telefono = watch('clienteTelefono');
+    const email = watch('clienteEmail');
+    try {
+      if (cliente && nit && telefono && email) {
+        clienteFormSchema.parse({ cliente, nit, telefono, email, direccion: watch('direccion'), ciudad: watch('ciudad') });
+      }
+    } catch (e: any) {
+      const msg = e?.errors?.[0]?.message || 'Datos de cliente inválidos';
+      return msg;
+    }
+    return null;
+  };
+
+  const clienteError = React.useMemo(() => validarCamposCliente(), [watch('cliente'), watch('clienteNit'), watch('clienteTelefono'), watch('clienteEmail'), watch('direccion'), watch('ciudad')]);
 
   if (!show) return null;
 
@@ -307,12 +326,19 @@ const ProyectoForm: React.FC<ProyectoFormProps> = ({
                 <input {...register('cliente')} placeholder={t('proyectos.cliente_placeholder')} className={INPUT} />
                 {errors.cliente && <p className={`text-xs text-red-600 dark:text-red-400 mt-0.5`}>{errors.cliente.message}</p>}
               </div>
-              <input {...register('clienteNit')} placeholder={t('proyectos.nit_placeholder')} className={INPUT} />
-              <input {...register('clienteTelefono')} placeholder={t('proyectos.telefono_placeholder')} className={INPUT} />
+              <div>
+                <input {...register('clienteNit')} placeholder={t('proyectos.nit_placeholder')} className={INPUT} />
+                {errors.clienteNit && <p className={`text-xs text-red-600 dark:text-red-400 mt-0.5`}>{errors.clienteNit.message}</p>}
+              </div>
+              <div>
+                <input {...register('clienteTelefono')} placeholder={t('proyectos.telefono_placeholder')} className={INPUT} />
+                {errors.clienteTelefono && <p className={`text-xs text-red-600 dark:text-red-400 mt-0.5`}>{errors.clienteTelefono.message}</p>}
+              </div>
               <div>
                 <input {...register('clienteEmail')} placeholder={t('proyectos.email_placeholder')} className={INPUT} />
                 {errors.clienteEmail && <p className={`text-xs text-red-600 dark:text-red-400 mt-0.5`}>{errors.clienteEmail.message}</p>}
               </div>
+              {clienteError && <p className={`text-xs text-red-600 dark:text-red-400 sm:col-span-2`}>{clienteError}</p>}
             </div>
           </div>
 

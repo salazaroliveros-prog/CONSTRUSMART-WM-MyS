@@ -123,7 +123,7 @@ const Proyectos: React.FC = () => {
           <div className="flex items-start gap-3">
             <TriangleAlert className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-red-900 dark:text-red-100 text-sm mb-1">
+              <h3 className="font-semibold text-red-900 dark:text-red-100 text-sm mb-1 truncate" title={t('conflicts.critical_conflicts') + ': ' + criticalConflicts.length}>
                 {t('conflicts.critical_conflicts')}: {criticalConflicts.length}
               </h3>
               <p className="text-xs text-red-700 dark:text-red-300 mb-2">
@@ -131,7 +131,7 @@ const Proyectos: React.FC = () => {
               </p>
               <div className="space-y-1">
                 {criticalConflicts.slice(0, 2).map(conflict => (
-                  <div key={conflict.id} className="text-xs text-red-800 dark:text-red-200">
+                  <div key={conflict.id} className="text-xs text-red-800 dark:text-red-200 truncate" title={`${conflict.recursoNombre}: ${conflict.descripcion}`}>
                     <span className="font-medium">{conflict.recursoNombre}</span>: {conflict.descripcion}
                   </div>
                 ))}
@@ -189,8 +189,8 @@ const Proyectos: React.FC = () => {
       {safeProyectos.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
           <Building2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/60" aria-hidden="true" />
-          <h2 className="text-base font-bold text-foreground mb-1">{t('proyectos.sin_proyectos_title')}</h2>
-          <p className="text-sm text-muted-foreground mb-4">{t('proyectos.sin_proyectos_desc')}</p>
+          <h2 className="text-base font-bold text-foreground mb-1 truncate" title={t('proyectos.sin_proyectos_title')}>{t('proyectos.sin_proyectos_title')}</h2>
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-2" title={t('proyectos.sin_proyectos_desc')}>{t('proyectos.sin_proyectos_desc')}</p>
           <button onClick={openCreate} className={BUTTON_PRIMARY}>{t('proyectos.crear_primer')}</button>
         </div>
       ) : (

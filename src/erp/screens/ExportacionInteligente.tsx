@@ -195,7 +195,7 @@ const ExportacionInteligente: React.FC = () => {
           <p style="margin:5px 0;color:${themeTokens.primary};font-style:italic">Edificando el Futuro</p>
           <p style="margin:0;color:${themeTokens.textSecondary};font-size:11px">${t('exportacion.reporte_pdf_fecha', 'Reporte Ejecutivo')} · ${new Date().toLocaleDateString('es-GT', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
         </div>
-        <h2 style="color:${themeTokens.text};font-size:14px">${t('exportacion.resumen_general', 'Resumen General')}</h2>
+        <h2 style="color:${themeTokens.text};font-size:14px" class="truncate" title="${t('exportacion.resumen_general', 'Resumen General')}">${t('exportacion.resumen_general', 'Resumen General')}</h2>
         <table style="width:100%;border-collapse:collapse;margin-bottom:15px">
           <tr style="background:${themeTokens.bgTertiary}">
             <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px"><b>${t('exportacion.total_proyectos', 'Total Proyectos')}</b></td>
@@ -216,7 +216,7 @@ const ExportacionInteligente: React.FC = () => {
             <td style="padding:8px;border:1px solid ${themeTokens.border};font-size:11px">${proyectos.length > 0 ? (proyectos.reduce((a, p) => a + (p.avanceFisico || 0), 0) / proyectos.length).toFixed(0) : 0}%</td>
           </tr>
         </table>
-        <h2 style="color:${themeTokens.text};font-size:14px">${t('exportacion.proyectos', 'Proyectos')}</h2>
+        <h2 style="color:${themeTokens.text};font-size:14px" class="truncate" title="${t('exportacion.proyectos', 'Proyectos')}">${t('exportacion.proyectos', 'Proyectos')}</h2>
         <table style="width:100%;border-collapse:collapse;margin-bottom:15px">
           <tr style="background:${themeTokens.primary};color:${themeTokens.bg}">
             <th style="padding:6px;border:1px solid ${themeTokens.primary};font-size:10px">${t('exportacion.nombre', 'Nombre')}</th>
@@ -413,7 +413,7 @@ const ExportacionInteligente: React.FC = () => {
       <div className="flex items-center gap-2 mb-4">
         <Download className="w-6 h-6 text-blue-500" />
         <div>
-          <h1 className="text-lg sm:text-xl font-black text-foreground">{t('exportacion.titulo', 'Exportación Inteligente')}</h1>
+          <h1 className="text-lg sm:text-xl font-black text-foreground truncate" title={t('exportacion.titulo', 'Exportación Inteligente')}>{t('exportacion.titulo', 'Exportación Inteligente')}</h1>
           <p className="text-xs text-muted-foreground">{t('exportacion.subtitulo', 'Exporta datos a Excel, JSON, CSV o PDF y programa reportes automáticos')}</p>
         </div>
       </div>

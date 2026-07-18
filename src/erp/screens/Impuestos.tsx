@@ -123,7 +123,7 @@ export const Impuestos: React.FC = () => {
       {/* Resumen del período */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="bg-card border rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-500 mb-3">{t('impuestos.resumen_periodo')}</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-3 truncate" title={t('impuestos.resumen_periodo')}>{t('impuestos.resumen_periodo')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="p-3 bg-green-50 rounded-lg">
               <p className="text-xs text-green-600">{t('impuestos.ingresos')}</p>
@@ -143,7 +143,7 @@ export const Impuestos: React.FC = () => {
         </div>
 
         <div className="bg-card border rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-500 mb-3">{t('impuestos.impuestos_periodo')}</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-3 truncate" title={t('impuestos.impuestos_periodo')}>{t('impuestos.impuestos_periodo')}</h3>
           <div className="space-y-3">
             <div className="p-3 bg-yellow-50 rounded-lg">
               <div className="flex justify-between items-center">
@@ -207,7 +207,7 @@ export const Impuestos: React.FC = () => {
 
       {/* Movimientos del período */}
       <div className="bg-card border rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-500 mb-3">
+        <h3 className="text-sm font-semibold text-muted-foreground mb-3 truncate" title={t('impuestos.movimientos_periodo')}>
           {t('impuestos.movimientos_periodo')} ({movimientosFiltrados.length} {t('impuestos.registros')})
         </h3>
         {movimientosFiltrados.length === 0 ? (
