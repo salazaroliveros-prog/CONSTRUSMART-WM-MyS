@@ -1,32 +1,29 @@
 /**
- * Encryption Module - PRIORITY 1 Implementation
+ * Encryption Module - Browser-safe AES-CBC via Web Crypto API
  * 
- * Encripta datos sensibles antes de guardar en BD
- * Ubicación: src/lib/encryption.ts
+ * Clave derivada con SHA-256 desde ENCRYPTION_KEY, garantizando 256 bits
+ * sin importar la longitud del string origen. Así se elimina el bug de
+ * "AES key data must be 128 or 256 bits" cuando la env var no está definida
+ * o tiene longitud incorrecta en build de Vercel/Vite.
  * 
- * SESSION 3 - PRIORITY 1 IMPLEMENTATION
- * Status: ✅ IMPLEMENTADO
- * Impacto: +12% data security
- * Esfuerzo: 2.5 horas
+ * Formato almacenado: ivHex:encryptedHex
  * 
  * Uso:
  * const encrypted = encryptSensitive('numero de tarjeta');
  * const decrypted = decryptSensitive(encrypted);
  */
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-dev-key-32-chars-min-!!';
 const IV_LENGTH = 16;
+const RAW_KEY = typeof import.meta.env !== 'undefined' && (import.meta.env as any).VITE_ENCRYPTION_KEY
+  ? String((import.meta.env as any).VITE_ENCRYPTION_KEY)
+  : 'default-dev-key-32-chars-min-!!';
 
-function getKeyBytes(): Uint8Array {
-  const raw = ENCRYPTION_KEY.substring(0, 32);
-  return new TextEncoder().encode(raw);
-}
-
-async function getCryptoKey(): Promise<CryptoKey> {
-  const keyBytes = getKeyBytes();
+async function getKeyBytes(): Promise<CryptoKey> {
+  const raw = new TextEncoder().encode(RAW_KEY);
+  const hash = await crypto.subtle.digest('SHA-256', raw);
   return crypto.subtle.importKey(
     'raw',
-    keyBytes,
+    hash,
     { name: 'AES-CBC' },
     false,
     ['encrypt', 'decrypt']
@@ -36,7 +33,7 @@ async function getCryptoKey(): Promise<CryptoKey> {
 export async function encryptSensitive(plaintext: string): Promise<string> {
   try {
     const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
-    const key = await getCryptoKey();
+    const key = await getKeyBytes();
     const encoded = new TextEncoder().encode(plaintext);
     const encrypted = await crypto.subtle.encrypt(
       { name: 'AES-CBC', iv },
@@ -60,7 +57,7 @@ export async function decryptSensitive(encryptedData: string): Promise<string> {
     }
     const iv = new Uint8Array((parts[0].match(/.{2}/g) ?? []).map(byte => parseInt(byte, 16)));
     const encrypted = new Uint8Array((parts[1].match(/.{2}/g) ?? []).map(byte => parseInt(byte, 16)));
-    const key = await getCryptoKey();
+    const key = await getKeyBytes();
     const decrypted = await crypto.subtle.decrypt(
       { name: 'AES-CBC', iv },
       key,
