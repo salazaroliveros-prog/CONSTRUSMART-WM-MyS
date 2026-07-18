@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, View } from '../store';
 import { useAppContext } from '@/components/AppLayout';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   LayoutDashboard,
   Building2,
@@ -48,16 +49,11 @@ interface NavItem {
   group: string;
 }
 
-// ─── NAVEGACIÓN REORGANIZADA POR FLUJO DE PROYECTO ──────────────────────────
-// Nueva jerarquía: Flujo de proyecto, no similitud técnica
 const ITEMS: NavItem[] = [
-  // NIVEL 1: VISIBILIDAD INTEGRAL
   { id: 'dashboard', labelKey: 'dashboard', icon: LayoutDashboard, group: '' },
   { id: 'proyectos', labelKey: 'proyectos', icon: Building2, group: '' },
   { id: 'notificaciones', labelKey: 'notificaciones', icon: Bell, group: '' },
   { id: 'riesgos', labelKey: 'riesgos', icon: AlertTriangle, group: '' },
-
-  // NIVEL 2: PLANIFICACIÓN & DISEÑO
   { id: 'presupuestos', labelKey: 'presupuestos', icon: Calculator, group: 'Planificación' },
   { id: 'apu', labelKey: 'apu', icon: Receipt, group: 'Planificación' },
   { id: 'hitos', labelKey: 'hitos', icon: Target, group: 'Planificación' },
@@ -65,24 +61,18 @@ const ITEMS: NavItem[] = [
   { id: 'baseprecios', labelKey: 'baseprecios', icon: Calculator, group: 'Planificación' },
   { id: 'crm', labelKey: 'crm', icon: Handshake, group: 'Planificación' },
   { id: 'cotizaciones', labelKey: 'cotizaciones', icon: FileText, group: 'Planificación' },
-
-  // NIVEL 3: EJECUCIÓN & MONITOREO
   { id: 'seguimiento', labelKey: 'seguimiento', icon: ClipboardCheck, group: 'Ejecución' },
   { id: 'curvas-s', labelKey: 'curvas', icon: LineChart, group: 'Ejecución' },
   { id: 'ordenes-cambio', labelKey: 'ordenes-cambio', icon: FileText, group: 'Ejecución' },
   { id: 'rendimiento-campo', labelKey: 'rendimiento-campo', icon: TrendingUp, group: 'Ejecución' },
   { id: 'muro', labelKey: 'muro', icon: MessageSquare, group: 'Ejecución' },
   { id: 'documentos', labelKey: 'documentos', icon: FileText, group: 'Ejecución' },
-
-  // NIVEL 4: SUMINISTRO & LOGÍSTICA
   { id: 'bodega', labelKey: 'bodega', icon: Warehouse, group: 'Suministro' },
   { id: 'logistica', labelKey: 'logistica', icon: Cpu, group: 'Suministro' },
   { id: 'entradas-almacen', labelKey: 'entradas-almacen', icon: FileText, group: 'Suministro' },
   { id: 'activos', labelKey: 'activos', icon: Wrench, group: 'Suministro' },
   { id: 'planilla-destajos', labelKey: 'planilla-destajos', icon: ClipboardList, group: 'Suministro' },
   { id: 'proveedor-analytics', labelKey: 'proveedor-analytics', icon: ChartColumnBig, group: 'Suministro' },
-
-  // NIVEL 5: FINANCIERO & CUENTAS
   { id: 'financiero', labelKey: 'financiero', icon: Wallet, group: 'Finanzas' },
   { id: 'cuentas-cobrar', labelKey: 'cuentas-cobrar', icon: TrendingUp, group: 'Finanzas' },
   { id: 'cuentas-pagar', labelKey: 'cuentas-pagar', icon: TrendingUp, group: 'Finanzas' },
@@ -91,12 +81,8 @@ const ITEMS: NavItem[] = [
   { id: 'exportacion', labelKey: 'exportacion', icon: Download, group: 'Finanzas' },
   { id: 'comercial-fin', labelKey: 'comercial-fin', icon: TrendingUp, group: 'Finanzas' },
   { id: 'cuadros', labelKey: 'cuadros', icon: Table2, group: 'Finanzas' },
-
-  // NIVEL 6: CALIDAD & CUMPLIMIENTO
   { id: 'sso-calidad', labelKey: 'sso-calidad', icon: ShieldCheck, group: 'Calidad' },
   { id: 'calidad-cumplimiento', labelKey: 'calidad-cumplimiento', icon: Shield, group: 'Calidad' },
-
-  // NIVEL 7: GENTE & ADMINISTRACIÓN
   { id: 'rrhh', labelKey: 'rrhh', icon: Users, group: 'Administración' },
   { id: 'conflicts', labelKey: 'conflicts', icon: AlertTriangle, group: 'Administración' },
   { id: 'admin-sistema', labelKey: 'admin-sistema', icon: FileCog, group: 'Administración' },
@@ -104,8 +90,6 @@ const ITEMS: NavItem[] = [
   { id: 'error-log', labelKey: 'error-log', icon: BugIcon, group: 'Administración' },
   { id: 'auditoria', labelKey: 'auditoria', icon: Search, group: 'Administración' },
   { id: 'predictivo', labelKey: 'predictivo', icon: LineChart, group: 'Administración' },
-
-  // NIVEL 8: HERRAMIENTAS
   { id: 'weather', labelKey: 'weather', icon: CloudSun, group: 'Herramientas' },
   { id: 'visor-bim', labelKey: 'visor-bim', icon: Box, group: 'Herramientas' },
 ];
@@ -138,6 +122,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
   const { sidebarCollapsed, toggleCollapse } = useAppContext();
   const [hoverExpand, setHoverExpand] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
+  const isMobile = useIsMobile();
 
   const items = user && allowedViews.length > 0
     ? ITEMS.filter((it) => allowedViews.includes(it.id))
@@ -150,7 +135,6 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
   const effectivelyExpanded = !isCollapsed && !isMini && !(isHoverExpand && !hoverExpand);
   const effectivelyCollapsed = isCollapsed || isMini || (isHoverExpand && !hoverExpand);
 
-  // Hover-to-expand
   useEffect(() => {
     if (!isHoverExpand || !sidebarRef.current) return;
     const el = sidebarRef.current;
@@ -174,7 +158,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
     const handleClick = () => {
       setView(it.id);
       window.location.hash = it.id;
-      onClose();
+      if (isMobile) onClose();
     };
 
     return (
@@ -188,7 +172,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
           group relative w-full flex items-center gap-3 rounded-xl
           transition-all duration-200 active:scale-[0.97]
           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
-          focus-visible:ring-offset-1
+          focus-visible:ring-offset-1 min-h-[44px]
           ${effectivelyCollapsed
             ? 'justify-center p-3'
             : 'px-2.5 py-[7px] text-xs font-medium'
@@ -243,12 +227,16 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
   const mainItems = items.filter((it) => !it.group);
   const groupedItems = items.filter((it) => it.group);
 
+  const sidebarWidth = effectivelyExpanded
+    ? 'var(--sidebar-width, 256px)'
+    : 'var(--sidebar-mini-width, 72px)';
+
   return (
     <>
       {open && (
         <div
           className="fixed inset-0 bg-black/40 z-40 lg:hidden"
-          onClick={onClose}
+          onClick={() => { if (isMobile) onClose(); }}
           aria-hidden="true"
         />
       )}
@@ -263,29 +251,25 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
           border-border z-[60] transition-[width] duration-300 ease-in-out
           lg:translate-x-0
           ${open ? 'translate-x-0' : sidebarPosition === 'right' ? 'translate-x-full' : '-translate-x-full'}
-          flex flex-col overflow-hidden
+          flex flex-col overflow-hidden safe-area
         `}
-        style={{
-          width: effectivelyExpanded
-            ? 'var(--sidebar-width, 256px)'
-            : 'var(--sidebar-mini-width, 72px)',
-        }}
+        style={{ width: sidebarWidth }}
+        role="navigation"
+        aria-label={t('nav.main_navigation')}
       >
-        {/* Mobile header */}
         <div className="flex items-center justify-between px-3 py-2.5 border-b border-border lg:hidden flex-shrink-0">
           <span className="font-semibold text-sm text-foreground">{t('nav.modules')}</span>
           <button
             onClick={onClose}
             aria-label={t('sidebar.close_menu')}
-            className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+            className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* User badge */}
         {effectivelyExpanded && (
-          <div className="px-3 pt-3 pb-0 flex-shrink-0">
+          <div className="px-3 pt-3 pb-0 flex-shrink-0 hidden lg:block">
             <div className="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-muted/60 border border-border/60">
               <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                 <span className="text-[11px] font-bold text-primary">
@@ -304,11 +288,8 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
           </div>
         )}
 
-        {/* Navigation */}
         <nav
-          className="px-2 py-2 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin"
-          role="navigation"
-          aria-label={t('nav.main_navigation')}
+          className="px-2 py-2 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin overscroll-contain"
           id="sidebar-navigation"
         >
           {effectivelyCollapsed ? (
@@ -317,14 +298,10 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
             </div>
           ) : (
             <div className="space-y-1 pt-2">
-              {/* Main items (sin grupo) */}
               {mainItems.map(renderNavItem)}
-
-              {/* Grouped items */}
               {groups!.map((group) => {
                 const groupItems = groupedItems.filter((it) => it.group === group);
                 const dotColor = GROUP_COLORS[group] || 'bg-muted-foreground';
-
                 return (
                   <div key={group}>
                     <div className="h-px bg-border/50 mx-1 my-2" />
@@ -344,22 +321,17 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
           )}
         </nav>
 
-        {/* Collapse toggle */}
         <div className="hidden lg:flex flex-shrink-0 px-2 py-2 border-t border-border/60">
           <button
             onClick={toggleCollapse}
-            aria-label={
-              isCollapsed
-                ? t('sidebar.expand_menu')
-                : t('sidebar.collapse_menu')
-            }
+            aria-label={isCollapsed ? t('sidebar.expand_menu') : t('sidebar.collapse_menu')}
             aria-expanded={!isCollapsed}
             aria-controls="sidebar-navigation"
             className={`
               w-full flex items-center justify-center gap-2 py-2 px-2
               rounded-xl text-muted-foreground hover:bg-muted
               hover:text-foreground transition-colors text-xs
-              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[44px]
             `}
           >
             {isCollapsed ? (
@@ -373,16 +345,11 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
           </button>
         </div>
 
-        {/* Brand footer */}
         {effectivelyExpanded && (
-          <div className="flex-shrink-0 px-2 pb-2">
+          <div className="flex-shrink-0 px-2 pb-2 hidden lg:block">
             <div className="bg-primary/8 border border-primary/15 rounded-xl px-3 py-2">
-              <p className="text-[11px] font-bold text-primary truncate">
-                CONSTRUSMART ERP
-              </p>
-              <p className="text-[9px] text-muted-foreground italic">
-                {t('sidebar.tagline')}
-              </p>
+              <p className="text-[11px] font-bold text-primary truncate">CONSTRUSMART ERP</p>
+              <p className="text-[9px] text-muted-foreground italic">{t('sidebar.tagline')}</p>
             </div>
           </div>
         )}
