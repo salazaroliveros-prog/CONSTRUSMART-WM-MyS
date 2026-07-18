@@ -1,7 +1,8 @@
 import pg from 'pg';
 import { TABLE_MAP } from '../src/erp/constants/table-mappings';
 
-const DB_URL = 'postgresql://postgres:AngelDario2027@db.neygzluxugodiwcuctbj.supabase.co:5432/postgres';
+const DB_URL = process.env.SUPABASE_DB_URL || process.env.VITE_SUPABASE_DB_URL || '';
+if (!DB_URL) throw new Error('SUPABASE_DB_URL or VITE_SUPABASE_DB_URL must be set');
 
 async function auditSupabase() {
   const client = new pg.Client({ connectionString: DB_URL });

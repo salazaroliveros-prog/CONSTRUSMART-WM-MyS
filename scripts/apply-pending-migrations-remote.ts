@@ -2,7 +2,8 @@ import pg from 'pg';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const DB_URL = 'postgresql://postgres.neygzluxugodiwcuctbj:AngelDario2027@aws-1-us-east-1.pooler.supabase.com:5432/postgres';
+const DB_URL = process.env.SUPABASE_DB_URL || process.env.VITE_SUPABASE_DB_URL || '';
+if (!DB_URL) throw new Error('SUPABASE_DB_URL or VITE_SUPABASE_DB_URL must be set');
 const MIGRATIONS_DIR = path.join(process.cwd(), 'supabase', 'migrations');
 
 const FILES = [
