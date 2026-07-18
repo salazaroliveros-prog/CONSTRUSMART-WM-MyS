@@ -26,14 +26,14 @@ const Financiero: React.FC = () => {
     </div>
   );
   const skeleton = (
-    <div className="p-6 space-y-4">
+    <div className="p-4 sm:p-6 space-y-4">
       <Skeleton className="h-8 w-64" />
-      <div className="grid grid-cols-3 gap-4">
-        <Skeleton className="h-24" />
-        <Skeleton className="h-24" />
-        <Skeleton className="h-24" />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <Skeleton className="h-20 sm:h-24" />
+        <Skeleton className="h-20 sm:h-24" />
+        <Skeleton className="h-20 sm:h-24" />
       </div>
-      <Skeleton className="h-64" />
+      <Skeleton className="h-56 sm:h-64" />
     </div>
   );
 
@@ -167,11 +167,11 @@ const Financiero: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-[1600px] mx-auto space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-foreground truncate" title="Dashboard Financiero">
-            <Wallet className="w-7 h-7 text-emerald-500" />
+          <h1 className="text-xl sm:text-3xl font-black text-foreground truncate" title="Dashboard Financiero">
+            <Wallet className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-500" />
             Dashboard Financiero
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">Vista integrada de finanzas, rentabilidad y cuentas</p>
@@ -189,7 +189,7 @@ const Financiero: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <KPICard label="Ingresos" value={fmtQ(ingresos)} icon={<ArrowUpRight size={18} />} status="success" />
         <KPICard label="Gastos" value={fmtQ(egresos)} icon={<ArrowDownRight size={18} />} status="warning" />
         <KPICard label="Utilidad" value={fmtQ(utilidad)} icon={<TrendingUp size={18} />} status={utilidad > 0 ? 'success' : 'danger'} />
