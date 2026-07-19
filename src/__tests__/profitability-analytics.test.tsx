@@ -11,14 +11,6 @@ import { useErp } from '../erp/store';
 import ProfitabilityAnalytics from '../erp/screens/ProfitabilityAnalytics';
 
 vi.mock('../erp/store');
-vi.mock('../lib/safeLogger', () => ({
-  safeLogger: {
-    log: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-    info: vi.fn(),
-  },
-}));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, defaultValue?: string) => defaultValue || key,
