@@ -196,7 +196,7 @@ describe('Network Error Handling', () => {
     });
 
     it('marks mutations as processed after hitting max retries in offline mode', () => {
-      let queue = Array.from({ length: 5 }, (_, i) => ({
+      const queue = Array.from({ length: 5 }, (_, i) => ({
         id: `m${i}`, type: 'addProyecto', payload: { nombre: `Test${i}` }, timestamp: Date.now(), retryCount: 3,
       }));
 

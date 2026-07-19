@@ -357,7 +357,6 @@ describe('Supabase Error Handling', () => {
       mockSupabaseMethods.client.channel = vi.fn().mockReturnValue(channelMock);
 
       const channel = mockSupabaseMethods.client.channel('test');
-      let channelError: Error | null = null;
 
       const subscribePromise = new Promise<void>((resolve, reject) => {
         channel.subscribe((status: string) => {
