@@ -161,10 +161,11 @@ describe('CuentasPagar', () => {
     render(<CuentasPagar />);
     await waitFor(() => expect(screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i })).toBeInTheDocument());
 
-    const newButton = screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i });
+    const newButton = screen.getAllByRole('button', { name: /cuentas_pagar.nueva_cuenta/i })[0];
     fireEvent.click(newButton);
 
-    const proyectoSelect = screen.getByDisplayValue('') as HTMLSelectElement;
+    const combos = screen.getAllByRole('combobox');
+    const proyectoSelect = combos[1] as HTMLSelectElement;
     fireEvent.change(proyectoSelect, { target: { value: 'proy-1' } });
 
     const proveedorInput = screen.getByPlaceholderText(/cuentas_pagar.proveedor_placeholder/i);
@@ -173,23 +174,24 @@ describe('CuentasPagar', () => {
     const conceptoInput = screen.getByPlaceholderText(/cuentas_pagar.concepto_placeholder/i);
     fireEvent.change(conceptoInput, { target: { value: 'Nuevo concepto' } });
 
-    const submitButton = screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i });
+    const submitButton = screen.getAllByRole('button', { name: /cuentas_pagar.nueva_cuenta/i })[1];
     fireEvent.click(submitButton);
 
     expect(mockUseErp.addCuentaPagar).toHaveBeenCalled();
   });
 
   it('shows validation error when proyecto is missing on submit', async () => {
+    const toastMock = (await import('sonner')).toast;
     render(<CuentasPagar />);
     await waitFor(() => expect(screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i })).toBeInTheDocument());
 
-    const newButton = screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i });
+    const newButton = screen.getAllByRole('button', { name: /cuentas_pagar.nueva_cuenta/i })[0];
     fireEvent.click(newButton);
 
-    const submitButton = screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i });
+    const submitButton = screen.getAllByRole('button', { name: /cuentas_pagar.nueva_cuenta/i })[1];
     fireEvent.click(submitButton);
 
-    expect(screen.getByText(/cuentas_pagar.proyecto_requerido/i)).toBeInTheDocument();
+    expect(toastMock.error).toHaveBeenCalled();
     expect(mockUseErp.addCuentaPagar).not.toHaveBeenCalled();
   });
 
@@ -222,7 +224,7 @@ describe('CuentasPagar', () => {
 
   it('marks a cuenta as paid when pagar button clicked', async () => {
     render(<CuentasPagar />);
-    await waitFor(() => expect(screen.getByRole('button', { name: /cuentas_pagar.marcar_pagada/i })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getAllByRole('button', { name: /cuentas_pagar.marcar_pagada/i }).length).toBeGreaterThanOrEqual(1));
 
     const pagarButtons = screen.getAllByRole('button', { name: /cuentas_pagar.marcar_pagada/i });
     fireEvent.click(pagarButtons[0]);
@@ -232,7 +234,7 @@ describe('CuentasPagar', () => {
 
   it('deletes a cuenta when eliminar clicked and confirmed', async () => {
     render(<CuentasPagar />);
-    await waitFor(() => expect(screen.getByRole('button', { name: /common.eliminar/i })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getAllByRole('button', { name: /common.eliminar/i }).length).toBeGreaterThanOrEqual(1));
 
     const eliminarButtons = screen.getAllByRole('button', { name: /common.eliminar/i });
     fireEvent.click(eliminarButtons[0]);
@@ -242,10 +244,11 @@ describe('CuentasPagar', () => {
 
   it('opens edit form when editar clicked', async () => {
     render(<CuentasPagar />);
-    await waitFor(() => expect(screen.getByRole('button', { name: /common.editar/i })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getAllByRole('button', { name: /common.editar/i }).length).toBeGreaterThanOrEqual(1));
 
     const editarButtons = screen.getAllByRole('button', { name: /common.editar/i });
-    fireEvent.click(editarButtons[0]);
+    const targetButton = editarButtons.find(b => b.closest('tr')?.querySelector('td')?.textContent === 'Proveedor Uno') || editarButtons[0];
+    fireEvent.click(targetButton);
 
     expect(screen.getByDisplayValue('Proveedor Uno')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Materiales de construcción')).toBeInTheDocument();

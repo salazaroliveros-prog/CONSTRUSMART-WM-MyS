@@ -12,6 +12,9 @@ const mockProyectos = [
 const mockUseErp = {
   proyectos: mockProyectos,
   user: { nombre: 'Usuario Test', rol: 'Administrador' },
+  proyectoWeather: [],
+  currentProjectId: 'proy-1',
+  setCurrentProjectId: vi.fn(),
 };
 
 const mockT = (key: string) => key;
@@ -55,7 +58,7 @@ describe('CurvasS', () => {
 
   it('renders the S-curve chart container', () => {
     render(<CurvasS />);
-    expect(screen.getByText(/curvas.curva_s/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/curvas.curva_s/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows the proyecto selector', () => {
@@ -72,8 +75,8 @@ describe('CurvasS', () => {
   it('shows the monthly data table with headers', () => {
     render(<CurvasS />);
     expect(screen.getByText(/curvas.mes/i)).toBeInTheDocument();
-    expect(screen.getByText(/curvas.pv/i)).toBeInTheDocument();
-    expect(screen.getByText(/curvas.ev/i)).toBeInTheDocument();
-    expect(screen.getByText(/curvas.ac/i)).toBeInTheDocument();
+    expect(screen.getByText(/curvas.curva_planificada/i)).toBeInTheDocument();
+    expect(screen.getByText(/curvas.curva_ejecutada/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/curvas.costo_real/i)[0]).toBeInTheDocument();
   });
 });

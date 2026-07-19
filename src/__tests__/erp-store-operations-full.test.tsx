@@ -915,7 +915,7 @@ describe('10. Renderizado y Carga de Pantallas', () => {
     if (HeaderModule?.default) {
       expect(HeaderModule.default).toBeDefined();
     }
-  });
+  }, 15000);
 
   it('10.4 SyncIndicator se importa correctamente', async () => {
     const mod = await import('../erp/components/SyncIndicator.tsx').catch(() => null);

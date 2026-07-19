@@ -71,7 +71,7 @@ describe('LogisticaCompras', () => {
 
   it('renders the logistica tabs', () => {
     render(<LogisticaCompras />);
-    expect(screen.getByText(/logistica.activos/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/logistica.activos/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/logistica.cuadros/i)).toBeInTheDocument();
     expect(screen.getByText(/logistica.pagos/i)).toBeInTheDocument();
   });

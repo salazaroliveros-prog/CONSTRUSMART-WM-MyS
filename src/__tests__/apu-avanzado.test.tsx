@@ -56,7 +56,10 @@ const mockUseErp = {
   updateProyecto: vi.fn(),
 };
 
-const mockT = (key: string) => key;
+const mockT = (key: string, options?: Record<string, string>) => {
+  if (key === 'apu.ver_pestana' && options?.tab) return options.tab;
+  return key;
+};
 
 vi.mock('../erp/store', () => ({
   useErp: () => mockUseErp,
@@ -65,6 +68,29 @@ vi.mock('../erp/store', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: mockT }),
+  initReactI18next: { type: '3rdParty', init: vi.fn() },
+}));
+
+vi.mock('../erp/services/motorCalculo', () => ({
+  ServicioMotorCalculo: {
+    calcularDosificacion: vi.fn().mockResolvedValue({}),
+    calcularDesgloseAcero: vi.fn().mockResolvedValue({}),
+    calcularMovimientoTierra: vi.fn().mockResolvedValue({}),
+    obtenerFactorClimatico: vi.fn().mockResolvedValue({}),
+    calcularPavimento: vi.fn().mockResolvedValue({}),
+    calcularRedInfraestructura: vi.fn().mockResolvedValue({}),
+    calcularMuroContencion: vi.fn().mockResolvedValue({}),
+  },
+  registrarCalculo: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../erp/services/validacionCalculos', () => ({
+  ServicioValidacionCalculos: {
+    validarPavimento: vi.fn().mockResolvedValue([]),
+    validarRedInfraestructura: vi.fn().mockResolvedValue([]),
+    validarMuroContencion: vi.fn().mockResolvedValue([]),
+  },
+  mostrarValidaciones: vi.fn().mockReturnValue(true),
 }));
 
 vi.mock('sonner', () => ({
@@ -216,7 +242,7 @@ describe('APUAvanzado', () => {
     const tab = screen.getByRole('button', { name: /apu.movimiento_tierra/i });
     fireEvent.click(tab);
 
-    const calcularButton = screen.getByRole('button', { name: /apu.calcular_movimiento_tierra/i });
+    const calcularButton = screen.getByRole('button', { name: /apu.calcular_mov_tierra/i });
     fireEvent.click(calcularButton);
 
     await waitFor(() => {
@@ -255,7 +281,7 @@ describe('APUAvanzado', () => {
     const tab = screen.getByRole('button', { name: /apu.redes_infraestructura/i });
     fireEvent.click(tab);
 
-    const calcularButton = screen.getByRole('button', { name: /apu.calcular_red_infraestructura/i });
+    const calcularButton = screen.getByRole('button', { name: /apu.calcular_redes/i });
     fireEvent.click(calcularButton);
 
     await waitFor(() => {
@@ -268,7 +294,7 @@ describe('APUAvanzado', () => {
     const tab = screen.getByRole('button', { name: /apu.muros_contencion/i });
     fireEvent.click(tab);
 
-    const calcularButton = screen.getByRole('button', { name: /apu.calcular_muro_contencion/i });
+    const calcularButton = screen.getByRole('button', { name: /apu.calcular_muros/i });
     fireEvent.click(calcularButton);
 
     await waitFor(() => {

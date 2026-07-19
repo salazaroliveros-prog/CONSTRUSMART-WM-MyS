@@ -10,12 +10,12 @@ const mockProyectos = [
 ];
 
 const mockVentas = [
-  { id: 'v1', proyectoId: 'proy-1', cliente: 'Cliente A', estado: 'pendiente', monto: 100000 },
+  { id: 'v1', proyectoId: 'proy-1', cliente: 'Cliente A', identificador: 'V-001', tipo: 'casa', precioVenta: 100000, estado: 'disponible' as const },
 ];
 
 const mockUseErp = {
   proyectos: mockProyectos,
-  ventas: mockVentas,
+  ventasPaquetes: mockVentas,
   user: { nombre: 'Usuario Test', rol: 'Administrador' },
 };
 
@@ -64,7 +64,7 @@ vi.mock('../erp/components/ProyectoFilter', () => ({
 describe('ComercialFinanzas', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseErp.ventas = [...mockVentas];
+    mockUseErp.ventasPaquetes = [...mockVentas];
     mockUseErp.proyectos = [...mockProyectos];
     mockUseErp.user = { nombre: 'Usuario Test', rol: 'Administrador' };
   });
@@ -80,8 +80,8 @@ describe('ComercialFinanzas', () => {
   });
 
   it('shows empty state when no ventas', () => {
-    mockUseErp.ventas = [];
+    mockUseErp.ventasPaquetes = [];
     render(<ComercialFinanzas />);
-    expect(screen.getByText(/comercial.sin_ventas/i)).toBeInTheDocument();
+    expect(screen.getByText(/comercial.no_hay_ventas/i)).toBeInTheDocument();
   });
 });
