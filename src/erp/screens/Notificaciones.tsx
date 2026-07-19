@@ -88,7 +88,7 @@ export default function Notificaciones() {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-4">
+    <div className="p-4 max-w-[1600px] mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold flex items-center gap-2 text-foreground truncate" title={t('notificaciones.titulo', 'Notificaciones')}>

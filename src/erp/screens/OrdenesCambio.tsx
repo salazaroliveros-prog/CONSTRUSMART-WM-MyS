@@ -79,7 +79,7 @@ const OrdenesCambio: React.FC = () => {
   const costoTotal = useMemo(() => ordenesCambio.filter(o => o.estado === 'aprobado').reduce((a, o) => a + o.impactoCosto, 0), [ordenesCambio]);
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1000px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
           <GitBranch className="w-6 h-6 text-amber-500" aria-hidden="true" /> {t('ordenes_cambio.titulo', 'Órdenes de Cambio')}

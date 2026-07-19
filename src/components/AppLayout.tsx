@@ -288,6 +288,9 @@ const Shell: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:ring-2 focus:ring-ring focus:rounded-md focus:shadow-lg" aria-label="Saltar al contenido principal">
+          Saltar al contenido principal
+        </a>
         <Header onMenu={toggleSidebar} />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar open={sidebarOpen} onClose={closeSidebar} />

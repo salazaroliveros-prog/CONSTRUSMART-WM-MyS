@@ -110,7 +110,7 @@ const PlantillaEditorModal: React.FC<PlantillaEditorModalProps> = ({ plantilla, 
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
       <div className="bg-background rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in duration-200">
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-xl font-bold">Editar Estructura: {plantilla.nombre}</h2>

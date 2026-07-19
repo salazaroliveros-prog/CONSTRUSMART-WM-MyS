@@ -159,7 +159,7 @@ const Presupuestos: React.FC = () => {
         </table>
       </div>
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={editPresupuestoId ? t('presupuestos.editar') : t('presupuestos.nuevo_presupuesto')}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={editPresupuestoId ? t('presupuestos.editar') : t('presupuestos.nuevo_presupuesto')}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4 text-foreground truncate" title={editPresupuestoId ? t('presupuestos.editar') : t('presupuestos.nuevo_presupuesto')}>{editPresupuestoId ? t('presupuestos.editar') : t('presupuestos.nuevo_presupuesto')}</h3>
             <div className="grid gap-3">

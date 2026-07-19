@@ -214,7 +214,7 @@ const Administracion: React.FC = () => {
     );
   }
   return (
-    <div className="p-4 sm:p-6 max-w-[1400px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <h1 className="text-2xl font-black text-foreground mb-4">{t('admin.titulo')}</h1>
 
       <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto">
@@ -293,7 +293,7 @@ const Administracion: React.FC = () => {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={t('admin.nuevo_centro')}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={t('admin.nuevo_centro')}>
           <form onSubmit={handleSubmit(onAddCentroCosto)} onClick={e => e.stopPropagation()} className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm">
             <h3 className="font-bold mb-4 text-foreground">{t('admin.nuevo_centro')}</h3>
             <div className="grid gap-3">

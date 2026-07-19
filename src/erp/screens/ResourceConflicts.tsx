@@ -378,7 +378,7 @@ const ResourceConflicts: React.FC = () => {
       )}
 
       {showSuggestions && selectedConflict && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className={`${CARD} rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto`}>
               <div className="p-4 border-b border-border flex items-center justify-between">
               <h2 className={`${SECTION_TITLE} truncate`} title={t('conflicts.resolution_suggestions')}>{t('conflicts.resolution_suggestions')}</h2>

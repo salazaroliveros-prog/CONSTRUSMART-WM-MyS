@@ -202,7 +202,7 @@ const Cotizaciones: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg sm:text-xl font-black text-foreground">{t('cotizaciones.titulo')}</h1>

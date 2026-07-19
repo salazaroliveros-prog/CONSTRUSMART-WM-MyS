@@ -200,7 +200,7 @@ export default function ErrorLog() {
     `px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors`;
 
   return (
-    <div className="p-4 max-w-6xl mx-auto space-y-4">
+    <div className="p-4 max-w-[1600px] mx-auto space-y-4">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-lg sm:text-xl font-black text-foreground">{t('error_log.titulo')}</h1>
@@ -513,7 +513,7 @@ export default function ErrorLog() {
       </div>
 
       {resolveModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setResolveModalOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setResolveModalOpen(false)}>
           <div className="bg-card border border-border rounded-xl shadow-lg p-6 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
             <h2 className="text-lg font-semibold mb-4">{t('error_log.resolver_modal_titulo')}</h2>
             <div className="space-y-3">
@@ -552,7 +552,7 @@ export default function ErrorLog() {
       )}
 
       {detailModalOpen && selectedError && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setDetailModalOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setDetailModalOpen(false)}>
           <div className="bg-card border border-border rounded-xl shadow-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">

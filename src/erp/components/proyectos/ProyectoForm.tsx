@@ -100,8 +100,8 @@ const ProyectoForm: React.FC<ProyectoFormProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-enter" role="dialog" aria-modal="true" aria-labelledby="modal-proyecto-title">
-      <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className="bg-card rounded-[var(--radius-selected,var(--radius-lg,12px))] shadow-xl border border-border w-full max-w-xl animate-enter max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200" role="dialog" aria-modal="true" aria-labelledby="modal-proyecto-title">
+      <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit(onSubmit)} className="bg-card rounded-[var(--radius-selected,var(--radius-lg,12px))] shadow-xl border border-border w-full max-w-xl animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-[var(--density-padding)] border-b border-border">
           <h2 id="modal-proyecto-title" className="text-base sm:text-lg font-semibold text-foreground">{editingId ? t('proyectos.editar') : t('proyectos.nuevo')}</h2>
           <button type="button" onClick={handleClose} className="text-muted-foreground hover:text-foreground p-1 rounded-md transition-colors hover:bg-muted" aria-label={t('common.cerrar')}>

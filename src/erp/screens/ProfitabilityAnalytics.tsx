@@ -380,17 +380,17 @@ const PROFITABILITYAnalytics: React.FC = () => {
 
           {showDetails && (
             <div className={`${CARD} rounded-xl overflow-hidden`}>
-              <table className="w-full text-xs">
+              <table role="table" className="w-full text-xs">
                 <thead className="bg-muted">
                   <tr>
-                    <th className="text-left p-3 font-semibold">Proyecto</th>
-                    <th className="text-right p-3 font-semibold">Presupuesto</th>
-                    <th className="text-right p-3 font-semibold">Costo Real</th>
-                    <th className="text-right p-3 font-semibold">Ingreso Real</th>
-                    <th className="text-right p-3 font-semibold">Utilidad</th>
-                    <th className="text-right p-3 font-semibold">Margen</th>
-                    <th className="text-center p-3 font-semibold">Estado</th>
-                    <th className="text-right p-3 font-semibold">Eficiencia</th>
+                    <th scope="col" className="text-left p-3 font-semibold">Proyecto</th>
+                    <th scope="col" className="text-right p-3 font-semibold">Presupuesto</th>
+                    <th scope="col" className="text-right p-3 font-semibold">Costo Real</th>
+                    <th scope="col" className="text-right p-3 font-semibold">Ingreso Real</th>
+                    <th scope="col" className="text-right p-3 font-semibold">Utilidad</th>
+                    <th scope="col" className="text-right p-3 font-semibold">Margen</th>
+                    <th scope="col" className="text-center p-3 font-semibold">Estado</th>
+                    <th scope="col" className="text-right p-3 font-semibold">Eficiencia</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -470,16 +470,16 @@ const PROFITABILITYAnalytics: React.FC = () => {
           </div>
 
           <div className={`${CARD} rounded-xl overflow-hidden`}>
-            <table className="w-full text-xs">
+            <table role="table" className="w-full text-xs">
               <thead className="bg-muted">
                 <tr>
-                  <th className="text-left p-3 font-semibold">Cliente</th>
-                  <th className="text-right p-3 font-semibold">Proyectos</th>
-                  <th className="text-right p-3 font-semibold">Valor Contratos</th>
-                  <th className="text-right p-3 font-semibold">Utilidad Total</th>
-                  <th className="text-right p-3 font-semibold">Margen Promedio</th>
-                  <th className="text-center p-3 font-semibold">Segmento</th>
-                  <th className="text-right p-3 font-semibold">Probabilidad Retención</th>
+                  <th scope="col" className="text-left p-3 font-semibold">Cliente</th>
+                  <th scope="col" className="text-right p-3 font-semibold">Proyectos</th>
+                  <th scope="col" className="text-right p-3 font-semibold">Valor Contratos</th>
+                  <th scope="col" className="text-right p-3 font-semibold">Utilidad Total</th>
+                  <th scope="col" className="text-right p-3 font-semibold">Margen Promedio</th>
+                  <th scope="col" className="text-center p-3 font-semibold">Segmento</th>
+                  <th scope="col" className="text-right p-3 font-semibold">Probabilidad Retención</th>
                 </tr>
               </thead>
               <tbody>

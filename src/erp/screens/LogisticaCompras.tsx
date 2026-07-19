@@ -163,7 +163,7 @@ export const LogisticaCompras: React.FC = () => {
       {tab === 'pagos'   && renderPagos()}
 
       {showForm === 'activo' && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={t('logistica.nuevo_activo')}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={t('logistica.nuevo_activo')}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4 text-foreground">{t('logistica.nuevo_activo')}</h3>
             <div className="grid gap-3">

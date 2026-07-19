@@ -26,8 +26,8 @@ const ProyectoPauseModal: React.FC<ProyectoPauseModalProps> = ({ pauseModal, pau
   };
 
   return (
-    <div className={MODAL_OVERLAY + ' animate-enter'} role="dialog" aria-modal="true" aria-labelledby="modal-pausa-title">
-      <div onClick={e => e.stopPropagation()} className={`${MODAL_PANEL.replace('max-w-lg sm:max-w-xl md:max-w-2xl', 'max-w-md')} animate-enter`}>
+    <div className={MODAL_OVERLAY} role="dialog" aria-modal="true" aria-labelledby="modal-pausa-title">
+      <div onClick={e => e.stopPropagation()} className={MODAL_PANEL.replace('max-w-lg sm:max-w-xl md:max-w-2xl', 'max-w-md')}>
         <div className={MODAL_HEADER}>
           <h2 id="modal-pausa-title" className={MODAL_TITLE}>{t('proyectos.pausar_proyecto')}</h2>
           <button type="button" onClick={resetAll} className={MODAL_CLOSE} aria-label={t('common.cerrar')}>

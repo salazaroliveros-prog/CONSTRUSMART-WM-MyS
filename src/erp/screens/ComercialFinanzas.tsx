@@ -307,7 +307,7 @@ export const ComercialFinanzas: React.FC = () => {
       {tab === 'cajas'     && renderCajas()}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={showForm === 'venta' ? t('comercial.nueva_venta') : showForm === 'anticipo' ? t('comercial.nuevo_anticipo') : t('comercial.nuevo_gasto')}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={showForm === 'venta' ? t('comercial.nueva_venta') : showForm === 'anticipo' ? t('comercial.nuevo_anticipo') : t('comercial.nuevo_gasto')}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4 text-foreground truncate" title={
               showForm === 'venta' ? t('comercial.modal_nueva_venta', 'Nueva Venta / Paquete') :

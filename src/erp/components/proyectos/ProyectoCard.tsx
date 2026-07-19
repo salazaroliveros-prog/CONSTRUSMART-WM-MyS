@@ -27,7 +27,7 @@ const ProyectoCard: React.FC<ProyectoCardProps> = ({ proyecto, index, estadoLabe
 
   return (
     <div
-      className="group bg-card text-card-foreground rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border hover:-translate-y-1 animate-enter focus:outline-none focus:ring-2 focus:ring-ring"
+      className="group bg-card text-card-foreground rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border hover:-translate-y-1 animate-in fade-in duration-200 focus:outline-none focus:ring-2 focus:ring-ring"
       style={{ animationDelay: `${index * 0.04}s` }}
       tabIndex={0}
       role="button"

@@ -210,7 +210,7 @@ const CuentasPagar: React.FC = () => {
         )}
       </div>
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={editingId ? t('cuentas_pagar.editar') : t('cuentas_pagar.nueva_cuenta')}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={editingId ? t('cuentas_pagar.editar') : t('cuentas_pagar.nueva_cuenta')}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4 text-foreground truncate" title={editingId ? t('cuentas_pagar.editar') : t('cuentas_pagar.nueva_cuenta')}>{editingId ? t('cuentas_pagar.editar') : t('cuentas_pagar.nueva_cuenta')}</h3>
             <div className="grid gap-3">

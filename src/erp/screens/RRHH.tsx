@@ -168,17 +168,17 @@ const RRHH: React.FC = () => {
 
       <div className={CARD + " flex-1 overflow-hidden flex flex-col"}>
         <div className="overflow-x-auto flex-1">
-          <table className="w-full text-sm">
+          <table role="table" className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('rrhh.name')}</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground">{t('rrhh.position')}</th>
-                <th className="text-right p-3 text-xs font-medium text-muted-foreground">{t('rrhh.dailyWage')}</th>
-                <th className="text-right p-3 text-xs font-medium text-muted-foreground">{t('rrhh.daysWorked')}</th>
-                <th className="text-right p-3 text-xs font-medium text-muted-foreground">{t('rrhh.grossPay')}</th>
-                <th className="text-right p-3 text-xs font-medium text-muted-foreground">{t('rrhh.netPayFSR')}</th>
-                <th className="text-center p-3 text-xs font-medium text-muted-foreground">{t('rrhh.type')}</th>
-                <th className="text-right p-3 text-xs font-medium text-muted-foreground">{t('common.actions')}</th>
+                <th scope="col" className="text-left p-3 text-xs font-medium text-muted-foreground">{t('rrhh.name')}</th>
+                <th scope="col" className="text-left p-3 text-xs font-medium text-muted-foreground">{t('rrhh.position')}</th>
+                <th scope="col" className="text-right p-3 text-xs font-medium text-muted-foreground">{t('rrhh.dailyWage')}</th>
+                <th scope="col" className="text-right p-3 text-xs font-medium text-muted-foreground">{t('rrhh.daysWorked')}</th>
+                <th scope="col" className="text-right p-3 text-xs font-medium text-muted-foreground">{t('rrhh.grossPay')}</th>
+                <th scope="col" className="text-right p-3 text-xs font-medium text-muted-foreground">{t('rrhh.netPayFSR')}</th>
+                <th scope="col" className="text-center p-3 text-xs font-medium text-muted-foreground">{t('rrhh.type')}</th>
+                <th scope="col" className="text-right p-3 text-xs font-medium text-muted-foreground">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>

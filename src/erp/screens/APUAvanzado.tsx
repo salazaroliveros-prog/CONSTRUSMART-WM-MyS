@@ -386,15 +386,15 @@ const APUAvanzado: React.FC = () => {
             ) : (
             <><div className="text-xs text-muted-foreground mb-2">{t('apu.insumos_count', { count: filteredInsumos.length })}</div>
             <div className="overflow-x-auto">
-              <table className="w-full text-xs">
+              <table role="table" className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-border text-muted-foreground">
-                    <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.insumo')}</th>
-                    <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.categoria')}</th>
-                    <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.unidad')}</th>
-                    <th className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.precio_ref')}</th>
-                    <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.rubro')}</th>
-                    <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.ult_actualizacion')}</th>
+                    <th scope="col" className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.insumo')}</th>
+                    <th scope="col" className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.categoria')}</th>
+                    <th scope="col" className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.unidad')}</th>
+                    <th scope="col" className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.precio_ref')}</th>
+                    <th scope="col" className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.rubro')}</th>
+                    <th scope="col" className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.ult_actualizacion')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -432,13 +432,13 @@ const APUAvanzado: React.FC = () => {
               <div className="text-center py-8 text-muted-foreground"><p>{t('apu.sin_rendimientos')}</p></div>
             ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-xs">
+              <table role="table" className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-border text-muted-foreground">
-                    <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.actividad')}</th>
-                    <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.cuadrilla')}</th>
-                    <th className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.rendimiento')}</th>
-                    <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.unidad')}</th>
+                    <th scope="col" className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.actividad')}</th>
+                    <th scope="col" className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.cuadrilla')}</th>
+                    <th scope="col" className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.rendimiento')}</th>
+                    <th scope="col" className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.unidad')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -578,8 +578,8 @@ const APUAvanzado: React.FC = () => {
                 <div className="absolute top-2 left-3 text-xs text-muted-foreground">{t('apu.cemento_ugc_label')}</div>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-xs">
-                  <thead><tr className="border-b border-border text-muted-foreground"><th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.fecha_header')}</th><th className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.cemento_header')}</th><th className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.hierro_header')}</th><th className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.arena_header')}</th><th className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.block_header')}</th></tr></thead>
+                <table role="table" className="w-full text-xs">
+                  <thead><tr className="border-b border-border text-muted-foreground"><th scope="col" className="text-left py-2 px-2 font-medium text-muted-foreground">{t('apu.fecha_header')}</th><th scope="col" className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.cemento_header')}</th><th scope="col" className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.hierro_header')}</th><th scope="col" className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.arena_header')}</th><th scope="col" className="text-right py-2 px-2 font-medium text-muted-foreground">{t('apu.block_header')}</th></tr></thead>
                   <tbody>{historial.map((h: HistoricoPrecio, i: number) => (<tr key={i} className="border-b border-slate-50 hover:bg-accent"><td className="py-2 px-2 font-medium text-muted-foreground">{h.fecha}</td><td className="py-2 px-2 text-right">Q{h.cemento}</td><td className="py-2 px-2 text-right">Q{h.hierro}</td><td className="py-2 px-2 text-right">Q{h.arena}</td><td className="py-2 px-2 text-right">Q{h.block}</td></tr>))}</tbody>
                 </table>
               </div>
@@ -608,7 +608,7 @@ const APUAvanzado: React.FC = () => {
             {resultadoAcero && (
               <div className="mt-4 space-y-3">
                 <div className="bg-muted/30 rounded-xl p-4 border border-border"><h3 className="font-bold text-muted-foreground text-xs mb-3">{t('apu.desglose_diametro')}</h3><div className="space-y-2">{(resultadoAcero?.desglose || []).map((item, index: number) => (<div key={index} className="bg-blue-50 rounded-lg p-3 border border-blue-100"><div className="flex items-center justify-between"><span className="text-xs text-blue-600">Diámetro {item.diametro}</span><span className="text-lg font-bold text-blue-700">{item.cantidadKg.toFixed(2)} kg</span></div><div className="text-xs text-muted-foreground mt-1">{t('apu.costo_precio_kg', { costo: item.costoTotal.toFixed(2), precio: item.precioUnitarioKg.toFixed(2) })}</div></div>))}</div></div>
-                <div className="bg-gradient-to-r from-primary-to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">Costo Total</span><div className="text-2xl font-bold text-white">Q{resultadoAcero.costoTotal?.toFixed(2) || '0.00'}</div></div></div></div>
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">Costo Total</span><div className="text-2xl font-bold text-white">Q{resultadoAcero.costoTotal?.toFixed(2) || '0.00'}</div></div></div></div>
               </div>
             )}
           </div>
@@ -647,7 +647,7 @@ const APUAvanzado: React.FC = () => {
             {resultadoClimaticos && (
               <div className="mt-4 space-y-3">
                  <div className="bg-muted/30 rounded-xl p-4 border border-border"><h3 className="font-bold text-muted-foreground text-xs mb-3 truncate" title={t('apu.climaticos_factores_titulo')}>{t('apu.climaticos_factores_titulo')}</h3><div className="grid grid-cols-1 sm:grid-cols-3 gap-3"><div className="bg-blue-50 rounded-lg p-3 border border-blue-100"><div className="text-xs text-blue-600 mb-1">{t('apu.climaticos_factor_curado')}</div><div className="text-lg font-bold text-blue-700">{resultadoClimaticos.factorCurado?.toFixed(2) || '1.00'}</div></div><div className="bg-amber-50 rounded-lg p-3 border border-amber-100"><div className="text-xs text-amber-600 mb-1">{t('apu.climaticos_factor_rendimiento')}</div><div className="text-lg font-bold text-amber-700">{resultadoClimaticos.factorRendimiento?.toFixed(2) || '1.00'}</div></div><div className="bg-stone-50 rounded-lg p-3 border border-stone-100"><div className="text-xs text-stone-600 mb-1">{t('apu.climaticos_factor_proteccion')}</div><div className="text-lg font-bold text-stone-700">{resultadoClimaticos.factorProteccion?.toFixed(2) || '1.00'}</div></div></div></div>
-                <div className="bg-gradient-to-r from-primary-to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">{t('apu.climaticos_ajuste_estacional')}</span><div className="text-2xl font-bold text-white">{resultadoClimaticos.factorAjusteEstacional?.toFixed(2) || '1.00'}</div></div><div className="text-right"><span className="text-xs text-white/80">{t('apu.climaticos_observaciones')}</span><div className="text-sm font-bold text-white">{resultadoClimaticos.observaciones || ''}</div></div></div></div>
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">{t('apu.climaticos_ajuste_estacional')}</span><div className="text-2xl font-bold text-white">{resultadoClimaticos.factorAjusteEstacional?.toFixed(2) || '1.00'}</div></div><div className="text-right"><span className="text-xs text-white/80">{t('apu.climaticos_observaciones')}</span><div className="text-sm font-bold text-white">{resultadoClimaticos.observaciones || ''}</div></div></div></div>
               </div>
             )}
           </div>
@@ -668,7 +668,7 @@ const APUAvanzado: React.FC = () => {
               <div className="mt-4 space-y-3">
                 <div className="bg-muted/30 rounded-xl p-4 border border-border"><h3 className="font-bold text-muted-foreground text-xs mb-3">{t('apu.pav_resultados')}</h3><div className="grid grid-cols-2 sm:grid-cols-4 gap-3"><div className="bg-blue-50 rounded-lg p-3 border border-blue-100"><div className="text-xs text-blue-600 mb-1">{t('apu.pav_espesor')}</div><div className="text-lg font-bold text-blue-700">{resultadoPavimento.espesorCm?.toFixed(1) || '0'} cm</div></div><div className="bg-amber-50 rounded-lg p-3 border border-amber-100"><div className="text-xs text-amber-600 mb-1">{t('apu.pav_costo_total_m2')}</div><div className="text-lg font-bold text-amber-700">Q{resultadoPavimento.costoTotalM2?.toFixed(2) || '0.00'}</div></div><div className="bg-stone-50 rounded-lg p-3 border border-stone-100"><div className="text-xs text-stone-600 mb-1">{t('apu.pav_costo_total')}</div><div className="text-lg font-bold text-stone-700">Q{resultadoPavimento.costoTotal?.toFixed(2) || '0.00'}</div></div><div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100"><div className="text-xs text-cyan-600 mb-1">{t('apu.pav_volumen_base')}</div><div className="text-lg font-bold text-cyan-700">{resultadoPavimento.volumenBaseM3?.toFixed(2) || '0'} m³</div></div></div></div>
                 <div className="bg-muted/30 rounded-xl p-3 border border-border"><h3 className="font-bold text-muted-foreground text-xs mb-2">{t('apu.desglose_costos')}</h3><div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs"><div className="flex justify-between"><span className="text-muted-foreground">{t('apu.pav_superficie')}:</span><span className="font-medium text-muted-foreground">Q{resultadoPavimento.costoSuperficieM2?.toFixed(2) || '0.00'}/m²</span></div><div className="flex justify-between"><span className="text-muted-foreground">{t('apu.pav_base')}:</span><span className="font-medium text-muted-foreground">Q{resultadoPavimento.costoBaseM3?.toFixed(2) || '0.00'}/m³</span></div><div className="flex justify-between"><span className="text-muted-foreground">{t('apu.pav_sello')}:</span><span className="font-medium text-muted-foreground">Q{resultadoPavimento.costoSelloM2?.toFixed(2) || '0.00'}/m²</span></div></div></div>
-                <div className="bg-gradient-to-r from-primary-to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">{t('apu.referencia_normativa')}</span><div className="text-lg font-bold text-white">{resultadoPavimento.referenciaNorma || ''}</div></div></div></div>
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">{t('apu.referencia_normativa')}</span><div className="text-lg font-bold text-white">{resultadoPavimento.referenciaNorma || ''}</div></div></div></div>
               </div>
             )}
           </div>
@@ -688,7 +688,7 @@ const APUAvanzado: React.FC = () => {
             {resultadoRedInfraestructura && (
               <div className="mt-4 space-y-3">
                 <div className="bg-muted/30 rounded-xl p-4 border border-border"><h3 className="font-bold text-muted-foreground text-xs mb-3">{t('apu.redes_resultados')}</h3><div className="grid grid-cols-2 sm:grid-cols-4 gap-3"><div className="bg-blue-50 rounded-lg p-3 border border-blue-100"><div className="text-xs text-blue-600 mb-1">{t('apu.redes_costo_unitario')}</div><div className="text-lg font-bold text-blue-700">Q{resultadoRedInfraestructura.costoUnitarioMl?.toFixed(2) || '0.00'}/ml</div></div><div className="bg-amber-50 rounded-lg p-3 border border-amber-100"><div className="text-xs text-amber-600 mb-1">{t('apu.redes_costo_total')}</div><div className="text-lg font-bold text-amber-700">Q{resultadoRedInfraestructura.costoTotal?.toFixed(2) || '0.00'}</div></div><div className="bg-stone-50 rounded-lg p-3 border border-stone-100"><div className="text-xs text-stone-600 mb-1">{t('apu.redes_factor_material')}</div><div className="text-lg font-bold text-stone-700">{resultadoRedInfraestructura.factorAjusteMaterial?.toFixed(2) || '1.00'}</div></div><div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100"><div className="text-xs text-cyan-600 mb-1">{t('apu.redes_normativa')}</div><div className="text-sm font-bold text-cyan-700">{resultadoRedInfraestructura.referenciaNorma || ''}</div></div></div></div>
-                <div className="bg-gradient-to-r from-primary-to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">{t('apu.redes_costo_total_instalado')}</span><div className="text-2xl font-bold text-white">Q{resultadoRedInfraestructura.costoTotal?.toFixed(2) || '0.00'}</div></div><div className="text-right"><span className="text-xs text-white/80">{t('apu.redes_incluye_factor_material')}</span><div className="text-lg font-bold text-white">{resultadoRedInfraestructura.factorAjusteMaterial?.toFixed(2) || '1.00'}</div></div></div></div>
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">{t('apu.redes_costo_total_instalado')}</span><div className="text-2xl font-bold text-white">Q{resultadoRedInfraestructura.costoTotal?.toFixed(2) || '0.00'}</div></div><div className="text-right"><span className="text-xs text-white/80">{t('apu.redes_incluye_factor_material')}</span><div className="text-lg font-bold text-white">{resultadoRedInfraestructura.factorAjusteMaterial?.toFixed(2) || '1.00'}</div></div></div></div>
               </div>
             )}
           </div>
@@ -709,7 +709,7 @@ const APUAvanzado: React.FC = () => {
             {resultadoMuroContencion && (
               <div className="mt-4 space-y-3">
                 <div className="bg-muted/30 rounded-xl p-4 border border-border"><h3 className="font-bold text-muted-foreground text-xs mb-3">{t('apu.muros_resultados')}</h3><div className="grid grid-cols-2 sm:grid-cols-4 gap-3"><div className="bg-blue-50 rounded-lg p-3 border border-blue-100"><div className="text-xs text-blue-600 mb-1">{t('apu.muros_costo_unitario')}</div><div className="text-lg font-bold text-blue-700">Q{resultadoMuroContencion.costoUnitarioM2?.toFixed(2) || '0.00'}/m²</div></div><div className="bg-amber-50 rounded-lg p-3 border border-amber-100"><div className="text-xs text-amber-600 mb-1">{t('apu.muros_costo_total')}</div><div className="text-lg font-bold text-amber-700">Q{resultadoMuroContencion.costoTotal?.toFixed(2) || '0.00'}</div></div><div className="bg-stone-50 rounded-lg p-3 border border-stone-100"><div className="text-xs text-stone-600 mb-1">{t('apu.muros_factor_ajuste')}</div><div className="text-lg font-bold text-stone-700">{resultadoMuroContencion.factorAjusteTotal?.toFixed(2) || '1.00'}</div></div><div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100"><div className="text-xs text-cyan-600 mb-1">{t('apu.muros_volumen_concreto')}</div><div className="text-lg font-bold text-cyan-700">{resultadoMuroContencion.volumenConcretoM3?.toFixed(2) || '0'} m³</div></div></div></div>
-                <div className="bg-gradient-to-r from-primary-to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">{t('apu.muros_costo_total_instalado')}</span><div className="text-2xl font-bold text-white">Q{resultadoMuroContencion.costoTotal?.toFixed(2) || '0.00'}</div></div><div className="text-right"><span className="text-xs text-white/80">{t('apu.referencia_normativa')}</span><div className="text-sm font-bold text-white">{resultadoMuroContencion.referenciaNorma || ''}</div></div></div></div>
+                <div className="bg-gradient-to-r from-primary to-warning rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between"><div><span className="text-xs text-white/80">{t('apu.muros_costo_total_instalado')}</span><div className="text-2xl font-bold text-white">Q{resultadoMuroContencion.costoTotal?.toFixed(2) || '0.00'}</div></div><div className="text-right"><span className="text-xs text-white/80">{t('apu.referencia_normativa')}</span><div className="text-sm font-bold text-white">{resultadoMuroContencion.referenciaNorma || ''}</div></div></div></div>
               </div>
             )}
           </div>

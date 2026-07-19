@@ -142,15 +142,15 @@ export const PlanillaDestajos: React.FC = () => {
 
       {/* Tabla */}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table role="table" className="w-full text-sm">
           <thead>
             <tr className="bg-muted">
-              <th className="p-2 text-left">Cuadrilla</th>
-              <th className="p-2 text-right">Total Ejecutado</th>
-              <th className="p-2 text-left">Unidad</th>
-              <th className="p-2 text-right">Días</th>
-              <th className="p-2 text-right">Tasa (Q/unidad)</th>
-              <th className="p-2 text-right">Pago Semanal</th>
+              <th scope="col" className="p-2 text-left">Cuadrilla</th>
+              <th scope="col" className="p-2 text-right">Total Ejecutado</th>
+              <th scope="col" className="p-2 text-left">Unidad</th>
+              <th scope="col" className="p-2 text-right">Días</th>
+              <th scope="col" className="p-2 text-right">Tasa (Q/unidad)</th>
+              <th scope="col" className="p-2 text-right">Pago Semanal</th>
             </tr>
           </thead>
           <tbody>
@@ -191,15 +191,15 @@ export const PlanillaDestajos: React.FC = () => {
         <div className="mt-8">
           <h2 className="text-sm font-semibold text-foreground mb-3"><ClipboardList className="w-4 h-4 inline" aria-hidden="true" /> Detalle de Destajos Individuales</h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table role="table" className="w-full text-sm">
               <thead>
                 <tr className="bg-muted">
-                  <th className="p-2 text-left">Cuadrilla</th>
-                  <th className="p-2 text-left">Renglón</th>
-                  <th className="p-2 text-left">Proyecto</th>
-                  <th className="p-2 text-right">Cantidad</th>
-                  <th className="p-2 text-right">Unidad</th>
-                  <th className="p-2 text-center">Acción</th>
+                  <th scope="col" className="p-2 text-left">Cuadrilla</th>
+                  <th scope="col" className="p-2 text-left">Renglón</th>
+                  <th scope="col" className="p-2 text-left">Proyecto</th>
+                  <th scope="col" className="p-2 text-right">Cantidad</th>
+                  <th scope="col" className="p-2 text-right">Unidad</th>
+                  <th scope="col" className="p-2 text-center">Acción</th>
                 </tr>
               </thead>
               <tbody>
@@ -264,7 +264,7 @@ export const PlanillaDestajos: React.FC = () => {
 
       {/* Modal Nuevo Destajo */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-card rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4">Nuevo Destajo</h3>
             <div className="grid gap-3">

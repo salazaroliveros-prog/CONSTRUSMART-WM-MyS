@@ -216,12 +216,12 @@ const Ajustes: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col p-6 min-h-full">
+    <div className="flex flex-col p-4 sm:p-6 max-w-[1600px] mx-auto min-h-full">
       <div className="mb-6">
-        <h3 className="m-0 text-foreground text-[22px] font-bold flex items-center gap-2">
+        <h1 className="m-0 text-foreground text-[22px] font-bold flex items-center gap-2">
           <Settings className="h-[22px] w-[22px] text-primary" />
           {t('ajustes.titulo')}
-        </h3>
+        </h1>
         <p className="text-muted-foreground text-sm m-0 mt-1">
           {t('ajustes.subtitulo_desc')}
         </p>
@@ -948,7 +948,7 @@ const Ajustes: React.FC = () => {
       </div>
 
       {resetModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setResetModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setResetModal(false)}>
           <div className="bg-background rounded-xl border shadow-lg w-[95vw] max-w-[520px] p-6" onClick={e => e.stopPropagation()}>
             <h4 className="text-lg font-semibold mb-4 text-foreground">{t('ajustes.restablecer_titulo', 'Restablecer datos de fábrica')}</h4>
             <div className="rounded-lg border border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950 p-3 mb-6">

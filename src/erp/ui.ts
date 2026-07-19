@@ -120,12 +120,12 @@ export const BUTTON_DANGER = 'text-destructive hover:text-destructive-foreground
 /**
  * MODAL_OVERLAY - Overlay de fondo para modales
  */
-export const MODAL_OVERLAY = 'fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4';
+export const MODAL_OVERLAY = 'fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200';
 
 /**
  * MODAL_PANEL - Panel/contenedor principal del modal
  */
-export const MODAL_PANEL = 'bg-card rounded-[var(--radius-selected,var(--radius-lg,12px))] shadow-xl border border-border w-full max-w-lg sm:max-w-xl md:max-w-2xl max-h-[90vh] overflow-y-auto';
+export const MODAL_PANEL = 'bg-card rounded-[var(--radius-selected,var(--radius-lg,12px))] shadow-xl border border-border w-full max-w-lg sm:max-w-xl md:max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200';
 
 /**
  * MODAL_HEADER - Header del modal

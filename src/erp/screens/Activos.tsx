@@ -143,7 +143,7 @@ const Activos: React.FC = () => {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-card rounded-xl p-5 w-full max-w-md shadow-sm">
             <h3 className="font-bold mb-3 truncate" title={editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}>{editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}</h3>
             <div className="grid gap-2">

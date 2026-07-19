@@ -93,7 +93,7 @@ const Hitos: React.FC = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1200px] mx-auto">
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2"><Calendar className="w-5 h-5 text-primary" aria-hidden="true" /> {t('hitos.titulo', 'Hitos')}</h1>
         <div className="flex flex-wrap gap-2">

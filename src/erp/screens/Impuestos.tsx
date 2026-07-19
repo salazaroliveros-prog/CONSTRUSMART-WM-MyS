@@ -199,14 +199,14 @@ export const Impuestos: React.FC = () => {
           </div>
         ) : (
         <div className="overflow-x-auto max-h-60 overflow-y-auto">
-          <table className="w-full text-sm">
+          <table role="table" className="w-full text-sm">
             <thead className="sticky top-0 bg-gray-50">
               <tr>
-                <th className="p-2 text-left text-xs">{t('common.fecha')}</th>
-                <th className="p-2 text-left text-xs">{t('common.descripcion')}</th>
-                <th className="p-2 text-left text-xs">{t('common.tipo')}</th>
-                <th className="p-2 text-right text-xs">{t('impuestos.monto')}</th>
-                <th className="p-2 text-left text-xs">{t('common.categoria')}</th>
+                <th scope="col" className="p-2 text-left text-xs">{t('common.fecha')}</th>
+                <th scope="col" className="p-2 text-left text-xs">{t('common.descripcion')}</th>
+                <th scope="col" className="p-2 text-left text-xs">{t('common.tipo')}</th>
+                <th scope="col" className="p-2 text-right text-xs">{t('impuestos.monto')}</th>
+                <th scope="col" className="p-2 text-left text-xs">{t('common.categoria')}</th>
               </tr>
             </thead>
             <tbody>

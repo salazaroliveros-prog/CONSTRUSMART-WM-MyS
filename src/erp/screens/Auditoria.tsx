@@ -170,7 +170,7 @@ export default function Auditoria() {
   ];
 
   return (
-    <div className="p-4 max-w-6xl mx-auto space-y-4">
+    <div className="p-4 max-w-[1600px] mx-auto space-y-4">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
@@ -290,7 +290,7 @@ export default function Auditoria() {
       ) : (
         <>
           <div className="overflow-x-auto rounded-lg border border-border">
-            <table className="w-full">
+            <table role="table" className="w-full">
               <thead>
                 <tr className="border-b bg-muted/50">
                   {columnHeaders.map(col => (
@@ -392,7 +392,7 @@ export default function Auditoria() {
       )}
 
       {detailModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { setDetailModalOpen(false); setSelectedEntry(null); }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => { setDetailModalOpen(false); setSelectedEntry(null); }}>
           <div className="bg-card border border-border rounded-xl shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold truncate" title={t('auditoria.detalle_titulo', { id: selectedEntry?.id.slice(0, 8) || '' })}>{t('auditoria.detalle_titulo', { id: selectedEntry?.id.slice(0, 8) || '' })}</h3>

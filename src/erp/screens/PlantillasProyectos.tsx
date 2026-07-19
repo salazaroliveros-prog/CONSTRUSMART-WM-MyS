@@ -400,7 +400,7 @@ const PlantillasProyectos: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
         <div>
       <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
@@ -881,7 +881,7 @@ const PlantillasProyectos: React.FC = () => {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold truncate" title={editingId ? t('plantillas.editar_plantilla_titulo') : t('plantillas.nueva_plantilla_titulo')}>
@@ -996,7 +996,7 @@ const PlantillasProyectos: React.FC = () => {
       )}
 
       {showPreview && previewPlantilla && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold truncate" title={t('plantillas.vista_previa_titulo') + ': ' + previewPlantilla.nombre}>{t('plantillas.vista_previa_titulo')}: {previewPlantilla.nombre}</h2>
@@ -1097,7 +1097,7 @@ const PlantillasProyectos: React.FC = () => {
       )}
 
       {showHistorial && previewPlantilla && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold truncate" title={t('plantillas.historial_titulo') + ': ' + previewPlantilla.nombre}>{t('plantillas.historial_titulo')}: {previewPlantilla.nombre}</h2>
@@ -1170,7 +1170,7 @@ const PlantillasProyectos: React.FC = () => {
       )}
 
       {showGlobalDashboard && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold truncate" title={t('plantillas.dashboard_global')}>{t('plantillas.dashboard_global')}</h2>
@@ -1188,7 +1188,7 @@ const PlantillasProyectos: React.FC = () => {
       )}
 
       {versionesComparar && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-background rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold truncate" title={t('plantillas.comparacion_titulo')}>{t('plantillas.comparacion_titulo')}</h2>

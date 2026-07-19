@@ -3,7 +3,7 @@ import React from 'react';
 const CalidadCumplimiento: React.FC = () => {
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 truncate" title="Cumplimiento de Calidad">Cumplimiento de Calidad</h1>
       <p className="text-muted-foreground mb-6">
         Monitoreo de cumplimiento normativo y estándares de calidad por proyecto.
