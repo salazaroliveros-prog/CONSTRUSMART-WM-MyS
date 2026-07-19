@@ -35,7 +35,6 @@ vi.mock('react-i18next', () => {
     'planilla_destajos.unidad': 'Unidad',
     'planilla_destajos.dias': 'Días',
     'planilla_destajos.tasa': 'Tasa (Q/unidad)',
-    'planilla_destajos.pago_semanal': 'Pago Semanal',
     'planilla_destajos.totales': 'TOTALES',
     'planilla_destajos.detalle_individual': 'Detalle de Destajos Individuales',
     'planilla_destajos.renglon': 'Renglón',
