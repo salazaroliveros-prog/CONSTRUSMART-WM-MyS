@@ -5,9 +5,15 @@ async function main() {
   console.log('🔍 Verificando configuración de Supabase...\n');
   
   // Leer variables de entorno del archivo .env.local
-  const supabaseUrl = 'https://neygzluxugodiwcuctbj.supabase.co';
-  const supabaseKey = 'JWT_ANON_KEY_PLACEHOLDER';
-  const serviceRoleKey = '[REDACTED-SERVICE-ROLE-KEY-ROTATED]';
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const supabaseKey = process.env.VITE_SUPABASE_KEY || process.env.SUPABASE_ANON_KEY;
+  const serviceRoleKey = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error('❌ Error: VITE_SUPABASE_URL and VITE_SUPABASE_SERVICE_ROLE_KEY must be set');
+    console.error('Run: VITE_SUPABASE_URL="https://xxx.supabase.co" VITE_SUPABASE_SERVICE_ROLE_KEY="xxx" tsx src/erp/scripts/validar-supabase-real.ts');
+    process.exit(1);
+  }
   
   console.log(`✅ Supabase URL: ${supabaseUrl}`);
   console.log(`✅ Supabase Key configurada`);

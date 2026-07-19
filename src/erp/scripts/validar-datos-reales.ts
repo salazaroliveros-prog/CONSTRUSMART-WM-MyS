@@ -3,9 +3,15 @@ import { createClient } from '@supabase/supabase-js';
 
 async function main() {
   console.log('🔍 Verificando datos reales en Supabase...\n');
-  
-  const supabaseUrl = 'https://neygzluxugodiwcuctbj.supabase.co';
-  const serviceRoleKey = '[REDACTED-SERVICE-ROLE-KEY-ROTATED]';
+
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const serviceRoleKey = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error('❌ Error: VITE_SUPABASE_URL and VITE_SUPABASE_SERVICE_ROLE_KEY must be set');
+    console.error('Run: VITE_SUPABASE_URL="https://xxx.supabase.co" VITE_SUPABASE_SERVICE_ROLE_KEY="xxx" tsx src/erp/scripts/validar-datos-reales.ts');
+    process.exit(1);
+  }
   
   const supabase = createClient(supabaseUrl, serviceRoleKey);
   
