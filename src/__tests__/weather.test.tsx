@@ -147,13 +147,30 @@ const mockWeatherData = {
     score: 75,
     level: 'medium',
     factors: ['Moderate temperature', 'Light wind'],
-    recommendations: ['Standard construction activities can proceed'],
+    concreteCuring: {
+      suitable: true,
+      tempRange: '20-30°C',
+      humidityRange: '60-80%',
+      recommendations: ['Maintain moisture', 'Cover freshly poured concrete'],
+    },
+    workforceSafety: {
+      heatStressRisk: 'low',
+      heatIndex: 85,
+      workScheduleAdjustment: 'Normal schedule',
+    },
+    materialHandling: {
+      dryConditions: false,
+      moistureControl: 'Standard',
+      recommendations: ['Cover materials', 'Protect from rain'],
+    },
   },
+  recommendations: ['Standard construction activities can proceed'],
   constructionMetrics: {
     concreteCuring: {
       suitable: true,
       tempRange: '20-25°C',
       humidityRange: '60-65%',
+      recommendations: ['Maintain moisture', 'Cover freshly poured concrete'],
     },
     workforceSafety: {
       heatStressRisk: 'low',
