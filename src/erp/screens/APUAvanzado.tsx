@@ -511,7 +511,7 @@ const APUAvanzado: React.FC = () => {
                 </button>
               </div>
             </div>
-            {resultadoDosificacion && (
+            {resultadoDosificacion && resultadoDosificacion.cementoSacos !== undefined && (
               <div className="mt-4 space-y-3">
                 <div className="bg-muted/30 rounded-xl p-4 border border-border">
                   <h3 className="font-bold text-muted-foreground text-xs mb-3 truncate" title={t('apu.cantidades_calculadas')}>{t('apu.cantidades_calculadas')}</h3>

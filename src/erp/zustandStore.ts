@@ -440,13 +440,21 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       const statePatch: Record<string, any> = {};
       let errorCount = 0;
       let authErrorCount = 0;
-      
+      const currentState = useErpStore.getState();
+
       for (const result of results) {
         if (result.status === 'fulfilled' && result.value) {
           const { table, data, authError } = result.value;
           const stateKey = TABLE_MAP[table];
           if (stateKey) {
-            statePatch[stateKey] = Array.isArray(data) ? data : [];
+            const dataArray = Array.isArray(data) ? data : [];
+            // Solo sobrescribir si Supabase tiene datos; si está vacío, mantener datos locales
+            if (dataArray.length > 0) {
+              statePatch[stateKey] = dataArray;
+            } else {
+              // Mantener datos existentes del store (localStorage)
+              statePatch[stateKey] = (currentState as any)[stateKey] || [];
+            }
           } else {
             safeLogger.warn(`[fetchInitialData] No state key for table: ${table}`);
           }
@@ -2201,11 +2209,6 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     const updated = get().aplicacionEscalas.map((a) => (a.id === id ? { ...a, ...patch } : a));
     set((state) => ({ aplicacionEscalas: updated }));
     get().enqueueMutation('updateAplicacionEscala', { id, patch });
-  },
-  updateCalculoProyecto: (id, patch) => {
-    const updated = get().calculosProyecto.map((c) => (c.id === id ? { ...c, ...patch } : c));
-    set((state) => ({ calculosProyecto: updated }));
-    get().enqueueMutation('updateCalculoProyecto', { id, patch });
   },
   updateCumplimientoNormativo: (id, patch) => {
     const updated = get().cumplimientoNormativo.map((c) => (c.id === id ? { ...c, ...patch } : c));

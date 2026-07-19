@@ -14,6 +14,10 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
+  initReactI18next: {
+    init: vi.fn(),
+    type: '3rdParty',
+  },
 }));
 
 const mockProyectos = [

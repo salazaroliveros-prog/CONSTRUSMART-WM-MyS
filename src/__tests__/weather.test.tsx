@@ -15,6 +15,10 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, defaultValue?: string) => defaultValue || key,
   }),
+  initReactI18next: {
+    init: vi.fn(),
+    type: '3rdParty',
+  },
 }));
 
 vi.mock('../erp/services/weatherService', () => ({
