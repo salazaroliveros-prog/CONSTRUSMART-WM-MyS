@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/vitest';
 import { confirmAction } from '@/lib/confirm-action';
 
 vi.mock('@/lib/confirm-action', () => ({
-  confirmAction: vi.fn(() => Promise.resolve()),
+  confirmAction: vi.fn(() => Promise.resolve(true)),
 }));
 
 vi.mock('../erp/components/ProyectoFilter', () => ({
@@ -75,19 +75,35 @@ beforeAll(() => {
   URL.createObjectURL = vi.fn(() => 'blob:test') as any;
 });
 
-const uid = () => crypto.randomUUID();
+const getCurrentMonday = () => {
+  const now = new Date();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - now.getDay() + 1);
+  return monday.toISOString().split('T')[0];
+};
+
+const addDays = (dateStr: string, days: number) => {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
+};
 
 beforeEach(() => {
   vi.clearAllMocks();
+  (confirmAction as any).mockReset();
+  (confirmAction as any).mockResolvedValue(true);
+
   mockProyectos = [
     { id: 'proj-1', nombre: 'Proyecto Alpha' },
     { id: 'proj-2', nombre: 'Proyecto Beta' },
   ];
+
+  const monday = getCurrentMonday();
   mockDestajos = [
-    { id: uid(), proyectoId: 'proj-1', renglonCodigo: 'EXC-001', cuadrilla: 'Albañil A', fecha: '2026-07-13', cantidadEjecutada: 15, unidad: 'm³', horasTrabajadas: 8, rendimientoReal: 1.875, rendimientoTeorico: 2.0 },
-    { id: uid(), proyectoId: 'proj-1', renglonCodigo: 'EXC-002', cuadrilla: 'Albañil A', fecha: '2026-07-14', cantidadEjecutada: 12, unidad: 'm³', horasTrabajadas: 8, rendimientoReal: 1.5, rendimientoTeorico: 2.0 },
-    { id: uid(), proyectoId: 'proj-1', renglonCodigo: 'FND-001', cuadrilla: 'Estructura B', fecha: '2026-07-13', cantidadEjecutada: 8, unidad: 'm²', horasTrabajadas: 8, rendimientoReal: 1.0, rendimientoTeorico: 1.5 },
-    { id: uid(), proyectoId: 'proj-2', renglonCodigo: 'EXC-001', cuadrilla: 'Albañil A', fecha: '2026-07-14', cantidadEjecutada: 20, unidad: 'm³', horasTrabajadas: 8, rendimientoReal: 2.5, rendimientoTeorico: 2.0 },
+    { id: crypto.randomUUID(), proyectoId: 'proj-1', renglonCodigo: 'EXC-001', cuadrilla: 'Albañil A', fecha: monday, cantidadEjecutada: 15, unidad: 'm³', horasTrabajadas: 8, rendimientoReal: 1.875, rendimientoTeorico: 2.0 },
+    { id: crypto.randomUUID(), proyectoId: 'proj-1', renglonCodigo: 'EXC-002', cuadrilla: 'Albañil A', fecha: addDays(monday, 1), cantidadEjecutada: 12, unidad: 'm³', horasTrabajadas: 8, rendimientoReal: 1.5, rendimientoTeorico: 2.0 },
+    { id: crypto.randomUUID(), proyectoId: 'proj-1', renglonCodigo: 'FND-001', cuadrilla: 'Estructura B', fecha: monday, cantidadEjecutada: 8, unidad: 'm²', horasTrabajadas: 8, rendimientoReal: 1.0, rendimientoTeorico: 1.5 },
+    { id: crypto.randomUUID(), proyectoId: 'proj-2', renglonCodigo: 'EXC-001', cuadrilla: 'Albañil A', fecha: addDays(monday, 1), cantidadEjecutada: 20, unidad: 'm³', horasTrabajadas: 8, rendimientoReal: 2.5, rendimientoTeorico: 2.0 },
   ];
 });
 

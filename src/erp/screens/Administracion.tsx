@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { CentroCosto, LogAuditoria } from '../types';
@@ -15,7 +15,8 @@ import { usePerformanceMetrics } from '../hooks/usePerformanceMetrics';
 type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
 
 const Administracion: React.FC = () => {
-  const safeProyectos = useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]); // eslint-disable-line react-hooks/exhaustive-deps
+  const { proyectos } = useErp();
+  const safeProyectos = useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]);
   const { t } = useTranslation();
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion' | 'rendimiento'>('centros');
   const { metrics, loading: metricsLoading, error: metricsError, fetch: fetchMetrics } = usePerformanceMetrics();

@@ -106,7 +106,7 @@ vi.mock('react-i18next', () => {
 });
 
 let mockProyectos: any[] = [];
-let mockUser: any = { nombre: 'Usuario Test' };
+const mockUser: { nombre: string } = { nombre: 'Usuario Test' };
 let mockIncidentes: any[] = [];
 let mockPruebas: any[] = [];
 let mockNcs: any[] = [];

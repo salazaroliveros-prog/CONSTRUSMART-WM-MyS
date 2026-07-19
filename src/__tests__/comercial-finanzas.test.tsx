@@ -1,0 +1,87 @@
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { ErpProvider } from '../erp/store';
+import ComercialFinanzas from '../erp/screens/ComercialFinanzas';
+
+const mockProyectos = [
+  { id: 'proy-1', nombre: 'Residencial Aurora', cliente: 'Cliente A' },
+];
+
+const mockVentas = [
+  { id: 'v1', proyectoId: 'proy-1', cliente: 'Cliente A', estado: 'pendiente', monto: 100000 },
+];
+
+const mockUseErp = {
+  proyectos: mockProyectos,
+  ventas: mockVentas,
+  user: { nombre: 'Usuario Test', rol: 'Administrador' },
+};
+
+const mockT = (key: string) => key;
+
+vi.mock('../erp/store', () => ({
+  useErp: (selector?: any) => selector ? selector(mockUseErp) : mockUseErp,
+  ErpProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: mockT }),
+}));
+
+vi.mock('sonner', () => ({
+  toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
+}));
+
+vi.mock('@/lib/confirm-action', () => ({
+  confirmAction: vi.fn().mockResolvedValue(true),
+}));
+
+vi.mock('@/lib/safeLogger', () => ({
+  safeLogger: { error: vi.fn() },
+}));
+
+vi.mock('@/lib/security', () => ({
+  canUserEdit: () => true,
+}));
+
+vi.mock('../erp/ui', () => ({
+  BUTTON_PRIMARY: 'flex items-center gap-1 px-4 py-2 bg-primary text-primary-foreground rounded-md',
+  BUTTON_SECONDARY: 'px-4 py-2 border rounded-md',
+  INPUT: 'w-full px-3 py-2 border rounded-md',
+}));
+
+vi.mock('../erp/components/ProyectoFilter', () => ({
+  default: ({ value, onChange, proyectos }: any) => (
+    <select value={value} onChange={(e) => onChange(e.target.value)}>
+      <option value="">Todos los proyectos</option>
+      {proyectos.map((p: any) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+    </select>
+  ),
+}));
+
+describe('ComercialFinanzas', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseErp.ventas = [...mockVentas];
+    mockUseErp.proyectos = [...mockProyectos];
+    mockUseErp.user = { nombre: 'Usuario Test', rol: 'Administrador' };
+  });
+
+  it('renders the comercial title', () => {
+    render(<ComercialFinanzas />);
+    expect(screen.getByRole('heading', { name: /comercial.titulo/i })).toBeInTheDocument();
+  });
+
+  it('renders the ventas list', () => {
+    render(<ComercialFinanzas />);
+    expect(screen.getByText('Cliente A')).toBeInTheDocument();
+  });
+
+  it('shows empty state when no ventas', () => {
+    mockUseErp.ventas = [];
+    render(<ComercialFinanzas />);
+    expect(screen.getByText(/comercial.sin_ventas/i)).toBeInTheDocument();
+  });
+});

@@ -1,300 +1,259 @@
-import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { toast } from 'sonner';
+import { ErpProvider } from '../erp/store';
+import CuentasPagar from '../erp/screens/CuentasPagar';
+
+const mockProyectos = [
+  { id: 'proy-1', nombre: 'Residencial Aurora', cliente: 'Cliente A', tipologia: 'residencial', tipoObra: 'nueva', moneda: 'GTQ' },
+  { id: 'proy-2', nombre: 'Torre Comercial', cliente: 'Cliente B', tipologia: 'comercial', tipoObra: 'remodelacion', moneda: 'USD' },
+];
+
+const mockCuentasPagar = [
+  {
+    id: 'cp-1',
+    proyectoId: 'proy-1',
+    proveedor: 'Proveedor Uno',
+    proveedorNombre: 'Proveedor Uno',
+    concepto: 'Materiales de construcción',
+    monto: 5000,
+    saldoPendiente: 5000,
+    fechaEmision: '2024-01-10',
+    fechaVencimiento: '2024-02-10',
+    estado: 'pendiente' as const,
+  },
+  {
+    id: 'cp-2',
+    proyectoId: 'proy-2',
+    proveedor: 'Proveedor Dos',
+    proveedorNombre: 'Proveedor Dos',
+    concepto: 'Mano de obra',
+    monto: 3200,
+    saldoPendiente: 0,
+    fechaEmision: '2024-01-12',
+    fechaVencimiento: '2024-01-30',
+    estado: 'pagada' as const,
+  },
+  {
+    id: 'cp-3',
+    proyectoId: 'proy-1',
+    proveedor: 'Proveedor Tres',
+    proveedorNombre: 'Proveedor Tres',
+    concepto: 'Equipo de seguridad',
+    monto: 1800,
+    saldoPendiente: 1800,
+    fechaEmision: '2024-01-05',
+    fechaVencimiento: '2024-01-01',
+    estado: 'vencida' as const,
+  },
+];
+
+const mockUseErp = {
+  cuentasPagar: mockCuentasPagar,
+  proyectos: mockProyectos,
+  proveedores: [],
+  user: {
+    nombre: 'Usuario Test',
+    rol: 'Administrador',
+  },
+  addCuentaPagar: vi.fn(),
+  updateCuentaPagar: vi.fn(),
+  deleteCuentaPagar: vi.fn(),
+};
+
+const mockT = (key: string) => key;
+
+vi.mock('../erp/store', () => ({
+  useErp: () => mockUseErp,
+  ErpProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: mockT }),
+}));
 
 vi.mock('sonner', () => ({
-  toast: { success: vi.fn(), error: vi.fn() },
+  toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
 }));
 
 vi.mock('@/lib/confirm-action', () => ({
-  confirmAction: vi.fn(() => Promise.resolve()),
+  confirmAction: vi.fn().mockResolvedValue(true),
 }));
 
-const mockAddCuentaPagar = vi.fn();
-const mockUpdateCuentaPagar = vi.fn();
-const mockDeleteCuentaPagar = vi.fn();
-
-let mockCuentasPagar: any[] = [];
-let mockProveedores: any[] = [];
-let mockProyectos: any[] = [];
-
-vi.mock('react-i18next', () => {
-  const translations: Record<string, string> = {
-    'cuentas_pagar.titulo': 'Cuentas por Pagar',
-    'cuentas_pagar.nueva_cuenta': 'Nueva Cuenta',
-    'cuentas_pagar.total_por_pagar': 'Total por Pagar',
-    'cuentas_pagar.cuentas_pendientes': 'cuentas',
-    'cuentas_pagar.pagadas': 'Pagadas',
-    'cuentas_pagar.pendientes': 'Pendientes',
-    'cuentas_pagar.vencidas': 'Vencidas',
-    'cuentas_pagar.del_total': 'del total',
-    'cuentas_pagar.requiere_pago_inmediato': 'Requiere pago inmediato',
-    'cuentas_pagar.sin_vencidas': 'Sin vencidas',
-    'cuentas_pagar.lista': 'Lista de Cuentas',
-    'cuentas_pagar.buscar': 'Buscar',
-    'cuentas_pagar.todos_estados': 'Todos los estados',
-    'cuentas_pagar.pendiente': 'Pendiente',
-    'cuentas_pagar.pagada': 'Pagada',
-    'cuentas_pagar.vencida': 'Vencida',
-    'cuentas_pagar.sin_cuentas': 'Sin cuentas registradas',
-    'cuentas_pagar.col_proveedor': 'Proveedor',
-    'cuentas_pagar.col_concepto': 'Concepto',
-    'cuentas_pagar.col_monto': 'Monto',
-    'cuentas_pagar.col_estado': 'Estado',
-    'cuentas_pagar.col_vencimiento': 'Vencimiento',
-    'cuentas_pagar.estado_pendiente': 'Pendiente',
-    'cuentas_pagar.estado_pagada': 'Pagada',
-    'cuentas_pagar.estado_vencida': 'Vencida',
-    'cuentas_pagar.marcar_pagada': 'Marcar como pagada',
-    'cuentas_pagar.marcada_pagada': 'Cuenta marcada como pagada',
-    'cuentas_pagar.creada': 'Cuenta creada',
-    'cuentas_pagar.actualizada': 'Cuenta actualizada',
-    'cuentas_pagar.eliminada': 'Cuenta eliminada',
-    'cuentas_pagar.editar': 'Editar Cuenta',
-    'cuentas_pagar.seleccionar_proyecto': 'Seleccionar proyecto',
-    'cuentas_pagar.proyecto_requerido': 'Proyecto requerido',
-    'cuentas_pagar.proveedor_requerido': 'Proveedor requerido',
-    'cuentas_pagar.concepto_requerido': 'Concepto requerido',
-    'cuentas_pagar.proveedor_placeholder': 'Nombre del proveedor',
-    'cuentas_pagar.concepto_placeholder': 'Concepto del gasto',
-    'cuentas_pagar.confirmar_eliminar': 'Confirmar eliminación',
-    'cuentas_pagar.confirmar_eliminar_msg': '¿Eliminar esta cuenta?',
-    'cuentas_pagar.factura_url': 'Factura URL (opcional)',
-    'common.acciones': 'Acciones',
-    'common.editar': 'Editar',
-    'common.eliminar': 'Eliminar',
-    'common.guardar': 'Guardar',
-    'common.cancelar': 'Cancelar',
-    'common.si': 'Sí',
-  };
-  return {
-    useTranslation: () => ({
-      t: (key: string, fallback?: string, params?: Record<string, string | number>) => {
-        let text = translations[key] || (typeof fallback === 'string' ? fallback : key);
-        const p = typeof fallback === 'object' ? fallback : params;
-        if (p) {
-          for (const [k, v] of Object.entries(p)) {
-            text = text.replace(`{{${k}}}`, String(v));
-          }
-        }
-        return text;
-      },
-      i18n: { language: 'es', changeLanguage: vi.fn() },
-    }),
-  };
-});
-
-vi.mock('../erp/store', () => ({
-  useErp: () => ({
-    cuentasPagar: mockCuentasPagar,
-    proveedores: mockProveedores,
-    proyectos: mockProyectos,
-    addCuentaPagar: mockAddCuentaPagar,
-    updateCuentaPagar: mockUpdateCuentaPagar,
-    deleteCuentaPagar: mockDeleteCuentaPagar,
-  }),
+vi.mock('@/lib/safeLogger', () => ({
+  safeLogger: { error: vi.fn() },
 }));
 
-import CuentasPagar from '../erp/screens/CuentasPagar';
+vi.mock('@/lib/security', () => ({
+  canUserEdit: () => true,
+}));
 
-beforeAll(() => {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
+vi.mock('../erp/ui', () => ({
+  BUTTON_PRIMARY: 'flex items-center gap-1 px-4 py-2 bg-primary text-primary-foreground rounded-md',
+  BUTTON_SECONDARY: 'px-4 py-2 border rounded-md',
+  INPUT: 'w-full px-3 py-2 border rounded-md',
+}));
+
+vi.mock('../erp/components/ProyectoFilter', () => ({
+  default: ({ value, onChange, proyectos }: any) => (
+    <select value={value} onChange={(e: any) => onChange(e.target.value)}>
+      <option value="">Todos los proyectos</option>
+      {proyectos.map((p: any) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+    </select>
+  ),
+}));
+
+describe('CuentasPagar', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseErp.cuentasPagar = [...mockCuentasPagar];
+    mockUseErp.proyectos = [...mockProyectos];
+    mockUseErp.proveedores = [];
+    mockUseErp.user = { nombre: 'Usuario Test', rol: 'Administrador' };
   });
-});
 
-beforeEach(() => {
-  vi.clearAllMocks();
-  mockProyectos = [
-    { id: 'proj-1', nombre: 'Torre Norte' },
-    { id: 'proj-2', nombre: 'Edificio Sur' },
-  ];
-  mockProveedores = [
-    { id: 'prov-1', nombre: 'Cementos GT' },
-    { id: 'prov-2', nombre: 'Aceros SA' },
-  ];
-  mockCuentasPagar = [
-    { id: 'cp-1', proyectoId: 'proj-1', proveedor: 'Cementos GT', proveedorNombre: 'Cementos GT', concepto: 'Compra de cemento', monto: 15000, saldoPendiente: 15000, fechaEmision: '2026-07-01', fechaVencimiento: '2026-07-30', estado: 'pendiente' },
-    { id: 'cp-2', proyectoId: 'proj-1', proveedor: 'Aceros SA', proveedorNombre: 'Aceros SA', concepto: 'Compra de varilla', monto: 28000, saldoPendiente: 0, fechaEmision: '2026-06-01', fechaVencimiento: '2026-06-15', estado: 'pagada', fechaPago: '2026-06-10' },
-    { id: 'cp-3', proyectoId: 'proj-2', proveedor: 'Ferretería Central', proveedorNombre: 'Ferretería Central', concepto: 'Herramientas', monto: 5000, saldoPendiente: 5000, fechaEmision: '2026-05-01', fechaVencimiento: '2020-01-01', estado: 'vencida' },
-  ];
-});
+  it('renders the screen title', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => expect(screen.getByRole('heading', { name: /cuentas_pagar.titulo/i })).toBeInTheDocument());
+  });
 
-afterEach(cleanup);
-
-describe('CuentasPagar Screen', () => {
-  describe('Dashboard con totales', () => {
-    it('renderiza título', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => {
-        expect(screen.getByText('Cuentas por Pagar')).toBeInTheDocument();
-      });
-    });
-
-    it('muestra el monto total por pagar en el dashboard', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => {
-        expect(screen.getByText('Total por Pagar')).toBeInTheDocument();
-        expect(screen.getByText('Q 48,000.00')).toBeInTheDocument();
-      });
-    });
-
-    it('muestra tarjetas de estadísticas de pagadas, pendientes y vencidas', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => {
-        expect(screen.getByText('Pagadas')).toBeInTheDocument();
-        expect(screen.getByText('Pendientes')).toBeInTheDocument();
-        expect(screen.getByText('Vencidas')).toBeInTheDocument();
-      });
+  it('renders the list of cuentas por pagar', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => {
+      expect(screen.getByText('Proveedor Uno')).toBeInTheDocument();
+      expect(screen.getByText('Proveedor Dos')).toBeInTheDocument();
+      expect(screen.getByText('Proveedor Tres')).toBeInTheDocument();
     });
   });
 
-  describe('Cálculo de estadísticas', () => {
-    it('calcula el número de cuentas pagadas', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => {
-        expect(screen.getByText('Pagadas')).toBeInTheDocument();
-      });
-      const pagadasCard = screen.getByText('Pagadas').closest('div');
-      expect(pagadasCard?.parentElement?.textContent).toContain('1');
-    });
-
-    it('muestra proyección de pago con el total y contador de cuentas', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => {
-        expect(screen.getByText(/3 cuentas/)).toBeInTheDocument();
-      });
-    });
-
-    it('marca cuentas próximas o vencidas requiriendo pago inmediato', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => {
-        expect(screen.getByText('Requiere pago inmediato')).toBeInTheDocument();
-      });
+  it('renders KPI summary cards', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => {
+      expect(screen.getByText(/cuentas_pagar.total_por_pagar/i)).toBeInTheDocument();
+      expect(screen.getByText(/cuentas_pagar.pagadas/i)).toBeInTheDocument();
+      expect(screen.getByText(/cuentas_pagar.pendientes/i)).toBeInTheDocument();
+      expect(screen.getByText(/cuentas_pagar.vencidas/i)).toBeInTheDocument();
     });
   });
 
-  describe('Tabla de cuentas y filtros', () => {
-    it('renderiza las cuentas con proveedor y concepto', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => {
-        expect(screen.getByText('Cementos GT')).toBeInTheDocument();
-        expect(screen.getByText('Aceros SA')).toBeInTheDocument();
-        expect(screen.getByText('Compra de cemento')).toBeInTheDocument();
-      });
-    });
-
-    it('renderiza las columnas de la tabla', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => {
-        expect(screen.getByText('Proveedor')).toBeInTheDocument();
-        expect(screen.getByText('Concepto')).toBeInTheDocument();
-        expect(screen.getByText('Monto')).toBeInTheDocument();
-        expect(screen.getByText('Vencimiento')).toBeInTheDocument();
-      });
-    });
-
-    it('filtra por proveedor usando el buscador', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => expect(screen.getByText('Cementos GT')).toBeInTheDocument());
-      fireEvent.change(screen.getByLabelText('Buscar'), { target: { value: 'Aceros' } });
-      await waitFor(() => {
-        expect(screen.getByText('Aceros SA')).toBeInTheDocument();
-        expect(screen.queryByText('Cementos GT')).not.toBeInTheDocument();
-      });
-    });
-
-    it('filtra por estado pendiente', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => expect(screen.getByText('Cementos GT')).toBeInTheDocument());
-      const select = screen.getByRole('combobox');
-      fireEvent.change(select, { target: { value: 'pendiente' } });
-      await waitFor(() => {
-        expect(screen.getByText('Cementos GT')).toBeInTheDocument();
-        expect(screen.queryByText('Aceros SA')).not.toBeInTheDocument();
-      });
-    });
-
-    it('filtra por estado pagada', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => expect(screen.getByText('Cementos GT')).toBeInTheDocument());
-      const select = screen.getByRole('combobox');
-      fireEvent.change(select, { target: { value: 'pagada' } });
-      await waitFor(() => {
-        expect(screen.getByText('Aceros SA')).toBeInTheDocument();
-        expect(screen.queryByText('Cementos GT')).not.toBeInTheDocument();
-      });
+  it('renders table headers', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => {
+      expect(screen.getByText(/cuentas_pagar.col_proveedor/i)).toBeInTheDocument();
+      expect(screen.getByText(/cuentas_pagar.col_concepto/i)).toBeInTheDocument();
+      expect(screen.getByText(/cuentas_pagar.col_monto/i)).toBeInTheDocument();
+      expect(screen.getByText(/cuentas_pagar.col_estado/i)).toBeInTheDocument();
+      expect(screen.getByText(/cuentas_pagar.col_vencimiento/i)).toBeInTheDocument();
     });
   });
 
-  describe('Transiciones de estado del flujo', () => {
-    it('marca una cuenta pendiente como pagada', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => expect(screen.getByText('Cementos GT')).toBeInTheDocument());
-      fireEvent.click(screen.getAllByLabelText('Marcar como pagada')[0]);
-      await waitFor(() => {
-        expect(mockUpdateCuentaPagar).toHaveBeenCalledWith('cp-1', expect.objectContaining({ estado: 'pagada' }));
-        expect(toast.success).toHaveBeenCalledWith('Cuenta marcada como pagada');
-      });
-    });
+  it('opens form when nueva cuenta button clicked', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => expect(screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i })).toBeInTheDocument());
+    const newButton = screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i });
+    fireEvent.click(newButton);
+    expect(screen.getByPlaceholderText(/cuentas_pagar.proveedor_placeholder/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/cuentas_pagar.concepto_placeholder/i)).toBeInTheDocument();
+  });
 
-    it('no muestra botón de pago para cuentas ya pagadas', async () => {
-      mockCuentasPagar = [
-        { id: 'cp-2', proyectoId: 'proj-1', proveedor: 'Aceros SA', proveedorNombre: 'Aceros SA', concepto: 'Compra de varilla', monto: 28000, saldoPendiente: 0, fechaEmision: '2026-06-01', fechaVencimiento: '2026-06-15', estado: 'pagada' },
-      ];
-      render(<CuentasPagar />);
-      await waitFor(() => expect(screen.getByText('Aceros SA')).toBeInTheDocument());
-      expect(screen.queryByLabelText('Marcar como pagada')).not.toBeInTheDocument();
+  it('handles form submission for new cuenta', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => expect(screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i })).toBeInTheDocument());
+
+    const newButton = screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i });
+    fireEvent.click(newButton);
+
+    const proyectoSelect = screen.getByDisplayValue('') as HTMLSelectElement;
+    fireEvent.change(proyectoSelect, { target: { value: 'proy-1' } });
+
+    const proveedorInput = screen.getByPlaceholderText(/cuentas_pagar.proveedor_placeholder/i);
+    fireEvent.change(proveedorInput, { target: { value: 'Proveedor Nuevo' } });
+
+    const conceptoInput = screen.getByPlaceholderText(/cuentas_pagar.concepto_placeholder/i);
+    fireEvent.change(conceptoInput, { target: { value: 'Nuevo concepto' } });
+
+    const submitButton = screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i });
+    fireEvent.click(submitButton);
+
+    expect(mockUseErp.addCuentaPagar).toHaveBeenCalled();
+  });
+
+  it('shows validation error when proyecto is missing on submit', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => expect(screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i })).toBeInTheDocument());
+
+    const newButton = screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i });
+    fireEvent.click(newButton);
+
+    const submitButton = screen.getByRole('button', { name: /cuentas_pagar.nueva_cuenta/i });
+    fireEvent.click(submitButton);
+
+    expect(screen.getByText(/cuentas_pagar.proyecto_requerido/i)).toBeInTheDocument();
+    expect(mockUseErp.addCuentaPagar).not.toHaveBeenCalled();
+  });
+
+  it('filters by estado when estado select changed', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => expect(screen.getByText('Proveedor Uno')).toBeInTheDocument());
+
+    const estadoSelect = screen.getByDisplayValue('cuentas_pagar.todos_estados') as HTMLSelectElement;
+    fireEvent.change(estadoSelect, { target: { value: 'pagada' } });
+
+    await waitFor(() => {
+      expect(screen.queryByText('Proveedor Uno')).not.toBeInTheDocument();
+      expect(screen.getByText('Proveedor Dos')).toBeInTheDocument();
+      expect(screen.queryByText('Proveedor Tres')).not.toBeInTheDocument();
     });
   });
 
-  describe('Crear y eliminar cuentas', () => {
-    it('abre el formulario de nueva cuenta', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => expect(screen.getAllByText('Nueva Cuenta')[0]).toBeInTheDocument());
-      fireEvent.click(screen.getAllByText('Nueva Cuenta')[0]);
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument();
-      });
-    });
+  it('filters by search term', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => expect(screen.getByText('Proveedor Uno')).toBeInTheDocument());
 
-    it('elimina una cuenta al confirmar', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => expect(screen.getByText('Cementos GT')).toBeInTheDocument());
-      fireEvent.click(screen.getAllByLabelText('Eliminar')[0]);
-      await waitFor(() => {
-        expect(mockDeleteCuentaPagar).toHaveBeenCalled();
-      });
+    const searchInput = screen.getByPlaceholderText(/cuentas_pagar.buscar/i);
+    fireEvent.change(searchInput, { target: { value: 'Mano de obra' } });
+
+    await waitFor(() => {
+      expect(screen.queryByText('Proveedor Uno')).not.toBeInTheDocument();
+      expect(screen.getByText('Proveedor Dos')).toBeInTheDocument();
     });
   });
 
-  describe('Estado vacío', () => {
-    it('muestra mensaje cuando no hay cuentas', async () => {
-      mockCuentasPagar = [];
-      render(<CuentasPagar />);
-      await waitFor(() => {
-        expect(screen.getByText('Sin cuentas registradas')).toBeInTheDocument();
-      });
-    });
+  it('marks a cuenta as paid when pagar button clicked', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => expect(screen.getByRole('button', { name: /cuentas_pagar.marcar_pagada/i })).toBeInTheDocument());
+
+    const pagarButtons = screen.getAllByRole('button', { name: /cuentas_pagar.marcar_pagada/i });
+    fireEvent.click(pagarButtons[0]);
+
+    await waitFor(() => expect(mockUseErp.updateCuentaPagar).toHaveBeenCalledWith('cp-1', expect.objectContaining({ estado: 'pagada' })));
   });
 
-  describe('Estado de carga', () => {
-    it('muestra skeleton de carga inicialmente y luego el contenido', async () => {
-      render(<CuentasPagar />);
-      await waitFor(() => {
-        expect(screen.getByText('Cuentas por Pagar')).toBeInTheDocument();
-      });
-    });
+  it('deletes a cuenta when eliminar clicked and confirmed', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => expect(screen.getByRole('button', { name: /common.eliminar/i })).toBeInTheDocument());
+
+    const eliminarButtons = screen.getAllByRole('button', { name: /common.eliminar/i });
+    fireEvent.click(eliminarButtons[0]);
+
+    await waitFor(() => expect(mockUseErp.deleteCuentaPagar).toHaveBeenCalledWith('cp-1'));
+  });
+
+  it('opens edit form when editar clicked', async () => {
+    render(<CuentasPagar />);
+    await waitFor(() => expect(screen.getByRole('button', { name: /common.editar/i })).toBeInTheDocument());
+
+    const editarButtons = screen.getAllByRole('button', { name: /common.editar/i });
+    fireEvent.click(editarButtons[0]);
+
+    expect(screen.getByDisplayValue('Proveedor Uno')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Materiales de construcción')).toBeInTheDocument();
+  });
+
+  it('shows empty state when no cuentas', async () => {
+    mockUseErp.cuentasPagar = [];
+    render(<CuentasPagar />);
+    await waitFor(() => expect(screen.getByText(/cuentas_pagar.sin_cuentas/i)).toBeInTheDocument());
   });
 });

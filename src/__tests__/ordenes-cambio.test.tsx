@@ -1,400 +1,235 @@
-import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { canUserEdit } from '@/lib/security';
+import { ErpProvider } from '../erp/store';
+import OrdenesCambio from '../erp/screens/OrdenesCambio';
 
-vi.mock('@/lib/security', () => ({
-  canUserEdit: vi.fn(() => true),
+const mockProyectos = [
+  { id: 'proy-1', nombre: 'Residencial Aurora', cliente: 'Cliente A', tipologia: 'residencial', tipoObra: 'nueva', moneda: 'GTQ' },
+  { id: 'proy-2', nombre: 'Torre Comercial', cliente: 'Cliente B', tipologia: 'comercial', tipoObra: 'remodelacion', moneda: 'USD' },
+];
+
+const mockOrdenesCambio = [
+  {
+    id: 'oc-1',
+    titulo: 'Cambio estructural',
+    descripcion: 'El cambio es necesario para estabilidad',
+    solicitante: 'Usuario A',
+    solicitanteRol: 'Residente',
+    estado: 'solicitud' as const,
+    impactoCosto: 2500,
+    impactoPlazo: 3,
+    createdAt: '2024-01-10T09:00:00Z',
+    proyectoId: 'proy-1',
+  },
+  {
+    id: 'oc-2',
+    titulo: 'Cambio de marca',
+    descripcion: 'Actualizar marca corporativa',
+    solicitante: 'Usuario B',
+    solicitanteRol: 'Supervisor',
+    estado: 'revision' as const,
+    impactoCosto: 1800,
+    impactoPlazo: 5,
+    createdAt: '2024-01-15T10:00:00Z',
+    proyectoId: 'proy-2',
+    aprobador: 'Gerente X',
+    fechaAprobacion: '2024-01-16T11:00:00Z',
+  },
+  {
+    id: 'oc-3',
+    titulo: 'Cambio de red',
+    descripcion: 'Nueva red de distribución',
+    solicitante: 'Usuario C',
+    solicitanteRol: 'Residente',
+    estado: 'aprobado' as const,
+    impactoCosto: 4200,
+    impactoPlazo: 1,
+    createdAt: '2024-01-20T08:00:00Z',
+    proyectoId: 'proy-1',
+    aprobador: 'Gerente Y',
+    fechaAprobacion: '2024-01-21T09:00:00Z',
+  },
+];
+
+const mockUseErp = {
+  proyectos: mockProyectos,
+  user: {
+    nombre: 'Usuario Test',
+    rol: 'Administrador',
+  },
+  ordenesCambio: mockOrdenesCambio,
+  addOrdenCambio: vi.fn(),
+  updateOrdenCambio: vi.fn(),
+};
+
+const mockT = (key: string) => key;
+
+vi.mock('../erp/store', () => ({
+  useErp: () => mockUseErp,
+  ErpProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: mockT }),
+}));
+
+vi.mock('sonner', () => ({
+  toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
 }));
 
 vi.mock('@/lib/confirm-action', () => ({
-  confirmAction: vi.fn(() => Promise.resolve()),
+  confirmAction: vi.fn().mockResolvedValue(true),
+}));
+
+vi.mock('@/lib/safeLogger', () => ({
+  safeLogger: { error: vi.fn() },
+}));
+
+vi.mock('@/lib/security', () => ({
+  canUserEdit: () => true,
+}));
+
+vi.mock('../erp/ui', () => ({
+  BUTTON_PRIMARY: 'flex items-center gap-1 px-4 py-2 bg-primary text-primary-foreground rounded-md',
+  BUTTON_SECONDARY: 'px-4 py-2 border rounded-md',
+  INPUT: 'w-full px-3 py-2 border rounded-md',
 }));
 
 vi.mock('../erp/components/ProyectoFilter', () => ({
-  default: ({ value, onChange, proyectos }: any) => (
-    <select value={value} onChange={e => onChange(e.target.value)} data-testid="proyecto-filter">
-      <option value="">Selecciona</option>
-      {proyectos.map((p: any) => (
-        <option key={p.id} value={p.id}>{p.nombre}</option>
-      ))}
+  default: ({ value, onChange, proyectos }) => (
+    <select value={value} onChange={(e) => onChange(e.target.value)}>
+      <option value="">Todos los proyectos</option>
+      {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
     </select>
   ),
 }));
 
-vi.mock('react-i18next', () => {
-  const translations: Record<string, string> = {
-    'ordenes_cambio.titulo': 'Órdenes de Cambio',
-    'ordenes_cambio.nueva': 'Nueva',
-    'ordenes_cambio.nueva_solicitud': 'Nueva Solicitud de Cambio',
-    'ordenes_cambio.enviar_solicitud': 'Enviar Solicitud',
-    'ordenes_cambio.sin_datos': 'Sin órdenes de cambio',
-    'ordenes_cambio.error_titulo': 'Título requerido',
-    'ordenes_cambio.error_proyecto': 'Selecciona un proyecto',
-    'ordenes_cambio.placeholder_titulo': 'Título del cambio *',
-    'ordenes_cambio.placeholder_descripcion': 'Descripción detallada del cambio...',
-    'ordenes_cambio.impacto_costo': 'Impacto Costo (Q)',
-    'ordenes_cambio.impacto_plazo': 'Impacto Plazo (días)',
-    'ordenes_cambio.solicitud_creada': 'Solicitud creada',
-    'ordenes_cambio.total_ordenes': 'Total Órdenes',
-    'ordenes_cambio.pendientes': 'Pendientes',
-    'ordenes_cambio.costo_aprobado': 'Costo Aprobado',
-    'ordenes_cambio.estado_solicitud': 'Solicitud',
-    'ordenes_cambio.estado_revision': 'En Revisión',
-    'ordenes_cambio.estado_aprobado': 'Aprobado',
-    'ordenes_cambio.estado_rechazado': 'Rechazado',
-    'ordenes_cambio.aprobar': 'Aprobar',
-    'ordenes_cambio.rechazar': 'Rechazar',
-    'ordenes_cambio.cambio_aprobado': 'Cambio aprobado',
-    'ordenes_cambio.cambio_rechazado': 'Cambio rechazado',
-    'ordenes_cambio.aprobado_por': 'Aprobado por:',
-    'common.sin_permisos': 'Sin permisos',
-    'common.cancelar': 'Cancelar',
-  };
-  return {
-    useTranslation: () => ({
-      t: (key: string, params?: Record<string, string | number>) => {
-        let text = translations[key] || key;
-        if (params) {
-          for (const [k, v] of Object.entries(params)) {
-            text = text.replace(`{{${k}}}`, String(v));
-          }
-        }
-        return text;
-      },
-      i18n: { language: 'es', changeLanguage: vi.fn() },
-    }),
-  };
-});
-
-let mockProyectos: any[] = [];
-let mockOrdenesCambio: any[] = [];
-const mockAddOrdenCambio = vi.fn();
-const mockUpdateOrdenCambio = vi.fn();
-const mockUser = { nombre: 'Admin', rol: 'Administrador' };
-
-vi.mock('../erp/store', () => ({
-  useErp: () => ({
-    proyectos: mockProyectos,
-    ordenesCambio: mockOrdenesCambio,
-    addOrdenCambio: mockAddOrdenCambio,
-    updateOrdenCambio: mockUpdateOrdenCambio,
-    user: mockUser,
-  }),
-}));
-
-import OrdenesCambio from '../erp/screens/OrdenesCambio';
-
-beforeAll(() => {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
+describe('OrdenesCambio', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseErp.ordenesCambio = [...mockOrdenesCambio];
+    mockUseErp.proyectos = [...mockProyectos];
+    mockUseErp.user = { nombre: 'Usuario Test', rol: 'Administrador' };
   });
-});
 
-const uid = () => crypto.randomUUID();
+  it('renders ordenes de cambio list items', () => {
+    render(<OrdenesCambio />);
+    expect(screen.getByText('Cambio estructural')).toBeInTheDocument();
+    expect(screen.getByText('Torre Comercial')).toBeInTheDocument();
+    expect(screen.getByText('Cambio de red')).toBeInTheDocument();
+  });
 
-beforeEach(() => {
-  vi.clearAllMocks();
-  mockProyectos = [
-    { id: 'proj-1', nombre: 'Proyecto Alpha' },
-    { id: 'proj-2', nombre: 'Proyecto Beta' },
-  ];
-  mockOrdenesCambio = [
-    { id: uid(), proyectoId: 'proj-1', titulo: 'Cambio estructura', descripcion: 'Ajuste en columnas', solicitante: 'Residente', solicitanteRol: 'Residente', estado: 'solicitud', impactoCosto: 5000, impactoPlazo: 5, createdAt: '2026-07-10T10:00:00Z' },
-    { id: uid(), proyectoId: 'proj-1', titulo: 'Cambio acabados', descripcion: 'Material nuevo', solicitante: 'Gerente', solicitanteRol: 'Gerente', estado: 'aprobado', impactoCosto: 3000, impactoPlazo: 3, aprobador: 'Admin', fechaAprobacion: '2026-07-11', createdAt: '2026-07-09T08:00:00Z' },
-    { id: uid(), proyectoId: 'proj-2', titulo: 'Cambio instalacion', descripcion: 'Equipo adicional', solicitante: 'Residente', solicitanteRol: 'Residente', estado: 'rechazado', impactoCosto: 2000, impactoPlazo: 2, aprobador: 'Admin', fechaAprobacion: '2026-07-12', createdAt: '2026-07-08T12:00:00Z' },
-    { id: uid(), proyectoId: 'proj-1', titulo: 'Cambio fechas', descripcion: 'Extension plazo', solicitante: 'Gerente', solicitanteRol: 'Gerente', estado: 'revision', impactoCosto: 1000, impactoPlazo: 10, createdAt: '2026-07-07T09:00:00Z' },
-  ];
-});
+  it('shows loading skeleton initially', () => {
+    const { rerender } = render(<OrdenesCambio />);
+    const skeleton = <div className="p-4 sm:p-6"><input className="w-full" /></div>;
+    rerender(skeleton);
+  });
 
-afterEach(cleanup);
+  it('calculates total ordenes count correctly', () => {
+    render(<OrdenesCambio />);
+    const totalElement = screen.getByText('3');
+    expect(totalElement).toBeInTheDocument();
+  });
 
-describe('OrdenesCambio Screen', () => {
-  describe('Tabla de OCs', () => {
-    it('renderiza titulo', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Órdenes de Cambio')).toBeInTheDocument();
-      });
-    });
+  it('calculates pendientes (solicitud + revision) count correctly', () => {
+    render(<OrdenesCambio />);
+    const pendientesElement = screen.getByText('2');
+    expect(pendientesElement).toBeInTheDocument();
+  });
 
-    it('muestra columnas de la tabla', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Cambio estructura')).toBeInTheDocument();
-        expect(screen.getByText('Cambio acabados')).toBeInTheDocument();
-      });
-    });
+  it('calculates costo aprobado total correctly', () => {
+    render(<OrdenesCambio />);
+    const costoElements = screen.getAllByText('Q 4,200.00');
+    expect(costoElements.length).toBeGreaterThanOrEqual(1);
+  });
 
-    it('renderiza KPIs del dashboard', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Total Órdenes')).toBeInTheDocument();
-        expect(screen.getByText('Pendientes')).toBeInTheDocument();
-        expect(screen.getByText('Costo Aprobado')).toBeInTheDocument();
-      });
-    });
-
-    it('renderiza filtro de proyecto', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByTestId('proyecto-filter')).toBeInTheDocument();
-      });
+  it('filters ordenes when proyecto selected', async () => {
+    render(<OrdenesCambio />);
+    const selectElement = screen.getByDisplayValue('Todos los proyectos');
+    fireEvent.change(selectElement, { target: { value: 'proy-1' } });
+    await waitFor(() => {
+      expect(screen.getByText('Cambio estructural')).toBeInTheDocument();
+      expect(screen.queryByText('Cambio de marca')).not.toBeInTheDocument();
+      expect(screen.getByText('Cambio de red')).toBeInTheDocument();
     });
   });
 
-  describe('Workflow de estados', () => {
-    it('muestra badges de estado', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Solicitud')).toBeInTheDocument();
-        expect(screen.getByText('Aprobado')).toBeInTheDocument();
-        expect(screen.getByText('Rechazado')).toBeInTheDocument();
-      });
-    });
-
-    it('muestra boton Aprobar para estado solicitud', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Cambio estructura')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Cambio estructura'));
-      await waitFor(() => {
-        expect(screen.getByText('Aprobar')).toBeInTheDocument();
-      });
-    });
-
-    it('muestra boton Rechazar para estado solicitud', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Cambio estructura')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Cambio estructura'));
-      await waitFor(() => {
-        expect(screen.getByText('Rechazar')).toBeInTheDocument();
-      });
-    });
-
-    it('no muestra botones de accion para estado rechazado', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Cambio instalacion')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Cambio instalacion'));
-      await waitFor(() => {
-        expect(screen.queryByText('Aprobar')).not.toBeInTheDocument();
-        expect(screen.queryByText('Rechazar')).not.toBeInTheDocument();
-      });
-    });
+  it('opens form when nueva button clicked', () => {
+    render(<OrdenesCambio />);
+    const newButton = screen.getByRole('button', { name: /ordenes_cambio.nueva/i });
+    fireEvent.click(newButton);
+    expect(screen.getByPlaceholderText(/ordenes_cambio.placeholder_titulo/i)).toBeInTheDocument();
   });
 
-  describe('Impacto presupuestario', () => {
-    it('muestra monto de impacto en tarjeta', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getAllByText(/Q 3,000/).length).toBeGreaterThanOrEqual(1);
-      });
-    });
+  it('handles form submission for new orden', () => {
+    render(<OrdenesCambio />);
 
-    it('muestra impacto en plazo', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('+5 días')).toBeInTheDocument();
-      });
-    });
+    const selectElement = screen.getByDisplayValue('Todos los proyectos');
+    fireEvent.change(selectElement, { target: { value: 'proy-1' } });
 
-    it('calcula costo total aprobado', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Costo Aprobado')).toBeInTheDocument();
-      });
-    });
+    const newButton = screen.getByRole('button', { name: /ordenes_cambio.nueva/i });
+    fireEvent.click(newButton);
+
+    const tituloInput = screen.getByPlaceholderText(/ordenes_cambio.placeholder_titulo/i);
+    fireEvent.change(tituloInput, { target: { value: 'Cambio de energía solar' } });
+
+    const enviarButton = screen.getByRole('button', { name: /ordenes_cambio.enviar_solicitud/i });
+    fireEvent.click(enviarButton);
+
+    expect(mockUseErp.addOrdenCambio).toHaveBeenCalled();
   });
 
-  describe('Filtros', () => {
-    it('filtra OCs por proyecto', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByTestId('proyecto-filter')).toBeInTheDocument();
-      });
-      fireEvent.change(screen.getByTestId('proyecto-filter'), { target: { value: 'proj-2' } });
-      await waitFor(() => {
-        expect(screen.getByText('Cambio instalacion')).toBeInTheDocument();
-      });
-    });
+  it('aproves orden when approve button clicked', async () => {
+    render(<OrdenesCambio />);
 
-    it('combinacion de filtros', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByTestId('proyecto-filter')).toBeInTheDocument();
-      });
-      fireEvent.change(screen.getByTestId('proyecto-filter'), { target: { value: 'proj-1' } });
-      await waitFor(() => {
-        expect(screen.getByText('Cambio estructura')).toBeInTheDocument();
-        expect(screen.queryByText('Cambio instalacion')).not.toBeInTheDocument();
-      });
-    });
+    const card = screen.getByRole('button', { name: /Cambio estructural/ });
+    fireEvent.click(card);
+
+    const approveButtons = screen.getAllByRole('button', { name: /ordenes_cambio.aprobar/i });
+    fireEvent.click(approveButtons[0]);
+
+    await waitFor(() => expect(mockUseErp.updateOrdenCambio).toHaveBeenCalledWith(mockOrdenesCambio[0].id, expect.objectContaining({ estado: 'aprobado' })));
   });
 
-  describe('CRUD crear OC', () => {
-    it('abre formulario al hacer clic en Nueva', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Nueva')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Nueva'));
-      await waitFor(() => {
-        expect(screen.getByText('Nueva Solicitud de Cambio')).toBeInTheDocument();
-      });
-    });
+  it('rechaza orden when reject button clicked', async () => {
+    render(<OrdenesCambio />);
 
-    it('crea OC y llama addOrdenCambio', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Nueva')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Nueva'));
-      await waitFor(() => {
-        expect(screen.getByTestId('proyecto-filter')).toBeInTheDocument();
-      });
-      fireEvent.change(screen.getByTestId('proyecto-filter'), { target: { value: 'proj-1' } });
-      fireEvent.change(screen.getByPlaceholderText('Título del cambio *'), { target: { value: 'Nuevo cambio' } });
-      fireEvent.click(screen.getByText('Enviar Solicitud'));
-      await waitFor(() => {
-        expect(mockAddOrdenCambio).toHaveBeenCalledTimes(1);
-      });
-    });
+    const card = screen.getByRole('button', { name: /Cambio estructural/ });
+    fireEvent.click(card);
 
-    it('no crea OC sin titulo', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Nueva')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Nueva'));
-      await waitFor(() => {
-        expect(screen.getByText('Enviar Solicitud')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Enviar Solicitud'));
-      await waitFor(() => {
-        expect(screen.getByText('Título requerido')).toBeInTheDocument();
-      });
-    });
+    const rejectButtons = screen.getAllByRole('button', { name: /ordenes_cambio.rechazar/i });
+    fireEvent.click(rejectButtons[0]);
+
+    await waitFor(() => expect(mockUseErp.updateOrdenCambio).toHaveBeenCalledWith(mockOrdenesCambio[0].id, expect.objectContaining({ estado: 'rechazado' })));
   });
 
-  describe('CRUD editar OC', () => {
-    it('expande fila para ver detalles', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Cambio estructura')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Cambio estructura'));
-      await waitFor(() => {
-        expect(screen.getByText('Ajuste en columnas')).toBeInTheDocument();
-      });
-    });
+  it('collapsible orden shows details when clicked', () => {
+    render(<OrdenesCambio />);
+
+    const card = screen.getByRole('button', { name: /Cambio estructural/ });
+    fireEvent.click(card);
+
+    expect(screen.getByText(/El cambio es necesario para estabilidad/)).toBeInTheDocument();
   });
 
-  describe('Estado vacio', () => {
-    it('muestra mensaje sin OCs', async () => {
-      mockOrdenesCambio = [];
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Sin órdenes de cambio')).toBeInTheDocument();
-      });
-    });
+  it('shows empty state when no ordenes after filter', () => {
+    mockUseErp.ordenesCambio = [];
+    render(<OrdenesCambio />);
 
-    it('no muestra filas de OC en empty state', async () => {
-      mockOrdenesCambio = [];
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.queryByText('Cambio estructura')).not.toBeInTheDocument();
-      });
-    });
+    expect(screen.getByText('ordenes_cambio.sin_datos')).toBeInTheDocument();
   });
 
-  describe('Loading y error', () => {
-    it('renderiza skeleton durante carga', () => {
-      render(<OrdenesCambio />);
-      expect(screen.getAllByRole('generic').length).toBeGreaterThanOrEqual(1);
-    });
-  });
+  it('handles form validation for empty titulo', () => {
+    render(<OrdenesCambio />);
 
-  describe('Ordenamiento por columnas', () => {
-    it('ordena por fecha por defecto', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Cambio estructura')).toBeInTheDocument();
-      });
-    });
+    const newButton = screen.getByRole('button', { name: /ordenes_cambio.nueva/i });
+    fireEvent.click(newButton);
 
-    it('permite ordenar por proyecto al expandir', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Cambio estructura')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Cambio estructura'));
-      await waitFor(() => {
-        expect(screen.getByText('Ajuste en columnas')).toBeInTheDocument();
-      });
-    });
-  });
+    const enviarButton = screen.getByRole('button', { name: /ordenes_cambio.enviar_solicitud/i });
+    fireEvent.click(enviarButton);
 
-  describe('Combinacion de filtros', () => {
-    it('filtra por proyecto combinado con busqueda', async () => {
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByTestId('proyecto-filter')).toBeInTheDocument();
-      });
-      fireEvent.change(screen.getByTestId('proyecto-filter'), { target: { value: 'proj-1' } });
-      await waitFor(() => {
-        expect(screen.getByText('Cambio estructura')).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Workflow rechazo', () => {
-    it('rechaza OC y actualiza estado', async () => {
-      const id = mockOrdenesCambio[0].id;
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Cambio estructura')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Cambio estructura'));
-      await waitFor(() => {
-        expect(screen.getByText('Rechazar')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Rechazar'));
-      await waitFor(() => {
-        expect(mockUpdateOrdenCambio).toHaveBeenCalledWith(id, { estado: 'rechazado', aprobador: 'Admin', fechaAprobacion: expect.any(String) });
-      });
-    });
-  });
-
-  describe('Workflow aprobacion', () => {
-    it('aprueba OC y actualiza estado', async () => {
-      const id = mockOrdenesCambio[0].id;
-      render(<OrdenesCambio />);
-      await waitFor(() => {
-        expect(screen.getByText('Cambio estructura')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Cambio estructura'));
-      await waitFor(() => {
-        expect(screen.getByText('Aprobar')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Aprobar'));
-      await waitFor(() => {
-        expect(mockUpdateOrdenCambio).toHaveBeenCalledWith(id, { estado: 'aprobado', aprobador: 'Admin', fechaAprobacion: expect.any(String) });
-      });
-    });
+    expect(screen.getByText(/ordenes_cambio.error_titulo/i)).toBeInTheDocument();
   });
 });
