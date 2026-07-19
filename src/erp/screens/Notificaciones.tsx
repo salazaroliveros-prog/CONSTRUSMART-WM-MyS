@@ -1,4 +1,3 @@
-import { Skeleton } from '@/components/ui/skeleton';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
@@ -50,12 +49,9 @@ export default function Notificaciones() {
   const [filtroTipo, setFiltroTipo] = React.useState<string | null>(null);
   const [filtroProyecto, setFiltroProyecto] = React.useState('');
   const [tab, setTab] = React.useState<'alertas' | 'historial'>('alertas');
-  const [loading, setLoading] = React.useState(true);
 
   const playSound = useNotificationSound(appSettings.notificationSounds !== false);
   const prevNoLeidasCount = React.useRef(0);
-
-  React.useEffect(() => { setLoading(false); }, []);
 
   const noLeidas = React.useMemo(() => notificaciones.filter(n => !n.leido), [notificaciones]);
 
@@ -90,20 +86,6 @@ export default function Notificaciones() {
     const timePart = d.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' });
     return `${datePart} ${timePart}`;
   };
-
-  if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-        </div>
-        <Skeleton className="h-64 rounded-xl" />
-      </div>
-    );
-  }
 
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-4">

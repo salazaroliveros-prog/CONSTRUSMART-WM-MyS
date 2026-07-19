@@ -1,4 +1,3 @@
-import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
@@ -28,9 +27,6 @@ const Riesgos: React.FC = () => {
   const { t } = useTranslation();
   const { proyectos, currentProjectId, setCurrentProjectId, riesgos, addRiesgo, updateRiesgo, deleteRiesgo, addNotificacion, user, proyectoWeather } = useErp();
   const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => { setLoading(false); }, []);
   const [form, setForm] = useState({
     proyectoId: '',
     nombre: '',
@@ -177,19 +173,6 @@ const Riesgos: React.FC = () => {
     toast.success(t('riesgos.registrado', 'Riesgo registrado'));
   };
 
-  if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-        </div>
-        <Skeleton className="h-64 rounded-xl" />
-      </div>
-    );
-  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">

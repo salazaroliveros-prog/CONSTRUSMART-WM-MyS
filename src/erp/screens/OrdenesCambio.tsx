@@ -1,11 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { OrdenCambio } from '../types';
 import { fmtQ, todayISO } from '../utils';
 import { GitBranch, Plus, Check, X, Clock, ChevronRight, ChevronDown, FileText } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { canUserEdit } from '@/lib/security';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
@@ -15,8 +14,6 @@ type EstadoOC = OrdenCambio['estado'];
 const OrdenesCambio: React.FC = () => {
   const { t } = useTranslation();
   const { proyectos, user, ordenesCambio, addOrdenCambio, updateOrdenCambio } = useErp();
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { setLoading(false); }, []);
   const [showForm, setShowForm] = useState(false);
   const [proyectoFilter, setProyectoFilter] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -80,8 +77,6 @@ const OrdenesCambio: React.FC = () => {
 
   const pendientes = useMemo(() => ordenesCambio.filter(o => o.estado === 'solicitud' || o.estado === 'revision').length, [ordenesCambio]);
   const costoTotal = useMemo(() => ordenesCambio.filter(o => o.estado === 'aprobado').reduce((a, o) => a + o.impactoCosto, 0), [ordenesCambio]);
-
-  if (loading) return <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 rounded-2xl" /></div>;
 
   return (
     <div className="p-4 sm:p-6 max-w-[1000px] mx-auto">

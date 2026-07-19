@@ -1,5 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { ActivoLogistica, CuadroComparativo, PagoProveedor } from '../types';
@@ -16,7 +15,6 @@ export const LogisticaCompras: React.FC = () => {
   const { proveedores } = useErp();
 
   const [tab, setTab] = useState<'activos' | 'cuadros' | 'pagos'>('activos');
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState<string | null>(null);
   const [form, setForm] = useState<Record<string, any>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -24,8 +22,6 @@ export const LogisticaCompras: React.FC = () => {
   const [activos, setActivos] = useState<ActivoLogistica[]>([]);
   const [cuadros, setCuadros] = useState<CuadroComparativo[]>([]);
   const [pagos, setPagos] = useState<PagoProveedor[]>([]);
-
-  useEffect(() => { setLoading(false); }, []);
 
   const addActivo = (data: Omit<ActivoLogistica, 'id'>) => setActivos(prev => [{ ...data, id: uid() }, ...prev]);
   const deleteActivo = (id: string) => setActivos(prev => prev.filter(a => a.id !== id));
@@ -142,8 +138,6 @@ export const LogisticaCompras: React.FC = () => {
       )}
     </div>
   );
-
-  if (loading) return <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4"><Skeleton className="h-8 w-48" /><Skeleton className="h-64 rounded-2xl" /></div>;
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">

@@ -47,7 +47,6 @@ export default function ErrorLog() {
   const [resolveModalOpen, setResolveModalOpen] = React.useState(false);
   const [resolveNotes, setResolveNotes] = React.useState('');
   const [selectedRowKeys, setSelectedRowKeys] = React.useState<string[]>([]);
-  const [loading, setLoading] = React.useState(false);
   const [sortKey, setSortKey] = React.useState<string>('createdAt');
   const [sortDir, setSortDir] = React.useState<SortDir>('descend');
   const [page, setPage] = React.useState(1);
@@ -191,20 +190,6 @@ export default function ErrorLog() {
       prev.includes(id) ? prev.filter(k => k !== id) : [...prev, id]
     );
   };
-
-  if (loading) {
-    return (
-      <div className="p-4 max-w-6xl mx-auto space-y-4">
-        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-          ))}
-        </div>
-        <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-      </div>
-    );
-  }
 
   const sortIndicator = (key: string) => {
     if (sortKey !== key) return null;

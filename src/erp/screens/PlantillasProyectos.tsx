@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { confirmAction } from '@/lib/confirm-action';
 import { useErp } from '../store';
 import { safeLogger } from '@/lib/safeLogger';
@@ -11,7 +11,6 @@ import {
   Landmark, Edit, Trash2, Eye, Clock, TrendingUp, Settings,
   Package, CheckCircle, AlertCircle, Layout, BarChart3, Download, Upload, History, GitBranch, Search, ArrowUpDown, List, Grid3x3, Star, FileEdit, CheckSquare2
 } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY } from '../ui';
@@ -54,7 +53,6 @@ const PlantillasProyectos: React.FC = () => {
     { key: 'publica' as const, label: t('plantillas.cat_publica'), icon: Landmark, color: 'bg-rose-50 border-rose-300', textColor: 'text-rose-600' },
   ] as const;
   const { plantillas, proyectos, addPlantilla, updatePlantilla, deletePlantilla, clonarPlantilla, exportarPlantilla, importarPlantilla, crearProyectoDesdePlantilla, crearNuevaVersionPlantilla, restaurarVersionPlantilla, validarIntegridadPlantilla, toggleFavoritoPlantilla } = useErp();
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
@@ -84,8 +82,6 @@ const PlantillasProyectos: React.FC = () => {
     clienteId: '',
     clienteNombre: '',
   });
-
-  useEffect(() => { setLoading(false); }, []);
 
   const plantillasFiltradas = useMemo(() => {
     const filtradas = plantillas.filter(p =>
@@ -402,19 +398,6 @@ const PlantillasProyectos: React.FC = () => {
     addPlantilla(nuevaPlantilla);
     toast.success(t('plantillas.creada_desde_proyecto'));
   };
-
-  if (loading) {
-    return (
-      <div className="p-6 space-y-4">
-        <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <Skeleton key={i} className="h-48" />
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 space-y-6">

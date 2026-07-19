@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,7 +12,6 @@ import { Progress, BarChart } from '../components/Charts';
 import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
 import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2, TrendingUp } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT_COMPACT, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL } from '../ui';
 import { List as VirtualizedList } from 'react-window';
 import { ordenFormSchema } from '../store/schemas/bodega';
@@ -42,9 +41,6 @@ const Bodega: React.FC = () => {
   const [showProveedor, setShowProveedor] = useState(false);
   const [showOrden, setShowOrden] = useState(false);
   const [editingProveedor, setEditingProveedor] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => { setLoading(false); }, []);
 
   const criticos = useMemo(() => materiales.filter(m => m.stock < m.stockMinimo), [materiales]);
   const pendientes = useMemo(() => ordenes.filter(o => o.estado === 'pendiente'), [ordenes]);
@@ -155,21 +151,6 @@ const renderMaterialRow = useCallback((m: typeof materiales[0]) => {
 }, [updateMaterial, t]);
 
 const inp = INPUT_COMPACT;
-
-if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-56" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-        </div>
-        <Skeleton className="h-80 rounded-2xl" />
-      </div>
-    );
-  }
 
   return (
     <div className="p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto">

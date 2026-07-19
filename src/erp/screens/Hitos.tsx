@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { CheckCircle2, Circle, AlertTriangle, Calendar, Plus } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../ui';
 
@@ -36,8 +35,6 @@ const Hitos: React.FC = () => {
     otro: { label: t('hitos.tipo_otro', 'Otro'), color: 'text-slate-500', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
   };
   const { hitos, proyectos, addHito, updateHito, currentProjectId, setCurrentProjectId } = useErp();
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { setLoading(false); }, []);
   const [filtroProyecto, setFiltroProyecto] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -94,8 +91,6 @@ const Hitos: React.FC = () => {
     setFormErrors({});
     setFormOpen(true);
   };
-
-  if (loading) return <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 rounded-2xl" /></div>;
 
   return (
     <div className="p-4 sm:p-6 max-w-[1200px] mx-auto">

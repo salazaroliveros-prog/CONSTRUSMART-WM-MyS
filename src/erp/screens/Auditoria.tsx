@@ -2,7 +2,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { LogAuditoria } from '../store';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Download, Eye, History } from 'lucide-react';
 
 function fmtDate(iso?: string): string {
@@ -57,13 +56,10 @@ export default function Auditoria() {
   const [dateTo, setDateTo] = React.useState('');
   const [detailModalOpen, setDetailModalOpen] = React.useState(false);
   const [selectedEntry, setSelectedEntry] = React.useState<LogAuditoria | null>(null);
-  const [loading, setLoading] = React.useState(false);
   const [sortKey, setSortKey] = React.useState<string>('createdAt');
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('desc');
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(20);
-
-  React.useEffect(() => { setLoading(false); }, []);
 
   const entidadesUnicas = React.useMemo(() => {
     const set = new Set(auditLog.map(e => e.entidad));
@@ -172,18 +168,6 @@ export default function Auditoria() {
     { key: 'entidadId', label: t('auditoria.columna_id'), sortable: true, className: 'w-[120px]' },
     { key: 'actions', label: t('auditoria.columna_detalles'), sortable: false, className: 'w-[100px]' },
   ];
-
-  if (loading) {
-    return (
-      <div className="p-4 max-w-6xl mx-auto space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24 w-full" />)}
-        </div>
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
-  }
 
   return (
     <div className="p-4 max-w-6xl mx-auto space-y-4">

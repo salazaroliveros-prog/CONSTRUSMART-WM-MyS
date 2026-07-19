@@ -1,10 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { fmtQ } from '../utils';
 import { Heart, MessageCircle, Send, Image, Paperclip } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
@@ -25,8 +24,6 @@ const TIPOS: Record<TipoPublicacion, { label: string; color: string }> = {
 const MuroObra: React.FC = () => {
   const { t } = useTranslation();
   const { publicaciones: publicacionesMuro, proyectos, addPublicacionMuro, addComentarioMuro, likePublicacionMuro, currentProjectId } = useErp();
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { setLoading(false); }, []);
   const [filtroProyecto, setFiltroProyecto] = useState('');
   const [tipoFiltro, setTipoFiltro] = useState<TipoPublicacion | 'todos'>('todos');
   const [nuevoTexto, setNuevoTexto] = useState('');
@@ -71,8 +68,6 @@ const MuroObra: React.FC = () => {
     setComentarios(prev => ({ ...prev, [id]: '' }));
     toast.success(t('muro.comentario_agregado', 'Comentario agregado'));
   };
-
-  if (loading) return <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 rounded-2xl" /></div>;
 
   return (
     <div className="p-4 sm:p-6 max-w-[1200px] mx-auto">

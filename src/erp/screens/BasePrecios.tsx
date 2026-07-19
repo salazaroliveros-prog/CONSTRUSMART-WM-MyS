@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { List as VirtualizedList } from 'react-window';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -8,7 +8,6 @@ import {
   Database, Search, Check, X, RefreshCw, Upload, Download,
   Plus, Edit3, Trash2, ArrowUpDown
 } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { downloadBlob } from '../utils';
 
@@ -39,8 +38,6 @@ const BasePrecios: React.FC = () => {
   const { addInsumoBase, updateInsumoBase, deleteInsumoBase } = useErp();
   const insumosBase = useInsumosBase();
   const inactivosCount = useMemo(() => insumosBase.filter(i => !i.activo).length, [insumosBase]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { setLoading(false); }, []);
   const [search, setSearch] = useState('');
   const [rubroFilter, setRubroFilter] = useState('');
   const [categoriaFilter, setCategoriaFilter] = useState('');
@@ -254,16 +251,6 @@ const BasePrecios: React.FC = () => {
       </tr>
     );
   }, [editando, nuevoNombre, nuevoPrecio, factorZona, t, handleActivarDesactivar, handleGuardarEdicion]);
-
-  if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-56" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-96 rounded-2xl" />
-      </div>
-    );
-  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">

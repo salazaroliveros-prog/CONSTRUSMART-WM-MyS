@@ -1,4 +1,3 @@
-import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
@@ -35,9 +34,6 @@ const GestionDocumental: React.FC = () => {
   const { t } = useTranslation();
   const { proyectos, user, planos, addPlano, updatePlano, rfis, addRfi, updateRfi, submittals, addSubmittal, updateSubmittal, currentProjectId, setCurrentProjectId } = useErp();
   const [tab, setTab] = useState<TabDoc>('planos');
-  const [loading, setLoading] = useState(true);
-
-  React.useEffect(() => { setLoading(false); }, []);
 
   const planosFiltrados = useMemo(() => planos.filter(p => !currentProjectId || p.proyectoId === currentProjectId), [planos, currentProjectId]);
   const rfisFiltrados = useMemo(() => rfis.filter(r => r.estado !== 'cerrado' && (!currentProjectId || r.proyectoId === currentProjectId)), [rfis, currentProjectId]);
@@ -276,19 +272,6 @@ const GestionDocumental: React.FC = () => {
     { value: 'otra', label: t('gestion_documental.disciplina_otra', 'Otra') },
   ];
 
-  if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-        </div>
-        <Skeleton className="h-64 rounded-xl" />
-      </div>
-    );
-  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">

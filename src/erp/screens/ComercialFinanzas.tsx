@@ -1,4 +1,3 @@
-import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
@@ -19,13 +18,11 @@ export const ComercialFinanzas: React.FC = () => {
   const [amortInputs, setAmortInputs] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const [loading, setLoading] = useState(true);
   const [ventas, setVentas] = useState<VentaPaquete[]>((ventasPaquetes ?? []) as VentaPaquete[]);
   const [anticipos, setAnticipos] = useState<Anticipo[]>([]);
   const [cajasChicas, setCajasChicas] = useState<CajaChica[]>([]);
 
   useEffect(() => {
-    setLoading(false);
     setVentas((ventasPaquetes ?? []) as VentaPaquete[]);
   }, [ventasPaquetes]);
 
@@ -285,19 +282,6 @@ export const ComercialFinanzas: React.FC = () => {
     </div>
   );
 
-  if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-        </div>
-        <Skeleton className="h-64 rounded-xl" />
-      </div>
-    );
-  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <h1 className="text-2xl font-black text-foreground mb-4">{t('comercial.titulo')}</h1>

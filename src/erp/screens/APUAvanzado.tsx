@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useErp } from '../store';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,7 +12,6 @@ import { FactorSobrecosto, DosificacionConcreto, MovimientoTierra, Pavimento, Re
 import { ServicioMotorCalculo } from '../services/motorCalculo';
 import { registrarCalculo } from '../services/motorCalculo';
 import { ServicioValidacionCalculos, mostrarValidaciones } from '../services/validacionCalculos';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useDepartamentos } from '../hooks/useGeographicData';
 
 interface HistoricoPrecio {
@@ -110,7 +109,6 @@ const APUAvanzado: React.FC = () => {
   const [proyectoId, setProyectoId] = useState('');
   const [factor, setFactor] = useState<FactorSobrecosto>(FACTOR_DEFAULT);
   const [editFactor, setEditFactor] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   const [dosificacion, setDosificacion] = useState<DosificacionConcreto>({
     resistencia: '3000psi',
@@ -197,10 +195,6 @@ const APUAvanzado: React.FC = () => {
     }
     setEditFactor(false);
   };
-
-  useEffect(() => {
-    setLoading(false);
-  }, []);
 
   const handleCalcularDosificacion = async () => {
     setCalculando(true);
@@ -350,16 +344,7 @@ const APUAvanzado: React.FC = () => {
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      {loading && (
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-10 w-full" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
-          </div>
-        </div>
-      )}
-      {!loading && (<>
+      <>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
           <Receipt className="w-6 h-6 text-primary" /> {t('apu.apu_avanzado')}
@@ -731,7 +716,6 @@ const APUAvanzado: React.FC = () => {
         )}
       </div>
     </>
-    )}
     </div>
   );
 };

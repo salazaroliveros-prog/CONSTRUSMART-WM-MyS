@@ -1,4 +1,3 @@
-import { Skeleton } from '@/components/ui/skeleton';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';

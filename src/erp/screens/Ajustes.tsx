@@ -1,5 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, clearAllData, type UIMode, type AppThemeMode } from '../store';
 import type { AppSettings } from '../utils';
@@ -132,24 +131,17 @@ const ColorRadioGroup: React.FC<{
 
 const Ajustes: React.FC = () => {
   const { t } = useTranslation();
-  const { appSettings, updateAppSettings, user, proyectos, notificacionesNoLeidas, marcarTodasLeidas } = useErp();
+  const { appSettings, updateAppSettings, user, proyectos, notificacionesNoLeidas, marcarTodasLeidas, exportStoreData, importStoreData } = useErp();
   const safeProyectos = useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]);
   const proyectosEnEjecucion = useMemo(() => safeProyectos.filter(p => p.estado === 'ejecucion').length, [safeProyectos]);
   const [resetModal, setResetModal] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('apariencia');
-
-  useEffect(() => { setLoading(false); }, []);
 
   const compactModeLabel = appSettings.compactMode ? 'compacto' : 'expandido';
 
   const exportBackup = () => {
     try {
-      const data: Record<string, string> = {};
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith('wm_')) data[k] = localStorage.getItem(k) || '';
-      }
+      const data = exportStoreData();
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -179,16 +171,15 @@ const Ajustes: React.FC = () => {
           toast.error(t('ajustes.formato_invalido'));
           return;
         }
-        const wmKeys = Object.keys(data).filter(k => k.startsWith('wm_'));
-        if (wmKeys.length === 0) {
+        const entityCount = Object.keys(data).filter(k =>
+          ['proyectos','movimientos','empleados','materiales','ordenes','proveedores','presupuestos','appSettings'].includes(k)
+        ).length;
+        if (entityCount === 0) {
           toast.warning(t('ajustes.sin_datos_validos'));
           return;
         }
-        for (const k of wmKeys) {
-          localStorage.setItem(k, data[k]);
-        }
-        toast.success(t('ajustes.importados_exito', { count: wmKeys.length, archivo: file.name }));
-        window.location.reload();
+        importStoreData(data);
+        toast.success(t('ajustes.importados_exito', { count: entityCount, archivo: file.name }));
       } catch {
         toast.error(t('ajustes.error_leer_respaldo'));
       }
@@ -223,26 +214,6 @@ const Ajustes: React.FC = () => {
       </span>
     </div>
   );
-
-  if (loading) {
-    return (
-      <div className="flex flex-col p-6 min-h-full">
-        <Skeleton className="h-4 w-full" />
-        <div className="mt-4 space-y-3">
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
-          <Skeleton className="h-4 w-5/6" />
-          <Skeleton className="h-4 w-2/3" />
-          <Skeleton className="h-4 w-4/5" />
-          <Skeleton className="h-4 w-3/5" />
-          <Skeleton className="h-4 w-1/3" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
-          <Skeleton className="h-4 w-5/6" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col p-6 min-h-full">

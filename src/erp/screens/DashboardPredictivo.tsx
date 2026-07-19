@@ -1,5 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
 import { Calendar, AlertTriangle, DollarSign, Activity, Zap, CheckCircle, Cloud, CloudRain, Wind } from 'lucide-react';
@@ -7,9 +6,6 @@ import { calculateWeatherImpact } from '../services/weatherService';
 
 const DashboardPredictivo: React.FC = () => {
   const { proyectos, movimientos, presupuestos, avances, empleados, currentProjectId, setCurrentProjectId, proyectoWeather } = useErp();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => { setLoading(false); }, []);
 
   const proyecto = proyectos.find(p => p.id === currentProjectId);
   const presupuesto = presupuestos.find(p => p.proyectoId === currentProjectId);
@@ -78,28 +74,6 @@ const DashboardPredictivo: React.FC = () => {
     return { impact, history, workableDays, lostDays, diasPerdidosEst, impactColor };
   }, [proyectoWeather, currentProjectId]);
 
-  if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-56 sm:w-72" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-        </div>
-        <Skeleton className="h-20 rounded-xl" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Skeleton className="h-28 rounded-xl" />
-          <Skeleton className="h-28 rounded-xl" />
-          <Skeleton className="h-28 rounded-xl" />
-        </div>
-        <Skeleton className="h-56 rounded-xl" />
-        <Skeleton className="h-40 rounded-xl" />
-        <Skeleton className="h-40 rounded-xl" />
-      </div>
-    );
-  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

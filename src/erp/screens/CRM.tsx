@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Licitacion } from '../types';
 import { fmtQ } from '../utils';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Plus, X, Target, TrendingUp, DollarSign,
   Briefcase, CheckCircle, Clock, Archive,
@@ -40,8 +39,6 @@ const ESTADO_SIGUIENTE: Record<string, string> = {
 const CRM: React.FC = () => {
   const { t } = useTranslation();
   const { proyectos, licitaciones, addLicitacion, updateLicitacion, deleteLicitacion } = useErp();
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { setLoading(false); }, []);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filtroProyecto, setFiltroProyecto] = useState('');
@@ -55,7 +52,6 @@ const CRM: React.FC = () => {
   const [formNotas, setFormNotas] = useState('');
   const licitacionesFiltradas = useMemo(() => licitaciones.filter(l => !filtroProyecto || l.proyectoId === filtroProyecto), [licitaciones, filtroProyecto]);
 
-  if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-64" /><Skeleton className="h-64 w-full" /></div>;
   if (licitacionesFiltradas.length === 0) {
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">

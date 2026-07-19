@@ -1,5 +1,3 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { SkeletonWeather } from '@/components/SkeletonScreens';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { safeLogger } from '@/lib/safeLogger';
 import { useTranslation } from 'react-i18next';
@@ -41,7 +39,6 @@ const Weather: React.FC = () => {
     addNotificacion 
   } = useErp();
   
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [coordsError, setCoordsError] = useState('');
   const [selectedDay, setSelectedDay] = useState<number>(0);
@@ -54,8 +51,6 @@ const Weather: React.FC = () => {
 
   const proyecto = currentProjectId ? proyectos.find(p => p.id === currentProjectId) : proyectos[0];
   const weather = proyecto ? proyectoWeather.find(w => w.proyectoId === proyecto.id) : undefined;
-
-  useEffect(() => { setLoading(false); }, []);
 
   useEffect(() => {
     if (weather?.alertThreshold && weather.alertThreshold !== alertThreshold) {
@@ -389,10 +384,6 @@ const Weather: React.FC = () => {
     XLSX.writeFile(workbook, `weather-report-${proyecto.nombre}-${todayISO()}.xlsx`);
     toast.success(t('weather.export_excel_success', 'Reporte Excel exportado exitosamente'));
   }, [weather, proyecto, currentWeather, impact, metrics, scheduling, t, formatDate]);
-
-  if (loading) {
-    return <SkeletonWeather />;
-  }
 
   if (!proyecto) {
     return (

@@ -3,11 +3,30 @@ import { z } from 'zod';
 import { sanitizarObjeto, canUserDelete } from '@/lib/security';
 import { safeLogger } from '@/lib/safeLogger';
 import { supabase, projectRef } from '@/lib/supabase';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance, validateForeignKey as validateForeignKeyInArray, __setActiveCurrency, __setActiveDateFormat } from './utils';
+import {
+  setEmpresaInfo, APP_SETTINGS_DEFAULTS, toSnake, toCamel, calculateSupplierPerformance,
+  validateForeignKey as validateForeignKeyInArray, __setActiveCurrency, __setActiveDateFormat,
+  compressDataAsync, safeSetItem,
+} from './utils';
 import i18n from '@/lib/i18n';
 import { recordSyncMetric } from '@/lib/metrics';
 import { logErrorFromException } from '@/lib/error-logger';
 import { TABLE_MAP } from './constants/table-mappings';
+import {
+  proyectoSchema, movimientoSchema, cuentaCobrarSchema, cuentaPagarSchema,
+  ordenCambioSchema, ventaPaqueteSchema, presupuestoSchema, cotizacionSchema,
+  empleadoSchema, incidenteSchema, materialSchema, ordenSchema, proveedorSchema,
+  eventoSchema, bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema,
+  riesgoSchema, muroSchema, notificacionSchema, liberacionSchema, pruebaSchema,
+  noConformidadSchema, activoSchema, licitacionSchema, cuadroSchema,
+  pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema, destajoSchema,
+  recepcionAlmacenSchema, centroCostoSchema, plantillaSchema, insumosBaseSchema,
+  appSettingsSchema, reglaFactorSchema, normativaDepartamentalSchema,
+  escalaProduccionSchema, estacionalidadSchema, historialAplicacionReglaSchema,
+  proyectoWeatherSchema, errorLogSchema, auditLogSchema,
+  projectProfitabilitySchema, clientProfitabilitySchema,
+  resourceEfficiencySchema, profitabilityTrendSchema,
+} from './store/schemas';
 import type {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
   Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
@@ -175,6 +194,8 @@ interface ErpActions {
   deleteProyecto: (id: string) => void;
   clearProyectos: () => void;
   clearAllData: () => void;
+  exportStoreData: () => Record<string, unknown>;
+  importStoreData: (data: Record<string, unknown>) => void;
   setNotificaciones: (v: Notificacion[] | ((prev: Notificacion[]) => Notificacion[])) => void;
   setIsOnline: (v: boolean) => void;
   setCurrentProjectId: (v: string | null) => void;
@@ -877,6 +898,106 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
       if (k && k.startsWith('wm_')) keysToRemove.push(k);
     }
     keysToRemove.forEach(k => localStorage.removeItem(k));
+  },
+
+  exportStoreData: () => {
+    const s = get();
+    return {
+      proyectos: s.proyectos, movimientos: s.movimientos, empleados: s.empleados,
+      materiales: s.materiales, ordenes: s.ordenes, proveedores: s.proveedores,
+      eventos: s.eventos, presupuestos: s.presupuestos, avances: s.avances,
+      cuentasCobrar: s.cuentasCobrar, cuentasPagar: s.cuentasPagar,
+      ordenesCambio: s.ordenesCambio, hitos: s.hitos, riesgos: s.riesgos,
+      licitaciones: s.licitaciones, cotizacionesNegocio: s.cotizacionesNegocio,
+      ventasPaquetes: s.ventasPaquetes, bitacora: s.bitacora, pruebas: s.pruebas,
+      ncs: s.ncs, valesSalida: s.valesSalida, seguimientoEVM: s.seguimientoEVM,
+      incidentes: s.incidentes, publicacionesMuro: s.publicacionesMuro,
+      liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis,
+      submittals: s.submittals, activos: s.activos, cuadros: s.cuadros,
+      pagosProveedor: s.pagosProveedor, destajos: s.destajos,
+      calculosProyecto: s.calculosProyecto, recepciones: s.recepciones,
+      centrosCosto: s.centrosCosto, plantillas: s.plantillas,
+      insumosBase: s.insumosBase, departamentos: s.departamentos,
+      municipios: s.municipios, reglasFactores: s.reglasFactores,
+      normativasDepartamentales: s.normativasDepartamentales,
+      escalasProduccion: s.escalasProduccion, estacionalidad: s.estacionalidad,
+      historialReglas: s.historialReglas,
+      projectProfitabilities: s.projectProfitabilities,
+      clientProfitabilities: s.clientProfitabilities,
+      resourceEfficiencies: s.resourceEfficiencies,
+      profitabilityTrends: s.profitabilityTrends,
+      notificaciones: s.notificaciones, auditLog: s.auditLog,
+      appSettings: s.appSettings, errorLogs: s.errorLogs,
+      proyectoWeather: s.proyectoWeather,
+    };
+  },
+
+  importStoreData: (data) => {
+    const schemas: [string, z.ZodTypeAny, (v: unknown[]) => void][] = [
+      ['proyectos', proyectoSchema, get().setProyectos],
+      ['movimientos', movimientoSchema, get().setMovimientos],
+      ['empleados', empleadoSchema, get().setEmpleados],
+      ['materiales', materialSchema, get().setMateriales],
+      ['ordenes', ordenSchema, get().setOrdenes],
+      ['proveedores', proveedorSchema, get().setProveedores],
+      ['eventos', eventoSchema, get().setEventos],
+      ['presupuestos', presupuestoSchema, get().setPresupuestos],
+      ['avances', avanceObraSchema, get().setAvances],
+      ['cuentasCobrar', cuentaCobrarSchema, get().setCuentasCobrar],
+      ['cuentasPagar', cuentaPagarSchema, get().setCuentasPagar],
+      ['ordenesCambio', ordenCambioSchema, get().setOrdenesCambio],
+      ['hitos', hitoSchema, get().setHitos],
+      ['riesgos', riesgoSchema, get().setRiesgos],
+      ['licitaciones', licitacionSchema, get().setLicitaciones],
+      ['cotizacionesNegocio', cotizacionSchema, get().setCotizacionesNegocio],
+      ['ventasPaquetes', ventaPaqueteSchema, get().setVentasPaquetes],
+      ['bitacora', bitacoraSchema, get().setBitacora],
+      ['pruebas', pruebaSchema, get().setPruebas],
+      ['ncs', noConformidadSchema, get().setNcs],
+      ['valesSalida', valeSalidaSchema, get().setValesSalida],
+      ['seguimientoEVM', seguimientoSchema, get().setSeguimientoEVM],
+      ['incidentes', incidenteSchema, get().setIncidentes],
+      ['publicacionesMuro', muroSchema, get().setPublicacionesMuro],
+      ['liberaciones', liberacionSchema, get().setLiberaciones],
+      ['planos', planoSchema, get().setPlanos],
+      ['rfis', rfiSchema, get().setRfis],
+      ['submittals', submittalSchema, get().setSubmittals],
+      ['activos', activoSchema, get().setActivos],
+      ['cuadros', cuadroSchema, get().setCuadros],
+      ['pagosProveedor', pagoProveedorSchema, get().setPagosProveedor],
+      ['destajos', destajoSchema, get().setDestajos],
+      ['calculosProyecto', calculoProyectoSchema, get().setCalculosProyecto],
+      ['recepciones', recepcionAlmacenSchema, get().setRecepciones],
+      ['centrosCosto', centroCostoSchema, get().setCentrosCosto],
+      ['plantillas', plantillaSchema, get().setPlantillas],
+      ['insumosBase', insumosBaseSchema, get().setInsumosBase],
+      ['reglasFactores', reglaFactorSchema, get().setReglasFactores],
+      ['normativasDepartamentales', normativaDepartamentalSchema, get().setNormativasDepartamentales],
+      ['escalasProduccion', escalaProduccionSchema, get().setEscalasProduccion],
+      ['estacionalidad', estacionalidadSchema, get().setEstacionalidad],
+      ['historialReglas', historialAplicacionReglaSchema, (v) => get().setHistorialReglas?.(v as never[])],
+      ['proyectoWeather', proyectoWeatherSchema, get().setProyectoWeather],
+      ['errorLogs', errorLogSchema, get().setErrorLogs],
+      ['notificaciones', notificacionSchema, get().setNotificaciones],
+      ['auditLog', auditLogSchema, get().setAuditLog],
+      ['projectProfitabilities', projectProfitabilitySchema, (v) => get().setProjectProfitabilities?.(v as never[])],
+      ['clientProfitabilities', clientProfitabilitySchema, (v) => get().setClientProfitabilities?.(v as never[])],
+      ['resourceEfficiencies', resourceEfficiencySchema, (v) => get().setResourceEfficiencies?.(v as never[])],
+      ['profitabilityTrends', profitabilityTrendSchema, (v) => get().setProfitabilityTrends?.(v as never[])],
+    ];
+
+    for (const [key, schema, setter] of schemas) {
+      const raw = data[key];
+      if (!Array.isArray(raw)) continue;
+      const result = z.array(schema).safeParse(raw);
+      if (result.success) setter(result.data);
+      else safeLogger.warn(`[Backup] ${key}: ${result.error.issues.length} validation errors, skipped`);
+    }
+
+    if (data.appSettings) {
+      const r = appSettingsSchema.safeParse(data.appSettings);
+      if (r.success) get().setAppSettings(r.data);
+    }
   },
 
   addMovimiento: (m) => {

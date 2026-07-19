@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
@@ -11,7 +11,6 @@ import { Plus, X, Send, FileText, Trash2, Pencil, Copy, CheckCircle2, Clock, Cal
 import { toast } from 'sonner';
 import { z } from 'zod';
 import type { CotizacionCliente, CotizacionTipo } from '../types';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const cotizacionFormSchema = z.object({
   proyectoId: z.string().optional().default(''),
@@ -54,8 +53,6 @@ const ESTADOS_COTIZACION = [
 const Cotizaciones: React.FC = () => {
   const { t } = useTranslation();
   const { proyectos, cotizacionesNegocio: cotizaciones, addCotizacion, updateCotizacion, deleteCotizacion, user } = useErp();
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { setLoading(false); }, []);
   const [showForm, setShowForm] = useState(false);
   const [showCalculadora, setShowCalculadora] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -203,20 +200,6 @@ const Cotizaciones: React.FC = () => {
     navigator.clipboard.writeText(text);
     toast.success(t('cotizaciones.copiado'));
   };
-
-  if (loading) {
-    return (
-    <div className="p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-        </div>
-        <Skeleton className="h-64 rounded-xl" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">

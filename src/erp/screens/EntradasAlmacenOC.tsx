@@ -1,5 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
@@ -14,14 +13,11 @@ const PAGE_SIZE = 10;
 const EntradasAlmacenOC: React.FC = () => {
   const { t } = useTranslation();
   const { ordenes, recepciones, addRecepcion, currentProjectId } = useErp();
-  const [loading, setLoading] = useState(true);
   const [ocFilter, setOcFilter] = useState<'todas' | 'pendientes' | 'aprobadas'>('todas');
   const [showForm, setShowForm] = useState<string | null>(null);
   const [formCantidad, setFormCantidad] = useState(0);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [historialPage, setHistorialPage] = useState(1);
-
-  useEffect(() => { setLoading(false); }, []);
 
   const ocFiltradas = useMemo(() => {
     return (ordenes || []).filter(o => {
@@ -44,7 +40,7 @@ const EntradasAlmacenOC: React.FC = () => {
 
   const historialRecepciones = useMemo(() => {
     const items = (recepciones || [])
-      .filter(r => ordenes.some(o => o.id === r.ordenId))
+      .filter(r => (ordenes || []).some(o => o.id === r.ordenId))
       .map(r => {
         const oc = ordenes.find(o => o.id === r.ordenId);
         return {
@@ -94,8 +90,6 @@ const EntradasAlmacenOC: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4"><Skeleton className="h-8 w-72" /><div className="grid grid-cols-1 md:grid-cols-2 gap-4"><Skeleton className="h-32 rounded-xl" /><Skeleton className="h-32 rounded-xl" /></div><Skeleton className="h-64 rounded-2xl" /></div>;
-
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex justify-between items-center mb-6">
@@ -129,7 +123,7 @@ const EntradasAlmacenOC: React.FC = () => {
           </tr></thead>
           <tbody>
             {ocFiltradas.map(oc => {
-              const ocRecs = recsPorOC.get(oc.id);
+              const ocRecs = recsPorOC[oc.id];
               const totalRecibido = ocRecs?.totalRecibido || 0;
               const saldo = oc.cantidad - totalRecibido;
               const completada = saldo <= 0;

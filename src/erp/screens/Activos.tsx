@@ -1,5 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Search, Wrench, Edit2, Trash2 } from 'lucide-react';
@@ -18,9 +17,6 @@ const Activos: React.FC = () => {
   const [estado, setEstado] = useState<string>('todos');
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => { setLoading(false); }, []);
   const empty = { nombre: '', codigo: '', tipo: 'herramienta' as typeof TIPOS[number], estado: 'disponible' as typeof ESTADOS[number], valor: 0, proyectoId: '' };
 
   const [form, setForm] = useState(empty);
@@ -70,8 +66,7 @@ const Activos: React.FC = () => {
     toast.success(t('activos.eliminar_exito'));
   };
 
-  if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-48" /><Skeleton className="h-64 w-full" /></div>;
-
+  
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">

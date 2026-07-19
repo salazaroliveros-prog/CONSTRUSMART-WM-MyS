@@ -1,5 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { BarChart3, FileText } from 'lucide-react';
@@ -14,9 +13,6 @@ export const Impuestos: React.FC = () => {
   const { movimientos, proyectos } = useErp();
 
   const [proyectoFilter, setProyectoFilter] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => { setLoading(false); }, []);
   const [mesFilter, setMesFilter] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -90,20 +86,6 @@ export const Impuestos: React.FC = () => {
     };
   }, [movimientosFiltrados]);
 
-
-  if (loading) {
-    return (
-      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-        </div>
-        <Skeleton className="h-64 rounded-xl" />
-      </div>
-    );
-  }
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex justify-between items-center mb-6">
