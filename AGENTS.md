@@ -48,7 +48,7 @@
 - Schemas duplicados prohibidos — mantener solo `eventoSchema` y `bitacoraSchema`
 - El `CuadroComparativo` almacena referencias ligeras (`proveedorId + montoTotal`); la resolución a datos CRM completos se hace por join en render con `cotizacionesNegocio`
 
-## Tests (879 tests, 26 files)
+## Tests (879+ tests, 29 files)
 - `src/__tests__/erp-store-operations-full.test.tsx`: 254 tests
 - `src/__tests__/erp-estilos-ui.test.tsx`: 72 tests
 - `src/__tests__/erp-validacion-funcional.test.tsx`: 57 tests
@@ -57,6 +57,9 @@
 - `src/__tests__/accessibility.test.tsx`: 21 tests
 - `src/__tests__/ErrorLog.test.tsx`: 18 tests
 - `src/__tests__/filtro-proyecto.test.tsx`: 5 tests
+- `src/__tests__/profitability-analytics.test.tsx`: 25 tests (NUEVO - Fase 1 completada)
+- `src/__tests__/proveedor-analytics.test.tsx`: 28 tests (NUEVO - Fase 1 completada)
+- `src/__tests__/weather.test.tsx`: 30 tests (NUEVO - Fase 1 completada)
 - `src/lib/__tests__/auto-repair.test.ts`: 27 tests
 - `src/erp/__tests__/financiero.test.ts`: 35 tests
 - `src/erp/__tests__/utils.test.ts`: 21 tests

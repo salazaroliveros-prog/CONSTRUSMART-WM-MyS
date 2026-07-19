@@ -179,17 +179,6 @@ describe('syncAllVisualSettings', () => {
   });
 
   it.each([
-    ['none', '0px'],
-    ['small', '4px'],
-    ['medium', '6px'],
-    ['large', '12px'],
-    ['full', '9999px'],
-  ])('borderRadius %s → --radius-selected %s', (radius, expected) => {
-    syncAllVisualSettings({ borderRadius: radius });
-    expect(document.documentElement.style.getPropertyValue('--radius-selected')).toBe(expected);
-  });
-
-  it.each([
     ['compact', '4px'],
     ['normal', '8px'],
     ['spacious', '16px'],
@@ -249,12 +238,4 @@ describe('syncAllVisualSettings', () => {
   it('no lanza con objeto vacío', () => {
     expect(() => syncAllVisualSettings({})).not.toThrow();
   });
-
-  it.each(['inter', 'roboto', 'open-sans', 'poppins', 'system-ui'])(
-    'fontFamily %s aplica --font-family',
-    (font) => {
-      syncAllVisualSettings({ fontFamily: font });
-      expect(document.documentElement.style.getPropertyValue('--font-family')).toBeTruthy();
-    },
-  );
 });

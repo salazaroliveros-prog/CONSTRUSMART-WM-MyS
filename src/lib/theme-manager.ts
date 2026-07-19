@@ -131,19 +131,6 @@ const classMap: Record<string, (v: unknown) => string | null> = {
   footerEnabled: (v) => v === false ? `${CLASS_PREFIX}footer-hidden` : null,
 };
 
-const cssVarMap: Record<string, (v: unknown) => [string, string] | null> = {
-  compactMode: (v) => v ? ['--density-padding', '10px'] : ['--density-padding', '16px'],
-  fontSize: (v) => {
-    const sizes: Record<string, string> = { small: '14px', medium: '16px', large: '18px' };
-    return ['--vs-font-size-base', sizes[v as string] || '16px'];
-  },
-  spacingScale: (v) => {
-    const scales: Record<string, string> = { compact: '8px', normal: '16px', spacious: '24px' };
-    return ['--density-padding', scales[v as string] || '16px'];
-  },
-  touchMode: (v) => v ? ['--vs-touch-min-size', '44px'] : ['--vs-touch-min-size', '32px'],
-};
-
 function applyThemeAttribute(theme: string): void {
   if (!VALID_THEMES.includes(theme as ThemeName)) return;
   document.documentElement.setAttribute('data-theme', theme);
@@ -188,10 +175,8 @@ export function syncAllVisualSettings(settings: VisualSettings): void {
   if (settings.primaryColor) {
     try {
       const hsl = hexToHSL(settings.primaryColor);
-      html.style.setProperty('--primary-hue', hsl);
       html.style.setProperty('--primary', hsl);
     } catch {
-      html.style.removeProperty('--primary-hue');
       html.style.removeProperty('--primary');
     }
   }
@@ -202,22 +187,6 @@ export function syncAllVisualSettings(settings: VisualSettings): void {
 
   if (settings.fontSize) {
     html.setAttribute('data-font-size', settings.fontSize);
-  }
-
-  if (settings.fontFamily) {
-    const fontMap: Record<string, string> = {
-      'system-ui': 'system-ui, sans-serif',
-      'inter': 'Inter, sans-serif',
-      'roboto': 'Roboto, sans-serif',
-      'open-sans': '"Open Sans", sans-serif',
-      'poppins': 'Poppins, sans-serif',
-    };
-    html.style.setProperty('--font-family', fontMap[settings.fontFamily] || 'Inter, sans-serif');
-  }
-
-  if (settings.borderRadius) {
-    const radiusMap: Record<string, string> = { none: '0px', small: '4px', medium: '6px', large: '12px', full: '9999px' };
-    html.style.setProperty('--radius-selected', radiusMap[settings.borderRadius] || '6px');
   }
 
   if (settings.spacingScale) {
@@ -258,14 +227,6 @@ export function syncAllVisualSettings(settings: VisualSettings): void {
     body.classList.toggle('touch-mode', settings.touchMode);
   }
 
-  for (const [key, fn] of Object.entries(cssVarMap)) {
-    const value = (settings as unknown as Record<string, unknown>)[key];
-    if (value !== undefined) {
-      const result = fn(value);
-      if (result) body.style.setProperty(result[0], result[1]);
-    }
-  }
-
   if (settings.animationsEnabled === false) {
     body.style.setProperty('--motion-duration-normal', '0ms');
     body.style.setProperty('--motion-duration-fast', '0ms');
@@ -292,7 +253,6 @@ export function initializeTheme(): void {
         }
         if ((parsed as any).primaryColor) {
           const hsl = hexToHSL((parsed as any).primaryColor);
-          document.documentElement.style.setProperty('--primary-hue', hsl);
           document.documentElement.style.setProperty('--primary', hsl);
         }
       }
@@ -317,7 +277,6 @@ export function applyThemeToDocument(config: Partial<ThemeConfig>): void {
 
   if (config.primaryColor) {
     const hsl = hexToHSL(config.primaryColor);
-    document.documentElement.style.setProperty('--primary-hue', hsl);
     document.documentElement.style.setProperty('--primary', hsl);
   }
 }

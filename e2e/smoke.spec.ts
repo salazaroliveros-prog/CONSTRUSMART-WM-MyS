@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const VIEWS = [
+const ALL_SCREEN_KEYS = [
   'dashboard', 'proyectos', 'presupuestos', 'seguimiento', 'financiero',
   'rrhh', 'bodega', 'crm', 'apu', 'baseprecios', 'muro', 'ordenes-cambio',
   'notificaciones', 'sso-calidad', 'documentos', 'visor-bim', 'predictivo',
@@ -19,7 +19,7 @@ test.describe('Smoke tests — screen loading', () => {
     await expect(page.locator('role=main')).toBeVisible({ timeout: 15000 });
   });
 
-  for (const view of VIEWS) {
+  for (const view of ALL_SCREEN_KEYS) {
     test(`${view} renders without error`, async ({ page }) => {
       const errors: string[] = [];
       page.on('pageerror', err => errors.push(err.message));

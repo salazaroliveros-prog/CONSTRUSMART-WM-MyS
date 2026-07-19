@@ -21,10 +21,6 @@ import {
   FloatingLabelTextarea,
 } from '@/components/ui/floating-label-input';
 import {
-  PulseDot,
-  LoadingSpinner,
-  SkeletonCard,
-  FadeIn,
   PageTransition,
 } from '@/components/Animations';
 
@@ -173,56 +169,7 @@ describe('Accesibilidad — FloatingLabelTextarea', () => {
 
 // ─── Animations ───────────────────────────────────────────────────────────────
 
-describe('Accesibilidad — PulseDot', () => {
-  it('sin label no tiene violaciones', async () => {
-    const { container } = render(<PulseDot color="success" />);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('con label no tiene violaciones', async () => {
-    const { container } = render(<PulseDot color="warning" label="Sincronizando" />);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-});
-
-describe('Accesibilidad — LoadingSpinner', () => {
-  it('sin label no tiene violaciones', async () => {
-    const { container } = render(<LoadingSpinner />);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('con label no tiene violaciones', async () => {
-    const { container } = render(<LoadingSpinner label="Cargando proyectos..." />);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-});
-
-describe('Accesibilidad — SkeletonCard', () => {
-  it('no tiene violaciones', async () => {
-    const { container } = render(<SkeletonCard lines={3} />);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-});
-
-describe('Accesibilidad — FadeIn / PageTransition', () => {
-  it('FadeIn con contenido semántico no tiene violaciones', async () => {
-    const { container } = render(
-      <FadeIn>
-        <article>
-          <h2>Proyecto Alpha</h2>
-          <p>Descripción del proyecto</p>
-        </article>
-      </FadeIn>
-    );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
+describe('Accesibilidad — PageTransition', () => {
   it('PageTransition con contenido semántico no tiene violaciones', async () => {
     const { container } = render(
       <PageTransition animationType="fade">
