@@ -103,14 +103,14 @@ export const PlanillaDestajos: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
         <div>
-          <h1 className="text-xl font-bold text-foreground"><ClipboardList className="w-5 h-5 inline" aria-hidden="true" /> Planilla de Destajos — Pago Semanal</h1>
+          <h1 className="text-xl font-bold text-foreground"><ClipboardList className="w-5 h-5 inline" aria-hidden="true" /> {t('planilla.titulo')} — {t('planilla_destajos.pago_semanal')}</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             {semanaInicio.toLocaleDateString()} — {semanaFin.toLocaleDateString()}
           </p>
         </div>
         <button onClick={() => { setShowForm(true); setFormErrors({}); }}
           className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium">
-          + Nuevo Destajo
+          + {t('planilla_destajos.nuevo_destajo')}
         </button>
       </div>
 
@@ -123,19 +123,19 @@ export const PlanillaDestajos: React.FC = () => {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <div className="p-3 bg-info/10 rounded-lg text-center">
-          <p className="text-xs text-info font-medium">Cuadrillas</p>
+          <p className="text-xs text-info font-medium">{t('planilla_destajos.cuadrillas')}</p>
           <p className="text-xl font-bold text-info">{planilla.length}</p>
         </div>
         <div className="p-3 bg-success/10 rounded-lg text-center">
-          <p className="text-xs text-success font-medium">Destajos</p>
+          <p className="text-xs text-success font-medium">{t('planilla_destajos.destajos')}</p>
           <p className="text-xl font-bold text-success">{destajosSemana.length}</p>
         </div>
         <div className="p-3 bg-primary/10 rounded-lg text-center">
-          <p className="text-xs text-primary font-medium">Total a Pagar</p>
+          <p className="text-xs text-primary font-medium">{t('planilla_destajos.total_a_pagar')}</p>
           <p className="text-xl font-bold text-primary">Q{totalPagar.toFixed(2)}</p>
         </div>
         <div className="p-3 bg-muted rounded-lg text-center">
-          <p className="text-xs text-muted-foreground font-medium">Promedio/Cuadrilla</p>
+          <p className="text-xs text-muted-foreground font-medium">{t('planilla_destajos.promedio_cuadrilla')}</p>
           <p className="text-xl font-bold text-foreground">Q{planilla.length > 0 ? (totalPagar / planilla.length).toFixed(2) : '0.00'}</p>
         </div>
       </div>
@@ -145,12 +145,12 @@ export const PlanillaDestajos: React.FC = () => {
         <table role="table" className="w-full text-sm">
           <thead>
             <tr className="bg-muted">
-              <th scope="col" className="p-2 text-left">Cuadrilla</th>
-              <th scope="col" className="p-2 text-right">Total Ejecutado</th>
-              <th scope="col" className="p-2 text-left">Unidad</th>
-              <th scope="col" className="p-2 text-right">Días</th>
-              <th scope="col" className="p-2 text-right">Tasa (Q/unidad)</th>
-              <th scope="col" className="p-2 text-right">Pago Semanal</th>
+              <th scope="col" className="p-2 text-left">{t('planilla_destajos.cuadrilla')}</th>
+              <th scope="col" className="p-2 text-right">{t('planilla_destajos.total_ejecutado')}</th>
+              <th scope="col" className="p-2 text-left">{t('planilla_destajos.unidad')}</th>
+              <th scope="col" className="p-2 text-right">{t('planilla_destajos.dias')}</th>
+              <th scope="col" className="p-2 text-right">{t('planilla_destajos.tasa')}</th>
+              <th scope="col" className="p-2 text-right">{t('planilla_destajos.pago_semanal')}</th>
             </tr>
           </thead>
           <tbody>
@@ -177,7 +177,7 @@ export const PlanillaDestajos: React.FC = () => {
           {planilla.length > 0 && (
             <tfoot>
               <tr className="border-t-2 border-border bg-muted font-bold">
-                <td className="p-2 text-foreground" colSpan={4}>TOTALES</td>
+                <td className="p-2 text-foreground" colSpan={4}>{t('planilla_destajos.totales')}</td>
                 <td className="p-2 text-right text-muted-foreground">—</td>
                 <td className="p-2 text-right text-success">Q{totalPagar.toFixed(2)}</td>
               </tr>
@@ -189,17 +189,17 @@ export const PlanillaDestajos: React.FC = () => {
       {/* Detalle de Destajos Individuales */}
       {destajosSemana.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-sm font-semibold text-foreground mb-3"><ClipboardList className="w-4 h-4 inline" aria-hidden="true" /> Detalle de Destajos Individuales</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-3"><ClipboardList className="w-4 h-4 inline" aria-hidden="true" /> {t('planilla_destajos.detalle_individual')}</h2>
           <div className="overflow-x-auto">
             <table role="table" className="w-full text-sm">
               <thead>
                 <tr className="bg-muted">
-                  <th scope="col" className="p-2 text-left">Cuadrilla</th>
-                  <th scope="col" className="p-2 text-left">Renglón</th>
-                  <th scope="col" className="p-2 text-left">Proyecto</th>
-                  <th scope="col" className="p-2 text-right">Cantidad</th>
-                  <th scope="col" className="p-2 text-right">Unidad</th>
-                  <th scope="col" className="p-2 text-center">Acción</th>
+                  <th scope="col" className="p-2 text-left">{t('planilla_destajos.cuadrilla')}</th>
+                  <th scope="col" className="p-2 text-left">{t('planilla_destajos.renglon')}</th>
+                  <th scope="col" className="p-2 text-left">{t('planilla_destajos.proyecto')}</th>
+                  <th scope="col" className="p-2 text-right">{t('planilla_destajos.cantidad')}</th>
+                  <th scope="col" className="p-2 text-right">{t('planilla_destajos.unidad')}</th>
+                  <th scope="col" className="p-2 text-center">{t('planilla_destajos.accion')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -228,9 +228,9 @@ export const PlanillaDestajos: React.FC = () => {
                           }
                         }}
                         className="text-destructive hover:text-destructive/80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-2 py-1"
-                        aria-label={`Eliminar destajo de ${d.cuadrilla}`}
+                        aria-label={t('planilla_destajos.eliminar_destajo_aria', { cuadrilla: d.cuadrilla })}
                       >
-                        Eliminar
+                        {t('planilla_destajos.eliminar')}
                       </button>
                     </td>
                   </tr>
@@ -257,7 +257,7 @@ export const PlanillaDestajos: React.FC = () => {
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             downloadBlob(blob, `planilla_destajos_${semanaFilter}.csv`);
           }} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium">
-            <Download className="w-4 h-4" aria-hidden="true" /> Exportar CSV
+            <Download className="w-4 h-4" aria-hidden="true" /> {t('planilla_destajos.exportar_csv')}
           </button>
         </div>
       )}
@@ -266,55 +266,63 @@ export const PlanillaDestajos: React.FC = () => {
       {showForm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-card rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <h3 className="font-bold mb-4">Nuevo Destajo</h3>
+            <h3 className="font-bold mb-4">{t('planilla_destajos.nuevo_destajo')}</h3>
             <div className="grid gap-3">
               <div>
-                <select value={formData.proyectoId} onChange={e => { setFormData(p => ({ ...p, proyectoId: e.target.value })); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }} className={INPUT}>
-                  <option value="">Seleccionar proyecto</option>
+                <label htmlFor="destajo-proyecto" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.proyecto', 'Proyecto')}</label>
+                <select id="destajo-proyecto" value={formData.proyectoId} onChange={e => { setFormData(p => ({ ...p, proyectoId: e.target.value })); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }} className={INPUT}>
+                  <option value="">{t('planilla_destajos.seleccionar_proyecto')}</option>
                   {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
                 {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
               </div>
               <div>
-                <input placeholder="Renglón código" value={formData.renglonCodigo} onChange={e => { setFormData(p => ({ ...p, renglonCodigo: e.target.value })); setFormErrors(prev => ({ ...prev, renglonCodigo: '' })); }} className={INPUT} />
+                <label htmlFor="destajo-renglon" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.renglon', 'Renglón código')}</label>
+                <input id="destajo-renglon" placeholder={t('planilla_destajos.renglon_codigo_ph')} value={formData.renglonCodigo} onChange={e => { setFormData(p => ({ ...p, renglonCodigo: e.target.value })); setFormErrors(prev => ({ ...prev, renglonCodigo: '' })); }} className={INPUT} />
                 {formErrors.renglonCodigo && <p className="text-xs text-red-500 mt-0.5">{formErrors.renglonCodigo}</p>}
               </div>
               <div>
-                <input placeholder="Cuadrilla" value={formData.cuadrilla} onChange={e => { setFormData(p => ({ ...p, cuadrilla: e.target.value })); setFormErrors(prev => ({ ...prev, cuadrilla: '' })); }} className={INPUT} />
+                <label htmlFor="destajo-cuadrilla" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.cuadrilla', 'Cuadrilla')}</label>
+                <input id="destajo-cuadrilla" placeholder={t('planilla_destajos.cuadrilla_ph')} value={formData.cuadrilla} onChange={e => { setFormData(p => ({ ...p, cuadrilla: e.target.value })); setFormErrors(prev => ({ ...prev, cuadrilla: '' })); }} className={INPUT} />
                 {formErrors.cuadrilla && <p className="text-xs text-red-500 mt-0.5">{formErrors.cuadrilla}</p>}
               </div>
               <div>
-                <input type="date" value={formData.fecha} onChange={e => { setFormData(p => ({ ...p, fecha: e.target.value })); setFormErrors(prev => ({ ...prev, fecha: '' })); }} className={INPUT} />
+                <label htmlFor="destajo-fecha" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.fecha', 'Fecha')}</label>
+                <input id="destajo-fecha" type="date" value={formData.fecha} onChange={e => { setFormData(p => ({ ...p, fecha: e.target.value })); setFormErrors(prev => ({ ...prev, fecha: '' })); }} className={INPUT} />
                 {formErrors.fecha && <p className="text-xs text-red-500 mt-0.5">{formErrors.fecha}</p>}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <input type="number" inputMode="decimal" placeholder="Cant. ejecutada" value={formData.cantidadEjecutada || ''} onChange={e => { setFormData(p => ({ ...p, cantidadEjecutada: +e.target.value })); setFormErrors(prev => ({ ...prev, cantidadEjecutada: '' })); }} className={INPUT} />
+                  <label htmlFor="destajo-cantidad" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.cantidad', 'Cant. ejecutada')}</label>
+                  <input id="destajo-cantidad" type="number" inputMode="decimal" placeholder={t('planilla_destajos.cantidad_ejecutada_ph')} value={formData.cantidadEjecutada || ''} onChange={e => { setFormData(p => ({ ...p, cantidadEjecutada: +e.target.value })); setFormErrors(prev => ({ ...prev, cantidadEjecutada: '' })); }} className={INPUT} />
                   {formErrors.cantidadEjecutada && <p className="text-xs text-red-500 mt-0.5">{formErrors.cantidadEjecutada}</p>}
                 </div>
                 <div>
-                  <input placeholder="Unidad" value={formData.unidad} onChange={e => { setFormData(p => ({ ...p, unidad: e.target.value })); setFormErrors(prev => ({ ...prev, unidad: '' })); }} className={INPUT} />
+                  <label htmlFor="destajo-unidad" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.unidad', 'Unidad')}</label>
+                  <input id="destajo-unidad" placeholder={t('planilla_destajos.unidad_ph')} value={formData.unidad} onChange={e => { setFormData(p => ({ ...p, unidad: e.target.value })); setFormErrors(prev => ({ ...prev, unidad: '' })); }} className={INPUT} />
                   {formErrors.unidad && <p className="text-xs text-red-500 mt-0.5">{formErrors.unidad}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <input type="number" inputMode="decimal" placeholder="Horas trabajadas" value={formData.horasTrabajadas || ''} onChange={e => { setFormData(p => ({ ...p, horasTrabajadas: +e.target.value })); setFormErrors(prev => ({ ...prev, horasTrabajadas: '' })); }} className={INPUT} />
+                  <label htmlFor="destajo-horas" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.horas', 'Horas trabajadas')}</label>
+                  <input id="destajo-horas" type="number" inputMode="decimal" placeholder={t('planilla_destajos.horas_trabajadas_ph')} value={formData.horasTrabajadas || ''} onChange={e => { setFormData(p => ({ ...p, horasTrabajadas: +e.target.value })); setFormErrors(prev => ({ ...prev, horasTrabajadas: '' })); }} className={INPUT} />
                   {formErrors.horasTrabajadas && <p className="text-xs text-red-500 mt-0.5">{formErrors.horasTrabajadas}</p>}
                 </div>
                 <div>
-                  <input type="number" inputMode="decimal" placeholder="Rend. teórico" value={formData.rendimientoTeorico || ''} onChange={e => { setFormData(p => ({ ...p, rendimientoTeorico: +e.target.value })); setFormErrors(prev => ({ ...prev, rendimientoTeorico: '' })); }} className={INPUT} />
+                  <label htmlFor="destajo-rendimiento" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.rendimiento', 'Rend. teórico')}</label>
+                  <input id="destajo-rendimiento" type="number" inputMode="decimal" placeholder={t('planilla_destajos.rendimiento_teorico_ph')} value={formData.rendimientoTeorico || ''} onChange={e => { setFormData(p => ({ ...p, rendimientoTeorico: +e.target.value })); setFormErrors(prev => ({ ...prev, rendimientoTeorico: '' })); }} className={INPUT} />
                   {formErrors.rendimientoTeorico && <p className="text-xs text-red-500 mt-0.5">{formErrors.rendimientoTeorico}</p>}
                 </div>
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSubmitForm}
                   className="flex-1 bg-green-600 text-white py-2 rounded text-sm hover:bg-green-700">
-                  <CheckCircle className="w-4 h-4" aria-hidden="true" /> Guardar Destajo
+                  <CheckCircle className="w-4 h-4" aria-hidden="true" /> {t('planilla_destajos.guardar_destajo')}
                 </button>
                 <button onClick={() => setShowForm(false)}
-                  className="px-4 py-2 border rounded text-sm hover:bg-gray-50">
-                  Cancelar
+                  className="px-4 py-2 border rounded text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  {t('planilla_destajos.cancelar')}
                 </button>
               </div>
             </div>

@@ -36,7 +36,7 @@ export const Impuestos: React.FC = () => {
   const shouldVirtualize = movimientosFiltrados.length > 50;
 
   const renderRow = useCallback((m: typeof movimientos[0], _index: number) => (
-    <tr key={m.id} className="border-t hover:bg-gray-50">
+    <tr key={m.id} className="border-t hover:bg-gray-50 dark:hover:bg-gray-800/50">
       <td className="p-2 text-xs">{new Date(m.fecha).toLocaleDateString()}</td>
       <td className="p-2 text-xs truncate" title={m.descripcion}>{m.descripcion}</td>
       <td className="p-2">
@@ -45,7 +45,7 @@ export const Impuestos: React.FC = () => {
         }`}>{m.tipo}</span>
       </td>
       <td className="p-2 text-right font-mono text-xs">{fmtQ(m.monto ?? m.costoTotal ?? 0)}</td>
-      <td className="p-2 text-xs text-gray-500 truncate">{CATEGORIA_LABEL[m.categoria as keyof typeof CATEGORIA_LABEL] ?? m.categoria}</td>
+      <td className="p-2 text-xs text-gray-500 dark:text-gray-400 truncate">{CATEGORIA_LABEL[m.categoria as keyof typeof CATEGORIA_LABEL] ?? m.categoria}</td>
     </tr>
   ), []);
 
@@ -90,7 +90,7 @@ export const Impuestos: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-lg sm:text-xl font-bold flex items-center gap-2"><BarChart3 className="w-5 h-5" /> {t('impuestos.titulo')}</h1>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-500 dark:text-gray-400">
           {t('impuestos.subtitulo')}
         </div>
       </div>
@@ -131,13 +131,13 @@ export const Impuestos: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-xs text-yellow-600 font-medium">{t('impuestos.isr')}</p>
-                  <p className="text-xs text-gray-400">{t('impuestos.isr_desc')}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-300">{t('impuestos.isr_desc')}</p>
                 </div>
                    <p className="text-lg font-bold text-yellow-700">
                    {fmtQ(calculos.isr)}
                  </p>
               </div>
-              <div className="mt-1 flex justify-between text-xs text-gray-400">
+              <div className="mt-1 flex justify-between text-xs text-gray-400 dark:text-gray-300">
                  <span>{t('impuestos.tasa_efectiva')}: {calculos.tasaEfectiva.toFixed(1)}%</span>
                  <span>{t('impuestos.base')}: {fmtQ(Math.max(0, calculos.utilidadBruta))}</span>
               </div>
@@ -147,13 +147,13 @@ export const Impuestos: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-xs text-orange-600 font-medium">{t('impuestos.iva_pagar')}</p>
-                  <p className="text-xs text-gray-400">{t('impuestos.iva_desc')}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-300">{t('impuestos.iva_desc')}</p>
                 </div>
                  <p className="text-lg font-bold text-orange-700">
                    {fmtQ(calculos.ivaPagar)}
                  </p>
                </div>
-               <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400">
+               <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400 dark:text-gray-300">
                  <span>{t('impuestos.iva_debito')}: {fmtQ(calculos.ivaSobreIngresos)}</span>
                  <span>{t('impuestos.iva_credito')}: {fmtQ(calculos.ivaAcreditable)}</span>
               </div>
@@ -168,7 +168,7 @@ export const Impuestos: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-sm">
           <div>
             <h4 className="font-medium mb-2">{t('impuestos.calculo_isr')}</h4>
-            <div className="space-y-1 text-gray-600">
+            <div className="space-y-1 text-gray-600 dark:text-gray-300">
                <p>{t('impuestos.ingresos_gravables')}: {fmtQ(calculos.ingresos)}</p>
                <p>{t('impuestos.egresos_deducibles')}: {fmtQ(calculos.egresos)}</p>
                <p className="border-t pt-1 font-semibold">{t('impuestos.renta_imponible')}: {fmtQ(Math.max(0, calculos.utilidadBruta))}</p>
@@ -177,7 +177,7 @@ export const Impuestos: React.FC = () => {
           </div>
           <div>
             <h4 className="font-medium mb-2">{t('impuestos.calculo_iva')}</h4>
-            <div className="space-y-1 text-gray-600">
+            <div className="space-y-1 text-gray-600 dark:text-gray-300">
                <p>{t('impuestos.ingresos_base')}: {fmtQ(calculos.ingresos)}</p>
                <p>{t('impuestos.iva_debito_12')}: {fmtQ(calculos.ivaSobreIngresos)}</p>
                <p>{t('impuestos.iva_credito_12')}: {fmtQ(calculos.ivaAcreditable)}</p>
@@ -194,13 +194,13 @@ export const Impuestos: React.FC = () => {
         </h3>
         {movimientosFiltrados.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground">
-            <FileText className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+            <FileText className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-500" />
             <p className="text-sm">{t('impuestos.sin_movimientos_periodo')}</p>
           </div>
         ) : (
         <div className="overflow-x-auto max-h-60 overflow-y-auto">
           <table role="table" className="w-full text-sm">
-            <thead className="sticky top-0 bg-gray-50">
+            <thead className="sticky top-0 bg-gray-50 dark:bg-gray-800/50">
               <tr>
                 <th scope="col" className="p-2 text-left text-xs">{t('common.fecha')}</th>
                 <th scope="col" className="p-2 text-left text-xs">{t('common.descripcion')}</th>

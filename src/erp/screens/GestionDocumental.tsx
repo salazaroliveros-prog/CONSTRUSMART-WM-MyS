@@ -647,7 +647,7 @@ const GestionDocumental: React.FC = () => {
           <div className="space-y-2">
             {submittalsFiltrados.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <Package className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+                <Package className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-500" />
                 <p className="text-sm">{t('gestion_documental.sin_submittals', 'Sin submittals registrados')}</p>
               </div>
             ) : (

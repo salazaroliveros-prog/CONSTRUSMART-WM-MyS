@@ -336,7 +336,7 @@ const SSOCalidad: React.FC = () => {
           <div className="space-y-2">
             {incidentesFiltrados.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <Shield className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+                <Shield className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-500" />
                 <p className="text-sm">{t('sso_calidad.sin_incidentes', 'Sin incidentes registrados')}</p>
               </div>
             ) : (
@@ -430,7 +430,7 @@ const SSOCalidad: React.FC = () => {
           </h2>
           {proyectos.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <Activity className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+              <Activity className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-500" />
               <p className="text-sm">{t('sso_calidad.sin_datos_estadisticas', 'Sin datos de estadísticas')}</p>
             </div>
           ) : (
@@ -590,7 +590,7 @@ const SSOCalidad: React.FC = () => {
           <div className="space-y-2">
             {pruebasFiltradas.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <FlaskConical className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+                <FlaskConical className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-500" />
                 <p className="text-sm">{t('sso_calidad.sin_pruebas', 'Sin pruebas registradas')}</p>
               </div>
             ) : (
@@ -684,7 +684,7 @@ const SSOCalidad: React.FC = () => {
           <div className="space-y-2">
             {ncsFiltrados.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <XCircle className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+                <XCircle className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-500" />
                 <p className="text-sm">{t('sso_calidad.sin_nc', 'Sin no conformidades')}</p>
               </div>
             ) : (
@@ -778,7 +778,7 @@ const SSOCalidad: React.FC = () => {
           <div className="space-y-2">
             {liberacionesFiltradas.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <Layers className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+                <Layers className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-500" />
                 <p className="text-sm">{t('sso_calidad.sin_liberaciones', 'Sin solicitudes de liberación')}</p>
               </div>
             ) : (

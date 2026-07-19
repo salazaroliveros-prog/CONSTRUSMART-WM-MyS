@@ -18,7 +18,7 @@ const TIPOS: Record<TipoPublicacion, { label: string; color: string }> = {
   avance: { label: 'Avance', color: 'text-blue-600' },
   calidad: { label: 'Calidad', color: 'text-emerald-600' },
   seguridad: { label: 'Seguridad', color: 'text-red-600' },
-  general: { label: 'General', color: 'text-slate-500' },
+  general: { label: 'General', color: 'text-slate-500 dark:text-slate-400' },
 };
 
 const MuroObra: React.FC = () => {
@@ -91,7 +91,8 @@ const MuroObra: React.FC = () => {
             </button>
           ))}
         </div>
-        <textarea value={nuevoTexto} onChange={e => { setNuevoTexto(e.target.value); setErrores(prev => ({ ...prev, texto: '' })); }} placeholder={t('muro.placeholder', '¿Qué hay de nuevo en la obra?')} rows={2} className={`${INPUT} resize-none mb-2`} />
+        <label htmlFor="muro-texto" className="text-xs text-muted-foreground mb-1 block">{t('muro.publicar', 'Nueva publicación')}</label>
+        <textarea id="muro-texto" value={nuevoTexto} onChange={e => { setNuevoTexto(e.target.value); setErrores(prev => ({ ...prev, texto: '' })); }} placeholder={t('muro.placeholder', '¿Qué hay de nuevo en la obra?')} rows={2} className={`${INPUT} resize-none mb-2`} />
         {errores.texto && <p className="text-xs text-red-500 mb-2">{errores.texto}</p>}
         <div className="flex justify-end gap-2">
           <button onClick={() => { setNuevoTexto(''); setErrores({}); }} className={`${BUTTON_SECONDARY} text-xs`}>{t('common.cancelar', 'Cancelar')}</button>

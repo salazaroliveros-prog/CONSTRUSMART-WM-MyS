@@ -25,6 +25,7 @@ const CuentasPagar: React.FC = () => {
   const [formFechaVencimiento, setFormFechaVencimiento] = useState('');
   const [formEstado, setFormEstado] = useState('pendiente');
   const [formFacturaUrl, setFormFacturaUrl] = useState('');
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 300);
@@ -53,16 +54,13 @@ const CuentasPagar: React.FC = () => {
   }, [filtered]);
 
   const handleSave = () => {
-    if (!formProyectoId) {
-      toast.error(t('cuentas_pagar.proyecto_requerido', 'Proyecto requerido'));
-      return;
-    }
-    if (!formProveedor.trim()) {
-      toast.error(t('cuentas_pagar.proveedor_requerido', 'Proveedor requerido'));
-      return;
-    }
-    if (!formConcepto.trim()) {
-      toast.error(t('cuentas_pagar.concepto_requerido', 'Concepto requerido'));
+    const errors: Record<string, string> = {};
+    if (!formProyectoId) errors.proyectoId = t('cuentas_pagar.proyecto_requerido', 'Proyecto requerido');
+    if (!formProveedor.trim()) errors.proveedor = t('cuentas_pagar.proveedor_requerido', 'Proveedor requerido');
+    if (!formConcepto.trim()) errors.concepto = t('cuentas_pagar.concepto_requerido', 'Concepto requerido');
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      toast.error(Object.values(errors)[0]);
       return;
     }
     const data = {
@@ -84,6 +82,7 @@ const CuentasPagar: React.FC = () => {
       addCuentaPagar(data);
       toast.success(t('cuentas_pagar.creada'));
     }
+    setFormErrors({});
     setShowForm(false);
     setEditingId(null);
     setFormProyectoId('');
@@ -199,7 +198,7 @@ const CuentasPagar: React.FC = () => {
                           <CheckCircle2 className="w-3 h-3" aria-hidden="true" />
                         </button>
                       )}
-                      <button onClick={() => { setEditingId(c.id); setFormProyectoId(c.proyectoId); setFormProveedor(c.proveedor || c.proveedorNombre); setFormConcepto(c.concepto); setFormMonto(c.monto); setFormFechaVencimiento(c.fechaVencimiento); setFormEstado(c.estado); setFormFacturaUrl(c.facturaUrl || ''); setShowForm(true); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('common.editar')}><Plus className="w-3 h-3" aria-hidden="true" /></button>
+                      <button onClick={() => { setEditingId(c.id); setFormProyectoId(c.proyectoId); setFormProveedor(c.proveedor || c.proveedorNombre); setFormConcepto(c.concepto); setFormMonto(c.monto); setFormFechaVencimiento(c.fechaVencimiento); setFormEstado(c.estado); setFormFacturaUrl(c.facturaUrl || ''); setFormErrors({}); setShowForm(true); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('common.editar')}><Plus className="w-3 h-3" aria-hidden="true" /></button>
                       <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded hover:bg-accent text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400" aria-label={t('common.eliminar')}><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
                     </td>
                   </tr>
@@ -215,45 +214,51 @@ const CuentasPagar: React.FC = () => {
             <h3 className="font-bold mb-4 text-foreground truncate" title={editingId ? t('cuentas_pagar.editar') : t('cuentas_pagar.nueva_cuenta')}>{editingId ? t('cuentas_pagar.editar') : t('cuentas_pagar.nueva_cuenta')}</h3>
             <div className="grid gap-3">
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_proveedor')}</label>
-                <select value={formProyectoId} onChange={e => setFormProyectoId(e.target.value)} className={INPUT}>
+                <label htmlFor="pagar-proyecto" className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_proveedor')}</label>
+                <select id="pagar-proyecto" value={formProyectoId} onChange={e => setFormProyectoId(e.target.value)} className={INPUT}>
                   <option value="">{t('cuentas_pagar.seleccionar_proyecto')}</option>
                   {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
+                {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_proveedor')}</label>
-                <input value={formProveedor} onChange={e => setFormProveedor(e.target.value)} className={INPUT} placeholder={t('cuentas_pagar.proveedor_placeholder')} />
+                <label htmlFor="pagar-proveedor" className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_proveedor')}</label>
+                <input id="pagar-proveedor" value={formProveedor} onChange={e => setFormProveedor(e.target.value)} className={INPUT} placeholder={t('cuentas_pagar.proveedor_placeholder')} />
+                {formErrors.proveedor && <p className="text-xs text-red-500 mt-0.5">{formErrors.proveedor}</p>}
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_concepto')}</label>
-                <input value={formConcepto} onChange={e => setFormConcepto(e.target.value)} className={INPUT} placeholder={t('cuentas_pagar.concepto_placeholder')} />
+                <label htmlFor="pagar-concepto" className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_concepto')}</label>
+                <input id="pagar-concepto" value={formConcepto} onChange={e => setFormConcepto(e.target.value)} className={INPUT} placeholder={t('cuentas_pagar.concepto_placeholder')} />
+                {formErrors.concepto && <p className="text-xs text-red-500 mt-0.5">{formErrors.concepto}</p>}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_monto')}</label>
-                  <input type="number" inputMode="decimal" value={formMonto || ''} onChange={e => setFormMonto(+e.target.value)} className={INPUT} />
+                  <label htmlFor="pagar-monto" className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_monto')}</label>
+                  <input id="pagar-monto" type="number" inputMode="decimal" value={formMonto || ''} onChange={e => setFormMonto(+e.target.value)} className={INPUT} />
+                  {formErrors.monto && <p className="text-xs text-red-500 mt-0.5">{formErrors.monto}</p>}
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_vencimiento')}</label>
-                  <input type="date" value={formFechaVencimiento} onChange={e => setFormFechaVencimiento(e.target.value)} className={INPUT} />
+                  <label htmlFor="pagar-vencimiento" className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_vencimiento')}</label>
+                  <input id="pagar-vencimiento" type="date" value={formFechaVencimiento} onChange={e => setFormFechaVencimiento(e.target.value)} className={INPUT} />
+                  {formErrors.fechaVencimiento && <p className="text-xs text-red-500 mt-0.5">{formErrors.fechaVencimiento}</p>}
                 </div>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_estado')}</label>
-                <select value={formEstado} onChange={e => setFormEstado(e.target.value)} className={INPUT}>
+                <label htmlFor="pagar-estado" className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.col_estado')}</label>
+                <select id="pagar-estado" value={formEstado} onChange={e => setFormEstado(e.target.value)} className={INPUT}>
                   <option value="pendiente">{t('cuentas_pagar.pendiente')}</option>
                   <option value="pagada">{t('cuentas_pagar.pagada')}</option>
                   <option value="vencida">{t('cuentas_pagar.vencida')}</option>
                 </select>
+                {formErrors.estado && <p className="text-xs text-red-500 mt-0.5">{formErrors.estado}</p>}
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.factura_url', 'Factura URL (opcional)')}</label>
-                <input value={formFacturaUrl} onChange={e => setFormFacturaUrl(e.target.value)} className={INPUT} placeholder="https://..." />
+                <label htmlFor="pagar-factura-url" className="text-xs text-muted-foreground mb-1 block">{t('cuentas_pagar.factura_url', 'Factura URL (opcional)')}</label>
+                <input id="pagar-factura-url" value={formFacturaUrl} onChange={e => setFormFacturaUrl(e.target.value)} className={INPUT} placeholder="https://..." />
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSave} className={`${BUTTON_PRIMARY}`}>{editingId ? t('common.guardar') : t('cuentas_pagar.nueva_cuenta')}</button>
-                <button onClick={() => { setShowForm(false); setEditingId(null); }} className={`${BUTTON_SECONDARY}`}>{t('common.cancelar')}</button>
+                <button onClick={() => { setShowForm(false); setEditingId(null); setFormErrors({}); }} className={`${BUTTON_SECONDARY}`}>{t('common.cancelar')}</button>
               </div>
             </div>
           </div>

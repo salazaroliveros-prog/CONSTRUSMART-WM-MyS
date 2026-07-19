@@ -105,7 +105,7 @@ export default function VisorBIM() {
 
       {/* Selector de proyecto */}
       <div className="bg-card rounded-xl shadow-sm border border-border p-3">
-        <Label className="text-xs text-gray-600">{t('visor_bim.proyecto')}</Label>
+        <Label className="text-xs text-gray-600 dark:text-gray-300">{t('visor_bim.proyecto')}</Label>
         <select
           value={currentProjectId || ''}
           onChange={e => setCurrentProjectId(e.target.value)}
@@ -118,7 +118,7 @@ export default function VisorBIM() {
 
       {!currentProjectId && (
         <div className="text-center py-12 text-muted-foreground">
-          <Eye className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+          <Eye className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-500" />
           <p className="text-sm">{t('visor_bim.selecciona_proyecto_ver')}</p>
         </div>
       )}
@@ -166,15 +166,15 @@ export default function VisorBIM() {
                 <Card key={el.id} className="p-3 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium">{el.nombre}</p>
-                    <p className="text-xs text-gray-500">{el.tipo}{t('visor_bim.separador')}{el.cantidad} {el.unidad}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{el.tipo}{t('visor_bim.separador')}{el.cantidad} {el.unidad}</p>
                   </div>
                   <div className="flex gap-2">
                     {vinculaciones[el.id] ? (
-                      <Badge variant="secondary" className="cursor-pointer" onClick={() => handleDesvincular(el.id)}>
+                      <Badge variant="secondary" className="cursor-pointer" tabIndex={0} onClick={() => handleDesvincular(el.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleDesvincular(el.id); } }}>
                         <Unlink className="w-3 h-3 mr-1" /> {t('visor_bim.desvincular')}
                       </Badge>
                     ) : (
-                      <Badge variant="default" className="cursor-pointer" onClick={() => handleVincular(el.id)}>
+                      <Badge variant="default" className="cursor-pointer" tabIndex={0} onClick={() => handleVincular(el.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleVincular(el.id); } }}>
                         <Link2 className="w-3 h-3 mr-1" /> {t('visor_bim.vincular')}
                       </Badge>
                     )}
@@ -219,7 +219,7 @@ export default function VisorBIM() {
               </Table>
             ) : (<>
               {formErrors.vincular && <p className="text-xs text-red-500 text-center py-2 bg-red-50 rounded-lg mb-2">{formErrors.vincular}</p>}
-            <p className="text-xs text-gray-400 text-center py-6">{t('visor_bim.cubicacion_vacia')}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-300 text-center py-6">{t('visor_bim.cubicacion_vacia')}</p>
             </>)}
           </Card>
         </TabsContent>
@@ -228,7 +228,7 @@ export default function VisorBIM() {
         <TabsContent value="avance" className="space-y-3">
           <Card className="p-4">
             <h3 className="font-bold text-foreground mb-3 truncate" title={t('visor_bim.avance_vs_campo')}>{t('visor_bim.avance_vs_campo')}</h3>
-            <p className="text-xs text-gray-500">{t('visor_bim.comparativa')}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{t('visor_bim.comparativa')}</p>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="p-4 bg-blue-50 rounded-lg">
                 <p className="text-xs text-blue-600 font-bold">{t('visor_bim.modelado_bim')}</p>

@@ -140,7 +140,7 @@ const OrdenesCambio: React.FC = () => {
       <div className="space-y-2">
         {filtered.length === 0 && (
           <div className="text-center py-10 text-muted-foreground">
-            <GitBranch className="w-10 h-10 mx-auto mb-2 text-slate-300" aria-hidden="true" />
+            <GitBranch className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-500" aria-hidden="true" />
             <p className="text-sm">{t('ordenes_cambio.sin_datos', 'Sin órdenes de cambio')}</p>
           </div>
         )}

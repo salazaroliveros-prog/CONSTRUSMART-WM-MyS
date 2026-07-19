@@ -32,7 +32,7 @@ const Hitos: React.FC = () => {
     pago: { label: t('hitos.tipo_pago', 'Pago'), color: 'text-emerald-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
     inspeccion: { label: t('hitos.tipo_inspeccion', 'Inspección'), color: 'text-amber-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
     licencia: { label: t('hitos.tipo_licencia', 'Licencia'), color: 'text-blue-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
-    otro: { label: t('hitos.tipo_otro', 'Otro'), color: 'text-slate-500', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
+    otro: { label: t('hitos.tipo_otro', 'Otro'), color: 'text-slate-500 dark:text-slate-400', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
   };
   const { hitos, proyectos, addHito, updateHito, currentProjectId, setCurrentProjectId } = useErp();
   const [filtroProyecto, setFiltroProyecto] = useState('');
@@ -144,9 +144,9 @@ const Hitos: React.FC = () => {
           const cfg = TIPOS[h.tipo] || TIPOS.otro;
           const esVencido = h.fecha && h.fecha < new Date().toISOString().slice(0, 10) && !h.completado;
           return (
-            <div key={h.id} className={`flex items-center gap-3 p-3 rounded-xl border ${h.completado ? 'bg-emerald-50/60 border-emerald-200' : esVencido ? 'bg-red-50/60 border-red-200' : 'bg-card border-border'}`}>
+            <div key={h.id} className={`flex items-center gap-3 p-3 rounded-xl border ${h.completado ? 'bg-emerald-50/60 border-emerald-200 dark:bg-emerald-900/30 dark:border-emerald-800' : esVencido ? 'bg-red-50/60 border-red-200 dark:bg-red-900/30 dark:border-red-800' : 'bg-card border-border'}`}>
               <button onClick={() => toggleCompletado(h.id, !!h.completado)} aria-label={h.completado ? t('hitos.marcar_pendiente', 'Marcar pendiente') : t('hitos.marcar_completado', 'Marcar completado')} className="p-1.5 rounded-full hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                {h.completado ? <CheckCircle2 className="w-4 h-4 text-emerald-600" aria-hidden="true" /> : <Circle className="w-4 h-4 text-slate-400" aria-hidden="true" />}
+                {h.completado ? <CheckCircle2 className="w-4 h-4 text-emerald-600" aria-hidden="true" /> : <Circle className="w-4 h-4 text-slate-400 dark:text-slate-300" aria-hidden="true" />}
               </button>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">

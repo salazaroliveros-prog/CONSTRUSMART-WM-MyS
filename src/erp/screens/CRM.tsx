@@ -27,7 +27,7 @@ const ESTADOS = [
   { key: 'activa' as const, label: 'Activa', color: 'bg-blue-50 border-blue-300', icon: Clock, textColor: 'text-blue-600' },
   { key: 'adjudicada' as const, label: 'Adjudicada', color: 'bg-emerald-50 border-emerald-300', icon: CheckCircle, textColor: 'text-emerald-600' },
   { key: 'perdida' as const, label: 'Perdida', color: 'bg-red-50 border-red-300', icon: Archive, textColor: COLOR_DANGER },
-  { key: 'cerrada' as const, label: 'Cerrada', color: 'bg-muted border-slate-300', icon: Archive, textColor: 'text-muted-foreground' },
+  { key: 'cerrada' as const, label: 'Cerrada', color: 'bg-muted border-slate-300 dark:border-slate-600', icon: Archive, textColor: 'text-muted-foreground' },
 ] as const;
 
 const ESTADO_SIGUIENTE: Record<string, string> = {
@@ -50,6 +50,7 @@ const CRM: React.FC = () => {
   const [formProyectoId, setFormProyectoId] = useState('');
   const [formFechaLimite, setFormFechaLimite] = useState('');
   const [formNotas, setFormNotas] = useState('');
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const licitacionesFiltradas = useMemo(() => licitaciones.filter(l => !filtroProyecto || l.proyectoId === filtroProyecto), [licitaciones, filtroProyecto]);
 
   if (licitacionesFiltradas.length === 0) {
@@ -71,6 +72,7 @@ const CRM: React.FC = () => {
     setFormProyectoId('');
     setFormFechaLimite('');
     setFormNotas('');
+    setFormErrors({});
     setEditingId(null);
   };
 
@@ -80,6 +82,7 @@ const CRM: React.FC = () => {
     if (!formCliente.trim()) errors.cliente = t('crm.err_cliente_requerido');
     if (formMonto < 0) errors.monto = t('crm.err_monto_min');
     if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
       toast.error(Object.values(errors)[0]);
       return;
     }
@@ -101,6 +104,7 @@ const CRM: React.FC = () => {
       addLicitacion({ ...data, createdAt: new Date().toISOString() });
       toast.success(t('crm.creada_exito', 'Licitación creada'));
     }
+    setFormErrors({});
     resetForm();
     setShowForm(false);
   };
@@ -115,6 +119,7 @@ const CRM: React.FC = () => {
     setFormProyectoId(l.proyectoId || '');
     setFormFechaLimite(l.fechaLimite || '');
     setFormNotas(l.notas || '');
+    setFormErrors({});
     setShowForm(true);
   };
 
@@ -179,38 +184,44 @@ const CRM: React.FC = () => {
             </div>
             <div className="p-4 sm:p-6 space-y-3">
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">{t('crm.col_nombre')}</label>
-                <input value={formNombre} onChange={e => setFormNombre(e.target.value)} className={INPUT} placeholder={t('crm.nombre_placeholder')} />
+                <label htmlFor="crm-nombre" className="text-xs text-muted-foreground mb-1 block">{t('crm.col_nombre')}</label>
+                <input id="crm-nombre" value={formNombre} onChange={e => setFormNombre(e.target.value)} className={INPUT} placeholder={t('crm.nombre_placeholder')} />
+                {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">{t('crm.col_cliente')}</label>
-                <input value={formCliente} onChange={e => setFormCliente(e.target.value)} className={INPUT} placeholder={t('crm.cliente_placeholder')} />
+                <label htmlFor="crm-cliente" className="text-xs text-muted-foreground mb-1 block">{t('crm.col_cliente')}</label>
+                <input id="crm-cliente" value={formCliente} onChange={e => setFormCliente(e.target.value)} className={INPUT} placeholder={t('crm.cliente_placeholder')} />
+                {formErrors.cliente && <p className="text-xs text-red-500 mt-0.5">{formErrors.cliente}</p>}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">{t('crm.col_monto')}</label>
-                  <input type="number" inputMode="decimal" value={formMonto || ''} onChange={e => setFormMonto(+e.target.value)} className={INPUT} />
+                  <label htmlFor="crm-monto" className="text-xs text-muted-foreground mb-1 block">{t('crm.col_monto')}</label>
+                  <input id="crm-monto" type="number" inputMode="decimal" value={formMonto || ''} onChange={e => setFormMonto(+e.target.value)} className={INPUT} />
+                  {formErrors.monto && <p className="text-xs text-red-500 mt-0.5">{formErrors.monto}</p>}
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">{t('crm.col_probabilidad')}</label>
-                  <input type="number" value={formProbabilidad} onChange={e => setFormProbabilidad(Math.min(100, Math.max(0, +e.target.value)))} className={INPUT} />
+                  <label htmlFor="crm-probabilidad" className="text-xs text-muted-foreground mb-1 block">{t('crm.col_probabilidad')}</label>
+                  <input id="crm-probabilidad" type="number" value={formProbabilidad} onChange={e => setFormProbabilidad(Math.min(100, Math.max(0, +e.target.value)))} className={INPUT} />
+                  {formErrors.probabilidad && <p className="text-xs text-red-500 mt-0.5">{formErrors.probabilidad}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">{t('crm.estado')}</label>
-                  <select value={formEstado} onChange={e => setFormEstado(e.target.value as Licitacion['estado'])} className={INPUT}>
+                  <label htmlFor="crm-estado" className="text-xs text-muted-foreground mb-1 block">{t('crm.estado')}</label>
+                  <select id="crm-estado" value={formEstado} onChange={e => setFormEstado(e.target.value as Licitacion['estado'])} className={INPUT}>
                     {ESTADOS.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
                   </select>
+                  {formErrors.estado && <p className="text-xs text-red-500 mt-0.5">{formErrors.estado}</p>}
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">{t('crm.fecha_limite', 'Fecha límite')}</label>
-                  <input type="date" value={formFechaLimite} onChange={e => setFormFechaLimite(e.target.value)} className={INPUT} />
+                  <label htmlFor="crm-fecha-limite" className="text-xs text-muted-foreground mb-1 block">{t('crm.fecha_limite', 'Fecha límite')}</label>
+                  <input id="crm-fecha-limite" type="date" value={formFechaLimite} onChange={e => setFormFechaLimite(e.target.value)} className={INPUT} />
+                  {formErrors.fechaLimite && <p className="text-xs text-red-500 mt-0.5">{formErrors.fechaLimite}</p>}
                 </div>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">{t('crm.notas', 'Notas')}</label>
-                <textarea value={formNotas} onChange={e => setFormNotas(e.target.value)} className={`${INPUT} min-h-[60px]`} placeholder={t('crm.notas_placeholder')} />
+                <label htmlFor="crm-notas" className="text-xs text-muted-foreground mb-1 block">{t('crm.notas', 'Notas')}</label>
+                <textarea id="crm-notas" value={formNotas} onChange={e => setFormNotas(e.target.value)} className={`${INPUT} min-h-[60px]`} placeholder={t('crm.notas_placeholder')} />
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSubmit} className={`${BUTTON_PRIMARY}`}>{editingId ? t('common.guardar') : t('crm.nueva_licitacion')}</button>

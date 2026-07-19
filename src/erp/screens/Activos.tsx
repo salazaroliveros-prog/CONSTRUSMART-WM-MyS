@@ -119,7 +119,7 @@ const Activos: React.FC = () => {
                   a.estado === 'disponible' ? 'bg-emerald-100 text-emerald-700' :
                   a.estado === 'asignado' ? 'bg-blue-100 text-blue-700' :
                   a.estado === 'mantenimiento' ? 'bg-amber-100 text-amber-700' :
-                  'bg-gray-100 text-gray-700'
+                  'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                 }`}>{t(`activos.estado_${a.estado}`)}</span></td>
                 <td className="p-2 text-muted-foreground truncate" title={proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}>{proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}</td>
                 <td className="p-2 font-mono">{fmtQ(Number(a.valor || 0))}</td>
@@ -148,20 +148,31 @@ const Activos: React.FC = () => {
             <h3 className="font-bold mb-3 truncate" title={editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}>{editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}</h3>
             <div className="grid gap-2">
               <div>
-                <input value={form.nombre} onChange={e => { set('nombre', e.target.value); if (formErrors.nombre) setFormErrors(f => ({ ...f, nombre: '' })); }} placeholder={t('activos.columna_nombre')} className={`px-3 py-2 border rounded-lg text-sm ${formErrors.nombre ? 'border-red-500' : ''}`} />
+                <label htmlFor="activo-nombre" className="text-xs text-muted-foreground mb-1 block">{t('activos.columna_nombre')}</label>
+                <input id="activo-nombre" value={form.nombre} onChange={e => { set('nombre', e.target.value); if (formErrors.nombre) setFormErrors(f => ({ ...f, nombre: '' })); }} placeholder={t('activos.columna_nombre')} className={`px-3 py-2 border rounded-lg text-sm ${formErrors.nombre ? 'border-red-500' : ''}`} />
                 {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
               </div>
               <div>
-                <input value={form.codigo} onChange={e => { set('codigo', e.target.value); if (formErrors.codigo) setFormErrors(f => ({ ...f, codigo: '' })); }} placeholder={t('activos.columna_codigo')} className={`px-3 py-2 border rounded-lg text-sm ${formErrors.codigo ? 'border-red-500' : ''}`} />
+                <label htmlFor="activo-codigo" className="text-xs text-muted-foreground mb-1 block">{t('activos.columna_codigo')}</label>
+                <input id="activo-codigo" value={form.codigo} onChange={e => { set('codigo', e.target.value); if (formErrors.codigo) setFormErrors(f => ({ ...f, codigo: '' })); }} placeholder={t('activos.columna_codigo')} className={`px-3 py-2 border rounded-lg text-sm ${formErrors.codigo ? 'border-red-500' : ''}`} />
                 {formErrors.codigo && <p className="text-xs text-red-500 mt-0.5">{formErrors.codigo}</p>}
               </div>
-              <select value={form.tipo} onChange={e => set('tipo', e.target.value)} className="px-3 py-2 border rounded-lg text-sm">
-                {TIPOS.map(tp => <option key={tp} value={tp}>{t(`activos.tipo_${tp}`)}</option>)}
-              </select>
-              <select value={form.estado} onChange={e => set('estado', e.target.value)} className="px-3 py-2 border rounded-lg text-sm">
-                {ESTADOS.map(e => <option key={e} value={e}>{t(`activos.estado_${e}`)}</option>)}
-              </select>
-              <input type="number" inputMode="decimal" value={form.valor} onChange={e => set('valor', Number(e.target.value))} placeholder={t('activos.columna_valor')} className="px-3 py-2 border rounded-lg text-sm" />
+              <div>
+                <label htmlFor="activo-tipo" className="text-xs text-muted-foreground mb-1 block">{t('activos.columna_tipo', 'Tipo')}</label>
+                <select id="activo-tipo" value={form.tipo} onChange={e => set('tipo', e.target.value)} className="px-3 py-2 border rounded-lg text-sm">
+                  {TIPOS.map(tp => <option key={tp} value={tp}>{t(`activos.tipo_${tp}`)}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="activo-estado" className="text-xs text-muted-foreground mb-1 block">{t('activos.columna_estado', 'Estado')}</label>
+                <select id="activo-estado" value={form.estado} onChange={e => set('estado', e.target.value)} className="px-3 py-2 border rounded-lg text-sm">
+                  {ESTADOS.map(e => <option key={e} value={e}>{t(`activos.estado_${e}`)}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="activo-valor" className="text-xs text-muted-foreground mb-1 block">{t('activos.columna_valor')}</label>
+                <input id="activo-valor" type="number" inputMode="decimal" value={form.valor} onChange={e => set('valor', Number(e.target.value))} placeholder={t('activos.columna_valor')} className="px-3 py-2 border rounded-lg text-sm" />
+              </div>
               <button onClick={save} className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('common.guardar')}</button>
               <button onClick={() => setShowForm(false)} className="px-4 py-2 border rounded-lg text-xs text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('common.cancelar')}</button>
             </div>

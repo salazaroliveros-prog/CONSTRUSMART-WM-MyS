@@ -300,7 +300,7 @@ const ResourceConflicts: React.FC = () => {
 
       {filteredConflicts.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
-          <CheckCircle className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+          <CheckCircle className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-500" />
           <p className="text-sm">{t('conflicts.no_conflicts')}</p>
         </div>
       ) : (

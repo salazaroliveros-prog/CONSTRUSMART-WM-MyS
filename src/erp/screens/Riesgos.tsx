@@ -345,11 +345,13 @@ const Riesgos: React.FC = () => {
         <div className="bg-amber-50 rounded-xl p-4 mb-4 border border-amber-200 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder={t('riesgos.nombre_placeholder', 'Nombre del riesgo *')} className={INPUT} aria-invalid={!!formErrors.nombre} />
+              <label htmlFor="riesgo-nombre" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.nombre_placeholder', 'Nombre del riesgo *')}</label>
+              <input id="riesgo-nombre" value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder={t('riesgos.nombre_placeholder', 'Nombre del riesgo *')} className={INPUT} aria-invalid={!!formErrors.nombre} />
               {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
             </div>
             <div>
-              <select value={form.proyectoId} onChange={e => setForm(p => ({ ...p, proyectoId: e.target.value }))} className={INPUT} aria-invalid={!!formErrors.proyectoId}>
+              <label htmlFor="riesgo-proyecto" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.seleccionar_proyecto', 'Seleccionar proyecto *')}</label>
+              <select id="riesgo-proyecto" value={form.proyectoId} onChange={e => setForm(p => ({ ...p, proyectoId: e.target.value }))} className={INPUT} aria-invalid={!!formErrors.proyectoId}>
                 <option value="">{t('riesgos.seleccionar_proyecto', 'Seleccionar proyecto *')}</option>
                 {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
               </select>
@@ -357,31 +359,46 @@ const Riesgos: React.FC = () => {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as RTipo }))} className={INPUT}>
-              <option value="tecnico">{t('riesgos.tipo_tecnico', 'Técnico')}</option>
-              <option value="financiero">{t('riesgos.tipo_financiero', 'Financiero')}</option>
-              <option value="cronograma">{t('riesgos.tipo_cronograma', 'Cronograma')}</option>
-              <option value="legal">{t('riesgos.tipo_legal', 'Legal')}</option>
-              <option value="ambiental">{t('riesgos.tipo_ambiental', 'Ambiental')}</option>
-              <option value="seguridad">{t('riesgos.tipo_seguridad', 'Seguridad')}</option>
-              <option value="otro">{t('riesgos.tipo_otro', 'Otro')}</option>
-            </select>
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-muted-foreground">{t('riesgos.probabilidad', 'Probabilidad')} (1-5)</label>
-              <input type="number" inputMode="decimal" min={1} max={5} value={form.probabilidad} onChange={e => setForm(p => ({ ...p, probabilidad: Math.min(5, Math.max(1, +e.target.value)) as RProb }))} className={INPUT} />
+            <div>
+              <label htmlFor="riesgo-tipo" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.tipo', 'Tipo')}</label>
+              <select id="riesgo-tipo" value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as RTipo }))} className={INPUT}>
+                <option value="tecnico">{t('riesgos.tipo_tecnico', 'Técnico')}</option>
+                <option value="financiero">{t('riesgos.tipo_financiero', 'Financiero')}</option>
+                <option value="cronograma">{t('riesgos.tipo_cronograma', 'Cronograma')}</option>
+                <option value="legal">{t('riesgos.tipo_legal', 'Legal')}</option>
+                <option value="ambiental">{t('riesgos.tipo_ambiental', 'Ambiental')}</option>
+                <option value="seguridad">{t('riesgos.tipo_seguridad', 'Seguridad')}</option>
+                <option value="otro">{t('riesgos.tipo_otro', 'Otro')}</option>
+              </select>
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-xs text-muted-foreground">{t('riesgos.impacto', 'Impacto')} (1-5)</label>
-              <input type="number" inputMode="decimal" min={1} max={5} value={form.impacto} onChange={e => setForm(p => ({ ...p, impacto: Math.min(5, Math.max(1, +e.target.value)) as RImp }))} className={INPUT} />
+              <label htmlFor="riesgo-probabilidad" className="text-xs text-muted-foreground">{t('riesgos.probabilidad', 'Probabilidad')} (1-5)</label>
+              <input id="riesgo-probabilidad" type="number" inputMode="decimal" min={1} max={5} value={form.probabilidad} onChange={e => setForm(p => ({ ...p, probabilidad: Math.min(5, Math.max(1, +e.target.value)) as RProb }))} className={INPUT} />
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="riesgo-impacto" className="text-xs text-muted-foreground">{t('riesgos.impacto', 'Impacto')} (1-5)</label>
+              <input id="riesgo-impacto" type="number" inputMode="decimal" min={1} max={5} value={form.impacto} onChange={e => setForm(p => ({ ...p, impacto: Math.min(5, Math.max(1, +e.target.value)) as RImp }))} className={INPUT} />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <textarea value={form.descripcion} onChange={e => setForm(p => ({ ...p, descripcion: e.target.value }))} placeholder={t('riesgos.descripcion_placeholder', 'Descripción del riesgo')} className={`${INPUT} min-h-[60px]`} />
-            <textarea value={form.planMitigacion} onChange={e => setForm(p => ({ ...p, planMitigacion: e.target.value }))} placeholder={t('riesgos.mitigacion_placeholder', 'Plan de mitigación')} className={`${INPUT} min-h-[60px]`} />
+            <div>
+              <label htmlFor="riesgo-descripcion" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.descripcion_placeholder', 'Descripción del riesgo')}</label>
+              <textarea id="riesgo-descripcion" value={form.descripcion} onChange={e => setForm(p => ({ ...p, descripcion: e.target.value }))} placeholder={t('riesgos.descripcion_placeholder', 'Descripción del riesgo')} className={`${INPUT} min-h-[60px]`} />
+            </div>
+            <div>
+              <label htmlFor="riesgo-mitigacion" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.mitigacion_placeholder', 'Plan de mitigación')}</label>
+              <textarea id="riesgo-mitigacion" value={form.planMitigacion} onChange={e => setForm(p => ({ ...p, planMitigacion: e.target.value }))} placeholder={t('riesgos.mitigacion_placeholder', 'Plan de mitigación')} className={`${INPUT} min-h-[60px]`} />
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input value={form.responsable} onChange={e => setForm(p => ({ ...p, responsable: e.target.value }))} placeholder={t('riesgos.responsable_placeholder', 'Responsable')} className={INPUT} />
-            <input type="number" inputMode="decimal" value={form.costoSoporte || ''} onChange={e => setForm(p => ({ ...p, costoSoporte: +e.target.value }))} placeholder={t('riesgos.costo_soporte_placeholder', 'Costo estimado de soporte Q')} className={INPUT} />
+            <div>
+              <label htmlFor="riesgo-responsable" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.responsable_placeholder', 'Responsable')}</label>
+              <input id="riesgo-responsable" value={form.responsable} onChange={e => setForm(p => ({ ...p, responsable: e.target.value }))} placeholder={t('riesgos.responsable_placeholder', 'Responsable')} className={INPUT} />
+            </div>
+            <div>
+              <label htmlFor="riesgo-costo" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.costo_soporte_placeholder', 'Costo estimado de soporte Q')}</label>
+              <input id="riesgo-costo" type="number" inputMode="decimal" value={form.costoSoporte || ''} onChange={e => setForm(p => ({ ...p, costoSoporte: +e.target.value }))} placeholder={t('riesgos.costo_soporte_placeholder', 'Costo estimado de soporte Q')} className={INPUT} />
+            </div>
           </div>
           <div className="flex gap-2">
             <button onClick={agregar} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg text-xs font-semibold">{t('riesgos.registrar', 'Registrar Riesgo')}</button>
