@@ -17,6 +17,8 @@ export { clienteSchema, clienteFormSchema, proveedorSchema, proveedorFormSchema,
 export { liberacionSchema, pruebaSchema, noConformidadSchema } from './calidad';
 export { activoSchema, licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema, destajoSchema, recepcionAlmacenSchema, insumosBaseSchema } from './gestion';
 export { centroCostoSchema, auditLogSchema, appSettingsSchema } from './admin';
+export { accessLogSchema, accessLogInsertSchema, accessEventEnum } from './accessLog';
+export type { AccessLog, AccessLogInsert, AccessEvent } from './accessLog';
 export { plantillaSchema } from './plantillas';
 export type { Plantilla, PlantillaStore } from './plantillas';
 export { weatherDataSchema, proyectoWeatherSchema } from './weather';
