@@ -17,7 +17,7 @@ const proyectoSchemaDefinition = z.object({
   fechaFinEstimada: z.string().optional().default(''),
   avanceFisico: z.number().default(0),
   avanceFinanciero: z.number().default(0),
-  estado: z.enum(['planeacion','ejecucion','pausado','finalizado'] as const).default('planeacion'),
+  estado: z.enum(['planeado','ejecucion','pausado','finalizado','cancelado'] as const).default('planeado'),
   descripcion: z.string().optional().default(''),
   tipoObra: z.enum(['nueva','remodelacion','ampliacion'] as const).optional().default('nueva'),
   clienteNit: z.string().optional().default(''),

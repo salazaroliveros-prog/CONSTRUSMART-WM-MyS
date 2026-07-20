@@ -31,3 +31,33 @@ export { projectProfitabilitySchema, clientProfitabilitySchema, profitabilityFor
 export type { ProjectProfitability, ClientProfitability, ProfitabilityForecast, ResourceEfficiency, ProfitabilityTrend, PricingOptimization } from './profitability';
 export { consumoHistoricoSchema, patronConsumoSchema, proveedorLeadTimeSchema, reorderSuggestionSchema, reorderConfigSchema } from './reordering';
 export type { ConsumoHistorico, PatronConsumo, ProveedorLeadTime, ReorderSuggestion, ReorderConfig, ReorderStore } from './reordering';
+
+export { cajaChicaSchema } from './cajasChicasSchema';
+export type { CajaChica } from './cajasChicasSchema';
+
+export { anticipoSchema } from './anticipoSchema';
+export type { Anticipo } from './anticipoSchema';
+
+export { amortizacionSchema } from './amortizacionSchema';
+export type { Amortizacion } from './amortizacionSchema';
+
+export { rendimientoCuadrillaSchema } from './rendimientoCuadrillaSchema';
+export type { RendimientoCuadrilla } from './rendimientoCuadrillaSchema';
+
+export { bodegaSchema } from './bodegaSchema';
+export type { Bodega } from './bodegaSchema';
+
+export { documentoSchema } from './documentoSchema';
+export type { Documento } from './documentoSchema';
+
+export { permisoSchema } from './permisoSchema';
+export type { Permiso } from './permisoSchema';
+
+export { checklistSchema } from './checklistSchema';
+export type { Checklist } from './checklistSchema';
+
+export { configuracionSchema } from './configuracionSchema';
+export type { Configuracion } from './configuracionSchema';
+
+export { apiKeySchema } from './apiKeySchema';
+export type { ApiKey } from './apiKeySchema';

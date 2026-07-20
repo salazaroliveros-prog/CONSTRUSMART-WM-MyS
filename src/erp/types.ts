@@ -1,6 +1,9 @@
-// src/erp/types-sync.ts
-// Sincronización de tipos TypeScript con BD actualizada
-// TIER 1 COMPLETADA
+export type FactorSobrecosto = {
+  indirectos: number;
+  administracion: number;
+  imprevistos: number;
+  utilidad: number;
+};
 
 // ============================================================
 // TIPOS ACTUALIZADOS - DESPUÉS DE MIGRACIONES TIER 1
@@ -9,7 +12,7 @@
 export type Tipologia = 'residencial' | 'comercial' | 'industrial' | 'civil' | 'publica';
 export type EtapaObra = 'planificacion' | 'diseno' | 'preconstruccion' | 'construccion' | 'cierre';
 export type TipoObra = 'nueva' | 'remodelacion' | 'ampliacion';
-export type EstadoProyecto = 'planeacion' | 'ejecucion' | 'pausado' | 'finalizado';
+export type EstadoProyecto = 'planeado' | 'ejecucion' | 'pausado' | 'finalizado' | 'cancelado';
 export type Moneda = 'GTQ' | 'USD';
 
 export const APP_STAGES: Record<string, string> = {
@@ -84,7 +87,6 @@ export interface Proyecto {
   margenUtilidadObjetivo?: number;
   moneda?: Moneda; // Default: 'GTQ'
   presupuestoActualId?: string;
-  factorSobrecosto?: FactorSobrecosto;
   
   // Pausas
   motivoPausa?: string;
@@ -364,6 +366,8 @@ export interface Material {
 }
 
 export interface CotizacionCliente {
+  id: string;
+  proyectoId: string;
   numero: string;
   fechaVencimiento?: string;
   clienteNombre: string;
@@ -373,9 +377,14 @@ export interface CotizacionCliente {
   clienteDireccion?: string;
   descripcion?: string;
   alcance?: string;
-  renglones: RenglonPresupuesto[];
-  precioVentaTotal: number;
+  items: RenglonPresupuesto[];
+  subtotal?: number;
+  impuesto?: number;
+  total?: number;
+  estado?: 'borrador' | 'enviada' | 'aprobada' | 'rechazada';
   notas?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 /*

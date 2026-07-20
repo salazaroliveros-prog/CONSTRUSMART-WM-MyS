@@ -41,7 +41,7 @@ describe('DB Alignment - erp_proyectos', () => {
 
   it('should have correct enum values for estado', () => {
     const inner = unwrapEnum(shape.estado);
-    expect(inner.options).toEqual(['planeacion', 'ejecucion', 'pausado', 'finalizado']);
+    expect(inner.options).toEqual(['planeado', 'ejecucion', 'pausado', 'finalizado', 'cancelado']);
   });
 
   it('should have correct enum values for tipologia', () => {
