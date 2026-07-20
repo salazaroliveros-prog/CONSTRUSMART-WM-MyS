@@ -12,13 +12,21 @@ export const projectRef = supabaseUrl ? new URL(supabaseUrl).hostname.split('.')
 
 if (!supabaseUrl || !supabaseKey) {
   if (typeof window !== 'undefined') {
-    safeLogger.warn('[supabase] VITE_SUPABASE_URL or VITE_SUPABASE_KEY not configured. Offline mode.');
+    try {
+      safeLogger.warn('[supabase] VITE_SUPABASE_URL or VITE_SUPABASE_KEY not configured. Offline mode.');
+    } catch (e) {
+      console.warn('[supabase] VITE_SUPABASE_URL or VITE_SUPABASE_KEY not configured. Offline mode.');
+    }
   }
 }
 
 let _supabase: SupabaseClient;
 if (!supabaseUrl) {
-  safeLogger.warn('[supabase] VITE_SUPABASE_URL not configured. Offline mode (no client).');
+  try {
+    safeLogger.warn('[supabase] VITE_SUPABASE_URL not configured. Offline mode (no client).');
+  } catch (e) {
+    console.warn('[supabase] VITE_SUPABASE_URL not configured. Offline mode (no client).');
+  }
 } else if (typeof window !== 'undefined') {
   _supabase = createClient(supabaseUrl, supabaseKey, {
     auth: {
