@@ -235,7 +235,12 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (!authLoading) {
       setInitializing(false);
+      return;
     }
+    const timer = setTimeout(() => {
+      setInitializing(false);
+    }, 4000);
+    return () => clearTimeout(timer);
   }, [authLoading]);
 
   const fetchedRef = useRef(false);

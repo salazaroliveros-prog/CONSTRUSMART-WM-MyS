@@ -2,14 +2,10 @@ import { useState, useCallback, useEffect } from 'react';
 import { z } from 'zod';
 import { hasSupabase, supabase } from '@/lib/supabase';
 
-/**
- * Tipo de rol de usuario en el sistema
- */
 type Rol = string;
+const ADMIN_EMAIL = 'salazaroliveros@gmail.com';
+const ADMIN_ROL: Rol = 'Administrador';
 
-/**
- * Schema Zod para validar datos de usuario
- */
 const userSchema = z.object({
   id: z.string(),
   email: z.string().email().optional().default(''),
@@ -18,15 +14,7 @@ const userSchema = z.object({
   avatar: z.string().optional().default(''),
 });
 
-/**
- * Parsea datos de forma segura usando Zod con fallback
- * @param schema - Schema Zod para validar
- * @param data - Datos a validar
- * @param fallback - Valor a retornar si la validación falla
- * @param ctx - Contexto opcional para logging
- * @returns Datos validados o fallback
- */
-function safeParse<T extends z.ZodTypeAny>(schema: T, data: z.infer<T>, fallback: z.infer<T>, ctx?: string): z.infer<T> {
+function safeParse<T extends z.ZodTypeAny>(schema: T, data: z.infer<T>, fallback: z.infer<T>, _ctx?: string): z.infer<T> {
   try {
     const result = schema.safeParse(data);
     return result.success ? result.data : fallback;
@@ -35,16 +23,10 @@ function safeParse<T extends z.ZodTypeAny>(schema: T, data: z.infer<T>, fallback
   }
 }
 
-/**
- * Interfaz de usuario autenticado
- */
 export interface AuthUser {
   id: string; email: string; nombre: string; rol: Rol; avatar?: string;
 }
 
-/**
- * Retorno del hook useAuth
- */
 export interface UseAuthReturn {
   user: AuthUser | null;
   loading: boolean;
@@ -54,28 +36,11 @@ export interface UseAuthReturn {
   refreshSession: () => Promise<void>;
 }
 
-/**
- * Hook de autenticación con Supabase y Google OAuth
- * 
- * Características:
- * - Autenticación con Google OAuth
- * - Gestión de sesión con Supabase
- * - Validación de usuario con Zod
- * - Obtención de rol desde tabla profiles
- * - Manejo de errores
- * - Refresh de sesión
- * 
- * @returns Objeto con estado de autenticación y métodos de acción
- */
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  /**
-   * Construye el objeto de usuario desde la sesión de Supabase
-   * Obtiene el rol desde la tabla profiles y valida con Zod
-   */
   const buildUserFromSession = useCallback(async () => {
     if (!hasSupabase) {
       setError('Supabase no está configurado. Configura VITE_SUPABASE_URL y VITE_SUPABASE_KEY en .env');
@@ -84,7 +49,12 @@ export function useAuth(): UseAuthReturn {
       return;
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const timeoutPromise = new Promise<{ data: { session: null }; error: null }>((resolve) => {
+      setTimeout(() => resolve({ data: { session: null }, error: null }), 5000);
+    });
+    const sessionPromise = supabase.auth.getSession();
+    const result = await Promise.race([sessionPromise, timeoutPromise]);
+    const { data: { session } } = result;
 
     if (!session?.user) {
       setUser(null);
@@ -97,21 +67,23 @@ export function useAuth(): UseAuthReturn {
     const nombre = userMeta.full_name || userMeta.name || email.split('@')[0] || 'Usuario';
     const avatar = userMeta.picture || userMeta.avatar_url || '';
 
-    // Obtener rol desde la base de datos
     let rol = 'usuario';
-    try {
-      const { data: roleData } = await supabase
-        .from('profiles')
-        .select('rol')
-        .eq('id', session.user.id)
-        .single();
-
-      if (roleData?.rol) {
-        rol = roleData.rol;
+    const emailLower = (email || '').toLowerCase();
+    if (emailLower === ADMIN_EMAIL.toLowerCase()) {
+      rol = ADMIN_ROL;
+    } else {
+      try {
+        const { data: roleData } = await supabase
+          .from('profiles')
+          .select('rol')
+          .eq('id', session.user.id)
+          .single();
+        if (roleData?.rol) {
+          rol = roleData.rol;
+        }
+      } catch {
+        console.warn('No se pudo obtener el rol del perfil, usando "usuario"');
       }
-    } catch (error) {
-      // Si no hay perfil, usar rol por defecto
-      console.warn('No se pudo obtener el rol del perfil, usando "usuario"');
     }
 
     const validated = safeParse(userSchema, {
@@ -140,7 +112,6 @@ export function useAuth(): UseAuthReturn {
 
   useEffect(() => {
     buildUserFromSession();
-
     if (!hasSupabase) return;
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: any) => {
       if (session?.user) {
@@ -153,71 +124,44 @@ export function useAuth(): UseAuthReturn {
     return () => subscription.unsubscribe();
   }, [buildUserFromSession]);
 
-  /**
-   * Inicia sesión con Google OAuth
-   */
   const signInWithGoogle = useCallback(async () => {
     if (!hasSupabase) {
       setError('Supabase no está configurado.');
       return;
     }
-
     setLoading(true);
     setError('');
-
     try {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'select_account',
-          },
+          queryParams: { access_type: 'offline', prompt: 'select_account' },
         },
       });
-
       if (oauthError) {
         setError(oauthError.message);
         setLoading(false);
       }
-    } catch (err) {
+    } catch {
       setError('Error al iniciar autenticación con Google.');
       setLoading(false);
     }
   }, []);
 
-  /**
-   * Cierra la sesión del usuario
-   */
   const signOut = useCallback(async () => {
     if (!hasSupabase) {
       setUser(null);
       return;
     }
-
-    try {
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+    try { await supabase.auth.signOut(); } catch { /* ignore */ }
     setUser(null);
     setError('');
   }, []);
 
-  /**
-   * Refresca la sesión del usuario
-   */
   const refreshSession = useCallback(async () => {
     await buildUserFromSession();
   }, [buildUserFromSession]);
 
-  return {
-    user,
-    loading,
-    error,
-    signInWithGoogle,
-    signOut,
-    refreshSession,
-  };
+  return { user, loading, error, signInWithGoogle, signOut, refreshSession };
 }

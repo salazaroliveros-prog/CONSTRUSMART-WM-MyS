@@ -47,7 +47,7 @@ const Dashboard: React.FC = () => {
   const cuentasCobrar = useMemo(() => ctx.cuentasCobrar || [], [ctx.cuentasCobrar]);
   const cuentasPagar = useMemo(() => ctx.cuentasPagar || [], [ctx.cuentasPagar]);
   const riesgos = useMemo(() => ctx.riesgos || [], [ctx.riesgos]);
-  const ordenesCambio = useMemo(() => ctx.ordenes || [], [ctx.ordenes]);
+  const ordenesCambio = useMemo(() => ctx.ordenesCambio || [], [ctx.ordenesCambio]);
 
   // ============ CÁLCULOS DE KPIs ==============
   const kpi = useMemo(() => {
@@ -296,7 +296,7 @@ const Dashboard: React.FC = () => {
               label: 'Ver Detalle',
               icon: <Eye size={16} />,
               onClick: (row) => {
-                console.log('Ver detalle:', row.id);
+                ctx.setView('ordenes-cambio');
               },
               variant: 'default',
             },

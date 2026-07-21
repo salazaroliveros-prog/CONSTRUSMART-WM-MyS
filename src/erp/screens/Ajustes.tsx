@@ -8,7 +8,7 @@ import {
   Settings, Globe, Bell, Shield, Info, Database, Moon, Sun,
   Palette, Type, Eye, Key, Download, Upload, Trash2, CheckCircle,
   FlaskConical, User, FileInput, Calendar, DollarSign, AlertTriangle,
-  PlayCircle, FileText, TrendingUp,
+  PlayCircle, FileText, TrendingUp, Users, ShieldCheck,
 } from 'lucide-react';
 
 const ICON_SIZE = 18;
@@ -193,6 +193,7 @@ const Ajustes: React.FC = () => {
     { key: 'notificaciones', icon: Bell, label: t('ajustes.notificaciones_tab') },
     { key: 'datos', icon: Database, label: t('ajustes.datos_tab') },
     { key: 'cuenta', icon: Shield, label: t('ajustes.cuenta_tab') },
+    ...(['Administrador'].includes(user?.rol || '') ? [{ key: 'roles', icon: ShieldCheck, label: 'Roles y permisos' }] : []),
     { key: 'acerca', icon: Info, label: t('ajustes.acerca_tab') },
   ];
 
@@ -892,6 +893,54 @@ const Ajustes: React.FC = () => {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'roles' && user?.rol === 'Administrador' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  Roles del sistema
+                </h4>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Asigna los módulos que cada rol puede ver. El admin puede seleccionar exactamente qué pantallas quedan habilitadas por rol.
+                </p>
+                <div className="flex flex-col gap-3">
+                  {(Object.entries({
+                    Administrador: ['Todos los módulos'],
+                    Gerente: ['dashboard','proyectos','presupuestos','seguimiento','financiero','hitos','riesgos','ordenes-cambio','notificaciones','sso-calidad','documentos','profitability','calidad-cumplimiento','curvas-s','auditoria','apu','rendimiento-campo','baseprecios','muro','visor-bim','predictivo','exportacion','comercial-fin'],
+                    Residente: ['dashboard','proyectos','presupuestos','seguimiento','apu','rendimiento-campo','baseprecios','muro','hitos','bodega','ordenes-cambio','notificaciones','sso-calidad','documentos','profitability','calidad-cumplimiento','curvas-s'],
+                    Compras: ['dashboard','bodega','proyectos','cotizaciones','proveedor-analytics','entradas-almacen'],
+                    Bodeguero: ['dashboard','bodega'],
+                  }) as [string, string[]][]).map(([rol, modulos]) => (
+                    <div key={rol} className="rounded-lg border border-border p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-foreground">{rol}</span>
+                        <span className="text-[11px] text-muted-foreground">{modulos.length} módulos</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {modulos.map(m => (
+                          <span key={m} className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground">{m}</span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-6">
+                <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  Reglas de acceso
+                </h4>
+                <div className="flex flex-col gap-3 text-xs text-muted-foreground">
+                  <p>• El administrador <strong className="text-foreground">salazaroliveros@gmail.com</strong> siempre tiene acceso total.</p>
+                  <p>• Los demás usuarios obtienen su rol desde la tabla <code className="bg-muted px-1 py-0.5 rounded">profiles</code>.</p>
+                  <p>• El admin puede modificar estos mapeos en el futuro desde Ajustes o Supabase.</p>
+                  <p>• Si un usuario no tiene rol asignado, se le aplicará el rol <code className="bg-muted px-1 py-0.5 rounded">Gerente</code>.</p>
                 </div>
               </div>
             </div>

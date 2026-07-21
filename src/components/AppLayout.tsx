@@ -337,13 +337,17 @@ const Shell: React.FC = () => {
   const AppLayoutContent: React.FC = () => {
     const { appSettings, initializing, user } = useErp();
 
+    const BYPASS_LOGIN = import.meta.env.DEV;
+
+    if (BYPASS_LOGIN) {
+      return <Shell />;
+    }
+
     if (initializing) {
       return <AppLoader />;
     }
 
-    const BYPASS_LOGIN = import.meta.env.DEV;
-
-    if (!user && !BYPASS_LOGIN) {
+    if (!user) {
       return (
         <Suspense fallback={<AppLoader />}>
           <Login />
