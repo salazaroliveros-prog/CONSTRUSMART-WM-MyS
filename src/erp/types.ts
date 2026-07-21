@@ -1,9 +1,4 @@
-export type FactorSobrecosto = {
-  indirectos: number;
-  administracion: number;
-  imprevistos: number;
-  utilidad: number;
-};
+// FactorSobrecosto declarado una vez como interface en línea 258
 
 // ============================================================
 // TIPOS ACTUALIZADOS - DESPUÉS DE MIGRACIONES TIER 1

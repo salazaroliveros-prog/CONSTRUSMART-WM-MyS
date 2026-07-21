@@ -305,6 +305,24 @@ Luego: scripts/validar-alineacion-final.ts para verificar alineación DB↔Zod
 
 ---
 
+## ESTADO DE DESPLIEGUE
+
+### GitHub Actions
+- Workflow: `CI/CD — CONSTRUSMART ERP`
+- Run ID: `29757909995`
+- Estado actual: `in_progress`
+- Rama: `main`
+- Commit: `71e8e89`
+
+### Vercel
+- Proyecto vinculado al repositorio: `salazaroliveros-prog/CONSTRUSMART-WM-MyS`
+- Deploy automático activado por push a `main`
+- Verificar en: https://vercel.com/salazaroliveros-prog/CONSTRUSMART-WM-MyS
+
+**Nota**: El workflow local ya validó `typecheck`, `lint`, `tests` y `build` en verde antes del push.
+
+---
+
 **Documento generado**: 2026-07-20  
 **Autor**: Análisis automatizado con subagentes + scripts de validación  
 **Próxima revisión**: 2026-07-27

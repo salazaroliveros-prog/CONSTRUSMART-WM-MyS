@@ -76,6 +76,7 @@ interface RealtimeConfig {
 }
 
 const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000];
+const MAX_RECONNECT_ATTEMPTS = 5;
 
 /**
  * Filtra tablas permitidas según el rol del usuario
@@ -180,13 +181,21 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
           break;
 
         case 'CHANNEL_ERROR':
-          log('warn', 'Realtime', 'Error en canal Realtime — reconectando', { canal: channelName });
-          scheduleReconnectRef.current();
+          if (reconnectAttemptRef.current < MAX_RECONNECT_ATTEMPTS) {
+            log('warn', 'Realtime', 'Error en canal Realtime — reconectando', { canal: channelName });
+            scheduleReconnectRef.current();
+          } else {
+            log('warn', 'Realtime', `Supabase no disponible después de ${MAX_RECONNECT_ATTEMPTS} intentos. Se omiten suscripciones en vivo.`, { canal: channelName });
+          }
           break;
 
         case 'TIMED_OUT':
-          log('warn', 'Realtime', 'Timeout en canal Realtime', { canal: channelName });
-          scheduleReconnectRef.current();
+          if (reconnectAttemptRef.current < MAX_RECONNECT_ATTEMPTS) {
+            log('warn', 'Realtime', 'Timeout en canal Realtime', { canal: channelName });
+            scheduleReconnectRef.current();
+          } else {
+            log('warn', 'Realtime', `Supabase no disponible después de ${MAX_RECONNECT_ATTEMPTS} intentos. Se omiten suscripciones en vivo.`, { canal: channelName });
+          }
           break;
 
         case 'CLOSED':
@@ -203,6 +212,12 @@ export function useSupabaseRealtime(config: RealtimeConfig) {
    */
   const scheduleReconnect = useCallback(() => {
     const attempt = reconnectAttemptRef.current;
+
+    if (attempt >= MAX_RECONNECT_ATTEMPTS) {
+      log('warn', 'Realtime', `Supabase no disponible después de ${MAX_RECONNECT_ATTEMPTS} intentos. Se omiten suscripciones en vivo.`);
+      return;
+    }
+
     const delay = RECONNECT_DELAYS[Math.min(attempt, RECONNECT_DELAYS.length - 1)];
 
     log('recovery', 'Realtime', `Reconectando en ${delay}ms (intento ${attempt + 1})`);

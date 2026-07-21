@@ -18,7 +18,7 @@ vi.mock('@/lib/supabase', () => ({
   hasSupabase: true,
 }));
 
-describe.skip('useAccessLog', () => {
+describe('useAccessLog', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

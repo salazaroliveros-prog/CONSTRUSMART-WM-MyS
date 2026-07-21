@@ -261,7 +261,7 @@ describe('useSupabaseRealtime', () => {
 
     await act(async () => { getCb()!('CHANNEL_ERROR'); });
     vi.advanceTimersByTime(16000);
-    expect(hoisted.mockChannelFn).toHaveBeenCalledTimes(7);
+    expect(hoisted.mockChannelFn).toHaveBeenCalledTimes(6);
 
     vi.useRealTimers();
   });

@@ -12,8 +12,6 @@ import { z } from 'zod';
 
 type TabSSO = 'incidentes' | 'checklist-sso' | 'estadisticas' | 'emergencia' | 'pruebas' | 'nc' | 'liberaciones';
 
-type TabSSO = 'incidentes' | 'checklist-sso' | 'estadisticas' | 'emergencia' | 'pruebas' | 'nc' | 'liberaciones';
-
 const SSOCalidad: React.FC = () => {
   const { t } = useTranslation();
   const incidenteSchema = z.object({

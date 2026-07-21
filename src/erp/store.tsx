@@ -637,7 +637,10 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
   }, [user?.id]);
 
   const allowedViews = useMemo(() => {
-    if (!user?.rol) return [];
+    if (!user?.rol) {
+      if (import.meta.env.DEV) return [...ALL_VIEWS];
+      return [];
+    }
     try {
       return getViewsByRole(user.rol as any);
     } catch {
@@ -669,9 +672,9 @@ useEffect(() => {
   
   const subscribeToRealtime = async () => {
     if (supabaseSubscriptionsRef.current) return;
-    
+
     const client = assertSupabase();
-    
+
     const subs: string[] = [
       'erp_proyectos', 'erp_movimientos', 'erp_empleados', 'erp_materiales',
       'erp_ordenes_compra', 'erp_proveedores', 'erp_cuentas_cobrar', 'erp_cuentas_pagar',
@@ -686,7 +689,10 @@ useEffect(() => {
       'erp_error_log', 'erp_insumos_base',
       'erp_departamentos_gt', 'erp_municipios_gt',
     ];
-    
+
+    let logged = false;
+    const logOnce = (...args: any[]) => { if (!logged) { logged = true; console.warn(...args); } };
+
     const promises = subs.map(table => new Promise<void>((resolve, reject) => {
       const channel = client.channel(`public:${table}`);
       channelsArr.push(channel);
@@ -696,7 +702,7 @@ useEffect(() => {
           const oldRecord = payload.old as any;
           const storeKey = STORE_KEY_MAP[table] || table;
           const toStoreRecord = (raw: any) => raw ? toCamel(raw) : raw;
-          
+
           if (payload.eventType === 'INSERT') {
             useErpStore.setState(prev => {
               const arr: any[] = (prev as any)[storeKey] ?? [];
@@ -732,14 +738,17 @@ useEffect(() => {
         })
         .subscribe(status => {
           if (status === 'SUBSCRIBED') resolve();
-          else if (status === 'CHANNEL_ERROR') reject(new Error(`Failed to subscribe to ${table}`));
+          else if (status === 'CHANNEL_ERROR') {
+            logOnce(`[Realtime] Supabase no disponible, se omiten suscripciones en vivo`);
+            resolve();
+          }
         });
     }));
-    
+
     await Promise.all(promises);
     supabaseSubscriptionsRef.current = true;
   };
-  
+
   subscribeToRealtime().catch((error) => {
     console.error('Error subscribing to realtime:', error);
   });

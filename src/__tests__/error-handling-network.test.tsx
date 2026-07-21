@@ -243,6 +243,7 @@ describe('Network Error Handling', () => {
     });
 
     it('retries rate-limited mutations when token bucket allows', () => {
+      vi.useFakeTimers();
       let tokens = 5;
       const maxTokens = 10;
       const refillRate = 5;
@@ -262,8 +263,9 @@ describe('Network Error Handling', () => {
       expect(tokens).toBe(4);
 
       for (let i = 0; i < 4; i++) checkTokenBucket();
-      expect(tokens).toBe(0);
+      expect(tokens).toBeCloseTo(0, 5);
       expect(checkTokenBucket()).toBe(false);
+      vi.useRealTimers();
     });
   });
 

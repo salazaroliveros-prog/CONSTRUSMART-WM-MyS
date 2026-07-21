@@ -131,7 +131,7 @@ const mockProyectos = [
   },
 ];
 
-describe.skip('ProveedorAnalytics', () => {
+describe('ProveedorAnalytics', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (useErp as any).mockReturnValue({
