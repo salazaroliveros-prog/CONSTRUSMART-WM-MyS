@@ -4,6 +4,7 @@ import { useErp } from '../store';
 import type { Proyecto } from '../types';
 import { fmtQ, fmtPct, safePct } from '../utils';
 import { Progress } from '../components/Charts';
+import { toast } from 'sonner';
 import { ClipboardCheck, Eye } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -51,6 +52,8 @@ const Seguimiento: React.FC = () => {
     currentProjectId,
     setCurrentProjectId,
     proyectoWeather,
+    setBitacora,
+    updateBitacora, deleteBitacora,
   } = useErp();
 
   const [activeTab, setActiveTab] = useState<TabType>('analysis');
@@ -205,9 +208,21 @@ const Seguimiento: React.FC = () => {
         return (
           <SeguimientoBitacoraPanel
             entries={bitacoraEntries}
-            onAdd={() => console.log('Add bitacora')}
-            onEdit={(entry) => console.log('Edit', entry)}
-            onDelete={(id) => console.log('Delete', id)}
+            onAdd={() => {
+              const entry = { id: crypto.randomUUID(), proyectoId: selectedProyecto.id, fecha: new Date().toISOString().split('T')[0], clima: 'soleado', personalPresente: 0, maquinaria: '', tareasRealizadas: '', observaciones: '', createdAt: new Date().toISOString() };
+              setBitacora((prev: any[]) => [entry, ...prev]);
+              toast.success(t('seguimiento.bitacora_agregada', 'Entrada agregada'));
+            }}
+            onEdit={(entry: any) => {
+              const fecha = prompt('Fecha:', entry.fecha);
+              if (!fecha) return;
+              updateBitacora(entry.id, { fecha, clima: entry.clima, tareasRealizadas: entry.tareas });
+              toast.success(t('seguimiento.bitacora_editada', 'Entrada actualizada'));
+            }}
+            onDelete={(id: string) => {
+              deleteBitacora(id);
+              toast.success(t('seguimiento.bitacora_eliminada', 'Entrada eliminada'));
+            }}
           />
         );
 

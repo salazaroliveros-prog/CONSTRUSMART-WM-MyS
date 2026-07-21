@@ -96,7 +96,9 @@ const Riesgos: React.FC = () => {
       toast.error(t('common.sin_permisos', 'Sin permisos para eliminar'));
       return;
     }
-    await confirmAction({ title: t('riesgos.confirmar_eliminacion', 'Confirmar eliminación'), content: t('riesgos.confirmar_eliminar', '¿Eliminar este riesgo?'), centered: true, okText: t('riesgos.si_eliminar', 'Sí, eliminar'), cancelText: t('riesgos.cancelar', 'Cancelar') });
+    try {
+      await confirmAction({ title: t('riesgos.confirmar_eliminacion', 'Confirmar eliminación'), content: t('riesgos.confirmar_eliminar', '¿Eliminar este riesgo?'), centered: true, okText: t('riesgos.si_eliminar', 'Sí, eliminar'), cancelText: t('riesgos.cancelar', 'Cancelar') });
+    } catch { return; }
     deleteRiesgo(id);
   };
 

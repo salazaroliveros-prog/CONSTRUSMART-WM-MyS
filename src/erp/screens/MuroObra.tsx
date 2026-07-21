@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
-import { fmtQ } from '../utils';
+import { fmtQ, formatDateFmt } from '../utils';
 import { Heart, MessageCircle, Send, Image, Paperclip } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -110,7 +110,7 @@ const MuroObra: React.FC = () => {
             <div key={pub.id} className="bg-card rounded-2xl border border-border p-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className={`px-2 py-1 rounded text-[10px] font-medium ${cfg.color}`}>{cfg.label}</span>
-                <span className="text-xs text-muted-foreground">{pub.createdAt ? new Date(pub.createdAt).toLocaleDateString('es-GT') : '—'}</span>
+                <span className="text-xs text-muted-foreground">{pub.createdAt ? formatDateFmt(pub.createdAt) : '—'}</span>
               </div>
               <p className="text-sm text-foreground whitespace-pre-wrap mb-3">{pub.texto}</p>
               <div className="flex items-center gap-3">
@@ -127,7 +127,7 @@ const MuroObra: React.FC = () => {
                     <div key={c.id} className="bg-muted/40 rounded-lg p-2">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-semibold text-foreground">{c.autor}</span>
-                        <span className="text-[10px] text-muted-foreground">{c.createdAt ? new Date(c.createdAt).toLocaleDateString('es-GT') : '—'}</span>
+                        <span className="text-[10px] text-muted-foreground">{c.createdAt ? formatDateFmt(c.createdAt) : '—'}</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">{c.texto}</p>
                     </div>

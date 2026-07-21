@@ -2,8 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
-import { CheckCircle2, Circle, AlertTriangle, Calendar, Plus } from 'lucide-react';
+import { CheckCircle2, Circle, AlertTriangle, Calendar, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { confirmAction } from '@/lib/confirm-action';
+import { formatDateFmt } from '../utils';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../ui';
 
 type TipoHito = 'entrega' | 'pago' | 'inspeccion' | 'licencia' | 'otro';
@@ -34,7 +36,7 @@ const Hitos: React.FC = () => {
     licencia: { label: t('hitos.tipo_licencia', 'Licencia'), color: 'text-blue-600', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
     otro: { label: t('hitos.tipo_otro', 'Otro'), color: 'text-slate-500 dark:text-slate-400', icon: <Circle className="w-3 h-3" aria-hidden="true" /> },
   };
-  const { hitos, proyectos, addHito, updateHito, currentProjectId, setCurrentProjectId } = useErp();
+  const { hitos, proyectos, addHito, updateHito, deleteHito, currentProjectId, setCurrentProjectId } = useErp();
   const [filtroProyecto, setFiltroProyecto] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -80,6 +82,14 @@ const Hitos: React.FC = () => {
     const updateData: HitoUpdate = { completado: !actual };
     updateHito(id, updateData);
     toast.success(!actual ? t('hitos.completado', 'Completado') : t('hitos.pendiente', 'Pendiente'));
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await confirmAction({ title: t('hitos.confirmar_eliminar', '¿Eliminar este hito?') });
+      deleteHito(id);
+      toast.success(t('hitos.eliminado', 'Hito eliminado'));
+    } catch {}
   };
 
   const startEdit = (hito: HitoItem) => {
@@ -153,10 +163,13 @@ const Hitos: React.FC = () => {
                   <span className={`text-xs font-semibold ${cfg.color}`}>{cfg.label}</span>
                   <span className="text-sm font-medium text-foreground truncate">{h.nombre}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">{h.fecha ? new Date(h.fecha).toLocaleDateString('es-GT') : '—'}</span>
+                <span className="text-xs text-muted-foreground">{h.fecha ? formatDateFmt(h.fecha) : '—'}</span>
                 {esVencido && <span className="ml-2 text-[10px] text-red-600 font-bold flex items-center gap-1"><AlertTriangle className="w-3 h-3" aria-hidden="true" /> {t('hitos.vencido', 'Vencido')}</span>}
               </div>
-              <button onClick={() => startEdit(h)} aria-label={t('common.editar', 'Editar')} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Plus className="w-3 h-3" aria-hidden="true" /></button>
+              <div className="flex items-center gap-1">
+                <button onClick={() => startEdit(h)} aria-label={t('common.editar', 'Editar')} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Plus className="w-3 h-3" aria-hidden="true" /></button>
+                <button onClick={() => handleDelete(h.id)} aria-label={t('common.eliminar', 'Eliminar')} className="p-1.5 rounded hover:bg-accent text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
+              </div>
             </div>
           );
         })}

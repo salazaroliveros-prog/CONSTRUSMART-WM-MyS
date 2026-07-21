@@ -95,13 +95,15 @@ const CuentasPagar: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    await confirmAction({
-      title: t('cuentas_pagar.confirmar_eliminar'),
-      content: t('cuentas_pagar.confirmar_eliminar_msg'),
-      okText: t('common.si'),
-      cancelText: t('common.cancelar'),
-      variant: 'destructive',
-    });
+    try {
+      await confirmAction({
+        title: t('cuentas_pagar.confirmar_eliminar'),
+        content: t('cuentas_pagar.confirmar_eliminar_msg'),
+        okText: t('common.si'),
+        cancelText: t('common.cancelar'),
+        variant: 'destructive',
+      });
+    } catch { return; }
     deleteCuentaPagar(id);
     toast.success(t('cuentas_pagar.eliminada'));
   };

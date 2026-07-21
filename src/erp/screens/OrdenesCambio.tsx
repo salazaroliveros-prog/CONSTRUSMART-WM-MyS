@@ -4,8 +4,9 @@ import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { OrdenCambio } from '../types';
 import { fmtQ, todayISO } from '../utils';
-import { GitBranch, Plus, Check, X, Clock, ChevronRight, ChevronDown, FileText } from 'lucide-react';
+import { GitBranch, Plus, Check, X, Clock, ChevronRight, ChevronDown, FileText, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { confirmAction } from '@/lib/confirm-action';
 import { canUserEdit } from '@/lib/security';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
 
@@ -13,7 +14,7 @@ type EstadoOC = OrdenCambio['estado'];
 
 const OrdenesCambio: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, user, ordenesCambio, addOrdenCambio, updateOrdenCambio } = useErp();
+  const { proyectos, user, ordenesCambio, addOrdenCambio, updateOrdenCambio, deleteOrdenCambio } = useErp();
   const [showForm, setShowForm] = useState(false);
   const [proyectoFilter, setProyectoFilter] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -66,6 +67,14 @@ const OrdenesCambio: React.FC = () => {
     }
     updateOrdenCambio(id, { estado: 'rechazado', aprobador: user?.nombre || 'Gerente', fechaAprobacion: todayISO() });
     toast.info(t('ordenes_cambio.cambio_rechazado', 'Cambio rechazado'));
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await confirmAction({ title: t('ordenes_cambio.confirmar_eliminar', '¿Eliminar orden de cambio?') });
+      deleteOrdenCambio(id);
+      toast.success(t('ordenes_cambio.eliminado', 'Orden de cambio eliminada'));
+    } catch {}
   };
 
   const estadoConfig: Record<EstadoOC, { color: string; bg: string; label: string }> = {
@@ -173,16 +182,21 @@ const OrdenesCambio: React.FC = () => {
                       {t('ordenes_cambio.aprobado_por', 'Aprobado por:')} <span className="font-medium text-muted-foreground">{oc.aprobador}</span> — {oc.fechaAprobacion}
                     </div>
                   )}
-                  {(oc.estado === 'solicitud' || oc.estado === 'revision') && (user?.rol === 'Administrador' || user?.rol === 'Gerente') && (
-                    <div className="flex gap-2 mt-2">
-                      <button onClick={() => handleAprobar(oc.id)} className={`${BUTTON_PRIMARY} flex items-center gap-1 text-xs`}>
-                        <Check className="w-3 h-3" aria-hidden="true" /> {t('ordenes_cambio.aprobar', 'Aprobar')}
-                      </button>
-                      <button onClick={() => handleRechazar(oc.id)} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
-                        <X className="w-3 h-3" aria-hidden="true" /> {t('ordenes_cambio.rechazar', 'Rechazar')}
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex gap-2 mt-2">
+                    {(oc.estado === 'solicitud' || oc.estado === 'revision') && (user?.rol === 'Administrador' || user?.rol === 'Gerente') && (
+                      <>
+                        <button onClick={() => handleAprobar(oc.id)} className={`${BUTTON_PRIMARY} flex items-center gap-1 text-xs`}>
+                          <Check className="w-3 h-3" aria-hidden="true" /> {t('ordenes_cambio.aprobar', 'Aprobar')}
+                        </button>
+                        <button onClick={() => handleRechazar(oc.id)} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+                          <X className="w-3 h-3" aria-hidden="true" /> {t('ordenes_cambio.rechazar', 'Rechazar')}
+                        </button>
+                      </>
+                    )}
+                    <button onClick={() => handleDelete(oc.id)} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('common.eliminar')}>
+                      <Trash2 className="w-3 h-3" aria-hidden="true" /> {t('common.eliminar')}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

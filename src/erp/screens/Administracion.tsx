@@ -1,18 +1,22 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useErp } from '../store';
+import { useErp, uid } from '../store';
 import type { CentroCosto, LogAuditoria } from '../types';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { Building2, History, Activity } from 'lucide-react';
+import { Building2, History, Activity, Pencil, Trash2 } from 'lucide-react';
 import { centroCostoFormSchema } from '../store/schemas/admin';
 import { usePerformanceMetrics } from '../hooks/usePerformanceMetrics';
+import { confirmAction } from '@/lib/confirm-action';
 
 type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
+
+const LS_CENTROS = 'wm_erp_admin_centros_costo';
+const LS_AUDIT = 'wm_erp_admin_audit_log';
 
 const Administracion: React.FC = () => {
   const { proyectos } = useErp();
@@ -20,32 +24,66 @@ const Administracion: React.FC = () => {
   const { t } = useTranslation();
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion' | 'rendimiento'>('centros');
   const { metrics, loading: metricsLoading, error: metricsError, fetch: fetchMetrics } = usePerformanceMetrics();
-  const [centrosCosto, setCentrosCosto] = useState<CentroCosto[]>([]);
-  const [auditLog, setAuditLog] = useState<LogAuditoria[]>([]);
+  const [centrosCosto, setCentrosCosto] = useState<CentroCosto[]>(() => {
+    try { return JSON.parse(localStorage.getItem(LS_CENTROS) || '[]'); }
+    catch { return []; }
+  });
+  const [auditLog, setAuditLog] = useState<LogAuditoria[]>(() => {
+    try { return JSON.parse(localStorage.getItem(LS_AUDIT) || '[]'); }
+    catch { return []; }
+  });
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [filtroProyecto, setFiltroProyecto] = useState('');
+
+  useEffect(() => { localStorage.setItem(LS_CENTROS, JSON.stringify(centrosCosto)); }, [centrosCosto]);
+  useEffect(() => { localStorage.setItem(LS_AUDIT, JSON.stringify(auditLog)); }, [auditLog]);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(t);
   }, []);
 
-  const uid = () => Date.now().toString(36).substr(2, 9);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<CentroCostoForm>({
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<CentroCostoForm>({
     resolver: zodResolver(centroCostoFormSchema),
     defaultValues: { proyectoId: '', codigo: '', nombre: '', presupuestoAsignado: 0, tipo: 'directo' },
   });
 
-  const onAddCentroCosto = (data: CentroCostoForm) => {
-    setCentrosCosto(prev => [{ id: uid(), proyectoId: data.proyectoId, codigo: data.codigo, nombre: data.nombre, presupuestoAsignado: data.presupuestoAsignado, gastoActual: 0, tipo: data.tipo }, ...prev]);
-    toast.success(t('admin.centro_creado'));
+  const onSaveCentroCosto = (data: CentroCostoForm) => {
+    if (editingId) {
+      setCentrosCosto(prev => prev.map(c => c.id === editingId ? { ...c, ...data } : c));
+      toast.success(t('admin.centro_actualizado', 'Centro actualizado'));
+    } else {
+      setCentrosCosto(prev => [{ id: uid(), proyectoId: data.proyectoId, codigo: data.codigo, nombre: data.nombre, presupuestoAsignado: data.presupuestoAsignado, gastoActual: 0, tipo: data.tipo }, ...prev]);
+      toast.success(t('admin.centro_creado'));
+    }
     setShowForm(false);
+    setEditingId(null);
     reset();
+  };
+
+  const openEditCentro = (centro: CentroCosto) => {
+    setEditingId(centro.id);
+    setValue('proyectoId', centro.proyectoId);
+    setValue('codigo', centro.codigo);
+    setValue('nombre', centro.nombre);
+    setValue('presupuestoAsignado', centro.presupuestoAsignado);
+    setValue('tipo', centro.tipo as any);
+    setShowForm(true);
+  };
+
+  const deleteCentro = async (id: string) => {
+    try {
+      await confirmAction({ title: t('admin.confirmar_eliminar', '¿Eliminar centro de costo?') });
+      setCentrosCosto(prev => prev.filter(c => c.id !== id));
+      toast.success(t('admin.centro_eliminado', 'Centro eliminado'));
+    } catch {}
   };
 
   const INPUT_BASE = 'w-full px-3 py-2 border rounded-lg text-sm outline-none focus:border-ring bg-background text-foreground';
   const inp = (hasErr: boolean) => `${INPUT_BASE} ${hasErr ? 'border-destructive' : 'border-input'}`;
+  const FOCUS_VISIBLE = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
   const centrosData = useMemo(() => {
     const filtered = filtroProyecto ? centrosCosto.filter(c => c.proyectoId === filtroProyecto) : centrosCosto;
@@ -67,7 +105,7 @@ const Administracion: React.FC = () => {
           <h2 className="text-lg font-bold text-foreground">{t('admin.centros')}</h2>
           <div className="flex items-center gap-2">
             <ProyectoFilter value={filtroProyecto} onChange={setFiltroProyecto} proyectos={safeProyectos} />
-            <button onClick={() => { setShowForm(true); reset(); }} aria-label={t('admin.nuevo_centro')}
+            <button onClick={() => { setShowForm(true); setEditingId(null); reset(); }} aria-label={t('admin.nuevo_centro')}
               className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               {t('admin.nuevo_centro')}
             </button>
@@ -104,6 +142,7 @@ const Administracion: React.FC = () => {
                 <th className="text-right p-2" scope="col">{t('admin.gasto')}</th>
                 <th className="text-right p-2" scope="col">{t('admin.saldo')}</th>
                 <th className="text-right p-2" scope="col">{t('admin.ejec_pct')}</th>
+                <th className="text-right p-2" scope="col">{t('common.acciones')}</th>
               </tr>
             </thead>
             <tbody>
@@ -124,6 +163,14 @@ const Administracion: React.FC = () => {
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${pct > 90 ? 'bg-destructive/10 text-destructive' : pct > 70 ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'}`}>
                         {pct.toFixed(1)}%
                       </span>
+                    </td>
+                    <td className="p-2 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => openEditCentro(cc)} aria-label={t('common.editar')}
+                          className={`p-1.5 rounded hover:bg-accent text-blue-500 ${FOCUS_VISIBLE}`}><Pencil className="w-3 h-3" aria-hidden="true" /></button>
+                        <button onClick={() => deleteCentro(cc.id)} aria-label={t('common.eliminar')}
+                          className={`p-1.5 rounded hover:bg-accent text-red-500 ${FOCUS_VISIBLE}`}><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -179,22 +226,19 @@ const Administracion: React.FC = () => {
   const renderValidacion = () => (
     <div>
       <h2 className="text-lg font-bold mb-4 text-foreground">{t('admin.validacion')}</h2>
-      <p className="text-sm text-muted-foreground mb-4">
-        {t('admin.validacion_desc')}
-      </p>
+      <p className="text-sm text-muted-foreground mb-4">{t('admin.validacion_desc')}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="p-4 bg-success/10 rounded-lg border border-success/30">
           <p className="text-sm font-semibold text-success">{t('admin.validacion_cc')}</p>
-           <p className="text-xs text-muted-foreground mt-1">{centrosCosto.length} {t('admin.centros')}, {centrosConSobreCosto} {t('admin.con_sobrecosto')}</p>
+          <p className="text-xs text-muted-foreground mt-1">{centrosCosto.length} {t('admin.centros')}, {centrosConSobreCosto} {t('admin.con_sobrecosto')}</p>
         </div>
         <div className="p-4 bg-info/10 rounded-lg border border-info/30">
           <p className="text-sm font-semibold text-info">{t('admin.validacion_proy')}</p>
-            <p className="text-xs text-muted-foreground mt-1">{safeProyectos.length} {t('admin.proyectos')}, {proyectosEnEjecucion} {t('admin.en_ejecucion')}</p>
+          <p className="text-xs text-muted-foreground mt-1">{safeProyectos.length} {t('admin.proyectos')}, {proyectosEnEjecucion} {t('admin.en_ejecucion')}</p>
         </div>
       </div>
-      <button onClick={() => {
-        toast.info(t('admin.validacion_ok'));
-      }} aria-label={t('admin.ejecutar_validacion')} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      <button onClick={() => { toast.info(t('admin.validacion_ok')); }} aria-label={t('admin.ejecutar_validacion')}
+        className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         {t('admin.ejecutar_validacion')}
       </button>
     </div>
@@ -225,9 +269,7 @@ const Administracion: React.FC = () => {
           { key: 'rendimiento' as const, label: t('admin.tab_rendimiento', 'Rendimiento DB') },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)} aria-label={t.label}
-            className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-              tab === t.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
-            }`}>{t.label}</button>
+            className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${tab === t.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'}`}>{t.label}</button>
         ))}
       </div>
 
@@ -249,10 +291,10 @@ const Administracion: React.FC = () => {
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground mb-2">{t('admin.consultas_lentas', 'Consultas más lentas')}</h4>
                 {metrics.slow_queries.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">{t('admin.sin_datos_rendimiento', 'Sin datos (pg_stat_statements puede no estar habilitado)')}</p>
+                  <p className="text-sm text-muted-foreground">{t('admin.sin_datos_rendimiento', 'Sin datos')}</p>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs" role="table" aria-label={t('admin.consultas_lentas', 'Consultas más lentas')}>
+                    <table className="w-full text-xs" role="table" aria-label="Slow queries">
                       <thead><tr className="bg-muted">
                         <th className="p-2 text-left" scope="col">Query</th>
                         <th className="p-2 text-right" scope="col">{t('admin.llamadas', 'Llamadas')}</th>
@@ -287,15 +329,15 @@ const Administracion: React.FC = () => {
             </>
           )}
           {!metrics && !metricsLoading && (
-            <p className="text-sm text-muted-foreground">{t('admin.click_actualizar', 'Haz clic en "Actualizar" para cargar las métricas.')}</p>
+            <p className="text-sm text-muted-foreground">{t('admin.click_actualizar', 'Haz clic en "Actualizar"')}</p>
           )}
         </div>
       )}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={t('admin.nuevo_centro')}>
-          <form onSubmit={handleSubmit(onAddCentroCosto)} onClick={e => e.stopPropagation()} className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm">
-            <h3 className="font-bold mb-4 text-foreground">{t('admin.nuevo_centro')}</h3>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={editingId ? t('admin.editar_centro', 'Editar centro') : t('admin.nuevo_centro')}>
+          <form onSubmit={handleSubmit(onSaveCentroCosto)} onClick={e => e.stopPropagation()} className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm">
+            <h3 className="font-bold mb-4 text-foreground">{editingId ? t('admin.editar_centro', 'Editar Centro de Costo') : t('admin.nuevo_centro')}</h3>
             <div className="grid gap-3">
               <div>
                 <select {...register('proyectoId')} className={inp(!!errors.proyectoId)}>
@@ -323,8 +365,13 @@ const Administracion: React.FC = () => {
                   <option value="administrativo">{t('admin.tipo_admin')}</option>
                 </select>
               </div>
-              <button type="submit" className="bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('admin.guardar')}</button>
-              <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('admin.cancelar')}</button>
+              <button type="submit" className="bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                {editingId ? t('admin.actualizar', 'Actualizar') : t('admin.guardar')}
+              </button>
+              <button type="button" onClick={() => { setShowForm(false); setEditingId(null); reset(); }}
+                className="px-4 py-2 border border-input rounded-lg text-xs text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                {t('admin.cancelar')}
+              </button>
             </div>
           </form>
         </div>

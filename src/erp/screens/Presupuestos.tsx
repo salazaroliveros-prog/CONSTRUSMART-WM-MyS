@@ -56,13 +56,15 @@ const Presupuestos: React.FC = () => {
   };
 
   const handleDeletePresupuesto = async (id: string) => {
-    await confirmAction({
-      title: t('presupuestos.confirmar_eliminar_titulo'),
-      content: t('presupuestos.confirmar_eliminar_contenido'),
-      okText: t('common.si'),
-      cancelText: t('common.cancelar'),
-      variant: 'destructive',
-    });
+    try {
+      await confirmAction({
+        title: t('presupuestos.confirmar_eliminar_titulo'),
+        content: t('presupuestos.confirmar_eliminar_contenido'),
+        okText: t('common.si'),
+        cancelText: t('common.cancelar'),
+        variant: 'destructive',
+      });
+    } catch { return; }
     deletePresupuesto(id);
     if (selectedId === id) setSelectedId(null);
     toast.success(t('presupuestos.eliminado_exito'));

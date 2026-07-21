@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useErp } from '../store';
+import { useErp, uid } from '../store';
 import type { VentaPaquete, Anticipo, AmortizacionItem, CajaChica } from '../types';
 import { Building2, DollarSign, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 import { fmtQ } from '../utils';
 
-const uid = () => Date.now().toString(36).substr(2, 9);
+const LS_ANTICIPOS = 'wm_erp_comercial_anticipos';
+const LS_CAJAS = 'wm_erp_comercial_cajas';
 
 export const ComercialFinanzas: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, user, ventasPaquetes } = useErp();
+  const { proyectos, user, ventasPaquetes, addVentaPaquete, updateVentaPaquete } = useErp();
 
   const [tab, setTab] = useState<'ventas' | 'anticipos' | 'cajas'>('ventas');
   const [showForm, setShowForm] = useState<string | null>(null);
@@ -18,42 +19,40 @@ export const ComercialFinanzas: React.FC = () => {
   const [amortInputs, setAmortInputs] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const [ventas, setVentas] = useState<VentaPaquete[]>((ventasPaquetes ?? []) as VentaPaquete[]);
-  const [anticipos, setAnticipos] = useState<Anticipo[]>([]);
-  const [cajasChicas, setCajasChicas] = useState<CajaChica[]>([]);
+  const [anticipos, setAnticipos] = useState<Anticipo[]>(() => {
+    try { return JSON.parse(localStorage.getItem(LS_ANTICIPOS) || '[]'); }
+    catch { return []; }
+  });
+  const [cajasChicas, setCajasChicas] = useState<CajaChica[]>(() => {
+    try { return JSON.parse(localStorage.getItem(LS_CAJAS) || '[]'); }
+    catch { return []; }
+  });
 
-  useEffect(() => {
-    setVentas((ventasPaquetes ?? []) as VentaPaquete[]);
-  }, [ventasPaquetes]);
+  useEffect(() => { localStorage.setItem(LS_ANTICIPOS, JSON.stringify(anticipos)); }, [anticipos]);
+  useEffect(() => { localStorage.setItem(LS_CAJAS, JSON.stringify(cajasChicas)); }, [cajasChicas]);
 
   const addVenta = (data: Omit<VentaPaquete, 'id'>) => {
-    const updated = [{ ...data, id: uid() }, ...ventas];
-    setVentas(updated);
+    addVentaPaquete({ ...data, id: uid() });
   };
   const updateVenta = (id: string, patch: Partial<VentaPaquete>) => {
-    const updated = ventas.map(v => v.id === id ? { ...v, ...patch } : v);
-    setVentas(updated);
+    updateVentaPaquete(id, patch);
   };
   const addAnticipo = (data: Omit<Anticipo, 'id' | 'amortizaciones'>) => {
-    const updated = [{ ...data, id: uid(), amortizaciones: [] }, ...anticipos];
-    setAnticipos(updated);
+    setAnticipos(prev => [{ ...data, id: uid(), amortizaciones: [] }, ...prev]);
   };
   const addAmortizacion = (anticipoId: string, data: Omit<AmortizacionItem, 'id'>) => {
-    const updated = anticipos.map(a => {
+    setAnticipos(prev => prev.map(a => {
       if (a.id !== anticipoId) return a;
       const newAmort: AmortizacionItem = { ...data, id: uid() };
       const nuevoSaldo = Math.max(0, a.saldoPendiente - data.monto);
       return { ...a, saldoPendiente: nuevoSaldo, estado: nuevoSaldo === 0 ? 'amortizado' as const : a.estado, amortizaciones: [...a.amortizaciones, newAmort] };
-    });
-    setAnticipos(updated);
+    }));
   };
   const addCajaChica = (data: Omit<CajaChica, 'id'>) => {
-    const updated = [{ ...data, id: uid() }, ...cajasChicas];
-    setCajasChicas(updated);
+    setCajasChicas(prev => [{ ...data, id: uid() }, ...prev]);
   };
   const updateCajaChica = (id: string, patch: Partial<CajaChica>) => {
-    const updated = cajasChicas.map(c => c.id === id ? { ...c, ...patch } : c);
-    setCajasChicas(updated);
+    setCajasChicas(prev => prev.map(c => c.id === id ? { ...c, ...patch } : c));
   };
 
   const INPUT = 'w-full px-3 py-2 border border-input rounded-lg text-sm outline-none focus:border-ring bg-background text-foreground';
@@ -61,11 +60,11 @@ export const ComercialFinanzas: React.FC = () => {
   const FOCUS_VISIBLE = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
   const ventasKpis = useMemo(() => ({
-    disponibles: ventas.filter(v => v.estado === 'disponible').length,
-    reservados: ventas.filter(v => v.estado === 'reservado').length,
-    vendidos: ventas.filter(v => v.estado === 'vendido').length,
-    entregados: ventas.filter(v => v.estado === 'entregado').length,
-  }), [ventas]);
+    disponibles: (ventasPaquetes ?? []).filter(v => v.estado === 'disponible').length,
+    reservados: (ventasPaquetes ?? []).filter(v => v.estado === 'reservado').length,
+    vendidos: (ventasPaquetes ?? []).filter(v => v.estado === 'vendido').length,
+    entregados: (ventasPaquetes ?? []).filter(v => v.estado === 'entregado').length,
+  }), [ventasPaquetes]);
 
   const cajasKpis = useMemo(() => ({
     pendientes: cajasChicas.filter(c => c.estado === 'pendiente').length,
@@ -95,7 +94,7 @@ export const ComercialFinanzas: React.FC = () => {
          ))}
       </div>
 
-      {ventas.length === 0 ? (
+      {(ventasPaquetes ?? []).length === 0 ? (
         <div className="text-center py-10 text-muted-foreground">
           <Building2 className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" />
           <p className="text-sm">{t('comercial.no_hay_ventas')}</p>
@@ -113,7 +112,7 @@ export const ComercialFinanzas: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {ventas.map(v => (
+            {(ventasPaquetes ?? []).map(v => (
               <tr key={v.id} className="border-t hover:bg-muted/50">
                 <td className="p-2 font-medium truncate" title={v.identificador}>{v.identificador}</td>
                 <td className="p-2 text-xs truncate">{v.tipo}</td>
@@ -121,12 +120,7 @@ export const ComercialFinanzas: React.FC = () => {
                 <td className="p-2 text-xs truncate" title={v.cliente || '—'}>{v.cliente || '—'}</td>
                 <td className="p-2">
                   <select value={v.estado} onChange={e => updateVenta(v.id, { estado: e.target.value as VentaPaquete['estado'] })}
-                    className={`text-xs px-3 py-2 rounded border outline-none ${FOCUS_VISIBLE} ${
-                      v.estado === 'disponible' ? 'text-success bg-success/10' :
-                      v.estado === 'reservado'  ? 'text-warning bg-warning/10' :
-                      v.estado === 'vendido'    ? 'text-info bg-info/10' :
-                      'text-muted-foreground bg-muted'
-                    }`}>
+                    className={`text-xs px-3 py-2 rounded border outline-none ${FOCUS_VISIBLE} ${v.estado === 'disponible' ? 'text-success bg-success/10' : v.estado === 'reservado' ? 'text-warning bg-warning/10' : v.estado === 'vendido' ? 'text-info bg-info/10' : 'text-muted-foreground bg-muted'}`}>
                     <option value="disponible">{t('comercial.disponible', 'Disponible')}</option>
                     <option value="reservado">{t('comercial.reservado', 'Reservado')}</option>
                     <option value="vendido">{t('comercial.vendido', 'Vendido')}</option>
@@ -157,10 +151,7 @@ export const ComercialFinanzas: React.FC = () => {
               <div className="flex justify-between items-center mb-2">
                 <div>
                   <span className="font-semibold text-foreground">{a.concepto}</span>
-                  <span className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${
-                    a.estado === 'activo' ? 'bg-warning/10 text-warning' :
-                    a.estado === 'amortizado' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
-                  }`}>{t('comercial.estado_' + a.estado, a.estado)}</span>
+                  <span className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${a.estado === 'activo' ? 'bg-warning/10 text-warning' : a.estado === 'amortizado' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>{t('comercial.estado_' + a.estado, a.estado)}</span>
                 </div>
                 <span className="text-xs text-muted-foreground">{a.beneficiario}</span>
               </div>
@@ -248,12 +239,7 @@ export const ComercialFinanzas: React.FC = () => {
               <tr key={c.id} className="border-t hover:bg-muted/50">
                 <td className="p-2 text-xs truncate" title={c.descripcion}>{c.descripcion}</td>
                 <td className="p-2">
-                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                    c.categoria === 'materiales'   ? 'bg-info/10 text-info' :
-                    c.categoria === 'herramientas' ? 'bg-accent/10 text-accent-foreground' :
-                    c.categoria === 'transporte'   ? 'bg-primary/10 text-primary' :
-                    c.categoria === 'comidas'      ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
-                  }`}>{t('comercial.categoria_' + c.categoria, c.categoria)}</span>
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${c.categoria === 'materiales' ? 'bg-info/10 text-info' : c.categoria === 'herramientas' ? 'bg-accent/10 text-accent-foreground' : c.categoria === 'transporte' ? 'bg-primary/10 text-primary' : c.categoria === 'comidas' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>{t('comercial.categoria_' + c.categoria, c.categoria)}</span>
                 </td>
                 <td className="p-2 text-right font-mono">{fmtQ(c.monto)}</td>
                 <td className="p-2 text-xs">{new Date(c.fechaGasto).toLocaleDateString()}</td>
@@ -264,10 +250,7 @@ export const ComercialFinanzas: React.FC = () => {
                     aprobadoPor: e.target.value === 'aprobada' ? (user?.nombre || 'Admin') : undefined,
                     fechaAprobacion: e.target.value === 'aprobada' ? new Date().toISOString() : undefined
                   })}
-                    className={`text-xs px-3 py-2 rounded border outline-none ${FOCUS_VISIBLE} ${
-                      c.estado === 'aprobada'  ? 'text-success bg-success/10' :
-                      c.estado === 'rechazada' ? 'text-destructive bg-destructive/10' : 'text-warning bg-warning/10'
-                    }`}>
+                    className={`text-xs px-3 py-2 rounded border outline-none ${FOCUS_VISIBLE} ${c.estado === 'aprobada' ? 'text-success bg-success/10' : c.estado === 'rechazada' ? 'text-destructive bg-destructive/10' : 'text-warning bg-warning/10'}`}>
                     <option value="pendiente">{t('comercial.pendiente', 'Pendiente')}</option>
                     <option value="aprobada">{t('comercial.aprobada', 'Aprobada')}</option>
                     <option value="rechazada">{t('comercial.rechazada', 'Rechazada')}</option>
@@ -295,9 +278,7 @@ export const ComercialFinanzas: React.FC = () => {
           const Icon = item.icon;
           return (
             <button key={item.key} onClick={() => setTab(item.key as typeof tab)} role="tab" aria-selected={tab === item.key}
-              className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-1.5 ${FOCUS_VISIBLE} ${
-                tab === item.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
-              }`}><Icon className="w-4 h-4" aria-hidden="true" /> {item.label}</button>
+              className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-1.5 ${FOCUS_VISIBLE} ${tab === item.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'}`}><Icon className="w-4 h-4" aria-hidden="true" /> {item.label}</button>
           );
         })}
       </div>
@@ -307,13 +288,9 @@ export const ComercialFinanzas: React.FC = () => {
       {tab === 'cajas'     && renderCajas()}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={showForm === 'venta' ? t('comercial.nueva_venta') : showForm === 'anticipo' ? t('comercial.nuevo_anticipo') : t('comercial.nuevo_gasto')}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={showForm === 'venta' ? 'Nueva Venta' : showForm === 'anticipo' ? 'Nuevo Anticipo' : 'Nuevo Gasto'}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
-            <h3 className="font-bold mb-4 text-foreground truncate" title={
-              showForm === 'venta' ? t('comercial.modal_nueva_venta', 'Nueva Venta / Paquete') :
-              showForm === 'anticipo' ? t('comercial.modal_nuevo_anticipo', 'Nuevo Anticipo') :
-              t('comercial.modal_nuevo_gasto', 'Nuevo Gasto de Caja Chica')
-            }>
+            <h3 className="font-bold mb-4 text-foreground truncate">
               {showForm === 'venta'    && t('comercial.modal_nueva_venta', 'Nueva Venta / Paquete')}
               {showForm === 'anticipo' && t('comercial.modal_nuevo_anticipo', 'Nuevo Anticipo')}
               {showForm === 'caja'     && t('comercial.modal_nuevo_gasto', 'Nuevo Gasto de Caja Chica')}
@@ -330,7 +307,7 @@ export const ComercialFinanzas: React.FC = () => {
                 <select className={SELECT} value={form.tipo || 'unidad'} onChange={e => setForm({ ...form, tipo: e.target.value })}>
                   <option value="unidad">{t('comercial.unidad', 'Unidad')}</option><option value="lote">{t('comercial.lote', 'Lote')}</option><option value="paquete">{t('comercial.paquete', 'Paquete')}</option>
                 </select>
-                <input placeholder={t('comercial.placeholder_identificador', 'Identificador (ej: Torre A - Apt 301)')} className={INPUT} value={form.identificador || ''} onChange={e => setForm({ ...form, identificador: e.target.value })} />
+                <input placeholder={t('comercial.placeholder_identificador', 'Identificador')} className={INPUT} value={form.identificador || ''} onChange={e => setForm({ ...form, identificador: e.target.value })} />
                 <input placeholder={t('comercial.placeholder_precio', 'Precio de venta Q')} type="number" inputMode="decimal" className={INPUT} value={form.precioVenta || ''} onChange={e => setForm({ ...form, precioVenta: +e.target.value })} />
                 <input placeholder={t('comercial.placeholder_cliente', 'Cliente (opcional)')} className={INPUT} value={form.cliente || ''} onChange={e => setForm({ ...form, cliente: e.target.value })} />
                 <button onClick={() => {

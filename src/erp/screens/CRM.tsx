@@ -124,13 +124,15 @@ const CRM: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    await confirmAction({
-      title: t('crm.confirmar_eliminar_titulo', 'Confirmar eliminación'),
-      content: t('crm.confirmar_eliminar_contenido', '¿Eliminar esta licitación?'),
-      okText: t('common.si'),
-      cancelText: t('common.cancelar'),
-      variant: 'destructive',
-    });
+    try {
+      await confirmAction({
+        title: t('crm.confirmar_eliminar_titulo', 'Confirmar eliminación'),
+        content: t('crm.confirmar_eliminar_contenido', '¿Eliminar esta licitación?'),
+        okText: t('common.si'),
+        cancelText: t('common.cancelar'),
+        variant: 'destructive',
+      });
+    } catch { return; }
     deleteLicitacion(id);
     toast.success(t('crm.eliminado_exito'));
   };

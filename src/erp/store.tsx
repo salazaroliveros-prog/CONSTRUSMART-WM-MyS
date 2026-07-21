@@ -13,7 +13,11 @@ import {
    destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema, insumosBaseSchema,
     appSettingsSchema,
     reglaFactorSchema, normativaDepartamentalSchema, escalaProduccionSchema, estacionalidadSchema,
-    historialAplicacionReglaSchema,
+    historialAplicacionReglaSchema, calculoProyectoSchema, ajusteEstacionalActividadSchema,
+    aplicacionEscalaSchema, cumplimientoNormativoSchema, errorLogSchema, proyectoWeatherSchema,
+    cajaChicaSchema, anticipoSchema, amortizacionSchema, rendimientoCuadrillaSchema,
+    bodegaSchema, documentoSchema, permisoSchema, checklistSchema, configuracionSchema, apiKeySchema,
+    projectProfitabilitySchema, clientProfitabilitySchema, resourceEfficiencySchema, profitabilityTrendSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, decompressData, compressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel, __setActiveCurrency, __setActiveDateFormat } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -64,6 +68,64 @@ export const clearAllData = () => {
     useErpStore.getState().clearAllData();
     window.location.reload();
   }
+};
+
+export const exportStoreData = (): Record<string, unknown> => {
+  const s = useErpStore.getState();
+  return {
+    proyectos: s.proyectos, movimientos: s.movimientos, empleados: s.empleados,
+    materiales: s.materiales, ordenes: s.ordenes, proveedores: s.proveedores,
+    eventos: s.eventos, presupuestos: s.presupuestos, avances: s.avances,
+    cuentasCobrar: s.cuentasCobrar, cuentasPagar: s.cuentasPagar,
+    ordenesCambio: s.ordenesCambio, hitos: s.hitos, riesgos: s.riesgos,
+    licitaciones: s.licitaciones, cotizacionesNegocio: s.cotizacionesNegocio,
+    seguimientoEVM: s.seguimientoEVM, incidentes: s.incidentes,
+    publicacionesMuro: s.publicacionesMuro, liberaciones: s.liberaciones,
+    planos: s.planos, rfis: s.rfis, submittals: s.submittals, activos: s.activos,
+    cuadros: s.cuadros, pagosProveedor: s.pagosProveedor, destajos: s.destajos,
+    recepciones: s.recepciones, centrosCosto: s.centrosCosto, plantillas: s.plantillas,
+    insumosBase: s.insumosBase, proyectoWeather: s.proyectoWeather,
+    bitacora: s.bitacora, ncs: s.ncs, pruebas: s.pruebas, ventasPaquetes: s.ventasPaquetes,
+    valesSalida: s.valesSalida, notificaciones: s.notificaciones,
+    reglasFactores: s.reglasFactores, normativasDepartamentales: s.normativasDepartamentales,
+    escalasProduccion: s.escalasProduccion, estacionalidad: s.estacionalidad,
+    historialReglas: s.historialReglas, ajustesEstacionalesActividad: s.ajustesEstacionalesActividad,
+    aplicacionEscalas: s.aplicacionEscalas, cumplimientoNormativo: s.cumplimientoNormativo,
+    calculosProyecto: s.calculosProyecto,
+    projectProfitabilities: s.projectProfitabilities, clientProfitabilities: s.clientProfitabilities,
+    resourceEfficiencies: s.resourceEfficiencies, profitabilityTrends: s.profitabilityTrends,
+    errorLogs: s.errorLogs, departamentos: s.departamentos, municipios: s.municipios,
+    cajasChicas: s.cajasChicas, anticipos: s.anticipos, amortizaciones: s.amortizaciones,
+    rendimientosCuadrilla: s.rendimientosCuadrilla, bodega: s.bodega, documentos: s.documentos,
+    permisos: s.permisos, checklist: s.checklist, configuracion: s.configuracion,
+    apiKeys: s.apiKeys,
+  };
+};
+
+export const importStoreData = (data: Record<string, unknown>): void => {
+  const state: Record<string, unknown> = {};
+  const keys: (keyof ReturnType<typeof useErpStore.getState>)[] = [
+    'proyectos', 'movimientos', 'empleados', 'materiales', 'ordenes', 'proveedores',
+    'eventos', 'presupuestos', 'avances', 'cuentasCobrar', 'cuentasPagar', 'ordenesCambio',
+    'hitos', 'riesgos', 'licitaciones', 'cotizacionesNegocio', 'seguimientoEVM',
+    'incidentes', 'publicacionesMuro', 'liberaciones', 'planos', 'rfis', 'submittals',
+    'activos', 'cuadros', 'pagosProveedor', 'destajos', 'recepciones', 'centrosCosto',
+    'plantillas', 'insumosBase', 'proyectoWeather', 'bitacora', 'ncs', 'pruebas',
+    'ventasPaquetes', 'valesSalida', 'notificaciones',
+    'reglasFactores', 'normativasDepartamentales', 'escalasProduccion', 'estacionalidad',
+    'historialReglas', 'ajustesEstacionalesActividad', 'aplicacionEscalas', 'cumplimientoNormativo',
+    'calculosProyecto',
+    'projectProfitabilities', 'clientProfitabilities', 'resourceEfficiencies', 'profitabilityTrends',
+    'errorLogs', 'departamentos', 'municipios',
+    'cajasChicas', 'anticipos', 'amortizaciones', 'rendimientosCuadrilla',
+    'bodega', 'documentos', 'permisos', 'checklist', 'configuracion', 'apiKeys',
+  ];
+  for (const key of keys) {
+    if (key in data) {
+      state[key] = data[key] as any;
+    }
+  }
+  useErpStore.setState(state as any);
 };
 
 import type { AppSettings, Mutation } from './types';
@@ -317,6 +379,18 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       mutationQueue: [],
       auditLog: [],
       errorLogs: [],
+      departamentos: [],
+      municipios: [],
+      cajasChicas: [],
+      anticipos: [],
+      amortizaciones: [],
+      rendimientosCuadrilla: [],
+      bodega: [],
+      documentos: [],
+      permisos: [],
+      checklist: [],
+      configuracion: [],
+      apiKeys: [],
     });
     const loadedSettings = useErpStore.getState().appSettings;
     if (loadedSettings.empresaInfo) setEmpresaInfo(loadedSettings.empresaInfo);
@@ -611,11 +685,21 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
            liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
            activos: s.activos, cuadros: s.cuadros, pagos_proveedor: s.pagosProveedor,
            destajos: s.destajos, recepciones: s.recepciones, centros_costo: s.centrosCosto,
-         plantillas: s.plantillas, insumos_base: s.insumosBase, weather: s.proyectoWeather,
-         historial_reglas: s.historialReglas,
-         bitacora: s.bitacora, no_conformidades: s.ncs, pruebas: s.pruebas, ventas_paquetes: s.ventasPaquetes,
-         vales_salida: s.valesSalida,
-         };
+          plantillas: s.plantillas, insumos_base: s.insumosBase, weather: s.proyectoWeather,
+          historial_reglas: s.historialReglas,
+          bitacora: s.bitacora, no_conformidades: s.ncs, pruebas: s.pruebas, ventas_paquetes: s.ventasPaquetes,
+          vales_salida: s.valesSalida,
+          reglas_factores: s.reglasFactores, normativas_departamentales: s.normativasDepartamentales,
+          escalas_produccion: s.escalasProduccion, estacionalidad: s.estacionalidad,
+          ajustes_estacionales_actividad: s.ajustesEstacionalesActividad, aplicacion_escalas: s.aplicacionEscalas,
+          cumplimiento_normativo: s.cumplimientoNormativo, calculos_proyecto: s.calculosProyecto,
+          project_profitabilities: s.projectProfitabilities, client_profitabilities: s.clientProfitabilities,
+          resource_efficiencies: s.resourceEfficiencies, profitability_trends: s.profitabilityTrends,
+          error_logs: s.errorLogs, departamentos: s.departamentos, municipios: s.municipios,
+          cajas_chicas: s.cajasChicas, anticipos: s.anticipos, amortizaciones: s.amortizaciones,
+          rendimientos_cuadrilla: s.rendimientosCuadrilla, bodega: s.bodega, documentos: s.documentos,
+          permisos: s.permisos, checklist: s.checklist, configuracion: s.configuracion, api_keys: s.apiKeys,
+          };
           const quotaCritical = isStorageQuotaCritical();
           for (const [k, v] of Object.entries(map)) {
             try { const value = await compressDataAsync(v); safeSetItem(`${BASE_STORAGE_KEY}_${k}`, value, `${BASE_STORAGE_KEY}_${k}`); } catch (error) {
@@ -693,6 +777,11 @@ useEffect(() => {
       'erp_eventos_calendario', 'erp_ordenes_cambio', 'erp_notificaciones',
       'erp_error_log', 'erp_insumos_base',
       'erp_departamentos_gt', 'erp_municipios_gt',
+      'erp_calculos_proyecto', 'erp_reglas_factores', 'erp_normativa_departamental',
+      'erp_escalas_produccion', 'erp_estacionalidad', 'erp_historial_aplicacion_reglas',
+      'erp_ajustes_estacionales_actividad', 'erp_cumplimiento_normativo', 'erp_aplicacion_escalas',
+      'erp_cajas_chicas', 'erp_anticipos', 'erp_amortizaciones', 'erp_rendimientos_cuadrilla',
+      'erp_bodega', 'erp_documentos', 'erp_permisos', 'erp_checklist', 'erp_configuracion', 'erp_api_keys',
     ];
 
     let logged = false;

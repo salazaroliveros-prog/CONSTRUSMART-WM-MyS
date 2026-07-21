@@ -2,7 +2,8 @@ import React, { useState, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { toast } from 'sonner';
-import { FileText, Plus, Upload, Send, MessageSquare, Package, X } from 'lucide-react';
+import { FileText, Plus, Upload, Send, MessageSquare, Package, Trash2, X } from 'lucide-react';
+import { confirmAction } from '@/lib/confirm-action';
 import { INPUT } from '../ui';
 import { todayISO } from '../utils';
 import { z } from 'zod';
@@ -32,7 +33,7 @@ type TabDoc = 'planos' | 'rfis' | 'submittals';
 
 const GestionDocumental: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, user, planos, addPlano, updatePlano, rfis, addRfi, updateRfi, submittals, addSubmittal, updateSubmittal, currentProjectId, setCurrentProjectId } = useErp();
+  const { proyectos, user, planos, addPlano, updatePlano, deletePlano, rfis, addRfi, updateRfi, deleteRfi, submittals, addSubmittal, updateSubmittal, deleteSubmittal, currentProjectId, setCurrentProjectId } = useErp();
   const [tab, setTab] = useState<TabDoc>('planos');
 
   const planosFiltrados = useMemo(() => planos.filter(p => !currentProjectId || p.proyectoId === currentProjectId), [planos, currentProjectId]);
@@ -434,6 +435,9 @@ const GestionDocumental: React.FC = () => {
                       <button onClick={() => togglePlanoEstado(p.id)} className={`px-2 py-1 rounded text-xs ${p.estado === 'vigente' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}>
                         {p.estado === 'vigente' ? t('gestion_documental.obsoleto', 'Obsoleto') : t('gestion_documental.activar', 'Activar')}
                       </button>
+                      <button onClick={async () => { try { await confirmAction({ title: t('gestion_documental.confirmar_eliminar_plano', 'Confirmar eliminación'), content: t('gestion_documental.confirmar_eliminar_plano_msg', '¿Eliminar este plano?'), centered: true, okText: t('gestion_documental.si_eliminar', 'Sí, eliminar'), cancelText: t('common.cancelar', 'Cancelar') }); } catch { return; } deletePlano(p.id); toast.success('Plano eliminado'); }} className="p-1.5 rounded text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30" aria-label={t('gestion_documental.eliminar_plano', 'Eliminar plano')}>
+                        <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -554,6 +558,9 @@ const GestionDocumental: React.FC = () => {
                       {r.estado === 'en_respuesta' && (
                         <button onClick={() => actualizarRFI(r.id, 'cerrado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-xs hover:bg-emerald-600">{t('gestion_documental.cerrar', 'Cerrar')}</button>
                       )}
+                      <button onClick={async () => { try { await confirmAction({ title: t('gestion_documental.confirmar_eliminar_rfi', 'Confirmar eliminación'), content: t('gestion_documental.confirmar_eliminar_rfi_msg', '¿Eliminar este RFI?'), centered: true, okText: t('gestion_documental.si_eliminar', 'Sí, eliminar'), cancelText: t('common.cancelar', 'Cancelar') }); } catch { return; } deleteRfi(r.id); toast.success('RFI eliminado'); }} className="self-end p-1.5 rounded text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 mt-1" aria-label={t('gestion_documental.eliminar_rfi', 'Eliminar RFI')}>
+                        <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -679,6 +686,9 @@ const GestionDocumental: React.FC = () => {
                           <button onClick={() => actualizarSubmittal(s.id, 'rechazado')} className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">{t('gestion_documental.rechazar', 'Rechazar')}</button>
                         </>
                       )}
+                      <button onClick={async () => { try { await confirmAction({ title: t('gestion_documental.confirmar_eliminar_submittal', 'Confirmar eliminación'), content: t('gestion_documental.confirmar_eliminar_submittal_msg', '¿Eliminar este submittal?'), centered: true, okText: t('gestion_documental.si_eliminar', 'Sí, eliminar'), cancelText: t('common.cancelar', 'Cancelar') }); } catch { return; } deleteSubmittal(s.id); toast.success('Submittal eliminado'); }} className="self-end p-1.5 rounded text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 mt-1" aria-label={t('gestion_documental.eliminar_submittal', 'Eliminar submittal')}>
+                        <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                      </button>
                     </div>
                   </div>
                 </div>

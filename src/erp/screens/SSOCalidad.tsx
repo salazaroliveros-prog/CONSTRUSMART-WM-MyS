@@ -7,7 +7,8 @@ import {
   Shield, AlertTriangle, FlaskConical, ClipboardList, CheckCircle, XCircle, Plus, MapPin,
   User, Activity, Check, Layers, HardHat, BarChart3, Calendar, Users, Search,
 } from 'lucide-react';
-import { todayISO } from '../utils';
+import { todayISO, formatDateFmt } from '../utils';
+import { confirmAction } from '@/lib/confirm-action';
 import { z } from 'zod';
 
 type TabSSO = 'incidentes' | 'checklist-sso' | 'estadisticas' | 'emergencia' | 'pruebas' | 'nc' | 'liberaciones';
@@ -479,10 +480,11 @@ const SSOCalidad: React.FC = () => {
             <h2 className="text-xl font-black text-red-600 truncate" title={t('sso_calidad.boton_emergencia_titulo', 'Botón de Emergencia')}>{t('sso_calidad.boton_emergencia_titulo', 'Botón de Emergencia')}</h2>
             <p className="text-sm text-muted-foreground">{t('sso_calidad.boton_emergencia_desc', 'Activa este botón en caso de una emergencia real en obra. Se notificará a todos los supervisores y se enviará tu ubicación.')}</p>
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (!currentProjectId) { toast.error(t('sso_calidad.selecciona_proyecto_emergencia', 'Selecciona un proyecto primero')); return; }
-                const confirmEmergencia = confirm(t('sso_calidad.confirmar_emergencia', '¿Confirmar activación de emergencia? Se notificará a todos los supervisores.'));
-                if (!confirmEmergencia) return;
+                try {
+                  await confirmAction({ title: t('sso_calidad.confirmar_emergencia', '¿Confirmar activación de emergencia? Se notificará a todos los supervisores.') });
+                } catch { return; }
                 
                 if (navigator.geolocation) {
                   navigator.geolocation.getCurrentPosition(

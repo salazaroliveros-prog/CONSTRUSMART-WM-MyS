@@ -108,13 +108,15 @@ const Cuadros: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    await confirmAction({
-      title: t('cuadros.confirmar_eliminar'),
-      content: t('cuadros.confirmar_eliminar_msg'),
-      okText: t('common.si'),
-      cancelText: t('common.cancelar'),
-      variant: 'destructive',
-    });
+    try {
+      await confirmAction({
+        title: t('cuadros.confirmar_eliminar'),
+        content: t('cuadros.confirmar_eliminar_msg'),
+        okText: t('common.si'),
+        cancelText: t('common.cancelar'),
+        variant: 'destructive',
+      });
+    } catch { return; }
     deleteCuadro(id);
     toast.success(t('cuadros.eliminado_exito'));
   };

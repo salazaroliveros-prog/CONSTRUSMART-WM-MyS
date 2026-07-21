@@ -1,14 +1,93 @@
-// FactorSobrecosto declarado una vez como interface en línea 258
-
-// ============================================================
-// TIPOS ACTUALIZADOS - DESPUÉS DE MIGRACIONES TIER 1
-// ============================================================
+import { z } from 'zod';
+import {
+  proyectoSchema,
+  presupuestoSchema,
+  cotizacionSchema,
+  renglonPresupuestoZ,
+  insumoZ,
+  subRenglonZ,
+  factorSobrecostoZ,
+  movimientoSchema,
+  cuentaCobrarSchema,
+  cuentaPagarSchema,
+  ventaPaqueteSchema,
+  hitoSchema,
+  riesgoSchema,
+  avanceObraSchema,
+  seguimientoSchema,
+  clienteSchema,
+  proveedorSchema,
+  ordenCambioSchema,
+  empleadoSchema,
+  incidenteSchema,
+  materialSchema,
+  ordenSchema,
+  valeSalidaSchema,
+  activoSchema,
+  licitacionSchema,
+  cuadroSchema,
+  pagoProveedorSchema,
+  planoSchema,
+  rfiSchema,
+  submittalSchema,
+  destajoSchema,
+  recepcionAlmacenSchema,
+  insumosBaseSchema,
+  liberacionSchema,
+  pruebaSchema,
+  noConformidadSchema,
+  eventoSchema,
+  bitacoraSchema,
+  muroSchema,
+  notificacionSchema,
+  centroCostoSchema,
+  auditLogSchema,
+  appSettingsSchema,
+  plantillaSchema,
+  weatherDataSchema,
+  proyectoWeatherSchema,
+  calculoProyectoSchema,
+  snapshotCalculoSchema,
+  comparacionCalculosSchema,
+  historialAplicacionReglaSchema,
+  reglaFactorSchema,
+  normativaDepartamentalSchema,
+  escalaProduccionSchema,
+  estacionalidadSchema,
+  ajusteEstacionalActividadSchema,
+  aplicacionEscalaSchema,
+  cumplimientoNormativoSchema,
+  projectProfitabilitySchema,
+  clientProfitabilitySchema,
+  profitabilityForecastSchema,
+  resourceEfficiencySchema,
+  profitabilityTrendSchema,
+  pricingOptimizationSchema,
+  consumoHistoricoSchema,
+  patronConsumoSchema,
+  proveedorLeadTimeSchema,
+  reorderSuggestionSchema,
+  reorderConfigSchema,
+  errorLogSchema,
+  accessLogSchema,
+  cajaChicaSchema,
+  anticipoSchema,
+  amortizacionSchema,
+  rendimientoCuadrillaSchema,
+  bodegaSchema,
+  documentoSchema,
+  permisoSchema,
+  checklistSchema,
+  configuracionSchema,
+  apiKeySchema,
+} from './store/schemas/index';
 
 export type Tipologia = 'residencial' | 'comercial' | 'industrial' | 'civil' | 'publica';
 export type EtapaObra = 'planificacion' | 'diseno' | 'preconstruccion' | 'construccion' | 'cierre';
 export type TipoObra = 'nueva' | 'remodelacion' | 'ampliacion';
 export type EstadoProyecto = 'planeado' | 'ejecucion' | 'pausado' | 'finalizado' | 'cancelado';
 export type Moneda = 'GTQ' | 'USD';
+export type Categoria = 'materiales' | 'mano_obra' | 'equipo' | 'subcontrato' | 'administracion' | 'transporte' | 'imprevistos' | 'marketing' | 'licencias' | 'seguros' | 'otros';
 
 export const APP_STAGES: Record<string, string> = {
   planificacion: 'Planificación',
@@ -18,210 +97,86 @@ export const APP_STAGES: Record<string, string> = {
   cierre: 'Cierre',
 };
 
-// ✅ ACTUALIZADO: Proyecto ahora tiene 46 campos (era 23)
-export interface Proyecto {
-  // CAMPOS BASE (siempre presentes)
-  id: string;
-  nombre: string;
-  cliente: string;
-  ubicacion: string;
-  tipologia: Tipologia;
-  estado: EstadoProyecto;
-  presupuestoTotal: number;
-  avanceFisico: number;
-  avanceFinanciero: number;
-  fechaInicio: string;
-  fechaFin: string;
-  createdAt?: string;
-  updatedAt?: string;
+export type Proyecto = z.infer<typeof proyectoSchema>;
+export type Presupuesto = z.infer<typeof presupuestoSchema>;
+export type CotizacionCliente = z.infer<typeof cotizacionSchema>;
+export type RenglonPresupuesto = z.infer<typeof renglonPresupuestoZ>;
+export type Insumo = z.infer<typeof insumoZ>;
+export type SubRenglon = z.infer<typeof subRenglonZ>;
+export type FactorSobrecosto = z.infer<typeof factorSobrecostoZ>;
+export type Movimiento = z.infer<typeof movimientoSchema>;
+export type CuentaCobrar = z.infer<typeof cuentaCobrarSchema>;
+export type CuentaPagar = z.infer<typeof cuentaPagarSchema>;
+export type VentaPaquete = z.infer<typeof ventaPaqueteSchema>;
+export type Hito = z.infer<typeof hitoSchema>;
+export type Riesgo = z.infer<typeof riesgoSchema>;
+export type AvanceObra = z.infer<typeof avanceObraSchema>;
+export type Seguimiento = z.infer<typeof seguimientoSchema>;
+export type Cliente = z.infer<typeof clienteSchema>;
+export type Proveedor = z.infer<typeof proveedorSchema>;
+export type OrdenCambio = z.infer<typeof ordenCambioSchema>;
+export type Empleado = z.infer<typeof empleadoSchema>;
+export type Incidente = z.infer<typeof incidenteSchema>;
+export type Material = z.infer<typeof materialSchema>;
+export type Orden = z.infer<typeof ordenSchema>;
+export type ValeSalida = z.infer<typeof valeSalidaSchema>;
+export type Activo = z.infer<typeof activoSchema>;
+export type Licitacion = z.infer<typeof licitacionSchema>;
+export type Plano = z.infer<typeof planoSchema>;
+export type RFI = z.infer<typeof rfiSchema>;
+export type Submittal = z.infer<typeof submittalSchema>;
+export type Destajo = z.infer<typeof destajoSchema>;
+export type RecepcionAlmacen = z.infer<typeof recepcionAlmacenSchema>;
+export type InsumosBase = z.infer<typeof insumosBaseSchema>;
+export type Liberacion = z.infer<typeof liberacionSchema>;
+export type Prueba = z.infer<typeof pruebaSchema>;
+export type NoConformidad = z.infer<typeof noConformidadSchema>;
+export type Evento = z.infer<typeof eventoSchema>;
+export type Bitacora = z.infer<typeof bitacoraSchema>;
+export type Muro = z.infer<typeof muroSchema>;
+export type Notificacion = z.infer<typeof notificacionSchema>;
+export type CentroCosto = z.infer<typeof centroCostoSchema>;
+export type LogAuditoria = z.infer<typeof auditLogSchema>;
+export type AppSettings = z.infer<typeof appSettingsSchema>;
+export type Plantilla = z.infer<typeof plantillaSchema>;
+export type WeatherData = z.infer<typeof weatherDataSchema>;
+export type ProyectoWeather = z.infer<typeof proyectoWeatherSchema>;
+export type CalculoProyecto = z.infer<typeof calculoProyectoSchema>;
+export type SnapshotCalculo = z.infer<typeof snapshotCalculoSchema>;
+export type ComparacionCalculos = z.infer<typeof comparacionCalculosSchema>;
+export type HistorialAplicacionRegla = z.infer<typeof historialAplicacionReglaSchema>;
+export type ReglaFactor = z.infer<typeof reglaFactorSchema>;
+export type NormativaDepartamental = z.infer<typeof normativaDepartamentalSchema>;
+export type EscalaProduccion = z.infer<typeof escalaProduccionSchema>;
+export type Estacionalidad = z.infer<typeof estacionalidadSchema>;
+export type AjusteEstacionalActividad = z.infer<typeof ajusteEstacionalActividadSchema>;
+export type AplicacionEscala = z.infer<typeof aplicacionEscalaSchema>;
+export type CumplimientoNormativo = z.infer<typeof cumplimientoNormativoSchema>;
+export type ProjectProfitability = z.infer<typeof projectProfitabilitySchema>;
+export type ClientProfitability = z.infer<typeof clientProfitabilitySchema>;
+export type ProfitabilityForecast = z.infer<typeof profitabilityForecastSchema>;
+export type ResourceEfficiency = z.infer<typeof resourceEfficiencySchema>;
+export type ProfitabilityTrend = z.infer<typeof profitabilityTrendSchema>;
+export type PricingOptimization = z.infer<typeof pricingOptimizationSchema>;
+export type ConsumoHistorico = z.infer<typeof consumoHistoricoSchema>;
+export type PatronConsumo = z.infer<typeof patronConsumoSchema>;
+export type ProveedorLeadTime = z.infer<typeof proveedorLeadTimeSchema>;
+export type ReorderSuggestion = z.infer<typeof reorderSuggestionSchema>;
+export type ReorderConfig = z.infer<typeof reorderConfigSchema>;
+export type ErrorLogEntry = z.infer<typeof errorLogSchema>;
+export type AccessLog = z.infer<typeof accessLogSchema>;
+export type CajaChica = z.infer<typeof cajaChicaSchema>;
+export type Anticipo = z.infer<typeof anticipoSchema>;
+export type Amortizacion = z.infer<typeof amortizacionSchema>;
+export type AmortizacionItem = Amortizacion;
+export type RendimientoCuadrilla = z.infer<typeof rendimientoCuadrillaSchema>;
+export type Bodega = z.infer<typeof bodegaSchema>;
+export type Documento = z.infer<typeof documentoSchema>;
+export type Permiso = z.infer<typeof permisoSchema>;
+export type Checklist = z.infer<typeof checklistSchema>;
+export type Configuracion = z.infer<typeof configuracionSchema>;
+export type ApiKey = z.infer<typeof apiKeySchema>;
 
-  // ✅ NUEVOS CAMPOS FASE 1 (28 columnas agregadas)
-  descripcion?: string;
-  subtipo?: string;
-  tipoObra?: TipoObra;
-  
-  // Contacto cliente expandido
-  clienteNit?: string;
-  clienteTelefono?: string;
-  clienteEmail?: string;
-  
-  // Ubicación detallada
-  direccion?: string;
-  ciudad?: string;
-  departamento?: string;
-  pais?: string; // Default: 'Guatemala'
-  codigoPostal?: string;
-  lat?: number;
-  lng?: number;
-  
-  // Especificaciones obra
-  areaConstruccion?: number;
-  numPisos?: number;
-  plazoSemanas?: number;
-  
-  // Personal asignado (UUIDs de usuarios)
-  ingenieroResidente?: string;
-  supervisor?: string;
-  arquitecto?: string;
-  
-  // Documentación
-  numeroExpediente?: string; // UNIQUE
-  numeroLicencia?: string; // UNIQUE
-  
-  // Seguimiento temporal
-  fechaInicioReal?: string;
-  fechaFinEstimada?: string;
-  
-  // Etapas (con histórico)
-  etapa?: EtapaObra;
-  etapaAnterior?: EtapaObra;
-  fechaCambioEtapa?: string;
-  
-  // Económico
-  montoContrato?: number;
-  margenUtilidadObjetivo?: number;
-  moneda?: Moneda; // Default: 'GTQ'
-  presupuestoActualId?: string;
-  
-  // Pausas
-  motivoPausa?: string;
-  pausadoPor?: string;
-  fechaPausa?: string;
-  fechaReanudacionEstimada?: string;
-  
-  // Versionado
-  version?: number; // Default: 1
-}
-
-// ✅ NUEVA INTERFACE: Hito (Gantt M-03)
-export interface Hito {
-  id: string;
-  proyectoId: string;
-  nombre: string;
-  descripcion?: string;
-  fecha: string;
-  tipo: 'inicio' | 'hito' | 'entrega' | 'cierre';
-  estado: 'pendiente' | 'completado' | 'retrasado';
-  responsable?: string; // UUID
-  depende_de?: string[]; // UUIDs de hitos predecesores
-  completadoEn?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-// ✅ NUEVA INTERFACE: Riesgo
-export interface Riesgo {
-  id: string;
-  proyectoId: string;
-  nombre: string;
-  descripcion?: string;
-  tipo: 'tecnico' | 'financiero' | 'cronograma' | 'legal' | 'ambiental' | 'seguridad' | 'otro';
-  probabilidad: 1 | 2 | 3 | 4 | 5;
-  impacto: 1 | 2 | 3 | 4 | 5;
-  nivel?: 'bajo' | 'medio' | 'alto' | 'critico'; // GENERATED en BD
-  planMitigacion?: string;
-  planContingencia?: string;
-  responsable?: string; // UUID
-  fechaIdentificacion: string;
-  estado: 'identificado' | 'en_mitigacion' | 'mitigado' | 'materializado';
-  costoSoporte?: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-// ✅ NUEVA INTERFACE: CuentaCobrar
-export interface CuentaCobrar {
-  id: string;
-  proyectoId: string;
-  cliente: string;
-  concepto: string;
-  monto: number;
-  saldoPendiente: number;
-  fechaEmision: string;
-  fechaVencimiento: string;
-  fechaCobro?: string;
-  estado: 'pendiente' | 'parcial' | 'cobrado' | 'vencido' | 'incobrable';
-  notas?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-// ✅ NUEVA INTERFACE: CuentaPagar
-export interface CuentaPagar {
-  id: string;
-  proyectoId: string;
-  proveedor: string;
-  concepto: string;
-  monto: number;
-  saldoPendiente: number;
-  fechaEmision: string;
-  fechaVencimiento: string;
-  fechaPago?: string;
-  estado: 'pendiente' | 'parcial' | 'pagado' | 'vencido';
-  facturaUrl?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-// ✅ ACTUALIZADO: RenglonPresupuesto con predecesores (Gantt)
-export interface SubRenglon {
-  nombreMaterial: string;
-  unidad: string;
-  cantidadUnitaria: number;
-  precioUnitario: number;
-}
-
-export interface RenglonPresupuesto {
-  id: string;
-  presupuestoId: string;
-  proyectoId: string;
-  codigo: string;
-  nombre: string;
-  unidad: string;
-  tipologia: Tipologia;
-  rendimientoCuadrilla: number;
-  costoMateriales: number;
-  costoManoObra: number;
-  costoEquipo: number;
-  cantidad: number;
-  avanceFisico?: number;
-  avanceFinanciero?: number;
-  predecesores?: string[];
-  subRenglones?: SubRenglon[];
-  insumos?: Insumo[];
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-// ✅ ACTUALIZADO: Movimiento con campos financieros
-export interface Movimiento {
-  id: string;
-  proyectoId: string;
-  tipo: 'ingreso' | 'gasto' | 'egreso'; // ✅ ACTUALIZADO (antes faltaba 'egreso')
-  categoria: Categoria;
-  monto: number;
-  costoTotal?: number;
-  costoUnitario?: number;
-  cantidad?: number;
-  unidad?: string;
-  descripcion: string;
-  fecha: string;
-  
-  // ✅ NUEVOS CAMPOS FINANCIEROS
-  proveedor?: string;
-  proveedorNit?: string;
-  factura?: string;
-  formaPago?: 'efectivo' | 'transferencia' | 'cheque' | 'tarjeta' | 'otro';
-  referenciaBancaria?: string;
-  retencionIsr?: number;
-  retencionIva?: number;
-  notas?: string;
-  
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-// ✅ NUEVA INTERFACE: RelacionM2M para Empleados
 export interface EmpleadoProyecto {
   id: string;
   empleadoId: string;
@@ -232,7 +187,6 @@ export interface EmpleadoProyecto {
   updatedAt?: string;
 }
 
-// ✅ NUEVA INTERFACE: RelacionM2M para Materiales
 export interface MaterialProyecto {
   id: string;
   materialId: string;
@@ -242,57 +196,6 @@ export interface MaterialProyecto {
   ultimaActualizacionPresupuesto?: string;
   createdAt?: string;
   updatedAt?: string;
-}
-
-// ============================================================
-// INTERFACES EXISTENTES (SIN CAMBIOS)
-// ============================================================
-
-export type Categoria = 'materiales' | 'mano_obra' | 'equipo' | 'subcontrato' | 'administracion' | 'transporte' | 'imprevistos' | 'marketing' | 'licencias' | 'seguros' | 'otros';
-
-export interface FactorSobrecosto {
-  indirectos: number;
-  administracion: number;
-  imprevistos: number;
-  utilidad: number;
-}
-
-export interface Insumo {
-  id: string;
-  proyectoId: string;
-  nombre: string;
-  nombreMaterial?: string;
-  unidad: string;
-  cantidad: number;
-  cantidadUnitaria?: number;
-  precioUnitario: number;
-  precio?: number;
-  tipo: 'material' | 'mano_obra' | 'equipo' | 'subcontrato';
-  rendimiento?: number;
-}
-
-export interface DepartamentoGT {
-  codigo: string;
-  nombre: string;
-  codigoISO?: string;
-}
-
-export interface MunicipioGT {
-  codigo: string;
-  nombre: string;
-  departamentoCodigo: string;
-  altitudMsnm?: number;
-}
-
-export interface ProyectoWeather {
-  proyectoId: string;
-  temperatura: number;
-  humedad: number;
-  precipitacion: number;
-  viento: number;
-  condicion: string;
-  impact: 'low' | 'medium' | 'high' | 'critical';
-  updatedAt: string;
 }
 
 export interface SupplierPerformance {
@@ -307,11 +210,18 @@ export interface SupplierPerformance {
   proyectoId?: string;
 }
 
-// ... (resto de interfaces existentes sin cambios)
+export interface DepartamentoGT {
+  codigo: string;
+  nombre: string;
+  codigoISO?: string;
+}
 
-// ============================================================
-// ESTADO DE SINCRONIZACIÓN
-// ============================================================
+export interface MunicipioGT {
+  codigo: string;
+  nombre: string;
+  departamentoCodigo: string;
+  altitudMsnm?: number;
+}
 
 export interface ActivoLogistica {
   id: string;
@@ -336,76 +246,3 @@ export interface PagoProveedor {
   estado: string;
   fecha: string;
 }
-
-export interface OrdenCambio {
-  id: string;
-  proyectoId: string;
-  titulo: string;
-  descripcion: string;
-  solicitante: string;
-  solicitanteRol: string;
-  estado: 'solicitud' | 'revision' | 'aprobado' | 'rechazado';
-  impactoCosto: number;
-  impactoPlazo: number;
-  aprobador?: string;
-  fechaAprobacion?: string;
-  createdAt: string;
-}
-
-export interface Material {
-  nombre: string;
-  categoria: string;
-  unidad: string;
-  stock: number;
-  stockMinimo: number;
-}
-
-export interface CotizacionCliente {
-  id: string;
-  proyectoId: string;
-  numero: string;
-  fechaVencimiento?: string;
-  clienteNombre: string;
-  clienteNit?: string;
-  clienteTelefono?: string;
-  clienteEmail?: string;
-  clienteDireccion?: string;
-  descripcion?: string;
-  alcance?: string;
-  items: RenglonPresupuesto[];
-  subtotal?: number;
-  impuesto?: number;
-  total?: number;
-  estado?: 'borrador' | 'enviada' | 'aprobada' | 'rechazada';
-  notas?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-/*
-✅ TIER 1 COMPLETADA - Tipos Sincronizados:
-
-NUEVAS INTERFACES (4):
-- Hito (cronograma/Gantt M-03)
-- Riesgo (gestión riesgos)
-- CuentaCobrar (financiero)
-- CuentaPagar (financiero)
-
-INTERFACES MEJORADAS (3):
-- Proyecto: +28 campos → 46 total
-- RenglonPresupuesto: +3 campos (presupuesto_id, avance*, predecesores)
-- Movimiento: +8 campos financieros
-
-NUEVAS RELACIONES M:M (2):
-- EmpleadoProyecto
-- MaterialProyecto
-
-PRÓXIMAS (TIER 2):
-- Destajo
-- OrdenCambio
-- Notificacion
-- y 8 más...
-
-COMPLETITUD: 70% (era 52%)
-PRÓXIMO PASO: Ejecutar migraciones en Supabase Studio
-*/
