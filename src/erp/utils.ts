@@ -29,7 +29,7 @@ export const safeParseArray = <T>(value: unknown, schema: { safeParse: (data: un
 
 export type AppSettings = {
   uiMode: 'shadcn' | 'antd';
-  appTheme: 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism';
+  appTheme: 'light' | 'dark' | 'high-contrast' | 'ant-design' | 'dark-pro' | 'material3' | 'glassmorphism' | 'neomorphism' | 'nova-os';
   primaryColor: string;
   language: 'es' | 'en';
   dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
@@ -184,8 +184,8 @@ export const EMPRESA = EMPRESA_DEFAULT;
 
 export const APP_SETTINGS_DEFAULTS: AppSettings = {
   uiMode: 'antd',
-  appTheme: 'ant-design',
-  primaryColor: '#ff8c42',
+  appTheme: 'nova-os',
+  primaryColor: '#FFFFFF',
   language: 'es',
   dateFormat: 'DD/MM/YYYY',
   currency: 'GTQ',

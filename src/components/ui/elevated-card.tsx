@@ -21,11 +21,11 @@ const paddingMap = {
 }
 
 const variantClasses: Record<CardVariant, string> = {
-  default: "bg-card border-border/40 card-elevation",
-  interactive: "bg-card border-border/40 card-interactive",
-  kpi: "border-border/40 card-kpi",
+  default: "bg-card/70 backdrop-blur-md border-border/60 card-elevation",
+  interactive: "bg-card/70 backdrop-blur-md border-border/60 card-interactive",
+  kpi: "bg-card/70 backdrop-blur-md border-border/60 card-kpi",
   modal: "bg-card border-border/40 elevation-dialog",
-  glass: "bg-card/70 backdrop-blur-md border-border/30 card-elevation",
+  glass: "bg-card/72 backdrop-blur-xl border-border/60 card-elevation",
 }
 
 const accentClasses: Record<AccentPosition, string> = {

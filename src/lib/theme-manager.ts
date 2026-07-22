@@ -4,7 +4,7 @@
  */
 
 export const CLASS_PREFIX = 'wm-erp-';
-export const VALID_THEMES = ['ant-design', 'dark-pro', 'material3', 'glassmorphism', 'neomorphism'] as const;
+export const VALID_THEMES = ['ant-design', 'dark-pro', 'material3', 'glassmorphism', 'neomorphism', 'nova-os'] as const;
 export type ThemeName = typeof VALID_THEMES[number];
 
 export interface ThemeInfo {
@@ -48,6 +48,11 @@ export const THEMES: Record<ThemeName, ThemeInfo> = {
     description: 'Estilo suave y elevado',
     colors: { primary: '#6c757d', background: '#e4ebf5', foreground: '#333333' },
   },
+  'nova-os': {
+    label: 'Nova OS',
+    description: 'Dark system premium · Instrument Serif',
+    colors: { primary: '#ffffff', background: '#1c1c1e', foreground: '#ffffff', card: '#2c2c2e', cardForeground: '#ffffff', muted: '#3a3a3c', mutedForeground: '#a1a1aa', border: '#38383a' },
+  },
 };
 
 export const PRIMARY_COLORS = [
@@ -59,6 +64,7 @@ export const PRIMARY_COLORS = [
   { label: 'Cian Oscuro', value: '#00d9ff' },
   { label: 'Amarillo Warning', value: '#faad14' },
   { label: 'Azul Info', value: '#1890ff' },
+  { label: 'Nova Blanco', value: '#FFFFFF' },
 ];
 
 export type ThemeConfig = {
@@ -117,13 +123,14 @@ export function hexToHSL(hex: string): string {
 function applyThemeAttribute(theme: string): void {
   if (!VALID_THEMES.includes(theme as ThemeName)) return;
   document.documentElement.setAttribute('data-theme', theme);
-  document.documentElement.classList.toggle('dark', theme === 'dark-pro');
+  document.documentElement.classList.toggle('dark', theme === 'dark-pro' || theme === 'nova-os');
 }
 
 function resetBodyClasses(body: HTMLElement): void {
   body.classList.remove(
     `${CLASS_PREFIX}compact`, `${CLASS_PREFIX}touch`, `${CLASS_PREFIX}anim-disabled`,
     `${CLASS_PREFIX}breadcrumbs-hidden`, `${CLASS_PREFIX}footer-hidden`,
+    'vs-compact', 'vs-touch', 'vs-anim-disabled', 'vs-breadcrumbs-hidden', 'vs-footer-hidden',
     'density-compact', 'density-normal', 'density-comfortable',
     'sidebar-left', 'sidebar-right', 'sidebar-overlay', 'touch-mode', 'compact'
   );
@@ -148,7 +155,7 @@ export function syncAllVisualSettings(settings: VisualSettings): void {
   resetBodyClasses(body);
   resetHtmlAttributes(html);
 
-  const theme = settings.appTheme && VALID_THEMES.includes(settings.appTheme as ThemeName) ? settings.appTheme : 'ant-design';
+  const theme = settings.appTheme && VALID_THEMES.includes(settings.appTheme as ThemeName) ? settings.appTheme : 'glassmorphism';
   applyThemeAttribute(theme);
 
   if (settings.compactMode !== undefined) {
@@ -221,10 +228,10 @@ export function syncAllVisualSettings(settings: VisualSettings): void {
 
 export function initializeTheme(): void {
   try {
-    const savedTheme = localStorage.getItem('wm_erp_theme') || 'ant-design';
+    const savedTheme = localStorage.getItem('wm_erp_theme') || 'glassmorphism';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
-    const isDark = savedTheme === 'dark-pro';
+    const isDark = savedTheme === 'dark-pro' || savedTheme === 'nova-os';
     document.documentElement.classList.toggle('dark', isDark);
 
     const saved = localStorage.getItem('wm_erp_data_settings');
@@ -248,10 +255,10 @@ export function initializeTheme(): void {
 export function applyThemeToDocument(config: Partial<ThemeConfig>): void {
   if (!config) return;
 
-  const theme = config.appTheme || localStorage.getItem('wm_erp_theme') || 'ant-design';
+  const theme = config.appTheme || localStorage.getItem('wm_erp_theme') || 'glassmorphism';
   document.documentElement.setAttribute('data-theme', theme);
 
-  const isDark = theme === 'dark-pro';
+  const isDark = theme === 'dark-pro' || theme === 'nova-os';
   document.documentElement.classList.toggle('dark', isDark);
 
   if (config.compactMode !== undefined) {

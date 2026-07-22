@@ -509,3 +509,91 @@
     transform: none !important;
   }
 }
+
+/* ============================================================================
+   NOVA OS DESIGN TOKENS — Premium dark system overrides
+   Aplica cuando data-theme='nova-os' está activo
+   ============================================================================ */
+
+[data-theme='nova-os'] {
+  --elevation-0: none;
+  --elevation-1: 0 1px 3px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.25);
+  --elevation-2: 0 4px 12px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.25);
+  --elevation-3: 0 8px 24px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.3);
+  --elevation-4: 0 12px 32px rgba(0,0,0,0.55), 0 6px 16px rgba(0,0,0,0.35);
+  --elevation-5: 0 20px 48px rgba(0,0,0,0.6), 0 10px 24px rgba(0,0,0,0.4);
+
+  --card-elevation-rest: var(--elevation-1);
+  --card-elevation-hover: var(--elevation-3);
+  --card-elevation-active: var(--elevation-2);
+  --card-elevation-dialog: var(--elevation-5);
+  --card-elevation-dropdown: var(--elevation-4);
+
+  --motion-duration-fast: 120ms;
+  --motion-duration-normal: 220ms;
+  --motion-duration-slow: 320ms;
+  --motion-easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --radius-none: 0px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-base: 18px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  --overlay-light: rgba(255, 255, 255, 0.04);
+  --overlay-medium: rgba(255, 255, 255, 0.08);
+  --overlay-heavy: rgba(255, 255, 255, 0.12);
+  --overlay-modal: rgba(0, 0, 0, 0.65);
+  --overlay-dark: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme='nova-os'] .card-elevation:hover {
+  box-shadow: var(--card-elevation-hover);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme='nova-os'] .card-interactive:hover {
+  box-shadow: var(--card-elevation-hover);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme='nova-os'] .hover-glow-enhanced:hover {
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.08), 0 0 48px rgba(255, 255, 255, 0.04);
+}
+
+[data-theme='nova-os'] .hover-border-accent:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme='nova-os'] .shimmer-enhanced {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.1) 40%,
+    rgba(255, 255, 255, 0.04) 80%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmerEnhanced 2s ease-in-out infinite;
+}
+
+[data-theme='nova-os'] .dashboard-grid {
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  [data-theme='nova-os'] .dashboard-grid {
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-theme='nova-os'] .dashboard-grid {
+    gap: 24px;
+  }
+}

@@ -29,8 +29,8 @@ export const auditLogSchema = z.object({
 
 export const appSettingsSchema = z.object({
   uiMode: z.enum(['shadcn','antd'] as const).default('shadcn'),
-  appTheme: z.enum(['light','dark','high-contrast','ant-design','dark-pro','material3','glassmorphism','neomorphism'] as const).default('ant-design'),
-  primaryColor: z.string().default('#1677ff'),
+  appTheme: z.enum(['light','dark','high-contrast','ant-design','dark-pro','material3','glassmorphism','neomorphism','nova-os'] as const).default('nova-os'),
+  primaryColor: z.string().default('#FFFFFF'),
   language: z.enum(['es','en'] as const).default('es'),
   dateFormat: z.enum(['DD/MM/YYYY','MM/DD/YYYY','YYYY-MM-DD'] as const).default('DD/MM/YYYY'),
   currency: z.enum(['GTQ','USD'] as const).default('GTQ'),

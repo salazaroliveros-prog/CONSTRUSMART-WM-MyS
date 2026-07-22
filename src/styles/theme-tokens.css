@@ -213,14 +213,14 @@
   --secondary-foreground: 0 0% 100%;
   --accent: 18 99% 55%;
   --accent-foreground: 0 0% 100%;
-  --background: 210 93% 96%;
-  --foreground: 210 35% 10%;
-  --muted: 193 72% 81%;
-  --muted-foreground: 210 35% 30%;
-  --border: 158 72% 74%;
+  --background: 199 71% 95%;
+  --foreground: 207 47% 16%;
+  --muted: 196 48% 88%;
+  --muted-foreground: 207 27% 34%;
+  --border: 197 43% 76%;
   --input: 0 0% 100%;
   --card: 0 0% 100%;
-  --card-foreground: 210 35% 10%;
+  --card-foreground: 207 47% 16%;
   --destructive: 348 90% 42%;
   --destructive-foreground: 0 0% 100%;
   --ring: 191 100% 42%;
@@ -244,9 +244,9 @@
   --erp-color-text-secondary: #4a4a6a;
   --erp-color-border: rgba(0, 0, 0, 0.08);
   --erp-color-border-secondary: rgba(0, 0, 0, 0.04);
-  --erp-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --erp-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --erp-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --erp-shadow-sm: 0 4px 14px rgba(18, 75, 105, 0.08);
+  --erp-shadow-md: 0 14px 36px rgba(18, 75, 105, 0.12);
+  --erp-shadow-lg: 0 24px 64px rgba(18, 75, 105, 0.18);
 }
 
 /* === Tokens neomorphism === */
@@ -334,6 +334,62 @@
   --erp-shadow-sm: none;
   --erp-shadow-md: none;
   --erp-shadow-lg: none;
+}
+
+/* === Tokens nova-os === */
+[data-theme='nova-os'] {
+  --primary: 0 0% 100%;
+  --primary-foreground: 240 4% 10%;
+  --secondary: 240 4% 65%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 0 0% 100%;
+  --accent-foreground: 240 4% 10%;
+  --background: 240 4% 11%;
+  --foreground: 0 0% 100%;
+  --muted: 240 3% 23%;
+  --muted-foreground: 240 4% 65%;
+  --border: 240 2% 23%;
+  --input: 240 3% 15%;
+  --card: 240 3% 17%;
+  --card-foreground: 0 0% 100%;
+  --popover: 240 3% 17%;
+  --popover-foreground: 0 0% 100%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 0 0% 100%;
+  --radius: 18px;
+  --success: 142 70% 45%;
+  --success-foreground: 142 70% 92%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 38 92% 92%;
+  --info: 199 89% 48%;
+  --info-foreground: 199 89% 92%;
+  --pending: 38 92% 50%;
+  --pending-foreground: 38 92% 92%;
+  --erp-color-primary: #ffffff;
+  --erp-color-primary-hover: #e4e4e7;
+  --erp-color-primary-active: #d4d4d8;
+  --erp-color-primary-bg: rgba(255, 255, 255, 0.08);
+  --erp-color-primary-border: rgba(255, 255, 255, 0.15);
+  --erp-color-bg: #1c1c1e;
+  --erp-color-bg-secondary: #2c2c2e;
+  --erp-color-bg-tertiary: #3a3a3c;
+  --erp-color-bg-elevated: #3a3a3c;
+  --erp-color-text: #ffffff;
+  --erp-color-text-secondary: #a1a1aa;
+  --erp-color-text-tertiary: #71717a;
+  --erp-color-text-inverse: #1c1c1e;
+  --erp-color-border: #38383a;
+  --erp-color-border-secondary: #2c2c2e;
+  --erp-radius-sm: 8px;
+  --erp-radius-md: 12px;
+  --erp-radius-base: 18px;
+  --erp-radius-lg: 20px;
+  --erp-radius-xl: 24px;
+  --erp-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --erp-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --erp-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4);
+  --backdrop-blur: blur(24px);
 }
 
 /* === Fallbacks opcionales por sistema === */

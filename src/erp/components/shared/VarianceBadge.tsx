@@ -9,16 +9,6 @@ interface VarianceBadgeProps {
   className?: string;
 }
 
-/**
- * VarianceBadge Component - Muestra variancia respecto a plan
- * 
- * Características:
- * - Cálculo automático de variancia
- * - Colorización semántica (rojo/verde)
- * - Icono de dirección (↑/↓)
- * - Unidades flexibles
- * - Formato custom opcional
- */
 export function VarianceBadge({
   actual,
   planned,
@@ -31,15 +21,9 @@ export function VarianceBadge({
   const variancePercent = planned !== 0 ? (variance / planned) * 100 : 0;
   const isPositive = variance >= 0;
 
-  // Determinar color según contexto
-  // Para %, tiempo: positivo es malo (aumentó)
-  // Para dinero gastado: positivo es malo (gastó más)
-  // Pero para ingresos: positivo es bueno
-  // Simplicidad: >0 = verde (generalmente bueno), <0 = rojo (generalmente malo)
-  
   const statusColor = isPositive
-    ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20'
-    : 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20';
+    ? 'text-success bg-success/10 border border-success/20'
+    : 'text-destructive bg-destructive/10 border border-destructive/20';
 
   const icon = isPositive ? '↑' : '↓';
   const displayValue = format ? format(variance) : variance.toFixed(1);
@@ -47,7 +31,7 @@ export function VarianceBadge({
   return (
     <span
       className={`
-        inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold
+        inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold font-jetbrains-mono
         ${statusColor} transition-all duration-200
         ${className}
       `}

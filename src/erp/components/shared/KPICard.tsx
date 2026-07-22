@@ -18,36 +18,27 @@ interface KPICardProps {
   className?: string;
 }
 
-const statusStyles = {
-  success: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800',
-  warning: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
-  danger: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
-  info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
+const statusStyles: Record<string, string> = {
+  success: 'bg-success/10 border-success/30 dark:bg-success/10 dark:border-success/20',
+  warning: 'bg-warning/10 border-warning/30 dark:bg-warning/10 dark:border-warning/20',
+  danger: 'bg-destructive/10 border-destructive/30 dark:bg-destructive/10 dark:border-destructive/20',
+  info: 'bg-info/10 border-info/30 dark:bg-info/10 dark:border-info/20',
 };
 
-const statusTextStyles = {
-  success: 'text-emerald-700 dark:text-emerald-300',
-  warning: 'text-amber-700 dark:text-amber-300',
-  danger: 'text-red-700 dark:text-red-300',
-  info: 'text-blue-700 dark:text-blue-300',
+const statusTextStyles: Record<string, string> = {
+  success: 'text-success',
+  warning: 'text-warning',
+  danger: 'text-destructive',
+  info: 'text-info',
 };
 
-const trendIconStyles = {
-  up: 'text-emerald-600 dark:text-emerald-400',
-  down: 'text-red-600 dark:text-red-400',
-  flat: 'text-muted-foreground',
+const statusSparklineStyles: Record<string, string> = {
+  success: 'bg-success/60',
+  warning: 'bg-warning/60',
+  danger: 'bg-destructive/60',
+  info: 'bg-info/60',
 };
 
-/**
- * KPICard Component - Tarjeta de indicador clave con trend y sparkline
- * 
- * Características:
- * - Trend indicator (↑/↓/→)
- * - Sparkline mini gráfico
- * - Status semántico (color)
- * - Clickeable (opcional)
- * - Responsive
- */
 export function KPICard({
   label,
   value,
@@ -60,9 +51,9 @@ export function KPICard({
 }: KPICardProps) {
   const trendColor = trend
     ? trend.direction === 'up'
-      ? 'text-emerald-600 dark:text-emerald-400'
+      ? 'text-success'
       : trend.direction === 'down'
-      ? 'text-red-600 dark:text-red-400'
+      ? 'text-destructive'
       : 'text-muted-foreground'
     : '';
 
@@ -82,7 +73,7 @@ export function KPICard({
     <div
       onClick={onClick}
       className={`
-        border rounded-xl p-4 transition-all duration-200
+        border rounded-[18px] p-4 transition-all duration-200
         ${statusStyles[status]}
         ${onClick ? 'cursor-pointer hover:shadow-md hover:scale-[1.01]' : ''}
         ${className}
@@ -90,9 +81,8 @@ export function KPICard({
       role={onClick ? 'button' : 'region'}
       aria-label={`${label}: ${value}`}
     >
-      {/* Header: Label + Icon */}
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest font-jetbrains-mono">
           {label}
         </span>
         {icon && (
@@ -102,42 +92,32 @@ export function KPICard({
         )}
       </div>
 
-      {/* Value - Prominent */}
       <div className={`text-3xl font-bold ${statusTextStyles[status]} mb-2`}>
         {value}
       </div>
 
-      {/* Trend Indicator */}
       {trend && (
         <div className={`text-sm font-semibold ${trendColor} mb-2 flex items-center gap-1`}>
           <span>{trendArrow}</span>
           <span>{Math.abs(trend.percentage).toFixed(1)}%</span>
-          <span className="text-muted-foreground text-xs font-normal">
+          <span className="text-muted-foreground text-xs font-normal font-jetbrains-mono">
             ({trend.period})
           </span>
         </div>
       )}
 
-      {/* Sparkline Chart */}
       {sparklineData && sparklineData.length > 0 && (
         <div className="mt-3 h-10 flex items-end gap-0.5" role="img" aria-label="Trend chart">
-          {sparklineData.map((value, idx) => {
+          {sparklineData.map((v, idx) => {
             const height = maxSparklineValue > 0
-              ? (value / maxSparklineValue) * 100
+              ? (v / maxSparklineValue) * 100
               : 0;
-            const isPositive = value >= (sparklineData[sparklineData.length - 1] ?? 0);
-            
             return (
               <div
                 key={idx}
-                className={`
-                  flex-1 rounded-sm opacity-60 hover:opacity-100 transition-opacity
-                  ${status === 'success' ? 'bg-emerald-400' : 'bg-blue-400'}
-                  ${!isPositive && status === 'warning' ? 'bg-amber-400' : ''}
-                  ${!isPositive && status === 'danger' ? 'bg-red-400' : ''}
-                `}
+                className={`flex-1 rounded-sm opacity-60 hover:opacity-100 transition-opacity ${statusSparklineStyles[status]}`}
                 style={{ height: `${Math.max(height, 10)}%` }}
-                title={`${value.toFixed(1)}`}
+                title={`${v.toFixed(1)}`}
               />
             );
           })}

@@ -127,6 +127,10 @@ export default {
         'scale-in':        'scale-in 0.25s ease-out',
         'shimmer':         'shimmer 1.5s ease-in-out infinite',
       },
+      fontFamily: {
+        'instrument-serif': ["'Instrument Serif'", "serif"],
+        'jetbrains-mono': ["'JetBrains Mono'", "monospace"],
+      },
     },
   },
   plugins: [tailwindAnimate],

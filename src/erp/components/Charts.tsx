@@ -19,6 +19,7 @@ export const PALETTES: Record<string, string[]> = {
   cool:    ['#3a86ff', '#06b6d4', '#10b981', '#6366f1', '#8b5cf6', '#a855f7'],
   mono:    ['#6b7280', '#9ca3af', '#d1d5db', '#4b5563', '#374151', '#1f2937'],
   vivid:   ['#ff006e', '#8338ec', '#3a86ff', '#06d6a0', '#ffbe0b', '#fb5607'],
+  nova:    ['#e4e4e7', '#a1a1aa', '#71717a', '#52525b', '#d4d4d8', '#f4f4f5'],
 };
 
 export type PaletteName = keyof typeof PALETTES;

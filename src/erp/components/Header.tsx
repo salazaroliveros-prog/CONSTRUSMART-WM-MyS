@@ -56,22 +56,22 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
   const initials = (user?.nombre || 'WM').split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
 
   return (
-    <header className="bg-primary/80 backdrop-blur-md text-primary-foreground h-[50px] sm:h-[60px] px-2 sm:px-4 lg:px-6 py-1.5 sm:py-2 flex items-center justify-between gap-1 sm:gap-2 lg:gap-3 sticky top-0 z-30 shadow-lg">
+    <header className="bg-card/80 backdrop-blur-lg text-foreground h-[50px] sm:h-[60px] px-2 sm:px-4 lg:px-6 py-1.5 sm:py-2 flex items-center justify-between gap-1 sm:gap-2 lg:gap-3 sticky top-0 z-30 border-b border-border shadow-md">
       {/* Left: Logo + Title */}
       <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 min-w-0 flex-1">
         {onMenu && (
-          <button onClick={onMenu} aria-label={t('header.abrir_menu')} className="lg:hidden p-1 rounded-lg hover:bg-primary-foreground/20 transition-colors flex-shrink-0">
+          <button onClick={onMenu} aria-label={t('header.abrir_menu')} className="lg:hidden p-1 rounded-lg hover:bg-foreground/10 transition-colors flex-shrink-0">
             <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         )}
-        <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg shrink-0 bg-primary flex items-center justify-center ring-1 ring-primary/30">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg shrink-0 bg-card flex items-center justify-center ring-1 ring-border">
           <img src="/logo.webp" alt="WM" className="w-full h-full object-contain" />
         </div>
         <div className="min-w-0 hidden sm:block">
           <div className="font-bold text-xs sm:text-sm leading-tight truncate">{title || EMPRESA.nombre}</div>
-          <div className="text-[8px] sm:text-[9px] text-primary-foreground/75 italic truncate">{EMPRESA.eslogan}</div>
+          <div className="text-[8px] sm:text-[9px] text-foreground/60 italic truncate">{EMPRESA.eslogan}</div>
           {currentProject && (
-            <div className="text-[10px] sm:text-[11px] text-primary-foreground/90 font-medium truncate" title={currentProject.nombre}>
+            <div className="text-[10px] sm:text-[11px] text-foreground/80 font-medium truncate" title={currentProject.nombre}>
               🏗️ {currentProject.nombre}
             </div>
           )}
@@ -83,10 +83,10 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         <SyncIndicator />
         <SyncStatusBadge />
         <div className="text-center">
-          <div className="font-mono text-xs lg:text-sm font-bold tabular-nums text-primary-foreground/90">
+          <div className="font-mono text-xs lg:text-sm font-bold tabular-nums text-foreground/90">
             {now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}
           </div>
-          <div className="text-[10px] lg:text-[11px] text-primary-foreground/60">
+          <div className="text-[10px] lg:text-[11px] text-foreground/60">
             {now.toLocaleDateString('es-GT', { day: 'numeric', month: 'short' })}
           </div>
         </div>
@@ -98,7 +98,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         <button
           onClick={() => setView('notificaciones')}
           aria-label={t('header.notificaciones')}
-          className="relative p-1.5 sm:p-2 lg:p-2.5 hover:bg-primary-foreground/20 rounded-lg transition-colors"
+          className="relative p-1.5 sm:p-2 lg:p-2.5 hover:bg-foreground/10 rounded-lg transition-colors"
         >
           <Bell className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
           {notificacionesNoLeidas > 0 && (
@@ -113,7 +113,7 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
           <button
             onClick={() => setView('dashboard')}
             aria-label={t('common.volver_tablero')}
-            className="hidden sm:flex items-center gap-1 px-2 sm:px-2.5 lg:px-3 py-1 sm:py-1.5 bg-primary-foreground/10 hover:bg-primary-foreground/20 rounded-lg text-xs font-medium transition-colors"
+            className="hidden sm:flex items-center gap-1 px-2 sm:px-2.5 lg:px-3 py-1 sm:py-1.5 bg-foreground/10 hover:bg-foreground/20 rounded-lg text-xs font-medium transition-colors"
           >
             <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden md:inline">{t('header.tablero')}</span>
           </button>
@@ -122,9 +122,9 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         {/* Avatar */}
         <button onClick={onPick} className="relative flex-shrink-0" aria-label={t('header.cambiar_foto')}>
           {avatarSrc ? (
-            <img src={avatarSrc} alt={user?.nombre || 'Avatar'} className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full object-cover border border-primary-foreground/30" />
+            <img src={avatarSrc} alt={user?.nombre || 'Avatar'} className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full object-cover border border-border" />
           ) : (
-            <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full bg-primary-foreground/20 flex items-center justify-center text-[8px] sm:text-xs font-bold">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full bg-muted flex items-center justify-center text-[8px] sm:text-xs font-bold text-foreground">
               {initials}
             </div>
           )}
@@ -137,14 +137,14 @@ const Header: React.FC<{ onMenu?: () => void; title?: string }> = ({ onMenu, tit
         {/* User info */}
         <div className="hidden lg:flex flex-col gap-0 ml-1">
           <div className="text-xs font-semibold leading-tight">{user?.nombre}</div>
-          <div className="text-[8px] text-primary-foreground/60">{user?.rol}</div>
+          <div className="text-[8px] text-foreground/60">{user?.rol}</div>
         </div>
 
         {/* Logout */}
         <button
           onClick={logout}
           aria-label={t('header.cerrar_sesion')}
-          className="p-1.5 sm:p-2 lg:p-2.5 hover:bg-destructive/20 text-primary-foreground hover:text-destructive rounded-lg transition-colors flex-shrink-0"
+          className="p-1.5 sm:p-2 lg:p-2.5 hover:bg-destructive/20 text-foreground hover:text-destructive rounded-lg transition-colors flex-shrink-0"
         >
           <LogOut className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
         </button>

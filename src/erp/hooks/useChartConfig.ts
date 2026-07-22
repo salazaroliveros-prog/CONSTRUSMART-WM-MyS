@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import type { PaletteName, Series, BarDatum, DonutDatum } from '../components/Charts';
+import { useState, useEffect } from 'react';
+import type { PaletteName } from '../components/Charts';
 import { PALETTES } from '../components/Charts';
 
 export interface ChartConfig {
@@ -8,10 +8,25 @@ export interface ChartConfig {
   hiddenSeries: Set<string>;
 }
 
-export function useChartConfig(defaultType: 'line' | 'area' = 'line', defaultPalette: PaletteName = 'default') {
+function getThemePalette(): PaletteName {
+  const theme = document.documentElement.getAttribute('data-theme') || 'glassmorphism';
+  if (theme === 'nova-os') return 'nova';
+  if (theme === 'dark-pro') return 'vivid';
+  if (theme === 'neomorphism') return 'mono';
+  return 'default';
+}
+
+export function useChartConfig(defaultType: 'line' | 'area' = 'line', defaultPalette?: PaletteName) {
   const [type, setType] = useState<'line' | 'area'>(defaultType);
-  const [palette, setPalette] = useState<PaletteName>(defaultPalette);
+  const [palette, setPalette] = useState<PaletteName>(() => defaultPalette ?? getThemePalette());
   const [hiddenSeries, setHiddenSeries] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (defaultPalette) return;
+    const update = () => setPalette(getThemePalette());
+    window.addEventListener('wm-theme-changed', update);
+    return () => window.removeEventListener('wm-theme-changed', update);
+  }, [defaultPalette]);
 
   const toggleSeries = (id: string) => {
     setHiddenSeries(prev => {
@@ -26,7 +41,7 @@ export function useChartConfig(defaultType: 'line' | 'area' = 'line', defaultPal
 
   const reset = () => {
     setType(defaultType);
-    setPalette(defaultPalette);
+    setPalette(defaultPalette ?? getThemePalette());
     setHiddenSeries(new Set());
   };
 

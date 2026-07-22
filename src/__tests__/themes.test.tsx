@@ -70,9 +70,9 @@ describe('initializeTheme', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('material3');
   });
 
-  it('usa ant-design como fallback si no hay localStorage', () => {
+  it('usa glassmorphism como fallback si no hay localStorage', () => {
     initializeTheme();
-    expect(document.documentElement.getAttribute('data-theme')).toBe('ant-design');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('glassmorphism');
   });
 
   it('agrega clase dark para dark-pro', () => {

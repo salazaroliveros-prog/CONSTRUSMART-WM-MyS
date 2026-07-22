@@ -15,53 +15,43 @@ interface StatusBadgeProps {
 
 const statusConfig: Record<StatusType, { bg: string; text: string; border: string; icon?: string }> = {
   success: {
-    bg: 'bg-emerald-100 dark:bg-emerald-900/40',
-    text: 'text-emerald-700 dark:text-emerald-300',
-    border: 'border-emerald-300 dark:border-emerald-700',
+    bg: 'bg-success/15',
+    text: 'text-success',
+    border: 'border-success/40',
     icon: '✅',
   },
   warning: {
-    bg: 'bg-amber-100 dark:bg-amber-900/40',
-    text: 'text-amber-700 dark:text-amber-300',
-    border: 'border-amber-300 dark:border-amber-700',
+    bg: 'bg-warning/15',
+    text: 'text-warning',
+    border: 'border-warning/40',
     icon: '⚠️',
   },
   danger: {
-    bg: 'bg-red-100 dark:bg-red-900/40',
-    text: 'text-red-700 dark:text-red-300',
-    border: 'border-red-300 dark:border-red-700',
+    bg: 'bg-destructive/15',
+    text: 'text-destructive',
+    border: 'border-destructive/40',
     icon: '🔴',
   },
   info: {
-    bg: 'bg-blue-100 dark:bg-blue-900/40',
-    text: 'text-blue-700 dark:text-blue-300',
-    border: 'border-blue-300 dark:border-blue-700',
+    bg: 'bg-info/15',
+    text: 'text-info',
+    border: 'border-info/40',
     icon: 'ℹ️',
   },
   pending: {
-    bg: 'bg-gray-100 dark:bg-gray-900/40',
-    text: 'text-gray-700 dark:text-gray-300',
-    border: 'border-gray-300 dark:border-gray-700',
+    bg: 'bg-muted',
+    text: 'text-muted-foreground',
+    border: 'border-border',
     icon: '⏳',
   },
 };
 
 const sizeMap: Record<SizeType, string> = {
-  sm: 'px-2 py-0.5 text-xs',
-  md: 'px-3 py-1 text-sm',
-  lg: 'px-4 py-1.5 text-base',
+  sm: 'px-2 py-0.5 text-[10px]',
+  md: 'px-3 py-1 text-xs',
+  lg: 'px-4 py-1.5 text-sm',
 };
 
-/**
- * StatusBadge Component - Badge de estado con múltiples variantes
- * 
- * Características:
- * - 5 estados semánticos (success, warning, danger, info, pending)
- * - 3 variantes visuales (solid, outline, ghost)
- * - 3 tamaños (sm, md, lg)
- * - Icon automático o custom
- * - Accesible
- */
 export function StatusBadge({
   status,
   label,
@@ -72,7 +62,7 @@ export function StatusBadge({
 }: StatusBadgeProps) {
   const config = statusConfig[status];
   const baseClasses = `
-    inline-flex items-center gap-1.5 rounded-full font-semibold
+    inline-flex items-center gap-1.5 rounded-full font-semibold font-jetbrains-mono
     transition-all duration-200
     ${sizeMap[size]}
     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2

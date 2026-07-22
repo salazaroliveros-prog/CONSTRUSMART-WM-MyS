@@ -13,6 +13,76 @@
   backdrop-filter: var(--backdrop-blur, blur(20px));
 }
 
+[data-theme='glassmorphism'] .ant-layout,
+[data-theme='glassmorphism'] .ant-layout-content,
+[data-theme='glassmorphism'] .ant-layout-sider,
+[data-theme='glassmorphism'] .ant-layout-header {
+  background: transparent;
+}
+
+[data-theme='glassmorphism'] .ant-card,
+[data-theme='glassmorphism'] .ant-table-wrapper .ant-table,
+[data-theme='glassmorphism'] .ant-modal-content,
+[data-theme='glassmorphism'] .ant-drawer-content,
+[data-theme='glassmorphism'] .ant-popover-inner,
+[data-theme='glassmorphism'] .ant-dropdown-menu,
+[data-theme='glassmorphism'] .ant-select-dropdown,
+[data-theme='glassmorphism'] .ant-picker-dropdown .ant-picker-panel-container {
+  background: hsl(var(--card) / 0.7);
+  border: 1px solid hsl(var(--border) / 0.6);
+  box-shadow: var(--erp-shadow-md);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+}
+
+[data-theme='glassmorphism'] .ant-card,
+[data-theme='glassmorphism'] .ant-table-wrapper .ant-table,
+[data-theme='glassmorphism'] .ant-modal-content,
+[data-theme='glassmorphism'] .ant-drawer-content {
+  overflow: hidden;
+}
+
+[data-theme='glassmorphism'] .ant-input,
+[data-theme='glassmorphism'] .ant-input-affix-wrapper,
+[data-theme='glassmorphism'] .ant-select-selector,
+[data-theme='glassmorphism'] .ant-picker,
+[data-theme='glassmorphism'] .ant-input-number,
+[data-theme='glassmorphism'] .ant-input-number-input {
+  background: hsl(var(--card) / 0.56) !important;
+  border-color: hsl(var(--border) / 0.72) !important;
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.7);
+}
+
+[data-theme='glassmorphism'] .ant-btn-primary {
+  border: 0;
+  box-shadow: 0 8px 18px hsl(var(--primary) / 0.24);
+}
+
+[data-theme='glassmorphism'] .ant-btn-primary:hover {
+  box-shadow: 0 12px 24px hsl(var(--primary) / 0.32);
+  transform: translateY(-1px);
+}
+
+[data-theme='glassmorphism'] .ant-table-thead > tr > th {
+  background: hsl(193 60% 91% / 0.68) !important;
+  color: hsl(var(--foreground));
+  border-bottom-color: hsl(var(--border) / 0.7);
+}
+
+[data-theme='glassmorphism'] .ant-table-tbody > tr > td {
+  background: transparent;
+  border-bottom-color: hsl(var(--border) / 0.38);
+}
+
+[data-theme='glassmorphism'] .ant-table-tbody > tr:hover > td {
+  background: hsl(188 80% 92% / 0.56) !important;
+}
+
+[data-theme='glassmorphism'] .recharts-surface,
+[data-theme='glassmorphism'] .apexcharts-canvas {
+  filter: drop-shadow(0 8px 18px hsl(200 44% 30% / 0.08));
+}
+
 [data-theme='neomorphism'] table {
   box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.08), -8px -8px 16px rgba(255, 255, 255, 0.9);
 }
@@ -120,4 +190,477 @@
 
 [data-theme='dark-pro'] ::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+}
+
+
+/* === Nova OS overrides === */
+[data-theme='nova-os'] .ant-layout,
+[data-theme='nova-os'] .ant-layout-content,
+[data-theme='nova-os'] .ant-layout-sider,
+[data-theme='nova-os'] .ant-layout-header {
+  background: transparent;
+}
+
+[data-theme='nova-os'] .ant-card,
+[data-theme='nova-os'] .ant-table-wrapper .ant-table,
+[data-theme='nova-os'] .ant-modal-content,
+[data-theme='nova-os'] .ant-drawer-content,
+[data-theme='nova-os'] .ant-popover-inner,
+[data-theme='nova-os'] .ant-dropdown-menu,
+[data-theme='nova-os'] .ant-select-dropdown,
+[data-theme='nova-os'] .ant-picker-dropdown .ant-picker-panel-container {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: var(--erp-shadow-md);
+  border-radius: var(--erp-radius-base);
+}
+
+[data-theme='nova-os'] .ant-card,
+[data-theme='nova-os'] .ant-table-wrapper .ant-table,
+[data-theme='nova-os'] .ant-modal-content,
+[data-theme='nova-os'] .ant-drawer-content {
+  overflow: hidden;
+}
+
+[data-theme='nova-os'] .ant-input,
+[data-theme='nova-os'] .ant-input-affix-wrapper,
+[data-theme='nova-os'] .ant-select-selector,
+[data-theme='nova-os'] .ant-picker,
+[data-theme='nova-os'] .ant-input-number,
+[data-theme='nova-os'] .ant-input-number-input {
+  background: hsl(var(--input)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-radius: 12px !important;
+}
+
+[data-theme='nova-os'] .ant-btn-primary {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 17px;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='nova-os'] .ant-btn-primary:hover {
+  background: hsl(var(--primary-foreground));
+  color: hsl(var(--background));
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+[data-theme='nova-os'] .ant-table-thead > tr > th {
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground));
+  border-bottom-color: hsl(var(--border));
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+[data-theme='nova-os'] .ant-table-tbody > tr > td {
+  background: transparent;
+  border-bottom-color: hsl(var(--border) / 0.4);
+  color: hsl(var(--foreground));
+}
+
+[data-theme='nova-os'] .ant-table-tbody > tr:hover > td {
+  background: hsl(var(--muted)) !important;
+}
+
+[data-theme='nova-os'] header,
+[data-theme='nova-os'] nav {
+  background: hsl(var(--card));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+[data-theme='nova-os'] [class*='Sidebar'],
+[data-theme='nova-os'] aside {
+  background: hsl(var(--card));
+  border-right: 1px solid hsl(var(--border));
+}
+
+[data-theme='nova-os'] .card,
+[data-theme='nova-os'] [class*='Card'] {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: var(--erp-shadow-sm);
+  border-radius: var(--erp-radius-base);
+}
+
+[data-theme='nova-os'] .card:hover,
+[data-theme='nova-os'] [class*='Card']:hover {
+  border-color: hsl(var(--foreground) / 0.2);
+  box-shadow: var(--erp-shadow-md);
+}
+
+[data-theme='nova-os'] [class*='Badge'],
+[data-theme='nova-os'] .badge {
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+}
+
+[data-theme='nova-os'] [role='dialog'],
+[data-theme='nova-os'] dialog {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: var(--erp-shadow-lg);
+  border-radius: 20px;
+}
+
+[data-theme='nova-os'] [role='tooltip'] {
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+[data-theme='nova-os'] ::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+}
+
+[data-theme='nova-os'] ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+[data-theme='nova-os'] .ant-select-item-option-selected {
+  background: hsl(var(--muted)) !important;
+}
+
+[data-theme='nova-os'] .ant-tabs-tab {
+  color: hsl(var(--muted-foreground));
+}
+
+[data-theme='nova-os'] .ant-tabs-tab-active {
+  color: hsl(var(--foreground)) !important;
+}
+
+[data-theme='nova-os'] .ant-tabs-ink-bar {
+  background: hsl(var(--foreground));
+}
+
+
+/* ============================================================================
+   NOVA OS — GLOBAL COLOR NORMALIZATION LAYER
+   Remapea TODOS los colores Tailwind hardcoded al sistema de tokens nova-os.
+   Esto garantiza consistencia visual sin modificar ninguna pantalla individual.
+   Estrategia: neutralizar → reemplazar con tokens semánticos.
+   ============================================================================ */
+
+/* === Backgrounds semánticos: emerald/green (success) === */
+[data-theme='nova-os'] .bg-emerald-50,
+[data-theme='nova-os'] .bg-green-50,
+[data-theme='nova-os'] .bg-emerald-100,
+[data-theme='nova-os'] .bg-green-100 {
+  background-color: hsl(var(--success) / 0.12) !important;
+}
+[data-theme='nova-os'] .dark\:bg-emerald-900\/20,
+[data-theme='nova-os'] .dark\:bg-emerald-950\/20,
+[data-theme='nova-os'] .dark\:bg-emerald-900\/40,
+[data-theme='nova-os'] .dark\:bg-emerald-950\/40,
+[data-theme='nova-os'] .dark\:bg-green-900\/20 {
+  background-color: hsl(var(--success) / 0.15) !important;
+}
+
+/* === Backgrounds semánticos: amber/yellow (warning) === */
+[data-theme='nova-os'] .bg-amber-50,
+[data-theme='nova-os'] .bg-yellow-50,
+[data-theme='nova-os'] .bg-amber-100,
+[data-theme='nova-os'] .bg-yellow-100 {
+  background-color: hsl(var(--warning) / 0.12) !important;
+}
+[data-theme='nova-os'] .dark\:bg-amber-900\/20,
+[data-theme='nova-os'] .dark\:bg-amber-950\/20,
+[data-theme='nova-os'] .dark\:bg-amber-900\/40,
+[data-theme='nova-os'] .dark\:bg-yellow-950\/30 {
+  background-color: hsl(var(--warning) / 0.15) !important;
+}
+
+/* === Backgrounds semánticos: red/rose (danger) === */
+[data-theme='nova-os'] .bg-red-50,
+[data-theme='nova-os'] .bg-rose-50,
+[data-theme='nova-os'] .bg-red-100,
+[data-theme='nova-os'] .bg-rose-100 {
+  background-color: hsl(var(--destructive) / 0.12) !important;
+}
+[data-theme='nova-os'] .dark\:bg-red-900\/20,
+[data-theme='nova-os'] .dark\:bg-red-950\/20,
+[data-theme='nova-os'] .dark\:bg-red-900\/30,
+[data-theme='nova-os'] .dark\:bg-red-900\/40,
+[data-theme='nova-os'] .dark\:bg-red-950\/40,
+[data-theme='nova-os'] .dark\:bg-rose-950\/40 {
+  background-color: hsl(var(--destructive) / 0.15) !important;
+}
+
+/* === Backgrounds semánticos: blue/indigo/purple (info) === */
+[data-theme='nova-os'] .bg-blue-50,
+[data-theme='nova-os'] .bg-indigo-50,
+[data-theme='nova-os'] .bg-blue-100,
+[data-theme='nova-os'] .bg-indigo-100,
+[data-theme='nova-os'] .bg-purple-50 {
+  background-color: hsl(var(--info) / 0.12) !important;
+}
+[data-theme='nova-os'] .dark\:bg-blue-900\/20,
+[data-theme='nova-os'] .dark\:bg-blue-950\/20,
+[data-theme='nova-os'] .dark\:bg-blue-900\/30,
+[data-theme='nova-os'] .dark\:bg-blue-950\/30,
+[data-theme='nova-os'] .dark\:bg-indigo-950\/20,
+[data-theme='nova-os'] .dark\:bg-purple-950\/20 {
+  background-color: hsl(var(--info) / 0.15) !important;
+}
+
+/* === Backgrounds neutros: gray/slate/zinc (muted) === */
+[data-theme='nova-os'] .bg-gray-50,
+[data-theme='nova-os'] .bg-slate-50,
+[data-theme='nova-os'] .bg-zinc-50,
+[data-theme='nova-os'] .bg-gray-100,
+[data-theme='nova-os'] .bg-slate-100,
+[data-theme='nova-os'] .bg-stone-50 {
+  background-color: hsl(var(--muted)) !important;
+}
+[data-theme='nova-os'] .dark\:bg-gray-800\/50,
+[data-theme='nova-os'] .dark\:bg-gray-900\/40,
+[data-theme='nova-os'] .dark\:bg-slate-900\/40 {
+  background-color: hsl(var(--muted) / 0.8) !important;
+}
+
+/* === Text semánticos: emerald/green (success) === */
+[data-theme='nova-os'] .text-emerald-600,
+[data-theme='nova-os'] .text-emerald-700,
+[data-theme='nova-os'] .text-green-600,
+[data-theme='nova-os'] .text-green-700,
+[data-theme='nova-os'] .text-emerald-500,
+[data-theme='nova-os'] .text-green-500 {
+  color: hsl(var(--success)) !important;
+}
+[data-theme='nova-os'] .dark\:text-emerald-300,
+[data-theme='nova-os'] .dark\:text-emerald-400,
+[data-theme='nova-os'] .dark\:text-green-400 {
+  color: hsl(var(--success)) !important;
+}
+
+/* === Text semánticos: amber/yellow (warning) === */
+[data-theme='nova-os'] .text-amber-600,
+[data-theme='nova-os'] .text-amber-700,
+[data-theme='nova-os'] .text-yellow-600,
+[data-theme='nova-os'] .text-amber-500,
+[data-theme='nova-os'] .text-yellow-500 {
+  color: hsl(var(--warning)) !important;
+}
+[data-theme='nova-os'] .dark\:text-amber-300,
+[data-theme='nova-os'] .dark\:text-amber-400,
+[data-theme='nova-os'] .dark\:text-yellow-400 {
+  color: hsl(var(--warning)) !important;
+}
+
+/* === Text semánticos: red/rose (danger) === */
+[data-theme='nova-os'] .text-red-600,
+[data-theme='nova-os'] .text-red-700,
+[data-theme='nova-os'] .text-rose-600,
+[data-theme='nova-os'] .text-red-500,
+[data-theme='nova-os'] .text-rose-500 {
+  color: hsl(var(--destructive)) !important;
+}
+[data-theme='nova-os'] .dark\:text-red-300,
+[data-theme='nova-os'] .dark\:text-red-400,
+[data-theme='nova-os'] .dark\:text-rose-400 {
+  color: hsl(var(--destructive)) !important;
+}
+
+/* === Text semánticos: blue/indigo/purple (info) === */
+[data-theme='nova-os'] .text-blue-600,
+[data-theme='nova-os'] .text-blue-700,
+[data-theme='nova-os'] .text-indigo-600,
+[data-theme='nova-os'] .text-blue-500,
+[data-theme='nova-os'] .text-indigo-500,
+[data-theme='nova-os'] .text-purple-500,
+[data-theme='nova-os'] .text-purple-600 {
+  color: hsl(var(--info)) !important;
+}
+[data-theme='nova-os'] .dark\:text-blue-300,
+[data-theme='nova-os'] .dark\:text-blue-400,
+[data-theme='nova-os'] .dark\:text-indigo-400 {
+  color: hsl(var(--info)) !important;
+}
+
+/* === Text semánticos: gray/slate/zinc (muted) === */
+[data-theme='nova-os'] .text-gray-500,
+[data-theme='nova-os'] .text-slate-300,
+[data-theme='nova-os'] .text-slate-400,
+[data-theme='nova-os'] .text-gray-400,
+[data-theme='nova-os'] .text-zinc-500,
+[data-theme='nova-os'] .text-stone-600 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+[data-theme='nova-os'] .dark\:text-gray-300,
+[data-theme='nova-os'] .dark\:text-gray-400,
+[data-theme='nova-os'] .dark\:text-slate-400,
+[data-theme='nova-os'] .dark\:text-slate-500 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* === Borders semánticos: emerald (success) === */
+[data-theme='nova-os'] .border-emerald-200,
+[data-theme='nova-os'] .border-emerald-300,
+[data-theme='nova-os'] .border-green-200 {
+  border-color: hsl(var(--success) / 0.35) !important;
+}
+[data-theme='nova-os'] .dark\:border-emerald-800,
+[data-theme='nova-os'] .dark\:border-emerald-900\/50 {
+  border-color: hsl(var(--success) / 0.25) !important;
+}
+
+/* === Borders semánticos: amber (warning) === */
+[data-theme='nova-os'] .border-amber-200,
+[data-theme='nova-os'] .border-amber-300,
+[data-theme='nova-os'] .border-yellow-200 {
+  border-color: hsl(var(--warning) / 0.35) !important;
+}
+[data-theme='nova-os'] .dark\:border-amber-900\/50,
+[data-theme='nova-os'] .dark\:border-amber-800 {
+  border-color: hsl(var(--warning) / 0.25) !important;
+}
+
+/* === Borders semánticos: red (danger) === */
+[data-theme='nova-os'] .border-red-200,
+[data-theme='nova-os'] .border-red-300,
+[data-theme='nova-os'] .border-rose-200 {
+  border-color: hsl(var(--destructive) / 0.35) !important;
+}
+[data-theme='nova-os'] .dark\:border-red-800,
+[data-theme='nova-os'] .dark\:border-red-900\/50 {
+  border-color: hsl(var(--destructive) / 0.25) !important;
+}
+
+/* === Borders semánticos: blue/indigo (info) === */
+[data-theme='nova-os'] .border-blue-200,
+[data-theme='nova-os'] .border-blue-300,
+[data-theme='nova-os'] .border-indigo-200,
+[data-theme='nova-os'] .border-blue-100 {
+  border-color: hsl(var(--info) / 0.35) !important;
+}
+[data-theme='nova-os'] .dark\:border-blue-800,
+[data-theme='nova-os'] .dark\:border-blue-900\/50 {
+  border-color: hsl(var(--info) / 0.25) !important;
+}
+
+/* === Hover states neutralizados en nova-os === */
+[data-theme='nova-os'] .hover\:bg-gray-50:hover,
+[data-theme='nova-os'] .dark\:hover\:bg-gray-800\/50:hover {
+  background-color: hsl(var(--muted) / 0.8) !important;
+}
+[data-theme='nova-os'] .hover\:bg-emerald-200:hover,
+[data-theme='nova-os'] .hover\:bg-red-200:hover {
+  background-color: hsl(var(--muted)) !important;
+}
+
+/* === Solid color pills / badge overrides === */
+[data-theme='nova-os'] .bg-emerald-500,
+[data-theme='nova-os'] .bg-green-600,
+[data-theme='nova-os'] .bg-green-500 {
+  background-color: hsl(var(--success)) !important;
+}
+[data-theme='nova-os'] .bg-amber-500,
+[data-theme='nova-os'] .bg-yellow-500 {
+  background-color: hsl(var(--warning)) !important;
+}
+[data-theme='nova-os'] .bg-red-500,
+[data-theme='nova-os'] .bg-rose-500 {
+  background-color: hsl(var(--destructive)) !important;
+}
+[data-theme='nova-os'] .bg-blue-500,
+[data-theme='nova-os'] .bg-indigo-500,
+[data-theme='nova-os'] .bg-purple-500 {
+  background-color: hsl(var(--info)) !important;
+}
+
+/* === Form validation text (errors) — siempre destructive === */
+[data-theme='nova-os'] p.text-red-500,
+[data-theme='nova-os'] span.text-red-500,
+[data-theme='nova-os'] .text-red-500 {
+  color: hsl(var(--destructive)) !important;
+}
+
+/* === Focus rings en nova-os === */
+[data-theme='nova-os'] .focus\:border-red-400:focus {
+  border-color: hsl(var(--destructive) / 0.6) !important;
+}
+[data-theme='nova-os'] .border-red-500 {
+  border-color: hsl(var(--destructive)) !important;
+}
+[data-theme='nova-os'] .focus\:border-blue-500:focus,
+[data-theme='nova-os'] .focus\:border-blue-300:focus {
+  border-color: hsl(var(--ring)) !important;
+  outline-color: hsl(var(--ring)) !important;
+}
+
+/* === Charts / Gauge SVG text === */
+[data-theme='nova-os'] .recharts-text,
+[data-theme='nova-os'] .recharts-cartesian-axis-tick-value,
+[data-theme='nova-os'] .recharts-legend-item-text {
+  fill: hsl(var(--muted-foreground)) !important;
+}
+[data-theme='nova-os'] .recharts-cartesian-grid-horizontal line,
+[data-theme='nova-os'] .recharts-cartesian-grid-vertical line {
+  stroke: hsl(var(--border)) !important;
+  stroke-opacity: 0.5 !important;
+}
+[data-theme='nova-os'] .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+  border-radius: 12px !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* === Buttons: solid green/red override → primary tokens === */
+[data-theme='nova-os'] button.bg-green-600,
+[data-theme='nova-os'] .bg-green-600.text-white {
+  background-color: hsl(var(--success)) !important;
+  color: hsl(var(--success-foreground)) !important;
+  border-radius: 17px !important;
+}
+
+/* === Slate / stone neutral for BIM and APU card backgrounds === */
+[data-theme='nova-os'] .bg-slate-900,
+[data-theme='nova-os'] .bg-slate-800 {
+  background-color: hsl(var(--muted)) !important;
+}
+
+/* === Impuestos table hover row === */
+[data-theme='nova-os'] tr:hover .dark\:hover\:bg-gray-800\/50,
+[data-theme='nova-os'] .hover\:bg-gray-50:hover td {
+  background-color: hsl(var(--muted) / 0.5) !important;
+}
+
+/* === Orange accent (ProfitabilityAnalytics sparklines y charts palette) === */
+[data-theme='nova-os'] .bg-orange-50 {
+  background-color: hsl(var(--warning) / 0.12) !important;
+}
+[data-theme='nova-os'] .text-orange-600,
+[data-theme='nova-os'] .text-orange-500 {
+  color: hsl(var(--warning)) !important;
+}
+[data-theme='nova-os'] .border-orange-200 {
+  border-color: hsl(var(--warning) / 0.35) !important;
+}
+
+/* === BottomNavigation active item === */
+[data-theme='nova-os'] .bg-primary {
+  background-color: hsl(var(--primary)) !important;
+}
+
+/* === Ajustes screen: active tab indicator === */
+[data-theme='nova-os'] .bg-blue-100.text-blue-700,
+[data-theme='nova-os'] .dark\:bg-blue-900.dark\:text-blue-300 {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* === Thin dot indicators (legend circles) === */
+[data-theme='nova-os'] .bg-emerald-500.w-2,
+[data-theme='nova-os'] .bg-amber-500.w-2,
+[data-theme='nova-os'] .bg-red-500.w-2 {
+  opacity: 0.85;
 }

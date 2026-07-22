@@ -70,10 +70,10 @@ const AlertasPanel: React.FC = () => {
   };
 
   const bgMap: Record<string, string> = {
-    stock: 'bg-red-500/10 border-red-500/20',
-    nc: 'bg-red-500/10 border-red-500/20',
-    oc: 'bg-yellow-500/10 border-yellow-500/20',
-    hito: 'bg-red-500/10 border-red-500/20',
+    stock: 'bg-destructive/10 border-destructive/30',
+    nc: 'bg-destructive/10 border-destructive/30',
+    oc: 'bg-warning/10 border-warning/30',
+    hito: 'bg-destructive/10 border-destructive/30',
   };
 
   const countByType = (tipo: string) => alertas.filter(a => a.tipo === tipo).length;

@@ -68,9 +68,9 @@ describe('syncAllVisualSettings — atomicidad y fallbacks', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark-pro');
   });
 
-  it('ignora temas inválidos y usa ant-design como safe default', () => {
+  it('ignora temas inválidos y usa glassmorphism como safe default', () => {
     syncAllVisualSettings({ appTheme: 'no-existe' as any });
-    expect(document.documentElement.getAttribute('data-theme')).toBe('ant-design');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('glassmorphism');
   });
 
   it('elimina clases previas antes de aplicar nuevas', () => {
@@ -134,9 +134,9 @@ describe('syncAnimationsSetting', () => {
 });
 
 describe('initializeTheme', () => {
-  it('fallback a ant-design cuando no hay localStorage', () => {
+  it('fallback a glassmorphism cuando no hay localStorage', () => {
     initializeTheme();
-    expect(document.documentElement.getAttribute('data-theme')).toBe('ant-design');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('glassmorphism');
   });
 
   it('aplica tema desde localStorage', () => {

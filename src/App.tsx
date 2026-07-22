@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ErrorBoundary as AppErrorBoundary } from "@/components/ErrorBoundary";
 import * as Sentry from '@sentry/react';
 import { isSentryInitialized } from '@/lib/sentry';
+import { AntdProvider } from '@/lib/antd-config';
 
 const Index = lazy(() => import("./pages/Index"));
 
@@ -27,6 +28,7 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AntdProvider mode="glassmorphism">
       <TooltipProvider>
         {isSentryInitialized() ? (
           <Sentry.ErrorBoundary fallback={<div className="p-6 text-center text-sm text-red-600">Ha ocurrido un error inesperado. Puede recargar la página para continuar.</div>}>
@@ -52,6 +54,7 @@ const App = () => {
           </AppErrorBoundary>
         )}
       </TooltipProvider>
+      </AntdProvider>
     </QueryClientProvider>
   );
 };

@@ -298,12 +298,12 @@ const Financiero: React.FC = () => {
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">Vista integrada de finanzas, rentabilidad y cuentas</p>
         </div>
 
-        {/* Filtros */}
-        <div className="flex gap-2">
+        {/* Filtros apilados en mobile */}
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <select
             value={filtroProyecto}
             onChange={(e) => setFiltroProyecto(e.target.value)}
-            className="px-3 py-2 rounded-lg border border-border bg-card text-sm"
+            className="w-full sm:w-auto px-3 py-2 rounded-lg border border-border bg-card text-sm"
           >
             <option value="todos">Todos los proyectos</option>
             {proyectos.map((p) => (
@@ -316,7 +316,7 @@ const Financiero: React.FC = () => {
           <select
             value={filtroFecha}
             onChange={(e) => setFiltroFecha(e.target.value)}
-            className="px-3 py-2 rounded-lg border border-border bg-card text-sm"
+            className="w-full sm:w-auto px-3 py-2 rounded-lg border border-border bg-card text-sm"
           >
             <option value="mes">Este mes</option>
             <option value="trimestre">Este trimestre</option>
@@ -348,12 +348,14 @@ const Financiero: React.FC = () => {
       </div>
 
       {movimientos && movimientos.length > 0 && (
-        <div className="bg-card border border-border rounded-xl p-4 mb-6">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Gastos por Categoría</h3>
-          <Donut
-            data={gastosPorCategoria}
-            size={200}
-          />
+        <div className="bg-card border border-border rounded-xl p-3 sm:p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-2 sm:mb-3">Gastos por Categoría</h3>
+          <div className="flex justify-center">
+            <Donut
+              data={gastosPorCategoria}
+              size={180}
+            />
+          </div>
         </div>
       )}
 

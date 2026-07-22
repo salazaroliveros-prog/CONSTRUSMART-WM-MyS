@@ -178,8 +178,8 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
             : 'px-2.5 py-[7px] text-xs font-medium'
           }
           ${active
-            ? 'bg-primary text-primary-foreground shadow-sm'
-            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            ? 'bg-muted text-foreground border border-border shadow-sm'
+            : 'border border-transparent text-muted-foreground hover:bg-muted hover:text-foreground hover:border-border'
           }
         `}
       >
@@ -246,7 +246,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
         className={`
           fixed lg:sticky top-0 lg:top-[60px]
           ${sidebarPosition === 'right' ? 'right-0' : 'left-0'} h-screen
-          lg:h-[calc(100vh-60px)] bg-background
+          lg:h-[calc(100vh-60px)] bg-card/90 backdrop-blur-xl
           border-r ${sidebarPosition === 'right' ? 'border-l' : 'border-r'}
           border-border z-[60] transition-[width] duration-300 ease-in-out
           lg:translate-x-0
@@ -307,7 +307,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
                     <div className="h-px bg-border/50 mx-1 my-2" />
                     <div className="flex items-center gap-1.5 px-2 mb-1">
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/70 truncate">
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/70 truncate font-jetbrains-mono">
                         {t(`nav.groups.${GROUP_LABELS[group]}`)}
                       </span>
                     </div>
