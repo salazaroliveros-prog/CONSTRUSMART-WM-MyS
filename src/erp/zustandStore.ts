@@ -139,6 +139,8 @@ interface ErpData {
   isOnline: boolean; currentProjectId: string | null; appSettings: AppSettings;
   userRol: string | null; proyectoWeather: ProyectoWeather[];
   errorLogs: ErrorLogEntry[];
+  anticipos: Anticipo[];
+  cajasChicas: CajaChica[];
 
 }
 
@@ -178,6 +180,8 @@ interface ErpActions {
   setCalculosProyecto: (v: CalculoProyecto[] | ((prev: CalculoProyecto[]) => CalculoProyecto[])) => void;
   setRecepciones: (v: RecepcionAlmacen[] | ((prev: RecepcionAlmacen[]) => RecepcionAlmacen[])) => void;
   setCentrosCosto: (v: CentroCosto[] | ((prev: CentroCosto[]) => CentroCosto[])) => void;
+  setAnticipos: (v: Anticipo[] | ((prev: Anticipo[]) => Anticipo[])) => void;
+  setCajasChicas: (v: CajaChica[] | ((prev: CajaChica[]) => CajaChica[])) => void;
   setPlantillas: (v: Plantilla[] | ((prev: Plantilla[]) => Plantilla[])) => void;
   setInsumosBase: (v: InsumoBase[] | ((prev: InsumoBase[]) => InsumoBase[])) => void;
   setProyectoWeather: (v: ProyectoWeather[] | ((prev: ProyectoWeather[]) => ProyectoWeather[])) => void;
@@ -313,6 +317,12 @@ interface ErpActions {
   deleteHito: (id: string) => void;
   addRiesgo: (r: Omit<Riesgo, 'id'>) => void;
   updateRiesgo: (id: string, patch: Partial<Riesgo>) => void;
+  addAnticipo: (a: Omit<Anticipo, 'id'>) => void;
+  updateAnticipo: (id: string, patch: Partial<Anticipo>) => void;
+  deleteAnticipo: (id: string) => void;
+  addCajaChica: (c: Omit<CajaChica, 'id'>) => void;
+  updateCajaChica: (id: string, patch: Partial<CajaChica>) => void;
+  deleteCajaChica: (id: string) => void;
   deleteRiesgo: (id: string) => void;
   addPlano: (p: Omit<Plano, 'id'>) => void;
   updatePlano: (id: string, patch: Partial<Plano>) => void;
@@ -427,6 +437,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_escalas_produccion','erp_estacionalidad',
       'erp_historial_aplicacion_reglas','erp_ajustes_estacionales_actividad',
       'erp_calculos_proyecto','erp_cumplimiento_normativo',
+      'erp_anticipos','erp_cajas_chicas',
     ] as const;
 
     const fetchTable = async (table: string) => {
@@ -561,7 +572,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   seguimientoEVM: [], incidentes: [], publicacionesMuro: [], liberaciones: [], planos: [],
   rfis: [], submittals: [], activos: [], cuadros: [], pagosProveedor: [],   destajos: [], calculosProyecto: [],
   ajustesEstacionalesActividad: [], aplicacionEscalas: [], cumplimientoNormativo: [],
-  recepciones: [], centrosCosto: [],   plantillas: [],
+  recepciones: [], centrosCosto: [], anticipos: [], cajasChicas: [],   plantillas: [],
   insumosBase: [],
   departamentos: [],
   municipios: [],
@@ -616,6 +627,8 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setCumplimientoNormativo: (v) => set(typeof v === 'function' ? { cumplimientoNormativo: v(get().cumplimientoNormativo) } : { cumplimientoNormativo: v }),
   setRecepciones: (v) => set(typeof v === 'function' ? { recepciones: v(get().recepciones) } : { recepciones: v }),
   setCentrosCosto: (v) => set(typeof v === 'function' ? { centrosCosto: v(get().centrosCosto) } : { centrosCosto: v }),
+  setAnticipos: (v) => set(typeof v === 'function' ? { anticipos: v(get().anticipos) } : { anticipos: v }),
+  setCajasChicas: (v) => set(typeof v === 'function' ? { cajasChicas: v(get().cajasChicas) } : { cajasChicas: v }),
   setPlantillas: (v) => set(typeof v === 'function' ? { plantillas: v(get().plantillas) } : { plantillas: v }),
   setInsumosBase: (v) => set(typeof v === 'function' ? { insumosBase: v(get().insumosBase) } : { insumosBase: v }),
   setDepartamentos: (v) => set(typeof v === 'function' ? { departamentos: v(get().departamentos) } : { departamentos: v }),
@@ -1427,6 +1440,14 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   addCentroCosto: (c) => { const n = { ...c, id: uid() }; get().setCentrosCosto(prev => [n, ...prev]); get().enqueueMutation('addCentroCosto', n); },
   updateCentroCosto: (id, patch) => { get().setCentrosCosto(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateCentroCosto', { id, ...patch }); },
   deleteCentroCosto: (id) => { get().setCentrosCosto(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteCentroCosto', { id }); },
+
+  addAnticipo: (a) => { const n = { ...a, id: uid() }; get().setAnticipos(prev => [n, ...prev]); get().enqueueMutation('addAnticipo', n); },
+  updateAnticipo: (id, patch) => { get().setAnticipos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateAnticipo', { id, ...patch }); },
+  deleteAnticipo: (id) => { get().setAnticipos(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteAnticipo', { id }); },
+
+  addCajaChica: (c) => { const n = { ...c, id: uid() }; get().setCajasChicas(prev => [n, ...prev]); get().enqueueMutation('addCajaChica', n); },
+  updateCajaChica: (id, patch) => { get().setCajasChicas(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateCajaChica', { id, ...patch }); },
+  deleteCajaChica: (id) => { get().setCajasChicas(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteCajaChica', { id }); },
 
   addDestajo: (d) => { const n = { ...d, id: uid() }; get().setDestajos(prev => [n, ...prev]); get().enqueueMutation('addDestajo', n); },
   updateDestajo: (id, patch) => { get().setDestajos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateDestajo', { id, ...patch }); },

@@ -8,39 +8,11 @@ import { toast } from 'sonner';
 import { fmtQ } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const LS_ANTICIPOS = 'wm_erp_comercial_anticipos';
-const LS_CAJAS = 'wm_erp_comercial_cajas';
-
-const anticipoSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  montoTotal: z.number(),
-  saldoPendiente: z.number(),
-  estado: z.enum(['activo', 'amortizado'] as const),
-  fechaOtorgamiento: z.string(),
-  observaciones: z.string().optional(),
-  amortizaciones: z.array(z.object({
-    id: z.string(),
-    monto: z.number(),
-    fecha: z.string(),
-    nota: z.string().optional(),
-  })).default([]),
-});
-const cajaChicaSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  monto: z.number(),
-  descripcion: z.string(),
-  estado: z.enum(['pendiente', 'aprobada', 'rechazada'] as const),
-  solicitante: z.string().optional(),
-  fecha: z.string(),
-});
-
 export const ComercialFinanzas: React.FC = () => {
   const [loading, setLoading] = useState(true);
   useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
-  const { proyectos, user, ventasPaquetes, addVentaPaquete, updateVentaPaquete } = useErp();
+  const { proyectos, user, ventasPaquetes, addVentaPaquete, updateVentaPaquete, anticipos, cajasChicas, addAnticipo, updateAnticipo, deleteAnticipo, addCajaChica, updateCajaChica, deleteCajaChica } = useErp();
 
   const [tab, setTab] = useState<'ventas' | 'anticipos' | 'cajas'>('ventas');
   const [showForm, setShowForm] = useState<string | null>(null);
@@ -48,52 +20,27 @@ export const ComercialFinanzas: React.FC = () => {
   const [amortInputs, setAmortInputs] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const [anticipos, setAnticipos] = useState<z.infer<typeof anticipoSchema>[]>(() => {
-    try {
-      const raw = JSON.parse(localStorage.getItem(LS_ANTICIPOS) || '[]');
-      const parsed = z.array(anticipoSchema).safeParse(raw);
-      return parsed.success ? parsed.data : [];
-    } catch { return []; }
-  });
-  const [cajasChicas, setCajasChicas] = useState<z.infer<typeof cajaChicaSchema>[]>(() => {
-    try {
-      const raw = JSON.parse(localStorage.getItem(LS_CAJAS) || '[]');
-      const parsed = z.array(cajaChicaSchema).safeParse(raw);
-      return parsed.success ? parsed.data : [];
-    } catch { return []; }
-  });
-
-  useEffect(() => {
-    const parsed = z.array(anticipoSchema).safeParse(anticipos);
-    if (parsed.success) localStorage.setItem(LS_ANTICIPOS, JSON.stringify(parsed.data));
-  }, [anticipos]);
-  useEffect(() => {
-    const parsed = z.array(cajaChicaSchema).safeParse(cajasChicas);
-    if (parsed.success) localStorage.setItem(LS_CAJAS, JSON.stringify(parsed.data));
-  }, [cajasChicas]);
-
   const addVenta = (data: Omit<VentaPaquete, 'id'>) => {
     addVentaPaquete({ ...data, id: uid() });
   };
   const updateVenta = (id: string, patch: Partial<VentaPaquete>) => {
     updateVentaPaquete(id, patch);
   };
-  const addAnticipo = (data: Omit<Anticipo, 'id' | 'amortizaciones'>) => {
-    setAnticipos(prev => [{ ...data, id: uid(), amortizaciones: [] }, ...prev]);
+  const addAnticipoLocal = (data: Omit<Anticipo, 'id' | 'amortizaciones'>) => {
+    addAnticipo({ ...data, amortizaciones: [] });
   };
   const addAmortizacion = (anticipoId: string, data: Omit<AmortizacionItem, 'id'>) => {
-    setAnticipos(prev => prev.map(a => {
-      if (a.id !== anticipoId) return a;
-      const newAmort: AmortizacionItem = { ...data, id: uid() };
-      const nuevoSaldo = Math.max(0, a.saldoPendiente - data.monto);
-      return { ...a, saldoPendiente: nuevoSaldo, estado: nuevoSaldo === 0 ? 'amortizado' as const : a.estado, amortizaciones: [...a.amortizaciones, newAmort] };
-    }));
+    const anticipo = anticipos.find(a => a.id === anticipoId);
+    if (!anticipo) return;
+    const newAmort: AmortizacionItem = { ...data, id: uid() };
+    const nuevoSaldo = Math.max(0, anticipo.saldoPendiente - data.monto);
+    updateAnticipo(anticipoId, { amortizaciones: [...anticipo.amortizaciones, newAmort], saldoPendiente: nuevoSaldo, estado: nuevoSaldo === 0 ? 'amortizado' as const : anticipo.estado });
   };
-  const addCajaChica = (data: Omit<CajaChica, 'id'>) => {
-    setCajasChicas(prev => [{ ...data, id: uid() }, ...prev]);
+  const addCajaChicaLocal = (data: Omit<CajaChica, 'id'>) => {
+    addCajaChica(data);
   };
-  const updateCajaChica = (id: string, patch: Partial<CajaChica>) => {
-    setCajasChicas(prev => prev.map(c => c.id === id ? { ...c, ...patch } : c));
+  const updateCajaChicaLocal = (id: string, patch: Partial<CajaChica>) => {
+    updateCajaChica(id, patch);
   };
 
   const INPUT = 'w-full px-3 py-2 border border-input rounded-lg text-sm outline-none focus:border-ring bg-background text-foreground';
@@ -388,7 +335,7 @@ export const ComercialFinanzas: React.FC = () => {
                 <button onClick={() => {
                   if (!form.proyectoId) { setFormErrors({ proyectoId: t('comercial.error_proyecto') }); return; }
                   const monto = form.montoTotal || 0;
-                  addAnticipo({ proyectoId: form.proyectoId, montoTotal: monto, saldoPendiente: monto, tipo: form.tipo || 'proveedor', beneficiario: form.beneficiario || 'Beneficiario', concepto: form.concepto || 'Anticipo', fechaEntrega: new Date().toISOString().split('T')[0], estado: 'activo' });
+                  addAnticipoLocal({ proyectoId: form.proyectoId, montoTotal: monto, saldoPendiente: monto, tipo: form.tipo || 'proveedor', beneficiario: form.beneficiario || 'Beneficiario', concepto: form.concepto || 'Anticipo', fechaEntrega: new Date().toISOString().split('T')[0], estado: 'activo' });
                   setShowForm(null);
                   toast.success(t('comercial.anticipo_registrado', 'Anticipo registrado'));
                 }} className={`bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('common.guardar')}</button>
@@ -410,7 +357,7 @@ export const ComercialFinanzas: React.FC = () => {
                 <input placeholder={t('comercial.placeholder_solicitante', 'Solicitante')} className={INPUT} value={form.solicitante || ''} onChange={e => setForm({ ...form, solicitante: e.target.value })} />
                 <button onClick={() => {
                   if (!form.proyectoId) { setFormErrors({ proyectoId: t('comercial.error_proyecto') }); return; }
-                  addCajaChica({ proyectoId: form.proyectoId, monto: form.monto || 0, descripcion: form.descripcion || 'Gasto', categoria: form.categoria || 'materiales', fechaGasto: new Date().toISOString().split('T')[0], solicitante: form.solicitante || 'Usuario', estado: 'pendiente' });
+                  addCajaChicaLocal({ proyectoId: form.proyectoId, monto: form.monto || 0, descripcion: form.descripcion || 'Gasto', categoria: form.categoria || 'materiales', fechaGasto: new Date().toISOString().split('T')[0], solicitante: form.solicitante || 'Usuario', estado: 'pendiente' });
                   setShowForm(null);
                   toast.success(t('comercial.gasto_registrado', 'Gasto registrado'));
                 }} className={`bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('common.guardar')}</button>
