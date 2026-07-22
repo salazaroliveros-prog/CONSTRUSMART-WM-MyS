@@ -213,7 +213,7 @@ export default function Notificaciones() {
                     {MAPA_LABEL[notif.tipo] || notif.tipo}
                   </span>
                   {!notif.leido && (
-                    <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 dark:bg-indigo-400 shrink-0" />
                   )}
                 </div>
                 <p className="text-sm font-medium text-foreground">{notif.titulo}</p>

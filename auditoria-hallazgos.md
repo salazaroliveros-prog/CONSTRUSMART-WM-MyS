@@ -521,6 +521,18 @@ notificaciones.forEach(n => {
 
 ---
 
+## Estado de Correcciones — Sesión 4 (2026-07-22)
+
+### Completados en Sesión 4 (✅) — +5 fixes (total: 44)
+
+| # | Fix | Archivos |
+|---|-----|----------|
+| 40 | Dark mode text colors en APUAvanzado.tsx | `APUAvanzado.tsx` |
+| 41 | BasePrecios.tsx badges — verificado con dark mode | `BasePrecios.tsx` |
+| 42 | CRM.tsx estados — verificado con dark mode | `CRM.tsx` |
+| 43 | Activos.tsx botones — verificado con dark mode | `Activos.tsx` |
+| 44 | Notificaciones.tsx unread indicator dark mode | `Notificaciones.tsx` |
+
 ---
 
 ## Estado de Correcciones — Sesión 3 (2026-07-21)
