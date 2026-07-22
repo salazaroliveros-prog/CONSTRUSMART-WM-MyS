@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { CentroCosto } from '../types';
-import { centroCostoFormSchema, auditLogSchema } from '../store/schemas/admin';
+import { centroCostoFormSchema } from '../store/schemas/admin';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -15,34 +15,16 @@ import { confirmAction } from '@/lib/confirm-action';
 
 type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
 
-const LS_AUDIT = 'wm_erp_admin_audit_log';
-
-function loadAuditLog(): z.infer<typeof auditLogSchema>[] {
-  try {
-    const raw = JSON.parse(localStorage.getItem(LS_AUDIT) || '[]');
-    const parsed = z.array(auditLogSchema).safeParse(raw);
-    return parsed.success ? parsed.data : [];
-  } catch { return []; }
-}
-
 const Administracion: React.FC = () => {
-  const { proyectos, centrosCosto, addCentroCosto, updateCentroCosto, deleteCentroCosto } = useErp();
+  const { proyectos, centrosCosto, addCentroCosto, updateCentroCosto, deleteCentroCosto, auditLog } = useErp();
   const safeProyectos = useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]);
   const { t } = useTranslation();
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion' | 'rendimiento'>('centros');
   const { metrics, loading: metricsLoading, error: metricsError, fetch: fetchMetrics } = usePerformanceMetrics();
-  const [auditLog, setAuditLog] = useState<z.infer<typeof auditLogSchema>[]>(loadAuditLog);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filtroProyecto, setFiltroProyecto] = useState('');
-
-  useEffect(() => {
-    const parsed = z.array(auditLogSchema).safeParse(auditLog);
-    if (parsed.success) {
-      localStorage.setItem(LS_AUDIT, JSON.stringify(parsed.data));
-    }
-  }, [auditLog]);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 300);
