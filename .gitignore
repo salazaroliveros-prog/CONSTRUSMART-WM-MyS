@@ -84,6 +84,10 @@ PRODUCTION_DB_ALIGNMENT_REPORT.md
 SESSION_20_FINAL_REPORT.md
 UI_IMPLEMENTATION_STATUS.md
 
+# Design specs y referencias de diseño locales (no van al repo)
+*-DESIGN.md
+nova-os-landing-page-1-DESIGN.md
+
 # Archivos temporales y artefactos de consola
 console.log('
 {if(regex.test(line)){console.log(f+'
