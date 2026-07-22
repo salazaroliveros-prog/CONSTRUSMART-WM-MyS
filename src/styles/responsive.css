@@ -1,89 +1,150 @@
-/* ─── Safe Area (notch) ─────────────────────────────────────────── */
-.safe-area {
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
+/* ============================================
+   RESPONSIVE & MOBILE UTILITIES — CONSTRUSMART ERP
+   ============================================ */
+
+/* Safe area insets for notched devices */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --vh: 1vh;
 }
+
 .safe-area-top {
   padding-top: env(safe-area-inset-top, 0px);
 }
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-
-/* ─── Overscroll behavior ───────────────────────────────────────── */
-.overscroll-contain {
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+.safe-area-left {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.safe-area-right {
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
-/* ─── Touch-friendly tap targets ────────────────────────────────── */
+/* Minimum touch targets (48x48px) */
 .touch-target {
-  min-height: 44px;
   min-width: 44px;
-}
-.touch-target-sm {
-  min-height: 36px;
-  min-width: 36px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* ─── Prevent text selection on interactive elements ────────────── */
+.touch-target-sm {
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* No select / prevent callout on mobile */
 .no-select {
-  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
   user-select: none;
 }
 
-/* ─── Responsive grid helpers ───────────────────────────────────── */
-.responsive-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-  gap: var(--density-gap, 16px);
-}
-.responsive-grid-sm {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
-}
-
-/* ─── Mobile-first table scroll ─────────────────────────────────── */
-.table-responsive {
-  overflow-x: auto;
+/* Momentum scrolling */
+.scroll-smooth {
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-}
-.table-responsive table {
-  min-width: max(100%, 600px);
+  overscroll-behavior: contain;
 }
 
-/* ─── Bottom sheet animation ────────────────────────────────────── */
-@keyframes slide-up {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-.animate-slide-up {
-  animation: slide-up 0.3s ease-out;
+/* Mobile tap highlight */
+.tap-highlight {
+  -webkit-tap-highlight-color: rgba(var(--primary-rgb, 59, 130, 246), 0.15);
 }
 
-/* ─── Reduced motion ────────────────────────────────────────────── */
+/* Hide scrollbar but keep scrollable */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Responsive typography scaling */
+@media (max-width: 639px) {
+  .text-responsive-xs { font-size: 0.625rem; }
+  .text-responsive-sm { font-size: 0.75rem; }
+  .text-responsive-base { font-size: 0.875rem; }
+  .text-responsive-lg { font-size: 1rem; }
+  .text-responsive-xl { font-size: 1.125rem; }
+  .text-responsive-2xl { font-size: 1.25rem; }
+}
+
+@media (min-width: 640px) and (max-width: 767px) {
+  .text-responsive-xs { font-size: 0.6875rem; }
+  .text-responsive-sm { font-size: 0.8125rem; }
+  .text-responsive-base { font-size: 0.9375rem; }
+  .text-responsive-lg { font-size: 1.0625rem; }
+  .text-responsive-xl { font-size: 1.1875rem; }
+  .text-responsive-2xl { font-size: 1.375rem; }
+}
+
+/* Bottom sheet drag handle */
+.drag-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background-color: hsl(var(--muted-foreground) / 0.3);
+}
+
+/* Mobile card grid compact */
+@media (max-width: 639px) {
+  .mobile-grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  .mobile-grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .mobile-stack > * + * {
+    margin-top: 0.75rem;
+  }
+}
+
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .animate-slide-up,
-  .animate-fade-in,
-  .animate-scale-in {
+  .animate-in,
+  .animate-out,
+  .animate-spin,
+  .animate-pulse,
+  .animate-bounce,
+  .animate-ping {
     animation: none !important;
+    transition: none !important;
   }
 }
 
-/* ─── Mobile breakpoint overrides ───────────────────────────────── */
-@media (max-width: 767px) {
-  .hide-mobile { display: none !important; }
-  .show-mobile { display: block !important; }
-  .stack-mobile {
-    flex-direction: column !important;
+/* Landscape mobile */
+@media (max-width: 896px) and (orientation: landscape) {
+  .landscape-pb-compact {
+    padding-bottom: 0 !important;
   }
-  .full-width-mobile {
-    width: 100% !important;
+  .landscape-sidebar-compact {
+    max-width: 200px;
   }
 }
-@media (min-width: 768px) {
-  .hide-desktop { display: none !important; }
-  .show-desktop { display: block !important; }
+
+/* Print */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+    color: black;
+  }
+}
+
+/* High DPI / Retina */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .retina-border {
+    border-width: 0.5px;
+  }
 }

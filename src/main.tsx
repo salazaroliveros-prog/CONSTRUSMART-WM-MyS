@@ -6,6 +6,7 @@ import { log } from '@/lib/auto-logger';
 import { errorReporter } from '@/lib/errorReporting';
 import { initMetrics } from '@/lib/metrics';
 import './index.css';
+import './styles/responsive.css';
 import '@/lib/i18n';
 import { initSentry } from '@/lib/sentry';
 
