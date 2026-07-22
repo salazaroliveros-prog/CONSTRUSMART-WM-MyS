@@ -521,7 +521,7 @@ notificaciones.forEach(n => {
 
 ---
 
-## Notas de Progreso (Sesión 4 Completada)
+## Notas de Progreso (Sesión 5 Completada)
 
 Los siguientes items del audit han sido **VERIFICADOS COMO COMPLETADOS**:
 - ✅ updateProyectoWeather tiene enqueueMutation (línea 2085 en zustandStore.ts)
@@ -533,30 +533,30 @@ Los siguientes items del audit han sido **VERIFICADOS COMO COMPLETADOS**:
 - ✅ Dashboard.tsx tiene KPIs faltantes (En Riesgo, OC Pendientes, Empleados, Flujo Neto)
 - ✅ Modal animations ya implementadas en todas las screens listadas
 - ✅ Dark mode colors ya implementados en la mayoría de screens
+- ✅ marcarTodasLeidas usa enqueueMutation
+- ✅ Skeleton loading ya implementado en todas las screens
 
-Items completados en Sesión 4:
-- ✅ Dark mode text colors en APUAvanzado.tsx
-- ✅ BasePrecios.tsx badges — verificado con dark mode
-- ✅ CRM.tsx estados — verificado con dark mode
-- ✅ Activos.tsx botones — verificado con dark mode
-- ✅ Notificaciones.tsx unread indicator dark mode
-- ✅ Focus rings — verificado todos usan focus-visible:ring-ring
-- ✅ Botones inconsistentes — verificado ya unificados
-- ✅ Presupuestos.tsx — agregados gráficos (BarChart + Donut)
-- ✅ Hitos.tsx — agregados gráficos de cumplimiento (2 Donut)
-- ✅ RendimientoCampo.tsx — agregado gráfico de rendimiento (BarChart)
-- ✅ Dashboard.tsx KPIs — verificados implementados
+Items completados en Sesión 5:
+- ✅ Administracion.tsx auditLog migrado al store con Zod validation
+- ✅ ComercialFinanzas.tsx anticipos/cajasChicas migrados al store con Zod validation
+- ✅ Doble persistencia de appSettings removida
+
+Items pendientes para próxima sesión:
+- 🔴 CRÍTICO: RendimientoCampo.tsx rendimientos con localStorage (requiere migración a store)
+- 🔵 BAJO: Issues menores (Progress value={100} sin métrica, Gauge importado no usado, etc.)
 
 ---
 
 ## Estado de Correcciones — Sesión 5 (2026-07-22)
 
-### Completados en Sesión 5 (✅) — +2 fixes (total: 50)
+### Completados en Sesión 5 (✅) — +4 fixes (total: 52)
 
 | # | Fix | Archivos |
 |---|-----|----------|
 | 51 | Administracion.tsx auditLog migrado al store | `Administracion.tsx` |
 | 52 | Modal animations — verificadas implementadas en todas las screens listadas | Múltiple screens |
+| 53 | ComercialFinanzas.tsx anticipos/cajasChicas migrados al store con Zod validation | `ComercialFinanzas.tsx`, `zustandStore.ts` |
+| 54 | Doble persistencia de appSettings — removida | `store.tsx` |
 
 ---
 
