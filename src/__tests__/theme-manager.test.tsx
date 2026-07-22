@@ -24,8 +24,8 @@ beforeEach(() => {
 });
 
 describe('VALID_THEMES', () => {
-  it('contiene los 5 temas esperados', () => {
-    expect(VALID_THEMES).toEqual(['ant-design', 'dark-pro', 'material3', 'glassmorphism', 'neomorphism']);
+  it('contiene los 6 temas esperados', () => {
+    expect(VALID_THEMES).toEqual(['ant-design', 'dark-pro', 'material3', 'glassmorphism', 'neomorphism', 'nova-os']);
   });
 
   it('isValidTheme acepta temas válidos', () => {

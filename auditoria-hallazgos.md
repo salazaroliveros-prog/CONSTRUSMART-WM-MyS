@@ -13,7 +13,7 @@
 | 3 | ✅ CERRADO | `updateProyectoWeather` sin enqueueMutation | `zustandStore.ts` | — |
 | 4a | ✅ CERRADO | Administracion.tsx datos locales migrados | `Administracion.tsx` | — |
 | 4b | ✅ CERRADO | ComercialFinanzas.tsx anticipos/cajasChicas | `ComercialFinanzas.tsx` | — |
-| 4c | 🔴 CRÍTICO | RendimientoCampo.tsx localStorage directo | `RendimientoCampo.tsx` | — |
+| 4c | ✅ CERRADO | RendimientoCampo.tsx localStorage directo | `RendimientoCampo.tsx` | — |
 | 5 | ✅ CERRADO | Colores sin dark mode (APUAvanzado, BasePrecios, CRM, Activos, Weather, Notificaciones) | Múltiple | — |
 | 6 | ✅ CERRADO | 43/43 screens con skeleton loading | Todas | — |
 | 7 | ✅ CERRADO | Modales con `animate-in fade-in` | Múltiple | — |
@@ -28,7 +28,7 @@
 | 16 | ✅ CERRADO | `Progress value={100}` — eliminado | `Dashboard.tsx` | — |
 | 17 | ✅ CERRADO | `Gauge` importado no usado — removido | `ProfitabilityAnalytics.tsx` | — |
 | 18 | ✅ CERRADO | Modales con `role="dialog" aria-modal="true"` | `Activos.tsx` | — |
-| 19 | 🔵 BAJO | Dos sistemas de tema simultáneos | `theme-provider.tsx` + `theme-manager.ts` | — |
+| 19 | ✅ CERRADO | Dos sistemas de tema simultáneos | `theme-provider.tsx` + `theme-manager.ts` | — |
 | **NUEVOS — Sesión 6** | | | | |
 | 20 | ✅ CERRADO | Cotizaciones.tsx KPI cards sin dark mode | `Cotizaciones.tsx` | — |
 | 21 | ✅ CERRADO | Cotizaciones.tsx botón eliminar sin dark mode | `Cotizaciones.tsx` | — |
@@ -38,6 +38,10 @@
 | 25 | ✅ CERRADO | Riesgos.tsx badge → bg-foreground text-background semántico | `Riesgos.tsx` | — |
 | **NUEVOS — Sesión 7** | | | | |
 | 26 | ✅ CERRADO | TABLE_MAP entradas sin estado removidas (erp_amortizaciones, erp_rendimientos_cuadrilla) | `table-mappings.ts` | — |
+| **NUEVOS — Sesión 8** | | | | |
+| 27 | ✅ CERRADO | Tema nova-os agregado a VALID_THEMES y THEMES en theme-manager.ts | `theme-manager.ts` | — |
+| 28 | ✅ CERRADO | Tests theme-manager.test.tsx y themes.test.tsx actualizados para 6 temas | `src/__tests__/theme-manager.test.tsx`, `src/__tests__/themes.test.tsx` | — |
+| 29 | ✅ CERRADO | theme-tokens.css como single source of truth — tokens no duplicados en themes.css | `src/styles/theme-tokens.css`, `src/styles/themes.css` | — |
 
 ---
 

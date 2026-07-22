@@ -11,7 +11,7 @@ import {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-const ALL_THEMES: ThemeName[] = ['ant-design', 'dark-pro', 'material3', 'glassmorphism', 'neomorphism'];
+const ALL_THEMES: ThemeName[] = ['ant-design', 'dark-pro', 'material3', 'glassmorphism', 'neomorphism', 'nova-os'];
 
 beforeEach(() => {
   document.documentElement.removeAttribute('data-theme');
@@ -28,7 +28,7 @@ beforeEach(() => {
 // ─── THEMES constant ────────────────────────────────────────────────────────
 
 describe('THEMES constant', () => {
-  it('contiene los 5 temas esperados', () => {
+  it('contiene los 6 temas esperados', () => {
     expect(Object.keys(THEMES)).toEqual(ALL_THEMES);
   });
 

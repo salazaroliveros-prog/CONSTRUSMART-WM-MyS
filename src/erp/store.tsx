@@ -537,18 +537,19 @@ const forceSync = useMemo(() => {
                   tableProcessed.push(m.id);
                 }
               }
-               const BATCH_SIZE = 50;
+              const BATCH_SIZE = 50;
               for (const chunk of chunkArray(ops.INSERT, BATCH_SIZE)) {
                 const payload = chunk.map(m => toSnake(stripAppOnlyFields(sanitizarObjeto(m.payload) as Record<string, unknown>)));
-                const { error } = await client.from(table).insert(payload).onConflict('id').ignore();
+                const { error } = await client.from(table).upsert(payload, { onConflict: 'id', ignoreDuplicates: false });
                 if (error) throw error;
                 tableProcessed.push(...chunk.map(m => m.id));
               }
               for (const chunk of chunkArray(ops.UPDATE, BATCH_SIZE)) {
-                for (const m of chunk) {
-                  const p = toSnake(stripAppOnlyFields(sanitizarObjeto(m.payload) as Record<string, unknown>));
-                  if (!p.id) continue;
-                  const { error } = await client.from(table).update(p).eq('id', p.id);
+                const payload = chunk
+                  .map(m => toSnake(stripAppOnlyFields(sanitizarObjeto(m.payload) as Record<string, unknown>)))
+                  .filter(p => Boolean(p.id));
+                if (payload.length > 0) {
+                  const { error } = await client.from(table).upsert(payload, { onConflict: 'id', ignoreDuplicates: false });
                   if (error) throw error;
                 }
                 tableProcessed.push(...chunk.map(m => m.id));
