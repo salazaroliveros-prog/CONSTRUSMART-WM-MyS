@@ -114,10 +114,10 @@ const MuroObra: React.FC = () => {
               </div>
               <p className="text-sm text-foreground whitespace-pre-wrap mb-3">{pub.texto}</p>
               <div className="flex items-center gap-3">
-                <button onClick={() => likePublicacionMuro(pub.id)} aria-label={t('muro.like', 'Me gusta')} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+                <button onClick={() => likePublicacionMuro(pub.id)} aria-label={t('muro.like', 'Me gusta')} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Heart className="w-4 h-4" aria-hidden="true" /> {pub.likes}
                 </button>
-                <button onClick={() => {}} aria-label={t('muro.comentar', 'Comentar')} className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+                <button onClick={() => {}} aria-label={t('muro.comentar', 'Comentar')} className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <MessageCircle className="w-4 h-4" aria-hidden="true" /> {pub.comentarios.length}
                 </button>
               </div>
@@ -136,7 +136,7 @@ const MuroObra: React.FC = () => {
               )}
               <div className="mt-3 flex gap-2">
                 <input value={comentarios[pub.id] || ''} onChange={e => setComentarios(prev => ({ ...prev, [pub.id]: e.target.value }))} placeholder={t('muro.placeholder_comentario', 'Escribe un comentario...')} className={`${INPUT} text-xs flex-1`} />
-                <button onClick={() => handleComentario(pub.id)} aria-label={t('muro.enviar_comentario', 'Enviar comentario')} className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+                <button onClick={() => handleComentario(pub.id)} aria-label={t('muro.enviar_comentario', 'Enviar comentario')} className="px-3 py-1.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded text-xs hover:bg-blue-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Send className="w-3 h-3" aria-hidden="true" />
                 </button>
               </div>

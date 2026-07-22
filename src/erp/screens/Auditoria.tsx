@@ -199,15 +199,15 @@ export default function Auditoria() {
         </div>
         <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-emerald-200 dark:border-emerald-800">
           <div className="text-sm text-emerald-600 dark:text-emerald-400 mb-1">{t('auditoria.creaciones')}</div>
-          <div className="text-2xl font-bold text-emerald-600">{stats.creaciones}</div>
+          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.creaciones}</div>
         </div>
         <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
           <div className="text-sm text-blue-600 dark:text-blue-400 mb-1">{t('auditoria.actualizaciones')}</div>
-          <div className="text-2xl font-bold text-blue-600">{stats.actualizaciones}</div>
+          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.actualizaciones}</div>
         </div>
         <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-red-200 dark:border-red-800">
           <div className="text-sm text-red-600 dark:text-red-400 mb-1">{t('auditoria.eliminaciones')}</div>
-          <div className="text-2xl font-bold text-red-600">{stats.eliminaciones}</div>
+          <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.eliminaciones}</div>
         </div>
       </div>
 

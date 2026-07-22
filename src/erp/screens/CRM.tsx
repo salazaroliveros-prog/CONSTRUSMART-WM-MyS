@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Licitacion } from '../types';
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { Skeleton } from '@/components/ui/skeleton';
 import { COLOR_SUCCESS, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, COLOR_PRIMARY, SECTION_TITLE, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_ICON, BUTTON_DANGER, INPUT, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE } from '../ui';
 
 const licitacionFormSchema = (t: ReturnType<typeof useTranslation>['t']) => z.object({
@@ -24,8 +25,8 @@ const licitacionFormSchema = (t: ReturnType<typeof useTranslation>['t']) => z.ob
 });
 
 const ESTADOS = [
-  { key: 'activa' as const, label: 'Activa', color: 'bg-blue-50 border-blue-300', icon: Clock, textColor: 'text-blue-600' },
-  { key: 'adjudicada' as const, label: 'Adjudicada', color: 'bg-emerald-50 border-emerald-300', icon: CheckCircle, textColor: 'text-emerald-600' },
+  { key: 'activa' as const, label: 'Activa', color: 'bg-blue-50 dark:bg-blue-950/20 border-blue-300 dark:border-blue-800', icon: Clock, textColor: 'text-blue-600 dark:text-blue-400' },
+  { key: 'adjudicada' as const, label: 'Adjudicada', color: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800', icon: CheckCircle, textColor: 'text-emerald-600 dark:text-emerald-400' },
   { key: 'perdida' as const, label: 'Perdida', color: 'bg-red-50 border-red-300', icon: Archive, textColor: COLOR_DANGER },
   { key: 'cerrada' as const, label: 'Cerrada', color: 'bg-muted border-slate-300 dark:border-slate-600', icon: Archive, textColor: 'text-muted-foreground' },
 ] as const;
@@ -52,6 +53,18 @@ const CRM: React.FC = () => {
   const [formNotas, setFormNotas] = useState('');
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const licitacionesFiltradas = useMemo(() => licitaciones.filter(l => !filtroProyecto || l.proyectoId === filtroProyecto), [licitaciones, filtroProyecto]);
+
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   if (licitacionesFiltradas.length === 0) {
     return (
@@ -144,7 +157,7 @@ const CRM: React.FC = () => {
           <Target className="w-5 h-5 sm:w-6 sm:h-6 text-violet-500" aria-hidden="true" />
           {t('crm.titulo')}
         </h1>
-        <button onClick={() => { resetForm(); setShowForm(true); }} className="px-3 py-2 bg-violet-500 text-white rounded-lg text-sm hover:bg-violet-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('crm.nueva_licitacion')}</button>
+        <button onClick={() => { resetForm(); setShowForm(true); }} className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('crm.nueva_licitacion')}</button>
       </div>
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">

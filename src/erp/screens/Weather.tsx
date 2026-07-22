@@ -396,7 +396,7 @@ const Weather: React.FC = () => {
           <button
             onClick={refreshWeather}
             disabled={refreshing}
-            className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/50 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Refresh weather"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
@@ -421,7 +421,7 @@ const Weather: React.FC = () => {
           <p className="text-sm mb-4">{t('weather.click_refresh', 'Haz clic en actualizar para obtener datos')}</p>
           <button
             onClick={refreshWeather}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {t('weather.refresh_now', 'Actualizar ahora')}
           </button>

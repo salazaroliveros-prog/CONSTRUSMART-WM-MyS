@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,6 +11,7 @@ import { exportStockPDF } from '../export';
 import { Progress, BarChart } from '../components/Charts';
 import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Warehouse, Check, X, AlertTriangle, Star, Plus, Trash2, Edit2, TrendingUp } from 'lucide-react';
 import { INPUT_COMPACT, COLOR_WARNING, COLOR_DANGER, COLOR_INFO, CARD, KPI_CARD, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL } from '../ui';
 import { List as VirtualizedList } from 'react-window';
@@ -151,6 +152,18 @@ const renderMaterialRow = useCallback((m: typeof materiales[0]) => {
 }, [updateMaterial, t]);
 
 const inp = INPUT_COMPACT;
+
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto">
@@ -296,12 +309,12 @@ const inp = INPUT_COMPACT;
                          } 
                        }}
                          aria-label={t('bodega.aprobar_orden_aria', { material: o.material })}
-                         className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+                         className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         <Check className="w-3 h-3" aria-hidden="true" /> {t('bodega.aprobar')}
                       </button>
                       <button onClick={() => updateOrden(o.id, { estado: 'rechazado' })}
                         aria-label={t('bodega.rechazar_orden_aria', { material: o.material })}
-                        className="flex-1 bg-red-500 hover:bg-red-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+                        className="flex-1 bg-red-500 hover:bg-red-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         <X className="w-3 h-3" aria-hidden="true" /> {t('bodega.rechazar')}
                       </button>
                     </div>
@@ -337,7 +350,7 @@ const inp = INPUT_COMPACT;
                 </button>
                 <button onClick={() => deleteProveedor(p.id)}
                   aria-label={t('bodega.eliminar_proveedor_aria', { nombre: p.nombre })}
-                  className="p-1 rounded text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:text-red-400 dark:hover:text-red-300">
+                  className="p-1 rounded text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-red-400 dark:hover:text-red-300">
                   <Trash2 className="w-3 h-3" aria-hidden="true" />
                 </button>
               </div>
@@ -358,11 +371,11 @@ const inp = INPUT_COMPACT;
               </button>
             </div>
             <div className="space-y-3">
-              <input {...registerProv('nombre')} placeholder={t('common.nombre')} className={`${inp} ${errorsProv.nombre ? 'border-red-400' : ''}`} />
+              <input {...registerProv('nombre')} placeholder={t('common.nombre')} className={`${inp} ${errorsProv.nombre ? 'border-red-500' : ''}`} />
               {errorsProv.nombre && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400`}>{errorsProv.nombre.message}</p>}
-              <input {...registerProv('contacto')} placeholder={t('bodega.contacto')} className={`${inp} ${errorsProv.contacto ? 'border-red-400' : ''}`} />
+              <input {...registerProv('contacto')} placeholder={t('bodega.contacto')} className={`${inp} ${errorsProv.contacto ? 'border-red-500' : ''}`} />
               {errorsProv.contacto && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400`}>{errorsProv.contacto.message}</p>}
-              <input {...registerProv('rubro')} placeholder={t('bodega.rubro')} className={`${inp} ${errorsProv.rubro ? 'border-red-400' : ''}`} />
+              <input {...registerProv('rubro')} placeholder={t('bodega.rubro')} className={`${inp} ${errorsProv.rubro ? 'border-red-500' : ''}`} />
               {errorsProv.rubro && <p className={`text-xs ${COLOR_DANGER} dark:text-red-400`}>{errorsProv.rubro.message}</p>}
               <select {...registerProv('calificacion', { valueAsNumber: true })} className={inp}>
                 {[0, 1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{t('bodega.estrellas', { n })}</option>)}
@@ -387,7 +400,7 @@ const inp = INPUT_COMPACT;
               </button>
             </div>
             <div className="space-y-3">
-              <select {...registerOrd('proveedor')} className={`${inp} ${errorsOrd.proveedor ? 'border-red-400' : ''}`}>
+              <select {...registerOrd('proveedor')} className={`${inp} ${errorsOrd.proveedor ? 'border-red-500' : ''}`}>
                 <option value="">{t('bodega.seleccionar_proveedor')}</option>
                 {proveedores.map((p) => (
                   <option key={p.id} value={p.nombre}>
@@ -396,7 +409,7 @@ const inp = INPUT_COMPACT;
                 ))}
               </select>
               <input type="hidden" {...registerOrd('proveedorId')} value={watchOrd('proveedor') || ''} />
-              <select {...registerOrd('proyectoId')} className={`${inp} ${errorsOrd.proyectoId ? 'border-red-400' : ''}`}>
+              <select {...registerOrd('proyectoId')} className={`${inp} ${errorsOrd.proyectoId ? 'border-red-500' : ''}`}>
                 <option value="">{t('bodega.seleccionar_proyecto')}</option>
                 {proyectos.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -404,9 +417,9 @@ const inp = INPUT_COMPACT;
                   </option>
                 ))}
               </select>
-              <input {...registerOrd('material')} placeholder={t('bodega.material')} className={`${inp} ${errorsOrd.material ? 'border-red-400' : ''}`} />
-              <input type="number" inputMode="decimal" {...registerOrd('cantidad')} placeholder={t('common.cantidad')} className={`${inp} ${errorsOrd.cantidad ? 'border-red-400' : ''}`} />
-              <input type="number" inputMode="decimal" {...registerOrd('monto')} placeholder={t('bodega.monto_q')} className={`${inp} ${errorsOrd.monto ? 'border-red-400' : ''}`} />
+              <input {...registerOrd('material')} placeholder={t('bodega.material')} className={`${inp} ${errorsOrd.material ? 'border-red-500' : ''}`} />
+              <input type="number" inputMode="decimal" {...registerOrd('cantidad')} placeholder={t('common.cantidad')} className={`${inp} ${errorsOrd.cantidad ? 'border-red-500' : ''}`} />
+              <input type="number" inputMode="decimal" {...registerOrd('monto')} placeholder={t('bodega.monto_q')} className={`${inp} ${errorsOrd.monto ? 'border-red-500' : ''}`} />
             </div>
             <button type="submit" className="mt-4 w-full bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground py-2.5 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('bodega.crear_orden')}</button>
           </form>

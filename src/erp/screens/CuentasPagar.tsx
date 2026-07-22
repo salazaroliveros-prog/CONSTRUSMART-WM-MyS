@@ -196,12 +196,12 @@ const CuentasPagar: React.FC = () => {
                      <td className="p-2 text-center text-muted-foreground truncate" title={c.fechaVencimiento || '-'}>{c.fechaVencimiento || '-'}</td>
                     <td className="p-2 text-right">
                       {c.estado !== 'pagada' && (
-                        <button onClick={() => handleMarkAsPaid(c.id)} className="text-xs bg-emerald-500 text-white px-2 py-1 rounded hover:bg-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400" aria-label={t('cuentas_pagar.marcar_pagada')}>
+                        <button onClick={() => handleMarkAsPaid(c.id)} className="text-xs bg-emerald-500 text-white px-2 py-1 rounded hover:bg-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('cuentas_pagar.marcar_pagada')}>
                           <CheckCircle2 className="w-3 h-3" aria-hidden="true" />
                         </button>
                       )}
                       <button onClick={() => { setEditingId(c.id); setFormProyectoId(c.proyectoId); setFormProveedor(c.proveedor || c.proveedorNombre); setFormConcepto(c.concepto); setFormMonto(c.monto); setFormFechaVencimiento(c.fechaVencimiento); setFormEstado(c.estado); setFormFacturaUrl(c.facturaUrl || ''); setFormErrors({}); setShowForm(true); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('common.editar')}><Plus className="w-3 h-3" aria-hidden="true" /></button>
-                      <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded hover:bg-accent text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400" aria-label={t('common.eliminar')}><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
+                      <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded hover:bg-accent text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('common.eliminar')}><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
                     </td>
                   </tr>
                 ))}
@@ -211,7 +211,7 @@ const CuentasPagar: React.FC = () => {
         )}
       </div>
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={editingId ? t('cuentas_pagar.editar') : t('cuentas_pagar.nueva_cuenta')}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-200" role="dialog" aria-modal="true" aria-label={editingId ? t('cuentas_pagar.editar') : t('cuentas_pagar.nueva_cuenta')}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4 text-foreground truncate" title={editingId ? t('cuentas_pagar.editar') : t('cuentas_pagar.nueva_cuenta')}>{editingId ? t('cuentas_pagar.editar') : t('cuentas_pagar.nueva_cuenta')}</h3>
             <div className="grid gap-3">

@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
+import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY, MODAL_OVERLAY, MODAL_PANEL, MODAL_HEADER, MODAL_TITLE, MODAL_CLOSE, COLOR_DANGER } from '../ui';
 import { fmtQ } from '../utils';
 import { sanitizarObjeto, canUserDelete } from '@/lib/security';
@@ -201,6 +202,18 @@ const Cotizaciones: React.FC = () => {
     toast.success(t('cotizaciones.copiado'));
   };
 
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -280,7 +293,7 @@ const Cotizaciones: React.FC = () => {
                       <button onClick={() => duplicarCotizacion(c)} className="text-xs bg-muted text-foreground px-3 py-2 rounded hover:bg-muted/80 active:bg-muted/90 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
                         <Copy className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.duplicar')}
                       </button>
-                      <button onClick={() => handleDelete(c.id)} className="text-xs bg-red-50 text-red-600 px-3 py-2 rounded hover:bg-red-100 active:bg-red-200 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400" aria-label={t('cotizaciones.eliminar')}>
+                      <button onClick={() => handleDelete(c.id)} className="text-xs bg-red-50 text-red-600 px-3 py-2 rounded hover:bg-red-100 active:bg-red-200 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('cotizaciones.eliminar')}>
                         <Trash2 className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </div>

@@ -75,23 +75,37 @@ export class MotorReglasFactores {
     tipoFactor?: ReglaFactor['tipo_factor'],
     ambito?: ReglaFactor['ambito']
   ): Promise<ReglaFactor[]> {
-    let query = supabase
-      .from('erp_reglas_factores')
-      .select('*')
-      .eq('activo', true)
-      .order('prioridad', { ascending: false });
+    try {
+      const localReglas = useErpStore.getState().reglasFactores;
+      if (localReglas && localReglas.length > 0) {
+        let filtered = localReglas.filter(r => r.activo);
+        if (tipoFactor) filtered = filtered.filter(r => r.tipo_factor === tipoFactor);
+        if (ambito) filtered = filtered.filter(r => r.ambito === ambito);
+        filtered.sort((a, b) => b.prioridad - a.prioridad);
+        return filtered;
+      }
 
-    if (tipoFactor) {
-      query = query.eq('tipo_factor', tipoFactor);
+      let query = supabase
+        .from('erp_reglas_factores')
+        .select('*')
+        .eq('activo', true)
+        .order('prioridad', { ascending: false });
+
+      if (tipoFactor) {
+        query = query.eq('tipo_factor', tipoFactor);
+      }
+
+      if (ambito) {
+        query = query.eq('ambito', ambito);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return safeParseReglaFactorArray(data);
+    } catch (error) {
+      safeLogger.warn('[reglasFactores] Error obteniendo reglas activas (offline):', error);
+      return [];
     }
-
-    if (ambito) {
-      query = query.eq('ambito', ambito);
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-    return safeParseReglaFactorArray(data);
   }
 
   async evaluarCondicion(
@@ -273,27 +287,32 @@ export class MotorReglasFactores {
     reglaId?: string,
     limite: number = 50
   ): Promise<HistorialAplicacionRegla[]> {
-    let query = supabase
-      .from('erp_historial_aplicacion_reglas')
-      .select('*')
-      .order('fecha_aplicacion', { ascending: false })
-      .limit(limite);
+    try {
+      let query = supabase
+        .from('erp_historial_aplicacion_reglas')
+        .select('*')
+        .order('fecha_aplicacion', { ascending: false })
+        .limit(limite);
 
-    if (proyectoId) {
-      query = query.eq('proyecto_id', proyectoId);
+      if (proyectoId) {
+        query = query.eq('proyecto_id', proyectoId);
+      }
+
+      if (renglonId) {
+        query = query.eq('renglon_id', renglonId);
+      }
+
+      if (reglaId) {
+        query = query.eq('regla_id', reglaId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return safeParseReglaFactorArray(data as unknown as ReglaFactor[]);
+    } catch (error) {
+      safeLogger.warn('[reglasFactores] Error obteniendo historial (offline):', error);
+      return [];
     }
-
-    if (renglonId) {
-      query = query.eq('renglon_id', renglonId);
-    }
-
-    if (reglaId) {
-      query = query.eq('regla_id', reglaId);
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-    return safeParseReglaFactorArray(data as unknown as ReglaFactor[]);
   }
 
   async crearRegla(regla: Partial<ReglaFactor>): Promise<ReglaFactor> {
@@ -312,17 +331,26 @@ export class MotorReglasFactores {
   }
 
   async obtenerReglaPorId(id: string): Promise<ReglaFactor | null> {
-    const { data, error } = await supabase
-      .from('erp_reglas_factores')
-      .select('*')
-      .eq('id', id)
-      .single();
+    try {
+      const localReglas = useErpStore.getState().reglasFactores;
+      const local = localReglas.find(r => r.id === id);
+      if (local) return local;
 
-    if (error) {
-      if (error.code === 'PGRST116') return null;
-      throw error;
+      const { data, error } = await supabase
+        .from('erp_reglas_factores')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') return null;
+        throw error;
+      }
+      return parseReglaFactor(data);
+    } catch (error) {
+      safeLogger.warn('[reglasFactores] Error obteniendo regla por ID (offline):', error);
+      return null;
     }
-    return parseReglaFactor(data);
   }
 }
 

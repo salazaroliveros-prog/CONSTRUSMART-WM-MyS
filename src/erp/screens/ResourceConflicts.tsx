@@ -155,13 +155,13 @@ const ResourceConflicts: React.FC = () => {
       <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
         <Skeleton className="h-8 w-64" />
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
         </div>
-        <Skeleton className="h-64 rounded-2xl" />
-        <Skeleton className="h-96 rounded-2xl" />
+        <Skeleton className="h-64 rounded-lg" />
+        <Skeleton className="h-96 rounded-lg" />
       </div>
     );
   }
@@ -378,7 +378,7 @@ const ResourceConflicts: React.FC = () => {
       )}
 
       {showSuggestions && selectedConflict && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200" role="dialog" aria-modal="true">
           <div className={`${CARD} rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto`}>
               <div className="p-4 border-b border-border flex items-center justify-between">
               <h2 className={`${SECTION_TITLE} truncate`} title={t('conflicts.resolution_suggestions')}>{t('conflicts.resolution_suggestions')}</h2>

@@ -145,7 +145,7 @@ const EntradasAlmacenOC: React.FC = () => {
                   <td className="p-3 text-right">
                     {saldo > 0 ? (
                       <button onClick={() => { setShowForm(oc.id); setFormCantidad(saldo); setFormErrors({}); }} aria-label={t('entradasAlmacenOC.recibir_aria', { material: oc.material, proveedor: oc.proveedor })}
-                        className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs hover:bg-blue-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+                        className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs hover:bg-blue-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         <Plus className="w-3 h-3 inline mr-1" aria-hidden="true" /> {t('entradasAlmacenOC.recibir')}
                       </button>
                     ) : (
@@ -174,7 +174,7 @@ const EntradasAlmacenOC: React.FC = () => {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={t('entradasAlmacenOC.registrar_recepcion')}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-200" role="dialog" aria-modal="true" aria-label={t('entradasAlmacenOC.registrar_recepcion')}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4 truncate" title={t('entradasAlmacenOC.registrar_recepcion')}>{t('entradasAlmacenOC.registrar_recepcion')}</h3>
             <p className="text-sm text-muted-foreground mb-3">
@@ -186,13 +186,13 @@ const EntradasAlmacenOC: React.FC = () => {
                 <input type="number" inputMode="decimal" value={formCantidad}
                   onChange={e => { setFormCantidad(+e.target.value); setFormErrors(prev => ({ ...prev, cantidad: '' })); }}
                   max={ordenes.find(o => o.id === showForm)?.cantidad || 0}
-                  className={`${INPUT} ${formErrors.cantidad ? 'border-red-400' : ''}`}
+                  className={`${INPUT} ${formErrors.cantidad ? 'border-red-500' : ''}`}
                 />
                 {formErrors.cantidad && <p className="text-xs text-red-500 mt-0.5">{formErrors.cantidad}</p>}
               </div>
               <div className="flex gap-2">
                 <button onClick={() => handleReception(showForm)} aria-label={t('entradasAlmacenOC.confirmar_recepcion')}
-                  className="flex-1 bg-emerald-600 text-white py-2 rounded text-sm hover:bg-emerald-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+                  className="flex-1 bg-emerald-600 text-white py-2 rounded text-sm hover:bg-emerald-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <CheckCircle className="w-4 h-4 inline mr-1" aria-hidden="true" /> {t('entradasAlmacenOC.confirmar_recepcion')}
                 </button>
                 <button onClick={() => setShowForm(null)} aria-label={t('entradasAlmacenOC.cancelar_recepcion')}

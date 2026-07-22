@@ -1,5 +1,7 @@
 import { supabase } from './supabase';
 
+const ERROR_QUEUE_KEY = 'erp_error_queue';
+
 export interface ErrorLogInput {
   error_message: string;
   error_code?: string;
@@ -23,7 +25,38 @@ export interface ErrorResolveInput {
   resolution_notes?: string;
 }
 
+interface PendingError {
+  id: string;
+  input: ErrorLogInput;
+  timestamp: number;
+}
+
+function getErrorQueue(): PendingError[] {
+  try {
+    const raw = localStorage.getItem(ERROR_QUEUE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveErrorQueue(queue: PendingError[]): void {
+  try {
+    localStorage.setItem(ERROR_QUEUE_KEY, JSON.stringify(queue));
+  } catch {
+    console.warn('[error-logger] No se pudo guardar la cola de errores en localStorage');
+  }
+}
+
 export async function logError(input: ErrorLogInput): Promise<string | null> {
+  const errorId = crypto.randomUUID?.() || Date.now().toString();
+
+  const pending: PendingError = { id: errorId, input, timestamp: Date.now() };
+
+  const queue = getErrorQueue();
+  queue.push(pending);
+  saveErrorQueue(queue);
+
   try {
     const { data, error } = await supabase.rpc('log_error', {
       p_error_message: input.error_message,
@@ -43,16 +76,54 @@ export async function logError(input: ErrorLogInput): Promise<string | null> {
       p_context: input.context || null
     });
 
-    if (error) {
-      console.error('Failed to log error to database:', error);
-      return null;
+    if (!error) {
+      const updated = getErrorQueue().filter(e => e.id !== errorId);
+      saveErrorQueue(updated);
+      return data as string;
     }
 
-    return data as string;
-  } catch (e) {
-    console.error('Exception in logError:', e);
-    return null;
+    return errorId;
+  } catch {
+    return errorId;
   }
+}
+
+export async function syncPendingErrors(): Promise<number> {
+  const queue = getErrorQueue();
+  if (queue.length === 0) return 0;
+
+  let synced = 0;
+  const remaining: PendingError[] = [];
+
+  for (const pending of queue) {
+    try {
+      const { error } = await supabase.rpc('log_error', {
+        p_error_message: pending.input.error_message,
+        p_error_code: pending.input.error_code || null,
+        p_error_stack: pending.input.error_stack || null,
+        p_error_type: pending.input.error_type || 'other',
+        p_severity: pending.input.severity || 'error',
+        p_component: pending.input.component || null,
+        p_function_name: pending.input.function_name || null,
+        p_line_number: pending.input.line_number || null,
+        p_proyecto_id: pending.input.proyecto_id || null,
+        p_request_id: pending.input.request_id || null,
+        p_request_method: pending.input.request_method || null,
+        p_request_path: pending.input.request_path || null,
+        p_request_params: pending.input.request_params || null,
+        p_request_headers: pending.input.request_headers || null,
+        p_context: pending.input.context || null
+      });
+
+      if (!error) synced++;
+      else remaining.push(pending);
+    } catch {
+      remaining.push(pending);
+    }
+  }
+
+  saveErrorQueue(remaining);
+  return synced;
 }
 
 export async function resolveError(input: ErrorResolveInput): Promise<boolean> {

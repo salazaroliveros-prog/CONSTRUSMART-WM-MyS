@@ -279,13 +279,13 @@ const SSOCalidad: React.FC = () => {
           </div>
 
           {showIncForm && (
-            <div className="bg-red-50 rounded-xl p-4 mb-4 border border-red-200 space-y-2">
+            <div className="bg-red-50 rounded-xl p-4 mb-4 border border-border space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <select
                     value={incForm.tipo}
                     onChange={e => { setIncForm(prev => ({ ...prev, tipo: e.target.value as Incidente['tipo'] })); clearSsError('tipo'); }}
-                    className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-red-400 ${ssFormErrors.tipo ? 'border-red-500 bg-red-50' : 'border-red-200'}`}
+                    className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-red-400 ${ssFormErrors.tipo ? 'border-red-500 bg-red-50' : 'border-border'}`}
                   >
                     <option value="accidente">{t('sso_calidad.tipo_accidente', 'Accidente')}</option>
                     <option value="cuasi-accidente">{t('sso_calidad.tipo_cuasi', 'Cuasi-accidente')}</option>
@@ -302,7 +302,7 @@ const SSOCalidad: React.FC = () => {
                 value={incForm.descripcion}
                 onChange={e => { setIncForm(prev => ({ ...prev, descripcion: e.target.value })); clearSsError('descripcion'); }}
                 placeholder={t('sso_calidad.descripcion_incidente', 'Describe el incidente...')}
-                className={`w-full px-3 py-2 text-xs rounded-lg border outline-none focus:border-red-400 min-h-[60px] ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-red-200'}`}
+                className={`w-full px-3 py-2 text-xs rounded-lg border outline-none focus:border-red-400 min-h-[60px] ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-border'}`}
               />
               {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -310,20 +310,20 @@ const SSOCalidad: React.FC = () => {
                   value={incForm.afectados}
                   onChange={e => { setIncForm(prev => ({ ...prev, afectados: e.target.value })); clearSsError('afectados'); }}
                   placeholder={t('sso_calidad.afectados', 'Afectados')}
-                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-red-400 ${ssFormErrors.afectados ? 'border-red-500 bg-red-50' : 'border-red-200 border'}`}
+                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-red-400 ${ssFormErrors.afectados ? 'border-red-500 bg-red-50' : 'border-border border'}`}
                 />
                 <input
                   value={incForm.testigos}
                   onChange={e => setIncForm(prev => ({ ...prev, testigos: e.target.value }))}
                   placeholder={t('sso_calidad.testigos', 'Testigos (opcional)')}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-border outline-none focus:border-red-400"
                 />
               </div>
               <input
                 value={incForm.acciones}
                 onChange={e => setIncForm(prev => ({ ...prev, acciones: e.target.value }))}
                 placeholder={t('sso_calidad.acciones_inmediatas', 'Acciones inmediatas tomadas')}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 outline-none focus:border-red-400"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-border outline-none focus:border-red-400"
               />
               <div className="flex gap-2">
                 <button onClick={handleAddIncidente} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-semibold">{t('sso_calidad.reportar_incidente', 'Reportar Incidente')}</button>
@@ -403,7 +403,7 @@ const SSOCalidad: React.FC = () => {
                 { id: 'induccion', label: t('sso_calidad.check_induccion') },
               ].map(item => (
                 <label key={item.id} className="flex items-center gap-2 p-2 hover:bg-accent rounded-lg cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-amber-500 focus:ring-amber-400" />
+                  <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-amber-500 focus-visible:ring-ring" />
                   <span className="text-xs text-muted-foreground">{item.label}</span>
                 </label>
               ))}
@@ -440,7 +440,7 @@ const SSOCalidad: React.FC = () => {
                   <div className="text-xl sm:text-3xl font-black text-emerald-600">{diasSinAccidentes}</div>
                   <div className="text-[10px] text-muted-foreground mt-1">{t('sso_calidad.dias', 'días')}</div>
                 </div>
-                <div className={`bg-card rounded-xl p-4 border ${totalIncidentes > 0 ? 'border-red-200' : 'border-border'}`}>
+                <div className={`bg-card rounded-xl p-4 border ${totalIncidentes > 0 ? 'border-border' : 'border-border'}`}>
                   <div className="text-[10px] text-muted-foreground">{t('sso_calidad.total_incidentes', 'Total Incidentes')}</div>
                   <div className={`text-xl sm:text-3xl font-black ${totalIncidentes > 0 ? 'text-red-600' : 'text-foreground'}`}>{totalIncidentes}</div>
                   <div className="text-[10px] text-muted-foreground mt-1">{incidentesAbiertos} {t('sso_calidad.abiertos', 'abiertos')} · {totalIncidentes - incidentesAbiertos} {t('sso_calidad.cerrados', 'cerrados')}</div>
@@ -639,13 +639,13 @@ const SSOCalidad: React.FC = () => {
           </div>
 
           {showNCForm && (
-            <div className="bg-red-50 rounded-xl p-4 mb-4 border border-red-200 space-y-2">
+            <div className="bg-red-50 rounded-xl p-4 mb-4 border border-border space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <select
                     value={ncForm.categoria}
                     onChange={e => { setNcForm(prev => ({ ...prev, categoria: e.target.value as NoConformidad['categoria'] })); clearSsError('categoria'); }}
-                    className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-red-400 ${ssFormErrors.categoria ? 'border-red-500 bg-red-50' : 'border-red-200'}`}
+                    className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-red-400 ${ssFormErrors.categoria ? 'border-red-500 bg-red-50' : 'border-border'}`}
                   >
                     <option value="material">{t('sso_calidad.cat_material', 'Material')}</option>
                     <option value="proceso">{t('sso_calidad.cat_proceso', 'Proceso')}</option>
@@ -660,7 +660,7 @@ const SSOCalidad: React.FC = () => {
                     value={ncForm.detectadoPor}
                     onChange={e => { setNcForm(prev => ({ ...prev, detectadoPor: e.target.value })); clearSsError('detectadoPor'); }}
                     placeholder={t('sso_calidad.detectado_por_placeholder', 'Detectado por')}
-                    className={`w-full px-3 py-2 rounded-lg text-xs outline-none focus:border-red-400 ${ssFormErrors.detectadoPor ? 'border-red-500 bg-red-50' : 'border-red-200 border'}`}
+                    className={`w-full px-3 py-2 rounded-lg text-xs outline-none focus:border-red-400 ${ssFormErrors.detectadoPor ? 'border-red-500 bg-red-50' : 'border-border border'}`}
                   />
                   {ssFormErrors.detectadoPor && <p className="text-xs text-red-500 mt-1">{ssFormErrors.detectadoPor}</p>}
                 </div>
@@ -670,7 +670,7 @@ const SSOCalidad: React.FC = () => {
                   value={ncForm.descripcion}
                   onChange={e => { setNcForm(prev => ({ ...prev, descripcion: e.target.value })); clearSsError('descripcion'); }}
                   placeholder={t('sso_calidad.descripcion_nc_placeholder', 'Describe la no conformidad...')}
-                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-red-400 min-h-[60px] ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-red-200 border'}`}
+                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-red-400 min-h-[60px] ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-border border'}`}
                 />
                 {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
               </div>
@@ -783,7 +783,7 @@ const SSOCalidad: React.FC = () => {
               </div>
             ) : (
               liberacionesFiltradas.map(l => (
-                <div key={l.id} className={`p-3 rounded-lg border ${l.estado === 'liberado' ? 'bg-emerald-50 border-emerald-200' : l.estado === 'rechazado' ? 'bg-red-50 border-red-200' : 'bg-card border-border'}`}>
+                <div key={l.id} className={`p-3 rounded-lg border ${l.estado === 'liberado' ? 'bg-emerald-50 border-emerald-200' : l.estado === 'rechazado' ? 'bg-red-50 border-border' : 'bg-card border-border'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">

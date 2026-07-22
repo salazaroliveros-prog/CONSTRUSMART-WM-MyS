@@ -29,7 +29,7 @@ const ProyectoFinancieroTab: React.FC<ProyectoFinancieroTabProps> = ({ proyecto,
         </div>
         <div className="bg-muted/30 rounded-lg p-3">
           <p className="text-xs text-muted-foreground mb-1">{t('financiero.utilidad', 'Utilidad')}</p>
-          <p className={`text-lg font-bold ${utilidad > 0 ? 'text-success' : 'text-destructive'}`}>
+          <p className={`text-lg font-bold ${utilidad > 0 ? 'text-success' : utilidad < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
             {fmtQ(utilidad)}
           </p>
         </div>

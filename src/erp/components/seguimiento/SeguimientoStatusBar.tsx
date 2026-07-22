@@ -86,8 +86,8 @@ export function SeguimientoStatusBar({
 
         <div>
           <div className="text-xs text-muted-foreground mb-1">Variación</div>
-          <div className={`text-2xl font-bold ${variacion > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-            {variacion > 0 ? '+' : ''}{variacion}%
+          <div className={`text-2xl font-bold ${variacion >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            {variacion > 0 ? '+' : variacion < 0 ? '-' : ''}{Math.abs(variacion)}%
           </div>
           <div className="text-xs text-muted-foreground mt-0.5">Físico - Financ</div>
         </div>

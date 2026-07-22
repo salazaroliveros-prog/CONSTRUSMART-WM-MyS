@@ -101,7 +101,7 @@ export default function Notificaciones() {
         </div>
         <button
           onClick={marcarTodasLeidas}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-950/40 transition-colors"
           aria-label={t('notificaciones.marcar_todas_leidas', 'Marcar todas leídas')}
         >
           <CheckCheck className="w-4 h-4" aria-hidden="true" />

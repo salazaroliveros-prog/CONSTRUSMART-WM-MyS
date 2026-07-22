@@ -1,9 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { useErp, uid } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { ClipboardList, Users, Clock, Plus, Trash2, Timer } from 'lucide-react';
 import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
 
 interface RendimientoRegistro {
@@ -17,21 +19,38 @@ interface RendimientoRegistro {
   fecha: string;
 }
 
+const rendimientoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  cuadrilla: z.string(),
+  actividad: z.string(),
+  unidad: z.string(),
+  cantidad: z.number(),
+  horasHombre: z.number(),
+  fecha: z.string(),
+});
+
 const RendimientoCampo: React.FC = () => {
   const { t } = useTranslation();
   const { proyectos, currentProjectId, setCurrentProjectId } = useErp();
   const BASE = 'rendimiento_campo';
 
-  const [rendimientos, setRendimientos] = useState<RendimientoRegistro[]>(() => {
-    try { return JSON.parse(localStorage.getItem('wm_erp_rendimiento_campo') || '[]'); }
-    catch { return []; }
+  const [rendimientos, setRendimientos] = useState<z.infer<typeof rendimientoSchema>[]>(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem('wm_erp_rendimiento_campo') || '[]');
+      const parsed = z.array(rendimientoSchema).safeParse(raw);
+      return parsed.success ? parsed.data : [];
+    } catch { return []; }
   });
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Record<string, any>>({});
 
-  const saveRendimientos = (data: RendimientoRegistro[]) => {
-    setRendimientos(data);
-    localStorage.setItem('wm_erp_rendimiento_campo', JSON.stringify(data));
+  const saveRendimientos = (data: z.infer<typeof rendimientoSchema>[]) => {
+    const parsed = z.array(rendimientoSchema).safeParse(data);
+    if (parsed.success) {
+      setRendimientos(parsed.data);
+      localStorage.setItem('wm_erp_rendimiento_campo', JSON.stringify(parsed.data));
+    }
   };
 
   const addRendimiento = (data: Omit<RendimientoRegistro, 'id'>) => {
@@ -61,6 +80,18 @@ const RendimientoCampo: React.FC = () => {
   }, [filtered]);
 
   const FOCUS_VISIBLE = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
+
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
@@ -145,7 +176,7 @@ const RendimientoCampo: React.FC = () => {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={t(`${BASE}.nuevo`, 'Nuevo registro')}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-200" role="dialog" aria-modal="true" aria-label={t(`${BASE}.nuevo`, 'Nuevo registro')}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4 text-foreground">{t(`${BASE}.nuevo`, 'Nuevo Registro de Rendimiento')}</h3>
             <div className="grid gap-3">

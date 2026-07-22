@@ -1145,14 +1145,14 @@ const PlantillasProyectos: React.FC = () => {
                           <div className="flex gap-1">
                             <button
                               onClick={() => restaurarVersionPlantilla(previewPlantilla.id, historial.version)}
-                              className="px-3 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                              className="px-3 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             >
                               {t('plantillas.restaurar_boton', 'Restaurar')}
                             </button>
                             {historial.snapshot && (
                               <button
                                 onClick={() => setVersionesComparar({ anterior: historial.snapshot, actual: previewPlantilla })}
-                                className={`px-3 py-1 text-xs bg-amber-50 ${COLOR_WARNING} rounded hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400`}
+                                className={`px-3 py-1 text-xs bg-amber-50 ${COLOR_WARNING} rounded hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
                               >
                                 {t('plantillas.comparar_boton', 'Comparar')}
                               </button>

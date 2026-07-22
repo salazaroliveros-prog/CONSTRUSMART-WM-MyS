@@ -1,44 +1,48 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useErp, uid } from '../store';
-import type { CentroCosto, LogAuditoria } from '../types';
+import { useErp } from '../store';
+import type { CentroCosto } from '../types';
+import { centroCostoFormSchema, auditLogSchema } from '../store/schemas/admin';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Building2, History, Activity, Pencil, Trash2 } from 'lucide-react';
-import { centroCostoFormSchema } from '../store/schemas/admin';
 import { usePerformanceMetrics } from '../hooks/usePerformanceMetrics';
 import { confirmAction } from '@/lib/confirm-action';
 
 type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
 
-const LS_CENTROS = 'wm_erp_admin_centros_costo';
 const LS_AUDIT = 'wm_erp_admin_audit_log';
 
+function loadAuditLog(): z.infer<typeof auditLogSchema>[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_AUDIT) || '[]');
+    const parsed = z.array(auditLogSchema).safeParse(raw);
+    return parsed.success ? parsed.data : [];
+  } catch { return []; }
+}
+
 const Administracion: React.FC = () => {
-  const { proyectos } = useErp();
+  const { proyectos, centrosCosto, addCentroCosto, updateCentroCosto, deleteCentroCosto } = useErp();
   const safeProyectos = useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]);
   const { t } = useTranslation();
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion' | 'rendimiento'>('centros');
   const { metrics, loading: metricsLoading, error: metricsError, fetch: fetchMetrics } = usePerformanceMetrics();
-  const [centrosCosto, setCentrosCosto] = useState<CentroCosto[]>(() => {
-    try { return JSON.parse(localStorage.getItem(LS_CENTROS) || '[]'); }
-    catch { return []; }
-  });
-  const [auditLog, setAuditLog] = useState<LogAuditoria[]>(() => {
-    try { return JSON.parse(localStorage.getItem(LS_AUDIT) || '[]'); }
-    catch { return []; }
-  });
+  const [auditLog, setAuditLog] = useState<z.infer<typeof auditLogSchema>[]>(loadAuditLog);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filtroProyecto, setFiltroProyecto] = useState('');
 
-  useEffect(() => { localStorage.setItem(LS_CENTROS, JSON.stringify(centrosCosto)); }, [centrosCosto]);
-  useEffect(() => { localStorage.setItem(LS_AUDIT, JSON.stringify(auditLog)); }, [auditLog]);
+  useEffect(() => {
+    const parsed = z.array(auditLogSchema).safeParse(auditLog);
+    if (parsed.success) {
+      localStorage.setItem(LS_AUDIT, JSON.stringify(parsed.data));
+    }
+  }, [auditLog]);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 300);
@@ -52,10 +56,10 @@ const Administracion: React.FC = () => {
 
   const onSaveCentroCosto = (data: CentroCostoForm) => {
     if (editingId) {
-      setCentrosCosto(prev => prev.map(c => c.id === editingId ? { ...c, ...data } : c));
+      updateCentroCosto(editingId, data);
       toast.success(t('admin.centro_actualizado', 'Centro actualizado'));
     } else {
-      setCentrosCosto(prev => [{ id: uid(), proyectoId: data.proyectoId, codigo: data.codigo, nombre: data.nombre, presupuestoAsignado: data.presupuestoAsignado, gastoActual: 0, tipo: data.tipo }, ...prev]);
+      addCentroCosto(data);
       toast.success(t('admin.centro_creado'));
     }
     setShowForm(false);
@@ -76,7 +80,7 @@ const Administracion: React.FC = () => {
   const deleteCentro = async (id: string) => {
     try {
       await confirmAction({ title: t('admin.confirmar_eliminar', '¿Eliminar centro de costo?') });
-      setCentrosCosto(prev => prev.filter(c => c.id !== id));
+      deleteCentroCosto(id);
       toast.success(t('admin.centro_eliminado', 'Centro eliminado'));
     } catch {}
   };
@@ -249,11 +253,11 @@ const Administracion: React.FC = () => {
       <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
         <Skeleton className="h-8 w-48" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
         </div>
-        <Skeleton className="h-64 rounded-xl" />
+        <Skeleton className="h-64 rounded-lg" />
       </div>
     );
   }
@@ -335,7 +339,7 @@ const Administracion: React.FC = () => {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={editingId ? t('admin.editar_centro', 'Editar centro') : t('admin.nuevo_centro')}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-200" role="dialog" aria-modal="true" aria-label={editingId ? t('admin.editar_centro', 'Editar centro') : t('admin.nuevo_centro')}>
           <form onSubmit={handleSubmit(onSaveCentroCosto)} onClick={e => e.stopPropagation()} className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm">
             <h3 className="font-bold mb-4 text-foreground">{editingId ? t('admin.editar_centro', 'Editar Centro de Costo') : t('admin.nuevo_centro')}</h3>
             <div className="grid gap-3">

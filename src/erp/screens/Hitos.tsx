@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
 import { formatDateFmt } from '../utils';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../ui';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type TipoHito = 'entrega' | 'pago' | 'inspeccion' | 'licencia' | 'otro';
 
@@ -102,6 +103,18 @@ const Hitos: React.FC = () => {
     setFormOpen(true);
   };
 
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
@@ -112,13 +125,32 @@ const Hitos: React.FC = () => {
         </div>
       </div>
 
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-info/10 rounded-xl p-4 text-center">
+          <p className="text-xs text-info font-medium">{t('hitos.total', 'Total Hitos')}</p>
+          <p className="text-xl font-bold text-info">{hitos.length}</p>
+        </div>
+        <div className="bg-success/10 rounded-xl p-4 text-center">
+          <p className="text-xs text-success font-medium">{t('hitos.completados', 'Completados')}</p>
+          <p className="text-xl font-bold text-success">{hitos.filter(h => h.completado).length}</p>
+        </div>
+        <div className="bg-warning/10 rounded-xl p-4 text-center">
+          <p className="text-xs text-warning font-medium">{t('hitos.pendientes', 'Pendientes')}</p>
+          <p className="text-xl font-bold text-warning">{hitos.filter(h => !h.completado).length}</p>
+        </div>
+        <div className="bg-muted rounded-xl p-4 text-center">
+          <p className="text-xs text-muted-foreground font-medium">{t('hitos.cumplimiento', '% Cumplimiento')}</p>
+          <p className="text-xl font-bold text-foreground">{hitos.length > 0 ? ((hitos.filter(h => h.completado).length / hitos.length) * 100).toFixed(1) : 0}%</p>
+        </div>
+      </div>
+
       {formOpen && (
         <div className="bg-card border border-border rounded-2xl p-4 mb-4">
           <h3 className="text-sm font-semibold mb-2 truncate" title={editingId ? t('hitos.editar', 'Editar hito') : t('hitos.crear', 'Crear hito')}>{editingId ? t('hitos.editar', 'Editar hito') : t('hitos.crear', 'Crear hito')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <label className="text-xs text-muted-foreground mb-0.5 block">{t('hitos.nombre', 'Nombre')}</label>
-              <input value={nombre} onChange={e => { setNombre(e.target.value); setFormErrors(prev => ({ ...prev, nombre: '' })); }} className={`${INPUT} ${formErrors.nombre ? 'border-red-400' : ''}`} />
+              <input value={nombre} onChange={e => { setNombre(e.target.value); setFormErrors(prev => ({ ...prev, nombre: '' })); }} className={`${INPUT} ${formErrors.nombre ? 'border-red-500' : ''}`} />
               {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
             </div>
             <div>

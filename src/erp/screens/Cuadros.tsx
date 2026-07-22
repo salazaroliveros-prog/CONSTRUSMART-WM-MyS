@@ -220,7 +220,7 @@ const Cuadros: React.FC = () => {
                       <td className="p-2 text-right font-medium">{mejorCot ? fmtQ(mejorCot.montoTotal) : '-'}</td>
                       <td className="p-2 text-right">
                         <button onClick={() => handleOpenModal(c)} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('common.editar')} ${c.solicitud}`}><Edit className="w-4 h-4" aria-hidden="true" /></button>
-                        <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded hover:bg-accent text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400" aria-label={`${t('common.eliminar')} ${c.solicitud}`}><Trash2 className="w-4 h-4" aria-hidden="true" /></button>
+                        <button onClick={() => handleDelete(c.id)} className="p-1.5 rounded hover:bg-accent text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('common.eliminar')} ${c.solicitud}`}><Trash2 className="w-4 h-4" aria-hidden="true" /></button>
                       </td>
                     </tr>
                   );
@@ -241,12 +241,12 @@ const Cuadros: React.FC = () => {
             <div className="space-y-3">
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">{t('cuadros.solicitud')}</label>
-                <input value={formData.solicitud || ''} onChange={e => setFormData(p => ({ ...p, solicitud: e.target.value }))} className={`${INPUT} ${formErrors.solicitud ? 'border-red-400' : ''}`} />
+                <input value={formData.solicitud || ''} onChange={e => setFormData(p => ({ ...p, solicitud: e.target.value }))} className={`${INPUT} ${formErrors.solicitud ? 'border-red-500' : ''}`} />
                 {formErrors.solicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.solicitud}</p>}
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">{t('cuadros.proyecto')}</label>
-                <select value={formData.proyectoId || ''} onChange={e => setFormData(p => ({ ...p, proyectoId: e.target.value }))} className={`${INPUT} ${formErrors.proyectoId ? 'border-red-400' : ''}`}>
+                <select value={formData.proyectoId || ''} onChange={e => setFormData(p => ({ ...p, proyectoId: e.target.value }))} className={`${INPUT} ${formErrors.proyectoId ? 'border-red-500' : ''}`}>
                   <option value="">{t('cuadros.seleccionar_proyecto')}</option>
                   {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
@@ -254,7 +254,7 @@ const Cuadros: React.FC = () => {
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">{t('cuadros.fecha_solicitud')}</label>
-                <input type="date" value={formData.fechaSolicitud || ''} onChange={e => setFormData(p => ({ ...p, fechaSolicitud: e.target.value }))} className={`${INPUT} ${formErrors.fechaSolicitud ? 'border-red-400' : ''}`} />
+                <input type="date" value={formData.fechaSolicitud || ''} onChange={e => setFormData(p => ({ ...p, fechaSolicitud: e.target.value }))} className={`${INPUT} ${formErrors.fechaSolicitud ? 'border-red-500' : ''}`} />
                 {formErrors.fechaSolicitud && <p className="text-xs text-red-500 mt-0.5">{formErrors.fechaSolicitud}</p>}
               </div>
               <div>

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { List as VirtualizedList } from 'react-window';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -9,6 +9,7 @@ import {
   Plus, Edit3, Trash2, ArrowUpDown
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
 import { downloadBlob } from '../utils';
 
 const FACTORES_ZONA: Record<string, number> = {
@@ -204,7 +205,7 @@ const BasePrecios: React.FC = () => {
     const precioZona = +(costoBase * factorZona).toFixed(2);
     const inactivo = !ins.activo;
     return (
-      <tr key={ins.id} className={`border-b border-slate-50 hover:bg-accent ${inactivo ? 'opacity-50' : ''}`}>
+      <tr key={ins.id} className={`border-b border-border hover:bg-accent ${inactivo ? 'opacity-50' : ''}`}>
         <td className="py-2 px-2 font-medium text-muted-foreground">
           {editando === ins.id ? (
             <input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} className="w-full text-xs px-1 py-0.5 rounded border border-teal-300 outline-none" />
@@ -212,10 +213,10 @@ const BasePrecios: React.FC = () => {
         </td>
         <td className="py-2 px-2">
           <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
-            ins.categoria === 'material' ? 'bg-blue-50 text-blue-600' :
-            ins.categoria === 'mano_obra' ? 'bg-emerald-50 text-emerald-600' :
-            ins.categoria === 'equipo' ? 'bg-purple-50 text-blue-600' :
-            'bg-amber-50 text-amber-600'
+            ins.categoria === 'material' ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400' :
+            ins.categoria === 'mano_obra' ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400' :
+            ins.categoria === 'equipo' ? 'bg-purple-50 dark:bg-purple-950/30 text-blue-600 dark:text-blue-400' :
+            'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400'
           }`}>
             {ins.categoria}
           </span>
@@ -229,7 +230,7 @@ const BasePrecios: React.FC = () => {
         <td className="py-2 px-2 text-right font-bold text-teal-600">Q{precioZona.toFixed(2)}</td>
         <td className="py-2 px-2 text-muted-foreground">{ins.rubro}</td>
         <td className="py-2 px-2">
-          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${ins.activo ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${ins.activo ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400' : 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'}`}>
             {ins.activo ? t('baseprecios.activo') : t('baseprecios.inactivo')}
           </span>
         </td>
@@ -252,6 +253,18 @@ const BasePrecios: React.FC = () => {
     );
   }, [editando, nuevoNombre, nuevoPrecio, factorZona, t, handleActivarDesactivar, handleGuardarEdicion]);
 
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -268,16 +281,16 @@ const BasePrecios: React.FC = () => {
               <option key={z} value={z}>{z} {FACTORES_ZONA[z] > 1 ? `(+${((FACTORES_ZONA[z]-1)*100).toFixed(0)}%)` : ''}</option>
             ))}
           </select>
-          <button onClick={handleImportarCSV} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-colors">
+          <button onClick={handleImportarCSV} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
             <Upload className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.importar_csv')}
           </button>
-          <button onClick={handleExportarCSV} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors">
+          <button onClick={handleExportarCSV} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
             <Download className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.exportar_csv')}
           </button>
-          <button onClick={() => setShowConvertir(!showConvertir)} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors">
+          <button onClick={() => setShowConvertir(!showConvertir)} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
             <ArrowUpDown className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.convertir')}
           </button>
-          <button onClick={() => { setShowAgregar(true); setFormErrors({}); setNuevoNombre(''); setNuevoPrecio(0); setNuevoUnidad(''); setNuevoRubro(''); }} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">
+          <button onClick={() => { setShowAgregar(true); setFormErrors({}); setNuevoNombre(''); setNuevoPrecio(0); setNuevoUnidad(''); setNuevoRubro(''); }} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
             <Plus className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.nuevo')}
           </button>
         </div>
@@ -360,7 +373,7 @@ const BasePrecios: React.FC = () => {
               </div>
             </div>
           <div className="flex gap-2 mt-2">
-            <button onClick={handleAgregar} className="text-xs px-4 py-1.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors font-medium">{t('baseprecios.agregar_btn')}</button>
+            <button onClick={handleAgregar} className="text-xs px-4 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium">{t('baseprecios.agregar_btn')}</button>
             <button onClick={() => setShowAgregar(false)} className="text-xs px-4 py-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-muted transition-colors">{t('baseprecios.cancelar')}</button>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { generateProfitabilityReport, generateProfitabilityForecast, type ProfitabilityMetrics, type ClientMetrics } from '../services/profitabilityAnalytics';
 import { exportProfitabilityPDF, exportProfitabilityExcel } from '../export';
-import { BarChart, Donut, LineChart, Progress, Gauge } from '../components/Charts';
+import { BarChart, Donut, LineChart, Progress } from '../components/Charts';
 import { fmtQ, fmtPct } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
@@ -163,13 +163,13 @@ const PROFITABILITYAnalytics: React.FC = () => {
       <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
         <Skeleton className="h-8 w-64" />
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
         </div>
-        <Skeleton className="h-64 rounded-2xl" />
-        <Skeleton className="h-96 rounded-2xl" />
+        <Skeleton className="h-64 rounded-lg" />
+        <Skeleton className="h-96 rounded-lg" />
       </div>
     );
   }

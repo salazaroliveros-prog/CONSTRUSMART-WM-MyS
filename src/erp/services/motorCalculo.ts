@@ -35,8 +35,8 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error al obtener dosificaciones:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al obtener dosificaciones (offline):', error);
+      return [];
     }
   }
 
@@ -50,7 +50,6 @@ export class ServicioMotorCalculo {
     altitud?: number
   ): Promise<ResultadoDosificacion> {
     try {
-      // Obtener dosificación base
       const { data: dosificacionBase, error } = await supabase
         .from('erp_dosificaciones_concreto')
         .select('*')
@@ -62,23 +61,26 @@ export class ServicioMotorCalculo {
         .eq('activo', true)
         .single();
 
-      if (error || !dosificacionBase) {
-        throw new Error('No se encontró la dosificación especificada');
-      }
-
-      // Calcular factores de ajuste
       const factorAltitud = this.calcularFactorAltitud(altitud || 1500);
-      const factorTemperatura = await this.calcularFactorTemperatura(departamento);
+      const factorTemperatura = this.calcularFactorTemperaturaSync(departamento);
       const factorCurado = this.calcularFactorCurado(dosificacion.curado);
       const factorAjuste = factorAltitud * factorTemperatura * factorCurado;
 
-      // Calcular cantidades ajustadas
-      const cementoSacos = dosificacionBase.cemento_sacos_m3 * volumen * factorAltitud * factorCurado;
-      const arenaM3 = dosificacionBase.arena_m3_m3 * volumen * factorAltitud;
-      const piedraM3 = dosificacionBase.piedra_m3_m3 * volumen * factorAltitud;
-      const aguaLt = dosificacionBase.agua_lt_m3 * volumen * factorTemperatura;
+      let cementoSacos: number, arenaM3: number, piedraM3: number, aguaLt: number;
 
-      // Calcular desglose de costos
+      if (!error && dosificacionBase) {
+        cementoSacos = dosificacionBase.cemento_sacos_m3 * volumen * factorAltitud * factorCurado;
+        arenaM3 = dosificacionBase.arena_m3_m3 * volumen * factorAltitud;
+        piedraM3 = dosificacionBase.piedra_m3_m3 * volumen * factorAltitud;
+        aguaLt = dosificacionBase.agua_lt_m3 * volumen * factorTemperatura;
+      } else {
+        safeLogger.warn('[motorCalculo] Usando dosificación local (offline)');
+        cementoSacos = (dosificacion.cementoSacosM3 || 8) * volumen * factorAltitud * factorCurado;
+        arenaM3 = (dosificacion.arenaM3M3 || 0.5) * volumen * factorAltitud;
+        piedraM3 = (dosificacion.piedraM3M3 || 0.7) * volumen * factorAltitud;
+        aguaLt = (dosificacion.aguaLtM3 || 200) * volumen * factorTemperatura;
+      }
+
       const costoCemento = cementoSacos * PRECIOS_REFERENCIALES.cementoSaco;
       const costoArena = arenaM3 * PRECIOS_REFERENCIALES.arenaM3;
       const costoPiedra = piedraM3 * PRECIOS_REFERENCIALES.piedraM3;
@@ -98,8 +100,20 @@ export class ServicioMotorCalculo {
         },
       };
     } catch (error) {
-      safeLogger.error('Error al calcular dosificación:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al calcular dosificación (offline):', error);
+      return {
+        cementoSacos: (dosificacion.cementoSacosM3 || 8) * volumen,
+        arenaM3: (dosificacion.arenaM3M3 || 0.5) * volumen,
+        piedraM3: (dosificacion.piedraM3M3 || 0.7) * volumen,
+        aguaLt: (dosificacion.aguaLtM3 || 200) * volumen,
+        factorAjuste: 1.0,
+        costoTotal: volumen * 800,
+        desgloseCostos: {
+          cemento: volumen * 600,
+          arena: volumen * 100,
+          piedra: volumen * 100,
+        },
+      };
     }
   }
 
@@ -115,7 +129,7 @@ export class ServicioMotorCalculo {
   /**
    * Calcular factor de ajuste por temperatura según departamento
    */
-  private static async calcularFactorTemperatura(departamento?: string): Promise<number> {
+  private static calcularFactorTemperaturaSync(departamento?: string): number {
     if (!departamento) return 1.0;
 
     const factoresTemperatura: Record<string, number> = {
@@ -220,8 +234,8 @@ export class ServicioMotorCalculo {
         mesesCriticos: data[0].meses_criticos,
       };
     } catch (error) {
-      safeLogger.error('Error al obtener parámetros climáticos:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al obtener parámetros climáticos (offline):', error);
+      return null;
     }
   }
 
@@ -242,8 +256,14 @@ export class ServicioMotorCalculo {
         observaciones: data[0].observaciones,
       };
     } catch (error) {
-      safeLogger.error('Error al obtener factor climático:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al obtener factor climático (offline):', error);
+      return {
+        factorCurado: 1.0,
+        factorRendimiento: 1.0,
+        factorProteccion: 1.0,
+        factorAjusteEstacional: 1.0,
+        observaciones: 'Sin conexión — valores por defecto',
+      };
     }
   }
 
@@ -256,7 +276,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error al obtener factor temperatura:', error);
+      safeLogger.warn('[motorCalculo] Error al obtener factor temperatura (offline):', error);
       return 1.0;
     }
   }
@@ -270,7 +290,7 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error al obtener factor humedad:', error);
+      safeLogger.warn('[motorCalculo] Error al obtener factor humedad (offline):', error);
       return 1.0;
     }
   }
@@ -300,8 +320,14 @@ export class ServicioMotorCalculo {
         factorAjusteTotal: data[0].factor_ajuste_total,
       };
     } catch (error) {
-      safeLogger.error('Error al calcular movimiento de tierra:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al calcular movimiento de tierra (offline):', error);
+      return {
+        costoUnitario: 0,
+        costoTotal: 0,
+        tiempoEstimadoDias: 0,
+        equipoRequerido: [],
+        factorAjusteTotal: 1.0,
+      };
     }
   }
 
@@ -321,8 +347,8 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error al obtener parámetros de movimiento de tierra:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al obtener parámetros de movimiento de tierra (offline):', error);
+      return [];
     }
   }
 
@@ -349,8 +375,8 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error al obtener subtipologías:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al obtener subtipologías (offline):', error);
+      return [];
     }
   }
 
@@ -373,8 +399,8 @@ export class ServicioMotorCalculo {
       }
       return data;
     } catch (error) {
-      safeLogger.error('Error al obtener subtipología:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al obtener subtipología (offline):', error);
+      return null;
     }
   }
 
@@ -405,8 +431,17 @@ export class ServicioMotorCalculo {
         referenciaNorma: data[0].referencia_norma
       };
     } catch (error) {
-      safeLogger.error('Error al calcular pavimento:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al calcular pavimento (offline):', error);
+      return {
+        espesorCm: 15,
+        costoSuperficieM2: 0,
+        costoBaseM3: 0,
+        costoSelloM2: 0,
+        costoTotalM2: 0,
+        costoTotal: 0,
+        volumenBaseM3: 0,
+        referenciaNorma: 'Sin conexión',
+      };
     }
   }
 
@@ -433,8 +468,8 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error al obtener parámetros de pavimentos:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al obtener parámetros de pavimentos (offline):', error);
+      return [];
     }
   }
 
@@ -461,8 +496,13 @@ export class ServicioMotorCalculo {
         referenciaNorma: data[0].referencia_norma
       };
     } catch (error) {
-      safeLogger.error('Error al calcular red de infraestructura:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al calcular red de infraestructura (offline):', error);
+      return {
+        costoUnitarioMl: 0,
+        costoTotal: 0,
+        factorAjusteMaterial: 1.0,
+        referenciaNorma: 'Sin conexión',
+      };
     }
   }
 
@@ -489,8 +529,8 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error al obtener parámetros de redes de infraestructura:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al obtener parámetros de redes de infraestructura (offline):', error);
+      return [];
     }
   }
 
@@ -519,8 +559,14 @@ export class ServicioMotorCalculo {
         referenciaNorma: data[0].referencia_norma
       };
     } catch (error) {
-      safeLogger.error('Error al calcular muro de contención:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al calcular muro de contención (offline):', error);
+      return {
+        costoUnitarioM2: 0,
+        costoTotal: 0,
+        factorAjusteTotal: 1.0,
+        volumenConcretoM3: 0,
+        referenciaNorma: 'Sin conexión',
+      };
     }
   }
 
@@ -547,8 +593,8 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error al obtener parámetros de muros de contención:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al obtener parámetros de muros de contención (offline):', error);
+      return [];
     }
   }
 
@@ -616,8 +662,8 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error al obtener snapshots:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al obtener snapshots (offline):', error);
+      return [];
     }
   }
 
@@ -635,8 +681,8 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error al obtener comparaciones:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al obtener comparaciones (offline):', error);
+      return [];
     }
   }
 
@@ -681,8 +727,8 @@ export class ServicioMotorCalculo {
       if (error) throw error;
       return data;
     } catch (error) {
-      safeLogger.error('Error al comparar cálculos:', error);
-      throw error;
+      safeLogger.warn('[motorCalculo] Error al comparar cálculos (offline):', error);
+      return null;
     }
   }
 

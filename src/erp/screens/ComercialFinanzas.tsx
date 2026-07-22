@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { useErp, uid } from '../store';
 import type { VentaPaquete, Anticipo, AmortizacionItem, CajaChica } from '../types';
 import { Building2, DollarSign, Wallet } from 'lucide-react';
@@ -8,6 +9,31 @@ import { fmtQ } from '../utils';
 
 const LS_ANTICIPOS = 'wm_erp_comercial_anticipos';
 const LS_CAJAS = 'wm_erp_comercial_cajas';
+
+const anticipoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  montoTotal: z.number(),
+  saldoPendiente: z.number(),
+  estado: z.enum(['activo', 'amortizado'] as const),
+  fechaOtorgamiento: z.string(),
+  observaciones: z.string().optional(),
+  amortizaciones: z.array(z.object({
+    id: z.string(),
+    monto: z.number(),
+    fecha: z.string(),
+    nota: z.string().optional(),
+  })).default([]),
+});
+const cajaChicaSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  monto: z.number(),
+  descripcion: z.string(),
+  estado: z.enum(['pendiente', 'aprobada', 'rechazada'] as const),
+  solicitante: z.string().optional(),
+  fecha: z.string(),
+});
 
 export const ComercialFinanzas: React.FC = () => {
   const { t } = useTranslation();
@@ -19,17 +45,29 @@ export const ComercialFinanzas: React.FC = () => {
   const [amortInputs, setAmortInputs] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const [anticipos, setAnticipos] = useState<Anticipo[]>(() => {
-    try { return JSON.parse(localStorage.getItem(LS_ANTICIPOS) || '[]'); }
-    catch { return []; }
+  const [anticipos, setAnticipos] = useState<z.infer<typeof anticipoSchema>[]>(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem(LS_ANTICIPOS) || '[]');
+      const parsed = z.array(anticipoSchema).safeParse(raw);
+      return parsed.success ? parsed.data : [];
+    } catch { return []; }
   });
-  const [cajasChicas, setCajasChicas] = useState<CajaChica[]>(() => {
-    try { return JSON.parse(localStorage.getItem(LS_CAJAS) || '[]'); }
-    catch { return []; }
+  const [cajasChicas, setCajasChicas] = useState<z.infer<typeof cajaChicaSchema>[]>(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem(LS_CAJAS) || '[]');
+      const parsed = z.array(cajaChicaSchema).safeParse(raw);
+      return parsed.success ? parsed.data : [];
+    } catch { return []; }
   });
 
-  useEffect(() => { localStorage.setItem(LS_ANTICIPOS, JSON.stringify(anticipos)); }, [anticipos]);
-  useEffect(() => { localStorage.setItem(LS_CAJAS, JSON.stringify(cajasChicas)); }, [cajasChicas]);
+  useEffect(() => {
+    const parsed = z.array(anticipoSchema).safeParse(anticipos);
+    if (parsed.success) localStorage.setItem(LS_ANTICIPOS, JSON.stringify(parsed.data));
+  }, [anticipos]);
+  useEffect(() => {
+    const parsed = z.array(cajaChicaSchema).safeParse(cajasChicas);
+    if (parsed.success) localStorage.setItem(LS_CAJAS, JSON.stringify(parsed.data));
+  }, [cajasChicas]);
 
   const addVenta = (data: Omit<VentaPaquete, 'id'>) => {
     addVentaPaquete({ ...data, id: uid() });
@@ -176,7 +214,7 @@ export const ComercialFinanzas: React.FC = () => {
                       setAmortInputs(prev => ({ ...prev, [a.id]: '' }));
                       toast.success(t('comercial.amortizacion_registrada', 'Amortización registrada'));
                     }
-                  }} className={`bg-success text-success-foreground px-4 py-2.5 rounded-lg text-xs hover:bg-success/90 active:bg-success/80 active:scale-95 min-h-[44px] transition-all ${FOCUS_VISIBLE}`}>{t('comercial.amortizar', 'Amortizar')}</button>
+                  }} className={`bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2.5 rounded-lg text-xs hover:bg-success/90 active:bg-success/80 active:scale-95 min-h-[44px] transition-all ${FOCUS_VISIBLE}`}>{t('comercial.amortizar', 'Amortizar')}</button>
                 </div>
               )}
               {a.amortizaciones.length > 0 && (
@@ -288,7 +326,7 @@ export const ComercialFinanzas: React.FC = () => {
       {tab === 'cajas'     && renderCajas()}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={showForm === 'venta' ? 'Nueva Venta' : showForm === 'anticipo' ? 'Nuevo Anticipo' : 'Nuevo Gasto'}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-200" role="dialog" aria-modal="true" aria-label={showForm === 'venta' ? 'Nueva Venta' : showForm === 'anticipo' ? 'Nuevo Anticipo' : 'Nuevo Gasto'}>
           <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4 text-foreground truncate">
               {showForm === 'venta'    && t('comercial.modal_nueva_venta', 'Nueva Venta / Paquete')}

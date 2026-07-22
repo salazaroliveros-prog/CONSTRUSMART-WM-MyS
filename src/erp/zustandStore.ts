@@ -652,10 +652,9 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     if (next.currency) __setActiveCurrency(next.currency);
     if (next.dateFormat) __setActiveDateFormat(next.dateFormat);
     try {
-      localStorage.setItem('wm_erp_data_settings', JSON.stringify(next));
       if (next.appTheme) localStorage.setItem('wm_erp_theme', next.appTheme);
     } catch (error) {
-      console.error('Error saving appSettings to localStorage:', error);
+      console.error('Error saving appSettings theme to localStorage:', error);
     }
   },
   updateAppSettings: (patch) => {
@@ -1495,11 +1494,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   marcarTodasLeidas: () => {
     const unread = get().notificaciones.filter(n => !n.leido);
     get().setNotificaciones(prev => prev.map(n => ({ ...n, leido: true })));
-    const mutations: Mutation[] = unread.map(n => ({
-      id: uid(), type: 'markNotificacionLeida', payload: toSnake(sanitizarObjeto({ id: n.id, leido: true })), timestamp: Date.now(), retryCount: 0,
-    }));
-    if (mutations.length === 0) return;
-    get().setMutationQueue(q => { const trimmed = q.length + mutations.length >= 100 ? q.slice(mutations.length) : q; return [...trimmed, ...mutations]; });
+    unread.forEach(n => get().enqueueMutation('markNotificacionLeida', { id: n.id, leido: true }));
   },
   verificarStockCritico: () => {
     const materiales = get().materiales;
@@ -2088,6 +2083,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     } else {
       get().setProyectoWeather(prev => [...prev, updated]);
     }
+    get().enqueueMutation('updateProyectoWeather', { proyectoId, ...updated });
   },
 
   getProyectoWeather: (proyectoId) => {

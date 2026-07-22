@@ -264,7 +264,7 @@ export const PlanillaDestajos: React.FC = () => {
 
       {/* Modal Nuevo Destajo */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-200" role="dialog" aria-modal="true">
           <div className="bg-card rounded-lg p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4">{t('planilla_destajos.nuevo_destajo')}</h3>
             <div className="grid gap-3">

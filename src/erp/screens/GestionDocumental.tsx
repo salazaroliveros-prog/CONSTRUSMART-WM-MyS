@@ -394,7 +394,7 @@ const GestionDocumental: React.FC = () => {
                 {planoFile && <p className="text-xs text-muted-foreground mt-1">{planoFile.name} ({(planoFile.size / 1024).toFixed(1)} KB)</p>}
               </div>
               <div className="flex gap-2">
-                <button onClick={handleAddPlano} disabled={uploadingPlano} className="flex-1 bg-info hover:bg-info/90 text-info-foreground py-2 rounded-lg text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                <button onClick={handleAddPlano} disabled={uploadingPlano} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 py-2 rounded-lg text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
                   {uploadingPlano ? t('gestion_documental.subiendo', 'Subiendo...') : t('gestion_documental.subir_plano', 'Subir Plano')}
                 </button>
                 <button onClick={() => { setShowPlanoForm(false); setPlanoFile(null); if (planoFileInputRef.current) planoFileInputRef.current.value = ''; }} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground">{t('common.cancelar', 'Cancelar')}</button>

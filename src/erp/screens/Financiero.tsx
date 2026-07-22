@@ -6,6 +6,7 @@ import { calculateMargin, calculateROI } from '../utils/calculations';
 import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { KPICard } from '../components/shared';
+import { Donut } from '../components/Charts';
 import { ProfitabilityTable, AgingReport } from '../components/financiero';
 
 /**
@@ -98,6 +99,20 @@ const Financiero: React.FC = () => {
 
   // Calcular margen con redondeo consistente
   const margen = useMemo(() => calculateMargin(ingresos, egresos), [ingresos, egresos]);
+
+  const GASTO_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+  const pickColor = (cat: string) => GASTO_COLORS[cat.length % GASTO_COLORS.length];
+
+  const gastosPorCategoria = useMemo(() => {
+    if (!movimientos) return [];
+    const gastos = movimientos.filter(m => m.tipo === 'gasto' || m.tipo === 'egreso');
+    const grouped: Record<string, number> = {};
+    gastos.forEach(m => {
+      const cat = m.categoria || 'otros';
+      grouped[cat] = (grouped[cat] || 0) + Math.abs(m.monto || 0);
+    });
+    return Object.entries(grouped).map(([label, value]) => ({ label, value, color: pickColor(label) }));
+  }, [movimientos]);
 
   // Rentabilidad por proyecto
   const profitabilityData = useMemo(() => {
@@ -328,11 +343,20 @@ const Financiero: React.FC = () => {
           label="Utilidad"
           value={fmtQ(utilidad)}
           icon={<TrendingUp size={18} />}
-          status={utilidad > 0 ? 'success' : 'danger'}
+          status={utilidad > 0 ? 'success' : utilidad < 0 ? 'danger' : 'info'}
         />
       </div>
 
-      {/* Rentabilidad por Proyecto */}
+      {movimientos && movimientos.length > 0 && (
+        <div className="bg-card border border-border rounded-xl p-4 mb-6">
+          <h3 className="text-sm font-semibold text-foreground mb-3">Gastos por Categoría</h3>
+          <Donut
+            data={gastosPorCategoria}
+            size={200}
+          />
+        </div>
+      )}
+
       <ProfitabilityTable
         data={profitabilityData}
         onViewDetails={(projectId) => console.log('View details:', projectId)}

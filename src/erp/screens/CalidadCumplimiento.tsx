@@ -108,7 +108,7 @@ const CalidadCumplimiento: React.FC = () => {
             <tr><td colSpan={4} className="p-6 text-center text-muted-foreground">{t('calidad_cumplimiento.sin_registros')}</td></tr>
           ) : (
             filteredNcs.map(nc => (
-              <tr key={nc.id} className="border-t hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="row">
+              <tr key={nc.id} className="border-t hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" tabIndex={0} role="row">
                 <td className="p-2 font-mono text-muted-foreground truncate" title={nc.codigo}>{nc.codigo || '-'}</td>
                 <td className="p-2 text-muted-foreground truncate">{t(`calidad_cumplimiento.categoria_${nc.categoria}`, nc.categoria)}</td>
                 <td className="p-2 text-muted-foreground truncate">{nc.detectadoPor || '-'}</td>
@@ -140,7 +140,7 @@ const CalidadCumplimiento: React.FC = () => {
             <tr><td colSpan={3} className="p-6 text-center text-muted-foreground">{t('calidad_cumplimiento.sin_registros')}</td></tr>
           ) : (
             filteredPruebas.map(p => (
-              <tr key={p.id} className="border-t hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="row">
+              <tr key={p.id} className="border-t hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" tabIndex={0} role="row">
                 <td className="p-2 text-muted-foreground truncate">{t(`calidad_cumplimiento.prueba_${p.tipo}`, p.tipo)}</td>
                 <td className="p-2">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${PRUEBA_RESULT_COLORS[p.resultado]}`}>
@@ -171,7 +171,7 @@ const CalidadCumplimiento: React.FC = () => {
             <tr><td colSpan={3} className="p-6 text-center text-muted-foreground">{t('calidad_cumplimiento.sin_registros')}</td></tr>
           ) : (
             filteredLiberaciones.map(l => (
-              <tr key={l.id} className="border-t hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="row">
+              <tr key={l.id} className="border-t hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" tabIndex={0} role="row">
                 <td className="p-2 text-muted-foreground truncate" title={l.renglonNombre}>{l.renglonNombre || '-'}</td>
                 <td className="p-2">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${LIBERACION_COLORS[l.estado]}`}>
@@ -282,7 +282,7 @@ const CalidadCumplimiento: React.FC = () => {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 activeTab === tab.key
                   ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:bg-accent'

@@ -130,10 +130,24 @@ const Presupuestos: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
-          <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" aria-hidden="true" />
+          <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 dark:text-blue-400" aria-hidden="true" />
           {t('presupuestos.titulo')}
         </h1>
-        <button onClick={handleCreatePresupuesto} className="px-3 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('presupuestos.nuevo_presupuesto')}</button>
+        <button onClick={handleCreatePresupuesto} className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('presupuestos.nuevo_presupuesto')}</button>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div className="bg-info/10 rounded-xl p-4 text-center">
+          <p className="text-xs text-info font-medium">{t('presupuestos.total', 'Total Presupuestos')}</p>
+          <p className="text-xl font-bold text-info">{presupuestos.length}</p>
+        </div>
+        <div className="bg-success/10 rounded-xl p-4 text-center">
+          <p className="text-xs text-success font-medium">{t('presupuestos.monto_total', 'Monto Total')}</p>
+          <p className="text-xl font-bold text-success">Q{presupuestos.reduce((a: number, p: Presupuesto) => a + (p.totalCalculado || 0), 0).toLocaleString()}</p>
+        </div>
+        <div className="bg-primary/10 rounded-xl p-4 text-center">
+          <p className="text-xs text-primary font-medium">{t('presupuestos.tipologias', 'Tipologías')}</p>
+          <p className="text-xl font-bold text-primary">{new Set(presupuestos.map(p => (p as any).tipologia || '')).size}</p>
+        </div>
       </div>
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <table className="w-full text-sm" role="table" aria-label={t('presupuestos.titulo')}>
@@ -206,7 +220,7 @@ const Presupuestos: React.FC = () => {
                 </select>
               </div>
               <div className="flex gap-2">
-                <button onClick={handleSubmitPresupuesto} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">{editPresupuestoId ? t('common.guardar') : t('presupuestos.crear')}</button>
+                <button onClick={handleSubmitPresupuesto} className="flex-1 bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{editPresupuestoId ? t('common.guardar') : t('presupuestos.crear')}</button>
                 <button onClick={() => { setShowForm(false); resetForm(); }} className="px-4 py-2 border border-border rounded-lg text-sm text-muted-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('common.cancelar')}</button>
               </div>
             </div>

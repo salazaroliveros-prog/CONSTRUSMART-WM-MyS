@@ -73,7 +73,7 @@ const Activos: React.FC = () => {
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
           <Wrench className="w-6 h-6 text-indigo-500" /> {t('activos.titulo')}
         </h1>
-        <button onClick={openCreate} className="px-3 py-2 rounded-lg bg-indigo-500 text-white text-xs font-medium hover:bg-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('activos.nuevo_activo')}</button>
+        <button onClick={openCreate} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('activos.nuevo_activo')}</button>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
@@ -143,7 +143,7 @@ const Activos: React.FC = () => {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true">
           <div className="bg-card rounded-xl p-5 w-full max-w-md shadow-sm">
             <h3 className="font-bold mb-3 truncate" title={editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}>{editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}</h3>
             <div className="grid gap-2">
@@ -173,7 +173,7 @@ const Activos: React.FC = () => {
                 <label htmlFor="activo-valor" className="text-xs text-muted-foreground mb-1 block">{t('activos.columna_valor')}</label>
                 <input id="activo-valor" type="number" inputMode="decimal" value={form.valor} onChange={e => set('valor', Number(e.target.value))} placeholder={t('activos.columna_valor')} className="px-3 py-2 border rounded-lg text-sm" />
               </div>
-              <button onClick={save} className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('common.guardar')}</button>
+              <button onClick={save} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('common.guardar')}</button>
               <button onClick={() => setShowForm(false)} className="px-4 py-2 border rounded-lg text-xs text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('common.cancelar')}</button>
             </div>
           </div>

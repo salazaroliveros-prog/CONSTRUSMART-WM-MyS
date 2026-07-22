@@ -48,6 +48,16 @@ const Dashboard: React.FC = () => {
   const cuentasPagar = useMemo(() => ctx.cuentasPagar || [], [ctx.cuentasPagar]);
   const riesgos = useMemo(() => ctx.riesgos || [], [ctx.riesgos]);
   const ordenesCambio = useMemo(() => ctx.ordenesCambio || [], [ctx.ordenesCambio]);
+  const empleados = useMemo(() => ctx.empleados || [], [ctx.empleados]);
+
+  const proyectosEnRiesgo = useMemo(() => riesgos?.filter(r => r.nivel === 'alto' || r.nivel === 'critico').length || 0, [riesgos]);
+  const ordenesPendientes = useMemo(() => ordenesCambio?.filter(o => o.estado === 'pendiente').length || 0, [ordenesCambio]);
+  const empleadosActivos = useMemo(() => empleados?.length || 0, [empleados]);
+  const flujoNeto = useMemo(() => {
+    const cobrado = cuentasCobrar?.filter(c => c.estado === 'pagado').reduce((s, c) => s + (c.monto || 0), 0) || 0;
+    const pagado = cuentasPagar?.filter(p => p.estado === 'pagado').reduce((s, p) => s + (p.monto || 0), 0) || 0;
+    return cobrado - pagado;
+  }, [cuentasCobrar, cuentasPagar]);
 
   // ============ CÁLCULOS DE KPIs ==============
   const kpi = useMemo(() => {
@@ -57,12 +67,13 @@ const Dashboard: React.FC = () => {
 
     const activos = proyectos.filter((p) => p.estado === 'ejecucion').length;
     const presupuestoTotal = proyectos.reduce((s, p) => s + (p.presupuestoTotal || 0), 0);
-    const montoEjecutado = proyectos.reduce((s, p) => s + (p.montoEjecutado || 0), 0);
-    const margenProm =
-      presupuestos.length > 0
-        ? presupuestos.reduce((s, p) => s + (p.margen ?? 0), 0) / presupuestos.length
-        : 0;
-    const clientes = new Set(proyectos.map((p) => p.clienteId)).size;
+    const montoEjecutado = proyectos.reduce((s, p) => s + ((p.presupuestoTotal || 0) * ((p.avanceFinanciero || 0) / 100)), 0);
+    const totalCalculadoPresupuesto = presupuestos.reduce((s, p) => s + (p.totalCalculado || 0), 0);
+    const totalCostoDirecto = presupuestos.reduce((s, p) => s + (p.costoDirectoTotal || 0), 0);
+    const margenProm = totalCalculadoPresupuesto > 0
+      ? ((totalCalculadoPresupuesto - totalCostoDirecto) / totalCalculadoPresupuesto) * 100
+      : 0;
+    const clientes = new Set(proyectos.map((p) => p.cliente).filter(Boolean)).size;
     const utilidad = presupuestoTotal - montoEjecutado;
 
     return {
@@ -212,7 +223,7 @@ const Dashboard: React.FC = () => {
     avanceFinanciero: p.avanceFinanciero || 0,
     variacion: (p.avanceFisico || 0) - (p.avanceFinanciero || 0),
     presupuestoTotal: p.presupuestoTotal || 0,
-    montoEjecutado: p.montoEjecutado || 0,
+    montoEjecutado: ((p.presupuestoTotal || 0) * ((p.avanceFinanciero || 0) / 100)),
   })), [proyectos]);
   const materialesEnStock = useMemo(() => materiales.filter((m) => m.stock > m.stockMinimo), [materiales]);
   const materialesCriticos = useMemo(() => materiales.filter((m) => m.stock < m.stockMinimo), [materiales]);
@@ -254,15 +265,34 @@ const Dashboard: React.FC = () => {
           label={t('dashboard.utilidad')}
           value={fmtQ(kpi.utilidad)}
           icon={<CheckCircle2 size={18} />}
-          status={kpi.utilidad > 0 ? 'success' : 'danger'}
+          status={kpi.utilidad > 0 ? 'success' : kpi.utilidad < 0 ? 'danger' : 'info'}
         />
 
         <KPICard
           label={t('dashboard.margen')}
           value={fmtPct(kpi.margenProm)}
           icon={<TrendingUp size={18} />}
-          status={kpi.margenProm > 15 ? 'success' : kpi.margenProm > 10 ? 'warning' : 'danger'}
+          status={kpi.margenProm > 15 ? 'success' : kpi.margenProm > 0 ? 'warning' : kpi.margenProm < 0 ? 'danger' : 'info'}
         />
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-destructive/10 rounded-xl p-4 text-center">
+          <p className="text-xs text-destructive font-medium">En Riesgo</p>
+          <p className="text-xl font-bold text-destructive">{proyectosEnRiesgo}</p>
+        </div>
+        <div className="bg-warning/10 rounded-xl p-4 text-center">
+          <p className="text-xs text-warning font-medium">OC Pendientes</p>
+          <p className="text-xl font-bold text-warning">{ordenesPendientes}</p>
+        </div>
+        <div className="bg-info/10 rounded-xl p-4 text-center">
+          <p className="text-xs text-info font-medium">Empleados</p>
+          <p className="text-xl font-bold text-info">{empleadosActivos}</p>
+        </div>
+        <div className="bg-success/10 rounded-xl p-4 text-center">
+          <p className="text-xs text-success font-medium">Flujo Neto</p>
+          <p className="text-xl font-bold text-success">Q{flujoNeto.toLocaleString()}</p>
+        </div>
       </div>
 
       {/* ============ ALERTAS EJECUTIVAS ============ */}
@@ -288,7 +318,7 @@ const Dashboard: React.FC = () => {
             avanceFinanciero: p.avanceFinanciero || 0,
             variacion: (p.avanceFisico || 0) - (p.avanceFinanciero || 0),
             presupuestoTotal: p.presupuestoTotal || 0,
-            montoEjecutado: p.montoEjecutado || 0,
+            montoEjecutado: ((p.presupuestoTotal || 0) * ((p.avanceFinanciero || 0) / 100)),
           }))}
           columns={projectColumns}
           actions={[
@@ -314,84 +344,111 @@ const Dashboard: React.FC = () => {
         {/* Flujo Financiero */}
         <div className="lg:col-span-2 bg-card border border-border rounded-xl p-4">
           <h3 className="text-base font-semibold text-foreground mb-4 truncate" title="Situación Financiera">Situación Financiera</h3>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground mb-1">Cobrado</p>
-              <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                {fmtQ(cobrado)}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                de {fmtQ(ingresos)}
-              </p>
-            </div>
+          {ingresos > 0 || egresos > 0 ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Cobrado</p>
+                  <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                    {fmtQ(cobrado)}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    de {fmtQ(ingresos)}
+                  </p>
+                </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground mb-1">Balance</p>
-              <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                {fmtQ(cobrado - pagado)}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Disponible
-              </p>
-            </div>
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Balance</p>
+                  <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                    {fmtQ(cobrado - pagado)}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Disponible
+                  </p>
+                </div>
 
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground mb-1">Pagado</p>
-              <p className="text-xl font-bold text-red-600 dark:text-red-400">
-                {fmtQ(pagado)}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                de {fmtQ(egresos)}
-              </p>
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Pagado</p>
+                  <p className="text-xl font-bold text-red-600 dark:text-red-400">
+                    {fmtQ(pagado)}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    de {fmtQ(egresos)}
+                  </p>
+                </div>
+              </div>
+              <BarChart
+                data={[
+                  { label: 'Cobrado', value: cobrado, color: '#10b981' },
+                  { label: 'Pendiente', value: Math.max(0, ingresos - cobrado), color: '#f59e0b' },
+                  { label: 'Pagado', value: pagado, color: '#ef4444' },
+                  { label: 'Balance', value: Math.max(0, cobrado - pagado), color: '#3b82f6' },
+                ]}
+                height={180}
+                palette="default"
+              />
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2">
+              <DollarSign size={40} className="opacity-30" aria-hidden="true" />
+              <p className="text-sm font-medium">Sin datos financieros</p>
+              <p className="text-xs">Registra cuentas por cobrar y pagar para ver gráficos</p>
+            </div>
+          )}
         </div>
 
         {/* Stock de Materiales */}
         <div className="bg-card border border-border rounded-xl p-4">
           <h3 className="text-base font-semibold text-foreground mb-4 truncate" title="Inventario">Inventario</h3>
-          <div className="space-y-3">
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs text-muted-foreground">En Stock</span>
-                <span className="text-sm font-semibold text-emerald-600">
-                  {materialesEnStock.length}
-                </span>
+          {materiales.length > 0 ? (
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs text-muted-foreground">En Stock</span>
+                  <span className="text-sm font-semibold text-emerald-600">
+                    {materialesEnStock.length}
+                  </span>
+                </div>
+                <Progress
+                  value={
+                    materiales.length > 0
+                      ? (materialesEnStock.length / materiales.length) * 100
+                      : 0
+                  }
+                  color="hsl(var(--success))"
+                />
               </div>
-              <Progress
-                value={
-                  materiales.length > 0
-                    ? (materialesEnStock.length / materiales.length) * 100
-                    : 0
-                }
-                color="hsl(var(--success))"
-              />
-            </div>
 
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs text-muted-foreground">Crítico</span>
-                <span className="text-sm font-semibold text-red-600">
-                  {materialesCriticos.length}
-                </span>
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs text-muted-foreground">Crítico</span>
+                  <span className="text-sm font-semibold text-red-600">
+                    {materialesCriticos.length}
+                  </span>
+                </div>
+                <Progress
+                  value={
+                    materiales.length > 0
+                      ? (materialesCriticos.length / materiales.length) * 100
+                      : 0
+                  }
+                  color="hsl(var(--destructive))"
+                />
               </div>
-              <Progress
-                value={
-                  materiales.length > 0
-                    ? (materialesCriticos.length / materiales.length) * 100
-                    : 0
-                }
-                color="hsl(var(--destructive))"
-              />
             </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs text-muted-foreground">Empleados</span>
-                <span className="text-sm font-semibold">{kpi.empleados}</span>
-              </div>
-              <Progress value={100} color="hsl(var(--info))" />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2">
+              <Wrench size={40} className="opacity-30" aria-hidden="true" />
+              <p className="text-sm font-medium">Sin inventario registrado</p>
+              <p className="text-xs">Agrega materiales para ver el estado de stock</p>
             </div>
+          )}
+          <div className="mt-3 pt-3 border-t border-border">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-xs text-muted-foreground">Empleados</span>
+              <span className="text-sm font-semibold">{kpi.empleados}</span>
+            </div>
+            <Progress value={100} color="hsl(var(--info))" />
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import {
@@ -6,6 +6,7 @@ import {
   CloudSun, Download, FileText, Minus, Cloud, Sun, CloudRain, Wind, Activity
 } from 'lucide-react';
 import { fmtQ, fmtPct, todayISO } from '../utils';
+import { Skeleton } from '@/components/ui/skeleton';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -240,6 +241,18 @@ const CurvasS: React.FC = () => {
     XLSX.writeFile(wb, `curvas-s-${selectedProyectoId || 'general'}.xlsx`);
   };
 
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   if (!selectedProyecto && proyectos.length === 0) {
     return (
       <div className="p-6 flex flex-col items-center justify-center min-h-[60vh] text-center">
@@ -271,7 +284,7 @@ const CurvasS: React.FC = () => {
                 setSelectedProyectoId(e.target.value);
                 setCurrentProjectId(e.target.value);
               }}
-              className="appearance-none bg-card border border-border rounded-xl px-3 py-2 pr-8 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
+              className="appearance-none bg-card border border-border rounded-xl px-3 py-2 pr-8 text-sm font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
               aria-label={t('curvas.sin_proyecto')}
             >
               {proyectos.map(p => (
