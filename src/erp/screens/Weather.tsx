@@ -851,21 +851,21 @@ const WeatherHistoryChart: React.FC<{ history: WeatherHistoryItem[] }> = ({ hist
         <>
           {/* KPIs rápidos */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-2 text-center">
+            <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-2 text-center">
               <div className="text-xs text-muted-foreground">{t('weather.avg_temp', 'Temp. promedio')}</div>
-              <div className="text-lg font-bold text-blue-600">{avgTemp}°C</div>
+              <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{avgTemp}°C</div>
             </div>
-            <div className="bg-cyan-50 dark:bg-cyan-950 rounded-lg p-2 text-center">
+            <div className="bg-cyan-50 dark:bg-cyan-950/20 rounded-lg p-2 text-center">
               <div className="text-xs text-muted-foreground">{t('weather.total_precip', 'Precip. total')}</div>
-              <div className="text-lg font-bold text-cyan-600">{totalPrecip}mm</div>
+              <div className="text-lg font-bold text-cyan-600 dark:text-cyan-400">{totalPrecip}mm</div>
             </div>
-            <div className="bg-green-50 dark:bg-green-950 rounded-lg p-2 text-center">
+            <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-2 text-center">
               <div className="text-xs text-muted-foreground">{t('weather.workable_days', 'Días trabajables')}</div>
-              <div className="text-lg font-bold text-green-600">{workableDays}</div>
+              <div className="text-lg font-bold text-green-600 dark:text-green-400">{workableDays}</div>
             </div>
-            <div className="bg-red-50 dark:bg-red-950 rounded-lg p-2 text-center">
+            <div className="bg-red-50 dark:bg-red-950/20 rounded-lg p-2 text-center">
               <div className="text-xs text-muted-foreground">{t('weather.lost_days', 'Días perdidos')}</div>
-              <div className="text-lg font-bold text-red-600">{lostDays}</div>
+              <div className="text-lg font-bold text-red-600 dark:text-red-400">{lostDays}</div>
             </div>
           </div>
 
@@ -876,7 +876,7 @@ const WeatherHistoryChart: React.FC<{ history: WeatherHistoryItem[] }> = ({ hist
                 key={type}
                 onClick={() => setChartType(type)}
                 className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                  chartType === type ? 'bg-blue-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  chartType === type ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
                 {type === 'temp' ? t('weather.temperature', 'Temperatura') :

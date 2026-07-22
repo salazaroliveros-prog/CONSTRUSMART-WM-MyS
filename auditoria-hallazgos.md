@@ -523,6 +523,40 @@ notificaciones.forEach(n => {
 
 ---
 
+## Estado de Correcciones — Sesión 3 (2026-07-21)
+
+### Completados en Sesión 3 (✅) — +6 fixes (total: 39)
+
+| # | Fix | Archivos |
+|---|-----|----------|
+| 33 | Charts.tsx truncamiento 0-100 — verificado corregido | `Charts.tsx` |
+| 34 | SeguimientoAnalysisPanel placeholder — verificado corregido | `SeguimientoAnalysisPanel.tsx` |
+| 35 | updateProyectoWeather sin enqueueMutation — verificado corregido | `zustandStore.ts` |
+| 36 | Colores sin dark mode en Weather.tsx KPIs | `Weather.tsx` |
+| 37 | Botón selector gráfico → bg-primary | `Weather.tsx` |
+| 38 | Skeletons verificados en múltiples screens | Activos, Auditoria, ErrorLog, DashboardPredictivo, GestionDocumental, Impuestos, LogisticaCompras, MuroObra |
+| 39 | Animación de modales verificada | ComercialFinanzas, Administracion, CuentasCobrar, CuentasPagar, EntradasAlmacenOC, PlanillaDestajos, Presupuestos, ResourceConflicts, RendimientoCampo, LogisticaCompras |
+
+### Completados en Sesión 2 (✅) — +12 fixes (total: 33)
+
+| # | Fix | Archivos |
+|---|-----|----------|
+| 20 | Administracion.tsx — centrosCosto migrado al store (addCentroCosto/updateCentroCosto/deleteCentroCosto) | `Administracion.tsx` |
+| 21 | Administracion.tsx — auditLog con validación Zod | `Administracion.tsx` |
+| 22 | ComercialFinanzas.tsx — anticipos/cajasChicas con validación Zod | `ComercialFinanzas.tsx` |
+| 23 | RendimientoCampo.tsx — rendimientos con validación Zod | `RendimientoCampo.tsx` |
+| 24 | Skeletons agregados a 8 screens prioritarias | Presupuestos, Hitos, RendimientoCampo, Bodega, CurvasS, CRM, Cotizaciones, BasePrecios |
+| 25 | Presupuestos.tsx — KPIs (Total, Monto, Tipologías) | `Presupuestos.tsx` |
+| 26 | Hitos.tsx — KPIs (Total, Completados, Pendientes, % Cumplimiento) | `Hitos.tsx` |
+| 27 | Financiero.tsx — Donut de gastos por categoría | `Financiero.tsx` |
+| 28 | Dashboard.tsx — 4 KPIs nuevos (En Riesgo, OC Pendientes, Empleados, Flujo Neto) | `Dashboard.tsx` |
+| 29 | border-red-400 → border-red-500 unificado en errores | Bodega, Cuadros, EntradasAlmacenOC, Hitos |
+| 30 | SSOCalidad.tsx — border-red-200 → border-border | `SSOCalidad.tsx` |
+| 31 | Botones unificados a bg-primary | GestionDocumental, ComercialFinanzas, MuroObra |
+| 32 | rounded-xl/rounded-2xx → rounded-lg en skeletons | 5 archivos (Profitability, ProveedorAnalytics, ResourceConflicts, VisorBIM, Administracion) |
+
+---
+
 ## Estado de Correcciones — Sesión 2 (2026-07-21)
 
 ### Completados en Sesión 2 (✅) — +12 fixes (total: 33)
