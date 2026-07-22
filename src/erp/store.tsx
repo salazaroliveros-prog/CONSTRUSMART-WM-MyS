@@ -367,7 +367,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       estacionalidad: [],
       historialReglas: loadFromStorage(HISTORIAL_REGLAS_KEY, historialAplicacionReglaSchema),
       notificaciones: loadFromStorage(NOTIF_KEY, notificacionSchema),
-      appSettings: loadObjectFromStorage(BASE_STORAGE_KEY + '_settings', appSettingsSchema, APP_SETTINGS_DEFAULTS),
+      appSettings: loadObjectFromStorage(BASE_STORAGE_KEY + '_app_settings', appSettingsSchema, APP_SETTINGS_DEFAULTS),
       calculosProyecto: [],
       ajustesEstacionalesActividad: [],
       aplicacionEscalas: [],
@@ -697,6 +697,7 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
           resource_efficiencies: s.resourceEfficiencies, profitability_trends: s.profitabilityTrends,
           error_logs: s.errorLogs, departamentos: s.departamentos, municipios: s.municipios,
           cajas_chicas: s.cajasChicas, anticipos: s.anticipos, amortizaciones: s.amortizaciones,
+          app_settings: s.appSettings,
           rendimientos_cuadrilla: s.rendimientosCuadrilla, bodega: s.bodega, documentos: s.documentos,
           permisos: s.permisos, checklist: s.checklist, configuracion: s.configuracion, api_keys: s.apiKeys,
           };
@@ -706,15 +707,14 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
               console.error(`Error compressing/saving ${k}:`, error);
             }
           }
-          safeSetItem(`${BASE_STORAGE_KEY}_settings`, JSON.stringify(s.appSettings));
           try { const n = await compressDataAsync(s.notificaciones); safeSetItem(`${BASE_STORAGE_KEY}_notificaciones`, n); } catch (error) {
             console.error('Error compressing/saving notificaciones:', error);
           }
-          
-          encryptionManager.encryptItem(BASE_STORAGE_KEY + '_settings', s.appSettings, user?.id || 'default')
+
+          encryptionManager.encryptItem(BASE_STORAGE_KEY + '_app_settings', s.appSettings, user?.id || 'default')
             .then(() => safeLogger.log('[Encryption] appSettings encrypted'))
             .catch(err => {
-              try { localStorage.removeItem('enc_' + (BASE_STORAGE_KEY + '_settings')); } catch {}
+              try { localStorage.removeItem('enc_' + (BASE_STORAGE_KEY + '_app_settings')); } catch {}
               safeLogger.warn('[Encryption] Failed to encrypt appSettings:', err);
             });
           
