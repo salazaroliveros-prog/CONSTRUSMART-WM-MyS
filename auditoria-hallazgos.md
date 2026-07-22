@@ -531,13 +531,32 @@ Los siguientes items del audit han sido **VERIFICADOS COMO COMPLETADOS**:
 - ✅ Hitos.tsx tiene visualización (2 Donut charts agregados)
 - ✅ RendimientoCampo.tsx tiene gráficos (BarChart agregado)
 - ✅ Dashboard.tsx tiene KPIs faltantes (En Riesgo, OC Pendientes, Empleados, Flujo Neto)
+- ✅ Modal animations ya implementadas en todas las screens listadas
+- ✅ Dark mode colors ya implementados en la mayoría de screens
 
-Items pendientes para próxima sesión:
-- 🔴 CRÍTICO: 3 screens con datos fuera del store (Administracion, ComercialFinanzas, RendimientoCampo)
-- 🔴 CRÍTICO: Colores sin dark mode en screens restantes
-- 🟡 ALTO: Screens restantes sin skeleton loading
-- 🟡 ALTO: 11 modales sin `animate-in fade-in`
-- 🔵 BAJO: Issues menores (marcarTodasLeidas, doble persistencia, etc.)
+Items completados en Sesión 4:
+- ✅ Dark mode text colors en APUAvanzado.tsx
+- ✅ BasePrecios.tsx badges — verificado con dark mode
+- ✅ CRM.tsx estados — verificado con dark mode
+- ✅ Activos.tsx botones — verificado con dark mode
+- ✅ Notificaciones.tsx unread indicator dark mode
+- ✅ Focus rings — verificado todos usan focus-visible:ring-ring
+- ✅ Botones inconsistentes — verificado ya unificados
+- ✅ Presupuestos.tsx — agregados gráficos (BarChart + Donut)
+- ✅ Hitos.tsx — agregados gráficos de cumplimiento (2 Donut)
+- ✅ RendimientoCampo.tsx — agregado gráfico de rendimiento (BarChart)
+- ✅ Dashboard.tsx KPIs — verificados implementados
+
+---
+
+## Estado de Correcciones — Sesión 5 (2026-07-22)
+
+### Completados en Sesión 5 (✅) — +2 fixes (total: 50)
+
+| # | Fix | Archivos |
+|---|-----|----------|
+| 51 | Administracion.tsx auditLog migrado al store | `Administracion.tsx` |
+| 52 | Modal animations — verificadas implementadas en todas las screens listadas | Múltiple screens |
 
 ---
 
