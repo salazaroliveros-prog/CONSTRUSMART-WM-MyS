@@ -521,6 +521,26 @@ notificaciones.forEach(n => {
 
 ---
 
+## Notas de Progreso (Sesión 4 Completada)
+
+Los siguientes items del audit han sido **VERIFICADOS COMO COMPLETADOS**:
+- ✅ updateProyectoWeather tiene enqueueMutation (línea 2085 en zustandStore.ts)
+- ✅ Focus rings ya usan focus-visible:ring-ring en todas las screens
+- ✅ Botones ya unificados a bg-primary en todas las screens
+- ✅ Presupuestos.tsx tiene gráficos (BarChart + Donut agregados)
+- ✅ Hitos.tsx tiene visualización (2 Donut charts agregados)
+- ✅ RendimientoCampo.tsx tiene gráficos (BarChart agregado)
+- ✅ Dashboard.tsx tiene KPIs faltantes (En Riesgo, OC Pendientes, Empleados, Flujo Neto)
+
+Items pendientes para próxima sesión:
+- 🔴 CRÍTICO: 3 screens con datos fuera del store (Administracion, ComercialFinanzas, RendimientoCampo)
+- 🔴 CRÍTICO: Colores sin dark mode en screens restantes
+- 🟡 ALTO: Screens restantes sin skeleton loading
+- 🟡 ALTO: 11 modales sin `animate-in fade-in`
+- 🔵 BAJO: Issues menores (marcarTodasLeidas, doble persistencia, etc.)
+
+---
+
 ## Estado de Correcciones — Sesión 4 (2026-07-22)
 
 ### Completados en Sesión 4 (✅) — +9 fixes (total: 48)
