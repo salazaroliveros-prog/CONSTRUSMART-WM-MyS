@@ -5,9 +5,14 @@ import '@testing-library/jest-dom/vitest';
 import { ErpProvider } from '../erp/store';
 import Administracion from '../erp/screens/Administracion';
 
-const mockUseErp = {
+const mockUseErp: Record<string, any> = {
   user: { nombre: 'Usuario Test', rol: 'Administrador' },
   proyectos: [],
+  centrosCosto: [],
+  auditLog: [],
+  addCentroCosto: vi.fn(),
+  updateCentroCosto: vi.fn(),
+  deleteCentroCosto: vi.fn(),
 };
 
 const mockT = (key: string) => key;

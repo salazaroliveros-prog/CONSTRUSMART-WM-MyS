@@ -16,7 +16,7 @@ import { confirmAction } from '@/lib/confirm-action';
 type CentroCostoForm = z.infer<typeof centroCostoFormSchema>;
 
 const Administracion: React.FC = () => {
-  const { proyectos, centrosCosto, addCentroCosto, updateCentroCosto, deleteCentroCosto, auditLog } = useErp();
+  const { proyectos, centrosCosto = [], addCentroCosto, updateCentroCosto, deleteCentroCosto, auditLog = [] } = useErp();
   const safeProyectos = useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]);
   const { t } = useTranslation();
   const [tab, setTab] = useState<'centros' | 'logs' | 'validacion' | 'rendimiento'>('centros');
