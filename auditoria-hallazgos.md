@@ -523,7 +523,7 @@ notificaciones.forEach(n => {
 
 ## Estado de Correcciones — Sesión 4 (2026-07-22)
 
-### Completados en Sesión 4 (✅) — +6 fixes (total: 45)
+### Completados en Sesión 4 (✅) — +9 fixes (total: 48)
 
 | # | Fix | Archivos |
 |---|-----|----------|
@@ -533,6 +533,11 @@ notificaciones.forEach(n => {
 | 43 | Activos.tsx botones — verificado con dark mode | `Activos.tsx` |
 | 44 | Notificaciones.tsx unread indicator dark mode | `Notificaciones.tsx` |
 | 45 | Focus rings — verificado todos usan focus-visible:ring-ring | Múltiple screens |
+| 46 | Botones inconsistentes — verificado ya unificados | Múltiple screens |
+| 47 | Presupuestos.tsx — agregados gráficos (BarChart + Donut) | `Presupuestos.tsx` |
+| 48 | Hitos.tsx — agregados gráficos de cumplimiento (2 Donut) | `Hitos.tsx` |
+| 49 | RendimientoCampo.tsx — agregado gráfico de rendimiento (BarChart) | `RendimientoCampo.tsx` |
+| 50 | Dashboard.tsx KPIs — verificados implementados (En Riesgo, OC Pendientes, Empleados, Flujo Neto) | `Dashboard.tsx` |
 
 ---
 

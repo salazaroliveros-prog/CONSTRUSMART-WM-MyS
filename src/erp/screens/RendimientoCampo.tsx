@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useErp, uid } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
-import { ClipboardList, Users, Clock, Plus, Trash2, Timer } from 'lucide-react';
+import { ClipboardList, Users, Clock, Plus, Trash2, Timer, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
+import { BarChart } from '../components/Charts';
 
 interface RendimientoRegistro {
   id: string;
@@ -87,7 +88,12 @@ const RendimientoCampo: React.FC = () => {
     return (
       <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
         <Skeleton className="h-8 w-64 rounded-lg" />
-        <Skeleton className="h-24 rounded-xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-48 rounded-xl" />
         <Skeleton className="h-64 rounded-xl" />
       </div>
     );
@@ -128,6 +134,19 @@ const RendimientoCampo: React.FC = () => {
           </div>
           <p className="text-2xl font-bold text-foreground">{kpis.rendimientoProm} unid/hh</p>
         </div>
+      </div>
+
+      <div className="bg-card border border-border rounded-xl p-4 shadow-sm mb-6">
+        <h3 className="text-sm font-medium text-muted-foreground mb-3">{t(`${BASE}.grafico_rendimiento`, 'Rendimiento por Actividad')}</h3>
+        <BarChart
+          data={Array.from(new Set(filtered.map(r => r.actividad))).map(actividad => ({
+            label: actividad,
+            value: filtered.filter(r => r.actividad === actividad).reduce((sum, r) => sum + (r.cantidad / r.horasHombre), 0),
+            color: 'hsl(var(--primary))'
+          }))}
+          height={200}
+          palette="default"
+        />
       </div>
 
       <div className="bg-card border border-border rounded-xl shadow-sm">

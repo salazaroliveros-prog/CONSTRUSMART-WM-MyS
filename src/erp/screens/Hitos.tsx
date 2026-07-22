@@ -2,12 +2,13 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
-import { CheckCircle2, Circle, AlertTriangle, Calendar, Plus, Trash2 } from 'lucide-react';
+import { CheckCircle2, Circle, AlertTriangle, Calendar, Plus, Trash2, Target, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
 import { formatDateFmt } from '../utils';
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, INPUT } from '../ui';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Donut } from '../components/Charts';
 
 type TipoHito = 'entrega' | 'pago' | 'inspeccion' | 'licencia' | 'otro';
 
@@ -109,7 +110,16 @@ const Hitos: React.FC = () => {
     return (
       <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
         <Skeleton className="h-8 w-64 rounded-lg" />
-        <Skeleton className="h-24 rounded-xl" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Skeleton className="h-48 rounded-xl" />
+          <Skeleton className="h-48 rounded-xl" />
+        </div>
         <Skeleton className="h-64 rounded-xl" />
       </div>
     );
@@ -141,6 +151,35 @@ const Hitos: React.FC = () => {
         <div className="bg-muted rounded-xl p-4 text-center">
           <p className="text-xs text-muted-foreground font-medium">{t('hitos.cumplimiento', '% Cumplimiento')}</p>
           <p className="text-xl font-bold text-foreground">{hitos.length > 0 ? ((hitos.filter(h => h.completado).length / hitos.length) * 100).toFixed(1) : 0}%</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div className="bg-card rounded-xl border border-border p-4">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">{t('hitos.grafico_cumplimiento', 'Gráfico de Cumplimiento')}</h3>
+          <Donut
+            data={[
+              { label: t('hitos.completados', 'Completados'), value: hitos.filter(h => h.completado).length, color: 'hsl(var(--success))' },
+              { label: t('hitos.pendientes', 'Pendientes'), value: hitos.filter(h => !h.completado).length, color: 'hsl(var(--warning))' }
+            ]}
+            height={180}
+            palette="cool"
+          />
+        </div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">{t('hitos.grafico_tipos', 'Distribución por Tipo')}</h3>
+          <Donut
+            data={Object.keys(TIPOS).map((tipo) => ({
+              label: TIPOS[tipo as TipoHito].label,
+              value: hitos.filter(h => h.tipo === tipo).length,
+              color: tipo === 'entrega' ? 'hsl(var(--primary))' :
+                     tipo === 'pago' ? 'hsl(var(--success))' :
+                     tipo === 'inspeccion' ? 'hsl(var(--warning))' :
+                     tipo === 'licencia' ? 'hsl(var(--info))' :
+                     'hsl(var(--muted))'
+            }))}
+            height={180}
+            palette="cool"
+          />
         </div>
       </div>
 

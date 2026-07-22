@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
 import { Download, Copy, Trash2, Eye, Edit2, Plus, Save, X, RefreshCw, AlertTriangle, Wallet } from 'lucide-react';
+import { BarChart, Donut } from '../components/Charts';
 
 const Presupuestos: React.FC = () => {
   const { t } = useTranslation();
@@ -115,7 +116,7 @@ const Presupuestos: React.FC = () => {
     setShowForm(false);
   };
 
-  if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-64" /><Skeleton className="h-64 w-full" /></div>;
+  if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-8 w-64 rounded-lg" /><div className="grid grid-cols-3 gap-4"><Skeleton className="h-24 rounded-xl" /><Skeleton className="h-24 rounded-xl" /><Skeleton className="h-24 rounded-xl" /></div><div className="grid grid-cols-2 gap-4"><Skeleton className="h-48 rounded-xl" /><Skeleton className="h-48 rounded-xl" /></div><Skeleton className="h-64 w-full rounded-xl" /></div>;
   if (presupuestosFiltrados.length === 0) {
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
@@ -147,6 +148,35 @@ const Presupuestos: React.FC = () => {
         <div className="bg-primary/10 rounded-xl p-4 text-center">
           <p className="text-xs text-primary font-medium">{t('presupuestos.tipologias', 'Tipologías')}</p>
           <p className="text-xl font-bold text-primary">{new Set(presupuestos.map(p => (p as any).tipologia || '')).size}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div className="bg-card rounded-xl border border-border p-4">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">{t('presupuestos.grafico_montos', 'Montos por Proyecto')}</h3>
+          <BarChart
+            data={presupuestosFiltrados.map(p => ({
+              label: proyectos.find(pr => pr.id === p.proyectoId)?.nombre || p.nombre,
+              value: p.totalCalculado || 0,
+              color: 'hsl(var(--primary))'
+            }))}
+            height={200}
+            palette="default"
+          />
+        </div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">{t('presupuestos.grafico_tipologias', 'Distribución por Tipología')}</h3>
+          <Donut
+            data={Array.from(new Set(presupuestosFiltrados.map(p => (p as any).tipologia || 'otro'))).map(tipologia => ({
+              label: tipologia,
+              value: presupuestosFiltrados.filter(p => (p as any).tipologia === tipologia).length,
+              color: tipologia === 'residencial' ? 'hsl(var(--primary))' :
+                     tipologia === 'comercial' ? 'hsl(var(--success))' :
+                     tipologia === 'industrial' ? 'hsl(var(--warning))' :
+                     'hsl(var(--info))'
+            }))}
+            height={200}
+            palette="cool"
+          />
         </div>
       </div>
       <div className="bg-card rounded-xl border border-border overflow-hidden">
