@@ -32,6 +32,7 @@ export const TABLE_MAP: Record<string, string> = {
   erp_cajas_chicas:'cajasChicas',
   erp_anticipos:'anticipos',
   erp_amortizaciones:'amortizaciones',
+  erp_rendimientos_campo:'rendimientosCampo',
   erp_rendimientos_cuadrilla:'rendimientosCuadrilla',
   erp_bodega:'bodega',
   erp_documentos:'documentos',

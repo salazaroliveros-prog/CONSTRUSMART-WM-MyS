@@ -13,3 +13,16 @@ export const rendimientoCuadrillaSchema = z.object({
 });
 
 export type RendimientoCuadrilla = z.infer<typeof rendimientoCuadrillaSchema>;
+
+export const rendimientoCampoSchema = z.object({
+  id: z.string(),
+  proyectoId: z.string(),
+  cuadrilla: z.string(),
+  actividad: z.string(),
+  unidad: z.string(),
+  cantidad: z.number(),
+  horasHombre: z.number(),
+  fecha: z.string(),
+});
+
+export type RendimientoCampo = z.infer<typeof rendimientoCampoSchema>;

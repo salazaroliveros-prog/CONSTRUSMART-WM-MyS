@@ -41,8 +41,8 @@ export type { Anticipo } from './anticipoSchema';
 export { amortizacionSchema } from './amortizacionSchema';
 export type { Amortizacion } from './amortizacionSchema';
 
-export { rendimientoCuadrillaSchema } from './rendimientoCuadrillaSchema';
-export type { RendimientoCuadrilla } from './rendimientoCuadrillaSchema';
+export { rendimientoCuadrillaSchema, rendimientoCampoSchema } from './rendimientoCuadrillaSchema';
+export type { RendimientoCuadrilla, RendimientoCampo } from './rendimientoCuadrillaSchema';
 
 export { bodegaSchema } from './bodegaSchema';
 export type { Bodega } from './bodegaSchema';

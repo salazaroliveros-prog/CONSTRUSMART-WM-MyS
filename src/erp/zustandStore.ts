@@ -26,6 +26,7 @@ import {
   proyectoWeatherSchema, errorLogSchema, auditLogSchema,
   projectProfitabilitySchema, clientProfitabilitySchema,
   resourceEfficiencySchema, profitabilityTrendSchema,
+  rendimientoCampoSchema,
 } from './store/schemas';
 import type {
   Proyecto, Movimiento, Empleado, Material, OrdenCompra, Proveedor, EventoCalendario, BitacoraEntry,
@@ -41,6 +42,7 @@ import type { Plantilla } from './store/schemas/plantillas';
 import type { ErrorLogEntry } from './store/schemas/errorLog';
 import type { AppSettings, Mutation, LogAuditoria } from './types';
 import type { ProjectProfitability, ClientProfitability, ResourceEfficiency, ProfitabilityTrend } from './store/schemas/profitability';
+import type { RendimientoCampo } from './store/schemas/rendimientoCuadrillaSchema';
 
 
 const RATE_LIMIT_MS = 100;
@@ -141,6 +143,7 @@ interface ErpData {
   errorLogs: ErrorLogEntry[];
   anticipos: Anticipo[];
   cajasChicas: CajaChica[];
+  rendimientosCampo: RendimientoCampo[];
 
 }
 
@@ -323,6 +326,9 @@ interface ErpActions {
   addCajaChica: (c: Omit<CajaChica, 'id'>) => void;
   updateCajaChica: (id: string, patch: Partial<CajaChica>) => void;
   deleteCajaChica: (id: string) => void;
+  addRendimientoCampo: (r: Omit<RendimientoCampo, 'id'>) => void;
+  updateRendimientoCampo: (id: string, patch: Partial<RendimientoCampo>) => void;
+  deleteRendimientoCampo: (id: string) => void;
   deleteRiesgo: (id: string) => void;
   addPlano: (p: Omit<Plano, 'id'>) => void;
   updatePlano: (id: string, patch: Partial<Plano>) => void;
@@ -437,7 +443,7 @@ export const fetchInitialData = async (attempt = 1): Promise<boolean> => {
       'erp_escalas_produccion','erp_estacionalidad',
       'erp_historial_aplicacion_reglas','erp_ajustes_estacionales_actividad',
       'erp_calculos_proyecto','erp_cumplimiento_normativo',
-      'erp_anticipos','erp_cajas_chicas',
+      'erp_anticipos','erp_cajas_chicas','erp_rendimientos_campo',
     ] as const;
 
     const fetchTable = async (table: string) => {
@@ -572,7 +578,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   seguimientoEVM: [], incidentes: [], publicacionesMuro: [], liberaciones: [], planos: [],
   rfis: [], submittals: [], activos: [], cuadros: [], pagosProveedor: [],   destajos: [], calculosProyecto: [],
   ajustesEstacionalesActividad: [], aplicacionEscalas: [], cumplimientoNormativo: [],
-  recepciones: [], centrosCosto: [], anticipos: [], cajasChicas: [],   plantillas: [],
+  recepciones: [], centrosCosto: [], anticipos: [], cajasChicas: [], rendimientosCampo: [],   plantillas: [],
   insumosBase: [],
   departamentos: [],
   municipios: [],
@@ -629,6 +635,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   setCentrosCosto: (v) => set(typeof v === 'function' ? { centrosCosto: v(get().centrosCosto) } : { centrosCosto: v }),
   setAnticipos: (v) => set(typeof v === 'function' ? { anticipos: v(get().anticipos) } : { anticipos: v }),
   setCajasChicas: (v) => set(typeof v === 'function' ? { cajasChicas: v(get().cajasChicas) } : { cajasChicas: v }),
+  setRendimientosCampo: (v) => set(typeof v === 'function' ? { rendimientosCampo: v(get().rendimientosCampo) } : { rendimientosCampo: v }),
   setPlantillas: (v) => set(typeof v === 'function' ? { plantillas: v(get().plantillas) } : { plantillas: v }),
   setInsumosBase: (v) => set(typeof v === 'function' ? { insumosBase: v(get().insumosBase) } : { insumosBase: v }),
   setDepartamentos: (v) => set(typeof v === 'function' ? { departamentos: v(get().departamentos) } : { departamentos: v }),
@@ -1448,6 +1455,10 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
   addCajaChica: (c) => { const n = { ...c, id: uid() }; get().setCajasChicas(prev => [n, ...prev]); get().enqueueMutation('addCajaChica', n); },
   updateCajaChica: (id, patch) => { get().setCajasChicas(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateCajaChica', { id, ...patch }); },
   deleteCajaChica: (id) => { get().setCajasChicas(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteCajaChica', { id }); },
+
+  addRendimientoCampo: (r) => { const n = { ...r, id: uid() }; get().setRendimientosCampo(prev => [n, ...prev]); get().enqueueMutation('addRendimientoCampo', n); },
+  updateRendimientoCampo: (id, patch) => { get().setRendimientosCampo(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateRendimientoCampo', { id, ...patch }); },
+  deleteRendimientoCampo: (id) => { get().setRendimientosCampo(prev => prev.filter(p => p.id !== id)); get().enqueueMutation('deleteRendimientoCampo', { id }); },
 
   addDestajo: (d) => { const n = { ...d, id: uid() }; get().setDestajos(prev => [n, ...prev]); get().enqueueMutation('addDestajo', n); },
   updateDestajo: (id, patch) => { get().setDestajos(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p)); get().enqueueMutation('updateDestajo', { id, ...patch }); },

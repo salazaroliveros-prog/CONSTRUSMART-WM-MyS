@@ -8,68 +8,35 @@ import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
 import { BarChart } from '../components/Charts';
+import { rendimientoCampoSchema } from '../store/schemas';
 
-interface RendimientoRegistro {
-  id: string;
-  proyectoId: string;
-  cuadrilla: string;
-  actividad: string;
-  unidad: string;
-  cantidad: number;
-  horasHombre: number;
-  fecha: string;
-}
+type RendimientoRegistro = z.infer<typeof rendimientoCampoSchema>;
 
-const rendimientoSchema = z.object({
-  id: z.string(),
-  proyectoId: z.string(),
-  cuadrilla: z.string(),
-  actividad: z.string(),
-  unidad: z.string(),
-  cantidad: z.number(),
-  horasHombre: z.number(),
-  fecha: z.string(),
-});
+const BASE = 'rendimiento_campo';
 
 const RendimientoCampo: React.FC = () => {
   const { t } = useTranslation();
-  const { proyectos, currentProjectId, setCurrentProjectId } = useErp();
-  const BASE = 'rendimiento_campo';
+  const { proyectos, currentProjectId, setCurrentProjectId, rendimientosCampo, addRendimientoCampo, updateRendimientoCampo, deleteRendimientoCampo } = useErp();
 
-  const [rendimientos, setRendimientos] = useState<z.infer<typeof rendimientoSchema>[]>(() => {
-    try {
-      const raw = JSON.parse(localStorage.getItem('wm_erp_rendimiento_campo') || '[]');
-      const parsed = z.array(rendimientoSchema).safeParse(raw);
-      return parsed.success ? parsed.data : [];
-    } catch { return []; }
-  });
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Record<string, any>>({});
 
-  const saveRendimientos = (data: z.infer<typeof rendimientoSchema>[]) => {
-    const parsed = z.array(rendimientoSchema).safeParse(data);
-    if (parsed.success) {
-      setRendimientos(parsed.data);
-      localStorage.setItem('wm_erp_rendimiento_campo', JSON.stringify(parsed.data));
-    }
-  };
-
   const addRendimiento = (data: Omit<RendimientoRegistro, 'id'>) => {
-    saveRendimientos([{ ...data, id: uid() }, ...rendimientos]);
+    addRendimientoCampo(data);
   };
 
   const deleteRendimiento = (id: string) => {
-    saveRendimientos(rendimientos.filter(r => r.id !== id));
+    deleteRendimientoCampo(id);
     toast.success(t(`${BASE}.eliminado`, 'Registro eliminado'));
   };
 
   const filtered = useMemo(() => {
-    let items = rendimientos;
+    let items = rendimientosCampo;
     if (currentProjectId && currentProjectId !== 'none') {
       items = items.filter(r => r.proyectoId === currentProjectId);
     }
     return items.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-  }, [rendimientos, currentProjectId]);
+  }, [rendimientosCampo, currentProjectId]);
 
   const kpis = useMemo(() => {
     const cuadrillas = new Set(filtered.map(r => r.cuadrilla)).size;

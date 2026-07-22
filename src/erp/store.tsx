@@ -697,6 +697,7 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
           resource_efficiencies: s.resourceEfficiencies, profitability_trends: s.profitabilityTrends,
           error_logs: s.errorLogs, departamentos: s.departamentos, municipios: s.municipios,
           cajas_chicas: s.cajasChicas, anticipos: s.anticipos, amortizaciones: s.amortizaciones,
+          rendimientos_campo: s.rendimientosCampo,
           app_settings: s.appSettings,
           rendimientos_cuadrilla: s.rendimientosCuadrilla, bodega: s.bodega, documentos: s.documentos,
           permisos: s.permisos, checklist: s.checklist, configuracion: s.configuracion, api_keys: s.apiKeys,
