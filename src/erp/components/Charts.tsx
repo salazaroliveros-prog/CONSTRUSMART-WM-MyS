@@ -460,14 +460,14 @@ export const ConfigurableLineArea: React.FC<{
 }> = React.memo(({ series: rawSeries, labels, type = 'line', palette, height = H }) => {
   const p = useAnimIn(800);
   const [tip, setTip] = useState<TooltipState>({ x: 0, y: 0, content: '', visible: false });
-  const ser = rawSeries.map((s, i) => ({ ...s, color: pickColor(i, palette, s.color), data: s.data.filter((v): v is number => Number.isFinite(v)).map(v => Math.max(0, Math.min(100, v))) }));
-  const all = ser.flatMap(s => s.data).filter((v): v is number => Number.isFinite(v)).map(v => Math.max(0, Math.min(100, v)));
+  const ser = rawSeries.map((s, i) => ({ ...s, color: pickColor(i, palette, s.color), data: s.data.filter((v): v is number => Number.isFinite(v)) }));
+  const all = ser.flatMap(s => s.data).filter((v): v is number => Number.isFinite(v));
   const max = Math.max(...all, 1);
   const min = Math.min(...all, 0);
   const n = Math.max(...ser.map(s => s.data.length), 2);
   const x = (i: number) => PAD + (i * (W - PAD * 2)) / (n - 1);
   const y = (v: number): number => {
-    const nv = Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : 0;
+    const nv = Number.isFinite(v) ? Math.max(0, v) : 0;
     return height - PAD - ((nv - min) / (max - min || 1)) * (height - PAD * 2);
   };
   const isArea = type === 'area';

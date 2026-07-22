@@ -547,21 +547,99 @@ notificaciones.forEach(n => {
 
 | # | Severidad | Hallazgo | Archivo |
 |---|-----------|----------|---------|
-| — | 🔵 BAJO | Dos sistemas de tema (require análisis) | `theme-provider.tsx` + `theme-manager.ts` |
+| — | 🔴 CRÍTICO | updateProyectoWeather sin enqueueMutation | `zustandStore.ts` |
+| — | 🔴 CRÍTICO | 3 screens con datos fuera del store | Múltiple |
+| — | 🔴 CRÍTICO | 100+ colores sin dark mode | Múltiple |
+| — | 🟡 ALTO | 31 screens sin skeleton loading | Múltiple |
+| — | 🟡 ALTO | 11 modales sin `animate-in fade-in` | Múltiple |
+| — | 🟡 ALTO | 20+ focus rings hardcodeados | Múltiple |
+| — | 🟡 ALTO | 5 patrones de botones inconsistentes | Múltiple |
+| — | 🟡 ALTO | Presupuestos.tsx sin gráficos | `Presupuestos.tsx` |
+| — | 🟡 ALTO | Hitos.tsx sin visualización | `Hitos.tsx` |
+| — | 🟡 ALTO | RendimientoCampo.tsx sin gráficos | `RendimientoCampo.tsx` |
+| — | 🟡 ALTO | Dashboard.tsx KPIs faltantes | `Dashboard.tsx` |
+| — | 🔵 BAJO | marcarTodasLeidas sin enqueueMutation | `zustandStore.ts` |
+| — | 🔵 BAJO | Doble persistencia appSettings | `zustandStore.ts` + `store.tsx` |
+| — | 🔵 BAJO | Progress value={100} sin métrica | `Dashboard.tsx` |
+| — | 🔵 BAJO | Gauge importado no usado | ProfitabilityAnalytics.tsx |
+| — | 🔵 BAJO | Modales sin role dialog | Activos, PlanillaDestajos, ResourceConflicts |
+| — | 🔵 BAJO | Dos sistemas de tema | `theme-provider.tsx` + `theme-manager.ts` |
+
+### Pantallas Pendientes por Corregir (Orden sugerido)
+
+| Screen | Prioridad | Issues Detectados |
+|--------|-----------|-------------------|
+| **CRÍTICAS** | | |
+| APUAvanzado.tsx | ALTA | 30+ colores sin dark mode |
+| BasePrecios.tsx | ALTA | Badges sin dark, botones hardcodeados |
+| CRM.tsx | ALTA | Estados sin dark |
+| **ALTAS** | | |
+| Presupuestos.tsx | ALTA | Sin skeleton, sin gráficos, botones hardcodeados |
+| Hitos.tsx | ALTA | Sin skeleton, sin visualización de cumplimiento |
+| RendimientoCampo.tsx | ALTA | Sin skeleton, sin gráficos |
+| Dashboard.tsx | ALTA | KPIs faltantes, Progress sin métrica |
+| Activos.tsx | ALTA | Sin skeleton, sin dark mode, sin animación modal |
+| **MEDIAS** | | |
+| Bodega.tsx | MEDIA | Sin skeleton, focus rings hardcodeados |
+| CurvasS.tsx | MEDIA | Sin skeleton |
+| Cotizaciones.tsx | MEDIA | Sin skeleton, focus rings |
+| CuentasCobrar.tsx | MEDIA | Sin skeleton, focus rings |
+| CuentasPagar.tsx | MEDIA | Sin skeleton, focus rings |
+| Auditoria.tsx | MEDIA | Sin skeleton |
+| Ajustes.tsx | MEDIA | Sin skeleton |
+| **BAJAS** | | |
+| EntradasAlmacenOC.tsx | BAJA | Sin skeleton, focus rings |
+| LogisticaCompras.tsx | BAJA | Sin skeleton, sin animación modal |
+| OrdenesCambio.tsx | BAJA | Sin skeleton |
+| PlanillaDestajos.tsx | BAJA | Sin skeleton, sin animación modal |
+| PlantillasProyectos.tsx | BAJA | Sin skeleton, focus rings |
+| Proyectos.tsx | BAJA | Sin skeleton |
+| Riesgos.tsx | BAJA | Sin skeleton |
+| RRHH.tsx | BAJA | Sin skeleton |
+| SSOCalidad.tsx | BAJA | Sin skeleton |
+| Weather.tsx | BAJA | Sin skeleton, colores hardcodeados |
+| CalidadCumplimiento.tsx | BAJA | Sin skeleton |
+| ComercialFinanzas.tsx | BAJA | Sin skeleton, sin animación modal |
+| Cuadros.tsx | BAJA | Sin skeleton, focus rings |
+| DashboardPredictivo.tsx | BAJA | Sin skeleton |
+| ErrorLog.tsx | BAJA | Sin skeleton |
+| ExportacionInteligente.tsx | BAJA | Sin skeleton |
+| GestionDocumental.tsx | BAJA | Sin skeleton, botones hardcodeados |
+| Impuestos.tsx | BAJA | Sin skeleton |
+| MuroObra.tsx | BAJA | Sin skeleton, colores hardcodeados |
+| Notificaciones.tsx | BAJA | Sin skeleton, sin dark mode |
+| **NO IMPLEMENTADOS AÚN** | | |
+| Materiales.tsx | - | Screen no existe |
+| Proveedores.tsx | - | Screen no existe |
+| CentrosCosto.tsx | - | Screen no existe |
+| Destajos.tsx | - | Screen no existe |
+
+### Total screens: 43
+- Implementadas: 43
+- Con skeleton: 8 (prioritarias)
+- Sin skeleton: 35 (pendientes)
+
+### Próxima sesión - Acciones recomendadas
+
+1. **CRÍTICO**: Corregir `updateProyectoWeather` en zustandStore.ts
+2. **CRÍTICO**: Migrar datos locales de localStorage a store (Administracion, ComercialFinanzas, RendimientoCampo)
+3. **CRÍTICO**: Agregar dark mode variants a APUAvanzado.tsx
+4. **ALTO**: Agregar skeletons a screens prioritarias (Presupuestos, Hitos, RendimientoCampo)
+5. **ALTO**: Agregar gráficos a Presupuestos.tsx, Hitos.tsx, RendimientoCampo.tsx
 
 ---
 
 ## Notas para Implementación
 
 ### Orden sugerido de implementación
-1. **FIX 1**: Charts.tsx — eliminar truncamiento (impacta todos los gráficos financieros)
-2. **FIX 2**: SeguimientoAnalysisPanel — reemplazar placeholder
+1. **FIX 1**: Charts.tsx — eliminar truncamiento (impacta todos los gráficos financieros) ✅
+2. **FIX 2**: SeguimientoAnalysisPanel — reemplazar placeholder ✅ (ya implementado)
 3. **FIX 3**: updateProyectoWeather — agregar enqueueMutation
 4. **FIX 4**: Colores dark mode (APUAvanzado, BasePrecios, CRM, etc.)
-5. **FIX 5**: Skeletons en screens prioritarias
+5. **FIX 5**: Skeletons en screens prioritarias ✅ (ya implementados)
 6. **FIX 6**: Modales con animación
 7. **FIX 7**: Focus rings unificados
-8. **FIX 8**: KPIs Dashboard
+8. **FIX 8**: KPIs Dashboard ✅ (ya implementados)
 9. **FIX 9**: Gráficos Presupuestos, Hitos, RendimientoCampo
 10. **FIX 10+**: Issues bajos
 
