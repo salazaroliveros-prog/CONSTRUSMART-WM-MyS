@@ -523,7 +523,7 @@ notificaciones.forEach(n => {
 
 ## Estado de Correcciones — Sesión 4 (2026-07-22)
 
-### Completados en Sesión 4 (✅) — +5 fixes (total: 44)
+### Completados en Sesión 4 (✅) — +6 fixes (total: 45)
 
 | # | Fix | Archivos |
 |---|-----|----------|
@@ -532,6 +532,7 @@ notificaciones.forEach(n => {
 | 42 | CRM.tsx estados — verificado con dark mode | `CRM.tsx` |
 | 43 | Activos.tsx botones — verificado con dark mode | `Activos.tsx` |
 | 44 | Notificaciones.tsx unread indicator dark mode | `Notificaciones.tsx` |
+| 45 | Focus rings — verificado todos usan focus-visible:ring-ring | Múltiple screens |
 
 ---
 
