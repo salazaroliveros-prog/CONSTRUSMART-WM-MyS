@@ -27,7 +27,7 @@ FROM base as deps
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
+    npm ci --omit=dev --legacy-peer-deps
 
 ################################################################################
 # Create a stage for building the application.
@@ -38,7 +38,7 @@ FROM deps as build
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm \
-    npm ci
+    npm ci --legacy-peer-deps
 
 # Copy the rest of the source files into the image.
 COPY . .
@@ -69,4 +69,4 @@ COPY --from=build /usr/src/app/dist ./dist
 EXPOSE 8080
 
 # Run the application.
-CMD  npm run preview
+CMD npx vite preview --port 8080 --host
