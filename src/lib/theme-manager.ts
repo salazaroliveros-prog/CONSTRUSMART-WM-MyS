@@ -3,6 +3,7 @@
  * Fuente única para sincronización de ajustes visuales con el DOM.
  */
 
+export const CLASS_PREFIX = 'wm-erp-';
 export const VALID_THEMES = ['ant-design', 'dark-pro', 'material3', 'glassmorphism', 'neomorphism'] as const;
 export type ThemeName = typeof VALID_THEMES[number];
 
