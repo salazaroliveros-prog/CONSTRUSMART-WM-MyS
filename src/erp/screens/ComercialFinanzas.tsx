@@ -6,6 +6,7 @@ import type { VentaPaquete, Anticipo, AmortizacionItem, CajaChica } from '../typ
 import { Building2, DollarSign, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 import { fmtQ } from '../utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const LS_ANTICIPOS = 'wm_erp_comercial_anticipos';
 const LS_CAJAS = 'wm_erp_comercial_cajas';
@@ -36,6 +37,8 @@ const cajaChicaSchema = z.object({
 });
 
 export const ComercialFinanzas: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { proyectos, user, ventasPaquetes, addVentaPaquete, updateVentaPaquete } = useErp();
 
@@ -302,6 +305,16 @@ export const ComercialFinanzas: React.FC = () => {
       {cajasChicas.length === 0 && <div className="text-center py-10 text-muted-foreground"><Wallet className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('comercial.no_hay_gastos')}</p></div>}
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">

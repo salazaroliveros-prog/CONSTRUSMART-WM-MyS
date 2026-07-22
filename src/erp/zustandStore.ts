@@ -32,10 +32,10 @@ import type {
   Presupuesto, Licitacion, AvanceObra, ValeSalida, Notificacion, OrdenCambio, SeguimientoEVM,
   CuentaCobrar, CuentaPagar, Hito, Riesgo, PublicacionMuro, ComentarioMuro, PruebaLaboratorio,
   NoConformidad, LiberacionPartida, Plano, RFI, Submittal, ActivoHerramienta, CuadroComparativo,
-  PagoProveedor, CotizacionCliente, VentaPaquete,   Destajo, RecepcionAlmacen, Incidente, CentroCosto, CalculoProyecto, InsumoBase,
+  PagoProveedor, CotizacionCliente, VentaPaquete, Destajo, RecepcionAlmacen, Incidente, CentroCosto, CalculoProyecto, InsumoBase,
   ReglaFactor, NormativaDepartamental, EscalaProduccion, Estacionalidad, HistorialAplicacionRegla,
   AjusteEstacionalActividad, AplicacionEscala, CumplimientoNormativo, DepartamentoGT, MunicipioGT,
-  ProyectoWeather, SupplierPerformance,
+  ProyectoWeather, SupplierPerformance, WeatherData,
 } from './types';
 import type { Plantilla } from './store/schemas/plantillas';
 import type { ErrorLogEntry } from './store/schemas/errorLog';
@@ -220,6 +220,14 @@ interface ErpActions {
   setNormativasDepartamentales: (v: NormativaDepartamental[] | ((prev: NormativaDepartamental[]) => NormativaDepartamental[])) => void;
   setEscalasProduccion: (v: EscalaProduccion[] | ((prev: EscalaProduccion[]) => EscalaProduccion[])) => void;
   setEstacionalidad: (v: Estacionalidad[] | ((prev: Estacionalidad[]) => Estacionalidad[])) => void;
+  deleteAjusteEstacionalActividad: (id: string) => void;
+  updateReglaFactor: (id: string, patch: Partial<ReglaFactor>) => void;
+  updateNormativaDepartamental: (id: string, patch: Partial<NormativaDepartamental>) => void;
+  updateEscalaProduccion: (id: string, patch: Partial<EscalaProduccion>) => void;
+  updateEstacionalidad: (id: string, patch: Partial<Estacionalidad>) => void;
+  updateAjusteEstacionalActividad: (id: string, patch: Partial<AjusteEstacionalActividad>) => void;
+  updateAplicacionEscala: (id: string, patch: Partial<AplicacionEscala>) => void;
+  updateCumplimientoNormativo: (id: string, patch: Partial<CumplimientoNormativo>) => void;
   addPlantilla: (p: Omit<Plantilla, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updatePlantilla: (id: string, patch: Partial<Plantilla>) => void;
   deletePlantilla: (id: string) => void;
@@ -234,7 +242,7 @@ interface ErpActions {
   actualizarMetricasTodasPlantillas: () => void;
   validarIntegridadPlantilla: (plantillaId: string) => { valido: boolean; errores: string[] };
   toggleFavoritoPlantilla: (plantillaId: string) => void;
-  updateProyectoWeather: (proyectoId: string, weatherData: Omit<ProyectoWeather, 'proyectoId' | 'updatedAt'>, impact: ProyectoWeather['impact']) => void;
+  updateProyectoWeather: (proyectoId: string, weatherData: WeatherData | undefined, impactData: ProyectoWeather['impact'] & Partial<Omit<ProyectoWeather, 'proyectoId' | 'weatherData' | 'updatedAt'>>) => void;
   getProyectoWeather: (proyectoId: string) => ProyectoWeather | undefined;
   setUserRol: (rol: string | null) => void;
   enqueueMutation: (type: string, payload: Record<string, unknown>) => string;
@@ -651,11 +659,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     if (next.language) i18n.changeLanguage(next.language);
     if (next.currency) __setActiveCurrency(next.currency);
     if (next.dateFormat) __setActiveDateFormat(next.dateFormat);
-    try {
-      if (next.appTheme) localStorage.setItem('wm_erp_theme', next.appTheme);
-    } catch (error) {
-      console.error('Error saving appSettings theme to localStorage:', error);
-    }
+    // Persistencia manejada por store.tsx persistence cycle
   },
   updateAppSettings: (patch) => {
     const next = { ...get().appSettings, ...patch };
@@ -669,12 +673,7 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     if (patch.dateFormat) {
       __setActiveDateFormat(patch.dateFormat);
     }
-    try {
-      localStorage.setItem('wm_erp_data_settings', JSON.stringify(next));
-      if (patch.appTheme) localStorage.setItem('wm_erp_theme', patch.appTheme);
-    } catch (error) {
-      console.error('Error updating appSettings in localStorage:', error);
-    }
+    // Persistencia manejada por store.tsx persistence cycle
   },
   setAuditLog: (v) => set(typeof v === 'function' ? { auditLog: v(get().auditLog) } : { auditLog: v }),
 
@@ -2172,43 +2171,43 @@ export const useErpStore = create<ErpStore>()((set, get) => ({
     set((state) => ({ estacionalidad: state.estacionalidad.filter((e) => e.id !== id) }));
     get().enqueueMutation('deleteEstacionalidad', { id });
   },
-  deleteAjusteEstacionalActividad: (id) => {
-    set((state) => ({ ajustesEstacionalesActividad: state.ajustesEstacionalesActividad.filter((a) => a.id !== id) }));
+  deleteAjusteEstacionalActividad: (id: string) => {
+    set(() => ({ ajustesEstacionalesActividad: get().ajustesEstacionalesActividad.filter((a) => a.id !== id) }));
     get().enqueueMutation('deleteAjusteEstacionalActividad', { id });
   },
-  updateReglaFactor: (id, patch) => {
+  updateReglaFactor: (id: string, patch: Partial<ReglaFactor>) => {
     const updated = get().reglasFactores.map((r) => (r.id === id ? { ...r, ...patch } : r));
-    set((state) => ({ reglasFactores: updated }));
+    set(() => ({ reglasFactores: updated }));
     get().enqueueMutation('updateReglaFactor', { id, patch });
   },
-  updateNormativaDepartamental: (id, patch) => {
+  updateNormativaDepartamental: (id: string, patch: Partial<NormativaDepartamental>) => {
     const updated = get().normativasDepartamentales.map((n) => (n.id === id ? { ...n, ...patch } : n));
-    set((state) => ({ normativasDepartamentales: updated }));
+    set(() => ({ normativasDepartamentales: updated }));
     get().enqueueMutation('updateNormativaDepartamental', { id, patch });
   },
-  updateEscalaProduccion: (id, patch) => {
+  updateEscalaProduccion: (id: string, patch: Partial<EscalaProduccion>) => {
     const updated = get().escalasProduccion.map((e) => (e.id === id ? { ...e, ...patch } : e));
-    set((state) => ({ escalasProduccion: updated }));
+    set(() => ({ escalasProduccion: updated }));
     get().enqueueMutation('updateEscalaProduccion', { id, patch });
   },
-  updateEstacionalidad: (id, patch) => {
+  updateEstacionalidad: (id: string, patch: Partial<Estacionalidad>) => {
     const updated = get().estacionalidad.map((e) => (e.id === id ? { ...e, ...patch } : e));
-    set((state) => ({ estacionalidad: updated }));
+    set(() => ({ estacionalidad: updated }));
     get().enqueueMutation('updateEstacionalidad', { id, patch });
   },
-  updateAjusteEstacionalActividad: (id, patch) => {
+  updateAjusteEstacionalActividad: (id: string, patch: Partial<AjusteEstacionalActividad>) => {
     const updated = get().ajustesEstacionalesActividad.map((a) => (a.id === id ? { ...a, ...patch } : a));
-    set((state) => ({ ajustesEstacionalesActividad: updated }));
+    set(() => ({ ajustesEstacionalesActividad: updated }));
     get().enqueueMutation('updateAjusteEstacionalActividad', { id, patch });
   },
-  updateAplicacionEscala: (id, patch) => {
+  updateAplicacionEscala: (id: string, patch: Partial<AplicacionEscala>) => {
     const updated = get().aplicacionEscalas.map((a) => (a.id === id ? { ...a, ...patch } : a));
-    set((state) => ({ aplicacionEscalas: updated }));
+    set(() => ({ aplicacionEscalas: updated }));
     get().enqueueMutation('updateAplicacionEscala', { id, patch });
   },
-  updateCumplimientoNormativo: (id, patch) => {
+  updateCumplimientoNormativo: (id: string, patch: Partial<CumplimientoNormativo>) => {
     const updated = get().cumplimientoNormativo.map((c) => (c.id === id ? { ...c, ...patch } : c));
-    set((state) => ({ cumplimientoNormativo: updated }));
+    set(() => ({ cumplimientoNormativo: updated }));
     get().enqueueMutation('updateCumplimientoNormativo', { id, patch });
   },
   setReglasFactores: (v) => {

@@ -45,10 +45,10 @@ const TIPOS_COTIZACION: { value: CotizacionTipo; label: string; icon: React.Comp
 
 const ESTADOS_COTIZACION = [
   { key: 'borrador', label: 'Borrador', color: 'bg-muted text-muted-foreground', icon: FileText },
-  { key: 'enviada', label: 'Enviada', color: 'bg-blue-50 text-blue-600', icon: Send },
-  { key: 'aprobada', label: 'Aprobada', color: 'bg-emerald-50 text-emerald-600', icon: CheckCircle2 },
-  { key: 'rechazada', label: 'Rechazada', color: 'bg-red-50 text-red-600', icon: X },
-  { key: 'vencida', label: 'Vencida', color: 'bg-amber-50 text-amber-600', icon: Clock },
+  { key: 'enviada', label: 'Enviada', color: 'bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400', icon: Send },
+  { key: 'aprobada', label: 'Aprobada', color: 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400', icon: CheckCircle2 },
+  { key: 'rechazada', label: 'Rechazada', color: 'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400', icon: X },
+  { key: 'vencida', label: 'Vencida', color: 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400', icon: Clock },
 ] as const;
 
 const Cotizaciones: React.FC = () => {
@@ -280,11 +280,11 @@ const Cotizaciones: React.FC = () => {
                     </div>
                     <div className="flex flex-col gap-1">
                       {c.estado === 'borrador' && (
-                        <button onClick={() => handleEnviar(c)} className="text-xs bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 active:bg-blue-700 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
+                        <button onClick={() => handleEnviar(c)} className="text-xs bg-primary text-primary-foreground px-3 py-2 rounded hover:bg-primary/90 active:bg-primary/80 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
                           <Send className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.enviar_cliente')}
                         </button>
                       )}
-                      <button onClick={() => { exportCotizacionPDF(c); }} className="text-xs bg-emerald-500 text-white px-3 py-2 rounded hover:bg-emerald-600 active:bg-emerald-700 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
+                      <button onClick={() => { exportCotizacionPDF(c); }} className="text-xs bg-primary text-primary-foreground px-3 py-2 rounded hover:bg-primary/90 active:bg-primary/80 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
                         <FileText className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.exportar_pdf')}
                       </button>
                       <button onClick={() => openEdit(c)} className="text-xs bg-muted text-foreground px-3 py-2 rounded hover:bg-muted/80 active:bg-muted/90 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">

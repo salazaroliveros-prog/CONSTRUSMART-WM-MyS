@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
@@ -7,6 +7,7 @@ import { Heart, MessageCircle, Send, Image, Paperclip } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const mensajeSchema = z.object({
   texto: z.string().min(1, 'Escribe algo para publicar').max(500, 'Máximo 500 caracteres'),
@@ -22,6 +23,8 @@ const TIPOS: Record<TipoPublicacion, { label: string; color: string }> = {
 };
 
 const MuroObra: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { publicaciones: publicacionesMuro, proyectos, addPublicacionMuro, addComentarioMuro, likePublicacionMuro, currentProjectId } = useErp();
   const [filtroProyecto, setFiltroProyecto] = useState('');
@@ -68,6 +71,16 @@ const MuroObra: React.FC = () => {
     setComentarios(prev => ({ ...prev, [id]: '' }));
     toast.success(t('muro.comentario_agregado', 'Comentario agregado'));
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
@@ -136,7 +149,7 @@ const MuroObra: React.FC = () => {
               )}
               <div className="mt-3 flex gap-2">
                 <input value={comentarios[pub.id] || ''} onChange={e => setComentarios(prev => ({ ...prev, [pub.id]: e.target.value }))} placeholder={t('muro.placeholder_comentario', 'Escribe un comentario...')} className={`${INPUT} text-xs flex-1`} />
-                <button onClick={() => handleComentario(pub.id)} aria-label={t('muro.enviar_comentario', 'Enviar comentario')} className="px-3 py-1.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded text-xs hover:bg-blue-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <button onClick={() => handleComentario(pub.id)} aria-label={t('muro.enviar_comentario', 'Enviar comentario')} className="px-3 py-1.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded text-xs active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Send className="w-3 h-3" aria-hidden="true" />
                 </button>
               </div>

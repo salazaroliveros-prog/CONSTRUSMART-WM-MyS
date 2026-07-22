@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
@@ -9,10 +9,13 @@ import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
 import { canUserEdit } from '@/lib/security';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type EstadoOC = OrdenCambio['estado'];
 
 const OrdenesCambio: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { proyectos, user, ordenesCambio, addOrdenCambio, updateOrdenCambio, deleteOrdenCambio } = useErp();
   const [showForm, setShowForm] = useState(false);
@@ -86,6 +89,16 @@ const OrdenesCambio: React.FC = () => {
 
   const pendientes = useMemo(() => ordenesCambio.filter(o => o.estado === 'solicitud' || o.estado === 'revision').length, [ordenesCambio]);
   const costoTotal = useMemo(() => ordenesCambio.filter(o => o.estado === 'aprobado').reduce((a, o) => a + o.impactoCosto, 0), [ordenesCambio]);
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
@@ -188,7 +201,7 @@ const OrdenesCambio: React.FC = () => {
                         <button onClick={() => handleAprobar(oc.id)} className={`${BUTTON_PRIMARY} flex items-center gap-1 text-xs`}>
                           <Check className="w-3 h-3" aria-hidden="true" /> {t('ordenes_cambio.aprobar', 'Aprobar')}
                         </button>
-                        <button onClick={() => handleRechazar(oc.id)} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+                        <button onClick={() => handleRechazar(oc.id)} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                           <X className="w-3 h-3" aria-hidden="true" /> {t('ordenes_cambio.rechazar', 'Rechazar')}
                         </button>
                       </>

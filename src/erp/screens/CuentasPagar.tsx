@@ -196,7 +196,7 @@ const CuentasPagar: React.FC = () => {
                      <td className="p-2 text-center text-muted-foreground truncate" title={c.fechaVencimiento || '-'}>{c.fechaVencimiento || '-'}</td>
                     <td className="p-2 text-right">
                       {c.estado !== 'pagada' && (
-                        <button onClick={() => handleMarkAsPaid(c.id)} className="text-xs bg-emerald-500 text-white px-2 py-1 rounded hover:bg-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('cuentas_pagar.marcar_pagada')}>
+                        <button onClick={() => handleMarkAsPaid(c.id)} className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('cuentas_pagar.marcar_pagada')}>
                           <CheckCircle2 className="w-3 h-3" aria-hidden="true" />
                         </button>
                       )}

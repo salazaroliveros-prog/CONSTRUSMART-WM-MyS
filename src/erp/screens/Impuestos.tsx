@@ -1,14 +1,17 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { BarChart3, FileText } from 'lucide-react';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { CATEGORIA_LABEL, fmtQ } from '../utils';
 import { List as VirtualizedList } from 'react-window';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ROW_HEIGHT = 36;
 
 export const Impuestos: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { movimientos, proyectos } = useErp();
 
@@ -85,6 +88,16 @@ export const Impuestos: React.FC = () => {
       tasaEfectiva: ingresos > 0 ? (isr / ingresos) * 100 : 0,
     };
   }, [movimientosFiltrados]);
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">

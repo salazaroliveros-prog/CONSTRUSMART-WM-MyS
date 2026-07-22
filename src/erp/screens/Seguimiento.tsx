@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { Proyecto } from '../types';
@@ -43,6 +43,8 @@ interface ProjectWithData extends Proyecto {
  */
 const Seguimiento: React.FC = () => {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const {
     proyectos,
     movimientos,
@@ -246,6 +248,16 @@ const Seguimiento: React.FC = () => {
       <div className="p-4 sm:p-6 text-center">
         <ClipboardCheck className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
         <p className="text-muted-foreground">Sin proyectos para seguimiento</p>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
       </div>
     );
   }

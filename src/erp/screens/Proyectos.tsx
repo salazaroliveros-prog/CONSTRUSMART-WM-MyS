@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { Proyecto } from '../types';
@@ -13,12 +13,15 @@ import ProyectoForm from '../components/proyectos/ProyectoForm';
 import ProyectoPauseModal from '../components/proyectos/ProyectoPauseModal';
 import { useProyectosActions } from '../hooks/useProyectosActions';
 import { conflictDetectionService } from '../services/conflictDetection';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const TIPOS_OBRA = ['nueva', 'remodelacion', 'ampliacion'] as const;
 const ETAPAS = ['planificacion', 'diseno', 'preconstruccion', 'construccion', 'cierre'] as const;
 
 const Proyectos: React.FC = () => {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const proyectos = useErp(s => s.proyectos);
   const empleados = useErp(s => s.empleados);
   const materiales = useErp(s => s.materiales);
@@ -91,6 +94,16 @@ const Proyectos: React.FC = () => {
   }, [safeMovimientos]);
 
   if (show === undefined) return null;
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-[var(--density-padding)] max-w-[1600px] mx-auto">

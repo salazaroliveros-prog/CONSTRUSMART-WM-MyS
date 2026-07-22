@@ -70,14 +70,13 @@ export type ThemeConfig = {
 export interface VisualSettings {
   compactMode?: boolean;
   densityTable?: string;
-  sidebarPosition?: 'left' | 'right';
+  sidebarPosition?: 'left' | 'right' | 'overlay';
   touchMode?: boolean;
   fontSize?: 'small' | 'medium' | 'large';
   fontFamily?: string;
   borderRadius?: string;
   spacingScale?: string;
   animationsEnabled?: boolean;
-  animationType?: string;
   breadcrumbsEnabled?: boolean;
   footerEnabled?: boolean;
   sidebarMode?: string;
@@ -113,23 +112,6 @@ export function hexToHSL(hex: string): string {
   }
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
-
-const CLASS_PREFIX = 'vs-';
-
-const classMap: Record<string, (v: unknown) => string | null> = {
-  compactMode: (v) => v ? `${CLASS_PREFIX}compact` : null,
-  touchMode: (v) => v ? `${CLASS_PREFIX}touch` : null,
-  densityTable: (v) => v ? `${CLASS_PREFIX}density-${v}` : null,
-  fontSize: (v) => v ? `${CLASS_PREFIX}font-${v}` : null,
-  fontFamily: (v) => v ? `${CLASS_PREFIX}font-family-${v}` : null,
-  borderRadius: (v) => v ? `${CLASS_PREFIX}radius-${v}` : null,
-  spacingScale: (v) => v ? `${CLASS_PREFIX}spacing-${v}` : null,
-  animationType: (v) => (v && v !== 'none') ? `${CLASS_PREFIX}anim-${v}` : null,
-  sidebarPosition: (v) => v ? `${CLASS_PREFIX}sidebar-${v}` : null,
-  animationsEnabled: (v) => v === false ? `${CLASS_PREFIX}anim-disabled` : null,
-  breadcrumbsEnabled: (v) => v === false ? `${CLASS_PREFIX}breadcrumbs-hidden` : null,
-  footerEnabled: (v) => v === false ? `${CLASS_PREFIX}footer-hidden` : null,
-};
 
 function applyThemeAttribute(theme: string): void {
   if (!VALID_THEMES.includes(theme as ThemeName)) return;

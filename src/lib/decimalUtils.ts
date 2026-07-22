@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js';
+import type { Decimal as DecimalClass } from 'decimal.js';
 import { safeLogger } from '@/lib/safeLogger';
 
 // Configurar Decimal.js para precisión financiera
@@ -13,7 +14,7 @@ Decimal.set({
 });
 
 // Tipo branded para asegurar uso correcto
-export type DecimalValue = Decimal & { __brand: 'decimal' };
+export type DecimalValue = Decimal.Instance & { __brand: 'decimal' };
 
 /**
  * Crea un DecimalValue desde un número o string

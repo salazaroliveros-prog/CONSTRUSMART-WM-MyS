@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,11 +12,14 @@ import ChartToolbar from '../components/ChartToolbar';
 import { useChartConfig } from '../hooks/useChartConfig';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { empleadoFormSchema } from '../store/schemas/rrhh';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type EmpleadoFormData = z.infer<typeof empleadoFormSchema>;
 
 const RRHH: React.FC = () => {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const rrhhBarConfig = useChartConfig('line', 'default');
   const { empleados, addEmpleado, updateEmpleado, deleteEmpleado, proyectos } = useErp();
   const [editingId, setEditingId] = React.useState<string | null>(null);
@@ -93,6 +96,16 @@ const RRHH: React.FC = () => {
     });
     setEditingId(null);
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col p-4 sm:p-6 max-w-[1600px] mx-auto overflow-hidden">

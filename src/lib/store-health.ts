@@ -219,7 +219,8 @@ export function generateHealthReport(
   }
 }
 
-export default checkStoreHealth/**
+export default checkStoreHealth
+/**
  * AutoDebugger — Diagnóstico + auto-reparación avanzada en producción
  * 
  * Características nuevas:
@@ -240,13 +241,64 @@ export class AutoDebugger {
     this.moduleName = moduleName
   }
 
+  private detectIssues(state: Record<string, unknown>): string[] {
+    const issues: string[] = []
+    for (const [key, value] of Object.entries(state)) {
+      if (value === undefined) issues.push(`Key "${key}" is undefined`);
+      else if (value === null) issues.push(`Key "${key}" is null`);
+      else if (typeof value === 'number' && isNaN(value)) issues.push(`Key "${key}" is NaN`);
+      else if (typeof value === 'string' && value.length === 0 && key !== '') issues.push(`Key "${key}" is empty string`);
+    }
+    return issues;
+  }
+
+  private attemptRepair(state: Record<string, unknown>, issues: string[]): { recovered: Record<string, unknown>; report: HealthReport; recoveredKeys: string[] } {
+    const recovered: Record<string, unknown> = { ...state };
+    const recoveredKeys: string[] = [];
+    const newIssues: string[] = [];
+
+    for (const [key, value] of Object.entries(state)) {
+      if (value === undefined || value === null) {
+        const defaultValue = (defaults as Record<string, unknown>)[key];
+        if (defaultValue !== undefined) {
+          recovered[key] = defaultValue;
+          recoveredKeys.push(key);
+          newIssues.push(`Key "${key}" was ${value === undefined ? 'undefined' : 'null'}, recovered with default`);
+        } else {
+          newIssues.push(`Key "${key}" is invalid but no default provided`);
+        }
+      } else if (typeof value === 'number' && isNaN(value)) {
+        const defaultValue = (defaults as Record<string, unknown>)[key];
+        if (defaultValue !== undefined) {
+          recovered[key] = defaultValue;
+          recoveredKeys.push(key);
+          newIssues.push(`Key "${key}" was NaN, recovered with default`);
+        }
+      }
+    }
+
+    const healthy = newIssues.length === 0;
+
+    return {
+      recovered,
+      report: {
+        healthy,
+        issues: newIssues,
+        timestamp: new Date().toISOString(),
+        module: this.moduleName,
+        recoveredKeys,
+      },
+      recoveredKeys,
+    };
+  }
+
   start(getState: () => Record<string, unknown>, intervalMs = HEALTH_CHECK_INTERVAL) {
     if (this.intervalId) return
     this.intervalId = setInterval(() => {
       if (!this.enabled) return
       try {
         const state = getState()
-        const issues = detectIssues(state)
+        const issues = this.detectIssues(state)
 
         metrics.checksPerformed++
 
@@ -258,7 +310,7 @@ export class AutoDebugger {
             issues,
           })
 
-          const repaired = attemptRepair(state, issues)
+          const repaired = this.attemptRepair(state, issues)
           if (repaired.recoveredKeys.length > 0) {
             metrics.repairsApplied += repaired.recoveredKeys.length
           }

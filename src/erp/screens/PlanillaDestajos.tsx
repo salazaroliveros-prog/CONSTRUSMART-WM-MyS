@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { confirmAction } from '@/lib/confirm-action';
 import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { downloadBlob } from '../utils';
 import { CheckCircle, ClipboardList, Download } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
 
 const destajoSchema = z.object({
@@ -20,6 +21,8 @@ const destajoSchema = z.object({
 
 export const PlanillaDestajos: React.FC = () => {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { proyectos, destajos, addDestajo, deleteDestajo } = useErp();
 
   const [proyectoFilter, setProyectoFilter] = useState('');
@@ -98,6 +101,15 @@ export const PlanillaDestajos: React.FC = () => {
 
   const INPUT = 'text-sm px-3 py-2 border border-input rounded-lg outline-none focus:border-ring bg-background text-foreground';
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { Incidente, PruebaLaboratorio, NoConformidad, LiberacionPartida } from '../types';
@@ -9,12 +9,15 @@ import {
 } from 'lucide-react';
 import { todayISO, formatDateFmt } from '../utils';
 import { confirmAction } from '@/lib/confirm-action';
+import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
 
 type TabSSO = 'incidentes' | 'checklist-sso' | 'estadisticas' | 'emergencia' | 'pruebas' | 'nc' | 'liberaciones';
 
 const SSOCalidad: React.FC = () => {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const incidenteSchema = z.object({
     tipo: z.enum(['accidente', 'cuasi-accidente', 'condicion_insegura', 'acto_inseguro']),
     descripcion: z.string().min(1, t('sso_calidad.descripcion_requerida')).max(1000, t('sso_calidad.max_1000_caracteres')),
@@ -228,6 +231,16 @@ const SSOCalidad: React.FC = () => {
   const ncsFiltrados = useMemo(() => ncs.filter(n => !currentProjectId || n.proyectoId === currentProjectId), [ncs, currentProjectId]);
   const liberacionesFiltradas = useMemo(() => liberaciones.filter(l => !currentProjectId || l.proyectoId === currentProjectId), [liberaciones, currentProjectId]);
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -273,13 +286,13 @@ const SSOCalidad: React.FC = () => {
             <h2 className="font-bold text-muted-foreground text-sm flex items-center gap-1.5">
               <AlertTriangle className="w-4 h-4 text-red-500" /> {t('sso_calidad.reporte_incidentes', 'Reporte de Incidentes')}
             </h2>
-            <button onClick={() => { setShowIncForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600">
+            <button onClick={() => { setShowIncForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-destructive text-destructive-foreground rounded-lg text-xs font-medium hover:bg-destructive/90">
               <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nuevo_incidente', 'Nuevo Incidente')}
             </button>
           </div>
 
           {showIncForm && (
-            <div className="bg-red-50 rounded-xl p-4 mb-4 border border-border space-y-2">
+            <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-4 mb-4 border border-border space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <select
@@ -365,10 +378,10 @@ const SSOCalidad: React.FC = () => {
                       </div>
                       <div className="flex gap-1 shrink-0 ml-2">
                         {inc.estado === 'abierto' && (
-                          <button onClick={() => updateIncidente(inc.id, { estado: 'investigacion' as const })} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">{t('sso_calidad.investigar', 'Investigar')}</button>
+                          <button onClick={() => updateIncidente(inc.id, { estado: 'investigacion' as const })} className="px-2 py-1 bg-primary text-primary-foreground rounded text-[10px] hover:bg-primary/90">{t('sso_calidad.investigar', 'Investigar')}</button>
                         )}
                         {inc.estado !== 'cerrado' && (
-                          <button onClick={() => updateIncidente(inc.id, { estado: 'cerrado' as const })} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('sso_calidad.cerrar', 'Cerrar')}</button>
+                          <button onClick={() => updateIncidente(inc.id, { estado: 'cerrado' as const })} className="px-2 py-1 bg-primary text-primary-foreground rounded text-[10px] hover:bg-primary/90">{t('sso_calidad.cerrar', 'Cerrar')}</button>
                         )}
                       </div>
                     </div>
@@ -413,7 +426,7 @@ const SSOCalidad: React.FC = () => {
                 <User className="w-4 h-4 text-muted-foreground" />
                 <input placeholder={t('sso_calidad.supervisor_placeholder', 'Nombre del supervisor')} className="px-3 py-1.5 text-xs rounded-lg border border-border outline-none focus:border-amber-400" />
               </div>
-              <button onClick={() => toast.success(t('sso_calidad.checklist_registrado'))} className="px-4 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-600">
+              <button onClick={() => toast.success(t('sso_calidad.checklist_registrado'))} className="px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90">
                 <Check className="w-3.5 h-3.5 inline mr-1" /> {t('sso_calidad.registrar_checklist', 'Registrar')}
               </button>
             </div>
@@ -539,7 +552,7 @@ const SSOCalidad: React.FC = () => {
             <h2 className="font-bold text-muted-foreground text-sm flex items-center gap-1.5">
               <FlaskConical className="w-4 h-4 text-purple-500" /> {t('sso_calidad.pruebas_laboratorio', 'Pruebas de Laboratorio')}
             </h2>
-            <button onClick={() => { setShowPruebaForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-medium hover:bg-purple-600">
+            <button onClick={() => { setShowPruebaForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90">
               <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nueva_prueba', 'Nueva Prueba')}
             </button>
           </div>
@@ -613,8 +626,8 @@ const SSOCalidad: React.FC = () => {
                     </div>
                     {p.resultado === 'pendiente' && (
                       <div className="flex gap-1 shrink-0 ml-2">
-                        <button onClick={() => actualizarResultadoPrueba(p.id, 'pasa')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('sso_calidad.pasa', 'Pasa')}</button>
-                        <button onClick={() => actualizarResultadoPrueba(p.id, 'no_pasa')} className="px-2 py-1 bg-red-500 text-white rounded text-[10px] hover:bg-red-600">{t('sso_calidad.no_pasa', 'No Pasa')}</button>
+                        <button onClick={() => actualizarResultadoPrueba(p.id, 'pasa')} className="px-2 py-1 bg-primary text-primary-foreground rounded text-[10px] hover:bg-primary/90">{t('sso_calidad.pasa', 'Pasa')}</button>
+                        <button onClick={() => actualizarResultadoPrueba(p.id, 'no_pasa')} className="px-2 py-1 bg-destructive text-destructive-foreground rounded text-[10px] hover:bg-destructive/90">{t('sso_calidad.no_pasa', 'No Pasa')}</button>
                       </div>
                     )}
                   </div>
@@ -633,13 +646,13 @@ const SSOCalidad: React.FC = () => {
             <h2 className="font-bold text-muted-foreground text-sm flex items-center gap-1.5">
               <XCircle className="w-4 h-4 text-red-500" /> {t('sso_calidad.titulo_nc', 'No Conformidades (NC)')}
             </h2>
-            <button onClick={() => { setShowNCForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600">
+            <button onClick={() => { setShowNCForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-destructive text-destructive-foreground rounded-lg text-xs font-medium hover:bg-destructive/90">
               <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nueva_nc', 'Nueva NC')}
             </button>
           </div>
 
           {showNCForm && (
-            <div className="bg-red-50 rounded-xl p-4 mb-4 border border-border space-y-2">
+            <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-4 mb-4 border border-border space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <select
@@ -711,10 +724,10 @@ const SSOCalidad: React.FC = () => {
                         <button onClick={() => {
                           const plan = prompt(t('sso_calidad.plan_accion_prompt', 'Describe el plan de acción:'));
                           if (plan) actualizarEstadoNC(nc.id, 'plan_accion', plan);
-                        }} className="px-2 py-1 bg-amber-500 text-white rounded text-[10px] hover:bg-amber-600">{t('sso_calidad.plan_boton', 'Plan')}</button>
+                        }} className="px-2 py-1 bg-primary text-primary-foreground rounded text-[10px] hover:bg-primary/90">{t('sso_calidad.plan_boton', 'Plan')}</button>
                       )}
                       {nc.estado !== 'cerrado' && (
-                        <button onClick={() => actualizarEstadoNC(nc.id, 'cerrado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('sso_calidad.cerrar', 'Cerrar')}</button>
+                        <button onClick={() => actualizarEstadoNC(nc.id, 'cerrado')} className="px-2 py-1 bg-primary text-primary-foreground rounded text-[10px] hover:bg-primary/90">{t('sso_calidad.cerrar', 'Cerrar')}</button>
                       )}
                     </div>
                   </div>
@@ -732,7 +745,7 @@ const SSOCalidad: React.FC = () => {
             <h2 className="font-bold text-muted-foreground text-sm flex items-center gap-1.5">
               <CheckCircle className="w-4 h-4 text-emerald-500" /> {t('sso_calidad.titulo_liberaciones', 'Liberación de Partidas')}
             </h2>
-            <button onClick={() => { setShowLibForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-medium hover:bg-emerald-600">
+            <button onClick={() => { setShowLibForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90">
               <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nueva_liberacion', 'Solicitar Liberación')}
             </button>
           </div>
@@ -769,7 +782,7 @@ const SSOCalidad: React.FC = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button onClick={handleAddLiberacion} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-semibold">{t('sso_calidad.solicitar_liberacion', 'Solicitar Liberación')}</button>
+                <button onClick={handleAddLiberacion} className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-2 rounded-lg text-xs font-semibold">{t('sso_calidad.solicitar_liberacion', 'Solicitar Liberación')}</button>
                 <button onClick={() => setShowLibForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground">{t('sso_calidad.cancelar', 'Cancelar')}</button>
               </div>
             </div>
@@ -803,8 +816,8 @@ const SSOCalidad: React.FC = () => {
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {l.estado === 'pendiente' && (
                         <>
-                          <button onClick={() => actualizarLiberacion(l.id, 'liberado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-[10px] hover:bg-emerald-600">{t('sso_calidad.liberar_boton', 'Liberar')}</button>
-                          <button onClick={() => actualizarLiberacion(l.id, 'rechazado')} className="px-2 py-1 bg-red-500 text-white rounded text-[10px] hover:bg-red-600">{t('sso_calidad.rechazar_boton', 'Rechazar')}</button>
+                          <button onClick={() => actualizarLiberacion(l.id, 'liberado')} className="px-2 py-1 bg-primary text-primary-foreground rounded text-[10px] hover:bg-primary/90">{t('sso_calidad.liberar_boton', 'Liberar')}</button>
+                          <button onClick={() => actualizarLiberacion(l.id, 'rechazado')} className="px-2 py-1 bg-destructive text-destructive-foreground rounded text-[10px] hover:bg-destructive/90">{t('sso_calidad.rechazar_boton', 'Rechazar')}</button>
                         </>
                       )}
                     </div>

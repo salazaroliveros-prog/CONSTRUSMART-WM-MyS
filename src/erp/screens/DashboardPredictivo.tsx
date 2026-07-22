@@ -1,11 +1,14 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { fmtQ, formatDateFmt } from '../utils';
 import { Calendar, AlertTriangle, DollarSign, Activity, Zap, CheckCircle, Cloud, CloudRain, Wind } from 'lucide-react';
 import { calculateWeatherImpact } from '../services/weatherService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const DashboardPredictivo: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { proyectos, movimientos, presupuestos, avances, empleados, currentProjectId, setCurrentProjectId, proyectoWeather } = useErp();
 
@@ -75,6 +78,16 @@ const DashboardPredictivo: React.FC = () => {
       : 'border-green-300 bg-green-50 dark:bg-green-950';
     return { impact, history, workableDays, lostDays, diasPerdidosEst, impactColor };
   }, [proyectoWeather, currentProjectId]);
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">

@@ -1,15 +1,18 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { Search, Wrench, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
 import { fmtQ } from '../utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const TIPOS = ['herramienta', 'equipo', 'vehiculo', 'accesorio'] as const;
 const ESTADOS = ['disponible', 'asignado', 'mantenimiento', 'baja'] as const;
 
 const Activos: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { activos, setActivos, proyectos } = useErp();
   const [q, setQ] = useState('');
@@ -66,7 +69,16 @@ const Activos: React.FC = () => {
     toast.success(t('activos.eliminar_exito'));
   };
 
-  
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -92,9 +104,9 @@ const Activos: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <div className="p-3 bg-indigo-50 rounded-lg text-center"><p className="text-xs text-indigo-600">{t('activos.total')}</p><p className="text-xl font-bold text-indigo-700">{activos.length}</p></div>
-        <div className="p-3 bg-emerald-50 rounded-lg text-center"><p className="text-xs text-emerald-600">{t('activos.disponibles')}</p><p className="text-xl font-bold text-emerald-700">{activosDisponibles}</p></div>
-        <div className="p-3 bg-amber-50 rounded-lg text-center"><p className="text-xs text-amber-600">{t('activos.asignados')}</p><p className="text-xl font-bold text-amber-700">{activosAsignados}</p></div>
+        <div className="p-3 bg-indigo-50 dark:bg-indigo-950/20 rounded-lg text-center"><p className="text-xs text-indigo-600 dark:text-indigo-400">{t('activos.total')}</p><p className="text-xl font-bold text-indigo-700 dark:text-indigo-300">{activos.length}</p></div>
+        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg text-center"><p className="text-xs text-emerald-600 dark:text-emerald-400">{t('activos.disponibles')}</p><p className="text-xl font-bold text-emerald-700 dark:text-emerald-300">{activosDisponibles}</p></div>
+        <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg text-center"><p className="text-xs text-amber-600 dark:text-amber-400">{t('activos.asignados')}</p><p className="text-xl font-bold text-amber-700 dark:text-amber-300">{activosAsignados}</p></div>
         <div className="p-3 bg-muted/30 rounded-lg text-center"><p className="text-xs text-muted-foreground">{t('activos.valor_total')}</p><p className="text-xl font-bold text-foreground">{fmtQ(valorTotalActivos)}</p></div>
       </div>
 
@@ -116,9 +128,9 @@ const Activos: React.FC = () => {
                 <td className="p-2 font-medium text-muted-foreground truncate" title={a.nombre}>{a.nombre}</td>
                 <td className="p-2 text-muted-foreground truncate">{t(`activos.tipo_${a.tipo}`)}</td>
                 <td className="p-2 truncate"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                  a.estado === 'disponible' ? 'bg-emerald-100 text-emerald-700' :
-                  a.estado === 'asignado' ? 'bg-blue-100 text-blue-700' :
-                  a.estado === 'mantenimiento' ? 'bg-amber-100 text-amber-700' :
+                  a.estado === 'disponible' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
+                  a.estado === 'asignado' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+                  a.estado === 'mantenimiento' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
                   'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                 }`}>{t(`activos.estado_${a.estado}`)}</span></td>
                 <td className="p-2 text-muted-foreground truncate" title={proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}>{proyectos.find(p => p.id === a.proyectoId)?.nombre || '-'}</td>
@@ -143,7 +155,7 @@ const Activos: React.FC = () => {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-200" role="dialog" aria-modal="true">
           <div className="bg-card rounded-xl p-5 w-full max-w-md shadow-sm">
             <h3 className="font-bold mb-3 truncate" title={editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}>{editId ? t('activos.editar_activo') : t('activos.nuevo_activo')}</h3>
             <div className="grid gap-2">

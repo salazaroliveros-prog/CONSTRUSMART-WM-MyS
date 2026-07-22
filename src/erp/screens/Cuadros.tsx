@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
@@ -7,9 +7,12 @@ import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Search, Filter, ClipboardCheck, DollarSign, Calendar, User, Edit, Trash2, CheckCircle, AlertCircle, Building2, FileText } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import type { CuadroComparativo } from '../store/schemas/gestion';
 
 const Cuadros: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { cuadros, proyectos, proveedores, addCuadro, updateCuadro, deleteCuadro, currentProjectId, cotizacionesNegocio } = useErp();
   const [searchTerm, setSearchTerm] = useState('');
@@ -123,12 +126,22 @@ const Cuadros: React.FC = () => {
 
   const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-      abierto: 'bg-blue-50 text-blue-600',
-      cerrado: 'bg-gray-50 text-gray-600',
-      adjudicado: 'bg-emerald-50 text-emerald-600',
+      abierto: 'bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400',
+      cerrado: 'bg-gray-50 dark:bg-gray-950/20 text-gray-600 dark:text-gray-400',
+      adjudicado: 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400',
     };
     return map[estado] || 'bg-muted text-muted-foreground';
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">

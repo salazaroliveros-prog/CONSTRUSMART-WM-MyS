@@ -309,12 +309,12 @@ const inp = INPUT_COMPACT;
                          } 
                        }}
                          aria-label={t('bodega.aprobar_orden_aria', { material: o.material })}
-                         className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                         className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         <Check className="w-3 h-3" aria-hidden="true" /> {t('bodega.aprobar')}
                       </button>
                       <button onClick={() => updateOrden(o.id, { estado: 'rechazado' })}
                         aria-label={t('bodega.rechazar_orden_aria', { material: o.material })}
-                        className="flex-1 bg-red-500 hover:bg-red-600 text-white py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90 py-1 rounded flex items-center justify-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         <X className="w-3 h-3" aria-hidden="true" /> {t('bodega.rechazar')}
                       </button>
                     </div>

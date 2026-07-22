@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, clearAllData, type UIMode, type AppThemeMode } from '../store';
 import type { AppSettings } from '../utils';
@@ -10,6 +10,7 @@ import {
   FlaskConical, User, FileInput, Calendar, DollarSign, AlertTriangle,
   PlayCircle, FileText, TrendingUp, Users, ShieldCheck,
 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ICON_SIZE = 18;
 const controlWidthClass = 'w-full sm:w-40 md:w-44';
@@ -130,6 +131,8 @@ const ColorRadioGroup: React.FC<{
 );
 
 const Ajustes: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { appSettings, updateAppSettings, user, proyectos, notificacionesNoLeidas, marcarTodasLeidas, exportStoreData, importStoreData } = useErp();
   const safeProyectos = useMemo(() => Array.isArray(proyectos) ? proyectos : [], [proyectos]);
@@ -215,6 +218,16 @@ const Ajustes: React.FC = () => {
       </span>
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col p-4 sm:p-6 max-w-[1600px] mx-auto min-h-full">

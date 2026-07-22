@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { fmtQ, fmtPct } from '../utils';
@@ -37,6 +37,8 @@ interface ProjectStatusRow {
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const ctx = useErp();
   const barConfig = useChartConfig('bar', 'default');
 
@@ -229,6 +231,16 @@ const Dashboard: React.FC = () => {
   const materialesCriticos = useMemo(() => materiales.filter((m) => m.stock < m.stockMinimo), [materiales]);
 
   if (!ctx) return null;
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
@@ -448,7 +460,7 @@ const Dashboard: React.FC = () => {
               <span className="text-xs text-muted-foreground">Empleados</span>
               <span className="text-sm font-semibold">{kpi.empleados}</span>
             </div>
-            <Progress value={100} color="hsl(var(--info))" />
+            <div className="h-2 bg-muted rounded-full"><div className="h-full bg-info rounded-full" style={{ width: `${Math.min(100, Math.max(0, (kpi.empleados / 50) * 100))}%` }}></div></div>
           </div>
         </div>
       </div>

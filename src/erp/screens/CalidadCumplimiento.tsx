@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
@@ -6,6 +6,7 @@ import ProyectoFilter from '../components/ProyectoFilter';
 import {
   CheckCircle, AlertTriangle, FlaskConical, ClipboardCheck
 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { noConformidadSchema, pruebaSchema, liberacionSchema } from '../store/schemas/calidad';
 type NoConformidad = z.infer<typeof noConformidadSchema>;
 type PruebaLaboratorio = z.infer<typeof pruebaSchema>;
@@ -39,6 +40,8 @@ const LIBERACION_COLORS: Record<LiberacionPartida['estado'], string> = {
 };
 
 const CalidadCumplimiento: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const {
     ncs, pruebas, liberaciones, proyectos,
@@ -217,6 +220,16 @@ const CalidadCumplimiento: React.FC = () => {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">

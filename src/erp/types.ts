@@ -112,6 +112,7 @@ export type Hito = z.infer<typeof hitoSchema>;
 export type Riesgo = z.infer<typeof riesgoSchema>;
 export type AvanceObra = z.infer<typeof avanceObraSchema>;
 export type Seguimiento = z.infer<typeof seguimientoSchema>;
+export type SeguimientoEVM = Seguimiento;
 export type Cliente = z.infer<typeof clienteSchema>;
 export type Proveedor = z.infer<typeof proveedorSchema>;
 export type OrdenCambio = z.infer<typeof ordenCambioSchema>;

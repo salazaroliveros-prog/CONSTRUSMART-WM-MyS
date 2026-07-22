@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp, uid } from '../store';
 import { Truck, ClipboardList, CreditCard, Plus, Trash2, FolderKanban, Package, FileText, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { fmtQ } from '../utils';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ActivoLogistica {
   id: string; nombre: string; tipo: string; costo: number; estado: string; proyectoId?: string;
@@ -19,6 +20,8 @@ interface PagoProveedor {
 const FOCUS_VISIBLE = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 export const LogisticaCompras: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const store = useErp();
   const { proyectos, currentProjectId, setCurrentProjectId, proveedores } = store;
@@ -170,6 +173,16 @@ export const LogisticaCompras: React.FC = () => {
       )}
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">

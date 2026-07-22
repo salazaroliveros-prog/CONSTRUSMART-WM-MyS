@@ -17,12 +17,12 @@ const MAPA_ICONOS: Record<string, React.ReactNode> = {
 };
 
 const MAPA_COLORES: Record<string, string> = {
-  checklist_rechazado: 'bg-red-50 border-red-200',
-  orden_cambio_pendiente: 'bg-amber-50 border-amber-200',
-  stock_critico: 'bg-orange-50 border-orange-200',
-  desviacion_rendimiento: 'bg-red-50 border-red-200',
-  avance_registrado: 'bg-emerald-50 border-emerald-200',
-  general: 'bg-blue-50 border-blue-200',
+  checklist_rechazado: 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/50',
+  orden_cambio_pendiente: 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/50',
+  stock_critico: 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-900/50',
+  desviacion_rendimiento: 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/50',
+  avance_registrado: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50',
+  general: 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/50',
 };
 
 const MAPA_LABEL: Record<string, string> = {
@@ -42,8 +42,11 @@ const TIPO_TOGGLE_MAP: Record<string, string> = {
 };
 
 import { useNotificationSound } from '../hooks/useNotificationSound';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Notificaciones() {
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { notificaciones, markNotificacionLeida, marcarTodasLeidas, proyectos, appSettings } = useErp();
   const [filtroTipo, setFiltroTipo] = React.useState<string | null>(null);
@@ -86,6 +89,16 @@ export default function Notificaciones() {
     const timePart = d.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' });
     return `${datePart} ${timePart}`;
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 max-w-[1600px] mx-auto space-y-4">
@@ -208,7 +221,7 @@ export default function Notificaciones() {
                 <div className="flex items-center gap-2 mt-1.5">
                   <span className="text-xs text-muted-foreground">{formatDate(notif.createdAt)}</span>
                   {notif.proyectoId && (
-                    <span className="text-xs text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
+                    <span className="text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/20 px-1.5 py-0.5 rounded">
                       {getProyectoNombre(notif.proyectoId)}
                     </span>
                   )}

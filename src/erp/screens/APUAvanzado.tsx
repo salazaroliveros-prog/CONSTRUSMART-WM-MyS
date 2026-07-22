@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useErp } from '../store';
 import { useTranslation } from 'react-i18next';
 import {
@@ -6,6 +6,7 @@ import {
   BarChart3, Table as TableIcon, Settings, RefreshCw, Calculator,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { safeLogger } from '@/lib/safeLogger';
 import { FactorSobrecosto, DosificacionConcreto, MovimientoTierra, Pavimento, RedInfraestructura, MuroContencion } from '../types';
@@ -100,6 +101,8 @@ const FACTOR_DEFAULT: FactorSobrecosto = {
 };
 
 const APUAvanzado: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { proyectos, updateProyecto, insumosBase } = useErp();
 
@@ -342,6 +345,16 @@ const APUAvanzado: React.FC = () => {
     { id: 'historico', label: t('apu.historico_precios'), icon: BarChart3 },
   ];
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <>
@@ -487,7 +500,7 @@ const APUAvanzado: React.FC = () => {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div><span className="text-xs text-orange-600 font-medium">{t('apu.total_sobrecosto')}:</span><span className="text-xl font-bold text-orange-700 ml-2">{factor.indirectos + factor.administracion + factor.imprevistos + factor.utilidad}%</span></div>
                 <div><span className="text-xs text-orange-600 font-medium">{t('apu.factor_multiplicador')}:</span><span className="text-xl font-bold text-orange-700 ml-2">{((factor.indirectos + factor.administracion + factor.imprevistos + factor.utilidad) / 100 + 1).toFixed(2)}</span></div>
-                {editFactor && (<button onClick={handleSaveFactor} aria-label={t('apu.guardar_factor_sobrecosto')} className="flex items-center gap-1 text-xs px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium"><Save className="w-3 h-3" /> {t('apu.guardar')}</button>)}
+                {editFactor && (<button onClick={handleSaveFactor} aria-label={t('apu.guardar_factor_sobrecosto')} className="flex items-center gap-1 text-xs px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium"><Save className="w-3 h-3" /> {t('apu.guardar')}</button>)}
               </div>
             </div>
           </div>
@@ -506,7 +519,7 @@ const APUAvanzado: React.FC = () => {
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.volumen_m3')}</label><input type="number" inputMode="decimal" value={volumen} onChange={e => setVolumen(Math.max(0.1, parseFloat(e.target.value) || 1))} min={0.1} step={0.1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.departamento_opcional')}</label><select value={departamento} onChange={e => setDepartamento(e.target.value)} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">{t('apu.sin_ajuste_regional')}</option>{departamentos.map(dep => (<option key={dep.codigo} value={dep.codigo}>{dep.nombre}</option>))}</select></div>
               <div className="sm:col-span-2 md:col-span-3">
-                <button onClick={handleCalcularDosificacion} disabled={calculando} aria-label={calculando ? t('apu.calculando_dosificacion') : t('apu.calcular_dosificacion')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                <button onClick={handleCalcularDosificacion} disabled={calculando} aria-label={calculando ? t('apu.calculando_dosificacion') : t('apu.calcular_dosificacion')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed">
                   <Calculator className="w-4 h-4" />{calculando ? t('apu.calculando') : t('apu.calcular_dosificacion')}
                 </button>
               </div>
@@ -602,7 +615,7 @@ const APUAvanzado: React.FC = () => {
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.estribos')}</label><select value={acero.estribos} onChange={e => setAcero((d: AceroParams) => ({ ...d, estribos: e.target.value as AceroParams['estribos'] }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="estribos">{t('apu.estribo_estribos')}</option><option value="espiral">{t('apu.estribo_espiral')}</option><option value="malla">{t('apu.estribo_malla')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.volumen_m3_acero')}</label><input type="number" inputMode="decimal" value={acero.volumenM3} onChange={e => setAcero((d: AceroParams) => ({ ...d, volumenM3: Math.max(0.1, parseFloat(e.target.value) || 1) }))} min={0.1} step={0.1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
               <div className="sm:col-span-2 md:col-span-3">
-                <button onClick={handleCalcularAcero} disabled={calculandoAcero} aria-label={calculandoAcero ? t('apu.calculando_acero') : t('apu.calcular_acero_aria')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoAcero ? t('apu.calculando') : t('apu.calcular_acero')}</button>
+                <button onClick={handleCalcularAcero} disabled={calculandoAcero} aria-label={calculandoAcero ? t('apu.calculando_acero') : t('apu.calcular_acero_aria')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoAcero ? t('apu.calculando') : t('apu.calcular_acero')}</button>
               </div>
             </div>
             {resultadoAcero && (
@@ -624,7 +637,7 @@ const APUAvanzado: React.FC = () => {
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.mov_acceso')}</label><select value={movimientoTierra.acceso} onChange={e => setMovimientoTierra(d => ({ ...d, acceso: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="retroexcavadora">{t('apu.mov_retroexcavadora')}</option><option value="cargador">{t('apu.mov_cargador_frontal')}</option><option value="manual">{t('apu.mov_manual')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.mov_drenaje')}</label><select value={movimientoTierra.drenaje} onChange={e => setMovimientoTierra(d => ({ ...d, drenaje: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="seco">{t('apu.mov_seco')}</option><option value="agua">{t('apu.mov_con_agua')}</option><option value="lodos">{t('apu.mov_con_lodos')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.volumen_m3')}</label><input type="number" inputMode="decimal" value={movimientoTierra.volumen} onChange={e => setMovimientoTierra(d => ({ ...d, volumen: Math.max(0.1, parseFloat(e.target.value) || 1) }))} min={0.1} step={0.1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
-              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularMovimientoTierra} disabled={calculandoMovimientoTierra} aria-label={calculandoMovimientoTierra ? t('apu.calculando_mov_tierra') : t('apu.calcular_mov_tierra')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoMovimientoTierra ? t('apu.calculando') : t('apu.calcular_movimiento_tierra')}</button></div>
+              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularMovimientoTierra} disabled={calculandoMovimientoTierra} aria-label={calculandoMovimientoTierra ? t('apu.calculando_mov_tierra') : t('apu.calcular_mov_tierra')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoMovimientoTierra ? t('apu.calculando') : t('apu.calcular_movimiento_tierra')}</button></div>
             </div>
             {resultadoMovimientoTierra && (
               <div className="mt-4 space-y-3">
@@ -642,7 +655,7 @@ const APUAvanzado: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.departamento_label')}</label><select value={parametrosClimaticos.departamentoCodigo} onChange={e => setParametrosClimaticos((d: ParametrosClimaticos) => ({ ...d, departamentoCodigo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">{t('apu.seleccione_departamento')}</option>{departamentos.map(dep => (<option key={dep.codigo} value={dep.codigo}>{dep.nombre}</option>))}</select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.mes_opcional')}</label><select value={parametrosClimaticos.mes || ''} onChange={e => setParametrosClimaticos((d: ParametrosClimaticos) => ({ ...d, mes: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="">{t('apu.sin_estacionalidad')}</option><option value="enero">{t('apu.mes_enero')}</option><option value="febrero">{t('apu.mes_febrero')}</option><option value="marzo">{t('apu.mes_marzo')}</option><option value="abril">{t('apu.mes_abril')}</option><option value="mayo">{t('apu.mes_mayo')}</option><option value="junio">{t('apu.mes_junio')}</option><option value="julio">{t('apu.mes_julio')}</option><option value="agosto">{t('apu.mes_agosto')}</option><option value="septiembre">{t('apu.mes_septiembre')}</option><option value="octubre">{t('apu.mes_octubre')}</option><option value="noviembre">{t('apu.mes_noviembre')}</option><option value="diciembre">{t('apu.mes_diciembre')}</option></select></div>
-              <div className="sm:col-span-2"><button onClick={handleCalcularParametrosClimaticos} disabled={calculandoClimaticos} aria-label={calculandoClimaticos ? t('apu.calculando_climaticos') : t('apu.calcular_climaticos')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoClimaticos ? t('apu.calculando') : t('apu.calcular_climaticos')}</button></div>
+              <div className="sm:col-span-2"><button onClick={handleCalcularParametrosClimaticos} disabled={calculandoClimaticos} aria-label={calculandoClimaticos ? t('apu.calculando_climaticos') : t('apu.calcular_climaticos')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoClimaticos ? t('apu.calculando') : t('apu.calcular_climaticos')}</button></div>
             </div>
             {resultadoClimaticos && (
               <div className="mt-4 space-y-3">
@@ -662,7 +675,7 @@ const APUAvanzado: React.FC = () => {
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.pav_tipo_base')}</label><select value={pavimento.tipoBase} onChange={e => setPavimento(d => ({ ...d, tipoBase: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="c4">C4</option><option value="piedra_picada">{t('apu.pav_piedra_picada')}</option><option value="grava">{t('apu.pav_grava')}</option><option value="arena">{t('apu.pav_arena_base')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.pav_tipo_sello')}</label><select value={pavimento.tipoSello} onChange={e => setPavimento(d => ({ ...d, tipoSello: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="arena">{t('apu.pav_arena_sello')}</option><option value="cemento">{t('apu.pav_cemento_sello')}</option><option value="ninguno">{t('apu.pav_ninguno')}</option><option value="asfalto">{t('apu.pav_asfalto')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.area_m2')}</label><input type="number" inputMode="decimal" value={pavimento.areaM2} onChange={e => setPavimento(d => ({ ...d, areaM2: Math.max(1, parseFloat(e.target.value) || 1) }))} min={1} step={1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
-              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularPavimento} disabled={calculandoPavimento} aria-label={calculandoPavimento ? t('apu.calculando_pavimento') : t('apu.calcular_pavimento')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoPavimento ? t('apu.calculando') : t('apu.calcular_pavimento')}</button></div>
+              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularPavimento} disabled={calculandoPavimento} aria-label={calculandoPavimento ? t('apu.calculando_pavimento') : t('apu.calcular_pavimento')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoPavimento ? t('apu.calculando') : t('apu.calcular_pavimento')}</button></div>
             </div>
             {resultadoPavimento && (
               <div className="mt-4 space-y-3">
@@ -683,7 +696,7 @@ const APUAvanzado: React.FC = () => {
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.redes_material')}</label><select value={redInfraestructura.material} onChange={e => setRedInfraestructura(d => ({ ...d, material: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="pvc">PVC</option><option value="cpvc">CPVC</option><option value="cobre">{t('apu.redes_cobre')}</option><option value="hdpe">HDPE</option><option value="concreto">{t('apu.redes_concreto')}</option><option value="fierro_fundido">{t('apu.redes_fierro_fundido')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.redes_presion')}</label><select value={redInfraestructura.presion} onChange={e => setRedInfraestructura(d => ({ ...d, presion: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="baja">{t('apu.redes_baja')}</option><option value="media">{t('apu.redes_media')}</option><option value="alta">{t('apu.redes_alta')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.redes_longitud')}</label><input type="number" inputMode="decimal" value={redInfraestructura.longitudMl} onChange={e => setRedInfraestructura(d => ({ ...d, longitudMl: Math.max(1, parseFloat(e.target.value) || 1) }))} min={1} step={1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
-              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularRedInfraestructura} disabled={calculandoRedInfraestructura} aria-label={calculandoRedInfraestructura ? t('apu.calculando_redes') : t('apu.calcular_redes')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoRedInfraestructura ? t('apu.calculando') : t('apu.calcular_red_infraestructura')}</button></div>
+              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularRedInfraestructura} disabled={calculandoRedInfraestructura} aria-label={calculandoRedInfraestructura ? t('apu.calculando_redes') : t('apu.calcular_redes')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoRedInfraestructura ? t('apu.calculando') : t('apu.calcular_red_infraestructura')}</button></div>
             </div>
             {resultadoRedInfraestructura && (
               <div className="mt-4 space-y-3">
@@ -704,7 +717,7 @@ const APUAvanzado: React.FC = () => {
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.muros_tipo_suelo')}</label><select value={muroContencion.tipoSuelo} onChange={e => setMuroContencion(d => ({ ...d, tipoSuelo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="arcilla">{t('apu.muros_arcilla')}</option><option value="arena">{t('apu.muros_arena')}</option><option value="roca">{t('apu.muros_roca')}</option><option value="relleno_compactado">{t('apu.muros_relleno_compactado')}</option><option value="granular">{t('apu.muros_granular')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.muros_drenaje')}</label><select value={muroContencion.tipoDrenaje} onChange={e => setMuroContencion(d => ({ ...d, tipoDrenaje: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="sin_drenaje">{t('apu.muros_sin_drenaje')}</option><option value="drenaje_superficial">{t('apu.muros_drenaje_superficial')}</option><option value="drenaje_interno">{t('apu.muros_drenaje_interno')}</option><option value="drenaje_completo">{t('apu.muros_drenaje_completo')}</option></select></div>
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.muros_longitud')}</label><input type="number" inputMode="decimal" value={muroContencion.longitudM} onChange={e => setMuroContencion(d => ({ ...d, longitudM: Math.max(1, parseFloat(e.target.value) || 1) }))} min={1} step={1} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>
-              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularMuroContencion} disabled={calculandoMuroContencion} aria-label={calculandoMuroContencion ? t('apu.calculando_muros') : t('apu.calcular_muros')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoMuroContencion ? t('apu.calculando') : t('apu.calcular_muro_contencion')}</button></div>
+              <div className="sm:col-span-2 md:col-span-3"><button onClick={handleCalcularMuroContencion} disabled={calculandoMuroContencion} aria-label={calculandoMuroContencion ? t('apu.calculando_muros') : t('apu.calcular_muros')} className="w-full flex items-center justify-center gap-2 text-xs px-4 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"><Calculator className="w-4 h-4" />{calculandoMuroContencion ? t('apu.calculando') : t('apu.calcular_muro_contencion')}</button></div>
             </div>
             {resultadoMuroContencion && (
               <div className="mt-4 space-y-3">

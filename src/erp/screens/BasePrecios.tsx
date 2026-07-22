@@ -316,7 +316,7 @@ const BasePrecios: React.FC = () => {
       </div>
 
       {showConvertir && (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-4">
+        <div className="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl p-4 mb-4">
           <h3 className="font-bold text-muted-foreground text-sm mb-3">{t('baseprecios.conversor')}</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
             <div>
@@ -348,27 +348,27 @@ const BasePrecios: React.FC = () => {
       )}
 
       {showAgregar && (
-        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mb-4">
+        <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 rounded-2xl p-4 mb-4">
           <h3 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('baseprecios.nuevo_insumo')}>{t('baseprecios.nuevo_insumo')}</h3>
 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
              <div>
                 <label htmlFor="baseprecios-nombre" className="text-xs text-muted-foreground mb-1 block">{t('baseprecios.nombre_placeholder', 'Nombre')}</label>
-                <input id="baseprecios-nombre" value={nuevoNombre} onChange={e => { setNuevoNombre(e.target.value); setFormErrors(prev => ({ ...prev, nombre: '' })); }} placeholder={t('baseprecios.nombre_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-emerald-400 w-full" />
+                <input id="baseprecios-nombre" value={nuevoNombre} onChange={e => { setNuevoNombre(e.target.value); setFormErrors(prev => ({ ...prev, nombre: '' })); }} placeholder={t('baseprecios.nombre_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-ring w-full" />
                 {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
               </div>
               <div>
                 <label htmlFor="baseprecios-precio" className="text-xs text-muted-foreground mb-1 block">{t('baseprecios.precio_placeholder', 'Precio')}</label>
-                <input id="baseprecios-precio" type="number" inputMode="decimal" value={nuevoPrecio || ''} onChange={e => { setNuevoPrecio(+e.target.value); setFormErrors(prev => ({ ...prev, precio: '' })); }} placeholder={t('baseprecios.precio_placeholder')} min={0} step={0.01} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-emerald-400 w-full" />
+                <input id="baseprecios-precio" type="number" inputMode="decimal" value={nuevoPrecio || ''} onChange={e => { setNuevoPrecio(+e.target.value); setFormErrors(prev => ({ ...prev, precio: '' })); }} placeholder={t('baseprecios.precio_placeholder')} min={0} step={0.01} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-ring w-full" />
                 {formErrors.precio && <p className="text-xs text-red-500 mt-0.5">{formErrors.precio}</p>}
               </div>
               <div>
                 <label htmlFor="baseprecios-unidad" className="text-xs text-muted-foreground mb-1 block">{t('baseprecios.unidad_placeholder', 'Unidad')}</label>
-                <input id="baseprecios-unidad" value={nuevoUnidad} onChange={e => { setNuevoUnidad(e.target.value); setFormErrors(prev => ({ ...prev, unidad: '' })); }} placeholder={t('baseprecios.unidad_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-emerald-400 w-full" />
+                <input id="baseprecios-unidad" value={nuevoUnidad} onChange={e => { setNuevoUnidad(e.target.value); setFormErrors(prev => ({ ...prev, unidad: '' })); }} placeholder={t('baseprecios.unidad_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-ring w-full" />
                 {formErrors.unidad && <p className="text-xs text-red-500 mt-0.5">{formErrors.unidad}</p>}
               </div>
               <div>
                 <label htmlFor="baseprecios-rubro" className="text-xs text-muted-foreground mb-1 block">{t('baseprecios.rubro_placeholder', 'Rubro')}</label>
-                <input id="baseprecios-rubro" value={nuevoRubro} onChange={e => { setNuevoRubro(e.target.value); setFormErrors(prev => ({ ...prev, rubro: '' })); }} placeholder={t('baseprecios.rubro_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-emerald-400 w-full" />
+                <input id="baseprecios-rubro" value={nuevoRubro} onChange={e => { setNuevoRubro(e.target.value); setFormErrors(prev => ({ ...prev, rubro: '' })); }} placeholder={t('baseprecios.rubro_placeholder')} className="text-xs px-2 py-1.5 rounded-lg border border-border outline-none focus:border-ring w-full" />
                 {formErrors.rubro && <p className="text-xs text-red-500 mt-0.5">{formErrors.rubro}</p>}
               </div>
             </div>

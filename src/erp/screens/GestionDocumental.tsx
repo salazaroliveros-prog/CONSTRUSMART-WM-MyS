@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { toast } from 'sonner';
@@ -9,6 +9,7 @@ import { todayISO } from '../utils';
 import { z } from 'zod';
 import type { Plano, RFI, Submittal } from '../types';
 import { uploadDocument, validateDocumentFile } from '@/lib/upload-document';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const planoSchema = z.object({
   nombre: z.string().min(1, 'Nombre del plano requerido').max(200, 'Máximo 200 caracteres'),
@@ -32,6 +33,8 @@ const submittalSchema = z.object({
 type TabDoc = 'planos' | 'rfis' | 'submittals';
 
 const GestionDocumental: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { proyectos, user, planos, addPlano, updatePlano, deletePlano, rfis, addRfi, updateRfi, deleteRfi, submittals, addSubmittal, updateSubmittal, deleteSubmittal, currentProjectId, setCurrentProjectId } = useErp();
   const [tab, setTab] = useState<TabDoc>('planos');
@@ -273,6 +276,16 @@ const GestionDocumental: React.FC = () => {
     { value: 'otra', label: t('gestion_documental.disciplina_otra', 'Otra') },
   ];
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -328,7 +341,7 @@ const GestionDocumental: React.FC = () => {
             <h2 className="font-bold text-foreground text-sm flex items-center gap-1.5">
               <FileText className="w-4 h-4 text-info" /> {t('gestion_documental.planos_titulo', 'Planos por Disciplina')}
             </h2>
-            <button onClick={() => { setShowPlanoForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-info text-info-foreground rounded-lg text-xs font-medium hover:bg-info/90" aria-label={t('gestion_documental.subir_plano', 'Subir Plano')}>
+            <button onClick={() => { setShowPlanoForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90" aria-label={t('gestion_documental.subir_plano', 'Subir Plano')}>
               <Upload className="w-3.5 h-3.5" aria-hidden="true" /> {t('gestion_documental.subir_plano', 'Subir Plano')}
             </button>
           </div>
@@ -431,7 +444,7 @@ const GestionDocumental: React.FC = () => {
                       )}
                     </div>
                     <div className="flex gap-1 shrink-0 flex-col sm:min-w-[44px]">
-                      <button onClick={() => addVersionPlano(p.id)} className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600" aria-label={t('gestion_documental.nueva_version', 'Nueva versión')} title={t('gestion_documental.nueva_version', 'Nueva versión')}>+v</button>
+                      <button onClick={() => addVersionPlano(p.id)} className="px-2 py-1 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/90" aria-label={t('gestion_documental.nueva_version', 'Nueva versión')} title={t('gestion_documental.nueva_version', 'Nueva versión')}>+v</button>
                       <button onClick={() => togglePlanoEstado(p.id)} className={`px-2 py-1 rounded text-xs ${p.estado === 'vigente' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}>
                         {p.estado === 'vigente' ? t('gestion_documental.obsoleto', 'Obsoleto') : t('gestion_documental.activar', 'Activar')}
                       </button>
@@ -553,10 +566,10 @@ const GestionDocumental: React.FC = () => {
                     </div>
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {r.estado === 'abierto' && (
-                        <button onClick={() => { const resp = prompt(t('gestion_documental.escribe_respuesta', 'Escribe la respuesta:')); if (resp) actualizarRFI(r.id, 'en_respuesta', resp); }} className="px-2 py-1 bg-amber-500 text-white rounded text-xs hover:bg-amber-600">{t('gestion_documental.responder', 'Responder')}</button>
+                        <button onClick={() => { const resp = prompt(t('gestion_documental.escribe_respuesta', 'Escribe la respuesta:')); if (resp) actualizarRFI(r.id, 'en_respuesta', resp); }} className="px-2 py-1 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/90">{t('gestion_documental.responder', 'Responder')}</button>
                       )}
                       {r.estado === 'en_respuesta' && (
-                        <button onClick={() => actualizarRFI(r.id, 'cerrado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-xs hover:bg-emerald-600">{t('gestion_documental.cerrar', 'Cerrar')}</button>
+                        <button onClick={() => actualizarRFI(r.id, 'cerrado')} className="px-2 py-1 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/90">{t('gestion_documental.cerrar', 'Cerrar')}</button>
                       )}
                       <button onClick={async () => { try { await confirmAction({ title: t('gestion_documental.confirmar_eliminar_rfi', 'Confirmar eliminación'), content: t('gestion_documental.confirmar_eliminar_rfi_msg', '¿Eliminar este RFI?'), centered: true, okText: t('gestion_documental.si_eliminar', 'Sí, eliminar'), cancelText: t('common.cancelar', 'Cancelar') }); } catch { return; } deleteRfi(r.id); toast.success('RFI eliminado'); }} className="self-end p-1.5 rounded text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 mt-1" aria-label={t('gestion_documental.eliminar_rfi', 'Eliminar RFI')}>
                         <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
@@ -576,7 +589,7 @@ const GestionDocumental: React.FC = () => {
             <h2 className="font-bold text-foreground text-sm flex items-center gap-1.5">
               <Package className="w-4 h-4 text-purple-500" /> {t('gestion_documental.submittals_titulo', 'Submittals')}
             </h2>
-            <button onClick={() => { setShowSubForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-medium hover:bg-purple-600">
+            <button onClick={() => { setShowSubForm(true); resetGdErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90">
               <Plus className="w-3.5 h-3.5" /> {t('gestion_documental.nuevo_submittal', 'Nuevo Submittal')}
             </button>
           </div>
@@ -681,9 +694,9 @@ const GestionDocumental: React.FC = () => {
                     <div className="flex gap-1 shrink-0 ml-2 flex-col">
                       {s.estado === 'pendiente' && (
                         <>
-                          <button onClick={() => actualizarSubmittal(s.id, 'aprobado')} className="px-2 py-1 bg-emerald-500 text-white rounded text-xs hover:bg-emerald-600">{t('gestion_documental.aprobar', 'Aprobar')}</button>
-                          <button onClick={() => { const c = prompt(t('gestion_documental.comentarios_prompt', 'Comentarios:')); if (c) actualizarSubmittal(s.id, 'con_comentarios'); }} className="px-2 py-1 bg-amber-500 text-white rounded text-xs hover:bg-amber-600">{t('gestion_documental.comentar', 'Comentar')}</button>
-                          <button onClick={() => actualizarSubmittal(s.id, 'rechazado')} className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">{t('gestion_documental.rechazar', 'Rechazar')}</button>
+                          <button onClick={() => actualizarSubmittal(s.id, 'aprobado')} className="px-2 py-1 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/90">{t('gestion_documental.aprobar', 'Aprobar')}</button>
+                          <button onClick={() => { const c = prompt(t('gestion_documental.comentarios_prompt', 'Comentarios:')); if (c) actualizarSubmittal(s.id, 'con_comentarios'); }} className="px-2 py-1 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/90">{t('gestion_documental.comentar', 'Comentar')}</button>
+                          <button onClick={() => actualizarSubmittal(s.id, 'rechazado')} className="px-2 py-1 bg-destructive text-destructive-foreground rounded text-xs hover:bg-destructive/90">{t('gestion_documental.rechazar', 'Rechazar')}</button>
                         </>
                       )}
                       <button onClick={async () => { try { await confirmAction({ title: t('gestion_documental.confirmar_eliminar_submittal', 'Confirmar eliminación'), content: t('gestion_documental.confirmar_eliminar_submittal_msg', '¿Eliminar este submittal?'), centered: true, okText: t('gestion_documental.si_eliminar', 'Sí, eliminar'), cancelText: t('common.cancelar', 'Cancelar') }); } catch { return; } deleteSubmittal(s.id); toast.success('Submittal eliminado'); }} className="self-end p-1.5 rounded text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 mt-1" aria-label={t('gestion_documental.eliminar_submittal', 'Eliminar submittal')}>

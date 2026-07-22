@@ -4,6 +4,7 @@ import { useErp } from '../store';
 import ProyectoFilter from '../components/ProyectoFilter';
 import { Search, Check, Trash2, Download, Eraser, Eye, AlertCircle, CheckCircle, AlertTriangle, Database } from 'lucide-react';
 import type { ErrorLogEntry } from '../store/schemas/errorLog';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const SEVERITY_COLORS: Record<string, string> = {
   critical: 'text-red-600 bg-red-100 dark:bg-red-900/30 border-red-200 dark:border-red-800',
@@ -34,6 +35,8 @@ function fmtDate(iso?: string): string {
 type SortDir = 'ascend' | 'descend' | null;
 
 export default function ErrorLog() {
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { errorLogs, resolveError, deleteError, cleanupOldErrors, proyectos, user } = useErp();
   const [search, setSearch] = React.useState('');
@@ -198,6 +201,16 @@ export default function ErrorLog() {
 
   const thClass = (key: string) =>
     `px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors`;
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 max-w-[1600px] mx-auto space-y-4">

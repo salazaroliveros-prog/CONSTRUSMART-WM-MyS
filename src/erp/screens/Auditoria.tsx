@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import type { LogAuditoria } from '../store';
 import { Search, Download, Eye, History } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function fmtDate(iso?: string): string {
   if (!iso) return '';
@@ -44,6 +45,8 @@ function getAccionBadgeClass(acc: string): string {
 }
 
 export default function Auditoria() {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { auditLog, proyectos } = useErp();
 
@@ -168,6 +171,16 @@ export default function Auditoria() {
     { key: 'entidadId', label: t('auditoria.columna_id'), sortable: true, className: 'w-[120px]' },
     { key: 'actions', label: t('auditoria.columna_detalles'), sortable: false, className: 'w-[100px]' },
   ];
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 max-w-[1600px] mx-auto space-y-4">

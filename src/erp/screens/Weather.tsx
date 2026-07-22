@@ -25,9 +25,12 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { ProyectoWeather, ConstructionMetrics, SchedulingWindow, WeatherImpact, WeatherHistoryItem } from '../store/schemas/weather';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Weather: React.FC = () => {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { 
     proyectos, 
     currentProjectId, 
@@ -371,6 +374,16 @@ const Weather: React.FC = () => {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -543,7 +556,7 @@ const Weather: React.FC = () => {
                   <span className="text-sm">{t('weather.auto_refresh', 'Actualización automática')}</span>
                   <button
                     onClick={() => setAutoRefresh(!autoRefresh)}
-                    className={`p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 ${autoRefresh ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}
+                    className={`p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0 ${autoRefresh ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'}`}
                     aria-label={autoRefresh ? 'Disable auto refresh' : 'Enable auto refresh'}
                   >
                     {autoRefresh ? <Bell className="w-4 h-4" aria-hidden="true" /> : <BellOff className="w-4 h-4" aria-hidden="true" />}
@@ -554,7 +567,7 @@ const Weather: React.FC = () => {
                   <select
                     value={alertThreshold}
                     onChange={(e) => setAlertThreshold(e.target.value as unknown)}
-                    className="text-xs px-2 py-1 rounded border border-border bg-card focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="text-xs px-2 py-1 rounded border border-border bg-card focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0"
                     aria-label="Alert threshold"
                   >
                     <option value="low">{t('weather.level.low', 'Bajo')}</option>
@@ -573,7 +586,7 @@ const Weather: React.FC = () => {
                 <h3 className={`${CARD_TITLE} truncate`} title={t('weather.construction_metrics', 'Métricas de Construcción')}>{t('weather.construction_metrics', 'Métricas de Construcción')}</h3>
                 <button
                   onClick={() => setShowConstruction(!showConstruction)}
-                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0"
                   aria-label="Toggle construction metrics"
                 >
                   {showConstruction ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
@@ -673,7 +686,7 @@ const Weather: React.FC = () => {
                 <h3 className={`${CARD_TITLE} truncate`} title={t('weather.history_chart', 'Historial Climático')}>{t('weather.history_chart', 'Historial Climático')}</h3>
                 <button
                   onClick={() => setShowHistory(!showHistory)}
-                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0"
                   aria-label="Toggle history chart"
                 >
                   {showHistory ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
@@ -689,7 +702,7 @@ const Weather: React.FC = () => {
                 <h3 className={`${CARD_TITLE} truncate`} title={t('weather.scheduling_windows', 'Ventanas de Programación')}>{t('weather.scheduling_windows', 'Ventanas de Programación')}</h3>
                 <button
                   onClick={() => setShowScheduling(!showScheduling)}
-                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0"
                   aria-label="Toggle scheduling windows"
                 >
                   {showScheduling ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
@@ -706,7 +719,7 @@ const Weather: React.FC = () => {
                       key={date}
                       tabIndex={0}
                       role="button"
-                      className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                      className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0 ${
                         window.suitable 
                           ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800' 
                           : 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800'
@@ -742,7 +755,7 @@ const Weather: React.FC = () => {
                 <h3 className={`${CARD_TITLE} truncate`} title={t('weather.forecast', 'Pronóstico')}>{t('weather.forecast', 'Pronóstico')}</h3>
                 <button
                   onClick={() => setShowDetails(!showDetails)}
-                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0"
                   aria-label="Toggle forecast details"
                 >
                   {showDetails ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}

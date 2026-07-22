@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { fmtQ } from '../utils';
@@ -7,10 +7,13 @@ import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
 import { INPUT, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../ui';
 import PaginationBar from '../components/PaginationBar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const PAGE_SIZE = 10;
 
 const EntradasAlmacenOC: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { ordenes, recepciones, addRecepcion, currentProjectId } = useErp();
   const [ocFilter, setOcFilter] = useState<'todas' | 'pendientes' | 'aprobadas'>('todas');
@@ -90,6 +93,16 @@ const EntradasAlmacenOC: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex justify-between items-center mb-6">
@@ -145,7 +158,7 @@ const EntradasAlmacenOC: React.FC = () => {
                   <td className="p-3 text-right">
                     {saldo > 0 ? (
                       <button onClick={() => { setShowForm(oc.id); setFormCantidad(saldo); setFormErrors({}); }} aria-label={t('entradasAlmacenOC.recibir_aria', { material: oc.material, proveedor: oc.proveedor })}
-                        className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs hover:bg-blue-700 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        className="bg-primary text-primary-foreground px-3 py-1.5 rounded text-xs hover:bg-primary/90 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         <Plus className="w-3 h-3 inline mr-1" aria-hidden="true" /> {t('entradasAlmacenOC.recibir')}
                       </button>
                     ) : (

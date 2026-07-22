@@ -9,6 +9,7 @@ import { confirmAction } from '@/lib/confirm-action';
 import { todayISO } from '../utils';
 import { canUserDelete } from '@/lib/security';
 import { calculateWeatherImpact } from '../services/weatherService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type RProb = Riesgo['probabilidad'];
 type RImp = Riesgo['impacto'];
@@ -25,6 +26,8 @@ const calcularNivel = (prob: number, imp: number): Riesgo['nivel'] => {
 
 const Riesgos: React.FC = () => {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { proyectos, currentProjectId, setCurrentProjectId, riesgos, addRiesgo, updateRiesgo, deleteRiesgo, addNotificacion, user, proyectoWeather } = useErp();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -175,6 +178,16 @@ const Riesgos: React.FC = () => {
     toast.success(t('riesgos.registrado', 'Riesgo registrado'));
   };
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex items-center justify-between mb-4">
@@ -185,7 +198,7 @@ const Riesgos: React.FC = () => {
           </h1>
           <p className="text-xs text-muted-foreground">{t('riesgos.descripcion', 'Identificación, evaluación y mitigación de riesgos del proyecto')}</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400">
+        <button onClick={() => setShowForm(true)} className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <Plus className="w-4 h-4" /> {t('riesgos.nuevo', 'Nuevo Riesgo')}
         </button>
       </div>
@@ -331,7 +344,7 @@ const Riesgos: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => agregarRiesgoClimatico(rc.factor, rc.recommendation)}
-                      className="text-[10px] px-2 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shrink-0"
+                      className="text-[10px] px-2 py-1 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 shrink-0"
                     >
                       + {t('riesgos.agregar', 'Agregar')}
                     </button>

@@ -28,7 +28,6 @@ export function useVisualSettings() {
     borderRadius: appSettings.borderRadius,
     spacingScale: appSettings.spacingScale,
     animationsEnabled: appSettings.animationsEnabled,
-    animationType: appSettings.animationType,
     breadcrumbsEnabled: appSettings.breadcrumbsEnabled,
     footerEnabled: appSettings.footerEnabled,
   }), [
@@ -41,7 +40,6 @@ export function useVisualSettings() {
     appSettings.borderRadius,
     appSettings.spacingScale,
     appSettings.animationsEnabled,
-    appSettings.animationType,
     appSettings.breadcrumbsEnabled,
     appSettings.footerEnabled,
   ]);

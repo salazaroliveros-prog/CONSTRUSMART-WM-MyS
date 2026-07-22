@@ -27,7 +27,7 @@ const licitacionFormSchema = (t: ReturnType<typeof useTranslation>['t']) => z.ob
 const ESTADOS = [
   { key: 'activa' as const, label: 'Activa', color: 'bg-blue-50 dark:bg-blue-950/20 border-blue-300 dark:border-blue-800', icon: Clock, textColor: 'text-blue-600 dark:text-blue-400' },
   { key: 'adjudicada' as const, label: 'Adjudicada', color: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800', icon: CheckCircle, textColor: 'text-emerald-600 dark:text-emerald-400' },
-  { key: 'perdida' as const, label: 'Perdida', color: 'bg-red-50 border-red-300', icon: Archive, textColor: COLOR_DANGER },
+  { key: 'perdida' as const, label: 'Perdida', color: 'bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-800', icon: Archive, textColor: COLOR_DANGER },
   { key: 'cerrada' as const, label: 'Cerrada', color: 'bg-muted border-slate-300 dark:border-slate-600', icon: Archive, textColor: 'text-muted-foreground' },
 ] as const;
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { confirmAction } from '@/lib/confirm-action';
 import { useErp } from '../store';
 import { safeLogger } from '@/lib/safeLogger';
@@ -18,6 +18,7 @@ import PlantillaAnalytics from '../components/PlantillaAnalytics';
 import PlantillasDashboard from '../components/PlantillasDashboard';
 import PlantillaEditorModal from '../components/PlantillaEditorModal';
 import PlantillaVersionDiff from '../components/PlantillaVersionDiff';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const plantillaFormSchema = z.object({
   nombre: z.string().min(1, 'Nombre requerido').max(200, 'Máximo 200 caracteres'),
@@ -45,12 +46,14 @@ interface VersionHistorialItem {
 
 const PlantillasProyectos: React.FC = () => {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const CATEGORIAS = [
-    { key: 'residencial' as const, label: t('plantillas.cat_residencial'), icon: Home, color: 'bg-blue-50 border-blue-300', textColor: 'text-blue-600' },
-    { key: 'comercial' as const, label: t('plantillas.cat_comercial'), icon: Building2, color: 'bg-emerald-50 border-emerald-300', textColor: 'text-emerald-600' },
-    { key: 'industrial' as const, label: t('plantillas.cat_industrial'), icon: Factory, color: 'bg-orange-50 border-orange-300', textColor: 'text-orange-600' },
-    { key: 'civil' as const, label: t('plantillas.cat_civil'), icon: Building, color: 'bg-purple-50 border-purple-300', textColor: 'text-blue-600' },
-    { key: 'publica' as const, label: t('plantillas.cat_publica'), icon: Landmark, color: 'bg-rose-50 border-rose-300', textColor: 'text-rose-600' },
+    { key: 'residencial' as const, label: t('plantillas.cat_residencial'), icon: Home, color: 'bg-blue-50 dark:bg-blue-950/20 border-blue-300 dark:border-blue-800', textColor: 'text-blue-600 dark:text-blue-400' },
+    { key: 'comercial' as const, label: t('plantillas.cat_comercial'), icon: Building2, color: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800', textColor: 'text-emerald-600 dark:text-emerald-400' },
+    { key: 'industrial' as const, label: t('plantillas.cat_industrial'), icon: Factory, color: 'bg-orange-50 dark:bg-orange-950/20 border-orange-300 dark:border-orange-800', textColor: 'text-orange-600 dark:text-orange-400' },
+    { key: 'civil' as const, label: t('plantillas.cat_civil'), icon: Building, color: 'bg-purple-50 dark:bg-purple-950/20 border-purple-300 dark:border-purple-800', textColor: 'text-blue-600 dark:text-blue-400' },
+    { key: 'publica' as const, label: t('plantillas.cat_publica'), icon: Landmark, color: 'bg-rose-50 dark:bg-rose-950/20 border-rose-300 dark:border-rose-800', textColor: 'text-rose-600 dark:text-rose-400' },
   ] as const;
   const { plantillas, proyectos, addPlantilla, updatePlantilla, deletePlantilla, clonarPlantilla, exportarPlantilla, importarPlantilla, crearProyectoDesdePlantilla, crearNuevaVersionPlantilla, restaurarVersionPlantilla, validarIntegridadPlantilla, toggleFavoritoPlantilla } = useErp();
   const [showForm, setShowForm] = useState(false);
@@ -398,6 +401,16 @@ const PlantillasProyectos: React.FC = () => {
     addPlantilla(nuevaPlantilla);
     toast.success(t('plantillas.creada_desde_proyecto'));
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-6">
