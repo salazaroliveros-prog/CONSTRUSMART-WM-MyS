@@ -270,7 +270,7 @@ const Riesgos: React.FC = () => {
                     <div key={`${prob}-${imp}`} className={`w-[44px] h-[44px] rounded relative ${colorMap[nivel]} flex items-center justify-center font-bold text-[10px]`}>
                       <span className="text-muted-foreground">{prob * imp}</span>
                       {riesgosEnCelda.length > 0 && (
-                        <div className="absolute -top-1 -right-1 bg-slate-800 text-white text-[8px] rounded-full w-4 h-4 flex items-center justify-center font-bold shadow">
+                        <div className="absolute -top-1 -right-1 bg-foreground text-background text-[8px] rounded-full w-4 h-4 flex items-center justify-center font-bold shadow">
                           {riesgosEnCelda.length}
                         </div>
                       )}

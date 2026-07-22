@@ -37,6 +37,10 @@ export default function VisorBIM() {
   const presupuestoActual = useMemo(() => presupuestos.find(p => p.proyectoId === currentProjectId), [presupuestos, currentProjectId]);
   const renglones = useMemo(() => presupuestoActual?.renglones || [], [presupuestoActual]);
 
+  const proyectoActual = useMemo(() => proyectos.find(p => p.id === currentProjectId), [proyectos, currentProjectId]);
+  const avanceBIM = proyectoActual ? Math.round(proyectoActual.avanceFisico ?? 0) : 0;
+  const avanceCampo = proyectoActual ? Math.round(proyectoActual.avanceFinanciero ?? 0) : 0;
+
   React.useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 400);
     return () => clearTimeout(timer);
@@ -153,9 +157,9 @@ export default function VisorBIM() {
             <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
               <Construction className="w-5 h-5" /> {t('visor_bim.elementos_modelo')}
             </h3>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-              <Label className="text-xs text-blue-800">{t('visor_bim.renglon_a_vincular')}</Label>
-              <select value={selRenglon} onChange={e => { setSelRenglon(e.target.value); setFormErrors(prev => ({ ...prev, renglon: '' })); }} className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${formErrors.renglon ? 'border-red-500 bg-red-50' : 'border-blue-200'}`}>
+            <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-3 mb-3">
+              <Label className="text-xs text-blue-800 dark:text-blue-300">{t('visor_bim.renglon_a_vincular')}</Label>
+              <select value={selRenglon} onChange={e => { setSelRenglon(e.target.value); setFormErrors(prev => ({ ...prev, renglon: '' })); }} className={`mt-1 w-full rounded-lg border px-3 py-2 text-sm ${formErrors.renglon ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : 'border-blue-200 dark:border-blue-900/50'}`}>
                 <option value="">{t('visor_bim.renglon_placeholder')}</option>
                 {renglones.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
               </select>
@@ -230,13 +234,13 @@ export default function VisorBIM() {
             <h3 className="font-bold text-foreground mb-3 truncate" title={t('visor_bim.avance_vs_campo')}>{t('visor_bim.avance_vs_campo')}</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">{t('visor_bim.comparativa')}</p>
             <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <p className="text-xs text-blue-600 font-bold">{t('visor_bim.modelado_bim')}</p>
-                <p className="text-2xl font-bold text-blue-700">78%</p>
+              <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                <p className="text-xs text-blue-600 dark:text-blue-400 font-bold">{t('visor_bim.modelado_bim')}</p>
+                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{avanceBIM}%</p>
               </div>
-              <div className="p-4 bg-emerald-50 rounded-lg">
-                <p className="text-xs text-emerald-600 font-bold">{t('visor_bim.campo_erp')}</p>
-                <p className="text-2xl font-bold text-emerald-700">72%</p>
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg">
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">{t('visor_bim.campo_erp')}</p>
+                <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{avanceCampo}%</p>
               </div>
             </div>
           </Card>

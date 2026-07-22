@@ -1,5 +1,4 @@
 import { safeLogger } from '@/lib/safeLogger';
-import { supabase } from '@/lib/supabase';
 import type {
   WeatherData, WeatherImpact, ConstructionMetrics, SchedulingWindow, WeatherHistoryItem
 } from '../store/schemas/weather';
@@ -553,63 +552,3 @@ export function getHistoricalWeatherImpact(weather: WeatherData, historicalDelay
   return { correlation, weatherDelayProbability, recommendations };
 }
 
-export async function saveWeatherToSupabase(
-  proyectoId: string,
-  weatherData: WeatherData,
-  impact: WeatherImpact,
-  constructionMetrics: ConstructionMetrics,
-  schedulingWindows: SchedulingWindow[],
-  history?: WeatherHistoryItem[]
-): Promise<void> {
-  try {
-    const { error } = await supabase
-      .from('erp_proyecto_weather')
-      .upsert({
-        proyecto_id: proyectoId,
-        weather_data: weatherData,
-        impact,
-        construction_metrics: constructionMetrics,
-        scheduling_windows: schedulingWindows,
-        history,
-        last_updated: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'proyecto_id'
-      });
-
-    if (error) {
-      safeLogger.error('[saveWeatherToSupabase] Error saving weather data:', error);
-      throw error;
-    }
-
-    safeLogger.log('[saveWeatherToSupabase] Weather data saved successfully for proyecto:', proyectoId);
-  } catch (error) {
-    safeLogger.error('[saveWeatherToSupabase] Error:', error);
-    throw error;
-  }
-}
-
-export async function loadWeatherFromSupabase(proyectoId: string): Promise<any | null> {
-  try {
-    const { data, error } = await supabase
-      .from('erp_proyecto_weather')
-      .select('*')
-      .eq('proyecto_id', proyectoId)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        safeLogger.log('[loadWeatherFromSupabase] No weather data found for proyecto:', proyectoId);
-        return null;
-      }
-      safeLogger.error('[loadWeatherFromSupabase] Error loading weather data:', error);
-      throw error;
-    }
-
-    safeLogger.log('[loadWeatherFromSupabase] Weather data loaded successfully for proyecto:', proyectoId);
-    return data;
-  } catch (error) {
-    safeLogger.error('[loadWeatherFromSupabase] Error:', error);
-    throw error;
-  }
-}

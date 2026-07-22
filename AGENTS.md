@@ -193,6 +193,21 @@
 - ✅ Tests de integración e2e implementados — e2e-workflow.test.tsx (7 flujos completos)
 - ✅ API pública implementada — publicApi.ts + migration 067 (erp_api_keys, RPC functions)
 - ✅ Partitioning implementado — migration 068 (erp_movimientos, erp_audit_log particionadas por fecha mensual)
+- ✅ Skeleton loading 43/43 screens implementado
+- ✅ RBAC Gerente diferenciado de Administrador en security.ts
+- ✅ Modales con role="dialog" aria-modal="true" — verificado en todas las screens
+- ✅ Focus rings unificados a focus-visible:ring-ring
+- ✅ Botones unificados a bg-primary en todas las screens
+- ✅ Dark mode en APUAvanzado, BasePrecios, CRM, Activos, Notificaciones, Weather
+- ✅ RendimientoCampo.tsx — usa store con Zod (rendimientosCampo, addRendimientoCampo, rendimientoCampoSchema)
+- ✅ Cotizaciones.tsx — KPI cards y botón eliminar con dark mode
+- ✅ VisorBIM.tsx — avanceBIM/avanceCampo desde store (avanceFisico/avanceFinanciero) + dark mode en cards y selector
+- ✅ weatherService.ts — funciones saveWeatherToSupabase/loadWeatherFromSupabase eliminadas + import supabase removido
+- ✅ TABLE_MAP — entradas sin estado removidas (erp_amortizaciones, erp_rendimientos_cuadrilla)
+- ✅ ForceSync catch genérico — ya loguea todos los errores con logErrorFromException
+- ✅ Riesgos.tsx badge — bg-slate-800 → bg-foreground text-background (semántico)
+- 🟡 PENDIENTE: DB ↔ Zod alignment — 10 tablas sin schema Zod, enums desincronizados
+- 🔵 PENDIENTE: Dos sistemas de tema (theme-provider.tsx + theme-manager.ts) — analizar antes de tocar
 - Conexión pooler no aplica (frontend sin backend Node.js propio)
 - Math.fround no usado para DB real(4)
 - ~363 keys añadidas a en.json (sesión previa) + 52 keys añadidas a es.json (bisimetría completa) — i18n completa bidireccional

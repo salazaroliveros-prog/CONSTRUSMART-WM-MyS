@@ -229,10 +229,10 @@ const Cotizaciones: React.FC = () => {
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
          {[
-           { label: t('cotizaciones.total'), value: kpis.total, color: 'bg-blue-50 text-blue-600' },
-           { label: t('cotizaciones.enviadas'), value: kpis.enviadas, color: 'bg-amber-50 text-amber-600' },
-           { label: t('cotizaciones.aprobadas'), value: kpis.aprobadas, color: 'bg-emerald-50 text-emerald-600' },
-           { label: t('cotizaciones.monto_aprobado'), value: fmtQ(kpis.montoAprobado), color: 'bg-purple-50 text-blue-600' },
+           { label: t('cotizaciones.total'), value: kpis.total, color: 'bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400' },
+           { label: t('cotizaciones.enviadas'), value: kpis.enviadas, color: 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400' },
+           { label: t('cotizaciones.aprobadas'), value: kpis.aprobadas, color: 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400' },
+           { label: t('cotizaciones.monto_aprobado'), value: fmtQ(kpis.montoAprobado), color: 'bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400' },
          ].map((kpi, i) => (
           <div key={i} className={`${kpi.color} rounded-xl p-3 border`}>
             <div className="text-xs font-medium opacity-70 mb-1">{kpi.label}</div>
@@ -293,7 +293,7 @@ const Cotizaciones: React.FC = () => {
                       <button onClick={() => duplicarCotizacion(c)} className="text-xs bg-muted text-foreground px-3 py-2 rounded hover:bg-muted/80 active:bg-muted/90 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all">
                         <Copy className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.duplicar')}
                       </button>
-                      <button onClick={() => handleDelete(c.id)} className="text-xs bg-red-50 text-red-600 px-3 py-2 rounded hover:bg-red-100 active:bg-red-200 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('cotizaciones.eliminar')}>
+                      <button onClick={() => handleDelete(c.id)} className="text-xs bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 px-3 py-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 active:bg-red-200 active:scale-95 flex items-center gap-1 min-h-[44px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={t('cotizaciones.eliminar')}>
                         <Trash2 className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </div>

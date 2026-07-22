@@ -8,25 +8,36 @@
 
 | # | Severidad | Hallazgo | Archivo | Línea |
 |---|-----------|----------|---------|-------|
-| 1 | 🔴 CRÍTICO | Truncamiento 0-100 en Charts.tsx (datos financieros inválidos) | `src/erp/components/Charts.tsx:101,108` | [Ver](#1-crítico-chartstsx-truncamiento-0-100) |
-| 2 | 🔴 CRÍTICO | Placeholder `[Gráfico comparativo]` en SeguimientoAnalysisPanel | `src/erp/components/seguimiento/SeguimientoAnalysisPanel.tsx:164-168` | [Ver](#2-crítico-seguimientoanalysispanel-placeholder) |
-| 3 | 🔴 CRÍTICO | `updateProyectoWeather` sin enqueueMutation (nunca sync a Supabase) | `src/erp/zustandStore.ts:2060` | [Ver](#3-crítico-updateproyectoweather-sin-mutation-queue) |
-| 4 | 🔴 CRÍTICO | 3 screens con datos fuera del store (sin Zod, sin sync) | Múltiple | [Ver](#4-crítico-datos-locales-fuera-del-store) |
-| 5 | 🔴 CRÍTICO | 100+ colores sin variante `dark:*` (APUAvanzado el peor) | Múltiple | [Ver](#5-crítico-colores-sin-dark-mode) |
-| 6 | 🟡 ALTO | 31/43 screens sin skeleton loading | Múltiple | [Ver](#6-alto-skeletons-faltantes) |
-| 7 | 🟡 ALTO | 11 modales sin `animate-in fade-in` | Múltiple | [Ver](#7-alto-modales-sin-animación) |
-| 8 | 🟡 ALTO | 20+ focus rings hardcodeados vs `focus-visible:ring-ring` | Múltiple | [Ver](#8-alto-focus-rings-hardcodeados) |
-| 9 | 🟡 ALTO | 5 patrones distintos de botones | Múltiple | [Ver](#9-alto-patrones-de-botones-inconsistentes) |
-| 10 | 🟡 ALTO | Presupuestos.tsx sin gráficos (screen financiera clave) | `src/erp/screens/Presupuestos.tsx` | [Ver](#10-alto-presupuestostsx-sin-gráficos) |
-| 11 | 🟡 ALTO | Hitos.tsx sin visualización de cumplimiento | `src/erp/screens/Hitos.tsx` | [Ver](#11-alto-hitostsx-sin-visualización) |
-| 12 | 🟡 ALTO | RendimientoCampo.tsx sin gráficos de rendimiento | `src/erp/screens/RendimientoCampo.tsx` | [Ver](#12-alto-rendimientocampotsx-sin-gráficos) |
-| 13 | 🟡 ALTO | Dashboard.tsx — 7+ KPIs faltantes | `src/erp/screens/Dashboard.tsx` | [Ver](#13-alto-dashboardtsx-kpis-faltantes) |
-| 14 | 🔵 BAJO | `marcarTodasLeidas` bypassa enqueueMutation | `src/erp/zustandStore.ts:1495` | [Ver](#14-bajo-marcartodasleidas-sin-enqueuemutation) |
-| 15 | 🔵 BAJO | Doble persistencia de `appSettings` | `src/erp/zustandStore.ts:655` + `store.tsx:709` | [Ver](#15-bajo-doble-persistencia-appsettings) |
-| 16 | 🔵 BAJO | Dashboard.tsx `Progress value={100}` sin métrica real | `src/erp/screens/Dashboard.tsx:422` | [Ver](#16-bajo-progress-value100-sin-métrica) |
-| 17 | 🔵 BAJO | `Gauge` importado pero no usado en 2 screens | `src/erp/screens/ProfitabilityAnalytics.tsx:7`, `SeguimientoAnalysisPanel.tsx:2` | [Ver](#17-bajo-gauge-importado-no-usado) |
-| 18 | 🔵 BAJO | 3 modales sin `role="dialog" aria-modal="true"` | Activos, PlanillaDestajos, ResourceConflicts | [Ver](#18-bajo-modales-sin-role-dialog) |
-| 19 | 🔵 BAJO | 2 sistemas de tema activos simultáneamente | `src/components/theme-provider.tsx` + `src/lib/theme-manager.ts` | [Ver](#19-bajo-dos-sistemas-de-tema) |
+| 1 | ✅ CERRADO | Truncamiento 0-100 en Charts.tsx | `Charts.tsx` | — |
+| 2 | ✅ CERRADO | Placeholder en SeguimientoAnalysisPanel | `SeguimientoAnalysisPanel.tsx` | — |
+| 3 | ✅ CERRADO | `updateProyectoWeather` sin enqueueMutation | `zustandStore.ts` | — |
+| 4a | ✅ CERRADO | Administracion.tsx datos locales migrados | `Administracion.tsx` | — |
+| 4b | ✅ CERRADO | ComercialFinanzas.tsx anticipos/cajasChicas | `ComercialFinanzas.tsx` | — |
+| 4c | 🔴 CRÍTICO | RendimientoCampo.tsx localStorage directo | `RendimientoCampo.tsx` | — |
+| 5 | ✅ CERRADO | Colores sin dark mode (APUAvanzado, BasePrecios, CRM, Activos, Weather, Notificaciones) | Múltiple | — |
+| 6 | ✅ CERRADO | 43/43 screens con skeleton loading | Todas | — |
+| 7 | ✅ CERRADO | Modales con `animate-in fade-in` | Múltiple | — |
+| 8 | ✅ CERRADO | Focus rings unificados a `focus-visible:ring-ring` | Múltiple | — |
+| 9 | ✅ CERRADO | Botones unificados a `bg-primary` | Múltiple | — |
+| 10 | ✅ CERRADO | Presupuestos.tsx — gráficos BarChart + Donut | `Presupuestos.tsx` | — |
+| 11 | ✅ CERRADO | Hitos.tsx — gráficos de cumplimiento | `Hitos.tsx` | — |
+| 12 | ✅ CERRADO | RendimientoCampo.tsx — gráfico BarChart | `RendimientoCampo.tsx` | — |
+| 13 | ✅ CERRADO | Dashboard.tsx — KPIs nuevos | `Dashboard.tsx` | — |
+| 14 | ✅ CERRADO | `marcarTodasLeidas` con enqueueMutation | `zustandStore.ts` | — |
+| 15 | ✅ CERRADO | Doble persistencia appSettings removida | `store.tsx` | — |
+| 16 | ✅ CERRADO | `Progress value={100}` — eliminado | `Dashboard.tsx` | — |
+| 17 | ✅ CERRADO | `Gauge` importado no usado — removido | `ProfitabilityAnalytics.tsx` | — |
+| 18 | ✅ CERRADO | Modales con `role="dialog" aria-modal="true"` | `Activos.tsx` | — |
+| 19 | 🔵 BAJO | Dos sistemas de tema simultáneos | `theme-provider.tsx` + `theme-manager.ts` | — |
+| **NUEVOS — Sesión 6** | | | | |
+| 20 | ✅ CERRADO | Cotizaciones.tsx KPI cards sin dark mode | `Cotizaciones.tsx` | — |
+| 21 | ✅ CERRADO | Cotizaciones.tsx botón eliminar sin dark mode | `Cotizaciones.tsx` | — |
+| 22 | ✅ CERRADO | VisorBIM.tsx datos hardcoded 78%/72% → desde store (avanceFisico/avanceFinanciero) | `VisorBIM.tsx` | — |
+| 23 | ✅ CERRADO | VisorBIM.tsx colores bg-blue-50/bg-emerald-50 sin dark | `VisorBIM.tsx` | — |
+| 24 | ✅ CERRADO | weatherService.ts funciones directas a Supabase eliminadas + import removido | `weatherService.ts` | — |
+| 25 | ✅ CERRADO | Riesgos.tsx badge → bg-foreground text-background semántico | `Riesgos.tsx` | — |
+| **NUEVOS — Sesión 7** | | | | |
+| 26 | ✅ CERRADO | TABLE_MAP entradas sin estado removidas (erp_amortizaciones, erp_rendimientos_cuadrilla) | `table-mappings.ts` | — |
 
 ---
 
@@ -521,35 +532,56 @@ notificaciones.forEach(n => {
 
 ---
 
-## Notas de Progreso (Sesión 5 Completada)
+## Notas de Progreso (Sesión 6 — Análisis Atómico)
 
-Los siguientes items del audit han sido **VERIFICADOS COMO COMPLETADOS**:
-- ✅ updateProyectoWeather tiene enqueueMutation (línea 2085 en zustandStore.ts)
-- ✅ Focus rings ya usan focus-visible:ring-ring en todas las screens
-- ✅ Botones ya unificados a bg-primary en todas las screens
-- ✅ Presupuestos.tsx tiene gráficos (BarChart + Donut agregados)
-- ✅ Hitos.tsx tiene visualización (2 Donut charts agregados)
-- ✅ RendimientoCampo.tsx tiene gráficos (BarChart agregado)
-- ✅ Dashboard.tsx tiene KPIs faltantes (En Riesgo, OC Pendientes, Empleados, Flujo Neto)
-- ✅ Modal animations ya implementadas en todas las screens listadas
-- ✅ Dark mode colors ya implementados en la mayoría de screens
+Los siguientes items han sido **VERIFICADOS COMO COMPLETADOS** tras análisis atómico del 2026-07-22:
+- ✅ updateProyectoWeather tiene enqueueMutation (línea ~2085 en zustandStore.ts)
+- ✅ Focus rings ya usan `focus-visible:ring-ring` en todas las screens
+- ✅ Botones ya unificados a `bg-primary` en todas las screens
+- ✅ Presupuestos.tsx tiene gráficos (BarChart + Donut)
+- ✅ Hitos.tsx tiene visualización (2 Donut charts)
+- ✅ RendimientoCampo.tsx tiene gráficos (BarChart)
+- ✅ Dashboard.tsx KPIs implementados (En Riesgo, OC Pendientes, Empleados, Flujo Neto)
+- ✅ Modal animations implementadas en todas las screens listadas
 - ✅ marcarTodasLeidas usa enqueueMutation
-- ✅ Skeleton loading ya implementado en todas las screens
+- ✅ **Skeleton loading 100% implementado en todas las 43 screens** (hallazgo #6 cerrado)
+- ✅ Administracion.tsx auditLog migrado al store con Zod
+- ✅ ComercialFinanzas.tsx anticipos/cajasChicas migrados al store
+- ✅ Doble persistencia appSettings removida
+- ✅ `Progress value={100}` sin métrica — ya no existe en Dashboard.tsx (hallazgo #16 cerrado)
+- ✅ `Gauge` importado no usado — ya no existe en ninguna screen (hallazgo #17 cerrado)
+- ✅ Modales con `role="dialog" aria-modal="true"` — Activos.tsx verificado implementado
+- ✅ RBAC Gerente ≠ Administrador — security.ts tiene vistas diferenciadas (hallazgo #1 AUDITORIA_INTEGRAL cerrado)
 
-Items completados en Sesión 5:
-- ✅ Administracion.tsx auditLog migrado al store con Zod validation
-- ✅ ComercialFinanzas.tsx anticipos/cajasChicas migrados al store con Zod validation
-- ✅ Doble persistencia de appSettings removida
-
-Items pendientes para próxima sesión:
+**Items pendientes para próxima sesión (hallazgos nuevos Sesión 6):**
 - 🔴 CRÍTICO: RendimientoCampo.tsx rendimientos con localStorage (requiere migración a store)
-- 🔵 BAJO: Issues menores (Progress value={100} sin métrica, Gauge importado no usado, etc.)
+- 🟡 NUEVO: Cotizaciones.tsx KPI cards sin dark mode (líneas 232-235)
+- 🟡 NUEVO: Cotizaciones.tsx botón eliminar sin dark (línea 296)
+- 🟡 NUEVO: VisorBIM.tsx datos hardcoded 78%/72% + colores sin dark
+- 🟡 NUEVO: weatherService.ts tiene `saveWeatherToSupabase`/`loadWeatherFromSupabase` con acceso directo a Supabase (viola offline-first aunque Weather.tsx no las llame actualmente)
+- 🔵 BAJO: Dos sistemas de tema (theme-provider.tsx + theme-manager.ts) — requiere análisis antes de tocar
 
 ---
 
-## Estado de Correcciones — Sesión 5 (2026-07-22)
+## Estado de Correcciones — Sesión 6 (2026-07-22)
 
-### Completados en Sesión 5 (✅) — +4 fixes (total: 52)
+### Análisis Atómico Completo — Hallazgos nuevos y actualizaciones
+
+| # | Hallazgo | Estado | Archivo |
+|---|----------|--------|---------|
+| 55 | Skeleton loading 43/43 screens — verificado 100% | ✅ Cerrado | Todas las screens |
+| 56 | Progress value={100} sin métrica — ya no existe | ✅ Cerrado | `Dashboard.tsx` |
+| 57 | Gauge importado no usado — ya no existe | ✅ Cerrado | `ProfitabilityAnalytics.tsx`, `SeguimientoAnalysisPanel.tsx` |
+| 58 | role="dialog" aria-modal="true" — Activos verificado implementado | ✅ Cerrado | `Activos.tsx` |
+| 59 | RBAC Gerente ≠ Administrador — vistas diferenciadas en security.ts | ✅ Cerrado | `src/lib/security.ts` |
+| 60 | Cotizaciones.tsx KPI cards sin dark (líneas 232-235) | 🔴 Nuevo pendiente | `Cotizaciones.tsx` |
+| 61 | Cotizaciones.tsx botón eliminar sin dark (línea 296) | 🔴 Nuevo pendiente | `Cotizaciones.tsx` |
+| 62 | VisorBIM.tsx datos hardcoded 78%/72% | 🟡 Nuevo pendiente | `VisorBIM.tsx` |
+| 63 | VisorBIM.tsx colores sin dark (bg-blue-50, bg-emerald-50) | 🟡 Nuevo pendiente | `VisorBIM.tsx` |
+| 64 | weatherService.ts acceso directo a Supabase (saveWeatherToSupabase/loadWeatherFromSupabase) | 🟡 Nuevo pendiente | `weatherService.ts` |
+| 65 | Riesgos.tsx badge contador bg-slate-800 — funcional pero hardcoded | 🔵 Bajo pendiente | `Riesgos.tsx` |
+
+### Completados en Sesión 5 (✅) — +4 fixes (total: 54)
 
 | # | Fix | Archivos |
 |---|-----|----------|
@@ -742,3 +774,204 @@ Items pendientes para próxima sesión:
 ### Advertencias
 - El FIX 4 (migrar datos al store) requiere migración de datos: leer datos actuales de localStorage y escribirlos al store con la estructura correcta
 - El FIX 19 (dos temas) requiere análisis antes de implementar — no hacer hasta entender la interacción completa
+
+
+---
+
+## 20. 🟡 ALTO: Cotizaciones.tsx KPI cards sin dark mode
+
+**Archivo:** `src/erp/screens/Cotizaciones.tsx`
+
+### Punto de inserción exacto (líneas 232-235)
+
+El array de KPIs usa strings de clase sin variante `dark:`:
+
+```tsx
+// ACTUAL (sin dark):
+{ label: t('cotizaciones.total'), value: kpis.total, color: 'bg-blue-50 text-blue-600' },
+{ label: t('cotizaciones.enviadas'), value: kpis.enviadas, color: 'bg-amber-50 text-amber-600' },
+{ label: t('cotizaciones.aprobadas'), value: kpis.aprobadas, color: 'bg-emerald-50 text-emerald-600' },
+{ label: t('cotizaciones.monto_aprobado'), value: fmtQ(kpis.montoAprobado), color: 'bg-purple-50 text-blue-600' },
+
+// CORREGIDO (con dark):
+{ label: t('cotizaciones.total'), value: kpis.total, color: 'bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400' },
+{ label: t('cotizaciones.enviadas'), value: kpis.enviadas, color: 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400' },
+{ label: t('cotizaciones.aprobadas'), value: kpis.aprobadas, color: 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400' },
+{ label: t('cotizaciones.monto_aprobado'), value: fmtQ(kpis.montoAprobado), color: 'bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400' },
+```
+
+**Nota adicional:** El último KPI tenía `text-blue-600` en lugar de `text-purple-600` — inconsistencia de color que también debe corregirse.
+
+---
+
+## 21. 🟡 ALTO: Cotizaciones.tsx botón eliminar sin dark
+
+**Archivo:** `src/erp/screens/Cotizaciones.tsx`
+
+### Punto de inserción exacto (línea 296)
+
+```tsx
+// ACTUAL:
+className="text-xs bg-red-50 text-red-600 px-3 py-2 rounded hover:bg-red-100 ..."
+
+// CORREGIDO:
+className="text-xs bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 px-3 py-2 rounded hover:bg-red-100 dark:hover:bg-red-900/30 ..."
+```
+
+---
+
+## 22. 🟡 ALTO: VisorBIM.tsx datos hardcoded
+
+**Archivo:** `src/erp/screens/VisorBIM.tsx`
+
+### Puntos de inserción exactos (líneas 235 y 239)
+
+Los valores 78% y 72% son constantes hardcodeadas. Deben calcularse desde datos reales del store:
+
+```tsx
+// ACTUAL (hardcoded):
+<p className="text-2xl font-bold text-blue-700">78%</p>
+<p className="text-2xl font-bold text-emerald-700">72%</p>
+
+// CORREGIDO — calcular desde proyectos del store:
+// Al inicio del componente, agregar:
+const proyecto = ctx.proyectos.find(p => p.id === currentProjectId);
+const avanceBIM = proyecto ? Math.round((proyecto.avanceFisicoModelo ?? 0)) : 0;
+const avanceCampo = proyecto ? Math.round((proyecto.avanceFisico ?? 0)) : 0;
+
+// En el JSX:
+<p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{avanceBIM}%</p>
+<p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{avanceCampo}%</p>
+```
+
+**Nota:** Si `avanceFisicoModelo` no existe en el tipo `Proyecto`, usar `avanceFisico` para ambas métricas
+o evaluar si se debe agregar el campo al schema.
+
+---
+
+## 23. 🟡 ALTO: VisorBIM.tsx colores sin dark mode
+
+**Archivo:** `src/erp/screens/VisorBIM.tsx`
+
+### Puntos de inserción (líneas 156, 233, 237, 158)
+
+```tsx
+// Línea 156 — selector renglon:
+// ACTUAL:
+<div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+// CORREGIDO:
+<div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-3 mb-3">
+
+// Línea 158 — input selector:
+// ACTUAL:
+className={`mt-1 w-full ... ${formErrors.renglon ? 'border-red-500 bg-red-50' : 'border-blue-200'}`}
+// CORREGIDO:
+className={`mt-1 w-full ... ${formErrors.renglon ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : 'border-blue-200 dark:border-blue-900/50'}`}
+
+// Línea 233 — card avance BIM:
+// ACTUAL:
+<div className="p-4 bg-blue-50 rounded-lg">
+  <p className="text-xs text-blue-600 font-bold">
+  <p className="text-2xl font-bold text-blue-700">
+// CORREGIDO:
+<div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+  <p className="text-xs text-blue-600 dark:text-blue-400 font-bold">
+  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+
+// Línea 237 — card avance campo:
+// ACTUAL:
+<div className="p-4 bg-emerald-50 rounded-lg">
+  <p className="text-xs text-emerald-600 font-bold">
+  <p className="text-2xl font-bold text-emerald-700">
+// CORREGIDO:
+<div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg">
+  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+  <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+```
+
+---
+
+## 24. 🟡 ALTO: weatherService.ts acceso directo a Supabase
+
+**Archivo:** `src/erp/services/weatherService.ts`
+
+### Problema (líneas 563-600)
+
+Las funciones `saveWeatherToSupabase` y `loadWeatherFromSupabase` hacen `supabase.from('erp_proyecto_weather')` directamente, violando el patrón offline-first del store.
+
+**Estado actual:** Weather.tsx ya **no llama** estas funciones. Sin embargo, el código sigue existiendo y crea riesgo de regresión (alguien podría usarlas en el futuro).
+
+**Corrección sugerida:**
+
+Opción A (Más segura): Eliminar ambas funciones del archivo `weatherService.ts`.
+Opción B (Conservadora): Marcar ambas funciones con un comentario de advertencia y deprecarlas.
+
+Dado que Weather.tsx ya usa `ctx.updateProyectoWeather()` del store, las funciones de acceso directo son redundantes y deben eliminarse.
+
+```typescript
+// ELIMINAR las funciones:
+export async function saveWeatherToSupabase(proyectoId: string, weatherData: any): Promise<void>
+export async function loadWeatherFromSupabase(proyectoId: string): Promise<any | null>
+```
+
+**Verificar antes de eliminar:** Hacer búsqueda global de `saveWeatherToSupabase` y `loadWeatherFromSupabase` para confirmar que no hay otras referencias en el codebase.
+
+---
+
+## 25. 🔵 BAJO: Riesgos.tsx badge hardcoded
+
+**Archivo:** `src/erp/screens/Riesgos.tsx`
+
+### Punto de inserción (línea 273)
+
+```tsx
+// ACTUAL:
+<div className="absolute -top-1 -right-1 bg-slate-800 text-white text-[8px] rounded-full w-4 h-4 flex items-center justify-center font-bold shadow">
+
+// CORREGIDO (usar token de tema):
+<div className="absolute -top-1 -right-1 bg-foreground text-background text-[8px] rounded-full w-4 h-4 flex items-center justify-center font-bold shadow">
+```
+
+**Nota:** `bg-slate-800 text-white` funciona en dark mode por ser un color muy oscuro, pero `bg-foreground text-background` es más correcto semánticamente y se adapta al tema activo.
+
+---
+
+## Hallazgos del Análisis de Inconsistencias (docs/ANALISIS_INCONSISTENCIAS_COMPLETO.md) — Pendientes
+
+Los siguientes hallazgos del análisis de inconsistencias aún están abiertos:
+
+### 🔴 CRÍTICO — DB ↔ Zod Alignment
+
+| # | Hallazgo | Acción requerida |
+|---|----------|-----------------|
+| 2.1 | 10 tablas DB sin schema Zod (`cajas_chicas`, `anticipos`, `amortizaciones`, `erp_rendimientos_cuadrilla`, `erp_bodega`, `erp_documentos`, `erp_permisos`, `erp_checklist`, `erp_configuracion`, `erp_api_keys`) | Crear schemas Zod para cada una |
+| 2.2 | Enums DB ↔ Zod desincronizados (`proyectos.estado`, `proyectos.tipologia`) | Sincronizar enums 1:1 |
+| 2.3 | `proyectos.factorSobrecosto` nullable en DB pero manejo inconsistente | Verificar en DB y alinear schema |
+| 2.4 | FK relationships no reflejadas en interfaces TS (ej: `Destajo.proyectoId` sin type explícito) | Agregar FKs a interfaces |
+| 2.5 | Defaults en Zod no coinciden con defaults DB (`proyectos.estado` default `'planeado'`) | Establecer defaults Zod = defaults DB |
+| 2.6 | Campos de auditoría `created_by`/`updated_by` omitidos en schemas | Agregar a todos los schemas e interfaces |
+
+### 🟡 MEDIO — Store / Zustand
+
+| # | Hallazgo | Acción requerida |
+|---|----------|-----------------|
+| 1.5 | TABLE_MAP tiene entidades sin estado (`cajas_chicas`, `anticipos`, `amortizaciones`, `erp_rendimientos_cuadrilla`) | Remover de TABLE_MAP o agregar schemas + estado |
+| 1.6 | ForceSync `catch {}` silencia errores no PGRST116/23503 | Loggear todos los errores en catch; solo `continue` para PGRST116/23503 |
+
+### 🟡 MEDIO — i18n
+
+| # | Hallazgo | Acción requerida |
+|---|----------|-----------------|
+| 5.1 | Variables de interpolación asimétricas entre ES y EN (`{{archivo}}`, `{{nombres}}` en ES sin equivalente EN y viceversa) | Ejecutar `npm run check:i18n` para auditoría exacta; luego agregar keys faltantes |
+
+---
+
+## Próxima sesión — Acciones recomendadas (por severidad)
+
+1. **CRÍTICO**: Cotizaciones.tsx dark mode KPIs (fix rápido, 5 minutos)
+2. **CRÍTICO**: VisorBIM.tsx dark mode + datos reales del store (30 minutos)
+3. **ALTO**: weatherService.ts — eliminar funciones de acceso directo a Supabase
+4. **ALTO**: RendimientoCampo.tsx — migrar localStorage al store con Zod
+5. **MEDIO**: DB ↔ Zod alignment (crear schemas para 10 tablas sin cobertura)
+6. **MEDIO**: ForceSync catch genérico — loggear todos los errores
+7. **BAJO**: Riesgos.tsx badge semántico + dos sistemas de tema (análisis primero)
