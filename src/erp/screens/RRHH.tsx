@@ -130,7 +130,7 @@ const RRHH: React.FC = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 flex-shrink-0">
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">
-            <Users className="w-4 h-4 text-primary" aria-hidden="true" />
+            <Users className="w-4 h-4 text-primary dark:text-primary" aria-hidden="true" />
             <span className="text-xs text-muted-foreground">{t('rrhh.totalEmployees')}</span>
           </div>
           <div className="text-2xl font-bold text-foreground">{empleadosFiltrados.length}</div>
@@ -140,7 +140,7 @@ const RRHH: React.FC = () => {
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs text-muted-foreground">{t('rrhh.totalPayroll')}</span>
           </div>
-          <div className="text-2xl font-bold text-primary">{fmtQ(totalPlanilla)}</div>
+          <div className="text-2xl font-bold text-primary dark:text-primary">{fmtQ(totalPlanilla)}</div>
         </div>
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">

@@ -82,21 +82,21 @@ const RendimientoCampo: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
-            <Users className="w-4 h-4 text-blue-500" aria-hidden="true" />
+            <Users className="w-4 h-4 text-blue-500 dark:text-blue-400" aria-hidden="true" />
             <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">{t(`${BASE}.cuadrillas`, 'Cuadrillas')}</p>
           </div>
           <p className="text-2xl font-bold text-foreground">{kpis.cuadrillasActivas}</p>
         </div>
         <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
-            <Timer className="w-4 h-4 text-amber-500" aria-hidden="true" />
+            <Timer className="w-4 h-4 text-amber-500 dark:text-amber-400" aria-hidden="true" />
             <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">{t(`${BASE}.hh`, 'Horas Hombre')}</p>
           </div>
           <p className="text-2xl font-bold text-foreground">{kpis.totalHoras}</p>
         </div>
         <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
-            <ClipboardList className="w-4 h-4 text-emerald-500" aria-hidden="true" />
+            <ClipboardList className="w-4 h-4 text-emerald-500 dark:text-emerald-400" aria-hidden="true" />
             <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">{t(`${BASE}.rendimiento_prom`, 'Rend. Prom.')}</p>
           </div>
           <p className="text-2xl font-bold text-foreground">{kpis.rendimientoProm} unid/hh</p>
@@ -150,7 +150,7 @@ const RendimientoCampo: React.FC = () => {
                       <td className="p-2 text-right font-mono text-emerald-600 dark:text-emerald-400 font-medium">{rend}</td>
                       <td className="p-2 text-right">
                         <button onClick={() => deleteRendimiento(r.id)} aria-label={t('common.eliminar')}
-                          className={`p-1.5 rounded hover:bg-accent text-red-500 ${FOCUS_VISIBLE}`}><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
+                          className={`p-1.5 rounded hover:bg-accent text-red-500 dark:text-red-400 ${FOCUS_VISIBLE}`}><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
                       </td>
                     </tr>
                   );

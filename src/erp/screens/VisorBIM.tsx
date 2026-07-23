@@ -163,14 +163,14 @@ export default function VisorBIM() {
                 <option value="">{t('visor_bim.renglon_placeholder')}</option>
                 {renglones.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
               </select>
-              {formErrors.renglon && <p className="text-xs text-red-500 mt-1">{formErrors.renglon}</p>}
+              {formErrors.renglon && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{formErrors.renglon}</p>}
             </div>
             <div className="space-y-2">
               {elementosModelo.map(el => (
                 <Card key={el.id} className="p-3 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium">{el.nombre}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{el.tipo}{t('visor_bim.separador')}{el.cantidad} {el.unidad}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-300">{el.tipo}{t('visor_bim.separador')}{el.cantidad} {el.unidad}</p>
                   </div>
                   <div className="flex gap-2">
                     {vinculaciones[el.id] ? (
@@ -222,7 +222,7 @@ export default function VisorBIM() {
                 </TableBody>
               </Table>
             ) : (<>
-              {formErrors.vincular && <p className="text-xs text-red-500 text-center py-2 bg-red-50 rounded-lg mb-2">{formErrors.vincular}</p>}
+              {formErrors.vincular && <p className="text-xs text-red-500 dark:text-red-400 text-center py-2 bg-red-50 rounded-lg mb-2">{formErrors.vincular}</p>}
             <p className="text-xs text-gray-400 dark:text-gray-300 text-center py-6">{t('visor_bim.cubicacion_vacia')}</p>
             </>)}
           </Card>
@@ -232,8 +232,8 @@ export default function VisorBIM() {
         <TabsContent value="avance" className="space-y-3">
           <Card className="p-4">
             <h3 className="font-bold text-foreground mb-3 truncate" title={t('visor_bim.avance_vs_campo')}>{t('visor_bim.avance_vs_campo')}</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{t('visor_bim.comparativa')}</p>
-            <div className="mt-4 grid grid-cols-2 gap-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-300">{t('visor_bim.comparativa')}</p>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                 <p className="text-xs text-blue-600 dark:text-blue-400 font-bold">{t('visor_bim.modelado_bim')}</p>
                 <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{avanceBIM}%</p>
@@ -250,4 +250,6 @@ export default function VisorBIM() {
     </div>
   );
 }
+
+
 

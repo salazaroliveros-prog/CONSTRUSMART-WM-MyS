@@ -8,12 +8,12 @@ import { formatDateFmt } from '../utils';
 import { Bell, Check, CheckCheck, AlertTriangle, ClipboardList, Package, TrendingDown, Activity } from 'lucide-react';
 
 const MAPA_ICONOS: Record<string, React.ReactNode> = {
-  checklist_rechazado: <AlertTriangle className="w-5 h-5 text-red-500" aria-hidden="true" />,
-  orden_cambio_pendiente: <ClipboardList className="w-5 h-5 text-amber-500" aria-hidden="true" />,
-  stock_critico: <Package className="w-5 h-5 text-amber-500" aria-hidden="true" />,
-  desviacion_rendimiento: <TrendingDown className="w-5 h-5 text-red-500" aria-hidden="true" />,
-  avance_registrado: <Activity className="w-5 h-5 text-emerald-500" aria-hidden="true" />,
-  general: <Bell className="w-5 h-5 text-blue-500" aria-hidden="true" />,
+  checklist_rechazado: <AlertTriangle className="w-5 h-5 text-red-500 dark:text-red-400" aria-hidden="true" />,
+  orden_cambio_pendiente: <ClipboardList className="w-5 h-5 text-amber-500 dark:text-amber-400" aria-hidden="true" />,
+  stock_critico: <Package className="w-5 h-5 text-amber-500 dark:text-amber-400" aria-hidden="true" />,
+  desviacion_rendimiento: <TrendingDown className="w-5 h-5 text-red-500 dark:text-red-400" aria-hidden="true" />,
+  avance_registrado: <Activity className="w-5 h-5 text-emerald-500 dark:text-emerald-400" aria-hidden="true" />,
+  general: <Bell className="w-5 h-5 text-blue-500 dark:text-blue-400" aria-hidden="true" />,
 };
 
 const MAPA_COLORES: Record<string, string> = {

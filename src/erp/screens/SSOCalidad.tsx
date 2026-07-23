@@ -245,7 +245,7 @@ const SSOCalidad: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
-          <Shield className="w-6 h-6 text-red-500" /> {t('sso_calidad.titulo', 'SSO & Control de Calidad')}
+          <Shield className="w-6 h-6 text-red-500 dark:text-red-400" /> {t('sso_calidad.titulo', 'SSO & Control de Calidad')}
         </h1>
         <select
           value={currentProjectId}
@@ -255,7 +255,7 @@ const SSOCalidad: React.FC = () => {
           <option value="">{t('sso_calidad.todos_proyectos', '— Todos los proyectos —')}</option>
           {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
-          {ssFormErrors.proyecto && <p className="text-xs text-red-500 mt-1">{ssFormErrors.proyecto}</p>}
+          {ssFormErrors.proyecto && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.proyecto}</p>}
       </div>
 
       {/* Tabs */}
@@ -284,7 +284,7 @@ const SSOCalidad: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-muted-foreground text-sm flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4 text-red-500" /> {t('sso_calidad.reporte_incidentes', 'Reporte de Incidentes')}
+              <AlertTriangle className="w-4 h-4 text-red-500 dark:text-red-400" /> {t('sso_calidad.reporte_incidentes', 'Reporte de Incidentes')}
             </h2>
             <button onClick={() => { setShowIncForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-destructive text-destructive-foreground rounded-lg text-xs font-medium hover:bg-destructive/90">
               <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nuevo_incidente', 'Nuevo Incidente')}
@@ -305,10 +305,10 @@ const SSOCalidad: React.FC = () => {
                     <option value="condicion_insegura">{t('sso_calidad.tipo_condicion', 'Condición Insegura')}</option>
                     <option value="acto_inseguro">{t('sso_calidad.tipo_acto', 'Acto Inseguro')}</option>
                   </select>
-                  {ssFormErrors.tipo && <p className="text-xs text-red-500 mt-1">{ssFormErrors.tipo}</p>}
+                  {ssFormErrors.tipo && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.tipo}</p>}
                 </div>
-                <button onClick={capturarGeoIncidente} className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-dashed border-red-300 text-xs text-red-600 hover:border-red-500">
-                  <MapPin className="w-3.5 h-3.5" /> {incForm.lat ? <><MapPin className="w-3.5 h-3.5 inline text-red-500" aria-hidden="true" /> {incForm.lat.toFixed(4)}</> : t('sso_calidad.geolocalizar', 'Geolocalizar')}
+                <button onClick={capturarGeoIncidente} className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-dashed border-red-300 text-xs text-red-600 dark:text-red-400 hover:border-red-500">
+                  <MapPin className="w-3.5 h-3.5" /> {incForm.lat ? <><MapPin className="w-3.5 h-3.5 inline text-red-500 dark:text-red-400" aria-hidden="true" /> {incForm.lat.toFixed(4)}</> : t('sso_calidad.geolocalizar', 'Geolocalizar')}
                 </button>
               </div>
               <textarea
@@ -317,7 +317,7 @@ const SSOCalidad: React.FC = () => {
                 placeholder={t('sso_calidad.descripcion_incidente', 'Describe el incidente...')}
                 className={`w-full px-3 py-2 text-xs rounded-lg border outline-none focus:border-red-400 min-h-[60px] ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-border'}`}
               />
-              {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
+              {ssFormErrors.descripcion && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.descripcion}</p>}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input
                   value={incForm.afectados}
@@ -360,10 +360,10 @@ const SSOCalidad: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                            inc.tipo === 'accidente' ? 'bg-red-100 text-red-600' : inc.tipo === 'cuasi-accidente' ? 'bg-amber-100 text-amber-600' : 'bg-orange-100 text-orange-600'
+                            inc.tipo === 'accidente' ? 'bg-red-100 text-red-600 dark:text-red-400' : inc.tipo === 'cuasi-accidente' ? 'bg-amber-100 text-amber-600 dark:text-amber-300' : 'bg-orange-100 text-orange-600 dark:text-orange-300'
                           }`}>{inc.tipo.replace(/_/g, ' ')}</span>
                           <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                            inc.estado === 'abierto' ? 'bg-red-50 text-red-500' : inc.estado === 'investigacion' ? 'bg-amber-50 text-amber-500' : 'bg-emerald-50 text-emerald-500'
+                            inc.estado === 'abierto' ? 'bg-red-50 text-red-500 dark:text-red-400' : inc.estado === 'investigacion' ? 'bg-amber-50 text-amber-500 dark:text-amber-400' : 'bg-emerald-50 text-emerald-500 dark:text-emerald-400'
                           }`}>{inc.estado}</span>
                         </div>
                         <p className="text-sm font-medium text-muted-foreground">{inc.descripcion}</p>
@@ -372,7 +372,7 @@ const SSOCalidad: React.FC = () => {
                           <span className="flex items-center gap-1"><User className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {inc.reportadoPor}</span>
                           {inc.lat && <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {inc.lat.toFixed(4)}, {inc.lng?.toFixed(4)}</span>}
                           {inc.afectados && <span className="flex items-center gap-1"><Users className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {inc.afectados}</span>}
-                          {proy && <span className="text-indigo-500">{proy.nombre}</span>}
+                          {proy && <span className="text-indigo-500 dark:text-indigo-400">{proy.nombre}</span>}
                         </div>
                         {inc.accionesInmediatas && <p className="text-xs text-muted-foreground mt-1 italic">{t('sso_calidad.acciones_colon', 'Acciones:')} {inc.accionesInmediatas}</p>}
                       </div>
@@ -397,7 +397,7 @@ const SSOCalidad: React.FC = () => {
       {tab === 'checklist-sso' && (
         <div>
           <h2 className="font-bold text-muted-foreground text-sm mb-3 flex items-center gap-1.5">
-            <ClipboardList className="w-4 h-4 text-amber-500" /> {t('sso_calidad.titulo_checklist', 'Checklist Diario SSO')}
+            <ClipboardList className="w-4 h-4 text-amber-500 dark:text-amber-400" /> {t('sso_calidad.titulo_checklist', 'Checklist Diario SSO')}
           </h2>
           <p className="text-xs text-muted-foreground mb-3">{t('sso_calidad.checklist_descripcion', 'Lista de verificación de seguridad diaria obligatoria antes de iniciar labores.')}</p>
           <div className="bg-card rounded-2xl shadow-sm border border-border p-4">
@@ -416,7 +416,7 @@ const SSOCalidad: React.FC = () => {
                 { id: 'induccion', label: t('sso_calidad.check_induccion') },
               ].map(item => (
                 <label key={item.id} className="flex items-center gap-2 p-2 hover:bg-accent rounded-lg cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-amber-500 focus-visible:ring-ring" />
+                  <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-amber-500 dark:text-amber-400 focus-visible:ring-ring" />
                   <span className="text-xs text-muted-foreground">{item.label}</span>
                 </label>
               ))}
@@ -438,7 +438,7 @@ const SSOCalidad: React.FC = () => {
       {tab === 'estadisticas' && (
         <div>
           <h2 className="font-bold text-muted-foreground text-sm mb-3 flex items-center gap-1.5">
-            <Activity className="w-4 h-4 text-blue-500" /> {t('sso_calidad.titulo_estadisticas', 'Estadísticas SSO')}
+            <Activity className="w-4 h-4 text-blue-500 dark:text-blue-400" /> {t('sso_calidad.titulo_estadisticas', 'Estadísticas SSO')}
           </h2>
           {proyectos.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
@@ -450,12 +450,12 @@ const SSOCalidad: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                 <div className="bg-card rounded-xl p-4 border border-border">
                   <div className="text-[10px] text-muted-foreground">{t('sso_calidad.dias_sin_accidentes', 'Días Sin Accidentes')}</div>
-                  <div className="text-xl sm:text-3xl font-black text-emerald-600">{diasSinAccidentes}</div>
+                  <div className="text-xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">{diasSinAccidentes}</div>
                   <div className="text-[10px] text-muted-foreground mt-1">{t('sso_calidad.dias', 'días')}</div>
                 </div>
                 <div className={`bg-card rounded-xl p-4 border ${totalIncidentes > 0 ? 'border-border' : 'border-border'}`}>
                   <div className="text-[10px] text-muted-foreground">{t('sso_calidad.total_incidentes', 'Total Incidentes')}</div>
-                  <div className={`text-xl sm:text-3xl font-black ${totalIncidentes > 0 ? 'text-red-600' : 'text-foreground'}`}>{totalIncidentes}</div>
+                  <div className={`text-xl sm:text-3xl font-black ${totalIncidentes > 0 ? 'text-red-600 dark:text-red-400' : 'text-foreground'}`}>{totalIncidentes}</div>
                   <div className="text-[10px] text-muted-foreground mt-1">{incidentesAbiertos} {t('sso_calidad.abiertos', 'abiertos')} · {totalIncidentes - incidentesAbiertos} {t('sso_calidad.cerrados', 'cerrados')}</div>
                 </div>
               </div>
@@ -488,9 +488,9 @@ const SSOCalidad: React.FC = () => {
         <div className="text-center py-8">
           <div className="max-w-md mx-auto space-y-4">
             <div className="w-20 h-20 mx-auto rounded-full bg-red-100 flex items-center justify-center animate-pulse">
-              <AlertTriangle className="w-10 h-10 text-red-600" />
+              <AlertTriangle className="w-10 h-10 text-red-600 dark:text-red-400" />
             </div>
-            <h2 className="text-xl font-black text-red-600 truncate" title={t('sso_calidad.boton_emergencia_titulo', 'Botón de Emergencia')}>{t('sso_calidad.boton_emergencia_titulo', 'Botón de Emergencia')}</h2>
+            <h2 className="text-xl font-black text-red-600 dark:text-red-400 truncate" title={t('sso_calidad.boton_emergencia_titulo', 'Botón de Emergencia')}>{t('sso_calidad.boton_emergencia_titulo', 'Botón de Emergencia')}</h2>
             <p className="text-sm text-muted-foreground">{t('sso_calidad.boton_emergencia_desc', 'Activa este botón en caso de una emergencia real en obra. Se notificará a todos los supervisores y se enviará tu ubicación.')}</p>
             <button
               onClick={async () => {
@@ -550,7 +550,7 @@ const SSOCalidad: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-muted-foreground text-sm flex items-center gap-1.5">
-              <FlaskConical className="w-4 h-4 text-purple-500" /> {t('sso_calidad.pruebas_laboratorio', 'Pruebas de Laboratorio')}
+              <FlaskConical className="w-4 h-4 text-purple-500 dark:text-purple-400" /> {t('sso_calidad.pruebas_laboratorio', 'Pruebas de Laboratorio')}
             </h2>
             <button onClick={() => { setShowPruebaForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90">
               <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nueva_prueba', 'Nueva Prueba')}
@@ -572,7 +572,7 @@ const SSOCalidad: React.FC = () => {
                     <option value="asfalto">{t('sso_calidad.tipo_asfalto', 'Asfalto')}</option>
                     <option value="otro">{t('sso_calidad.tipo_otro', 'Otro')}</option>
                   </select>
-                  {ssFormErrors.tipo && <p className="text-xs text-red-500 mt-1">{ssFormErrors.tipo}</p>}
+                  {ssFormErrors.tipo && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.tipo}</p>}
                 </div>
                 <div>
                   <input
@@ -581,7 +581,7 @@ const SSOCalidad: React.FC = () => {
                     placeholder={t('sso_calidad.responsable_placeholder', 'Responsable')}
                     className={`w-full px-3 py-2 rounded-lg text-xs outline-none focus:border-purple-400 bg-background text-foreground ${ssFormErrors.responsable ? 'border-red-500' : 'border-purple-200 dark:border-purple-700 border'}`}
                   />
-                  {ssFormErrors.responsable && <p className="text-xs text-red-500 mt-1">{ssFormErrors.responsable}</p>}
+                  {ssFormErrors.responsable && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.responsable}</p>}
                 </div>
               </div>
               <div>
@@ -591,7 +591,7 @@ const SSOCalidad: React.FC = () => {
                   placeholder={t('sso_calidad.descripcion_prueba_placeholder', 'Descripción de la prueba (ej: Resistencia concreto 28 días)')}
                   className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-purple-400 bg-background text-foreground ${ssFormErrors.descripcion ? 'border-red-500' : 'border-purple-200 dark:border-purple-700 border'}`}
                 />
-                {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
+                {ssFormErrors.descripcion && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.descripcion}</p>}
               </div>
               <div className="flex gap-2">
                 <button onClick={handleAddPrueba} className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-semibold">{t('sso_calidad.registrar_prueba', 'Registrar Prueba')}</button>
@@ -612,9 +612,9 @@ const SSOCalidad: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-blue-600 font-medium">{p.tipo}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-blue-600 dark:text-blue-300 font-medium">{p.tipo}</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                          p.resultado === 'pasa' ? 'bg-emerald-50 text-emerald-600' : p.resultado === 'no_pasa' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600'
+                          p.resultado === 'pasa' ? 'bg-emerald-50 text-emerald-600 dark:text-emerald-400' : p.resultado === 'no_pasa' ? 'bg-red-50 text-red-500 dark:text-red-400' : 'bg-amber-50 text-amber-600 dark:text-amber-300'
                         }`}>{p.resultado.replace(/_/g, ' ')}</span>
                       </div>
                       <p className="text-sm font-medium text-muted-foreground">{p.descripcion}</p>
@@ -644,7 +644,7 @@ const SSOCalidad: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-muted-foreground text-sm flex items-center gap-1.5">
-              <XCircle className="w-4 h-4 text-red-500" /> {t('sso_calidad.titulo_nc', 'No Conformidades (NC)')}
+              <XCircle className="w-4 h-4 text-red-500 dark:text-red-400" /> {t('sso_calidad.titulo_nc', 'No Conformidades (NC)')}
             </h2>
             <button onClick={() => { setShowNCForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-destructive text-destructive-foreground rounded-lg text-xs font-medium hover:bg-destructive/90">
               <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nueva_nc', 'Nueva NC')}
@@ -666,7 +666,7 @@ const SSOCalidad: React.FC = () => {
                     <option value="instalacion">{t('sso_calidad.cat_instalacion', 'Instalación')}</option>
                     <option value="otro">{t('sso_calidad.cat_otro', 'Otro')}</option>
                   </select>
-                  {ssFormErrors.categoria && <p className="text-xs text-red-500 mt-1">{ssFormErrors.categoria}</p>}
+                  {ssFormErrors.categoria && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.categoria}</p>}
                 </div>
                 <div>
                   <input
@@ -675,7 +675,7 @@ const SSOCalidad: React.FC = () => {
                     placeholder={t('sso_calidad.detectado_por_placeholder', 'Detectado por')}
                     className={`w-full px-3 py-2 rounded-lg text-xs outline-none focus:border-red-400 ${ssFormErrors.detectadoPor ? 'border-red-500 bg-red-50' : 'border-border border'}`}
                   />
-                  {ssFormErrors.detectadoPor && <p className="text-xs text-red-500 mt-1">{ssFormErrors.detectadoPor}</p>}
+                  {ssFormErrors.detectadoPor && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.detectadoPor}</p>}
                 </div>
               </div>
               <div>
@@ -685,7 +685,7 @@ const SSOCalidad: React.FC = () => {
                   placeholder={t('sso_calidad.descripcion_nc_placeholder', 'Describe la no conformidad...')}
                   className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-red-400 min-h-[60px] ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-border border'}`}
                 />
-                {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
+                {ssFormErrors.descripcion && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.descripcion}</p>}
               </div>
               <div className="flex gap-2">
                 <button onClick={handleAddNC} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-xs font-semibold">{t('sso_calidad.registrar_nc', 'Registrar NC')}</button>
@@ -706,10 +706,10 @@ const SSOCalidad: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">{nc.codigo}</span>
+                        <span className="text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-50 px-1.5 py-0.5 rounded">{nc.codigo}</span>
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{nc.categoria}</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                          nc.estado === 'cerrado' ? 'bg-emerald-50 text-emerald-600' : nc.estado === 'plan_accion' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-500'
+                          nc.estado === 'cerrado' ? 'bg-emerald-50 text-emerald-600 dark:text-emerald-400' : nc.estado === 'plan_accion' ? 'bg-amber-50 text-amber-600 dark:text-amber-300' : 'bg-red-50 text-red-500 dark:text-red-400'
                         }`}>{nc.estado.replace(/_/g, ' ')}</span>
                       </div>
                       <p className="text-sm font-medium text-muted-foreground">{nc.descripcion}</p>
@@ -743,7 +743,7 @@ const SSOCalidad: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-muted-foreground text-sm flex items-center gap-1.5">
-              <CheckCircle className="w-4 h-4 text-emerald-500" /> {t('sso_calidad.titulo_liberaciones', 'Liberación de Partidas')}
+              <CheckCircle className="w-4 h-4 text-emerald-500 dark:text-emerald-400" /> {t('sso_calidad.titulo_liberaciones', 'Liberación de Partidas')}
             </h2>
             <button onClick={() => { setShowLibForm(true); resetSsErrors(); }} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90">
               <Plus className="w-3.5 h-3.5" /> {t('sso_calidad.nueva_liberacion', 'Solicitar Liberación')}
@@ -759,7 +759,7 @@ const SSOCalidad: React.FC = () => {
                   placeholder={t('sso_calidad.renglon_placeholder', 'Actividad / Partida a liberar')}
                   className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 bg-background text-foreground ${ssFormErrors.renglonNombre ? 'border-red-500' : 'border-emerald-200 dark:border-emerald-700 border'}`}
                 />
-                {ssFormErrors.renglonNombre && <p className="text-xs text-red-500 mt-1">{ssFormErrors.renglonNombre}</p>}
+                {ssFormErrors.renglonNombre && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.renglonNombre}</p>}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
@@ -769,7 +769,7 @@ const SSOCalidad: React.FC = () => {
                     placeholder={t('sso_calidad.solicitante_placeholder', 'Solicitante')}
                     className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 bg-background text-foreground ${ssFormErrors.solicitante ? 'border-red-500' : 'border-emerald-200 dark:border-emerald-700 border'}`}
                   />
-                  {ssFormErrors.solicitante && <p className="text-xs text-red-500 mt-1">{ssFormErrors.solicitante}</p>}
+                  {ssFormErrors.solicitante && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.solicitante}</p>}
                 </div>
                 <div>
                   <input
@@ -778,7 +778,7 @@ const SSOCalidad: React.FC = () => {
                     placeholder={t('sso_calidad.supervisor_placeholder', 'Supervisor')}
                     className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 bg-background text-foreground ${ssFormErrors.supervisor ? 'border-red-500' : 'border-emerald-200 dark:border-emerald-700 border'}`}
                   />
-                  {ssFormErrors.supervisor && <p className="text-xs text-red-500 mt-1">{ssFormErrors.supervisor}</p>}
+                  {ssFormErrors.supervisor && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{ssFormErrors.supervisor}</p>}
                 </div>
               </div>
               <div className="flex gap-2">
@@ -801,14 +801,14 @@ const SSOCalidad: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                          l.estado === 'liberado' ? 'bg-emerald-100 text-emerald-600' : l.estado === 'rechazado' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
+                          l.estado === 'liberado' ? 'bg-emerald-100 text-emerald-600 dark:text-emerald-400' : l.estado === 'rechazado' ? 'bg-red-100 text-red-600 dark:text-red-400' : 'bg-amber-100 text-amber-600 dark:text-amber-300'
                         }`}>{l.estado}</span>
-                        {l.checklistAprobado && <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded flex items-center gap-0.5"><CheckCircle className="w-3 h-3" aria-hidden="true" /> {t('sso_calidad.checklist_ok')}</span>}
+                        {l.checklistAprobado && <span className="text-[10px] bg-blue-100 text-blue-600 dark:text-blue-300 px-1.5 py-0.5 rounded flex items-center gap-0.5"><CheckCircle className="w-3 h-3" aria-hidden="true" /> {t('sso_calidad.checklist_ok')}</span>}
                       </div>
                       <p className="text-sm font-medium text-muted-foreground">{l.renglonNombre}</p>
                       <div className="flex gap-2 mt-1 text-[10px] text-muted-foreground">
                         <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {t('sso_calidad.solicitud_label', 'Sol')}: {l.fechaSolicitud}</span>
-                        {l.fechaLiberacion && <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500" aria-hidden="true" /> {t('sso_calidad.liberacion_label', 'Lib')}: {l.fechaLiberacion}</span>}
+                        {l.fechaLiberacion && <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-500 dark:text-emerald-400" aria-hidden="true" /> {t('sso_calidad.liberacion_label', 'Lib')}: {l.fechaLiberacion}</span>}
                         <span className="flex items-center gap-1"><User className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {l.solicitante}</span>
                         {l.supervisor && <span className="flex items-center gap-1"><Search className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {l.supervisor}</span>}
                       </div>
@@ -833,5 +833,6 @@ const SSOCalidad: React.FC = () => {
 };
 
 export default SSOCalidad;
+
 
 

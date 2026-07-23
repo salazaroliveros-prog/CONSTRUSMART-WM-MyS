@@ -136,18 +136,18 @@ const Presupuestos: React.FC = () => {
         </h1>
         <button onClick={handleCreatePresupuesto} className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('presupuestos.nuevo_presupuesto')}</button>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <div className="bg-info/10 rounded-xl p-4 text-center">
-          <p className="text-xs text-info font-medium">{t('presupuestos.total', 'Total Presupuestos')}</p>
-          <p className="text-xl font-bold text-info">{presupuestos.length}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="bg-blue-50 dark:bg-blue-950/40 rounded-xl p-4 text-center border border-blue-100 dark:border-blue-900/50">
+          <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{t('presupuestos.total', 'Total Presupuestos')}</p>
+          <p className="text-xl font-bold text-blue-700 dark:text-blue-300">{presupuestos.length}</p>
         </div>
-        <div className="bg-success/10 rounded-xl p-4 text-center">
-          <p className="text-xs text-success font-medium">{t('presupuestos.monto_total', 'Monto Total')}</p>
-          <p className="text-xl font-bold text-success">Q{presupuestos.reduce((a: number, p: Presupuesto) => a + (p.totalCalculado || 0), 0).toLocaleString()}</p>
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-xl p-4 text-center border border-emerald-100 dark:border-emerald-900/50">
+          <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{t('presupuestos.monto_total', 'Monto Total')}</p>
+          <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300">Q{presupuestos.reduce((a: number, p: Presupuesto) => a + (p.totalCalculado || 0), 0).toLocaleString()}</p>
         </div>
-        <div className="bg-primary/10 rounded-xl p-4 text-center">
-          <p className="text-xs text-primary font-medium">{t('presupuestos.tipologias', 'Tipologías')}</p>
-          <p className="text-xl font-bold text-primary">{new Set(presupuestos.map(p => (p as any).tipologia || '')).size}</p>
+        <div className="bg-violet-50 dark:bg-violet-950/40 rounded-xl p-4 text-center border border-violet-100 dark:border-violet-900/50">
+          <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">{t('presupuestos.tipologias', 'Tipologías')}</p>
+          <p className="text-xl font-bold text-violet-700 dark:text-violet-300">{new Set(presupuestos.map(p => (p as any).tipologia || '')).size}</p>
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
@@ -194,7 +194,7 @@ const Presupuestos: React.FC = () => {
                 <td className="p-2 font-medium">{p.nombre}</td>
                 <td className="p-2 text-muted-foreground">{proyectos.find(pr => pr.id === p.proyectoId)?.nombre || '-'}</td>
                 <td className="p-2 text-right">{fmtQ(p.totalCalculado || 0)}</td>
-                <td className="p-2 text-right"><span className={`px-2 py-1 rounded text-xs font-medium ${p.estado === 'aprobado' ? 'bg-emerald-100 text-emerald-700' : p.estado === 'rechazado' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{p.estado}</span></td>
+                <td className="p-2 text-right"><span className={`px-2 py-1 rounded text-xs font-medium ${p.estado === 'aprobado' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : p.estado === 'rechazado' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'}`}>{p.estado}</span></td>
                 <td className="p-2 text-right">
                   <button onClick={(e) => { e.stopPropagation(); handleEditPresupuesto(p.id); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('presupuestos.editar')} ${p.nombre}`}><Edit2 className="w-4 h-4" aria-hidden="true" /></button>
                   <button onClick={(e) => { e.stopPropagation(); handleDeletePresupuesto(p.id); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('presupuestos.eliminar')} ${p.nombre}`}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>

@@ -83,7 +83,7 @@ const Activos: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
-          <Wrench className="w-6 h-6 text-indigo-500" /> {t('activos.titulo')}
+          <Wrench className="w-6 h-6 text-indigo-500 dark:text-indigo-400" /> {t('activos.titulo')}
         </h1>
         <button onClick={openCreate} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('activos.nuevo_activo')}</button>
       </div>
@@ -103,7 +103,7 @@ const Activos: React.FC = () => {
         </select>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <div className="p-3 bg-indigo-50 dark:bg-indigo-950/20 rounded-lg text-center"><p className="text-xs text-indigo-600 dark:text-indigo-400">{t('activos.total')}</p><p className="text-xl font-bold text-indigo-700 dark:text-indigo-300">{activos.length}</p></div>
         <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg text-center"><p className="text-xs text-emerald-600 dark:text-emerald-400">{t('activos.disponibles')}</p><p className="text-xl font-bold text-emerald-700 dark:text-emerald-300">{activosDisponibles}</p></div>
         <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg text-center"><p className="text-xs text-amber-600 dark:text-amber-400">{t('activos.asignados')}</p><p className="text-xl font-bold text-amber-700 dark:text-amber-300">{activosAsignados}</p></div>
@@ -145,7 +145,7 @@ const Activos: React.FC = () => {
                       // Usuario canceló la acción
                       console.log('Acción cancelada por usuario');
                     } 
-                  }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('activos.eliminar')} ${a.nombre}`}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
+                  }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('activos.eliminar')} ${a.nombre}`}><Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" aria-hidden="true" /></button>
                 </td>
               </tr>
             ))}
@@ -162,12 +162,12 @@ const Activos: React.FC = () => {
               <div>
                 <label htmlFor="activo-nombre" className="text-xs text-muted-foreground mb-1 block">{t('activos.columna_nombre')}</label>
                 <input id="activo-nombre" value={form.nombre} onChange={e => { set('nombre', e.target.value); if (formErrors.nombre) setFormErrors(f => ({ ...f, nombre: '' })); }} placeholder={t('activos.columna_nombre')} className={`px-3 py-2 border border-input rounded-lg text-sm bg-background text-foreground ${formErrors.nombre ? 'border-red-500' : ''}`} />
-                {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
+                {formErrors.nombre && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.nombre}</p>}
               </div>
               <div>
                 <label htmlFor="activo-codigo" className="text-xs text-muted-foreground mb-1 block">{t('activos.columna_codigo')}</label>
                 <input id="activo-codigo" value={form.codigo} onChange={e => { set('codigo', e.target.value); if (formErrors.codigo) setFormErrors(f => ({ ...f, codigo: '' })); }} placeholder={t('activos.columna_codigo')} className={`px-3 py-2 border border-input rounded-lg text-sm bg-background text-foreground ${formErrors.codigo ? 'border-red-500' : ''}`} />
-                {formErrors.codigo && <p className="text-xs text-red-500 mt-0.5">{formErrors.codigo}</p>}
+                {formErrors.codigo && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.codigo}</p>}
               </div>
               <div>
                 <label htmlFor="activo-tipo" className="text-xs text-muted-foreground mb-1 block">{t('activos.columna_tipo', 'Tipo')}</label>
@@ -195,3 +195,4 @@ const Activos: React.FC = () => {
   );
 };
 export default Activos;
+

@@ -203,7 +203,7 @@ const Ajustes: React.FC = () => {
   const visualTab = (
     <div className="hidden sm:inline-flex items-center gap-2 pr-6 pb-4">
       <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium ${
-        appSettings.uiMode === 'antd' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'bg-muted text-muted-foreground'
+        appSettings.uiMode === 'antd' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-muted text-muted-foreground'
       }`}>
         <FlaskConical className="h-3.5 w-3.5" />
         UI: {appSettings.uiMode === 'antd' ? t('ajustes.antd') : t('ajustes.shadcn')}

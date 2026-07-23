@@ -21,17 +21,17 @@ const ProyectosKPI: React.FC<ProyectosKPIProps> = ({ total, enEjecucion, presupu
       </div>
       <div className={KPI_CARD}>
         <Play className={`w-4 h-4 ${COLOR_SUCCESS}`} aria-hidden="true" />
-        <div className="text-lg font-black">{enEjecucion}</div>
+        <div className="text-lg font-black text-foreground">{enEjecucion}</div>
         <div className={CARD_TITLE}>{t('proyectos.en_ejecucion')}</div>
       </div>
       <div className={KPI_CARD}>
         <ClipboardList className={`w-4 h-4 ${COLOR_INFO}`} aria-hidden="true" />
-        <div className="text-lg font-black">{fmtQ(presupuestoTotal)}</div>
+        <div className="text-lg font-black text-foreground">{fmtQ(presupuestoTotal)}</div>
         <div className={CARD_TITLE}>{t('proyectos.total_presupuesto')}</div>
       </div>
       <div className={KPI_CARD}>
         <DollarSign className={`w-4 h-4 ${COLOR_SUCCESS}`} aria-hidden="true" />
-        <div className="text-lg font-black">{fmtQ(contratoTotal)}</div>
+        <div className="text-lg font-black text-foreground">{fmtQ(contratoTotal)}</div>
         <div className={CARD_TITLE}>{t('proyectos.total_contratos')}</div>
       </div>
     </div>
