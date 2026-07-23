@@ -271,7 +271,7 @@ const Administracion: React.FC = () => {
               {metricsLoading ? t('admin.cargando', 'Cargando...') : t('admin.actualizar', 'Actualizar')}
             </button>
           </div>
-          {metricsError && <p className="text-sm text-red-500">{metricsError}</p>}
+          {metricsError && <p className="text-sm text-destructive">{metricsError}</p>}
           {metrics && (
             <>
               <div>

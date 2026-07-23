@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErp } from '../store';
 import { fmtQ, fmtPct, safeNum } from '../utils';
@@ -8,6 +8,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { KPICard } from '../components/shared';
 import { Donut } from '../components/Charts';
 import { ProfitabilityTable, AgingReport } from '../components/financiero';
+
+const GASTO_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 /**
  * Financiero Screen - Dashboard Financiero Integrado
@@ -100,8 +102,7 @@ const Financiero: React.FC = () => {
   // Calcular margen con redondeo consistente
   const margen = useMemo(() => calculateMargin(ingresos, egresos), [ingresos, egresos]);
 
-  const GASTO_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
-  const pickColor = (cat: string) => GASTO_COLORS[cat.length % GASTO_COLORS.length];
+  const pickColor = useCallback((cat: string) => GASTO_COLORS[cat.length % GASTO_COLORS.length], []);
 
   const gastosPorCategoria = useMemo(() => {
     if (!movimientos) return [];
@@ -112,7 +113,7 @@ const Financiero: React.FC = () => {
       grouped[cat] = (grouped[cat] || 0) + Math.abs(m.monto || 0);
     });
     return Object.entries(grouped).map(([label, value]) => ({ label, value, color: pickColor(label) }));
-  }, [movimientos]);
+  }, [movimientos, pickColor]);
 
   // Rentabilidad por proyecto
   const profitabilityData = useMemo(() => {
@@ -189,7 +190,7 @@ const Financiero: React.FC = () => {
           percentage: totalCobrar > 0 ? Math.round((dias30_60Amount / totalCobrar) * 100) : 0,
           status: 'warning' as const,
           color: 'hsl(var(--warning))',
-          bgColor: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-emerald-800',
+          bgColor: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
         },
         {
           label: '60-90 días',
@@ -267,7 +268,7 @@ const Financiero: React.FC = () => {
           percentage: totalPagar > 0 ? Math.round((proximos30Amount / totalPagar) * 100) : 0,
           status: 'warning' as const,
           color: 'hsl(var(--warning))',
-          bgColor: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-red-800',
+          bgColor: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
         },
         {
           label: 'Futuros (> 30 días)',
@@ -276,7 +277,7 @@ const Financiero: React.FC = () => {
           percentage: totalPagar > 0 ? Math.round((vigentesAmount / totalPagar) * 100) : 0,
           status: 'success' as const,
           color: 'hsl(var(--success))',
-          bgColor: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-red-800',
+          bgColor: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800',
         },
       ],
       status: vencidas.length > 0 || proximos7.length > 0 ? 'critical' : proximos30.length > 0 ? 'caution' : 'healthy',

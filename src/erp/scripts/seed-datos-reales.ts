@@ -1,11 +1,13 @@
 import { Client } from 'pg';
 import fs from 'fs';
 
-const envPath = new URL('../../../.env', import.meta.url);
-const env = Object.fromEntries(fs.readFileSync(envPath, 'utf8').split(/\r?\n/).filter(line => line && !line.startsWith('#')).map(line => { const index = line.indexOf('='); return [line.slice(0, index), line.slice(index + 1)]; }));
-const ref = env.VITE_SUPABASE_URL.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1];
-const connectionString = env.CONNECTION_STRING.replace('postgres:', `postgres.${ref}:`).replace(':5432/', ':6543/');
-const client = new Client({ connectionString, ssl: { rejectUnauthorized: false } });
+const envLocal = new URL('../../../.env.local', import.meta.url);
+const envFile = fs.existsSync(envLocal) ? envLocal : new URL('../../../.env', import.meta.url);
+const env = Object.fromEntries(fs.readFileSync(envFile, 'utf8').split(/\r?\n/).filter(line => line && !line.startsWith('#')).map(line => { const index = line.indexOf('='); return [line.slice(0, index), line.slice(index + 1)]; }));
+const ref = (env.VITE_SUPABASE_URL || env.SUPABASE_URL || '').match(/https:\/\/([^.]+)\.supabase\.co/)?.[1];
+const connectionString = env.SUPABASE_DB_URL || env.VITE_SUPABASE_DB_URL || (ref ? `postgres://postgres:postgres@db.${ref}.supabase.co:5432/postgres` : 'postgres://postgres:postgres@127.0.0.1:54322/postgres');
+const isLocal = connectionString.includes('127.0.0.1') || connectionString.includes('localhost');
+const client = new Client({ connectionString, ssl: isLocal ? false : { rejectUnauthorized: false } });
 await client.connect();
 await client.query('SET session_replication_role = replica');
 const now = new Date();

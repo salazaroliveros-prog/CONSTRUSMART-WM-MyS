@@ -245,7 +245,7 @@ const Cotizaciones: React.FC = () => {
       <div className="space-y-2">
         {cotizacionesFiltradas.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
+            <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" aria-hidden="true" />
             <p className="text-sm">{t('cotizaciones.sin_cotizaciones')}</p>
             <button onClick={openCreate} className="mt-3 text-primary text-sm font-medium hover:underline">{t('cotizaciones.crear_primera')}</button>
           </div>
@@ -266,7 +266,7 @@ const Cotizaciones: React.FC = () => {
                           {TipoIcon && <TipoIcon className="w-3 h-3" aria-hidden="true" />} {tipoInfo?.label}
                         </span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1 ${estadoInfo?.color}`}>
-                          <EstadoIcon className="w-3 h-3" /> {estadoInfo?.label}
+                          <EstadoIcon className="w-3 h-3" aria-hidden="true" /> {estadoInfo?.label}
                         </span>
                       </div>
                   <h3 className="text-sm font-semibold text-foreground truncate">{c.clienteNombre}</h3>
