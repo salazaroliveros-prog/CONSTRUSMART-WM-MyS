@@ -313,7 +313,7 @@ const CurvasS: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="lg:col-span-3 bg-card border border-border rounded-2xl p-4 sm:p-6">
           <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-primary" aria-hidden="true" />

@@ -223,7 +223,7 @@ const inp = INPUT_COMPACT;
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
         <div className={`lg:col-span-2 ${CARD} overflow-hidden`}>
           <div className="p-3 border-b border-border flex items-center justify-between">
             <h3 className="font-bold text-foreground text-sm">{t('bodega.control_stock')}</h3>

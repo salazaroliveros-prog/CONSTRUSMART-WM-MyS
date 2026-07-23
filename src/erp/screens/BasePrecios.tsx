@@ -271,27 +271,27 @@ const BasePrecios: React.FC = () => {
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
           <Database className="w-6 h-6 text-teal-500" /> {t('baseprecios.titulo')}
         </h1>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-1.5 sm:gap-2 flex-wrap">
           <select
             value={zonaSeleccionada}
             onChange={e => setZonaSeleccionada(e.target.value)}
-            className="text-xs px-3 py-2 rounded-lg border border-border outline-none bg-card"
+            className="text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-border outline-none bg-card"
           >
             {zonas.map(z => (
               <option key={z} value={z}>{z} {FACTORES_ZONA[z] > 1 ? `(+${((FACTORES_ZONA[z]-1)*100).toFixed(0)}%)` : ''}</option>
             ))}
           </select>
-          <button onClick={handleImportarCSV} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-            <Upload className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.importar_csv')}
+          <button onClick={handleImportarCSV} className="flex items-center gap-1 text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+            <Upload className="w-3 h-3 sm:w-3.5 sm:h-3.5" aria-hidden="true" /> {t('baseprecios.importar_csv')}
           </button>
-          <button onClick={handleExportarCSV} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-            <Download className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.exportar_csv')}
+          <button onClick={handleExportarCSV} className="flex items-center gap-1 text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+            <Download className="w-3 h-3 sm:w-3.5 sm:h-3.5" aria-hidden="true" /> {t('baseprecios.exportar_csv')}
           </button>
-          <button onClick={() => setShowConvertir(!showConvertir)} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-            <ArrowUpDown className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.convertir')}
+          <button onClick={() => setShowConvertir(!showConvertir)} className="flex items-center gap-1 text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+            <ArrowUpDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" aria-hidden="true" /> {t('baseprecios.convertir')}
           </button>
-          <button onClick={() => { setShowAgregar(true); setFormErrors({}); setNuevoNombre(''); setNuevoPrecio(0); setNuevoUnidad(''); setNuevoRubro(''); }} className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-            <Plus className="w-3.5 h-3.5" aria-hidden="true" /> {t('baseprecios.nuevo')}
+          <button onClick={() => { setShowAgregar(true); setFormErrors({}); setNuevoNombre(''); setNuevoPrecio(0); setNuevoUnidad(''); setNuevoRubro(''); }} className="flex items-center gap-1 text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+            <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" aria-hidden="true" /> {t('baseprecios.nuevo')}
           </button>
         </div>
       </div>

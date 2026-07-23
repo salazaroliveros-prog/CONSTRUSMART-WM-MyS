@@ -98,7 +98,7 @@ const Administracion: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <div className="p-3 bg-info/10 rounded-lg text-center">
             <p className="text-xs text-info font-medium">{t('admin.centros')}</p>
             <p className="text-xl font-bold text-info">{centrosFiltered.length}</p>

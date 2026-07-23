@@ -669,7 +669,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
         <div className="space-y-4">
           <h2 className={SECTION_TITLE}>Tendencias de Rentabilidad</h2>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {trends.map(trend => (
               <div key={trend.id} className={`${CARD} rounded-xl p-4`}>
                 <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">

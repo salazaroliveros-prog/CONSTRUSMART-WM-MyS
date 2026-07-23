@@ -235,7 +235,7 @@ const Sidebar: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClo
     <>
       {open && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden"
           onClick={() => { if (isMobile) onClose(); }}
           aria-hidden="true"
         />

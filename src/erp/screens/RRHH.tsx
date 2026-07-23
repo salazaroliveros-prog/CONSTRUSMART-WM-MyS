@@ -166,7 +166,7 @@ const RRHH: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4 flex-shrink-0">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 flex-shrink-0">
         <div className={CARD + " lg:col-span-2"}>
           <h3 className={CARD_TITLE}>{t('rrhh.payrollChart')}</h3>
           {porProyecto.length > 0 ? (

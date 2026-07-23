@@ -163,7 +163,7 @@ const RendimientoCampo: React.FC = () => {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-200" role="dialog" aria-modal="true" aria-label={t(`${BASE}.nuevo`, 'Nuevo registro')}>
-          <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
+          <div className="bg-card rounded-lg p-4 sm:p-6 w-full max-w-md shadow-sm" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold mb-4 text-foreground">{t(`${BASE}.nuevo`, 'Nuevo Registro de Rendimiento')}</h3>
             <div className="grid gap-3">
               <select className={INPUT} value={form.proyectoId || ''} onChange={e => setForm({ ...form, proyectoId: e.target.value })}>

@@ -161,26 +161,26 @@ const CRM: React.FC = () => {
       </div>
 
       <div className="bg-card rounded-xl border border-border overflow-x-auto">
-        <table className="w-full text-sm table-fixed min-w-[600px]" role="table" aria-label={t('crm.titulo')}>
+        <table className="w-full text-sm" role="table" aria-label={t('crm.titulo')}>
           <thead><tr className="border-b border-border bg-muted/30">
-            <th className="text-left p-2 w-[30%]" scope="col">{t('crm.col_nombre')}</th>
-            <th className="text-left p-2 w-[25%]" scope="col">{t('crm.col_cliente')}</th>
-            <th className="text-right p-2 w-[15%]" scope="col">{t('crm.col_monto')}</th>
-            <th className="text-center p-2 w-[10%]" scope="col">{t('crm.col_probabilidad')}</th>
-            <th className="text-right p-2 w-[10%]" scope="col">{t('common.estado')}</th>
-            <th className="text-right p-2 w-[10%]" scope="col">{t('common.acciones')}</th>
+            <th className="text-left whitespace-nowrap px-2 py-2" scope="col">{t('crm.col_nombre')}</th>
+            <th className="text-left whitespace-nowrap px-2 py-2 hidden sm:table-cell" scope="col">{t('crm.col_cliente')}</th>
+            <th className="text-right whitespace-nowrap px-2 py-2" scope="col">{t('crm.col_monto')}</th>
+            <th className="text-center whitespace-nowrap px-2 py-2 hidden sm:table-cell" scope="col">{t('crm.col_probabilidad')}</th>
+            <th className="text-right whitespace-nowrap px-2 py-2 hidden sm:table-cell" scope="col">{t('common.estado')}</th>
+            <th className="text-right whitespace-nowrap px-2 py-2" scope="col">{t('common.acciones')}</th>
           </tr></thead>
           <tbody>
             {licitacionesFiltradas.map(l => {
               const estado = ESTADOS.find(e => e.key === l.estado) || ESTADOS[0];
               return (
                 <tr key={l.id} className="border-b border-border hover:bg-muted/50" tabIndex={0} role="row">
-                  <td className="p-2 max-w-0"><span className="block truncate font-medium" title={l.nombre}>{l.nombre}</span></td>
-                  <td className="p-2 max-w-0"><span className="block truncate text-muted-foreground" title={l.cliente}>{l.cliente}</span></td>
-                  <td className="p-2 text-right">{fmtQ(l.monto)}</td>
-                  <td className="p-2 text-center">{l.probabilidad}%</td>
-                  <td className="p-2 text-right"><span className={`px-2 py-1 rounded text-xs font-medium ${estado.color} ${estado.textColor}`}>{t(`crm.estado_${l.estado}`)}</span></td>
-                  <td className="p-2 text-right">
+                  <td className="whitespace-nowrap px-2 py-2 max-w-0"><span className="block truncate font-medium" title={l.nombre}>{l.nombre}</span></td>
+                  <td className="whitespace-nowrap px-2 py-2 max-w-0 hidden sm:table-cell"><span className="block truncate text-muted-foreground" title={l.cliente}>{l.cliente}</span></td>
+                  <td className="whitespace-nowrap px-2 py-2 text-right">{fmtQ(l.monto)}</td>
+                  <td className="whitespace-nowrap px-2 py-2 text-center hidden sm:table-cell">{l.probabilidad}%</td>
+                  <td className="whitespace-nowrap px-2 py-2 text-right hidden sm:table-cell"><span className={`px-2 py-1 rounded text-xs font-medium ${estado.color} ${estado.textColor}`}>{t(`crm.estado_${l.estado}`)}</span></td>
+                  <td className="whitespace-nowrap px-2 py-2 text-right">
                      <button onClick={(e) => { e.stopPropagation(); handleEdit(l); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('crm.editar')} ${l.nombre}`}><Pencil className="w-4 h-4" aria-hidden="true" /></button>
                      <button onClick={(e) => { e.stopPropagation(); handleDelete(l.id); }} className="p-1.5 rounded hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${t('crm.eliminar')} ${l.nombre}`}><Trash2 className="w-4 h-4 text-red-500" aria-hidden="true" /></button>
                   </td>

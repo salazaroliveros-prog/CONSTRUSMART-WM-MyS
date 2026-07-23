@@ -164,12 +164,12 @@ export default function Auditoria() {
   };
 
   const columnHeaders = [
-    { key: 'createdAt', label: t('auditoria.columna_fecha'), sortable: true, className: 'w-[170px]' },
-    { key: 'usuarioNombre', label: t('auditoria.columna_usuario'), sortable: true, className: 'w-[140px]' },
-    { key: 'entidad', label: t('auditoria.columna_tabla'), sortable: true, className: 'w-[130px]' },
-    { key: 'accion', label: t('auditoria.columna_operacion'), sortable: true, className: 'w-[160px]' },
-    { key: 'entidadId', label: t('auditoria.columna_id'), sortable: true, className: 'w-[120px]' },
-    { key: 'actions', label: t('auditoria.columna_detalles'), sortable: false, className: 'w-[100px]' },
+    { key: 'createdAt', label: t('auditoria.columna_fecha'), sortable: true },
+    { key: 'usuarioNombre', label: t('auditoria.columna_usuario'), sortable: true },
+    { key: 'entidad', label: t('auditoria.columna_tabla'), sortable: true },
+    { key: 'accion', label: t('auditoria.columna_operacion'), sortable: true },
+    { key: 'entidadId', label: t('auditoria.columna_id'), sortable: true },
+    { key: 'actions', label: t('auditoria.columna_detalles'), sortable: false },
   ];
 
   if (loading) {
@@ -309,7 +309,7 @@ export default function Auditoria() {
                   {columnHeaders.map(col => (
                     <th
                       key={col.key}
-                      className={`text-left p-3 text-sm font-semibold ${col.className} ${col.sortable ? 'cursor-pointer select-none hover:bg-muted/70' : ''}`}
+                      className={`text-left p-3 text-sm font-semibold whitespace-nowrap ${col.sortable ? 'cursor-pointer select-none hover:bg-muted/70' : ''}`}
                       onClick={() => col.sortable && toggleSort(col.key)}
                       scope="col"
                     >

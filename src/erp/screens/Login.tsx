@@ -39,7 +39,7 @@ const Login: React.FC = () => {
         />
         <div
           className="absolute inset-0 opacity-15 mix-blend-overlay"
-          style={{ backgroundImage: 'url(/empresa_b.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+          style={{ backgroundImage: 'url(/empresa_b.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
         />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,hsl(240_3%_17%_/_0.9),hsl(240_3%_20%_/_0.8),hsl(240_3%_23%_/_0.85))]" />
 
@@ -75,6 +75,9 @@ const Login: React.FC = () => {
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 relative">
+        <div className="lg:hidden absolute inset-0 opacity-[0.06]"
+          style={{ backgroundImage: 'url(/empresa_b.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+        />
         <div className="w-full max-w-sm relative z-10 animate-scale-in">
           <div className="lg:hidden flex flex-col items-center mb-8">
             <div className="w-16 h-16 rounded-xl bg-card/80 backdrop-blur-xl border border-border flex items-center justify-center mb-3 shadow-[0_12px_30px_rgba(0,0,0,0.25)]">
