@@ -239,7 +239,7 @@ export const PlanillaDestajos: React.FC = () => {
                             console.error('Error al confirmar eliminación de destajo:', error);
                           }
                         }}
-                        className="text-destructive hover:text-destructive/80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-2 py-1"
+                        className="text-destructive dark:text-destructive hover:text-destructive dark:text-destructive/80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-2 py-1"
                         aria-label={t('planilla_destajos.eliminar_destajo_aria', { cuadrilla: d.cuadrilla })}
                       >
                         {t('planilla_destajos.eliminar')}
@@ -286,45 +286,45 @@ export const PlanillaDestajos: React.FC = () => {
                   <option value="">{t('planilla_destajos.seleccionar_proyecto')}</option>
                   {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
-                {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
+                {formErrors.proyectoId && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.proyectoId}</p>}
               </div>
               <div>
                 <label htmlFor="destajo-renglon" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.renglon', 'Renglón código')}</label>
                 <input id="destajo-renglon" placeholder={t('planilla_destajos.renglon_codigo_ph')} value={formData.renglonCodigo} onChange={e => { setFormData(p => ({ ...p, renglonCodigo: e.target.value })); setFormErrors(prev => ({ ...prev, renglonCodigo: '' })); }} className={INPUT} />
-                {formErrors.renglonCodigo && <p className="text-xs text-red-500 mt-0.5">{formErrors.renglonCodigo}</p>}
+                {formErrors.renglonCodigo && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.renglonCodigo}</p>}
               </div>
               <div>
                 <label htmlFor="destajo-cuadrilla" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.cuadrilla', 'Cuadrilla')}</label>
                 <input id="destajo-cuadrilla" placeholder={t('planilla_destajos.cuadrilla_ph')} value={formData.cuadrilla} onChange={e => { setFormData(p => ({ ...p, cuadrilla: e.target.value })); setFormErrors(prev => ({ ...prev, cuadrilla: '' })); }} className={INPUT} />
-                {formErrors.cuadrilla && <p className="text-xs text-red-500 mt-0.5">{formErrors.cuadrilla}</p>}
+                {formErrors.cuadrilla && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.cuadrilla}</p>}
               </div>
               <div>
                 <label htmlFor="destajo-fecha" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.fecha', 'Fecha')}</label>
                 <input id="destajo-fecha" type="date" value={formData.fecha} onChange={e => { setFormData(p => ({ ...p, fecha: e.target.value })); setFormErrors(prev => ({ ...prev, fecha: '' })); }} className={INPUT} />
-                {formErrors.fecha && <p className="text-xs text-red-500 mt-0.5">{formErrors.fecha}</p>}
+                {formErrors.fecha && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.fecha}</p>}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label htmlFor="destajo-cantidad" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.cantidad', 'Cant. ejecutada')}</label>
                   <input id="destajo-cantidad" type="number" inputMode="decimal" placeholder={t('planilla_destajos.cantidad_ejecutada_ph')} value={formData.cantidadEjecutada || ''} onChange={e => { setFormData(p => ({ ...p, cantidadEjecutada: +e.target.value })); setFormErrors(prev => ({ ...prev, cantidadEjecutada: '' })); }} className={INPUT} />
-                  {formErrors.cantidadEjecutada && <p className="text-xs text-red-500 mt-0.5">{formErrors.cantidadEjecutada}</p>}
+                  {formErrors.cantidadEjecutada && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.cantidadEjecutada}</p>}
                 </div>
                 <div>
                   <label htmlFor="destajo-unidad" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.unidad', 'Unidad')}</label>
                   <input id="destajo-unidad" placeholder={t('planilla_destajos.unidad_ph')} value={formData.unidad} onChange={e => { setFormData(p => ({ ...p, unidad: e.target.value })); setFormErrors(prev => ({ ...prev, unidad: '' })); }} className={INPUT} />
-                  {formErrors.unidad && <p className="text-xs text-red-500 mt-0.5">{formErrors.unidad}</p>}
+                  {formErrors.unidad && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.unidad}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label htmlFor="destajo-horas" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.horas', 'Horas trabajadas')}</label>
                   <input id="destajo-horas" type="number" inputMode="decimal" placeholder={t('planilla_destajos.horas_trabajadas_ph')} value={formData.horasTrabajadas || ''} onChange={e => { setFormData(p => ({ ...p, horasTrabajadas: +e.target.value })); setFormErrors(prev => ({ ...prev, horasTrabajadas: '' })); }} className={INPUT} />
-                  {formErrors.horasTrabajadas && <p className="text-xs text-red-500 mt-0.5">{formErrors.horasTrabajadas}</p>}
+                  {formErrors.horasTrabajadas && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.horasTrabajadas}</p>}
                 </div>
                 <div>
                   <label htmlFor="destajo-rendimiento" className="text-xs text-muted-foreground mb-1 block">{t('planilla_destajos.rendimiento', 'Rend. teórico')}</label>
                   <input id="destajo-rendimiento" type="number" inputMode="decimal" placeholder={t('planilla_destajos.rendimiento_teorico_ph')} value={formData.rendimientoTeorico || ''} onChange={e => { setFormData(p => ({ ...p, rendimientoTeorico: +e.target.value })); setFormErrors(prev => ({ ...prev, rendimientoTeorico: '' })); }} className={INPUT} />
-                  {formErrors.rendimientoTeorico && <p className="text-xs text-red-500 mt-0.5">{formErrors.rendimientoTeorico}</p>}
+                  {formErrors.rendimientoTeorico && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.rendimientoTeorico}</p>}
                 </div>
               </div>
               <div className="flex gap-2">

@@ -13,7 +13,7 @@ const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
 const tendencias = {
   mejorando: { icon: TrendingUp, color: 'text-emerald-500', label: 'Mejorando' },
   estable: { icon: RefreshCw, color: 'text-blue-500', label: 'Estable' },
-  empeorando: { icon: TrendingDown, color: 'text-red-500', label: 'Empeorando' },
+  empeorando: { icon: TrendingDown, color: 'text-red-500 dark:text-red-400', label: 'Empeorando' },
 };
 
 const ProveedorAnalytics: React.FC = () => {
@@ -165,7 +165,7 @@ const ProveedorAnalytics: React.FC = () => {
     <div className="p-2 sm:p-3 lg:p-4 max-w-[1600px] mx-auto space-y-3 sm:space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
         <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground flex items-center gap-2">
-          <Award className="w-5 h-5 sm:w-6 sm:h-6 text-violet-500" aria-hidden="true" />
+          <Award className="w-5 h-5 sm:w-6 sm:h-6 text-violet-500 dark:text-violet-400" aria-hidden="true" />
           {t('proveedor_analytics.titulo')}
         </h1>
         <div className="flex flex-wrap gap-2">
@@ -241,16 +241,16 @@ const ProveedorAnalytics: React.FC = () => {
       {riesgos.length > 0 && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3 sm:p-4">
           <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" aria-hidden="true" />
+            <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 dark:text-red-400" aria-hidden="true" />
             <h3 className="font-semibold text-red-700 dark:text-red-400 text-sm sm:text-base truncate" title={t('proveedor_analytics.riesgo_detectado')}>{t('proveedor_analytics.riesgo_detectado')}</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {riesgos.slice(0, 6).map((riesgo, i) => (
               <div key={i} className="bg-card dark:bg-red-950/30 rounded-lg p-2 border border-red-200 dark:border-red-800">
-                <div className="font-medium text-sm text-red-700 dark:text-red-300">{riesgo.proveedor}</div>
+                <div className="font-medium text-sm text-red-700 dark:text-red-400 dark:text-red-300">{riesgo.proveedor}</div>
                 <div className="text-xs text-red-600 dark:text-red-400 mt-1">{riesgo.riesgo}</div>
                 <div className={`text-xs font-bold mt-1 ${
-                  riesgo.nivel === 'alto' ? 'text-red-600' : 
+                  riesgo.nivel === 'alto' ? 'text-red-600 dark:text-red-400' : 
                   riesgo.nivel === 'medio' ? 'text-amber-600' : 'text-yellow-600'
                 }`}>
                   {t('proveedor_analytics.nivel')}: {riesgo.nivel.toUpperCase()}
@@ -311,7 +311,7 @@ const ProveedorAnalytics: React.FC = () => {
 
       <div className="bg-card rounded-xl border border-border p-3 sm:p-4">
         <h3 className="font-semibold text-foreground mb-3 text-sm sm:text-base flex items-center gap-2">
-          <Star className="w-4 h-4 text-amber-500" aria-hidden="true" />
+          <Star className="w-4 h-4 text-amber-500 dark:text-amber-400" aria-hidden="true" />
           {t('proveedor_analytics.ranking')}
         </h3>
         {metricsFiltradas.length === 0 ? (
@@ -353,7 +353,7 @@ const ProveedorAnalytics: React.FC = () => {
                       <td className="p-2 font-medium">{metric.proveedorNombre}</td>
                       <td className="p-2 text-muted-foreground">{CATEGORIA_LABEL[metric.categoria as keyof typeof CATEGORIA_LABEL] || metric.categoria}</td>
                       <td className="p-2 text-center">
-                        <span className={`font-bold ${metric.puntajeGeneral >= 80 ? 'text-emerald-500' : metric.puntajeGeneral >= 60 ? 'text-blue-500' : 'text-red-500'}`}>
+                        <span className={`font-bold ${metric.puntajeGeneral >= 80 ? 'text-emerald-500' : metric.puntajeGeneral >= 60 ? 'text-blue-500' : 'text-red-500 dark:text-red-400'}`}>
                           {metric.puntajeGeneral}
                         </span>
                       </td>
@@ -376,12 +376,12 @@ const ProveedorAnalytics: React.FC = () => {
       {selectedMetrics && (
         <div className="bg-card rounded-xl border border-border p-3 sm:p-4">
           <h3 className="font-semibold text-foreground mb-3 text-sm sm:text-base flex items-center gap-2">
-            <Award className="w-4 h-4 text-violet-500" aria-hidden="true" />
+            <Award className="w-4 h-4 text-violet-500 dark:text-violet-400" aria-hidden="true" />
             {t('proveedor_analytics.detalle')}: {selectedMetrics.proveedorNombre}
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             <div className="text-center p-3 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-violet-500">{selectedMetrics.puntajeGeneral}</div>
+              <div className="text-2xl font-bold text-violet-500 dark:text-violet-400">{selectedMetrics.puntajeGeneral}</div>
               <div className="text-xs text-muted-foreground">{t('proveedor_analytics.puntaje_general')}</div>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
@@ -393,7 +393,7 @@ const ProveedorAnalytics: React.FC = () => {
               <div className="text-xs text-muted-foreground">{t('proveedor_analytics.calidad')}</div>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-amber-500">{selectedMetrics.totalOrdenes}</div>
+              <div className="text-2xl font-bold text-amber-500 dark:text-amber-400">{selectedMetrics.totalOrdenes}</div>
               <div className="text-xs text-muted-foreground">{t('proveedor_analytics.total_ordenes')}</div>
             </div>
           </div>

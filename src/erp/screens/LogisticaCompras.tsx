@@ -86,7 +86,7 @@ export const LogisticaCompras: React.FC = () => {
                   <td className="p-2">{a.estado}</td>
                   <td className="p-2 text-right">
                     <button onClick={() => { deleteActivo(a.id); toast.success(t('logistica.activo_eliminado', 'Activo eliminado')); }} aria-label={t('logistica.eliminar_activo', { nombre: a.nombre })}
-                      className={`p-1.5 rounded hover:bg-accent text-red-500 ${FOCUS_VISIBLE}`}><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
+                      className={`p-1.5 rounded hover:bg-accent text-red-500 dark:text-red-400 ${FOCUS_VISIBLE}`}><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
                   </td>
                 </tr>
               ))}
@@ -129,7 +129,7 @@ export const LogisticaCompras: React.FC = () => {
                     }`}>{t('logistica.estado_' + c.estado, c.estado)}</span></td>
                     <td className="p-2 text-right">
                       <button onClick={() => { deleteCuadro(c.id); toast.success(t('logistica.cuadro_eliminado', 'Cuadro eliminado')); }} aria-label={t('logistica.eliminar_cuadro', { proveedor: c.proveedorId })}
-                        className={`p-1.5 rounded hover:bg-accent text-red-500 ${FOCUS_VISIBLE}`}><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
+                        className={`p-1.5 rounded hover:bg-accent text-red-500 dark:text-red-400 ${FOCUS_VISIBLE}`}><Trash2 className="w-3 h-3" aria-hidden="true" /></button>
                     </td>
                   </tr>
                 );

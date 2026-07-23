@@ -488,7 +488,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
                       <td className="p-3 font-medium">{c.cliente}</td>
                       <td className="text-right p-3">{c.proyectosCount}</td>
                       <td className="text-right p-3">{fmtQ(c.valorTotalContratos)}</td>
-                      <td className={`text-right p-3 font-semibold ${c.utilidadTotal >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      <td className={`text-right p-3 font-semibold ${c.utilidadTotal >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                         {fmtQ(c.utilidadTotal)}
                       </td>
                       <td className="text-right p-3">{fmtPct(c.margenPromedio)}</td>
@@ -556,22 +556,22 @@ const PROFITABILITYAnalytics: React.FC = () => {
                       <span className="text-sm font-semibold">{fmtQ(forecast.escenarioBase)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] text-emerald-600">Escenario Optimista</span>
-                      <span className="text-sm font-semibold text-emerald-600">{fmtQ(forecast.escenarioOptimista)}</span>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400">Escenario Optimista</span>
+                      <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{fmtQ(forecast.escenarioOptimista)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] text-red-600">Escenario Pesimista</span>
-                      <span className="text-sm font-semibold text-red-600">{fmtQ(forecast.escenarioPesimista)}</span>
+                      <span className="text-[10px] text-red-600 dark:text-red-400">Escenario Pesimista</span>
+                      <span className="text-sm font-semibold text-red-600 dark:text-red-400">{fmtQ(forecast.escenarioPesimista)}</span>
                     </div>
                   </div>
 
                   {forecast.factoresRiesgo.length > 0 && (
                     <div className="mt-4 pt-4 border-t border-border">
-                      <p className="text-[10px] font-semibold text-amber-600 mb-2">Factores de Riesgo</p>
+                      <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 mb-2">Factores de Riesgo</p>
                       <ul className="space-y-1">
                         {forecast.factoresRiesgo.map((factor, idx) => (
                           <li key={idx} className="text-[10px] text-muted-foreground flex items-center gap-1">
-                            <AlertTriangle className="w-3 h-3 text-amber-600" aria-hidden="true" />
+                            <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" aria-hidden="true" />
                             {factor}
                           </li>
                         ))}
@@ -581,11 +581,11 @@ const PROFITABILITYAnalytics: React.FC = () => {
 
                   {forecast.factoresOportunidad.length > 0 && (
                     <div className="mt-4 pt-4 border-t border-border">
-                      <p className="text-[10px] font-semibold text-emerald-600 mb-2">Oportunidades</p>
+                      <p className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Oportunidades</p>
                       <ul className="space-y-1">
                         {forecast.factoresOportunidad.map((factor, idx) => (
                           <li key={idx} className="text-[10px] text-muted-foreground flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-emerald-600" aria-hidden="true" />
+                            <CheckCircle className="w-3 h-3 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                             {factor}
                           </li>
                         ))}
@@ -617,7 +617,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-sm font-semibold">{tipoLabels[tipo]}</h3>
                     {alertasCount > 0 && (
-                      <span className="bg-red-100 text-red-600 text-[10px] px-2 py-1 rounded-full font-medium">
+                      <span className="bg-red-100 text-red-600 dark:text-red-400 dark:text-red-400 text-[10px] px-2 py-1 rounded-full font-medium">
                         {alertasCount} alertas
                       </span>
                     )}
@@ -691,11 +691,11 @@ const PROFITABILITYAnalytics: React.FC = () => {
 
                   {trend.alertas.length > 0 && (
                     <div className="pt-3 border-t border-border">
-                      <p className="text-[10px] font-semibold text-red-600 mb-2">Alertas</p>
+                      <p className="text-[10px] font-semibold text-red-600 dark:text-red-400 mb-2">Alertas</p>
                       <ul className="space-y-1">
                         {trend.alertas.slice(0, 3).map((alerta, idx) => (
                           <li key={idx} className="text-[10px] text-muted-foreground flex items-start gap-1">
-                            <AlertTriangle className="w-3 h-3 text-red-600 mt-0.5 flex-shrink-0" aria-hidden="true" />
+                            <AlertTriangle className="w-3 h-3 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
                             {alerta}
                           </li>
                         ))}
@@ -705,11 +705,11 @@ const PROFITABILITYAnalytics: React.FC = () => {
 
                   {trend.oportunidades.length > 0 && (
                     <div className="pt-3 border-t border-border">
-                      <p className="text-[10px] font-semibold text-emerald-600 mb-2">Oportunidades</p>
+                      <p className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Oportunidades</p>
                       <ul className="space-y-1">
                         {trend.oportunidades.slice(0, 3).map((oportunidad, idx) => (
                           <li key={idx} className="text-[10px] text-muted-foreground flex items-start gap-1">
-                            <CheckCircle className="w-3 h-3 text-emerald-600 mt-0.5 flex-shrink-0" aria-hidden="true" />
+                            <CheckCircle className="w-3 h-3 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
                             {oportunidad}
                           </li>
                         ))}
@@ -764,7 +764,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-muted-foreground">Margen Objetivo</span>
-                    <span className="text-sm font-semibold text-emerald-600">{fmtPct(opt.margenObjetivo)}</span>
+                    <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{fmtPct(opt.margenObjetivo)}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-muted-foreground">Factor Riesgo</span>
@@ -786,7 +786,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
                     </div>
                     <div className="flex justify-between items-center text-[10px]">
                       <span className="text-muted-foreground">Ajuste Total</span>
-                      <span className="font-semibold text-emerald-600">
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                         +{fmtPct(((opt.precioOptimizado - opt.precioSugeridoBase) / opt.precioSugeridoBase) * 100)}
                       </span>
                     </div>

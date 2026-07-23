@@ -106,7 +106,7 @@ const MuroObra: React.FC = () => {
         </div>
         <label htmlFor="muro-texto" className="text-xs text-muted-foreground mb-1 block">{t('muro.publicar', 'Nueva publicación')}</label>
         <textarea id="muro-texto" value={nuevoTexto} onChange={e => { setNuevoTexto(e.target.value); setErrores(prev => ({ ...prev, texto: '' })); }} placeholder={t('muro.placeholder', '¿Qué hay de nuevo en la obra?')} rows={2} className={`${INPUT} resize-none mb-2`} />
-        {errores.texto && <p className="text-xs text-red-500 mb-2">{errores.texto}</p>}
+        {errores.texto && <p className="text-xs text-red-500 dark:text-red-400 mb-2">{errores.texto}</p>}
         <div className="flex justify-end gap-2">
           <button onClick={() => { setNuevoTexto(''); setErrores({}); }} className={`${BUTTON_SECONDARY} text-xs`}>{t('common.cancelar', 'Cancelar')}</button>
           <button onClick={handlePublicar} className={`${BUTTON_PRIMARY} text-xs`}>{t('muro.publicar', 'Publicar')}</button>

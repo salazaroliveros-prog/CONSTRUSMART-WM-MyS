@@ -292,7 +292,7 @@ const Financiero: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h1 className="text-xl sm:text-3xl font-black text-foreground truncate flex items-center gap-2" title="Dashboard Financiero">
-            <Wallet className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-500" />
+            <Wallet className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-500 dark:text-emerald-400" />
             Dashboard Financiero
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">Vista integrada de finanzas, rentabilidad y cuentas</p>

@@ -105,7 +105,7 @@ export default function Notificaciones() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold flex items-center gap-2 text-foreground truncate" title={t('notificaciones.titulo', 'Notificaciones')}>
-            <Bell className="w-6 h-6 text-indigo-500" aria-hidden="true" />
+            <Bell className="w-6 h-6 text-indigo-500 dark:text-indigo-400" aria-hidden="true" />
             {t('notificaciones.titulo', 'Notificaciones')}
           </h1>
           <p className="text-sm text-muted-foreground">

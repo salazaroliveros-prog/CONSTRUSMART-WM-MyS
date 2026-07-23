@@ -104,12 +104,12 @@ const OrdenesCambio: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
-          <GitBranch className="w-6 h-6 text-amber-500" aria-hidden="true" /> {t('ordenes_cambio.titulo', 'Órdenes de Cambio')}
+          <GitBranch className="w-6 h-6 text-amber-500 dark:text-amber-400" aria-hidden="true" /> {t('ordenes_cambio.titulo', 'Órdenes de Cambio')}
         </h1>
         <div className="flex flex-wrap gap-2">
           <div>
             <ProyectoFilter value={proyectoFilter} onChange={(v) => { setProyectoFilter(v); setFormErrors(prev => ({ ...prev, proyecto: '' })); }} proyectos={proyectos} />
-            {formErrors.proyecto && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyecto}</p>}
+            {formErrors.proyecto && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.proyecto}</p>}
           </div>
           <button onClick={() => setShowForm(!showForm)} className={`${BUTTON_PRIMARY} flex items-center gap-1`}>
             <Plus className="w-3.5 h-3.5" aria-hidden="true" /> {t('ordenes_cambio.nueva', 'Nueva')}
@@ -138,7 +138,7 @@ const OrdenesCambio: React.FC = () => {
           <div className="space-y-2">
             <div>
               <input value={fTitulo} onChange={e => { setFTitulo(e.target.value); setFormErrors(prev => ({ ...prev, titulo: '' })); }} placeholder={t('ordenes_cambio.placeholder_titulo', 'Título del cambio *')} className={`${INPUT} ${formErrors.titulo ? 'border-red-500' : ''}`} />
-              {formErrors.titulo && <p className="text-xs text-red-500 mt-0.5">{formErrors.titulo}</p>}
+              {formErrors.titulo && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.titulo}</p>}
             </div>
             <textarea value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder={t('ordenes_cambio.placeholder_descripcion', 'Descripción detallada del cambio...')} rows={2} className={`${INPUT} resize-none`} />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

@@ -922,7 +922,7 @@ const PlantillasProyectos: React.FC = () => {
                   className="w-full px-3 py-2 border rounded-md"
                   required
                 />
-                {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
+                {formErrors.nombre && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.nombre}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">{t('plantillas.descripcion_form_label')}</label>
@@ -932,7 +932,7 @@ const PlantillasProyectos: React.FC = () => {
                   className="w-full px-3 py-2 border rounded-md"
                   rows={3}
                 />
-                {formErrors.descripcion && <p className="text-xs text-red-500 mt-0.5">{formErrors.descripcion}</p>}
+                {formErrors.descripcion && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.descripcion}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">{t('plantillas.categoria_form_label')}</label>
@@ -945,7 +945,7 @@ const PlantillasProyectos: React.FC = () => {
                     <option key={cat.key} value={cat.key}>{cat.label}</option>
                   ))}
                 </select>
-                {formErrors.categoria && <p className="text-xs text-red-500 mt-0.5">{formErrors.categoria}</p>}
+                {formErrors.categoria && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.categoria}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">{t('plantillas.cliente_form_label')}</label>
@@ -966,7 +966,7 @@ const PlantillasProyectos: React.FC = () => {
                     <option key={cliente} value={cliente}>{cliente}</option>
                   ))}
                 </select>
-                {formErrors.clienteId && <p className="text-xs text-red-500 mt-0.5">{formErrors.clienteId}</p>}
+                {formErrors.clienteId && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.clienteId}</p>}
               </div>
               {!editingId && (
                 <div>
@@ -981,7 +981,7 @@ const PlantillasProyectos: React.FC = () => {
                       <option key={p.id} value={p.id}>{p.nombre}</option>
                     ))}
                   </select>
-                  {formErrors.proyectoOrigenId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoOrigenId}</p>}
+                  {formErrors.proyectoOrigenId && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5">{formErrors.proyectoOrigenId}</p>}
                 </div>
               )}
               <div className="flex gap-2 pt-4">
