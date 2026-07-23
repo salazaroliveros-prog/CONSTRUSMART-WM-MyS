@@ -1,0 +1,2012 @@
+[
+  {
+    "indexname": "amortizaciones_pkey",
+    "tablename": "amortizaciones",
+    "indexdef": "CREATE UNIQUE INDEX amortizaciones_pkey ON public.amortizaciones USING btree (id)"
+  },
+  {
+    "indexname": "idx_amortizaciones_anticipo",
+    "tablename": "amortizaciones",
+    "indexdef": "CREATE INDEX idx_amortizaciones_anticipo ON public.amortizaciones USING btree (anticipo_id)"
+  },
+  {
+    "indexname": "anticipos_pkey",
+    "tablename": "anticipos",
+    "indexdef": "CREATE UNIQUE INDEX anticipos_pkey ON public.anticipos USING btree (id)"
+  },
+  {
+    "indexname": "idx_anticipos_estado",
+    "tablename": "anticipos",
+    "indexdef": "CREATE INDEX idx_anticipos_estado ON public.anticipos USING btree (estado)"
+  },
+  {
+    "indexname": "idx_anticipos_proyecto",
+    "tablename": "anticipos",
+    "indexdef": "CREATE INDEX idx_anticipos_proyecto ON public.anticipos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "cotizaciones_negocio_pkey",
+    "tablename": "cotizaciones_negocio",
+    "indexdef": "CREATE UNIQUE INDEX cotizaciones_negocio_pkey ON public.cotizaciones_negocio USING btree (id)"
+  },
+  {
+    "indexname": "idx_cotizaciones_negocio_estado",
+    "tablename": "cotizaciones_negocio",
+    "indexdef": "CREATE INDEX idx_cotizaciones_negocio_estado ON public.cotizaciones_negocio USING btree (estado)"
+  },
+  {
+    "indexname": "idx_cotizaciones_negocio_fecha",
+    "tablename": "cotizaciones_negocio",
+    "indexdef": "CREATE INDEX idx_cotizaciones_negocio_fecha ON public.cotizaciones_negocio USING btree (fecha)"
+  },
+  {
+    "indexname": "destajos_pkey",
+    "tablename": "destajos",
+    "indexdef": "CREATE UNIQUE INDEX destajos_pkey ON public.destajos USING btree (id)"
+  },
+  {
+    "indexname": "idx_destajos_fecha",
+    "tablename": "destajos",
+    "indexdef": "CREATE INDEX idx_destajos_fecha ON public.destajos USING btree (fecha)"
+  },
+  {
+    "indexname": "idx_destajos_proyecto",
+    "tablename": "destajos",
+    "indexdef": "CREATE INDEX idx_destajos_proyecto ON public.destajos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_access_log_pkey",
+    "tablename": "erp_access_log",
+    "indexdef": "CREATE UNIQUE INDEX erp_access_log_pkey ON public.erp_access_log USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_access_log_created",
+    "tablename": "erp_access_log",
+    "indexdef": "CREATE INDEX idx_erp_access_log_created ON public.erp_access_log USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_access_log_user",
+    "tablename": "erp_access_log",
+    "indexdef": "CREATE INDEX idx_erp_access_log_user ON public.erp_access_log USING btree (user_id)"
+  },
+  {
+    "indexname": "erp_activos_pkey",
+    "tablename": "erp_activos",
+    "indexdef": "CREATE UNIQUE INDEX erp_activos_pkey ON public.erp_activos USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_activos_by_created_at",
+    "tablename": "erp_activos",
+    "indexdef": "CREATE INDEX idx_erp_activos_by_created_at ON public.erp_activos USING btree (created_by, created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_activos_created_at",
+    "tablename": "erp_activos",
+    "indexdef": "CREATE INDEX idx_erp_activos_created_at ON public.erp_activos USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_activos_created_by",
+    "tablename": "erp_activos",
+    "indexdef": "CREATE INDEX idx_erp_activos_created_by ON public.erp_activos USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_activos_estado",
+    "tablename": "erp_activos",
+    "indexdef": "CREATE INDEX idx_erp_activos_estado ON public.erp_activos USING btree (estado)"
+  },
+  {
+    "indexname": "idx_erp_activos_proyecto",
+    "tablename": "erp_activos",
+    "indexdef": "CREATE INDEX idx_erp_activos_proyecto ON public.erp_activos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_activos_proyecto_id",
+    "tablename": "erp_activos",
+    "indexdef": "CREATE INDEX idx_erp_activos_proyecto_id ON public.erp_activos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_ajustes_estacionales_actividad_pkey",
+    "tablename": "erp_ajustes_estacionales_actividad",
+    "indexdef": "CREATE UNIQUE INDEX erp_ajustes_estacionales_actividad_pkey ON public.erp_ajustes_estacionales_actividad USING btree (id)"
+  },
+  {
+    "indexname": "idx_ajustes_estacionalidad",
+    "tablename": "erp_ajustes_estacionales_actividad",
+    "indexdef": "CREATE INDEX idx_ajustes_estacionalidad ON public.erp_ajustes_estacionales_actividad USING btree (estacionalidad_id)"
+  },
+  {
+    "indexname": "erp_anticipos_pkey",
+    "tablename": "erp_anticipos",
+    "indexdef": "CREATE UNIQUE INDEX erp_anticipos_pkey ON public.erp_anticipos USING btree (id)"
+  },
+  {
+    "indexname": "erp_api_keys_api_key_hash_key",
+    "tablename": "erp_api_keys",
+    "indexdef": "CREATE UNIQUE INDEX erp_api_keys_api_key_hash_key ON public.erp_api_keys USING btree (api_key_hash)"
+  },
+  {
+    "indexname": "erp_api_keys_pkey",
+    "tablename": "erp_api_keys",
+    "indexdef": "CREATE UNIQUE INDEX erp_api_keys_pkey ON public.erp_api_keys USING btree (id)"
+  },
+  {
+    "indexname": "idx_api_keys_hash",
+    "tablename": "erp_api_keys",
+    "indexdef": "CREATE INDEX idx_api_keys_hash ON public.erp_api_keys USING btree (api_key_hash)"
+  },
+  {
+    "indexname": "erp_aplicacion_escalas_pkey",
+    "tablename": "erp_aplicacion_escalas",
+    "indexdef": "CREATE UNIQUE INDEX erp_aplicacion_escalas_pkey ON public.erp_aplicacion_escalas USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_aplicacion_escalas_proyecto_id",
+    "tablename": "erp_aplicacion_escalas",
+    "indexdef": "CREATE INDEX idx_erp_aplicacion_escalas_proyecto_id ON public.erp_aplicacion_escalas USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_archivos_tipo_pkey",
+    "tablename": "erp_archivos_tipo",
+    "indexdef": "CREATE UNIQUE INDEX erp_archivos_tipo_pkey ON public.erp_archivos_tipo USING btree (id)"
+  },
+  {
+    "indexname": "erp_audit_log_pkey",
+    "tablename": "erp_audit_log",
+    "indexdef": "CREATE UNIQUE INDEX erp_audit_log_pkey ON public.erp_audit_log USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_audit_log_action",
+    "tablename": "erp_audit_log",
+    "indexdef": "CREATE INDEX idx_erp_audit_log_action ON public.erp_audit_log USING btree (action, changed_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_audit_log_changed_at",
+    "tablename": "erp_audit_log",
+    "indexdef": "CREATE INDEX idx_erp_audit_log_changed_at ON public.erp_audit_log USING btree (changed_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_audit_log_changed_by",
+    "tablename": "erp_audit_log",
+    "indexdef": "CREATE INDEX idx_erp_audit_log_changed_by ON public.erp_audit_log USING btree (changed_by, changed_at DESC) WHERE (changed_by IS NOT NULL)"
+  },
+  {
+    "indexname": "idx_erp_audit_log_table_name_changed",
+    "tablename": "erp_audit_log",
+    "indexdef": "CREATE INDEX idx_erp_audit_log_table_name_changed ON public.erp_audit_log USING btree (table_name, changed_at DESC)"
+  },
+  {
+    "indexname": "erp_auditoria_pkey",
+    "tablename": "erp_auditoria",
+    "indexdef": "CREATE UNIQUE INDEX erp_auditoria_pkey ON public.erp_auditoria USING btree (id)"
+  },
+  {
+    "indexname": "idx_auditoria_usuario",
+    "tablename": "erp_auditoria",
+    "indexdef": "CREATE INDEX idx_auditoria_usuario ON public.erp_auditoria USING btree (usuario_id)"
+  },
+  {
+    "indexname": "idx_erp_auditoria_creado",
+    "tablename": "erp_auditoria",
+    "indexdef": "CREATE INDEX idx_erp_auditoria_creado ON public.erp_auditoria USING btree (creado_en)"
+  },
+  {
+    "indexname": "idx_erp_auditoria_tabla",
+    "tablename": "erp_auditoria",
+    "indexdef": "CREATE INDEX idx_erp_auditoria_tabla ON public.erp_auditoria USING btree (tabla)"
+  },
+  {
+    "indexname": "erp_avances_pkey",
+    "tablename": "erp_avances",
+    "indexdef": "CREATE UNIQUE INDEX erp_avances_pkey ON public.erp_avances USING btree (id)"
+  },
+  {
+    "indexname": "idx_avances_proyecto",
+    "tablename": "erp_avances",
+    "indexdef": "CREATE INDEX idx_avances_proyecto ON public.erp_avances USING btree (proyecto_id, fecha DESC)"
+  },
+  {
+    "indexname": "idx_avances_proyecto_fecha",
+    "tablename": "erp_avances",
+    "indexdef": "CREATE INDEX idx_avances_proyecto_fecha ON public.erp_avances USING btree (proyecto_id, fecha)"
+  },
+  {
+    "indexname": "idx_erp_avances_avance_financiero",
+    "tablename": "erp_avances",
+    "indexdef": "CREATE INDEX idx_erp_avances_avance_financiero ON public.erp_avances USING btree (avance_financiero)"
+  },
+  {
+    "indexname": "idx_erp_avances_created_at",
+    "tablename": "erp_avances",
+    "indexdef": "CREATE INDEX idx_erp_avances_created_at ON public.erp_avances USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_avances_created_by",
+    "tablename": "erp_avances",
+    "indexdef": "CREATE INDEX idx_erp_avances_created_by ON public.erp_avances USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_avances_fecha",
+    "tablename": "erp_avances",
+    "indexdef": "CREATE INDEX idx_erp_avances_fecha ON public.erp_avances USING btree (fecha)"
+  },
+  {
+    "indexname": "idx_erp_avances_proyecto",
+    "tablename": "erp_avances",
+    "indexdef": "CREATE INDEX idx_erp_avances_proyecto ON public.erp_avances USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_avances_proyecto_created_at",
+    "tablename": "erp_avances",
+    "indexdef": "CREATE INDEX idx_erp_avances_proyecto_created_at ON public.erp_avances USING btree (proyecto_id, created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_avances_proyecto_id",
+    "tablename": "erp_avances",
+    "indexdef": "CREATE INDEX idx_erp_avances_proyecto_id ON public.erp_avances USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_bitacora_pkey",
+    "tablename": "erp_bitacora",
+    "indexdef": "CREATE UNIQUE INDEX erp_bitacora_pkey ON public.erp_bitacora USING btree (id)"
+  },
+  {
+    "indexname": "idx_bitacora_fecha",
+    "tablename": "erp_bitacora",
+    "indexdef": "CREATE INDEX idx_bitacora_fecha ON public.erp_bitacora USING btree (fecha)"
+  },
+  {
+    "indexname": "idx_erp_bitacora_created_by",
+    "tablename": "erp_bitacora",
+    "indexdef": "CREATE INDEX idx_erp_bitacora_created_by ON public.erp_bitacora USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_bitacora_proyecto_fecha",
+    "tablename": "erp_bitacora",
+    "indexdef": "CREATE INDEX idx_erp_bitacora_proyecto_fecha ON public.erp_bitacora USING btree (proyecto_id, fecha)"
+  },
+  {
+    "indexname": "idx_erp_bitacora_proyecto_id",
+    "tablename": "erp_bitacora",
+    "indexdef": "CREATE INDEX idx_erp_bitacora_proyecto_id ON public.erp_bitacora USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_bodega_pkey",
+    "tablename": "erp_bodega",
+    "indexdef": "CREATE UNIQUE INDEX erp_bodega_pkey ON public.erp_bodega USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_bodega_material",
+    "tablename": "erp_bodega",
+    "indexdef": "CREATE INDEX idx_erp_bodega_material ON public.erp_bodega USING btree (material_id)"
+  },
+  {
+    "indexname": "idx_erp_bodega_proyecto",
+    "tablename": "erp_bodega",
+    "indexdef": "CREATE INDEX idx_erp_bodega_proyecto ON public.erp_bodega USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_cajas_chicas_pkey",
+    "tablename": "erp_cajas_chicas",
+    "indexdef": "CREATE UNIQUE INDEX erp_cajas_chicas_pkey ON public.erp_cajas_chicas USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_cajas_chicas_estado",
+    "tablename": "erp_cajas_chicas",
+    "indexdef": "CREATE INDEX idx_erp_cajas_chicas_estado ON public.erp_cajas_chicas USING btree (estado)"
+  },
+  {
+    "indexname": "idx_erp_cajas_chicas_proyecto",
+    "tablename": "erp_cajas_chicas",
+    "indexdef": "CREATE INDEX idx_erp_cajas_chicas_proyecto ON public.erp_cajas_chicas USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_calculos_proyecto_pkey",
+    "tablename": "erp_calculos_proyecto",
+    "indexdef": "CREATE UNIQUE INDEX erp_calculos_proyecto_pkey ON public.erp_calculos_proyecto USING btree (id)"
+  },
+  {
+    "indexname": "idx_calculos_proyecto_fecha",
+    "tablename": "erp_calculos_proyecto",
+    "indexdef": "CREATE INDEX idx_calculos_proyecto_fecha ON public.erp_calculos_proyecto USING btree (fecha_calculo DESC)"
+  },
+  {
+    "indexname": "idx_calculos_proyecto_tipo",
+    "tablename": "erp_calculos_proyecto",
+    "indexdef": "CREATE INDEX idx_calculos_proyecto_tipo ON public.erp_calculos_proyecto USING btree (tipo_calculo)"
+  },
+  {
+    "indexname": "idx_calculos_proyecto_usuario",
+    "tablename": "erp_calculos_proyecto",
+    "indexdef": "CREATE INDEX idx_calculos_proyecto_usuario ON public.erp_calculos_proyecto USING btree (usuario_id)"
+  },
+  {
+    "indexname": "idx_calculos_proyecto_validado",
+    "tablename": "erp_calculos_proyecto",
+    "indexdef": "CREATE INDEX idx_calculos_proyecto_validado ON public.erp_calculos_proyecto USING btree (validado)"
+  },
+  {
+    "indexname": "idx_erp_calculos_proyecto_costo_total",
+    "tablename": "erp_calculos_proyecto",
+    "indexdef": "CREATE INDEX idx_erp_calculos_proyecto_costo_total ON public.erp_calculos_proyecto USING btree (costo_total)"
+  },
+  {
+    "indexname": "idx_erp_calculos_proyecto_proyecto_id",
+    "tablename": "erp_calculos_proyecto",
+    "indexdef": "CREATE INDEX idx_erp_calculos_proyecto_proyecto_id ON public.erp_calculos_proyecto USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_centros_costo_codigo_key",
+    "tablename": "erp_centros_costo",
+    "indexdef": "CREATE UNIQUE INDEX erp_centros_costo_codigo_key ON public.erp_centros_costo USING btree (codigo)"
+  },
+  {
+    "indexname": "erp_centros_costo_pkey",
+    "tablename": "erp_centros_costo",
+    "indexdef": "CREATE UNIQUE INDEX erp_centros_costo_pkey ON public.erp_centros_costo USING btree (id)"
+  },
+  {
+    "indexname": "idx_centros_costo_activo",
+    "tablename": "erp_centros_costo",
+    "indexdef": "CREATE INDEX idx_centros_costo_activo ON public.erp_centros_costo USING btree (activo)"
+  },
+  {
+    "indexname": "idx_centros_costo_proyecto",
+    "tablename": "erp_centros_costo",
+    "indexdef": "CREATE INDEX idx_centros_costo_proyecto ON public.erp_centros_costo USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_checklist_pkey",
+    "tablename": "erp_checklist",
+    "indexdef": "CREATE UNIQUE INDEX erp_checklist_pkey ON public.erp_checklist USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_checklist_created_at",
+    "tablename": "erp_checklist",
+    "indexdef": "CREATE INDEX idx_erp_checklist_created_at ON public.erp_checklist USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_checklist_hito",
+    "tablename": "erp_checklist",
+    "indexdef": "CREATE INDEX idx_erp_checklist_hito ON public.erp_checklist USING btree (hito_id)"
+  },
+  {
+    "indexname": "idx_erp_checklist_proyecto",
+    "tablename": "erp_checklist",
+    "indexdef": "CREATE INDEX idx_erp_checklist_proyecto ON public.erp_checklist USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_comparaciones_calculos_pkey",
+    "tablename": "erp_comparaciones_calculos",
+    "indexdef": "CREATE UNIQUE INDEX erp_comparaciones_calculos_pkey ON public.erp_comparaciones_calculos USING btree (id)"
+  },
+  {
+    "indexname": "idx_comparaciones_calculos",
+    "tablename": "erp_comparaciones_calculos",
+    "indexdef": "CREATE INDEX idx_comparaciones_calculos ON public.erp_comparaciones_calculos USING btree (calculo_a_id, calculo_b_id)"
+  },
+  {
+    "indexname": "idx_comparaciones_proyecto",
+    "tablename": "erp_comparaciones_calculos",
+    "indexdef": "CREATE INDEX idx_comparaciones_proyecto ON public.erp_comparaciones_calculos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_comparaciones_calculos_proyecto_id",
+    "tablename": "erp_comparaciones_calculos",
+    "indexdef": "CREATE INDEX idx_erp_comparaciones_calculos_proyecto_id ON public.erp_comparaciones_calculos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_configuracion_pkey",
+    "tablename": "erp_configuracion",
+    "indexdef": "CREATE UNIQUE INDEX erp_configuracion_pkey ON public.erp_configuracion USING btree (id)"
+  },
+  {
+    "indexname": "erp_configuracion_proyecto_id_clave_key",
+    "tablename": "erp_configuracion",
+    "indexdef": "CREATE UNIQUE INDEX erp_configuracion_proyecto_id_clave_key ON public.erp_configuracion USING btree (proyecto_id, clave)"
+  },
+  {
+    "indexname": "idx_erp_configuracion_clave",
+    "tablename": "erp_configuracion",
+    "indexdef": "CREATE INDEX idx_erp_configuracion_clave ON public.erp_configuracion USING btree (clave)"
+  },
+  {
+    "indexname": "idx_erp_configuracion_proyecto",
+    "tablename": "erp_configuracion",
+    "indexdef": "CREATE INDEX idx_erp_configuracion_proyecto ON public.erp_configuracion USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_cotizaciones_negocio_pkey",
+    "tablename": "erp_cotizaciones_negocio",
+    "indexdef": "CREATE UNIQUE INDEX erp_cotizaciones_negocio_pkey ON public.erp_cotizaciones_negocio USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_cotizaciones_cliente",
+    "tablename": "erp_cotizaciones_negocio",
+    "indexdef": "CREATE INDEX idx_erp_cotizaciones_cliente ON public.erp_cotizaciones_negocio USING btree (cliente_nombre)"
+  },
+  {
+    "indexname": "idx_erp_cotizaciones_negocio_estado",
+    "tablename": "erp_cotizaciones_negocio",
+    "indexdef": "CREATE INDEX idx_erp_cotizaciones_negocio_estado ON public.erp_cotizaciones_negocio USING btree (estado)"
+  },
+  {
+    "indexname": "idx_erp_cotizaciones_negocio_fecha",
+    "tablename": "erp_cotizaciones_negocio",
+    "indexdef": "CREATE INDEX idx_erp_cotizaciones_negocio_fecha ON public.erp_cotizaciones_negocio USING btree (fecha)"
+  },
+  {
+    "indexname": "erp_cuadros_pkey",
+    "tablename": "erp_cuadros",
+    "indexdef": "CREATE UNIQUE INDEX erp_cuadros_pkey ON public.erp_cuadros USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_cuadros_by_created_at",
+    "tablename": "erp_cuadros",
+    "indexdef": "CREATE INDEX idx_erp_cuadros_by_created_at ON public.erp_cuadros USING btree (created_by, created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_cuadros_created_by",
+    "tablename": "erp_cuadros",
+    "indexdef": "CREATE INDEX idx_erp_cuadros_created_by ON public.erp_cuadros USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_cuadros_proyecto_id",
+    "tablename": "erp_cuadros",
+    "indexdef": "CREATE INDEX idx_erp_cuadros_proyecto_id ON public.erp_cuadros USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_cuentas_cobrar_pkey",
+    "tablename": "erp_cuentas_cobrar",
+    "indexdef": "CREATE UNIQUE INDEX erp_cuentas_cobrar_pkey ON public.erp_cuentas_cobrar USING btree (id)"
+  },
+  {
+    "indexname": "idx_cuentas_cobrar_estado",
+    "tablename": "erp_cuentas_cobrar",
+    "indexdef": "CREATE INDEX idx_cuentas_cobrar_estado ON public.erp_cuentas_cobrar USING btree (estado)"
+  },
+  {
+    "indexname": "idx_cuentas_cobrar_fecha_vencimiento",
+    "tablename": "erp_cuentas_cobrar",
+    "indexdef": "CREATE INDEX idx_cuentas_cobrar_fecha_vencimiento ON public.erp_cuentas_cobrar USING btree (fecha_vencimiento)"
+  },
+  {
+    "indexname": "idx_cuentas_cobrar_proyecto",
+    "tablename": "erp_cuentas_cobrar",
+    "indexdef": "CREATE INDEX idx_cuentas_cobrar_proyecto ON public.erp_cuentas_cobrar USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_cuentas_cobrar_created_at",
+    "tablename": "erp_cuentas_cobrar",
+    "indexdef": "CREATE INDEX idx_erp_cuentas_cobrar_created_at ON public.erp_cuentas_cobrar USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_cuentas_cobrar_created_by",
+    "tablename": "erp_cuentas_cobrar",
+    "indexdef": "CREATE INDEX idx_erp_cuentas_cobrar_created_by ON public.erp_cuentas_cobrar USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_cuentas_cobrar_proyecto_estado",
+    "tablename": "erp_cuentas_cobrar",
+    "indexdef": "CREATE INDEX idx_erp_cuentas_cobrar_proyecto_estado ON public.erp_cuentas_cobrar USING btree (proyecto_id, estado)"
+  },
+  {
+    "indexname": "idx_erp_cuentas_cobrar_proyecto_id",
+    "tablename": "erp_cuentas_cobrar",
+    "indexdef": "CREATE INDEX idx_erp_cuentas_cobrar_proyecto_id ON public.erp_cuentas_cobrar USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_cuentas_pagar_pkey",
+    "tablename": "erp_cuentas_pagar",
+    "indexdef": "CREATE UNIQUE INDEX erp_cuentas_pagar_pkey ON public.erp_cuentas_pagar USING btree (id)"
+  },
+  {
+    "indexname": "idx_cuentas_pagar_estado",
+    "tablename": "erp_cuentas_pagar",
+    "indexdef": "CREATE INDEX idx_cuentas_pagar_estado ON public.erp_cuentas_pagar USING btree (estado)"
+  },
+  {
+    "indexname": "idx_cuentas_pagar_fecha_vencimiento",
+    "tablename": "erp_cuentas_pagar",
+    "indexdef": "CREATE INDEX idx_cuentas_pagar_fecha_vencimiento ON public.erp_cuentas_pagar USING btree (fecha_vencimiento)"
+  },
+  {
+    "indexname": "idx_cuentas_pagar_proyecto",
+    "tablename": "erp_cuentas_pagar",
+    "indexdef": "CREATE INDEX idx_cuentas_pagar_proyecto ON public.erp_cuentas_pagar USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_cuentas_pagar_created_at",
+    "tablename": "erp_cuentas_pagar",
+    "indexdef": "CREATE INDEX idx_erp_cuentas_pagar_created_at ON public.erp_cuentas_pagar USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_cuentas_pagar_created_by",
+    "tablename": "erp_cuentas_pagar",
+    "indexdef": "CREATE INDEX idx_erp_cuentas_pagar_created_by ON public.erp_cuentas_pagar USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_cuentas_pagar_proyecto_estado",
+    "tablename": "erp_cuentas_pagar",
+    "indexdef": "CREATE INDEX idx_erp_cuentas_pagar_proyecto_estado ON public.erp_cuentas_pagar USING btree (proyecto_id, estado)"
+  },
+  {
+    "indexname": "idx_erp_cuentas_pagar_proyecto_id",
+    "tablename": "erp_cuentas_pagar",
+    "indexdef": "CREATE INDEX idx_erp_cuentas_pagar_proyecto_id ON public.erp_cuentas_pagar USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_cumplimiento_normativo_pkey",
+    "tablename": "erp_cumplimiento_normativo",
+    "indexdef": "CREATE UNIQUE INDEX erp_cumplimiento_normativo_pkey ON public.erp_cumplimiento_normativo USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_cumplimiento_normativo_proyecto_id",
+    "tablename": "erp_cumplimiento_normativo",
+    "indexdef": "CREATE INDEX idx_erp_cumplimiento_normativo_proyecto_id ON public.erp_cumplimiento_normativo USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_departamentos_gt_pkey",
+    "tablename": "erp_departamentos_gt",
+    "indexdef": "CREATE UNIQUE INDEX erp_departamentos_gt_pkey ON public.erp_departamentos_gt USING btree (codigo)"
+  },
+  {
+    "indexname": "idx_erp_departamentos_gt_codigo",
+    "tablename": "erp_departamentos_gt",
+    "indexdef": "CREATE INDEX idx_erp_departamentos_gt_codigo ON public.erp_departamentos_gt USING btree (codigo)"
+  },
+  {
+    "indexname": "idx_erp_departamentos_gt_nombre",
+    "tablename": "erp_departamentos_gt",
+    "indexdef": "CREATE INDEX idx_erp_departamentos_gt_nombre ON public.erp_departamentos_gt USING btree (nombre)"
+  },
+  {
+    "indexname": "erp_destajos_pkey",
+    "tablename": "erp_destajos",
+    "indexdef": "CREATE UNIQUE INDEX erp_destajos_pkey ON public.erp_destajos USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_destajos_empleado_id",
+    "tablename": "erp_destajos",
+    "indexdef": "CREATE INDEX idx_erp_destajos_empleado_id ON public.erp_destajos USING btree (empleado_id)"
+  },
+  {
+    "indexname": "idx_erp_destajos_monto",
+    "tablename": "erp_destajos",
+    "indexdef": "CREATE INDEX idx_erp_destajos_monto ON public.erp_destajos USING btree (monto)"
+  },
+  {
+    "indexname": "idx_erp_destajos_proyecto_fecha",
+    "tablename": "erp_destajos",
+    "indexdef": "CREATE INDEX idx_erp_destajos_proyecto_fecha ON public.erp_destajos USING btree (proyecto_id, fecha DESC)"
+  },
+  {
+    "indexname": "erp_documentos_pkey",
+    "tablename": "erp_documentos",
+    "indexdef": "CREATE UNIQUE INDEX erp_documentos_pkey ON public.erp_documentos USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_documentos_created_at",
+    "tablename": "erp_documentos",
+    "indexdef": "CREATE INDEX idx_erp_documentos_created_at ON public.erp_documentos USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_documentos_proyecto",
+    "tablename": "erp_documentos",
+    "indexdef": "CREATE INDEX idx_erp_documentos_proyecto ON public.erp_documentos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_documentos_tipo",
+    "tablename": "erp_documentos",
+    "indexdef": "CREATE INDEX idx_erp_documentos_tipo ON public.erp_documentos USING btree (tipo)"
+  },
+  {
+    "indexname": "erp_dosificaciones_concreto_pkey",
+    "tablename": "erp_dosificaciones_concreto",
+    "indexdef": "CREATE UNIQUE INDEX erp_dosificaciones_concreto_pkey ON public.erp_dosificaciones_concreto USING btree (id)"
+  },
+  {
+    "indexname": "erp_empleados_pkey",
+    "tablename": "erp_empleados",
+    "indexdef": "CREATE UNIQUE INDEX erp_empleados_pkey ON public.erp_empleados USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_empleados_activo",
+    "tablename": "erp_empleados",
+    "indexdef": "CREATE INDEX idx_erp_empleados_activo ON public.erp_empleados USING btree (activo) WHERE (activo = true)"
+  },
+  {
+    "indexname": "idx_erp_empleados_created_at",
+    "tablename": "erp_empleados",
+    "indexdef": "CREATE INDEX idx_erp_empleados_created_at ON public.erp_empleados USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_empleados_created_by",
+    "tablename": "erp_empleados",
+    "indexdef": "CREATE INDEX idx_erp_empleados_created_by ON public.erp_empleados USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_empleados_nombre_trgm",
+    "tablename": "erp_empleados",
+    "indexdef": "CREATE INDEX idx_erp_empleados_nombre_trgm ON public.erp_empleados USING gin (nombre gin_trgm_ops)"
+  },
+  {
+    "indexname": "idx_erp_empleados_proyecto",
+    "tablename": "erp_empleados",
+    "indexdef": "CREATE INDEX idx_erp_empleados_proyecto ON public.erp_empleados USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_empleados_proyecto_activo",
+    "tablename": "erp_empleados",
+    "indexdef": "CREATE INDEX idx_erp_empleados_proyecto_activo ON public.erp_empleados USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_empleados_proyecto_id",
+    "tablename": "erp_empleados",
+    "indexdef": "CREATE INDEX idx_erp_empleados_proyecto_id ON public.erp_empleados USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_error_log_pkey",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE UNIQUE INDEX erp_error_log_pkey ON public.erp_error_log USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_error_log_component",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_component ON public.erp_error_log USING btree (component)"
+  },
+  {
+    "indexname": "idx_erp_error_log_created_at",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_created_at ON public.erp_error_log USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_error_log_error_code",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_error_code ON public.erp_error_log USING btree (error_code)"
+  },
+  {
+    "indexname": "idx_erp_error_log_error_type",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_error_type ON public.erp_error_log USING btree (error_type)"
+  },
+  {
+    "indexname": "idx_erp_error_log_proyecto_created",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_proyecto_created ON public.erp_error_log USING btree (proyecto_id, created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_error_log_proyecto_id",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_proyecto_id ON public.erp_error_log USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_error_log_request_id",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_request_id ON public.erp_error_log USING btree (request_id)"
+  },
+  {
+    "indexname": "idx_erp_error_log_resolved",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_resolved ON public.erp_error_log USING btree (resolved)"
+  },
+  {
+    "indexname": "idx_erp_error_log_severity",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_severity ON public.erp_error_log USING btree (severity)"
+  },
+  {
+    "indexname": "idx_erp_error_log_severity_created",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_severity_created ON public.erp_error_log USING btree (severity, created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_error_log_unresolved",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_unresolved ON public.erp_error_log USING btree (created_at DESC) WHERE (resolved = false)"
+  },
+  {
+    "indexname": "idx_erp_error_log_user_id",
+    "tablename": "erp_error_log",
+    "indexdef": "CREATE INDEX idx_erp_error_log_user_id ON public.erp_error_log USING btree (user_id)"
+  },
+  {
+    "indexname": "erp_escalas_produccion_pkey",
+    "tablename": "erp_escalas_produccion",
+    "indexdef": "CREATE UNIQUE INDEX erp_escalas_produccion_pkey ON public.erp_escalas_produccion USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_escalas_produccion_activo",
+    "tablename": "erp_escalas_produccion",
+    "indexdef": "CREATE INDEX idx_erp_escalas_produccion_activo ON public.erp_escalas_produccion USING btree (activo) WHERE (activo = true)"
+  },
+  {
+    "indexname": "idx_escalas_produccion_activas",
+    "tablename": "erp_escalas_produccion",
+    "indexdef": "CREATE INDEX idx_escalas_produccion_activas ON public.erp_escalas_produccion USING btree (activo)"
+  },
+  {
+    "indexname": "idx_escalas_produccion_combo",
+    "tablename": "erp_escalas_produccion",
+    "indexdef": "CREATE INDEX idx_escalas_produccion_combo ON public.erp_escalas_produccion USING btree (tipo_proyecto, rango_tamano)"
+  },
+  {
+    "indexname": "idx_escalas_produccion_rango",
+    "tablename": "erp_escalas_produccion",
+    "indexdef": "CREATE INDEX idx_escalas_produccion_rango ON public.erp_escalas_produccion USING btree (tamano_minimo, tamano_maximo)"
+  },
+  {
+    "indexname": "idx_escalas_rango",
+    "tablename": "erp_escalas_produccion",
+    "indexdef": "CREATE INDEX idx_escalas_rango ON public.erp_escalas_produccion USING btree (rango_tamano)"
+  },
+  {
+    "indexname": "idx_escalas_tipo",
+    "tablename": "erp_escalas_produccion",
+    "indexdef": "CREATE INDEX idx_escalas_tipo ON public.erp_escalas_produccion USING btree (tipo_proyecto)"
+  },
+  {
+    "indexname": "erp_estacionalidad_pkey",
+    "tablename": "erp_estacionalidad",
+    "indexdef": "CREATE UNIQUE INDEX erp_estacionalidad_pkey ON public.erp_estacionalidad USING btree (id)"
+  },
+  {
+    "indexname": "idx_estacionalidad_activas",
+    "tablename": "erp_estacionalidad",
+    "indexdef": "CREATE INDEX idx_estacionalidad_activas ON public.erp_estacionalidad USING btree (activo)"
+  },
+  {
+    "indexname": "idx_estacionalidad_combo",
+    "tablename": "erp_estacionalidad",
+    "indexdef": "CREATE INDEX idx_estacionalidad_combo ON public.erp_estacionalidad USING btree (departamento_codigo, mes)"
+  },
+  {
+    "indexname": "erp_eventos_calendario_pkey",
+    "tablename": "erp_eventos_calendario",
+    "indexdef": "CREATE UNIQUE INDEX erp_eventos_calendario_pkey ON public.erp_eventos_calendario USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_eventos_calendario_created_by",
+    "tablename": "erp_eventos_calendario",
+    "indexdef": "CREATE INDEX idx_erp_eventos_calendario_created_by ON public.erp_eventos_calendario USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_eventos_calendario_proyecto_id",
+    "tablename": "erp_eventos_calendario",
+    "indexdef": "CREATE INDEX idx_erp_eventos_calendario_proyecto_id ON public.erp_eventos_calendario USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_eventos_fecha",
+    "tablename": "erp_eventos_calendario",
+    "indexdef": "CREATE INDEX idx_erp_eventos_fecha ON public.erp_eventos_calendario USING btree (fecha)"
+  },
+  {
+    "indexname": "erp_historial_aplicacion_reglas_pkey",
+    "tablename": "erp_historial_aplicacion_reglas",
+    "indexdef": "CREATE UNIQUE INDEX erp_historial_aplicacion_reglas_pkey ON public.erp_historial_aplicacion_reglas USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_historial_aplicacion_reglas_proyecto_id",
+    "tablename": "erp_historial_aplicacion_reglas",
+    "indexdef": "CREATE INDEX idx_erp_historial_aplicacion_reglas_proyecto_id ON public.erp_historial_aplicacion_reglas USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_historial_reglas_proyecto",
+    "tablename": "erp_historial_aplicacion_reglas",
+    "indexdef": "CREATE INDEX idx_historial_reglas_proyecto ON public.erp_historial_aplicacion_reglas USING btree (proyecto_id, fecha_aplicacion DESC)"
+  },
+  {
+    "indexname": "erp_hitos_pkey",
+    "tablename": "erp_hitos",
+    "indexdef": "CREATE UNIQUE INDEX erp_hitos_pkey ON public.erp_hitos USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_hitos_created_at",
+    "tablename": "erp_hitos",
+    "indexdef": "CREATE INDEX idx_erp_hitos_created_at ON public.erp_hitos USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_hitos_created_by",
+    "tablename": "erp_hitos",
+    "indexdef": "CREATE INDEX idx_erp_hitos_created_by ON public.erp_hitos USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_hitos_proyecto_fecha",
+    "tablename": "erp_hitos",
+    "indexdef": "CREATE INDEX idx_erp_hitos_proyecto_fecha ON public.erp_hitos USING btree (proyecto_id, fecha)"
+  },
+  {
+    "indexname": "idx_erp_hitos_proyecto_id",
+    "tablename": "erp_hitos",
+    "indexdef": "CREATE INDEX idx_erp_hitos_proyecto_id ON public.erp_hitos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_hitos_estado",
+    "tablename": "erp_hitos",
+    "indexdef": "CREATE INDEX idx_hitos_estado ON public.erp_hitos USING btree (estado)"
+  },
+  {
+    "indexname": "idx_hitos_fecha",
+    "tablename": "erp_hitos",
+    "indexdef": "CREATE INDEX idx_hitos_fecha ON public.erp_hitos USING btree (fecha DESC)"
+  },
+  {
+    "indexname": "idx_hitos_proyecto",
+    "tablename": "erp_hitos",
+    "indexdef": "CREATE INDEX idx_hitos_proyecto ON public.erp_hitos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_incidentes_pkey",
+    "tablename": "erp_incidentes",
+    "indexdef": "CREATE UNIQUE INDEX erp_incidentes_pkey ON public.erp_incidentes USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_incidentes_created_by",
+    "tablename": "erp_incidentes",
+    "indexdef": "CREATE INDEX idx_erp_incidentes_created_by ON public.erp_incidentes USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_incidentes_estado",
+    "tablename": "erp_incidentes",
+    "indexdef": "CREATE INDEX idx_erp_incidentes_estado ON public.erp_incidentes USING btree (estado)"
+  },
+  {
+    "indexname": "idx_erp_incidentes_proyecto",
+    "tablename": "erp_incidentes",
+    "indexdef": "CREATE INDEX idx_erp_incidentes_proyecto ON public.erp_incidentes USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_incidentes_proyecto_id",
+    "tablename": "erp_incidentes",
+    "indexdef": "CREATE INDEX idx_erp_incidentes_proyecto_id ON public.erp_incidentes USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_incidentes_tipo",
+    "tablename": "erp_incidentes",
+    "indexdef": "CREATE INDEX idx_incidentes_tipo ON public.erp_incidentes USING btree (tipo)"
+  },
+  {
+    "indexname": "erp_insumos_base_pkey",
+    "tablename": "erp_insumos_base",
+    "indexdef": "CREATE UNIQUE INDEX erp_insumos_base_pkey ON public.erp_insumos_base USING btree (id)"
+  },
+  {
+    "indexname": "idx_insumos_base_categoria",
+    "tablename": "erp_insumos_base",
+    "indexdef": "CREATE INDEX idx_insumos_base_categoria ON public.erp_insumos_base USING btree (categoria)"
+  },
+  {
+    "indexname": "idx_insumos_base_rubro",
+    "tablename": "erp_insumos_base",
+    "indexdef": "CREATE INDEX idx_insumos_base_rubro ON public.erp_insumos_base USING btree (rubro)"
+  },
+  {
+    "indexname": "erp_liberaciones_partida_pkey",
+    "tablename": "erp_liberaciones_partida",
+    "indexdef": "CREATE UNIQUE INDEX erp_liberaciones_partida_pkey ON public.erp_liberaciones_partida USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_liberaciones_partida_created_by",
+    "tablename": "erp_liberaciones_partida",
+    "indexdef": "CREATE INDEX idx_erp_liberaciones_partida_created_by ON public.erp_liberaciones_partida USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_liberaciones_partida_proyecto_id",
+    "tablename": "erp_liberaciones_partida",
+    "indexdef": "CREATE INDEX idx_erp_liberaciones_partida_proyecto_id ON public.erp_liberaciones_partida USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_liberaciones_estado",
+    "tablename": "erp_liberaciones_partida",
+    "indexdef": "CREATE INDEX idx_liberaciones_estado ON public.erp_liberaciones_partida USING btree (estado)"
+  },
+  {
+    "indexname": "idx_liberaciones_partida_estado",
+    "tablename": "erp_liberaciones_partida",
+    "indexdef": "CREATE INDEX idx_liberaciones_partida_estado ON public.erp_liberaciones_partida USING btree (estado)"
+  },
+  {
+    "indexname": "idx_liberaciones_partida_fecha",
+    "tablename": "erp_liberaciones_partida",
+    "indexdef": "CREATE INDEX idx_liberaciones_partida_fecha ON public.erp_liberaciones_partida USING btree (fecha_solicitud)"
+  },
+  {
+    "indexname": "idx_liberaciones_partida_proyecto",
+    "tablename": "erp_liberaciones_partida",
+    "indexdef": "CREATE INDEX idx_liberaciones_partida_proyecto ON public.erp_liberaciones_partida USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_liberaciones_partida_renglon",
+    "tablename": "erp_liberaciones_partida",
+    "indexdef": "CREATE INDEX idx_liberaciones_partida_renglon ON public.erp_liberaciones_partida USING btree (renglon_id)"
+  },
+  {
+    "indexname": "erp_licitaciones_pkey",
+    "tablename": "erp_licitaciones",
+    "indexdef": "CREATE UNIQUE INDEX erp_licitaciones_pkey ON public.erp_licitaciones USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_licitaciones_created_at",
+    "tablename": "erp_licitaciones",
+    "indexdef": "CREATE INDEX idx_erp_licitaciones_created_at ON public.erp_licitaciones USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_licitaciones_estado",
+    "tablename": "erp_licitaciones",
+    "indexdef": "CREATE INDEX idx_erp_licitaciones_estado ON public.erp_licitaciones USING btree (estado)"
+  },
+  {
+    "indexname": "idx_erp_licitaciones_nombre",
+    "tablename": "erp_licitaciones",
+    "indexdef": "CREATE INDEX idx_erp_licitaciones_nombre ON public.erp_licitaciones USING btree (nombre)"
+  },
+  {
+    "indexname": "idx_erp_licitaciones_proyecto",
+    "tablename": "erp_licitaciones",
+    "indexdef": "CREATE INDEX idx_erp_licitaciones_proyecto ON public.erp_licitaciones USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_licitaciones_proyecto_id",
+    "tablename": "erp_licitaciones",
+    "indexdef": "CREATE INDEX idx_erp_licitaciones_proyecto_id ON public.erp_licitaciones USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_licitaciones_cliente",
+    "tablename": "erp_licitaciones",
+    "indexdef": "CREATE INDEX idx_licitaciones_cliente ON public.erp_licitaciones USING btree (cliente)"
+  },
+  {
+    "indexname": "idx_licitaciones_estado",
+    "tablename": "erp_licitaciones",
+    "indexdef": "CREATE INDEX idx_licitaciones_estado ON public.erp_licitaciones USING btree (estado)"
+  },
+  {
+    "indexname": "idx_licitaciones_proyecto",
+    "tablename": "erp_licitaciones",
+    "indexdef": "CREATE INDEX idx_licitaciones_proyecto ON public.erp_licitaciones USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_materiales_pkey",
+    "tablename": "erp_materiales",
+    "indexdef": "CREATE UNIQUE INDEX erp_materiales_pkey ON public.erp_materiales USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_materiales_created_at",
+    "tablename": "erp_materiales",
+    "indexdef": "CREATE INDEX idx_erp_materiales_created_at ON public.erp_materiales USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_materiales_created_by",
+    "tablename": "erp_materiales",
+    "indexdef": "CREATE INDEX idx_erp_materiales_created_by ON public.erp_materiales USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_materiales_critico",
+    "tablename": "erp_materiales",
+    "indexdef": "CREATE INDEX idx_erp_materiales_critico ON public.erp_materiales USING btree (critico)"
+  },
+  {
+    "indexname": "idx_erp_materiales_nombre",
+    "tablename": "erp_materiales",
+    "indexdef": "CREATE INDEX idx_erp_materiales_nombre ON public.erp_materiales USING btree (nombre)"
+  },
+  {
+    "indexname": "idx_materiales_bodega",
+    "tablename": "erp_materiales",
+    "indexdef": "CREATE INDEX idx_materiales_bodega ON public.erp_materiales USING btree (bodega)"
+  },
+  {
+    "indexname": "idx_materiales_categoria",
+    "tablename": "erp_materiales",
+    "indexdef": "CREATE INDEX idx_materiales_categoria ON public.erp_materiales USING btree (categoria)"
+  },
+  {
+    "indexname": "idx_materiales_stock_bajo",
+    "tablename": "erp_materiales",
+    "indexdef": "CREATE INDEX idx_materiales_stock_bajo ON public.erp_materiales USING btree (stock) WHERE (stock <= stock_minimo)"
+  },
+  {
+    "indexname": "erp_movimientos_pkey",
+    "tablename": "erp_movimientos",
+    "indexdef": "CREATE UNIQUE INDEX erp_movimientos_pkey ON public.erp_movimientos USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_movimientos_created_at",
+    "tablename": "erp_movimientos",
+    "indexdef": "CREATE INDEX idx_erp_movimientos_created_at ON public.erp_movimientos USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_movimientos_created_by",
+    "tablename": "erp_movimientos",
+    "indexdef": "CREATE INDEX idx_erp_movimientos_created_by ON public.erp_movimientos USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_movimientos_fecha",
+    "tablename": "erp_movimientos",
+    "indexdef": "CREATE INDEX idx_erp_movimientos_fecha ON public.erp_movimientos USING btree (fecha)"
+  },
+  {
+    "indexname": "idx_erp_movimientos_ingresos",
+    "tablename": "erp_movimientos",
+    "indexdef": "CREATE INDEX idx_erp_movimientos_ingresos ON public.erp_movimientos USING btree (proyecto_id, fecha DESC) WHERE (tipo = 'ingreso'::text)"
+  },
+  {
+    "indexname": "idx_erp_movimientos_monto",
+    "tablename": "erp_movimientos",
+    "indexdef": "CREATE INDEX idx_erp_movimientos_monto ON public.erp_movimientos USING btree (monto)"
+  },
+  {
+    "indexname": "idx_erp_movimientos_proyecto_fecha",
+    "tablename": "erp_movimientos",
+    "indexdef": "CREATE INDEX idx_erp_movimientos_proyecto_fecha ON public.erp_movimientos USING btree (proyecto_id, fecha)"
+  },
+  {
+    "indexname": "idx_erp_movimientos_proyecto_id",
+    "tablename": "erp_movimientos",
+    "indexdef": "CREATE INDEX idx_erp_movimientos_proyecto_id ON public.erp_movimientos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_movimientos_tipo",
+    "tablename": "erp_movimientos",
+    "indexdef": "CREATE INDEX idx_erp_movimientos_tipo ON public.erp_movimientos USING btree (tipo)"
+  },
+  {
+    "indexname": "idx_movimientos_fecha",
+    "tablename": "erp_movimientos",
+    "indexdef": "CREATE INDEX idx_movimientos_fecha ON public.erp_movimientos USING btree (fecha DESC)"
+  },
+  {
+    "indexname": "idx_movimientos_forma_pago",
+    "tablename": "erp_movimientos",
+    "indexdef": "CREATE INDEX idx_movimientos_forma_pago ON public.erp_movimientos USING btree (forma_pago)"
+  },
+  {
+    "indexname": "erp_municipios_gt_pkey",
+    "tablename": "erp_municipios_gt",
+    "indexdef": "CREATE UNIQUE INDEX erp_municipios_gt_pkey ON public.erp_municipios_gt USING btree (codigo)"
+  },
+  {
+    "indexname": "idx_erp_municipios_gt_codigo",
+    "tablename": "erp_municipios_gt",
+    "indexdef": "CREATE INDEX idx_erp_municipios_gt_codigo ON public.erp_municipios_gt USING btree (codigo)"
+  },
+  {
+    "indexname": "idx_erp_municipios_gt_departamento",
+    "tablename": "erp_municipios_gt",
+    "indexdef": "CREATE INDEX idx_erp_municipios_gt_departamento ON public.erp_municipios_gt USING btree (departamento_codigo)"
+  },
+  {
+    "indexname": "idx_erp_municipios_gt_depto",
+    "tablename": "erp_municipios_gt",
+    "indexdef": "CREATE INDEX idx_erp_municipios_gt_depto ON public.erp_municipios_gt USING btree (departamento_codigo)"
+  },
+  {
+    "indexname": "idx_erp_municipios_gt_nombre",
+    "tablename": "erp_municipios_gt",
+    "indexdef": "CREATE INDEX idx_erp_municipios_gt_nombre ON public.erp_municipios_gt USING btree (nombre)"
+  },
+  {
+    "indexname": "idx_municipios_accesibilidad",
+    "tablename": "erp_municipios_gt",
+    "indexdef": "CREATE INDEX idx_municipios_accesibilidad ON public.erp_municipios_gt USING btree (accesibilidad)"
+  },
+  {
+    "indexname": "idx_municipios_departamento",
+    "tablename": "erp_municipios_gt",
+    "indexdef": "CREATE INDEX idx_municipios_departamento ON public.erp_municipios_gt USING btree (departamento_codigo)"
+  },
+  {
+    "indexname": "idx_municipios_nombre",
+    "tablename": "erp_municipios_gt",
+    "indexdef": "CREATE INDEX idx_municipios_nombre ON public.erp_municipios_gt USING btree (nombre)"
+  },
+  {
+    "indexname": "erp_no_conformidades_codigo_key",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE UNIQUE INDEX erp_no_conformidades_codigo_key ON public.erp_no_conformidades USING btree (codigo)"
+  },
+  {
+    "indexname": "erp_no_conformidades_pkey",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE UNIQUE INDEX erp_no_conformidades_pkey ON public.erp_no_conformidades USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_nc_estado",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE INDEX idx_erp_nc_estado ON public.erp_no_conformidades USING btree (estado)"
+  },
+  {
+    "indexname": "idx_erp_nc_proyecto",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE INDEX idx_erp_nc_proyecto ON public.erp_no_conformidades USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_no_conformidades_created_by",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE INDEX idx_erp_no_conformidades_created_by ON public.erp_no_conformidades USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_no_conformidades_estado",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE INDEX idx_erp_no_conformidades_estado ON public.erp_no_conformidades USING btree (estado) WHERE (estado <> ALL (ARRAY['cerrada'::text, 'cancelada'::text]))"
+  },
+  {
+    "indexname": "idx_erp_no_conformidades_proyecto",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE INDEX idx_erp_no_conformidades_proyecto ON public.erp_no_conformidades USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_no_conformidades_proyecto_id",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE INDEX idx_erp_no_conformidades_proyecto_id ON public.erp_no_conformidades USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_no_conformidades_categoria",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE INDEX idx_no_conformidades_categoria ON public.erp_no_conformidades USING btree (categoria)"
+  },
+  {
+    "indexname": "idx_no_conformidades_codigo",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE INDEX idx_no_conformidades_codigo ON public.erp_no_conformidades USING btree (codigo)"
+  },
+  {
+    "indexname": "idx_no_conformidades_estado",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE INDEX idx_no_conformidades_estado ON public.erp_no_conformidades USING btree (estado)"
+  },
+  {
+    "indexname": "idx_no_conformidades_fecha",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE INDEX idx_no_conformidades_fecha ON public.erp_no_conformidades USING btree (fecha_deteccion)"
+  },
+  {
+    "indexname": "idx_no_conformidades_proyecto",
+    "tablename": "erp_no_conformidades",
+    "indexdef": "CREATE INDEX idx_no_conformidades_proyecto ON public.erp_no_conformidades USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_normativa_departamental_pkey",
+    "tablename": "erp_normativa_departamental",
+    "indexdef": "CREATE UNIQUE INDEX erp_normativa_departamental_pkey ON public.erp_normativa_departamental USING btree (id)"
+  },
+  {
+    "indexname": "idx_normativa_codigo",
+    "tablename": "erp_normativa_departamental",
+    "indexdef": "CREATE INDEX idx_normativa_codigo ON public.erp_normativa_departamental USING btree (codigo_norma)"
+  },
+  {
+    "indexname": "idx_normativa_departamento_activa",
+    "tablename": "erp_normativa_departamental",
+    "indexdef": "CREATE INDEX idx_normativa_departamento_activa ON public.erp_normativa_departamental USING btree (activo)"
+  },
+  {
+    "indexname": "idx_normativa_departamento_codigo",
+    "tablename": "erp_normativa_departamental",
+    "indexdef": "CREATE INDEX idx_normativa_departamento_codigo ON public.erp_normativa_departamental USING btree (departamento_codigo)"
+  },
+  {
+    "indexname": "idx_normativa_departamento_combo",
+    "tablename": "erp_normativa_departamental",
+    "indexdef": "CREATE INDEX idx_normativa_departamento_combo ON public.erp_normativa_departamental USING btree (departamento_codigo, tipo_norma)"
+  },
+  {
+    "indexname": "idx_normativa_tipo",
+    "tablename": "erp_normativa_departamental",
+    "indexdef": "CREATE INDEX idx_normativa_tipo ON public.erp_normativa_departamental USING btree (tipo_norma)"
+  },
+  {
+    "indexname": "erp_notificaciones_pkey",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE UNIQUE INDEX erp_notificaciones_pkey ON public.erp_notificaciones USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_notificaciones_created_by_leido",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_erp_notificaciones_created_by_leido ON public.erp_notificaciones USING btree (created_by, leido)"
+  },
+  {
+    "indexname": "idx_erp_notificaciones_proyecto_created_at",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_erp_notificaciones_proyecto_created_at ON public.erp_notificaciones USING btree (proyecto_id, created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_notificaciones_proyecto_id",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_erp_notificaciones_proyecto_id ON public.erp_notificaciones USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_notificaciones_proyecto_leido",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_erp_notificaciones_proyecto_leido ON public.erp_notificaciones USING btree (proyecto_id, leido)"
+  },
+  {
+    "indexname": "idx_erp_notificaciones_tipo_created",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_erp_notificaciones_tipo_created ON public.erp_notificaciones USING btree (tipo, created_at DESC) WHERE (tipo IS NOT NULL)"
+  },
+  {
+    "indexname": "idx_erp_notificaciones_usuario",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_erp_notificaciones_usuario ON public.erp_notificaciones USING btree (usuario_id)"
+  },
+  {
+    "indexname": "idx_notificaciones_created",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_notificaciones_created ON public.erp_notificaciones USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_notificaciones_leido",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_notificaciones_leido ON public.erp_notificaciones USING btree (leido)"
+  },
+  {
+    "indexname": "idx_notificaciones_prioridad",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_notificaciones_prioridad ON public.erp_notificaciones USING btree (prioridad)"
+  },
+  {
+    "indexname": "idx_notificaciones_proyecto",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_notificaciones_proyecto ON public.erp_notificaciones USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_notificaciones_tipo",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_notificaciones_tipo ON public.erp_notificaciones USING btree (tipo)"
+  },
+  {
+    "indexname": "idx_notificaciones_usuario",
+    "tablename": "erp_notificaciones",
+    "indexdef": "CREATE INDEX idx_notificaciones_usuario ON public.erp_notificaciones USING btree (created_by)"
+  },
+  {
+    "indexname": "erp_ordenes_cambio_pkey",
+    "tablename": "erp_ordenes_cambio",
+    "indexdef": "CREATE UNIQUE INDEX erp_ordenes_cambio_pkey ON public.erp_ordenes_cambio USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_ordenes_cambio_created_at",
+    "tablename": "erp_ordenes_cambio",
+    "indexdef": "CREATE INDEX idx_erp_ordenes_cambio_created_at ON public.erp_ordenes_cambio USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_ordenes_cambio_created_by",
+    "tablename": "erp_ordenes_cambio",
+    "indexdef": "CREATE INDEX idx_erp_ordenes_cambio_created_by ON public.erp_ordenes_cambio USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_ordenes_cambio_proyecto_id",
+    "tablename": "erp_ordenes_cambio",
+    "indexdef": "CREATE INDEX idx_erp_ordenes_cambio_proyecto_id ON public.erp_ordenes_cambio USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_ordenes_cambio_estado",
+    "tablename": "erp_ordenes_cambio",
+    "indexdef": "CREATE INDEX idx_ordenes_cambio_estado ON public.erp_ordenes_cambio USING btree (estado)"
+  },
+  {
+    "indexname": "idx_ordenes_cambio_fecha",
+    "tablename": "erp_ordenes_cambio",
+    "indexdef": "CREATE INDEX idx_ordenes_cambio_fecha ON public.erp_ordenes_cambio USING btree (created_at)"
+  },
+  {
+    "indexname": "idx_ordenes_cambio_proyecto",
+    "tablename": "erp_ordenes_cambio",
+    "indexdef": "CREATE INDEX idx_ordenes_cambio_proyecto ON public.erp_ordenes_cambio USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_ordenes_compra_pkey",
+    "tablename": "erp_ordenes_compra",
+    "indexdef": "CREATE UNIQUE INDEX erp_ordenes_compra_pkey ON public.erp_ordenes_compra USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_ordenes_compra_created_by",
+    "tablename": "erp_ordenes_compra",
+    "indexdef": "CREATE INDEX idx_erp_ordenes_compra_created_by ON public.erp_ordenes_compra USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_ordenes_compra_estado",
+    "tablename": "erp_ordenes_compra",
+    "indexdef": "CREATE INDEX idx_erp_ordenes_compra_estado ON public.erp_ordenes_compra USING btree (estado)"
+  },
+  {
+    "indexname": "idx_erp_ordenes_compra_proveedor",
+    "tablename": "erp_ordenes_compra",
+    "indexdef": "CREATE INDEX idx_erp_ordenes_compra_proveedor ON public.erp_ordenes_compra USING btree (proveedor)"
+  },
+  {
+    "indexname": "idx_erp_ordenes_compra_proveedor_estado",
+    "tablename": "erp_ordenes_compra",
+    "indexdef": "CREATE INDEX idx_erp_ordenes_compra_proveedor_estado ON public.erp_ordenes_compra USING btree (proveedor, estado)"
+  },
+  {
+    "indexname": "idx_erp_ordenes_compra_proyecto_estado",
+    "tablename": "erp_ordenes_compra",
+    "indexdef": "CREATE INDEX idx_erp_ordenes_compra_proyecto_estado ON public.erp_ordenes_compra USING btree (proyecto_id, estado)"
+  },
+  {
+    "indexname": "idx_erp_ordenes_compra_proyecto_id",
+    "tablename": "erp_ordenes_compra",
+    "indexdef": "CREATE INDEX idx_erp_ordenes_compra_proyecto_id ON public.erp_ordenes_compra USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_oc_estado_proyecto",
+    "tablename": "erp_ordenes_compra",
+    "indexdef": "CREATE INDEX idx_oc_estado_proyecto ON public.erp_ordenes_compra USING btree (estado, proyecto_id)"
+  },
+  {
+    "indexname": "idx_ordenes_compra_proveedor",
+    "tablename": "erp_ordenes_compra",
+    "indexdef": "CREATE INDEX idx_ordenes_compra_proveedor ON public.erp_ordenes_compra USING btree (proveedor_id)"
+  },
+  {
+    "indexname": "idx_ordenes_compra_proyecto",
+    "tablename": "erp_ordenes_compra",
+    "indexdef": "CREATE INDEX idx_ordenes_compra_proyecto ON public.erp_ordenes_compra USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_pagos_proveedor_pkey",
+    "tablename": "erp_pagos_proveedor",
+    "indexdef": "CREATE UNIQUE INDEX erp_pagos_proveedor_pkey ON public.erp_pagos_proveedor USING btree (id)"
+  },
+  {
+    "indexname": "erp_parametros_movimiento_tierra_pkey",
+    "tablename": "erp_parametros_movimiento_tierra",
+    "indexdef": "CREATE UNIQUE INDEX erp_parametros_movimiento_tierra_pkey ON public.erp_parametros_movimiento_tierra USING btree (id)"
+  },
+  {
+    "indexname": "erp_parametros_muros_contencion_pkey",
+    "tablename": "erp_parametros_muros_contencion",
+    "indexdef": "CREATE UNIQUE INDEX erp_parametros_muros_contencion_pkey ON public.erp_parametros_muros_contencion USING btree (id)"
+  },
+  {
+    "indexname": "erp_parametros_pavimentos_pkey",
+    "tablename": "erp_parametros_pavimentos",
+    "indexdef": "CREATE UNIQUE INDEX erp_parametros_pavimentos_pkey ON public.erp_parametros_pavimentos USING btree (id)"
+  },
+  {
+    "indexname": "erp_parametros_redes_infraestructura_pkey",
+    "tablename": "erp_parametros_redes_infraestructura",
+    "indexdef": "CREATE UNIQUE INDEX erp_parametros_redes_infraestructura_pkey ON public.erp_parametros_redes_infraestructura USING btree (id)"
+  },
+  {
+    "indexname": "erp_permisos_pkey",
+    "tablename": "erp_permisos",
+    "indexdef": "CREATE UNIQUE INDEX erp_permisos_pkey ON public.erp_permisos USING btree (id)"
+  },
+  {
+    "indexname": "erp_permisos_usuario_id_proyecto_id_key",
+    "tablename": "erp_permisos",
+    "indexdef": "CREATE UNIQUE INDEX erp_permisos_usuario_id_proyecto_id_key ON public.erp_permisos USING btree (usuario_id, proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_permisos_proyecto",
+    "tablename": "erp_permisos",
+    "indexdef": "CREATE INDEX idx_erp_permisos_proyecto ON public.erp_permisos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_permisos_usuario",
+    "tablename": "erp_permisos",
+    "indexdef": "CREATE INDEX idx_erp_permisos_usuario ON public.erp_permisos USING btree (usuario_id)"
+  },
+  {
+    "indexname": "erp_planos_pkey",
+    "tablename": "erp_planos",
+    "indexdef": "CREATE UNIQUE INDEX erp_planos_pkey ON public.erp_planos USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_planos_created_by",
+    "tablename": "erp_planos",
+    "indexdef": "CREATE INDEX idx_erp_planos_created_by ON public.erp_planos USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_planos_proyecto_id",
+    "tablename": "erp_planos",
+    "indexdef": "CREATE INDEX idx_erp_planos_proyecto_id ON public.erp_planos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_planos_disciplina",
+    "tablename": "erp_planos",
+    "indexdef": "CREATE INDEX idx_planos_disciplina ON public.erp_planos USING btree (disciplina)"
+  },
+  {
+    "indexname": "idx_planos_estado",
+    "tablename": "erp_planos",
+    "indexdef": "CREATE INDEX idx_planos_estado ON public.erp_planos USING btree (estado)"
+  },
+  {
+    "indexname": "idx_planos_fecha",
+    "tablename": "erp_planos",
+    "indexdef": "CREATE INDEX idx_planos_fecha ON public.erp_planos USING btree (fecha_subida)"
+  },
+  {
+    "indexname": "idx_planos_proyecto",
+    "tablename": "erp_planos",
+    "indexdef": "CREATE INDEX idx_planos_proyecto ON public.erp_planos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_planos_proyecto_disciplina",
+    "tablename": "erp_planos",
+    "indexdef": "CREATE INDEX idx_planos_proyecto_disciplina ON public.erp_planos USING btree (proyecto_id, disciplina)"
+  },
+  {
+    "indexname": "idx_planos_version",
+    "tablename": "erp_planos",
+    "indexdef": "CREATE INDEX idx_planos_version ON public.erp_planos USING btree (version)"
+  },
+  {
+    "indexname": "erp_plantillas_proyectos_pkey",
+    "tablename": "erp_plantillas_proyectos",
+    "indexdef": "CREATE UNIQUE INDEX erp_plantillas_proyectos_pkey ON public.erp_plantillas_proyectos USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_plantillas_activa",
+    "tablename": "erp_plantillas_proyectos",
+    "indexdef": "CREATE INDEX idx_erp_plantillas_activa ON public.erp_plantillas_proyectos USING btree (activa) WHERE (activa = true)"
+  },
+  {
+    "indexname": "idx_erp_plantillas_categoria",
+    "tablename": "erp_plantillas_proyectos",
+    "indexdef": "CREATE INDEX idx_erp_plantillas_categoria ON public.erp_plantillas_proyectos USING btree (categoria)"
+  },
+  {
+    "indexname": "idx_erp_plantillas_favorita",
+    "tablename": "erp_plantillas_proyectos",
+    "indexdef": "CREATE INDEX idx_erp_plantillas_favorita ON public.erp_plantillas_proyectos USING btree (favorita) WHERE (favorita = true)"
+  },
+  {
+    "indexname": "idx_plantillas_activa",
+    "tablename": "erp_plantillas_proyectos",
+    "indexdef": "CREATE INDEX idx_plantillas_activa ON public.erp_plantillas_proyectos USING btree (activa)"
+  },
+  {
+    "indexname": "idx_plantillas_categoria",
+    "tablename": "erp_plantillas_proyectos",
+    "indexdef": "CREATE INDEX idx_plantillas_categoria ON public.erp_plantillas_proyectos USING btree (categoria)"
+  },
+  {
+    "indexname": "idx_plantillas_cliente",
+    "tablename": "erp_plantillas_proyectos",
+    "indexdef": "CREATE INDEX idx_plantillas_cliente ON public.erp_plantillas_proyectos USING btree (cliente_id)"
+  },
+  {
+    "indexname": "idx_plantillas_favorita",
+    "tablename": "erp_plantillas_proyectos",
+    "indexdef": "CREATE INDEX idx_plantillas_favorita ON public.erp_plantillas_proyectos USING btree (favorita)"
+  },
+  {
+    "indexname": "idx_plantillas_usos",
+    "tablename": "erp_plantillas_proyectos",
+    "indexdef": "CREATE INDEX idx_plantillas_usos ON public.erp_plantillas_proyectos USING btree (usos_count)"
+  },
+  {
+    "indexname": "erp_presupuestos_pkey",
+    "tablename": "erp_presupuestos",
+    "indexdef": "CREATE UNIQUE INDEX erp_presupuestos_pkey ON public.erp_presupuestos USING btree (id)"
+  },
+  {
+    "indexname": "erp_presupuestos_proyecto_id_version_presupuesto_key",
+    "tablename": "erp_presupuestos",
+    "indexdef": "CREATE UNIQUE INDEX erp_presupuestos_proyecto_id_version_presupuesto_key ON public.erp_presupuestos USING btree (proyecto_id, version_presupuesto)"
+  },
+  {
+    "indexname": "idx_erp_presupuestos_created_at",
+    "tablename": "erp_presupuestos",
+    "indexdef": "CREATE INDEX idx_erp_presupuestos_created_at ON public.erp_presupuestos USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_presupuestos_estado",
+    "tablename": "erp_presupuestos",
+    "indexdef": "CREATE INDEX idx_erp_presupuestos_estado ON public.erp_presupuestos USING btree (estado)"
+  },
+  {
+    "indexname": "idx_erp_presupuestos_proyecto_estado",
+    "tablename": "erp_presupuestos",
+    "indexdef": "CREATE INDEX idx_erp_presupuestos_proyecto_estado ON public.erp_presupuestos USING btree (proyecto_id, estado)"
+  },
+  {
+    "indexname": "idx_erp_presupuestos_proyecto_id",
+    "tablename": "erp_presupuestos",
+    "indexdef": "CREATE INDEX idx_erp_presupuestos_proyecto_id ON public.erp_presupuestos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_presupuestos_renglones_gin",
+    "tablename": "erp_presupuestos",
+    "indexdef": "CREATE INDEX idx_erp_presupuestos_renglones_gin ON public.erp_presupuestos USING gin (renglones) WHERE (renglones IS NOT NULL)"
+  },
+  {
+    "indexname": "erp_proveedores_pkey",
+    "tablename": "erp_proveedores",
+    "indexdef": "CREATE UNIQUE INDEX erp_proveedores_pkey ON public.erp_proveedores USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_proveedores_created_at",
+    "tablename": "erp_proveedores",
+    "indexdef": "CREATE INDEX idx_erp_proveedores_created_at ON public.erp_proveedores USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_proveedores_created_by",
+    "tablename": "erp_proveedores",
+    "indexdef": "CREATE INDEX idx_erp_proveedores_created_by ON public.erp_proveedores USING btree (created_by)"
+  },
+  {
+    "indexname": "erp_proyecto_weather_pkey",
+    "tablename": "erp_proyecto_weather",
+    "indexdef": "CREATE UNIQUE INDEX erp_proyecto_weather_pkey ON public.erp_proyecto_weather USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_proyecto_weather_proyecto_id",
+    "tablename": "erp_proyecto_weather",
+    "indexdef": "CREATE INDEX idx_erp_proyecto_weather_proyecto_id ON public.erp_proyecto_weather USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_proyecto_weather_last_updated",
+    "tablename": "erp_proyecto_weather",
+    "indexdef": "CREATE INDEX idx_proyecto_weather_last_updated ON public.erp_proyecto_weather USING btree (last_updated DESC)"
+  },
+  {
+    "indexname": "idx_proyecto_weather_proyecto_id",
+    "tablename": "erp_proyecto_weather",
+    "indexdef": "CREATE INDEX idx_proyecto_weather_proyecto_id ON public.erp_proyecto_weather USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "unique_proyecto_weather",
+    "tablename": "erp_proyecto_weather",
+    "indexdef": "CREATE UNIQUE INDEX unique_proyecto_weather ON public.erp_proyecto_weather USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_proyectos_pkey",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE UNIQUE INDEX erp_proyectos_pkey ON public.erp_proyectos USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_proyectos_cliente",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE INDEX idx_erp_proyectos_cliente ON public.erp_proyectos USING btree (cliente)"
+  },
+  {
+    "indexname": "idx_erp_proyectos_created_at",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE INDEX idx_erp_proyectos_created_at ON public.erp_proyectos USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_proyectos_created_by",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE INDEX idx_erp_proyectos_created_by ON public.erp_proyectos USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_proyectos_estado",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE INDEX idx_erp_proyectos_estado ON public.erp_proyectos USING btree (estado)"
+  },
+  {
+    "indexname": "idx_erp_proyectos_fecha_inicio",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE INDEX idx_erp_proyectos_fecha_inicio ON public.erp_proyectos USING btree (fecha_inicio)"
+  },
+  {
+    "indexname": "idx_erp_proyectos_nombre",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE INDEX idx_erp_proyectos_nombre ON public.erp_proyectos USING btree (nombre)"
+  },
+  {
+    "indexname": "idx_erp_proyectos_nombre_trgm",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE INDEX idx_erp_proyectos_nombre_trgm ON public.erp_proyectos USING gin (nombre gin_trgm_ops)"
+  },
+  {
+    "indexname": "idx_erp_proyectos_updated_at",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE INDEX idx_erp_proyectos_updated_at ON public.erp_proyectos USING btree (updated_at DESC)"
+  },
+  {
+    "indexname": "idx_proyectos_ciudad",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE INDEX idx_proyectos_ciudad ON public.erp_proyectos USING btree (ciudad)"
+  },
+  {
+    "indexname": "idx_proyectos_estado",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE INDEX idx_proyectos_estado ON public.erp_proyectos USING btree (estado)"
+  },
+  {
+    "indexname": "idx_proyectos_etapa",
+    "tablename": "erp_proyectos",
+    "indexdef": "CREATE INDEX idx_proyectos_etapa ON public.erp_proyectos USING btree (etapa)"
+  },
+  {
+    "indexname": "erp_pruebas_laboratorio_pkey",
+    "tablename": "erp_pruebas_laboratorio",
+    "indexdef": "CREATE UNIQUE INDEX erp_pruebas_laboratorio_pkey ON public.erp_pruebas_laboratorio USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_pruebas_laboratorio_created_by",
+    "tablename": "erp_pruebas_laboratorio",
+    "indexdef": "CREATE INDEX idx_erp_pruebas_laboratorio_created_by ON public.erp_pruebas_laboratorio USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_pruebas_laboratorio_proyecto_id",
+    "tablename": "erp_pruebas_laboratorio",
+    "indexdef": "CREATE INDEX idx_erp_pruebas_laboratorio_proyecto_id ON public.erp_pruebas_laboratorio USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_pruebas_laboratorio_fecha",
+    "tablename": "erp_pruebas_laboratorio",
+    "indexdef": "CREATE INDEX idx_pruebas_laboratorio_fecha ON public.erp_pruebas_laboratorio USING btree (fecha_muestra)"
+  },
+  {
+    "indexname": "idx_pruebas_laboratorio_proyecto",
+    "tablename": "erp_pruebas_laboratorio",
+    "indexdef": "CREATE INDEX idx_pruebas_laboratorio_proyecto ON public.erp_pruebas_laboratorio USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_pruebas_laboratorio_resultado",
+    "tablename": "erp_pruebas_laboratorio",
+    "indexdef": "CREATE INDEX idx_pruebas_laboratorio_resultado ON public.erp_pruebas_laboratorio USING btree (resultado)"
+  },
+  {
+    "indexname": "idx_pruebas_laboratorio_tipo",
+    "tablename": "erp_pruebas_laboratorio",
+    "indexdef": "CREATE INDEX idx_pruebas_laboratorio_tipo ON public.erp_pruebas_laboratorio USING btree (tipo)"
+  },
+  {
+    "indexname": "idx_pruebas_resultado",
+    "tablename": "erp_pruebas_laboratorio",
+    "indexdef": "CREATE INDEX idx_pruebas_resultado ON public.erp_pruebas_laboratorio USING btree (resultado)"
+  },
+  {
+    "indexname": "idx_pruebas_tipo",
+    "tablename": "erp_pruebas_laboratorio",
+    "indexdef": "CREATE INDEX idx_pruebas_tipo ON public.erp_pruebas_laboratorio USING btree (tipo)"
+  },
+  {
+    "indexname": "erp_publicaciones_muro_pkey",
+    "tablename": "erp_publicaciones_muro",
+    "indexdef": "CREATE UNIQUE INDEX erp_publicaciones_muro_pkey ON public.erp_publicaciones_muro USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_publicaciones_muro_autor",
+    "tablename": "erp_publicaciones_muro",
+    "indexdef": "CREATE INDEX idx_erp_publicaciones_muro_autor ON public.erp_publicaciones_muro USING btree (autor_id)"
+  },
+  {
+    "indexname": "idx_erp_publicaciones_muro_autor_id",
+    "tablename": "erp_publicaciones_muro",
+    "indexdef": "CREATE INDEX idx_erp_publicaciones_muro_autor_id ON public.erp_publicaciones_muro USING btree (autor_id)"
+  },
+  {
+    "indexname": "idx_erp_publicaciones_muro_created",
+    "tablename": "erp_publicaciones_muro",
+    "indexdef": "CREATE INDEX idx_erp_publicaciones_muro_created ON public.erp_publicaciones_muro USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_publicaciones_muro_created_at",
+    "tablename": "erp_publicaciones_muro",
+    "indexdef": "CREATE INDEX idx_erp_publicaciones_muro_created_at ON public.erp_publicaciones_muro USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_publicaciones_muro_proyecto",
+    "tablename": "erp_publicaciones_muro",
+    "indexdef": "CREATE INDEX idx_erp_publicaciones_muro_proyecto ON public.erp_publicaciones_muro USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_publicaciones_muro_proyecto_id",
+    "tablename": "erp_publicaciones_muro",
+    "indexdef": "CREATE INDEX idx_erp_publicaciones_muro_proyecto_id ON public.erp_publicaciones_muro USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_publicaciones_muro_usuario_id",
+    "tablename": "erp_publicaciones_muro",
+    "indexdef": "CREATE INDEX idx_erp_publicaciones_muro_usuario_id ON public.erp_publicaciones_muro USING btree (usuario_id)"
+  },
+  {
+    "indexname": "erp_recepciones_pkey",
+    "tablename": "erp_recepciones",
+    "indexdef": "CREATE UNIQUE INDEX erp_recepciones_pkey ON public.erp_recepciones USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_recepciones_oc",
+    "tablename": "erp_recepciones",
+    "indexdef": "CREATE INDEX idx_erp_recepciones_oc ON public.erp_recepciones USING btree (oc_id)"
+  },
+  {
+    "indexname": "erp_recepciones_almacen_pkey",
+    "tablename": "erp_recepciones_almacen",
+    "indexdef": "CREATE UNIQUE INDEX erp_recepciones_almacen_pkey ON public.erp_recepciones_almacen USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_recepciones_almacen_orden",
+    "tablename": "erp_recepciones_almacen",
+    "indexdef": "CREATE INDEX idx_erp_recepciones_almacen_orden ON public.erp_recepciones_almacen USING btree (orden_compra_id)"
+  },
+  {
+    "indexname": "idx_erp_recepciones_almacen_proyecto",
+    "tablename": "erp_recepciones_almacen",
+    "indexdef": "CREATE INDEX idx_erp_recepciones_almacen_proyecto ON public.erp_recepciones_almacen USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_reglas_factores_pkey",
+    "tablename": "erp_reglas_factores",
+    "indexdef": "CREATE UNIQUE INDEX erp_reglas_factores_pkey ON public.erp_reglas_factores USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_reglas_factores_activo",
+    "tablename": "erp_reglas_factores",
+    "indexdef": "CREATE INDEX idx_erp_reglas_factores_activo ON public.erp_reglas_factores USING btree (activo) WHERE (activo = true)"
+  },
+  {
+    "indexname": "idx_reglas_factores_ambito",
+    "tablename": "erp_reglas_factores",
+    "indexdef": "CREATE INDEX idx_reglas_factores_ambito ON public.erp_reglas_factores USING btree (ambito, departamento_id, municipio_id)"
+  },
+  {
+    "indexname": "idx_reglas_factores_prioridad",
+    "tablename": "erp_reglas_factores",
+    "indexdef": "CREATE INDEX idx_reglas_factores_prioridad ON public.erp_reglas_factores USING btree (prioridad DESC, activo)"
+  },
+  {
+    "indexname": "idx_reglas_factores_tipo",
+    "tablename": "erp_reglas_factores",
+    "indexdef": "CREATE INDEX idx_reglas_factores_tipo ON public.erp_reglas_factores USING btree (tipo_factor, activo)"
+  },
+  {
+    "indexname": "erp_rendimientos_campo_pkey",
+    "tablename": "erp_rendimientos_campo",
+    "indexdef": "CREATE UNIQUE INDEX erp_rendimientos_campo_pkey ON public.erp_rendimientos_campo USING btree (id)"
+  },
+  {
+    "indexname": "erp_rfis_pkey",
+    "tablename": "erp_rfis",
+    "indexdef": "CREATE UNIQUE INDEX erp_rfis_pkey ON public.erp_rfis USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_rfis_created_by",
+    "tablename": "erp_rfis",
+    "indexdef": "CREATE INDEX idx_erp_rfis_created_by ON public.erp_rfis USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_rfis_proyecto_id",
+    "tablename": "erp_rfis",
+    "indexdef": "CREATE INDEX idx_erp_rfis_proyecto_id ON public.erp_rfis USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_rfis_estado",
+    "tablename": "erp_rfis",
+    "indexdef": "CREATE INDEX idx_rfis_estado ON public.erp_rfis USING btree (estado)"
+  },
+  {
+    "indexname": "idx_rfis_fecha",
+    "tablename": "erp_rfis",
+    "indexdef": "CREATE INDEX idx_rfis_fecha ON public.erp_rfis USING btree (fecha_solicitud)"
+  },
+  {
+    "indexname": "idx_rfis_prioridad",
+    "tablename": "erp_rfis",
+    "indexdef": "CREATE INDEX idx_rfis_prioridad ON public.erp_rfis USING btree (prioridad)"
+  },
+  {
+    "indexname": "idx_rfis_proyecto",
+    "tablename": "erp_rfis",
+    "indexdef": "CREATE INDEX idx_rfis_proyecto ON public.erp_rfis USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_rfis_proyecto_estado",
+    "tablename": "erp_rfis",
+    "indexdef": "CREATE INDEX idx_rfis_proyecto_estado ON public.erp_rfis USING btree (proyecto_id, estado)"
+  },
+  {
+    "indexname": "erp_riesgos_pkey",
+    "tablename": "erp_riesgos",
+    "indexdef": "CREATE UNIQUE INDEX erp_riesgos_pkey ON public.erp_riesgos USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_riesgos_created_at",
+    "tablename": "erp_riesgos",
+    "indexdef": "CREATE INDEX idx_erp_riesgos_created_at ON public.erp_riesgos USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_riesgos_created_by",
+    "tablename": "erp_riesgos",
+    "indexdef": "CREATE INDEX idx_erp_riesgos_created_by ON public.erp_riesgos USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_riesgos_nivel",
+    "tablename": "erp_riesgos",
+    "indexdef": "CREATE INDEX idx_erp_riesgos_nivel ON public.erp_riesgos USING btree (nivel)"
+  },
+  {
+    "indexname": "idx_erp_riesgos_nombre",
+    "tablename": "erp_riesgos",
+    "indexdef": "CREATE INDEX idx_erp_riesgos_nombre ON public.erp_riesgos USING btree (nombre)"
+  },
+  {
+    "indexname": "idx_erp_riesgos_proyecto_id",
+    "tablename": "erp_riesgos",
+    "indexdef": "CREATE INDEX idx_erp_riesgos_proyecto_id ON public.erp_riesgos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_riesgos_estado",
+    "tablename": "erp_riesgos",
+    "indexdef": "CREATE INDEX idx_riesgos_estado ON public.erp_riesgos USING btree (estado)"
+  },
+  {
+    "indexname": "idx_riesgos_nivel",
+    "tablename": "erp_riesgos",
+    "indexdef": "CREATE INDEX idx_riesgos_nivel ON public.erp_riesgos USING btree (nivel)"
+  },
+  {
+    "indexname": "idx_riesgos_proyecto",
+    "tablename": "erp_riesgos",
+    "indexdef": "CREATE INDEX idx_riesgos_proyecto ON public.erp_riesgos USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "erp_seguimiento_pkey",
+    "tablename": "erp_seguimiento",
+    "indexdef": "CREATE UNIQUE INDEX erp_seguimiento_pkey ON public.erp_seguimiento USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_seguimiento_created_at",
+    "tablename": "erp_seguimiento",
+    "indexdef": "CREATE INDEX idx_erp_seguimiento_created_at ON public.erp_seguimiento USING btree (created_at DESC)"
+  },
+  {
+    "indexname": "idx_erp_seguimiento_created_by",
+    "tablename": "erp_seguimiento",
+    "indexdef": "CREATE INDEX idx_erp_seguimiento_created_by ON public.erp_seguimiento USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_seguimiento_fecha",
+    "tablename": "erp_seguimiento",
+    "indexdef": "CREATE INDEX idx_erp_seguimiento_fecha ON public.erp_seguimiento USING btree (fecha)"
+  },
+  {
+    "indexname": "idx_erp_seguimiento_proyecto",
+    "tablename": "erp_seguimiento",
+    "indexdef": "CREATE INDEX idx_erp_seguimiento_proyecto ON public.erp_seguimiento USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_seguimiento_proyecto_fecha",
+    "tablename": "erp_seguimiento",
+    "indexdef": "CREATE INDEX idx_erp_seguimiento_proyecto_fecha ON public.erp_seguimiento USING btree (proyecto_id, fecha)"
+  },
+  {
+    "indexname": "idx_erp_seguimiento_proyecto_id",
+    "tablename": "erp_seguimiento",
+    "indexdef": "CREATE INDEX idx_erp_seguimiento_proyecto_id ON public.erp_seguimiento USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_erp_seguimiento_tipo",
+    "tablename": "erp_seguimiento",
+    "indexdef": "CREATE INDEX idx_erp_seguimiento_tipo ON public.erp_seguimiento USING btree (tipo)"
+  },
+  {
+    "indexname": "idx_erp_seguimiento_valor",
+    "tablename": "erp_seguimiento",
+    "indexdef": "CREATE INDEX idx_erp_seguimiento_valor ON public.erp_seguimiento USING btree (valor)"
+  },
+  {
+    "indexname": "erp_snapshots_estado_calculo_pkey",
+    "tablename": "erp_snapshots_estado_calculo",
+    "indexdef": "CREATE UNIQUE INDEX erp_snapshots_estado_calculo_pkey ON public.erp_snapshots_estado_calculo USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_snapshots_estado_calculo_proyecto_id",
+    "tablename": "erp_snapshots_estado_calculo",
+    "indexdef": "CREATE INDEX idx_erp_snapshots_estado_calculo_proyecto_id ON public.erp_snapshots_estado_calculo USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_snapshots_proyecto",
+    "tablename": "erp_snapshots_estado_calculo",
+    "indexdef": "CREATE INDEX idx_snapshots_proyecto ON public.erp_snapshots_estado_calculo USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_snapshots_tipo",
+    "tablename": "erp_snapshots_estado_calculo",
+    "indexdef": "CREATE INDEX idx_snapshots_tipo ON public.erp_snapshots_estado_calculo USING btree (tipo_snapshot)"
+  },
+  {
+    "indexname": "erp_solicitudes_pkey",
+    "tablename": "erp_solicitudes",
+    "indexdef": "CREATE UNIQUE INDEX erp_solicitudes_pkey ON public.erp_solicitudes USING btree (id)"
+  },
+  {
+    "indexname": "erp_submittals_pkey",
+    "tablename": "erp_submittals",
+    "indexdef": "CREATE UNIQUE INDEX erp_submittals_pkey ON public.erp_submittals USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_submittals_created_by",
+    "tablename": "erp_submittals",
+    "indexdef": "CREATE INDEX idx_erp_submittals_created_by ON public.erp_submittals USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_submittals_proyecto_id",
+    "tablename": "erp_submittals",
+    "indexdef": "CREATE INDEX idx_erp_submittals_proyecto_id ON public.erp_submittals USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_submittals_categoria",
+    "tablename": "erp_submittals",
+    "indexdef": "CREATE INDEX idx_submittals_categoria ON public.erp_submittals USING btree (categoria)"
+  },
+  {
+    "indexname": "idx_submittals_estado",
+    "tablename": "erp_submittals",
+    "indexdef": "CREATE INDEX idx_submittals_estado ON public.erp_submittals USING btree (estado)"
+  },
+  {
+    "indexname": "idx_submittals_fecha",
+    "tablename": "erp_submittals",
+    "indexdef": "CREATE INDEX idx_submittals_fecha ON public.erp_submittals USING btree (fecha_envio)"
+  },
+  {
+    "indexname": "idx_submittals_proyecto",
+    "tablename": "erp_submittals",
+    "indexdef": "CREATE INDEX idx_submittals_proyecto ON public.erp_submittals USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_submittals_proyecto_estado",
+    "tablename": "erp_submittals",
+    "indexdef": "CREATE INDEX idx_submittals_proyecto_estado ON public.erp_submittals USING btree (proyecto_id, estado)"
+  },
+  {
+    "indexname": "erp_subtipologias_pkey",
+    "tablename": "erp_subtipologias",
+    "indexdef": "CREATE UNIQUE INDEX erp_subtipologias_pkey ON public.erp_subtipologias USING btree (id)"
+  },
+  {
+    "indexname": "idx_subtipologias_activas",
+    "tablename": "erp_subtipologias",
+    "indexdef": "CREATE INDEX idx_subtipologias_activas ON public.erp_subtipologias USING btree (activo)"
+  },
+  {
+    "indexname": "idx_subtipologias_combo",
+    "tablename": "erp_subtipologias",
+    "indexdef": "CREATE UNIQUE INDEX idx_subtipologias_combo ON public.erp_subtipologias USING btree (tipologia, subtipo)"
+  },
+  {
+    "indexname": "erp_vales_salida_pkey",
+    "tablename": "erp_vales_salida",
+    "indexdef": "CREATE UNIQUE INDEX erp_vales_salida_pkey ON public.erp_vales_salida USING btree (id)"
+  },
+  {
+    "indexname": "idx_erp_vales_salida_created_by",
+    "tablename": "erp_vales_salida",
+    "indexdef": "CREATE INDEX idx_erp_vales_salida_created_by ON public.erp_vales_salida USING btree (created_by)"
+  },
+  {
+    "indexname": "idx_erp_vales_salida_fecha",
+    "tablename": "erp_vales_salida",
+    "indexdef": "CREATE INDEX idx_erp_vales_salida_fecha ON public.erp_vales_salida USING btree (fecha)"
+  },
+  {
+    "indexname": "idx_erp_vales_salida_proyecto_id",
+    "tablename": "erp_vales_salida",
+    "indexdef": "CREATE INDEX idx_erp_vales_salida_proyecto_id ON public.erp_vales_salida USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "idx_vales_fecha",
+    "tablename": "erp_vales_salida",
+    "indexdef": "CREATE INDEX idx_vales_fecha ON public.erp_vales_salida USING btree (fecha DESC)"
+  },
+  {
+    "indexname": "erp_ventas_paquetes_pkey",
+    "tablename": "erp_ventas_paquetes",
+    "indexdef": "CREATE UNIQUE INDEX erp_ventas_paquetes_pkey ON public.erp_ventas_paquetes USING btree (id)"
+  },
+  {
+    "indexname": "idx_ventas_paquetes_estado",
+    "tablename": "erp_ventas_paquetes",
+    "indexdef": "CREATE INDEX idx_ventas_paquetes_estado ON public.erp_ventas_paquetes USING btree (estado)"
+  },
+  {
+    "indexname": "idx_ventas_paquetes_proyecto",
+    "tablename": "erp_ventas_paquetes",
+    "indexdef": "CREATE INDEX idx_ventas_paquetes_proyecto ON public.erp_ventas_paquetes USING btree (proyecto_id)"
+  },
+  {
+    "indexname": "profiles_pkey",
+    "tablename": "profiles",
+    "indexdef": "CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id)"
+  }
+]

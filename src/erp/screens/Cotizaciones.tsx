@@ -269,13 +269,13 @@ const Cotizaciones: React.FC = () => {
                           <EstadoIcon className="w-3 h-3" /> {estadoInfo?.label}
                         </span>
                       </div>
-                      <h3 className="text-sm font-semibold text-foreground truncate">{c.clienteNombre}</h3>
+                  <h3 className="text-sm font-semibold text-foreground truncate">{c.clienteNombre}</h3>
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{c.descripcion || c.alcance}</p>
                       <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" aria-hidden="true" /> {c.fecha}</span>
                         {c.fechaVencimiento && <span className="flex items-center gap-1"><Clock className="w-3 h-3" aria-hidden="true" /> {t('cotizaciones.vence')} {c.fechaVencimiento}</span>}
                         {c.clienteNit && <span className="flex items-center gap-1"><FileText className="w-3 h-3" aria-hidden="true" /> NIT: {c.clienteNit}</span>}
-                        <span className="font-semibold text-emerald-600">{fmtQ(c.precioVentaTotal)}</span>
+                        <span className="font-semibold text-success">{fmtQ(c.precioVentaTotal)}</span>
                       </div>
                     </div>
                     <div className="flex flex-col gap-1">

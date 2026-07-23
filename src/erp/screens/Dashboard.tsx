@@ -106,10 +106,10 @@ const Dashboard: React.FC = () => {
           {
             id: 'critical-risks',
             severity: 'critical' as const,
-            title: 'Riesgos Críticos Identificados',
-            description: `${criticalRisks.length} riesgos de alta probabilidad e impacto requieren atención inmediata`,
+            title: t('dashboard.alert_riesgos_criticos_title'),
+            description: t('dashboard.alert_riesgos_criticos_desc', { count: criticalRisks.length }),
             count: criticalRisks.length,
-            action: { label: 'Ver Riesgos', onClick: () => ctx.setView('riesgos') },
+            action: { label: t('dashboard.alert_riesgos_criticos_action'), onClick: () => ctx.setView('riesgos') },
           },
         ]
       : []),
@@ -118,10 +118,10 @@ const Dashboard: React.FC = () => {
           {
             id: 'variances',
             severity: 'high' as const,
-            title: 'Variaciones Presupuestarias Detectadas',
-            description: `${projectVariances.length} proyectos muestran desviaciones > 5%`,
+            title: t('dashboard.alert_variaciones_title'),
+            description: t('dashboard.alert_variaciones_desc', { count: projectVariances.length }),
             count: projectVariances.length,
-            action: { label: 'Analizar', onClick: () => ctx.setView('seguimiento') },
+            action: { label: t('dashboard.alert_variaciones_action'), onClick: () => ctx.setView('seguimiento') },
           },
         ]
       : []),
@@ -130,10 +130,10 @@ const Dashboard: React.FC = () => {
           {
             id: 'pending-orders',
             severity: 'high' as const,
-            title: 'Órdenes de Cambio Pendientes',
-            description: `${overdueTasks.length} órdenes de cambio requieren revisión`,
+            title: t('dashboard.alert_ordenes_cambio_title'),
+            description: t('dashboard.alert_ordenes_cambio_desc', { count: overdueTasks.length }),
             count: overdueTasks.length,
-            action: { label: 'Revisar', onClick: () => ctx.setView('ordenes-cambio') },
+            action: { label: t('dashboard.alert_ordenes_cambio_action'), onClick: () => ctx.setView('ordenes-cambio') },
           },
         ]
       : []),
@@ -143,25 +143,25 @@ const Dashboard: React.FC = () => {
   const projectColumns: Column<ProjectStatusRow>[] = [
     {
       key: 'nombre',
-      header: 'Proyecto',
+      header: t('dashboard.table_header_proyecto'),
       width: '30%',
       sortable: true,
     },
     {
       key: 'estado',
-      header: 'Estado',
+      header: t('dashboard.table_header_estado'),
       width: '15%',
       render: (val) => (
         <StatusBadge
           status={val === 'ejecucion' ? 'success' : val === 'finalizado' ? 'info' : 'warning'}
           label={
             val === 'ejecucion'
-              ? 'En Ejecución'
+              ? t('dashboard.estado_ejecucion')
               : val === 'finalizado'
-              ? 'Finalizado'
+              ? t('dashboard.estado_finalizado')
               : val === 'pausado'
-              ? 'Pausado'
-              : 'Planeación'
+              ? t('dashboard.estado_pausado')
+              : t('dashboard.estado_planeacion')
           }
           size="sm"
         />
@@ -169,7 +169,7 @@ const Dashboard: React.FC = () => {
     },
     {
       key: 'avanceFisico',
-      header: 'Avance Físico',
+      header: t('dashboard.table_header_avance_fisico'),
       width: '15%',
       align: 'center',
       render: (val) => (
@@ -181,12 +181,12 @@ const Dashboard: React.FC = () => {
     },
     {
       key: 'variacion',
-      header: 'Variación',
+      header: t('dashboard.table_header_variacion'),
       width: '12%',
       align: 'center',
       render: (val) => {
         const variance = val as number;
-        const statusColor = Math.abs(variance) < 3 ? 'text-emerald-600' : Math.abs(variance) < 5 ? 'text-amber-600' : 'text-red-600';
+        const statusColor = Math.abs(variance) < 3 ? 'text-success' : Math.abs(variance) < 5 ? 'text-warning' : 'text-destructive';
         return (
           <span className={`text-xs font-semibold ${statusColor}`}>
             {variance > 0 ? '+' : ''}{variance.toFixed(1)}%
@@ -196,17 +196,17 @@ const Dashboard: React.FC = () => {
     },
     {
       key: 'presupuestoTotal',
-      header: 'Presupuesto',
+      header: t('dashboard.table_header_presupuesto'),
       width: '14%',
       align: 'right',
       render: (val) => <span className="text-xs font-medium">{fmtQ(val as number)}</span>,
     },
     {
       key: 'montoEjecutado',
-      header: 'Ejecutado',
+      header: t('dashboard.table_header_ejecutado'),
       width: '14%',
       align: 'right',
-      render: (val) => <span className="text-xs font-medium text-amber-600">{fmtQ(val as number)}</span>,
+      render: (val) => <span className="text-xs font-medium text-warning">{fmtQ(val as number)}</span>,
     },
   ];
 
@@ -303,7 +303,7 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="bg-success/10 rounded-xl p-4 text-center">
           <p className="text-xs text-success font-medium">Flujo Neto</p>
-          <p className="text-xl font-bold text-success">Q{flujoNeto.toLocaleString()}</p>
+          <p className="text-xl font-bold text-success">{fmtQ(flujoNeto)}</p>
         </div>
       </div>
 

@@ -106,7 +106,7 @@ const EntradasAlmacenOC: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-lg sm:text-xl font-bold flex items-center gap-2"><Package className="w-5 h-5" aria-hidden="true" /> {t('entradasAlmacenOC.titulo')}</h1>
+        <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2"><Package className="w-5 h-5" aria-hidden="true" /> {t('entradasAlmacenOC.titulo')}</h1>
       </div>
 
       <div className="flex flex-wrap gap-3 mb-4">
@@ -238,7 +238,7 @@ const EntradasAlmacenOC: React.FC = () => {
               <tbody>
                 {historialRecepciones.items.map(r => (
                   <tr key={r.id} className={`border-t border-border ${r.diferencia < 0 ? 'bg-red-50/60 dark:bg-red-950/20' : 'hover:bg-muted/50'}`}>
-                    <td className="p-2 text-xs">{new Date(r.fecha).toLocaleDateString()}</td>
+                    <td className="p-2 text-xs">{new Date(r.fecha).toLocaleDateString('es-GT')}</td>
                     <td className="p-2 text-xs truncate" title={r.proveedor}>{r.proveedor}</td>
                     <td className="p-2 text-xs truncate" title={r.material}>{r.material}</td>
                     <td className="p-2 text-right font-mono text-xs">{r.cantidadRecibida}</td>

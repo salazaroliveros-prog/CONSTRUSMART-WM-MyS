@@ -1,0 +1,917 @@
+[
+  {
+    "proname": "email",
+    "nspname": "auth",
+    "definition": "CREATE OR REPLACE FUNCTION auth.email()\n RETURNS text\n LANGUAGE sql\n STABLE\nAS $function$\n  select \n  coalesce(\n    nullif(current_setting('request.jwt.claim.email', true), ''),\n    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'email')\n  )::text\n$function$\n"
+  },
+  {
+    "proname": "jwt",
+    "nspname": "auth",
+    "definition": "CREATE OR REPLACE FUNCTION auth.jwt()\n RETURNS jsonb\n LANGUAGE sql\n STABLE\nAS $function$\n  select \n    coalesce(\n        nullif(current_setting('request.jwt.claim', true), ''),\n        nullif(current_setting('request.jwt.claims', true), '')\n    )::jsonb\n$function$\n"
+  },
+  {
+    "proname": "role",
+    "nspname": "auth",
+    "definition": "CREATE OR REPLACE FUNCTION auth.role()\n RETURNS text\n LANGUAGE sql\n STABLE\nAS $function$\n  select \n  coalesce(\n    nullif(current_setting('request.jwt.claim.role', true), ''),\n    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role')\n  )::text\n$function$\n"
+  },
+  {
+    "proname": "uid",
+    "nspname": "auth",
+    "definition": "CREATE OR REPLACE FUNCTION auth.uid()\n RETURNS uuid\n LANGUAGE sql\n STABLE\nAS $function$\n  select \n  coalesce(\n    nullif(current_setting('request.jwt.claim.sub', true), ''),\n    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')\n  )::uuid\n$function$\n"
+  },
+  {
+    "proname": "graphql",
+    "nspname": "graphql_public",
+    "definition": "CREATE OR REPLACE FUNCTION graphql_public.graphql(\"operationName\" text DEFAULT NULL::text, query text DEFAULT NULL::text, variables jsonb DEFAULT NULL::jsonb, extensions jsonb DEFAULT NULL::jsonb)\n RETURNS jsonb\n LANGUAGE sql\nAS $function$\n        select graphql.resolve(\n            query := query,\n            variables := coalesce(variables, '{}'),\n            \"operationName\" := \"operationName\",\n            extensions := extensions\n        );\n    $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_acero",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_acero()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_calculos",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_calculos()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_dosificaciones",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_dosificaciones()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_avances",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_avances()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_calculos_proyecto",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_calculos_proyecto()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_cuentas_cobrar",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_cuentas_cobrar()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_cuentas_pagar",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_cuentas_pagar()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_destajos",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_destajos()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_empleados",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_empleados()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_hitos",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_hitos()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_incidentes",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_incidentes()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_movimientos",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_movimientos()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_notificaciones",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_notificaciones()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_ordenes_cambio",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_ordenes_cambio()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_publicaciones_muro",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_publicaciones_muro()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_riesgos",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_riesgos()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_erp_seguimiento",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_erp_seguimiento()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\n          BEGIN\n            NEW.updated_at = now();\n            RETURN NEW;\n          END;\n          $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_escalas",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_escalas()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\nBEGIN\n  NEW.updated_at = now();\n  RETURN NEW;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_estacionalidad",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_estacionalidad()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$ BEGIN NEW.updated_at = now(); RETURN NEW; END; $function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_normativa",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_normativa()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_parametros_climaticos",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_parametros_climaticos()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_parametros_mt",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_parametros_mt()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_parametros_muros",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_parametros_muros()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_parametros_pavimentos",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_parametros_pavimentos()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_parametros_redes",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_parametros_redes()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "actualizar_timestamp_subtipologias",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.actualizar_timestamp_subtipologias()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "aplicar_ajuste_estacional",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.aplicar_ajuste_estacional(p_departamento_codigo text, p_fecha_inicio date, p_dias_duracion integer, p_costo_base numeric)\n RETURNS TABLE(costo_base numeric, factor_estacional_promedio numeric, costo_ajustado numeric, diferencia_costo numeric, porcentaje_ajuste numeric, condiciones_especiales text[])\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_fecha_actual date := p_fecha_inicio;\r\n  v_fecha_fin date := p_fecha_inicio + (p_dias_duracion || ' days')::interval;\r\n  v_factor_total numeric := 0;\r\n  v_factor_count integer := 0;\r\n  v_factor_estacional numeric;\r\n  v_factor_promedio numeric;\r\n  v_costo_ajustado numeric;\r\n  v_condiciones text[] := '{}';\r\n  v_registro RECORD;\r\nBEGIN\r\n  -- Calcular promedio de factores estacionales durante el período\r\n  WHILE v_fecha_actual <= v_fecha_fin LOOP\r\n    SELECT * INTO v_registro FROM obtener_factor_estacional(p_departamento_codigo, EXTRACT(MONTH FROM v_fecha_actual)::integer);\r\n    \r\n    IF FOUND THEN\r\n      v_factor_total := v_factor_total + (v_registro.factor_costo * v_registro.factor_productividad);\r\n      v_factor_count := v_factor_count + 1;\r\n      \r\n      IF v_registro.condiciones_especiales IS NOT NULL THEN\r\n        v_condiciones := array_append(v_condiciones, v_registro.condiciones_especiales);\r\n      END IF;\r\n    END IF;\r\n    \r\n    v_fecha_actual := v_fecha_actual + INTERVAL '1 day';\r\n  END LOOP;\r\n  \r\n  -- Calcular factor promedio\r\n  IF v_factor_count > 0 THEN\r\n    v_factor_promedio := v_factor_total / v_factor_count;\r\n  ELSE\r\n    v_factor_promedio := 1.0; -- Sin datos, usar factor neutro\r\n  END IF;\r\n  \r\n  -- Aplicar factor al costo base\r\n  v_costo_ajustado := p_costo_base * v_factor_promedio;\r\n  \r\n  RETURN QUERY\r\n  SELECT\r\n    p_costo_base as costo_base,\r\n    v_factor_promedio as factor_estacional_promedio,\r\n    v_costo_ajustado as costo_ajustado,\r\n    (v_costo_ajustado - p_costo_base) as diferencia_costo,\r\n    ((v_costo_ajustado - p_costo_base) / p_costo_base * 100) as porcentaje_ajuste,\r\n    v_condiciones as condiciones_especiales;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "aplicar_factores_escala",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.aplicar_factores_escala(p_tipo_proyecto text, p_presupuesto_base numeric, p_costo_directo numeric)\n RETURNS TABLE(presupuesto_base numeric, costo_ajustado numeric, factor_economia_aplicado numeric, factor_administracion_aplicado numeric, factor_imprevistos_aplicado numeric, factor_total numeric, presupuesto_final numeric, escala_identificada text)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_escala RECORD;\r\n  v_factor_total numeric;\r\n  v_costo_ajustado numeric;\r\n  v_presupuesto_final numeric;\r\nBEGIN\r\n  -- Obtener escala de producción\r\n  SELECT * INTO v_escala FROM obtener_escala_produccion(p_tipo_proyecto, p_presupuesto_base);\r\n  \r\n  IF NOT FOUND THEN\r\n    -- Si no se encuentra escala, usar valores por defecto (mediano)\r\n    v_escala.factor_economia := 1.10;\r\n    v_escala.factor_administracion := 1.12;\r\n    v_escala.factor_imprevistos := 1.08;\r\n    v_escala.rango_tamano := 'desconocido';\r\n  END IF;\r\n  \r\n  -- Calcular factor total\r\n  v_factor_total := v_escala.factor_economia * v_escala.factor_administracion * v_escala.factor_imprevistos;\r\n  \r\n  -- Aplicar factores al costo directo\r\n  v_costo_ajustado := p_costo_directo * v_escala.factor_economia;\r\n  v_presupuesto_final := v_costo_ajustado * v_escala.factor_administracion * v_escala.factor_imprevistos;\r\n  \r\n  RETURN QUERY\r\n  SELECT\r\n    p_presupuesto_base as presupuesto_base,\r\n    v_costo_ajustado as costo_ajustado,\r\n    v_escala.factor_economia as factor_economia_aplicado,\r\n    v_escala.factor_administracion as factor_administracion_aplicado,\r\n    v_escala.factor_imprevistos as factor_imprevistos_aplicado,\r\n    v_factor_total as factor_total,\r\n    v_presupuesto_final as presupuesto_final,\r\n    v_escala.rango_tamano as escala_identificada;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "append_comentario_muro",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.append_comentario_muro(pub_id uuid, comentario jsonb)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\nAS $function$\n      BEGIN\n        UPDATE public.erp_publicaciones_muro\n        SET comentarios = comentarios || jsonb_build_array(comentario)\n        WHERE id = pub_id;\n      END;\n      $function$\n"
+  },
+  {
+    "proname": "asignar_miembro_proyecto",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.asignar_miembro_proyecto(p_proyecto_id uuid, p_user_id uuid, p_rol text DEFAULT 'lectura'::text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  IF public.get_current_user_role() != 'Administrador' THEN\r\n    RETURN jsonb_build_object('success', false, 'error', 'Solo Administrador puede asignar miembros');\r\n  END IF;\r\n  INSERT INTO public.erp_proyecto_miembros (proyecto_id, user_id, rol, asignado_por)\r\n  VALUES (p_proyecto_id, p_user_id, p_rol, auth.uid())\r\n  ON CONFLICT (proyecto_id, user_id)\r\n  DO UPDATE SET rol = p_rol, asignado_por = auth.uid();\r\n  RETURN jsonb_build_object('success', true);\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "assign_user_role",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.assign_user_role(user_email text, new_rol text)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  user_id uuid;\r\nBEGIN\r\n  -- Validar que el rol sea válido\r\n  IF new_rol NOT IN ('Administrador', 'Gerente', 'Residente', 'Compras', 'Bodeguero', 'usuario') THEN\r\n    RAISE EXCEPTION 'Rol inválido: %', new_rol;\r\n    RETURN false;\r\n  END IF;\r\n\r\n  -- Buscar usuario por email\r\n  SELECT id INTO user_id\r\n  FROM auth.users\r\n  WHERE email = user_email\r\n  LIMIT 1;\r\n\r\n  IF user_id IS NULL THEN\r\n    RAISE EXCEPTION 'Usuario no encontrado: %', user_email;\r\n    RETURN false;\r\n  END IF;\r\n\r\n  -- Actualizar o crear perfil con el nuevo rol\r\n  INSERT INTO public.profiles (id, nombre, rol, user_metadata)\r\n  VALUES (\r\n    user_id,\r\n    COALESCE(\r\n      (SELECT nombre FROM public.profiles WHERE id = user_id),\r\n      split_part(user_email, '@', 1)\r\n    ),\r\n    new_rol,\r\n    jsonb_build_object('email', user_email)\r\n  )\r\n  ON CONFLICT (id) DO UPDATE SET\r\n    rol = new_rol,\r\n    updated_at = now();\r\n\r\n  RETURN true;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "audit_trigger_func",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.audit_trigger_func()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  IF (TG_OP = 'DELETE') THEN\r\n    INSERT INTO erp_audit_log (table_name, record_id, action, old_data, changed_by)\r\n    VALUES (TG_TABLE_NAME, OLD.id, 'DELETE', row_to_json(OLD), auth.uid());\r\n    RETURN OLD;\r\n  ELSIF (TG_OP = 'UPDATE') THEN\r\n    INSERT INTO erp_audit_log (table_name, record_id, action, old_data, new_data, changed_by, changed_fields)\r\n    VALUES (\r\n      TG_TABLE_NAME,\r\n      NEW.id,\r\n      'UPDATE',\r\n      row_to_json(OLD),\r\n      row_to_json(NEW),\r\n      auth.uid(),\r\n      NULL\r\n    );\r\n    RETURN NEW;\r\n  ELSIF (TG_OP = 'INSERT') THEN\r\n    INSERT INTO erp_audit_log (table_name, record_id, action, new_data, changed_by)\r\n    VALUES (TG_TABLE_NAME, NEW.id, 'INSERT', row_to_json(NEW), auth.uid());\r\n    RETURN NEW;\r\n  END IF;\r\n  RETURN NULL;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "begin_transaction",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.begin_transaction(isolation_level text DEFAULT 'READ COMMITTED'::text)\n RETURNS void\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  EXECUTE format('SET TRANSACTION ISOLATION LEVEL %s', isolation_level);\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "calcular_desglose_acero",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.calcular_desglose_acero(p_elemento text, p_grado numeric, p_estribos text, p_volumen_m3 numeric)\n RETURNS TABLE(diametro text, cantidad_kg numeric, precio_qq numeric, precio_unitario_kg numeric, costo_total numeric)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_referencia RECORD;\r\n  v_precio RECORD;\r\nBEGIN\r\n  -- Obtener referencia de acero\r\n  SELECT * INTO v_referencia\r\n  FROM erp_referencias_acero\r\n  WHERE elemento = p_elemento\r\n    AND grado = p_grado\r\n    AND estribos = p_estribos\r\n    AND activo = true\r\n  LIMIT 1;\r\n\r\n  IF NOT FOUND THEN\r\n    -- Valores por defecto si no se encuentra\r\n    RETURN QUERY\r\n    SELECT\r\n      '1/2' as diametro,\r\n      0 as cantidad_kg,\r\n      0 as precio_qq,\r\n      0 as precio_unitario_kg,\r\n      0 as costo_total;\r\n    RETURN;\r\n  END IF;\r\n\r\n  -- Desglose por diámetro\r\n  FOR v_precio IN\r\n    SELECT diametro, precio_qq, precio_kg\r\n    FROM erp_precios_acero\r\n    WHERE grado = p_grado\r\n      AND activo = true\r\n  LOOP\r\n    -- Extraer porcentaje de distribución del JSONB\r\n    DECLARE\r\n      v_porcentaje numeric;\r\n    BEGIN\r\n      SELECT CASE\r\n        WHEN v_precio.diametro = '3/8' THEN (v_referencia.distribucion->>'3/8')::numeric\r\n        WHEN v_precio.diametro = '1/2' THEN (v_referencia.distribucion->>'1/2')::numeric\r\n        WHEN v_precio.diametro = '5/8' THEN (v_referencia.distribucion->>'5/8')::numeric\r\n        WHEN v_precio.diametro = '3/4' THEN (v_referencia.distribucion->>'3/4')::numeric\r\n        WHEN v_precio.diametro = '7/8' THEN (v_referencia.distribucion->>'7/8')::numeric\r\n        WHEN v_precio.diametro = '1' THEN (v_referencia.distribucion->>'1')::numeric\r\n        ELSE 0\r\n      END INTO v_porcentaje;\r\n    EXCEPTION WHEN OTHERS THEN\r\n      v_porcentaje := 0;\r\n    END;\r\n\r\n    IF v_porcentaje IS NOT NULL AND v_porcentaje > 0 THEN\r\n      DECLARE\r\n        v_total_kg numeric;\r\n        v_costo numeric;\r\n      BEGIN\r\n        v_total_kg := v_referencia.total_kg_m3 * p_volumen_m3 * v_porcentaje * (1 + v_referencia.desperdicio_pct/100);\r\n        v_costo := v_total_kg * v_precio.precio_kg;\r\n\r\n        RETURN QUERY SELECT\r\n          v_precio.diametro,\r\n          v_total_kg,\r\n          v_precio.precio_qq,\r\n          v_precio.precio_kg,\r\n          v_costo;\r\n      END;\r\n    END IF;\r\n  END LOOP;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "calcular_dosificacion",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.calcular_dosificacion(p_resistencia text, p_tipo text, \"p_tamaño_agregado\" text, p_aditivos text, p_curado text, p_volumen numeric, p_departamento text DEFAULT NULL::text, p_altitud numeric DEFAULT NULL::numeric)\n RETURNS TABLE(cemento_sacos numeric, arena_m3 numeric, piedra_m3 numeric, agua_lt numeric, factor_ajuste numeric, costo_total numeric)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_dosificacion RECORD;\r\n  v_factor_altitud numeric := 1.0;\r\n  v_factor_temperatura numeric := 1.0;\r\n  v_factor_curado numeric := 1.0;\r\n  v_precio_cemento numeric := 92;\r\n  v_precio_arena numeric := 145;\r\n  v_precio_piedra numeric := 195;\r\nBEGIN\r\n  SELECT * INTO v_dosificacion\r\n  FROM erp_dosificaciones_concreto\r\n  WHERE resistencia = p_resistencia\r\n    AND tipo = p_tipo\r\n    AND tamaño_agregado = p_tamaño_agregado\r\n    AND aditivos = p_aditivos\r\n    AND curado = p_curado\r\n    AND activo = true\r\n  LIMIT 1;\r\n\r\n  IF p_altitud IS NOT NULL THEN\r\n    IF p_altitud > 2000 THEN\r\n      v_factor_altitud := 1.05;\r\n    ELSIF p_altitud > 1000 AND p_altitud <= 2000 THEN\r\n      v_factor_altitud := 1.0;\r\n    ELSE\r\n      v_factor_altitud := 0.98;\r\n    END IF;\r\n  END IF;\r\n\r\n  IF p_departamento IS NOT NULL THEN\r\n    CASE p_departamento\r\n      WHEN 'GT-01' THEN v_factor_temperatura := 1.0;\r\n      WHEN 'GT-02' THEN v_factor_temperatura := 0.95;\r\n      WHEN 'GT-03' THEN v_factor_temperatura := 0.95;\r\n      WHEN 'GT-08' THEN v_factor_temperatura := 1.4;\r\n      WHEN 'GT-12' THEN v_factor_temperatura := 1.5;\r\n      WHEN 'GT-15' THEN v_factor_temperatura := 1.2;\r\n      ELSE v_factor_temperatura := 1.0;\r\n    END CASE;\r\n  END IF;\r\n\r\n  IF p_curado = 'acelerado' THEN\r\n    v_factor_curado := 1.2;\r\n  ELSIF p_curado = 'prolongado' THEN\r\n    v_factor_curado := 1.3;\r\n  ELSE\r\n    v_factor_curado := 1.0;\r\n  END IF;\r\n\r\n  RETURN QUERY\r\n  SELECT\r\n    v_dosificacion.cemento_sacos_m3 * p_volumen * v_factor_altitud * v_factor_curado AS cemento_sacos,\r\n    v_dosificacion.arena_m3_m3 * p_volumen * v_factor_altitud AS arena_m3,\r\n    v_dosificacion.piedra_m3_m3 * p_volumen * v_factor_altitud AS piedra_m3,\r\n    v_dosificacion.agua_lt_m3 * p_volumen * v_factor_temperatura AS agua_lt,\r\n    v_factor_altitud * v_factor_temperatura * v_factor_curado AS factor_ajuste,\r\n    (v_dosificacion.cemento_sacos_m3 * v_precio_cemento +\r\n     v_dosificacion.arena_m3_m3 * v_precio_arena +\r\n     v_dosificacion.piedra_m3_m3 * v_precio_piedra) * p_volumen * v_factor_altitud * v_factor_temperatura * v_factor_curado AS costo_total;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "calcular_movimiento_tierra",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.calcular_movimiento_tierra(p_tipo text, p_suelo text, p_profundidad text, p_acceso text, p_drenaje text, p_volumen numeric)\n RETURNS TABLE(costo_unitario numeric, costo_total numeric, tiempo_estimado_dias numeric, equipo_requerido text[], factor_ajuste_total numeric)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_parametros RECORD;\r\n  v_factor_total numeric;\r\n  v_costo_unitario numeric;\r\n  v_tiempo_dias numeric;\r\nBEGIN\r\n  -- Obtener parámetros base\r\n  SELECT * INTO v_parametros\r\n  FROM erp_parametros_movimiento_tierra\r\n  WHERE tipo = p_tipo\r\n    AND suelo = p_suelo\r\n    AND profundidad = p_profundidad\r\n    AND acceso = p_acceso\r\n    AND drenaje = p_drenaje\r\n    AND activo = true\r\n  LIMIT 1;\r\n\r\n  IF NOT FOUND THEN\r\n    -- Si no se encuentra combinación exacta, usar valores por defecto\r\n    v_parametros.costo_base_m3 := 80;\r\n    v_parametros.rendimiento_diario_m3 := 40;\r\n    v_parametros.factor_profundidad := 1.0;\r\n    v_parametros.factor_acceso := 1.0;\r\n    v_parametros.factor_drenaje := 1.0;\r\n    v_parametros.equipo_requerido := ARRAY['Retroexcavadora', 'Camión volquete'];\r\n  END IF;\r\n\r\n  -- Calcular factor total de ajuste\r\n  v_factor_total := v_parametros.factor_profundidad * v_parametros.factor_acceso * v_parametros.factor_drenaje;\r\n  \r\n  -- Calcular costo unitario ajustado\r\n  v_costo_unitario := v_parametros.costo_base_m3 * v_factor_total;\r\n  \r\n  -- Calcular tiempo estimado en días\r\n  v_tiempo_dias := CEIL(p_volumen / v_parametros.rendimiento_diario_m3);\r\n  \r\n  -- Retornar resultados\r\n  RETURN QUERY\r\n  SELECT\r\n    v_costo_unitario as costo_unitario,\r\n    v_costo_unitario * p_volumen as costo_total,\r\n    v_tiempo_dias as tiempo_estimado_dias,\r\n    v_parametros.equipo_requerido as equipo_requerido,\r\n    v_factor_total as factor_ajuste_total;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "calcular_muro_contencion",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.calcular_muro_contencion(p_altura_m numeric, p_tipo text, p_tipo_cimentacion text, p_tipo_suelo text, p_tipo_drenaje text, p_longitud_m numeric)\n RETURNS TABLE(costo_unitario_m2 numeric, costo_total numeric, factor_ajuste_total numeric, volumen_concreto_m3 numeric, referencia_norma text)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_parametros RECORD;\r\n  v_factor_total numeric;\r\n  v_costo_unitario numeric;\r\n  v_costo_total numeric;\r\n  v_volumen_concreto numeric;\r\nBEGIN\r\n  SELECT * INTO v_parametros\r\n  FROM erp_parametros_muros_contencion\r\n  WHERE altura_m = p_altura_m\r\n    AND tipo = p_tipo\r\n    AND tipo_cimentacion = p_tipo_cimentacion\r\n    AND tipo_suelo = p_tipo_suelo\r\n    AND tipo_drenaje = p_tipo_drenaje\r\n    AND activo = true\r\n  LIMIT 1;\r\n\r\n  IF NOT FOUND THEN\r\n    v_parametros.costo_base_m2 := 500;\r\n    v_parametros.factor_profundidad := 1.5;\r\n    v_parametros.factor_suelo := 1.1;\r\n    v_parametros.factor_drenaje := 1.0;\r\n    v_parametros.referencia_norma := 'AGIES 62.01 (default)';\r\n  END IF;\r\n\r\n  v_factor_total := v_parametros.factor_profundidad * v_parametros.factor_suelo * v_parametros.factor_drenaje;\r\n  v_costo_unitario := v_parametros.costo_base_m2 * v_factor_total;\r\n  v_costo_total := v_costo_unitario * (p_altura_m * p_longitud_m);\r\n  v_volumen_concreto := (p_altura_m * p_longitud_m) * 0.3;\r\n  \r\n  RETURN QUERY\r\n  SELECT\r\n    v_costo_unitario as costo_unitario_m2,\r\n    v_costo_total as costo_total,\r\n    v_factor_total as factor_ajuste_total,\r\n    v_volumen_concreto as volumen_concreto_m3,\r\n    v_parametros.referencia_norma as referencia_norma;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "calcular_pavimento",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.calcular_pavimento(p_uso text, p_tipo text, p_tipo_base text, p_tipo_sello text, p_area_m2 numeric)\n RETURNS TABLE(espesor_cm numeric, costo_superficie_m2 numeric, costo_base_m3 numeric, costo_sello_m2 numeric, costo_total_m2 numeric, costo_total numeric, volumen_base_m3 numeric, referencia_norma text)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_parametros RECORD;\r\n  v_costo_total_m2 numeric;\r\n  v_costo_total numeric;\r\n  v_volumen_base_m3 numeric;\r\nBEGIN\r\n  SELECT * INTO v_parametros\r\n  FROM erp_parametros_pavimentos\r\n  WHERE uso = p_uso\r\n    AND tipo = p_tipo\r\n    AND tipo_base = p_tipo_base\r\n    AND tipo_sello = p_tipo_sello\r\n    AND activo = true\r\n  LIMIT 1;\r\n\r\n  IF NOT FOUND THEN\r\n    v_parametros.espesor_minimo_cm := 10;\r\n    v_parametros.costo_base_m2 := 150;\r\n    v_parametros.costo_base_m3 := 160;\r\n    v_parametros.costo_sello_m2 := 15;\r\n    v_parametros.referencia_norma := 'AGIES 51.02 (default)';\r\n  END IF;\r\n\r\n  v_costo_total_m2 := v_parametros.costo_base_m2 + v_parametros.costo_sello_m2;\r\n  v_costo_total := v_costo_total_m2 * p_area_m2;\r\n  v_volumen_base_m3 := (v_parametros.espesor_minimo_cm / 100) * p_area_m2;\r\n  \r\n  RETURN QUERY\r\n  SELECT\r\n    v_parametros.espesor_minimo_cm as espesor_cm,\r\n    v_parametros.costo_base_m2 as costo_superficie_m2,\r\n    v_parametros.costo_base_m3 as costo_base_m3,\r\n    v_parametros.costo_sello_m2 as costo_sello_m2,\r\n    v_costo_total_m2 as costo_total_m2,\r\n    v_costo_total as costo_total,\r\n    v_volumen_base_m3 as volumen_base_m3,\r\n    v_parametros.referencia_norma as referencia_norma;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "calcular_red_infraestructura",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.calcular_red_infraestructura(p_tipo text, p_diametro_pulgadas numeric, p_material text, p_presion text, p_longitud_ml numeric)\n RETURNS TABLE(costo_unitario_ml numeric, costo_total numeric, factor_ajuste_material numeric, referencia_norma text)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_parametros RECORD;\r\n  v_costo_unitario numeric;\r\n  v_costo_total numeric;\r\nBEGIN\r\n  SELECT * INTO v_parametros\r\n  FROM erp_parametros_redes_infraestructura\r\n  WHERE tipo = p_tipo\r\n    AND diametro_pulgadas = p_diametro_pulgadas\r\n    AND material = p_material\r\n    AND presion = p_presion\r\n    AND activo = true\r\n  LIMIT 1;\r\n\r\n  IF NOT FOUND THEN\r\n    v_parametros.costo_base_ml := 100;\r\n    v_parametros.factor_material := 1.0;\r\n    v_parametros.referencia_norma := 'COGUANOR NGO 41001 (default)';\r\n  END IF;\r\n\r\n  v_costo_unitario := v_parametros.costo_base_ml * v_parametros.factor_material;\r\n  v_costo_total := v_costo_unitario * p_longitud_ml;\r\n  \r\n  RETURN QUERY\r\n  SELECT\r\n    v_costo_unitario as costo_unitario_ml,\r\n    v_costo_total as costo_total,\r\n    v_parametros.factor_material as factor_ajuste_material,\r\n    v_parametros.referencia_norma as referencia_norma;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "check_daily_integrity",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.check_daily_integrity()\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n  result jsonb;\n  fk_orphans jsonb;\n  null_checks jsonb;\n  dup_checks jsonb;\nBEGIN\n  -- a) FK orphan check: registros con proyecto_id que apuntan a proyecto inexistente\n  SELECT COALESCE(jsonb_agg(x), '[]'::jsonb) INTO fk_orphans\n  FROM (\n    SELECT 'erp_movimientos' as tabla, COUNT(*) as count FROM erp_movimientos m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n    UNION ALL SELECT 'erp_presupuestos', COUNT(*) FROM erp_presupuestos m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n    UNION ALL SELECT 'erp_ordenes_compra', COUNT(*) FROM erp_ordenes_compra m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n    UNION ALL SELECT 'erp_hitos', COUNT(*) FROM erp_hitos m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n    UNION ALL SELECT 'erp_riesgos', COUNT(*) FROM erp_riesgos m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n    UNION ALL SELECT 'erp_incidentes', COUNT(*) FROM erp_incidentes m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n    UNION ALL SELECT 'erp_avances', COUNT(*) FROM erp_avances m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n    UNION ALL SELECT 'erp_vales_salida', COUNT(*) FROM erp_vales_salida m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n    UNION ALL SELECT 'erp_cuentas_cobrar', COUNT(*) FROM erp_cuentas_cobrar m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n    UNION ALL SELECT 'erp_cuentas_pagar', COUNT(*) FROM erp_cuentas_pagar m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n    UNION ALL SELECT 'erp_empleados', COUNT(*) FROM erp_empleados m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n    UNION ALL SELECT 'erp_notificaciones', COUNT(*) FROM erp_notificaciones m WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos p WHERE p.id = m.proyecto_id) AND m.proyecto_id IS NOT NULL\n  ) x WHERE x.count > 0;\n\n  -- b) NULL checks en columnas críticas\n  SELECT COALESCE(jsonb_agg(x), '[]'::jsonb) INTO null_checks\n  FROM (\n    SELECT 'erp_proyectos' as tabla, 'nombre' as columna, COUNT(*) as count FROM erp_proyectos WHERE nombre IS NULL OR nombre = ''\n    UNION ALL SELECT 'erp_proyectos', 'estado', COUNT(*) FROM erp_proyectos WHERE estado IS NULL OR estado = ''\n    UNION ALL SELECT 'erp_materiales', 'nombre', COUNT(*) FROM erp_materiales WHERE nombre IS NULL OR nombre = ''\n    UNION ALL SELECT 'erp_proveedores', 'nombre', COUNT(*) FROM erp_proveedores WHERE nombre IS NULL OR nombre = ''\n    UNION ALL SELECT 'erp_ordenes_compra', 'proveedor', COUNT(*) FROM erp_ordenes_compra WHERE proveedor IS NULL OR proveedor = ''\n    UNION ALL SELECT 'erp_presupuestos', 'proyecto_id', COUNT(*) FROM erp_presupuestos WHERE proyecto_id IS NULL OR proyecto_id = ''\n    UNION ALL SELECT 'erp_empleados', 'nombre', COUNT(*) FROM erp_empleados WHERE nombre IS NULL OR nombre = ''\n    UNION ALL SELECT 'erp_movimientos', 'tipo', COUNT(*) FROM erp_movimientos WHERE tipo IS NULL OR tipo = ''\n    UNION ALL SELECT 'erp_hitos', 'nombre', COUNT(*) FROM erp_hitos WHERE nombre IS NULL OR nombre = ''\n  ) x WHERE x.count > 0;\n\n  -- c) Duplicate check\n  SELECT COALESCE(jsonb_agg(x), '[]'::jsonb) INTO dup_checks\n  FROM (\n    SELECT 'erp_proyectos' as tabla, 'nombre' as columna, COUNT(*) as count FROM erp_proyectos WHERE nombre IN (SELECT nombre FROM erp_proyectos GROUP BY nombre HAVING COUNT(*) > 1 AND nombre != '')\n    UNION ALL SELECT 'erp_proveedores', 'nombre', COUNT(*) FROM erp_proveedores WHERE nombre IN (SELECT nombre FROM erp_proveedores GROUP BY nombre HAVING COUNT(*) > 1 AND nombre != '')\n  ) x WHERE x.count > 0;\n\n  result := jsonb_build_object(\n    'checked_at', now()::text,\n    'fk_orphans', fk_orphans,\n    'null_violations', null_checks,\n    'duplicates', dup_checks,\n    'total_issues', (SELECT COALESCE(SUM(value::int), 0) FROM jsonb_each_text(\n      jsonb_build_object(\n        'fk', (SELECT COALESCE(SUM((value->>'count')::int), 0) FROM jsonb_array_elements(fk_orphans) AS value),\n        'nulls', (SELECT COALESCE(SUM((value->>'count')::int), 0) FROM jsonb_array_elements(null_checks) AS value),\n        'dups', (SELECT COALESCE(SUM((value->>'count')::int), 0) FROM jsonb_array_elements(dup_checks) AS value)\n      )\n    ))\n  );\n\n  RETURN result;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "check_daily_integrity",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.check_daily_integrity(p_user_id uuid DEFAULT NULL::uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  result jsonb;\r\nBEGIN\r\n  SELECT jsonb_build_object(\r\n    'status', 'ok',\r\n    'checked_at', now(),\r\n    'fk_orphans', (SELECT jsonb_agg(jsonb_build_object('table', 'erp_proyectos', 'count', 0))),\r\n    'null_checks', (SELECT jsonb_agg(jsonb_build_object('table', 'erp_proyectos', 'column', 'nombre', 'count', 0)))\r\n  ) INTO result;\r\n  RETURN result;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "cleanup_old_error_logs",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.cleanup_old_error_logs(days_to_keep integer DEFAULT 90)\n RETURNS integer\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_deleted_count INTEGER;\r\nBEGIN\r\n  DELETE FROM erp_error_log\r\n  WHERE created_at < NOW() - (days_to_keep || ' days')::INTERVAL\r\n  AND resolved = TRUE;\r\n\r\n  GET DIAGNOSTICS v_deleted_count = ROW_COUNT;\r\n\r\n  RETURN v_deleted_count;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "commit_transaction",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.commit_transaction()\n RETURNS void\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  COMMIT;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "comparar_calculos",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.comparar_calculos(p_calculo_id_1 uuid, p_calculo_id_2 uuid)\n RETURNS TABLE(campo text, valor_1 text, valor_2 text, tipo_diferencia text, porcentaje_diferencia numeric)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_calc1 RECORD;\r\n  v_calc2 RECORD;\r\n  v_diferencia jsonb;\r\nBEGIN\r\n  -- Obtener los dos cálculos\r\n  SELECT * INTO v_calc1 FROM erp_calculos_proyecto WHERE id = p_calculo_id_1;\r\n  SELECT * INTO v_calc2 FROM erp_calculos_proyecto WHERE id = p_calculo_id_2;\r\n  \r\n  -- Si los tipos son diferentes, no se pueden comparar\r\n  IF v_calc1.tipo_calculo != v_calc2.tipo_calculo THEN\r\n    RETURN;\r\n  END IF;\r\n  \r\n  -- Comparar parámetros (simplificado - comparación JSON completa sería más compleja)\r\n  -- Aquí implementamos comparación básica de resultados\r\n  RETURN QUERY\r\n  SELECT \r\n    'costo_total' as campo,\r\n    (v_calc1.resultados->>'costo_total')::text as valor_1,\r\n    (v_calc2.resultados->>'costo_total')::text as valor_2,\r\n    CASE \r\n      WHEN (v_calc1.resultados->>'costo_total')::numeric = (v_calc2.resultados->>'costo_total')::numeric THEN 'igual'\r\n      WHEN (v_calc1.resultados->>'costo_total')::numeric > (v_calc2.resultados->>'costo_total')::numeric THEN 'disminucion'\r\n      ELSE 'aumento'\r\n    END as tipo_diferencia,\r\n    CASE \r\n      WHEN (v_calc1.resultados->>'costo_total')::numeric = (v_calc2.resultados->>'costo_total')::numeric THEN 0\r\n      WHEN (v_calc1.resultados->>'costo_total')::numeric = 0 THEN NULL\r\n      ELSE ((v_calc2.resultados->>'costo_total')::numeric - (v_calc1.resultados->>'costo_total')::numeric) / (v_calc1.resultados->>'costo_total')::numeric * 100\r\n    END as porcentaje_diferencia;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "descontar_stock_vale",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.descontar_stock_vale(p_items jsonb, p_vale_id uuid DEFAULT NULL::uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_item JSONB;\r\n  v_material_id UUID;\r\n  v_cantidad NUMERIC;\r\n  v_stock_actual NUMERIC;\r\n  v_result JSONB;\r\nBEGIN\r\n  FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)\r\n  LOOP\r\n    v_material_id := (v_item->>'materialId')::UUID;\r\n    v_cantidad := (v_item->>'cantidad')::NUMERIC;\r\n    IF v_material_id IS NULL OR v_cantidad IS NULL THEN\r\n      RAISE EXCEPTION 'Item inválido: materialId o cantidad faltante';\r\n    END IF;\r\n    SELECT stock INTO v_stock_actual FROM erp_materiales WHERE id = v_material_id FOR UPDATE;\r\n    IF NOT FOUND THEN RAISE EXCEPTION 'Material no encontrado: %', v_material_id; END IF;\r\n    IF v_stock_actual < v_cantidad THEN\r\n      RAISE EXCEPTION 'Stock insuficiente para material %: disponible %, requerido %', v_material_id, v_stock_actual, v_cantidad;\r\n    END IF;\r\n    UPDATE erp_materiales SET stock = stock - v_cantidad, updated_at = now() WHERE id = v_material_id;\r\n  END LOOP;\r\n  v_result := jsonb_build_object('success', true, 'message', 'Stock descontado exitosamente');\r\n  IF p_vale_id IS NOT NULL THEN v_result := v_result || jsonb_build_object('valeId', p_vale_id); END IF;\r\n  RETURN v_result;\r\nEXCEPTION WHEN OTHERS THEN\r\n  RETURN jsonb_build_object('success', false, 'error', SQLERRM, 'detail', COALESCE(SQLSTATE, ''));\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "document_backup_restore",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.document_backup_restore(backup_file text, restored_by uuid, notes text DEFAULT NULL::text)\n RETURNS uuid\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  log_id uuid;\r\nBEGIN\r\n  -- Insertar registro en audit log (estructura correcta)\r\n  INSERT INTO erp_audit_log (\r\n    table_name,\r\n    record_id,\r\n    action,\r\n    new_data,\r\n    changed_by\r\n  ) VALUES (\r\n    'database',\r\n    gen_random_uuid(),\r\n    'INSERT',\r\n    jsonb_build_object(\r\n      'backup_file', backup_file,\r\n      'notes', notes,\r\n      'timestamp', now(),\r\n      'restored_by', restored_by\r\n    ),\r\n    restored_by\r\n  ) RETURNING id INTO log_id;\r\n\r\n  RETURN log_id;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "enforce_single_admin",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.enforce_single_admin()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  IF NEW.rol = 'Administrador' THEN\r\n    IF NOT EXISTS (\r\n      SELECT 1 FROM auth.users WHERE id = NEW.id AND email = 'salazaroliveros@gmail.com'\r\n    ) THEN\r\n      NEW.rol = 'Residente';\r\n    END IF;\r\n  END IF;\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "exec_sql",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.exec_sql(sql text)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  EXECUTE sql;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "exec_sql_returning",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.exec_sql_returning(sql_text text)\n RETURNS SETOF json\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'extensions'\nAS $function$\nBEGIN\n  RETURN QUERY EXECUTE 'SELECT row_to_json(t) FROM (' || sql_text || ') t';\nEND;\n$function$\n"
+  },
+  {
+    "proname": "execute_automated_backup",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.execute_automated_backup()\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  backup_config RECORD;\r\n  result jsonb;\r\n  project_ref text;\r\n  timestamp text;\r\n  backup_count integer;\r\nBEGIN\r\n  -- Obtener configuración de backup activa\r\n  SELECT * INTO backup_config FROM erp_backup_config\r\n  WHERE backup_status = 'active'\r\n  ORDER BY created_at DESC\r\n  LIMIT 1;\r\n\r\n  IF NOT FOUND THEN\r\n    result := jsonb_build_object(\r\n      'success', false,\r\n      'message', 'No active backup configuration found',\r\n      'timestamp', now()\r\n    );\r\n    RETURN result;\r\n  END IF;\r\n\r\n  -- Extraer project ref de URL actual (usando configuración)\r\n  project_ref := 'neygzluxugodiwcuctbj';\r\n  timestamp := to_char(now(), 'YYYYMMDD_HH24MISS');\r\n\r\n  -- Contar backups existentes para retención\r\n  SELECT COUNT(*) INTO backup_count\r\n  FROM erp_audit_log\r\n  WHERE table_name = 'database'\r\n  AND action = 'INSERT'\r\n  AND changed_at > now() - (backup_config.retention_days || ' days')::interval;\r\n\r\n  -- Crear registro de backup en audit log (estructura correcta)\r\n  INSERT INTO erp_audit_log (\r\n    table_name,\r\n    record_id,\r\n    action,\r\n    new_data,\r\n    changed_by\r\n  ) VALUES (\r\n    'database',\r\n    gen_random_uuid(),\r\n    'INSERT',\r\n    jsonb_build_object(\r\n      'backup_file', 'backup_' || project_ref || '_' || timestamp || '.sql',\r\n      'backup_type', backup_config.backup_type,\r\n      'schedule', backup_config.backup_schedule,\r\n      'retention_days', backup_config.retention_days,\r\n      'existing_backups', backup_count,\r\n      's3_bucket', backup_config.s3_bucket_name,\r\n      's3_region', backup_config.s3_region\r\n    ),\r\n    auth.uid()\r\n  );\r\n\r\n  -- Actualizar configuración de backup\r\n  UPDATE erp_backup_config\r\n  SET\r\n    last_backup_at = now(),\r\n    next_backup_at = CASE\r\n      WHEN backup_config.backup_schedule = 'daily' THEN now() + interval '1 day'\r\n      WHEN backup_config.backup_schedule = 'weekly' THEN now() + interval '1 week'\r\n      WHEN backup_config.backup_schedule = 'monthly' THEN now() + interval '1 month'\r\n      ELSE now() + interval '1 day'\r\n    END,\r\n    backup_status = 'success',\r\n    updated_at = now()\r\n  WHERE id = backup_config.id;\r\n\r\n  result := jsonb_build_object(\r\n    'success', true,\r\n    'message', 'Backup scheduled successfully',\r\n    'backup_file', 'backup_' || project_ref || '_' || timestamp || '.sql',\r\n    'next_backup_at',\r\n      CASE\r\n        WHEN backup_config.backup_schedule = 'daily' THEN now() + interval '1 day'\r\n        WHEN backup_config.backup_schedule = 'weekly' THEN now() + interval '1 week'\r\n        WHEN backup_config.backup_schedule = 'monthly' THEN now() + interval '1 month'\r\n        ELSE now() + interval '1 day'\r\n      END,\r\n    'timestamp', now()\r\n  );\r\n\r\n  RETURN result;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "fn_audit_log",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.fn_audit_log()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_user_id text;\r\n  v_user_name text;\r\n  v_ip text;\r\nBEGIN\r\n  v_user_id := COALESCE(\r\n    auth.uid()::text,\r\n    current_setting('app.current_user_id', true),\r\n    'system'\r\n  );\r\n  v_user_name := v_user_id;\r\n\r\n  BEGIN\r\n    SELECT nombre INTO v_user_name\r\n    FROM public.profiles\r\n    WHERE id::text = v_user_id\r\n      AND nombre IS NOT NULL\r\n    LIMIT 1;\r\n  EXCEPTION WHEN OTHERS THEN\r\n    NULL;\r\n  END;\r\n\r\n  v_ip := COALESCE(\r\n    current_setting('request.headers', true)::json->>'x-forwarded-for',\r\n    NULL\r\n  );\r\n\r\n  INSERT INTO public.logs_sistema (\r\n    usuario_id,\r\n    usuario_nombre,\r\n    accion,\r\n    entidad,\r\n    entidad_id,\r\n    valores_anteriores,\r\n    valores_nuevos,\r\n    ip_address,\r\n    created_at\r\n  ) VALUES (\r\n    CASE WHEN v_user_id IS NULL OR v_user_id = 'system' THEN NULL ELSE v_user_id::uuid END,\r\n    v_user_name,\r\n    TG_OP,\r\n    TG_TABLE_NAME,\r\n    CASE\r\n      WHEN TG_OP = 'DELETE' THEN (OLD.id::text)\r\n      ELSE (NEW.id::text)\r\n    END,\r\n    CASE WHEN TG_OP IN ('UPDATE', 'DELETE') THEN\r\n      to_jsonb(OLD) - 'created_at' - 'updated_at'\r\n    ELSE NULL END,\r\n    CASE WHEN TG_OP IN ('INSERT', 'UPDATE') THEN\r\n      to_jsonb(NEW) - 'created_at' - 'updated_at'\r\n    ELSE NULL END,\r\n    v_ip,\r\n    NOW()\r\n  );\r\n  RETURN COALESCE(NEW, OLD);\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "fn_daily_integrity_check",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.fn_daily_integrity_check()\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n  v_issues jsonb := '[]'::jsonb;\n  v_count  int;\nBEGIN\n  -- 1. Presupuestos huérfanos (sin proyecto)\n  SELECT COUNT(*) INTO v_count\n  FROM erp_presupuestos p\n  WHERE NOT EXISTS (SELECT 1 FROM erp_proyectos pr WHERE pr.id = p.proyecto_id);\n  IF v_count > 0 THEN\n    v_issues := v_issues || jsonb_build_object('check', 'orphan_presupuestos', 'count', v_count, 'severity', 'high');\n  END IF;\n\n  -- 2. Movimientos sin proyecto válido\n  SELECT COUNT(*) INTO v_count\n  FROM erp_movimientos m\n  WHERE m.proyecto_id IS NOT NULL\n    AND NOT EXISTS (SELECT 1 FROM erp_proyectos pr WHERE pr.id = m.proyecto_id);\n  IF v_count > 0 THEN\n    v_issues := v_issues || jsonb_build_object('check', 'orphan_movimientos', 'count', v_count, 'severity', 'medium');\n  END IF;\n\n  -- 3. Órdenes de compra sin proveedor válido\n  SELECT COUNT(*) INTO v_count\n  FROM erp_ordenes_compra oc\n  WHERE oc.proveedor_id IS NOT NULL\n    AND NOT EXISTS (SELECT 1 FROM erp_proveedores pv WHERE pv.id = oc.proveedor_id);\n  IF v_count > 0 THEN\n    v_issues := v_issues || jsonb_build_object('check', 'orphan_ordenes_compra', 'count', v_count, 'severity', 'medium');\n  END IF;\n\n  -- 4. Proyectos con presupuestoActualId inválido\n  SELECT COUNT(*) INTO v_count\n  FROM erp_proyectos pr\n  WHERE pr.\"presupuestoActualId\" IS NOT NULL\n    AND NOT EXISTS (SELECT 1 FROM erp_presupuestos p WHERE p.id = pr.\"presupuestoActualId\");\n  IF v_count > 0 THEN\n    v_issues := v_issues || jsonb_build_object('check', 'invalid_presupuesto_actual', 'count', v_count, 'severity', 'high');\n  END IF;\n\n  RETURN jsonb_build_object(\n    'checked_at', now(),\n    'issues_count', jsonb_array_length(v_issues),\n    'issues', v_issues,\n    'status', CASE WHEN jsonb_array_length(v_issues) = 0 THEN 'ok' ELSE 'issues_found' END\n  );\nEND;\n$function$\n"
+  },
+  {
+    "proname": "fn_force_administrator_unique",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.fn_force_administrator_unique()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_email text;\r\nBEGIN\r\n  IF NEW.rol = 'Administrador' THEN\r\n    SELECT email INTO v_email FROM auth.users WHERE id = NEW.id;\r\n    IF v_email != 'salazaroliveros@gmail.com' THEN\r\n      NEW.rol := 'Gerente';\r\n    END IF;\r\n  END IF;\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "fn_get_performance_metrics",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.fn_get_performance_metrics()\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n  v_slow_queries jsonb;\n  v_table_sizes  jsonb;\nBEGIN\n  -- Top 5 consultas más lentas\n  BEGIN\n    SELECT jsonb_agg(row_to_json(q)) INTO v_slow_queries\n    FROM (\n      SELECT LEFT(query, 150) AS query_preview, calls,\n             ROUND((mean_exec_time)::numeric, 2) AS mean_ms,\n             ROUND((total_exec_time / 1000)::numeric, 2) AS total_sec\n      FROM pg_stat_statements\n      WHERE query NOT LIKE '%pg_stat_statements%' AND calls > 5\n      ORDER BY total_exec_time DESC LIMIT 5\n    ) q;\n  EXCEPTION WHEN OTHERS THEN\n    v_slow_queries := '[]'::jsonb;\n  END;\n\n  -- Tamaño de tablas principales\n  SELECT jsonb_agg(row_to_json(t)) INTO v_table_sizes\n  FROM (\n    SELECT relname AS table_name,\n           pg_size_pretty(pg_total_relation_size(relid)) AS total_size,\n           n_live_tup AS live_rows\n    FROM pg_stat_user_tables\n    WHERE relname LIKE 'erp_%'\n    ORDER BY pg_total_relation_size(relid) DESC\n    LIMIT 10\n  ) t;\n\n  RETURN jsonb_build_object(\n    'checked_at',   now(),\n    'slow_queries', COALESCE(v_slow_queries, '[]'::jsonb),\n    'table_sizes',  COALESCE(v_table_sizes, '[]'::jsonb)\n  );\nEND;\n$function$\n"
+  },
+  {
+    "proname": "fn_log_audit",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.fn_log_audit()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_old_json jsonb;\r\n  v_new_json jsonb;\r\n  v_user_name text;\r\nBEGIN\r\n  IF TG_OP = 'UPDATE' THEN\r\n    v_old_json = to_jsonb(OLD);\r\n    v_new_json = to_jsonb(NEW);\r\n    \r\n    SELECT COALESCE(nombre, 'unknown') INTO v_user_name \r\n    FROM public.profiles WHERE id = auth.uid();\r\n    \r\n    INSERT INTO logs_sistema (\r\n      usuario_id, usuario_nombre, accion, entidad, \r\n      entidad_id, valores_anteriores, valores_nuevos\r\n    ) VALUES (\r\n      auth.uid(), v_user_name, 'UPDATE', TG_TABLE_NAME,\r\n      COALESCE(OLD.id::text, NEW.id::text),\r\n      v_old_json, v_new_json\r\n    );\r\n    RETURN NEW;\r\n  ELSIF TG_OP = 'DELETE' THEN\r\n    v_old_json = to_jsonb(OLD);\r\n    \r\n    SELECT COALESCE(nombre, 'unknown') INTO v_user_name \r\n    FROM public.profiles WHERE id = auth.uid();\r\n    \r\n    INSERT INTO logs_sistema (\r\n      usuario_id, usuario_nombre, accion, entidad,\r\n      entidad_id, valores_anteriores\r\n    ) VALUES (\r\n      auth.uid(), v_user_name, 'DELETE', TG_TABLE_NAME,\r\n      OLD.id::text, v_old_json\r\n    );\r\n    RETURN OLD;\r\n  END IF;\r\n  RETURN NULL;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "fn_log_audit_trigger",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.fn_log_audit_trigger()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\nDECLARE\n  v_old jsonb := NULL;\n  v_new jsonb := NULL;\nBEGIN\n  IF TG_OP = 'DELETE' THEN\n    v_old := to_jsonb(OLD);\n    INSERT INTO public.erp_audit_log(tabla, registro_id, operacion, usuario_id, datos_anteriores, datos_nuevos)\n    VALUES (TG_TABLE_NAME, OLD.id, TG_OP, NULL, v_old, NULL);\n    RETURN OLD;\n  ELSIF TG_OP = 'UPDATE' THEN\n    v_old := to_jsonb(OLD);\n    v_new := to_jsonb(NEW);\n    INSERT INTO public.erp_audit_log(tabla, registro_id, operacion, usuario_id, datos_anteriores, datos_nuevos)\n    VALUES (TG_TABLE_NAME, NEW.id, TG_OP, NULL, v_old, v_new);\n    RETURN NEW;\n  ELSIF TG_OP = 'INSERT' THEN\n    v_new := to_jsonb(NEW);\n    INSERT INTO public.erp_audit_log(tabla, registro_id, operacion, usuario_id, datos_anteriores, datos_nuevos)\n    VALUES (TG_TABLE_NAME, NEW.id, TG_OP, NULL, NULL, v_new);\n    RETURN NEW;\n  END IF;\n  RETURN NULL;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "fn_recalcular_presupuestos_por_insumo",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.fn_recalcular_presupuestos_por_insumo()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_renglon_ids uuid[];\r\nBEGIN\r\n  IF TG_OP = 'UPDATE' AND OLD.precio IS DISTINCT FROM NEW.precio THEN\r\n    SELECT array_agg(DISTINCT ri.renglon_id) INTO v_renglon_ids FROM public.erp_insumos ri WHERE ri.id = NEW.id;\r\n    INSERT INTO public.logs_sistema (usuario_id, usuario_nombre, accion, entidad, entidad_id, valores_anteriores, valores_nuevos)\r\n      VALUES (auth.uid(), 'system', 'PRECIO_INSUMO_CAMBIADO', 'erp_insumos', NEW.id::text,\r\n        jsonb_build_object('precio_anterior', OLD.precio),\r\n        jsonb_build_object('precio_nuevo', NEW.precio, 'renglones_afectados', v_renglon_ids));\r\n  END IF;\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "fn_set_updated_at",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.fn_set_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\nBEGIN\n  NEW.updated_at = now();\n  RETURN NEW;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "get_accessible_proyectos",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_accessible_proyectos()\n RETURNS TABLE(id uuid)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT p.id FROM public.erp_proyectos p\r\n  WHERE public.get_current_user_role() = 'Administrador'\r\n  UNION ALL\r\n  SELECT p.id FROM public.erp_proyectos p\r\n  WHERE public.get_current_user_role() IN ('Gerente', 'Residente', 'Compras', 'Bodeguero')\r\n    AND p.created_by = auth.uid()\r\n  UNION ALL\r\n  SELECT e.proyecto_id FROM public.erp_empleados e\r\n  WHERE public.get_current_user_role() = 'Residente'\r\n    AND e.created_by = auth.uid()\r\n  UNION ALL\r\n  SELECT pm.proyecto_id FROM public.erp_proyecto_miembros pm\r\n  WHERE pm.user_id = auth.uid();\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "get_app_config",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_app_config(config_key text, environment text DEFAULT 'production'::text)\n RETURNS text\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  config_value text;\r\nBEGIN\r\n  SELECT erp_app_config.config_value INTO config_value\r\n  FROM erp_app_config\r\n  WHERE erp_app_config.config_key = get_app_config.config_key\r\n  AND erp_app_config.environment = get_app_config.environment\r\n  AND erp_app_config.is_encrypted = false\r\n  LIMIT 1;\r\n\r\n  RETURN COALESCE(config_value, '');\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "get_current_user_role",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_current_user_role()\n RETURNS text\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare r text;\nbegin\n  select p.rol into r\n  from public.profiles p\n  where p.id = auth.uid();\n  return coalesce(r, 'Residente');\nend;\n$function$\n"
+  },
+  {
+    "proname": "get_db_performance_metrics",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_db_performance_metrics()\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n  result jsonb;\n  table_sizes jsonb;\n  total_size_mb numeric;\nBEGIN\n  -- Tamaño de tablas principales\n  SELECT COALESCE(jsonb_agg(x ORDER BY x.size_mb DESC), '[]'::jsonb) INTO table_sizes\n  FROM (\n    SELECT\n      relname as table_name,\n      pg_total_relation_size(c.oid) / 1048576.0 as size_mb,\n      (SELECT COUNT(*) FROM erp_proyectos) as total_proyectos,\n      (SELECT COUNT(*) FROM erp_movimientos) as total_movimientos,\n      (SELECT COUNT(*) FROM erp_presupuestos) as total_presupuestos,\n      (SELECT COUNT(*) FROM erp_ordenes_compra) as total_ordenes\n    FROM pg_class c\n    WHERE c.relkind = 'r' AND c.relname LIKE 'erp_%'\n      AND c.relname IN ('erp_proyectos','erp_movimientos','erp_presupuestos',\n        'erp_ordenes_compra','erp_materiales','erp_empleados','erp_proveedores')\n  ) x;\n\n  SELECT COALESCE(SUM(pg_total_relation_size(c.oid)) / 1048576.0, 0)\n    INTO total_size_mb\n    FROM pg_class c\n    WHERE c.relkind = 'r' AND c.relname LIKE 'erp_%';\n\n  result := jsonb_build_object(\n    'measured_at', now()::text,\n    'total_db_size_mb', ROUND(total_size_mb::numeric, 2),\n    'table_details', table_sizes,\n    'index_count', (SELECT COUNT(*) FROM pg_indexes WHERE tablename LIKE 'erp_%'),\n    'table_count', (SELECT COUNT(*) FROM pg_class WHERE relkind='r' AND relname LIKE 'erp_%')\n  );\n\n  RETURN result;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "get_index_usage",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_index_usage()\n RETURNS TABLE(table_name text, index_name text, index_scan bigint, tup_read bigint, tup_fetch bigint, usage_pct numeric)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT \r\n    schemaname || '.' || relname as table_name,\r\n    indexrelname as index_name,\r\n    idx_scan as index_scan,\r\n    idx_tup_read as tup_read,\r\n    idx_tup_fetch as tup_fetch,\r\n    CASE \r\n      WHEN idx_scan = 0 THEN 0\r\n      ELSE (idx_tup_fetch::numeric / idx_scan * 100)\r\n    END as usage_pct\r\n  FROM pg_stat_user_indexes\r\n  WHERE schemaname = 'public'\r\n  AND relname LIKE 'erp_%'\r\n  ORDER BY idx_scan DESC;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "get_missing_indexes",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_missing_indexes()\n RETURNS TABLE(table_name text, column_name text, suggested_index text)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT \r\n    schemaname || '.' || relname as table_name,\r\n    attname as column_name,\r\n    'CREATE INDEX idx_' || relname || '_' || attname || ' ON ' || schemaname || '.' || relname || ' (' || attname || ')' as suggested_index\r\n  FROM pg_attribute pa\r\n  JOIN pg_class pc ON pa.attrelid = pc.oid\r\n  JOIN pg_namespace pn ON pc.relnamespace = pn.oid\r\n  JOIN pg_stat_user_tables pst ON pn.nspname = pst.schemaname AND pc.relname = pst.relname\r\n  WHERE pn.nspname = 'public'\r\n  AND pc.relname LIKE 'erp_%'\r\n  AND pa.attnum > 0\r\n  AND NOT pa.attisdropped\r\n  AND pa.attname IN ('proyecto_id', 'created_by', 'user_id', 'material_id')\r\n  AND NOT EXISTS (\r\n    SELECT 1 FROM pg_index pi\r\n    WHERE pi.indrelid = pc.oid\r\n    AND pa.attnum = ANY(pi.indkey)\r\n  )\r\n  ORDER BY pc.relname, pa.attnum;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "get_monitoring_config",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_monitoring_config()\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  config RECORD;\r\n  result jsonb;\r\nBEGIN\r\n  SELECT * INTO config FROM erp_monitoring_config \r\n  WHERE enabled = true \r\n  ORDER BY created_at DESC \r\n  LIMIT 1;\r\n  \r\n  IF NOT FOUND THEN\r\n    result := jsonb_build_object(\r\n      'enabled', false,\r\n      'message', 'No active monitoring configuration found'\r\n    );\r\n  ELSE\r\n    result := jsonb_build_object(\r\n      'enabled', true,\r\n      'service_name', config.service_name,\r\n      'sentry_dsn', config.sentry_dsn,\r\n      'sentry_environment', config.sentry_environment,\r\n      'sentry_traces_sample_rate', config.sentry_traces_sample_rate,\r\n      'sentry_replays_session_sample_rate', config.sentry_replays_session_sample_rate,\r\n      'sentry_replays_on_error_sample_rate', config.sentry_replays_on_error_sample_rate,\r\n      'alert_email', config.alert_email,\r\n      'alert_webhook_url', config.alert_webhook_url,\r\n      'alert_thresholds', config.alert_thresholds,\r\n      'log_level', config.log_level,\r\n      'metrics_retention_days', config.metrics_retention_days\r\n    );\r\n  END IF;\r\n  \r\n  RETURN result;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "get_slow_queries",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_slow_queries()\n RETURNS TABLE(query text, mean_exec_time numeric, calls bigint, total_exec_time numeric, rows_affected bigint)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT \r\n    LEFT(query, 200) as query,\r\n    mean_exec_time,\r\n    calls,\r\n    total_exec_time,\r\n    rows\r\n  FROM pg_stat_statements\r\n  WHERE mean_exec_time > 1000\r\n  AND calls > 0\r\n  ORDER BY mean_exec_time DESC\r\n  LIMIT 20;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "get_table_sizes",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_table_sizes()\n RETURNS TABLE(table_name text, row_count bigint, total_size text, table_size text, index_size text)\n LANGUAGE sql\n SET search_path TO 'public'\nAS $function$\r\n  SELECT t.relname::text,\r\n         c.reltuples::bigint,\r\n         pg_size_pretty(pg_total_relation_size(t.oid)),\r\n         pg_size_pretty(pg_relation_size(t.oid)),\r\n         pg_size_pretty(pg_indexes_size(t.oid))\r\n  FROM pg_stat_user_tables s\r\n  JOIN pg_class t ON t.oid = s.relid\r\n  JOIN pg_class c ON c.oid = t.oid\r\n  WHERE s.schemaname = 'public'\r\n  ORDER BY pg_total_relation_size(t.oid) DESC\r\n$function$\n"
+  },
+  {
+    "proname": "get_user_role",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_user_role()\n RETURNS text\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare r text;\nbegin\n  select p.rol into r\n  from public.profiles p\n  where p.id = auth.uid();\n  return coalesce(r, 'Residente');\nend;\n$function$\n"
+  },
+  {
+    "proname": "get_user_role_by_email",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_user_role_by_email(user_email text)\n RETURNS text\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\n  SELECT COALESCE(p.rol, 'usuario')\r\n  FROM public.profiles p\r\n  JOIN auth.users u ON p.id = u.id\r\n  WHERE u.email = user_email\r\n  LIMIT 1;\r\n$function$\n"
+  },
+  {
+    "proname": "gin_extract_query_trgm",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gin_extract_query_trgm(text, internal, smallint, internal, internal, internal, internal)\n RETURNS internal\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gin_extract_query_trgm$function$\n"
+  },
+  {
+    "proname": "gin_extract_value_trgm",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gin_extract_value_trgm(text, internal)\n RETURNS internal\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gin_extract_value_trgm$function$\n"
+  },
+  {
+    "proname": "gin_trgm_consistent",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gin_trgm_consistent(internal, smallint, text, integer, internal, internal, internal, internal)\n RETURNS boolean\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gin_trgm_consistent$function$\n"
+  },
+  {
+    "proname": "gin_trgm_triconsistent",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gin_trgm_triconsistent(internal, smallint, text, integer, internal, internal, internal)\n RETURNS \"char\"\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gin_trgm_triconsistent$function$\n"
+  },
+  {
+    "proname": "gtrgm_compress",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gtrgm_compress(internal)\n RETURNS internal\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gtrgm_compress$function$\n"
+  },
+  {
+    "proname": "gtrgm_consistent",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gtrgm_consistent(internal, text, smallint, oid, internal)\n RETURNS boolean\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gtrgm_consistent$function$\n"
+  },
+  {
+    "proname": "gtrgm_decompress",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gtrgm_decompress(internal)\n RETURNS internal\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gtrgm_decompress$function$\n"
+  },
+  {
+    "proname": "gtrgm_distance",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gtrgm_distance(internal, text, smallint, oid, internal)\n RETURNS double precision\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gtrgm_distance$function$\n"
+  },
+  {
+    "proname": "gtrgm_in",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gtrgm_in(cstring)\n RETURNS gtrgm\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gtrgm_in$function$\n"
+  },
+  {
+    "proname": "gtrgm_options",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gtrgm_options(internal)\n RETURNS void\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE\nAS '$libdir/pg_trgm', $function$gtrgm_options$function$\n"
+  },
+  {
+    "proname": "gtrgm_out",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gtrgm_out(gtrgm)\n RETURNS cstring\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gtrgm_out$function$\n"
+  },
+  {
+    "proname": "gtrgm_penalty",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gtrgm_penalty(internal, internal, internal)\n RETURNS internal\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gtrgm_penalty$function$\n"
+  },
+  {
+    "proname": "gtrgm_picksplit",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gtrgm_picksplit(internal, internal)\n RETURNS internal\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gtrgm_picksplit$function$\n"
+  },
+  {
+    "proname": "gtrgm_same",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gtrgm_same(gtrgm, gtrgm, internal)\n RETURNS internal\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gtrgm_same$function$\n"
+  },
+  {
+    "proname": "gtrgm_union",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.gtrgm_union(internal, internal)\n RETURNS gtrgm\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$gtrgm_union$function$\n"
+  },
+  {
+    "proname": "handle_new_user",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.handle_new_user()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\nBEGIN\n  INSERT INTO public.erp_usuarios (id, email, nombre, rol)\n  VALUES (NEW.id, NEW.email, COALESCE(NEW.raw_user_meta_data->>'nombre', NEW.email), 'usuario');\n  RETURN NEW;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "increment_likes_muro",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.increment_likes_muro(pub_id uuid)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\nAS $function$\n      BEGIN\n        UPDATE public.erp_publicaciones_muro\n        SET Likes = COALESCE(Likes, 0) + 1\n        WHERE id = pub_id;\n      END;\n      $function$\n"
+  },
+  {
+    "proname": "incrementar_stock_oc",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.incrementar_stock_oc(p_items jsonb, p_oc_id uuid DEFAULT NULL::uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_item JSONB;\r\n  v_material_id UUID;\r\n  v_cantidad NUMERIC;\r\n  v_result JSONB;\r\nBEGIN\r\n  FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)\r\n  LOOP\r\n    v_material_id := (v_item->>'materialId')::UUID;\r\n    v_cantidad := (v_item->>'cantidad')::NUMERIC;\r\n    IF v_material_id IS NULL OR v_cantidad IS NULL THEN\r\n      RAISE EXCEPTION 'Item inválido: materialId o cantidad faltante';\r\n    END IF;\r\n    PERFORM FROM erp_materiales WHERE id = v_material_id FOR UPDATE;\r\n    IF NOT FOUND THEN RAISE EXCEPTION 'Material no encontrado: %', v_material_id; END IF;\r\n    UPDATE erp_materiales SET stock = stock + v_cantidad, updated_at = now() WHERE id = v_material_id;\r\n  END LOOP;\r\n  v_result := jsonb_build_object('success', true, 'message', 'Stock incrementado exitosamente');\r\n  IF p_oc_id IS NOT NULL THEN v_result := v_result || jsonb_build_object('ocId', p_oc_id); END IF;\r\n  RETURN v_result;\r\nEXCEPTION WHEN OTHERS THEN\r\n  RETURN jsonb_build_object('success', false, 'error', SQLERRM, 'detail', COALESCE(SQLSTATE, ''));\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "log_deadlock_event",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.log_deadlock_event(operation text, table_name text, lock_key text, error_message text)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  INSERT INTO erp_auditoria (\r\n    tabla,\r\n    operacion,\r\n    usuario_id,\r\n    detalles,\r\n    created_at\r\n  ) VALUES (\r\n    table_name,\r\n    'DEADLOCK',\r\n    auth.uid(),\r\n    jsonb_build_object(\r\n      'operation', operation,\r\n      'lock_key', lock_key,\r\n      'error_message', error_message,\r\n      'timestamp', NOW()\r\n    ),\r\n    NOW()\r\n  );\r\nEXCEPTION WHEN OTHERS THEN\r\n  NULL;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "log_error",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.log_error(p_error_message text, p_error_code text DEFAULT NULL::text, p_error_stack text DEFAULT NULL::text, p_error_type text DEFAULT 'other'::text, p_severity text DEFAULT 'error'::text, p_component text DEFAULT NULL::text, p_function_name text DEFAULT NULL::text, p_line_number integer DEFAULT NULL::integer, p_proyecto_id uuid DEFAULT NULL::uuid, p_request_id text DEFAULT NULL::text, p_request_method text DEFAULT NULL::text, p_request_path text DEFAULT NULL::text, p_request_params jsonb DEFAULT NULL::jsonb, p_request_headers jsonb DEFAULT NULL::jsonb, p_context jsonb DEFAULT NULL::jsonb)\n RETURNS uuid\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_error_id UUID;\r\nBEGIN\r\n  INSERT INTO erp_error_log (\r\n    error_code,\r\n    error_message,\r\n    error_stack,\r\n    error_type,\r\n    severity,\r\n    component,\r\n    function_name,\r\n    line_number,\r\n    user_id,\r\n    proyecto_id,\r\n    request_id,\r\n    request_method,\r\n    request_path,\r\n    request_params,\r\n    request_headers,\r\n    context\r\n  ) VALUES (\r\n    p_error_code,\r\n    p_error_message,\r\n    p_error_stack,\r\n    p_error_type,\r\n    p_severity,\r\n    p_component,\r\n    p_function_name,\r\n    p_line_number,\r\n    auth.uid(),\r\n    p_proyecto_id,\r\n    p_request_id,\r\n    p_request_method,\r\n    p_request_path,\r\n    p_request_params,\r\n    p_request_headers,\r\n    p_context\r\n  )\r\n  RETURNING id INTO v_error_id;\r\n\r\n  RETURN v_error_id;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_datos_departamento",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_datos_departamento(codigo_departamento text)\n RETURNS TABLE(nombre text, zona_sismica text, coeficiente_sismico numeric, carga_viva_minima numeric, zona_climatica text, temperatura_promedio numeric, precipitacion_anual numeric, factor_costo_base numeric)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT \r\n    nombre,\r\n    zona_sismica,\r\n    coeficiente_sismico,\r\n    carga_viva_minima_kg_m2,\r\n    zona_climatica,\r\n    temperatura_promedio_c,\r\n    precipitacion_anual_mm,\r\n    factor_costo_base\r\n  FROM erp_departamentos_gt\r\n  WHERE codigo = codigo_departamento;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_dosificaciones_por_tipo",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_dosificaciones_por_tipo(p_tipo text)\n RETURNS TABLE(resistencia text, \"tamaño_agregado\" text, aditivos text, curado text, cemento_sacos_m3 numeric, arena_m3_m3 numeric, piedra_m3_m3 numeric, agua_lt_m3 numeric)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT\r\n    resistencia,\r\n    tamaño_agregado,\r\n    aditivos,\r\n    curado,\r\n    cemento_sacos_m3,\r\n    arena_m3_m3,\r\n    piedra_m3_m3,\r\n    agua_lt_m3\r\n  FROM erp_dosificaciones_concreto\r\n  WHERE tipo = p_tipo\r\n    AND activo = true\r\n  ORDER BY \r\n    CASE resistencia\r\n      WHEN '2000psi' THEN 1\r\n      WHEN '2500psi' THEN 2\r\n      WHEN '3000psi' THEN 3\r\n      WHEN '3500psi' THEN 4\r\n      WHEN '4000psi' THEN 5\r\n      WHEN '4500psi' THEN 6\r\n      WHEN '5000psi' THEN 7\r\n    END,\r\n    tamaño_agregado;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_escala_produccion",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_escala_produccion(p_tipo_proyecto text, p_presupuesto numeric)\n RETURNS TABLE(id uuid, tipo_proyecto text, rango_tamano text, factor_economia numeric, factor_administracion numeric, factor_imprevistos numeric, descripcion text)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT \r\n    id,\r\n    tipo_proyecto,\r\n    rango_tamano,\r\n    factor_economia,\r\n    factor_administracion,\r\n    factor_imprevistos,\r\n    descripcion\r\n  FROM erp_escalas_produccion\r\n  WHERE tipo_proyecto = p_tipo_proyecto\r\n    AND (tamano_minimo IS NULL OR p_presupuesto >= tamano_minimo)\r\n    AND (tamano_maximo IS NULL OR p_presupuesto <= tamano_maximo)\r\n    AND activo = true\r\n  ORDER BY rango_tamano\r\n  LIMIT 1;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_factor_curado_climatico",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_factor_curado_climatico(p_departamento_codigo text, p_mes text DEFAULT NULL::text)\n RETURNS TABLE(factor_curado numeric, factor_rendimiento numeric, factor_proteccion numeric, factor_ajuste_estacional numeric, observaciones text)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_clima RECORD;\r\n  v_factor_ajuste numeric := 1.0;\r\n  v_mes_lower text;\r\nBEGIN\r\n  -- Obtener parámetros climáticos del departamento\r\n  SELECT * INTO v_clima\r\n  FROM erp_parametros_climaticos\r\n  WHERE departamento_codigo = p_departamento_codigo\r\n    AND activo = true\r\n  LIMIT 1;\r\n\r\n  IF NOT FOUND THEN\r\n    -- Si no se encuentra, retornar valores por defecto\r\n    RETURN QUERY SELECT 1.0, 1.0, 1.0, 1.0, 'Parámetros climáticos no encontrados, usando valores por defecto';\r\n    RETURN;\r\n  END IF;\r\n\r\n  -- Ajuste por estación si se especifica mes\r\n  IF p_mes IS NOT NULL THEN\r\n    v_mes_lower := LOWER(p_mes);\r\n    \r\n    -- Verificar si el mes es crítico para el departamento\r\n    IF v_mes_lower = ANY(v_clima.meses_criticos) THEN\r\n      IF v_clima.estacion_critica = 'lluviosa' THEN\r\n        v_factor_ajuste := 1.2;\r\n      ELSIF v_clima.estacion_critica = 'seca' THEN\r\n        v_factor_ajuste := 1.1;\r\n      END IF;\r\n    END IF;\r\n  END IF;\r\n\r\n  -- Retornar factores calculados\r\n  RETURN QUERY\r\n  SELECT\r\n    v_clima.factor_curado_concreto * v_factor_ajuste as factor_curado,\r\n    v_clima.factor_rendimiento_mo / v_factor_ajuste as factor_rendimiento,\r\n    v_clima.factor_proteccion_encofrados as factor_proteccion,\r\n    v_factor_ajuste as factor_ajuste_estacional,\r\n    'Factores climáticos ajustados por ' || COALESCE(p_mes, 'sin especificar mes') as observaciones;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_factor_estacional",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_factor_estacional(p_departamento_codigo text, p_mes integer)\n RETURNS TABLE(factor_disponibilidad numeric, factor_costo numeric, factor_productividad numeric, condiciones_especiales text)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT \r\n    factor_disponibilidad,\r\n    factor_costo,\r\n    factor_productividad,\r\n    condiciones_especiales\r\n  FROM erp_estacionalidad\r\n  WHERE departamento_codigo = p_departamento_codigo\r\n    AND mes = p_mes\r\n    AND activo = true\r\n  LIMIT 1;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_factor_humedad_departamento",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_factor_humedad_departamento(p_departamento_codigo text)\n RETURNS numeric\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_clima RECORD;\r\n  v_factor numeric := 1.0;\r\nBEGIN\r\n  SELECT * INTO v_clima\r\n  FROM erp_parametros_climaticos\r\n  WHERE departamento_codigo = p_departamento_codigo\r\n    AND activo = true\r\n  LIMIT 1;\r\n\r\n  IF NOT FOUND THEN\r\n    RETURN 1.0;\r\n  END IF;\r\n\r\n  -- Ajuste por humedad relativa\r\n  IF v_clima.humedad_relativa_promedio_pct > 80 THEN\r\n    v_factor := 0.95;\r\n  ELSIF v_clima.humedad_relativa_promedio_pct < 50 THEN\r\n    v_factor := 1.05;\r\n  ELSE\r\n    v_factor := 1.0;\r\n  END IF;\r\n  \r\n  RETURN v_factor;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_factor_municipio",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_factor_municipio(codigo_municipio text)\n RETURNS TABLE(factor_costo numeric, factor_rendimiento numeric)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT factor_costo, factor_rendimiento\r\n  FROM erp_municipios_gt\r\n  WHERE codigo = codigo_municipio;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_factor_temperatura_departamento",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_factor_temperatura_departamento(p_departamento_codigo text)\n RETURNS numeric\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_clima RECORD;\r\n  v_factor numeric := 1.0;\r\nBEGIN\r\n  SELECT * INTO v_clima\r\n  FROM erp_parametros_climaticos\r\n  WHERE departamento_codigo = p_departamento_codigo\r\n    AND activo = true\r\n  LIMIT 1;\r\n\r\n  IF NOT FOUND THEN\r\n    RETURN 1.0;\r\n  END IF;\r\n\r\n  -- Calcular factor basado en temperatura promedio\r\n  v_factor := (v_clima.temperatura_min_c + v_clima.temperatura_max_c) / 2 / 20;\r\n  \r\n  -- Limitar factor entre 0.85 y 1.15\r\n  IF v_factor < 0.85 THEN v_factor := 0.85; END IF;\r\n  IF v_factor > 1.15 THEN v_factor := 1.15; END IF;\r\n  \r\n  RETURN v_factor;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_historial_calculos",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_historial_calculos(p_proyecto_id uuid, p_tipo_calculo_filter text DEFAULT NULL::text)\n RETURNS TABLE(id uuid, tipo_calculo text, fecha_calculo timestamp with time zone, version_calculo integer, origen_calculo text, parametros jsonb, resultados jsonb, validado boolean)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\nBEGIN\n  RETURN QUERY\n  SELECT\n    c.id,\n    c.tipo_calculo,\n    c.fecha_calculo,\n    c.version_calculo,\n    c.origen_calculo,\n    c.parametros,\n    c.resultados,\n    c.validado\n  FROM erp_calculos_proyecto c\n  WHERE c.proyecto_id = p_proyecto_id\n    AND (p_tipo_calculo_filter IS NULL OR c.tipo_calculo = p_tipo_calculo_filter)\n  ORDER BY c.fecha_calculo DESC;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "obtener_kpis_dashboard",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_kpis_dashboard()\n RETURNS jsonb\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_result jsonb;\r\nBEGIN\r\n  IF auth.uid() IS NULL THEN\r\n    RETURN jsonb_build_object('error', 'No autenticado');\r\n  END IF;\r\n\r\n  SELECT jsonb_build_object(\r\n    'total_proyectos',       (SELECT COUNT(*) FROM public.erp_proyectos),\r\n    'proyectos_activos',     (SELECT COUNT(*) FROM public.erp_proyectos WHERE estado = 'ejecucion'),\r\n    'total_ingresos',        (SELECT COALESCE(SUM(costo_total), 0) FROM public.erp_movimientos WHERE tipo = 'ingreso'),\r\n    'total_gastos',          (SELECT COALESCE(SUM(costo_total), 0) FROM public.erp_movimientos WHERE tipo IN ('gasto', 'egreso')),\r\n    'total_empleados',       (SELECT COUNT(*) FROM public.erp_empleados WHERE activo = true),\r\n    'total_materiales',      (SELECT COUNT(*) FROM public.erp_materiales),\r\n    'presupuesto_aprobado',  (SELECT COALESCE(SUM(total_calculado), 0) FROM public.erp_presupuestos WHERE estado = 'aprobado'),\r\n    'ordenes_pendientes',    (SELECT COUNT(*) FROM public.erp_ordenes_compra WHERE estado = 'pendiente'),\r\n    'proveedores_activos',   (SELECT COUNT(*) FROM public.erp_proveedores),\r\n    'ingresos_mes',          (SELECT COALESCE(SUM(costo_total), 0) FROM public.erp_movimientos\r\n                              WHERE tipo = 'ingreso' AND fecha >= date_trunc('month', CURRENT_DATE)),\r\n    'gastos_mes',            (SELECT COALESCE(SUM(costo_total), 0) FROM public.erp_movimientos\r\n                              WHERE tipo IN ('gasto', 'egreso') AND fecha >= date_trunc('month', CURRENT_DATE))\r\n  ) INTO v_result;\r\n\r\n  RETURN v_result;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_normativa_departamental",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_normativa_departamental(p_departamento_codigo text, p_tipo_norma text DEFAULT NULL::text)\n RETURNS TABLE(id uuid, tipo_norma text, codigo_norma text, nombre_norma text, descripcion text, ano_ultima_revision integer, organismo_emisor text, requisitos_especificos jsonb, aplicacion text)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT \r\n    id,\r\n    tipo_norma,\r\n    codigo_norma,\r\n    nombre_norma,\r\n    descripcion,\r\n    ano_ultima_revision,\r\n    organismo_emisor,\r\n    requisitos_especificos,\r\n    aplicacion\r\n  FROM erp_normativa_departamental\r\n  WHERE departamento_codigo = p_departamento_codigo\r\n    AND (p_tipo_norma IS NULL OR tipo_norma = p_tipo_norma)\r\n    AND activo = true\r\n  ORDER BY tipo_norma, codigo_norma;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_parametros_climaticos",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_parametros_climaticos(p_departamento_codigo text)\n RETURNS TABLE(zona_climatica text, altitud_min_msnm numeric, altitud_max_msnm numeric, temperatura_min_c numeric, temperatura_max_c numeric, humedad_relativa_promedio_pct numeric, precipitacion_promedio_mm_mes numeric, viento_promedio_kmh numeric, factor_curado_concreto numeric, factor_rendimiento_mo numeric, factor_proteccion_encofrados numeric, estacion_critica text, meses_criticos text[])\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT\r\n    zona_climatica,\r\n    altitud_min_msnm,\r\n    altitud_max_msnm,\r\n    temperatura_min_c,\r\n    temperatura_max_c,\r\n    humedad_relativa_promedio_pct,\r\n    precipitacion_promedio_mm_mes,\r\n    viento_promedio_kmh,\r\n    factor_curado_concreto,\r\n    factor_rendimiento_mo,\r\n    factor_proteccion_encofrados,\r\n    estacion_critica,\r\n    meses_criticos\r\n  FROM erp_parametros_climaticos\r\n  WHERE departamento_codigo = p_departamento_codigo\r\n    AND activo = true;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_parametros_mt_por_suelo",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_parametros_mt_por_suelo(p_suelo text)\n RETURNS TABLE(tipo text, profundidad text, acceso text, drenaje text, costo_base_m3 numeric, rendimiento_diario_m3 numeric)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT\r\n    tipo,\r\n    profundidad,\r\n    acceso,\r\n    drenaje,\r\n    costo_base_m3,\r\n    rendimiento_diario_m3\r\n  FROM erp_parametros_movimiento_tierra\r\n  WHERE suelo = p_suelo\r\n    AND activo = true\r\n  ORDER BY \r\n    tipo,\r\n    CASE profundidad\r\n      WHEN 'menos_1m' THEN 1\r\n      WHEN '1_2m' THEN 2\r\n      WHEN '2_3m' THEN 3\r\n      WHEN 'mas_3m' THEN 4\r\n    END,\r\n    acceso;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_referencias_acero",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_referencias_acero(p_elemento text)\n RETURNS TABLE(grado numeric, estribos text, total_kg_m3 numeric, alambre_amarre_pct numeric, desperdicio_pct numeric)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT\r\n    grado,\r\n    estribos,\r\n    total_kg_m3,\r\n    alambre_amarre_pct,\r\n    desperdicio_pct\r\n  FROM erp_referencias_acero\r\n  WHERE elemento = p_elemento\r\n    AND activo = true\r\n  ORDER BY grado, estribos;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "obtener_subtipologias_por_tipologia",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.obtener_subtipologias_por_tipologia(p_tipologia text)\n RETURNS TABLE(subtipo text, descripcion text, factor_costo numeric, factor_rendimiento numeric, caracteristicas text[], requisitos_especiales text[])\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT\r\n    subtipo,\r\n    descripcion,\r\n    factor_costo,\r\n    factor_rendimiento,\r\n    caracteristicas,\r\n    requisitos_especiales\r\n  FROM erp_subtipologias\r\n  WHERE tipologia = p_tipologia\r\n    AND activo = true\r\n  ORDER BY subtipo;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "registrar_calculo",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.registrar_calculo(p_proyecto_id uuid, p_tipo_calculo text, p_parametros jsonb, p_resultados jsonb, p_renglon_id uuid DEFAULT NULL::uuid, p_costo_total numeric DEFAULT NULL::numeric, p_costo_unitario numeric DEFAULT NULL::numeric, p_usuario_id uuid DEFAULT NULL::uuid, p_observaciones text DEFAULT NULL::text)\n RETURNS uuid\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\nDECLARE\n  v_calculo_id uuid;\n  v_max_version integer;\nBEGIN\n  SELECT COALESCE(MAX(c.version_calculo), 0) INTO v_max_version\n  FROM erp_calculos_proyecto c\n  WHERE c.proyecto_id = p_proyecto_id AND c.tipo_calculo = p_tipo_calculo;\n\n  INSERT INTO erp_calculos_proyecto (\n    proyecto_id, tipo_calculo, usuario_id, parametros, resultados,\n    version_calculo, origen_calculo, observaciones\n  ) VALUES (\n    p_proyecto_id, p_tipo_calculo, p_usuario_id, p_parametros, p_resultados,\n    v_max_version + 1, 'manual', p_observaciones\n  )\n  RETURNING id INTO v_calculo_id;\n\n  RETURN v_calculo_id;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "registrar_calculo",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.registrar_calculo(p_proyecto_id uuid, p_tipo_calculo text, p_parametros jsonb, p_resultados jsonb, p_usuario_id uuid DEFAULT NULL::uuid, p_observaciones text DEFAULT NULL::text)\n RETURNS uuid\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_calculo_id uuid;\r\n  v_max_version integer;\r\nBEGIN\r\n  -- Obtener versión máxima para este proyecto y tipo\r\n  SELECT COALESCE(MAX(version_calculo), 0) INTO v_max_version\r\n  FROM erp_calculos_proyecto\r\n  WHERE proyecto_id = p_proyecto_id AND tipo_calculo = p_tipo_calculo;\r\n  \r\n  -- Insertar nuevo cálculo\r\n  INSERT INTO erp_calculos_proyecto (\r\n    proyecto_id, \r\n    tipo_calculo, \r\n    usuario_id,\r\n    parametros, \r\n    resultados,\r\n    version_calculo,\r\n    origen_calculo,\r\n    observaciones\r\n  ) VALUES (\r\n    p_proyecto_id,\r\n    p_tipo_calculo,\r\n    p_usuario_id,\r\n    p_parametros,\r\n    p_resultados,\r\n    v_max_version + 1,\r\n    'manual',\r\n    p_observaciones\r\n  )\r\n  RETURNING id INTO v_calculo_id;\r\n  \r\n  RETURN v_calculo_id;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "release_advisory_lock",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.release_advisory_lock(lock_id bigint)\n RETURNS boolean\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN pg_advisory_unlock(lock_id);\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "remover_miembro_proyecto",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.remover_miembro_proyecto(p_proyecto_id uuid, p_user_id uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  IF public.get_current_user_role() != 'Administrador' THEN\r\n    RETURN jsonb_build_object('success', false, 'error', 'Solo Administrador puede remover miembros');\r\n  END IF;\r\n  DELETE FROM public.erp_proyecto_miembros WHERE proyecto_id = p_proyecto_id AND user_id = p_user_id;\r\n  RETURN jsonb_build_object('success', true);\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "resolve_error",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.resolve_error(p_error_id uuid, p_resolution_notes text DEFAULT NULL::text)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  UPDATE erp_error_log\r\n  SET\r\n    resolved = TRUE,\r\n    resolved_at = NOW(),\r\n    resolved_by = auth.uid(),\r\n    resolution_notes = p_resolution_notes\r\n  WHERE id = p_error_id;\r\n\r\n  RETURN FOUND;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "rls_auto_enable",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.rls_auto_enable()\n RETURNS event_trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n  cmd record;\nBEGIN\n  FOR cmd IN\n    SELECT *\n    FROM pg_event_trigger_ddl_commands()\n    WHERE command_tag IN ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')\n      AND object_type IN ('table','partitioned table')\n  LOOP\n     IF cmd.schema_name IS NOT NULL AND cmd.schema_name IN ('public') AND cmd.schema_name NOT IN ('pg_catalog','information_schema') AND cmd.schema_name NOT LIKE 'pg_toast%' AND cmd.schema_name NOT LIKE 'pg_temp%' THEN\n      BEGIN\n        EXECUTE format('alter table if exists %s enable row level security', cmd.object_identity);\n        RAISE LOG 'rls_auto_enable: enabled RLS on %', cmd.object_identity;\n      EXCEPTION\n        WHEN OTHERS THEN\n          RAISE LOG 'rls_auto_enable: failed to enable RLS on %', cmd.object_identity;\n      END;\n     ELSE\n        RAISE LOG 'rls_auto_enable: skip % (either system schema or not in enforced list: %.)', cmd.object_identity, cmd.schema_name;\n     END IF;\n  END LOOP;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "rollback_054_monitoring_functions",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.rollback_054_monitoring_functions()\n RETURNS void\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  -- Revoke permissions\r\n  REVOKE EXECUTE ON FUNCTION get_table_sizes() FROM authenticated;\r\n  REVOKE EXECUTE ON FUNCTION get_slow_queries() FROM authenticated;\r\n  REVOKE EXECUTE ON FUNCTION get_index_usage() FROM authenticated;\r\n  REVOKE EXECUTE ON FUNCTION get_missing_indexes() FROM authenticated;\r\n  \r\n  -- Drop functions\r\n  DROP FUNCTION IF EXISTS get_table_sizes();\r\n  DROP FUNCTION IF EXISTS get_slow_queries();\r\n  DROP FUNCTION IF EXISTS get_index_usage();\r\n  DROP FUNCTION IF EXISTS get_missing_indexes();\r\n  \r\n  RAISE NOTICE 'Migration 054 rolled back successfully';\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "rollback_055_fix_monitoring_functions",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.rollback_055_fix_monitoring_functions()\n RETURNS void\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  -- This migration only fixes function definitions, rollback would restore\r\n  -- the previous (broken) versions from migration 054\r\n  -- In practice, we want to keep the fixed versions\r\n  RAISE NOTICE 'Migration 055 fixes are idempotent - no rollback needed';\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "rollback_056_deadlock_prevention",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.rollback_056_deadlock_prevention()\n RETURNS void\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  DROP FUNCTION IF EXISTS begin_transaction(TEXT);\r\n  DROP FUNCTION IF EXISTS commit_transaction();\r\n  DROP FUNCTION IF EXISTS rollback_transaction();\r\n  DROP FUNCTION IF EXISTS try_advisory_lock(BIGINT, INTEGER);\r\n  DROP FUNCTION IF EXISTS release_advisory_lock(BIGINT);\r\n  DROP FUNCTION IF EXISTS log_deadlock_event(TEXT, TEXT, TEXT, TEXT);\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "rollback_transaction",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.rollback_transaction()\n RETURNS void\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  ROLLBACK;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "set_limit",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.set_limit(real)\n RETURNS real\n LANGUAGE c\n STRICT\nAS '$libdir/pg_trgm', $function$set_limit$function$\n"
+  },
+  {
+    "proname": "set_updated_at",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.set_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "show_limit",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.show_limit()\n RETURNS real\n LANGUAGE c\n STABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$show_limit$function$\n"
+  },
+  {
+    "proname": "show_trgm",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.show_trgm(text)\n RETURNS text[]\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$show_trgm$function$\n"
+  },
+  {
+    "proname": "similarity",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.similarity(text, text)\n RETURNS real\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$similarity$function$\n"
+  },
+  {
+    "proname": "similarity_dist",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.similarity_dist(text, text)\n RETURNS real\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$similarity_dist$function$\n"
+  },
+  {
+    "proname": "similarity_op",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.similarity_op(text, text)\n RETURNS boolean\n LANGUAGE c\n STABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$similarity_op$function$\n"
+  },
+  {
+    "proname": "strict_word_similarity",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.strict_word_similarity(text, text)\n RETURNS real\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$strict_word_similarity$function$\n"
+  },
+  {
+    "proname": "strict_word_similarity_commutator_op",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.strict_word_similarity_commutator_op(text, text)\n RETURNS boolean\n LANGUAGE c\n STABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$strict_word_similarity_commutator_op$function$\n"
+  },
+  {
+    "proname": "strict_word_similarity_dist_commutator_op",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.strict_word_similarity_dist_commutator_op(text, text)\n RETURNS real\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$strict_word_similarity_dist_commutator_op$function$\n"
+  },
+  {
+    "proname": "strict_word_similarity_dist_op",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.strict_word_similarity_dist_op(text, text)\n RETURNS real\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$strict_word_similarity_dist_op$function$\n"
+  },
+  {
+    "proname": "strict_word_similarity_op",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.strict_word_similarity_op(text, text)\n RETURNS boolean\n LANGUAGE c\n STABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$strict_word_similarity_op$function$\n"
+  },
+  {
+    "proname": "try_advisory_lock",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.try_advisory_lock(lock_id bigint, timeout_ms integer DEFAULT 5000)\n RETURNS boolean\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  start_time TIMESTAMP := NOW();\r\n  locked BOOLEAN;\r\nBEGIN\r\n  WHILE (NOW() - start_time) * 1000 < timeout_ms LOOP\r\n    locked := pg_try_advisory_xact_lock(lock_id);\r\n    IF locked THEN\r\n      RETURN TRUE;\r\n    END IF;\r\n    PERFORM pg_sleep(0.1);\r\n  END LOOP;\r\n  RETURN FALSE;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "update_app_config",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.update_app_config(config_key text, config_value text, environment text DEFAULT 'production'::text, updated_by uuid DEFAULT NULL::uuid)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  user_role text;\r\nBEGIN\r\n  -- Verificar que sea administrador\r\n  user_role := public.get_user_role();\r\n  \r\n  IF user_role != 'Administrador' THEN\r\n    RAISE EXCEPTION 'Only Administrators can update app config';\r\n    RETURN false;\r\n  END IF;\r\n  \r\n  -- Actualizar o insertar configuración\r\n  INSERT INTO erp_app_config (\r\n    config_key,\r\n    config_value,\r\n    environment,\r\n    updated_by,\r\n    updated_at\r\n  ) VALUES (\r\n    update_app_config.config_key,\r\n    update_app_config.config_value,\r\n    update_app_config.environment,\r\n    updated_by,\r\n    now()\r\n  )\r\n  ON CONFLICT (config_key, environment) \r\n  DO UPDATE SET\r\n    config_value = EXCLUDED.config_value,\r\n    updated_by = update_app_config.updated_by,\r\n    updated_at = now();\r\n  \r\n  RETURN true;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "update_erp_insumos_updated_at",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.update_erp_insumos_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = NOW();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "update_erp_presupuestos_timestamp",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.update_erp_presupuestos_timestamp()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN NEW.fecha_actualizacion = now(); RETURN NEW; END;\r\n$function$\n"
+  },
+  {
+    "proname": "update_erp_renglones_updated_at",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.update_erp_renglones_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = NOW();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "update_erp_sub_renglones_updated_at",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.update_erp_sub_renglones_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = NOW();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "update_plantilla_updated_at",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.update_plantilla_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = NOW();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "update_proyecto_weather_updated_at",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.update_proyecto_weather_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = NOW();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "update_timestamp",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.update_timestamp()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\n  BEGIN\r\n    NEW.updated_at = NOW();\r\n    RETURN NEW;\r\n  END;\r\n  $function$\n"
+  },
+  {
+    "proname": "update_updated_at_column",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.update_updated_at_column()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\nBEGIN\n  NEW.updated_at = now();\n  RETURN NEW;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "validar_cumplimiento_normativo",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.validar_cumplimiento_normativo(p_departamento_codigo text, p_tipo_norma text, p_parametros_calculo jsonb)\n RETURNS TABLE(cumple_norma boolean, normativa_aplicable text, observaciones text[], requisitos_faltantes text[])\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_normativas RECORD;\r\n  v_observaciones text[] := '{}';\r\n  v_requisitos_faltantes text[] := '{}';\r\n  v_cumple boolean := true;\r\nBEGIN\r\n  -- Obtener normativa aplicable\r\n  FOR v_normativas IN\r\n    SELECT * FROM erp_normativa_departamental\r\n    WHERE departamento_codigo = p_departamento_codigo\r\n      AND (p_tipo_norma IS NULL OR tipo_norma = p_tipo_norma)\r\n      AND activo = true\r\n  LOOP\r\n    -- Validar requisitos específicos (ejemplo básico)\r\n    IF p_parametros_calculo ? 'carga_viva' THEN\r\n      IF (v_normativas.requisitos_especifices->>'carga_viva')::numeric < (p_parametros_calculo->>'carga_viva')::numeric THEN\r\n        v_cumple := false;\r\n        v_observaciones := array_append(v_observaciones, 'Carga viva excede normativa: ' || v_normativas.nombre_norma);\r\n        v_requisitos_faltantes := array_append(v_requisitos_faltantes, 'Cargar según normativa ' || v_normativas.codigo_norma);\r\n      END IF;\r\n    END IF;\r\n    \r\n    IF p_parametros_calculo ? 'altura' THEN\r\n      IF (v_normativas.requisitos_especificos->>'altura_max')::numeric < (p_parametros_calculo->>'altura')::numeric THEN\r\n        v_cumple := false;\r\n        v_observaciones := array_append(v_observaciones, 'Altura excede normativa: ' || v_normativas.nombre_norma);\r\n        v_requisitos_faltantes := array_append(v_requisitos_faltantes, 'Reducir altura según ' || v_normativas.codigo_norma);\r\n      END IF;\r\n    END IF;\r\n  END LOOP;\r\n  \r\n  RETURN QUERY\r\n  SELECT\r\n    v_cumple as cumple_norma,\r\n    COALESCE(MAX(nombre_norma), 'Sin normativa aplicable') as normativa_aplicable,\r\n    v_observaciones as observaciones,\r\n    v_requisitos_faltantes as requisitos_faltantes\r\n  FROM erp_normativa_departamental\r\n  WHERE departamento_codigo = p_departamento_codigo\r\n    AND (p_tipo_norma IS NULL OR tipo_norma = p_tipo_norma)\r\n    AND activo = true;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "verificar_rol_usuario",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.verificar_rol_usuario(p_user_id uuid DEFAULT NULL::uuid, p_email text DEFAULT NULL::text)\n RETURNS text\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\nDECLARE\n  v_rol text := NULL;\n  v_target_id uuid := COALESCE(p_user_id, auth.uid());\nBEGIN\n  IF v_target_id IS NOT NULL THEN\n    SELECT rol INTO v_rol FROM public.erp_usuarios WHERE id = v_target_id;\n  ELSIF p_email IS NOT NULL THEN\n    SELECT rol INTO v_rol FROM public.erp_usuarios WHERE email = p_email;\n  END IF;\n  RETURN COALESCE(v_rol, 'sin_rol');\nEND;\n$function$\n"
+  },
+  {
+    "proname": "verificar_rol_usuario",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.verificar_rol_usuario()\n RETURNS TABLE(rol text, nombre text, avatar_url text)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  RETURN QUERY\r\n  SELECT p.rol, p.nombre, p.avatar_url\r\n  FROM public.profiles p\r\n  WHERE p.id = auth.uid()\r\n  LIMIT 1;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "verificar_sesion_activa",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.verificar_sesion_activa()\n RETURNS TABLE(usuario_id uuid, email text, ultimo_acceso timestamp with time zone, sesion_valida boolean)\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_user_id uuid;\r\nBEGIN\r\n  v_user_id := auth.uid();\r\n  IF v_user_id IS NULL THEN\r\n    RETURN QUERY SELECT NULL::uuid, NULL::text, NULL::timestamptz, false;\r\n    RETURN;\r\n  END IF;\r\n\r\n  RETURN QUERY\r\n  SELECT\r\n    p.id,\r\n    au.email,\r\n    au.last_sign_in_at,\r\n    (au.last_sign_in_at IS NOT NULL AND au.last_sign_in_at > NOW() - INTERVAL '24 hours')\r\n  FROM public.profiles p\r\n  JOIN auth.users au ON au.id = p.id\r\n  WHERE p.id = v_user_id\r\n  LIMIT 1;\r\n\r\n  IF NOT FOUND THEN\r\n    RETURN QUERY SELECT v_user_id, NULL::text, NOW(), true;\r\n  END IF;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "verificar_stock_vale",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.verificar_stock_vale(p_items jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_item JSONB;\r\n  v_material_id UUID;\r\n  v_cantidad NUMERIC;\r\n  v_stock_actual NUMERIC;\r\n  v_insuficientes JSONB := '[]'::JSONB;\r\n  v_result JSONB;\r\nBEGIN\r\n  FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)\r\n  LOOP\r\n    v_material_id := (v_item->>'materialId')::UUID;\r\n    v_cantidad := (v_item->>'cantidad')::NUMERIC;\r\n    SELECT stock INTO v_stock_actual FROM erp_materiales WHERE id = v_material_id;\r\n    IF v_stock_actual < v_cantidad THEN\r\n      v_insuficientes := v_insuficientes || jsonb_build_object('materialId', v_material_id, 'disponible', v_stock_actual, 'requerido', v_cantidad);\r\n    END IF;\r\n  END LOOP;\r\n  v_result := jsonb_build_object('success', jsonb_array_length(v_insuficientes) = 0, 'insuficientes', v_insuficientes);\r\n  RETURN v_result;\r\nEND;\r\n$function$\n"
+  },
+  {
+    "proname": "word_similarity",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.word_similarity(text, text)\n RETURNS real\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$word_similarity$function$\n"
+  },
+  {
+    "proname": "word_similarity_commutator_op",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.word_similarity_commutator_op(text, text)\n RETURNS boolean\n LANGUAGE c\n STABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$word_similarity_commutator_op$function$\n"
+  },
+  {
+    "proname": "word_similarity_dist_commutator_op",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.word_similarity_dist_commutator_op(text, text)\n RETURNS real\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$word_similarity_dist_commutator_op$function$\n"
+  },
+  {
+    "proname": "word_similarity_dist_op",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.word_similarity_dist_op(text, text)\n RETURNS real\n LANGUAGE c\n IMMUTABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$word_similarity_dist_op$function$\n"
+  },
+  {
+    "proname": "word_similarity_op",
+    "nspname": "public",
+    "definition": "CREATE OR REPLACE FUNCTION public.word_similarity_op(text, text)\n RETURNS boolean\n LANGUAGE c\n STABLE PARALLEL SAFE STRICT\nAS '$libdir/pg_trgm', $function$word_similarity_op$function$\n"
+  },
+  {
+    "proname": "apply_rls",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.apply_rls(wal jsonb, max_record_bytes integer DEFAULT (1024 * 1024))\n RETURNS SETOF realtime.wal_rls\n LANGUAGE plpgsql\nAS $function$\ndeclare\n    -- Regclass of the table e.g. public.notes\n    entity_ regclass = (quote_ident(wal ->> 'schema') || '.' || quote_ident(wal ->> 'table'))::regclass;\n\n    -- I, U, D, T: insert, update ...\n    action realtime.action = (\n        case wal ->> 'action'\n            when 'I' then 'INSERT'\n            when 'U' then 'UPDATE'\n            when 'D' then 'DELETE'\n            else 'ERROR'\n        end\n    );\n\n    -- Is row level security enabled for the table\n    is_rls_enabled bool = relrowsecurity from pg_class where oid = entity_;\n\n    subscriptions realtime.subscription[] = array_agg(subs)\n        from\n            realtime.subscription subs\n        where\n            subs.entity = entity_\n            -- Filter by action early - only get subscriptions interested in this action\n            -- action_filter column can be: '*' (all), 'INSERT', 'UPDATE', or 'DELETE'\n            and (subs.action_filter = '*' or subs.action_filter = action::text);\n\n    -- Subscription vars\n    working_role regrole;\n    working_selected_columns text[];\n    claimed_role regrole;\n    claims jsonb;\n\n    subscription_id uuid;\n    subscription_has_access bool;\n    visible_to_subscription_ids uuid[] = '{}';\n\n    -- structured info for wal's columns\n    columns realtime.wal_column[];\n    -- previous identity values for update/delete\n    old_columns realtime.wal_column[];\n\n    error_record_exceeds_max_size boolean = octet_length(wal::text) > max_record_bytes;\n\n    -- Primary jsonb output for record\n    output jsonb;\n\n    -- Loop record for iterating unique roles (outer loop)\n    role_record record;\n    -- Loop record for iterating unique selected_columns within a role (inner loop)\n    cols_record record;\n    -- Subscription ids visible at the role level (before fanning out by selected_columns)\n    visible_role_sub_ids uuid[] = '{}';\n\nbegin\n    perform set_config('role', null, true);\n\n    columns =\n        array_agg(\n            (\n                x->>'name',\n                x->>'type',\n                x->>'typeoid',\n                realtime.cast(\n                    (x->'value') #>> '{}',\n                    coalesce(\n                        (x->>'typeoid')::regtype, -- null when wal2json version <= 2.4\n                        (x->>'type')::regtype\n                    )\n                ),\n                (pks ->> 'name') is not null,\n                true\n            )::realtime.wal_column\n        )\n        from\n            jsonb_array_elements(wal -> 'columns') x\n            left join jsonb_array_elements(wal -> 'pk') pks\n                on (x ->> 'name') = (pks ->> 'name');\n\n    old_columns =\n        array_agg(\n            (\n                x->>'name',\n                x->>'type',\n                x->>'typeoid',\n                realtime.cast(\n                    (x->'value') #>> '{}',\n                    coalesce(\n                        (x->>'typeoid')::regtype, -- null when wal2json version <= 2.4\n                        (x->>'type')::regtype\n                    )\n                ),\n                (pks ->> 'name') is not null,\n                true\n            )::realtime.wal_column\n        )\n        from\n            jsonb_array_elements(wal -> 'identity') x\n            left join jsonb_array_elements(wal -> 'pk') pks\n                on (x ->> 'name') = (pks ->> 'name');\n\n    for role_record in\n        select claims_role\n        from (select distinct claims_role from unnest(subscriptions)) t\n        order by claims_role::text\n    loop\n        working_role := role_record.claims_role;\n\n        -- Update `is_selectable` for columns and old_columns (once per role)\n        columns =\n            array_agg(\n                (\n                    c.name,\n                    c.type_name,\n                    c.type_oid,\n                    c.value,\n                    c.is_pkey,\n                    pg_catalog.has_column_privilege(working_role, entity_, c.name, 'SELECT')\n                )::realtime.wal_column\n            )\n            from\n                unnest(columns) c;\n\n        old_columns =\n                array_agg(\n                    (\n                        c.name,\n                        c.type_name,\n                        c.type_oid,\n                        c.value,\n                        c.is_pkey,\n                        pg_catalog.has_column_privilege(working_role, entity_, c.name, 'SELECT')\n                    )::realtime.wal_column\n                )\n                from\n                    unnest(old_columns) c;\n\n        if action <> 'DELETE' and count(1) = 0 from unnest(columns) c where c.is_pkey then\n            -- Fan out 400 error per distinct selected_columns for this role\n            for cols_record in\n                select selected_columns\n                from (select distinct selected_columns from unnest(subscriptions) s where s.claims_role = working_role) t\n                order by coalesce(array_to_string(selected_columns, ','), '')\n            loop\n                working_selected_columns := cols_record.selected_columns;\n                return next (\n                    jsonb_build_object(\n                        'schema', wal ->> 'schema',\n                        'table', wal ->> 'table',\n                        'type', action\n                    ),\n                    is_rls_enabled,\n                    (select array_agg(s.subscription_id) from unnest(subscriptions) as s where s.claims_role = working_role and (s.selected_columns is not distinct from working_selected_columns)),\n                    array['Error 400: Bad Request, no primary key']\n                )::realtime.wal_rls;\n            end loop;\n\n        -- The claims role does not have SELECT permission to the primary key of entity\n        elsif action <> 'DELETE' and sum(c.is_selectable::int) <> count(1) from unnest(columns) c where c.is_pkey then\n            -- Fan out 401 error per distinct selected_columns for this role\n            for cols_record in\n                select selected_columns\n                from (select distinct selected_columns from unnest(subscriptions) s where s.claims_role = working_role) t\n                order by coalesce(array_to_string(selected_columns, ','), '')\n            loop\n                working_selected_columns := cols_record.selected_columns;\n                return next (\n                    jsonb_build_object(\n                        'schema', wal ->> 'schema',\n                        'table', wal ->> 'table',\n                        'type', action\n                    ),\n                    is_rls_enabled,\n                    (select array_agg(s.subscription_id) from unnest(subscriptions) as s where s.claims_role = working_role and (s.selected_columns is not distinct from working_selected_columns)),\n                    array['Error 401: Unauthorized']\n                )::realtime.wal_rls;\n            end loop;\n\n        else\n            -- Create the prepared statement (once per role)\n            if is_rls_enabled and action <> 'DELETE' then\n                if (select 1 from pg_prepared_statements where name = 'walrus_rls_stmt' limit 1) > 0 then\n                    deallocate walrus_rls_stmt;\n                end if;\n                execute realtime.build_prepared_statement_sql('walrus_rls_stmt', entity_, columns);\n            end if;\n\n            -- Collect all visible subscription IDs for this role (filter check + RLS check)\n            visible_role_sub_ids = '{}';\n\n            for subscription_id, claims in (\n                    select\n                        subs.subscription_id,\n                        subs.claims\n                    from\n                        unnest(subscriptions) subs\n                    where\n                        subs.entity = entity_\n                        and subs.claims_role = working_role\n                        and (\n                            realtime.is_visible_through_filters(columns, subs.filters)\n                            or (\n                              action = 'DELETE'\n                              and realtime.is_visible_through_filters(old_columns, subs.filters)\n                            )\n                        )\n            ) loop\n\n                if not is_rls_enabled or action = 'DELETE' then\n                    visible_role_sub_ids = visible_role_sub_ids || subscription_id;\n                else\n                    -- Check if RLS allows the role to see the record\n                    perform\n                        -- Trim leading and trailing quotes from working_role because set_config\n                        -- doesn't recognize the role as valid if they are included\n                        set_config('role', trim(both '\"' from working_role::text), true),\n                        set_config('request.jwt.claims', claims::text, true);\n\n                    execute 'execute walrus_rls_stmt' into subscription_has_access;\n\n                    -- Reset the role on every FOR..LOOP batch execution.\n                    -- The first batch of 10 rows is pre-fetched using the current connection role (PG internal behaviour)\n                    -- then we have to reset it again otherwise it would use the role defined in the `set_config` above\n                    -- to fetch the remaining rows when rows>10, which could be a user-defined role that lacks execution grants.\n                    -- The flow is:\n                    --   1. run batch with conn role\n                    --   2. set_config working_role\n                    --   3. execute walrus\n                    --   4. reset role (revert)\n                    --   5. repeat\n                    perform set_config('role', null, true);\n\n                    if subscription_has_access then\n                        visible_role_sub_ids = visible_role_sub_ids || subscription_id;\n                    end if;\n                end if;\n            end loop;\n\n            perform set_config('role', null, true);\n\n            -- Inner loop: per distinct selected_columns for this role\n            for cols_record in\n                select selected_columns\n                from (select distinct selected_columns from unnest(subscriptions) s where s.claims_role = working_role) t\n                order by coalesce(array_to_string(selected_columns, ','), '')\n            loop\n                working_selected_columns := cols_record.selected_columns;\n\n                output = jsonb_build_object(\n                    'schema', wal ->> 'schema',\n                    'table', wal ->> 'table',\n                    'type', action,\n                    'commit_timestamp', to_char(\n                        ((wal ->> 'timestamp')::timestamptz at time zone 'utc'),\n                        'YYYY-MM-DD\"T\"HH24:MI:SS.MS\"Z\"'\n                    ),\n                    'columns', (\n                        select\n                            jsonb_agg(\n                                jsonb_build_object(\n                                    'name', pa.attname,\n                                    'type', pt.typname\n                                )\n                                order by pa.attnum asc\n                            )\n                        from\n                            pg_attribute pa\n                            join pg_type pt\n                                on pa.atttypid = pt.oid\n                            left join (\n                                select unnest(conkey) as pkey_attnum\n                                from pg_constraint\n                                where conrelid = entity_ and contype = 'p'\n                            ) pk on pk.pkey_attnum = pa.attnum\n                        where\n                            attrelid = entity_\n                            and attnum > 0\n                            and pg_catalog.has_column_privilege(working_role, entity_, pa.attname, 'SELECT')\n                            and (working_selected_columns is null or pa.attname = any(working_selected_columns) or pk.pkey_attnum is not null)\n                    )\n                )\n                -- Add \"record\" key for insert and update\n                || case\n                    when action in ('INSERT', 'UPDATE') then\n                        jsonb_build_object(\n                            'record',\n                            (\n                                select\n                                    jsonb_object_agg(\n                                        -- if unchanged toast, get column name and value from old record\n                                        coalesce((c).name, (oc).name),\n                                        case\n                                            when (c).name is null then (oc).value\n                                            else (c).value\n                                        end\n                                    )\n                                from\n                                    unnest(columns) c\n                                    full outer join unnest(old_columns) oc\n                                        on (c).name = (oc).name\n                                where\n                                    coalesce((c).is_selectable, (oc).is_selectable)\n                                    and (working_selected_columns is null or coalesce((c).name, (oc).name) = any(working_selected_columns) or coalesce((c).is_pkey, (oc).is_pkey))\n                                    and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))\n                            )\n                        )\n                    else '{}'::jsonb\n                end\n                -- Add \"old_record\" key for update and delete\n                || case\n                    when action = 'UPDATE' then\n                        jsonb_build_object(\n                                'old_record',\n                                (\n                                    select jsonb_object_agg((c).name, (c).value)\n                                    from unnest(old_columns) c\n                                    where\n                                        (c).is_selectable\n                                        and (working_selected_columns is null or (c).name = any(working_selected_columns) or (c).is_pkey)\n                                        and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))\n                                )\n                            )\n                    when action = 'DELETE' then\n                        jsonb_build_object(\n                            'old_record',\n                            (\n                                select jsonb_object_agg((c).name, (c).value)\n                                from unnest(old_columns) c\n                                where\n                                    (c).is_selectable\n                                    and (working_selected_columns is null or (c).name = any(working_selected_columns) or (c).is_pkey)\n                                    and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))\n                                    and ( not is_rls_enabled or (c).is_pkey ) -- if RLS enabled, we can't secure deletes so filter to pkey\n                            )\n                        )\n                    else '{}'::jsonb\n                end;\n\n                -- Filter visible_role_sub_ids to those matching the current selected_columns group\n                visible_to_subscription_ids = coalesce(\n                    (\n                        select array_agg(s.subscription_id)\n                        from unnest(subscriptions) s\n                        where s.claims_role = working_role\n                          and (s.selected_columns is not distinct from working_selected_columns)\n                          and s.subscription_id = any(visible_role_sub_ids)\n                    ),\n                    '{}'::uuid[]\n                );\n\n                return next (\n                    output,\n                    is_rls_enabled,\n                    visible_to_subscription_ids,\n                    case\n                        when error_record_exceeds_max_size then array['Error 413: Payload Too Large']\n                        else '{}'\n                    end\n                )::realtime.wal_rls;\n            end loop;\n\n        end if;\n    end loop;\n\n    perform set_config('role', null, true);\nend;\n$function$\n"
+  },
+  {
+    "proname": "broadcast_changes",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.broadcast_changes(topic_name text, event_name text, operation text, table_name text, table_schema text, new record, old record, level text DEFAULT 'ROW'::text)\n RETURNS void\n LANGUAGE plpgsql\nAS $function$\nDECLARE\n    -- Declare a variable to hold the JSONB representation of the row\n    row_data jsonb := '{}'::jsonb;\nBEGIN\n    IF level = 'STATEMENT' THEN\n        RAISE EXCEPTION 'function can only be triggered for each row, not for each statement';\n    END IF;\n    -- Check the operation type and handle accordingly\n    IF operation = 'INSERT' OR operation = 'UPDATE' OR operation = 'DELETE' THEN\n        row_data := jsonb_build_object('old_record', OLD, 'record', NEW, 'operation', operation, 'table', table_name, 'schema', table_schema);\n        PERFORM realtime.send (row_data, event_name, topic_name);\n    ELSE\n        RAISE EXCEPTION 'Unexpected operation type: %', operation;\n    END IF;\nEXCEPTION\n    WHEN OTHERS THEN\n        RAISE EXCEPTION 'Failed to process the row: %', SQLERRM;\nEND;\n\n$function$\n"
+  },
+  {
+    "proname": "build_prepared_statement_sql",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.build_prepared_statement_sql(prepared_statement_name text, entity regclass, columns realtime.wal_column[])\n RETURNS text\n LANGUAGE sql\nAS $function$\n      /*\n      Builds a sql string that, if executed, creates a prepared statement to\n      tests retrive a row from *entity* by its primary key columns.\n      Example\n          select realtime.build_prepared_statement_sql('public.notes', '{\"id\"}'::text[], '{\"bigint\"}'::text[])\n      */\n          select\n      'prepare ' || prepared_statement_name || ' as\n          select\n              exists(\n                  select\n                      1\n                  from\n                      ' || entity || '\n                  where\n                      ' || string_agg(quote_ident(pkc.name) || '=' || quote_nullable(pkc.value #>> '{}') , ' and ') || '\n              )'\n          from\n              unnest(columns) pkc\n          where\n              pkc.is_pkey\n          group by\n              entity\n      $function$\n"
+  },
+  {
+    "proname": "cast",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.\"cast\"(val text, type_ regtype)\n RETURNS jsonb\n LANGUAGE plpgsql\n IMMUTABLE\nAS $function$\ndeclare\n  res jsonb;\nbegin\n  if type_::text = 'bytea' then\n    return to_jsonb(val);\n  end if;\n  execute format('select to_jsonb(%L::'|| type_::text || ')', val) into res;\n  return res;\nend\n$function$\n"
+  },
+  {
+    "proname": "check_equality_op",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.check_equality_op(op realtime.equality_op, type_ regtype, val_1 text, val_2 text, negate boolean)\n RETURNS boolean\n LANGUAGE plpgsql\n STABLE\nAS $function$\ndeclare\n    op_symbol text;\n    res boolean;\nbegin\n    -- IS DISTINCT FROM / IS NOT DISTINCT FROM: infix, both sides typed literals\n    if op = 'isdistinct' then\n        execute format(\n            'select %L::%s %s %L::%s',\n            val_1,\n            type_::text,\n            case when negate then 'IS NOT DISTINCT FROM' else 'IS DISTINCT FROM' end,\n            val_2,\n            type_::text\n        ) into res;\n        return res;\n    end if;\n\n    -- IS requires a keyword RHS (NULL, TRUE, FALSE, UNKNOWN), not a typed literal\n    if op = 'is' then\n        if val_2 not in ('null', 'true', 'false', 'unknown') then\n            raise exception 'invalid value for is filter: must be null, true, false, or unknown';\n        end if;\n        execute format(\n            'select %L::%s %s %s',\n            val_1,\n            type_::text,\n            case when negate then 'IS NOT' else 'IS' end,\n            upper(val_2)\n        ) into res;\n        return res;\n    end if;\n\n    op_symbol = case\n        when op = 'eq'    then '='\n        when op = 'neq'   then '!='\n        when op = 'lt'    then '<'\n        when op = 'lte'   then '<='\n        when op = 'gt'    then '>'\n        when op = 'gte'   then '>='\n        when op = 'in'    then '= any'\n        when op = 'like'   then 'LIKE'\n        when op = 'ilike'  then 'ILIKE'\n        when op = 'match'  then '~'\n        when op = 'imatch' then '~*'\n        else null\n    end;\n\n    if op_symbol is null then\n        raise exception 'unsupported equality operator: %', op::text;\n    end if;\n\n    execute format(\n        'select %L::%s %s (%L::%s)',\n        val_1,\n        type_::text,\n        op_symbol,\n        val_2,\n        case when op = 'in' then type_::text || '[]' else type_::text end\n    ) into res;\n\n    return case when negate then not res else res end;\nend;\n$function$\n"
+  },
+  {
+    "proname": "check_equality_op",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.check_equality_op(op realtime.equality_op, type_ regtype, val_1 text, val_2 text)\n RETURNS boolean\n LANGUAGE plpgsql\n IMMUTABLE\nAS $function$\n/*\nCasts *val_1* and *val_2* as type *type_* and check the *op* condition for truthiness\n*/\ndeclare\n    op_symbol text = (\n        case\n            when op = 'eq' then '='\n            when op = 'neq' then '!='\n            when op = 'lt' then '<'\n            when op = 'lte' then '<='\n            when op = 'gt' then '>'\n            when op = 'gte' then '>='\n            when op = 'in' then '= any'\n            else 'UNKNOWN OP'\n        end\n    );\n    res boolean;\nbegin\n    execute format(\n        'select %L::'|| type_::text || ' ' || op_symbol\n        || ' ( %L::'\n        || (\n            case\n                when op = 'in' then type_::text || '[]'\n                else type_::text end\n        )\n        || ')', val_1, val_2) into res;\n    return res;\nend;\n$function$\n"
+  },
+  {
+    "proname": "is_visible_through_filters",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.is_visible_through_filters(columns realtime.wal_column[], filters realtime.user_defined_filter[])\n RETURNS boolean\n LANGUAGE sql\n STABLE\nAS $function$\n    select\n        filters is null\n        or array_length(filters, 1) is null\n        or coalesce(\n            count(col.name) = count(1)\n            and sum(\n                realtime.check_equality_op(\n                    op:=f.op,\n                    type_:=coalesce(col.type_oid::regtype, col.type_name::regtype),\n                    val_1:=col.value #>> '{}',\n                    val_2:=f.value,\n                    negate:=coalesce(f.negate, false)\n                )::int\n            ) filter (where col.name is not null) = count(col.name),\n            false\n        )\n    from\n        unnest(filters) f\n        left join unnest(columns) col\n            on f.column_name = col.name;\n$function$\n"
+  },
+  {
+    "proname": "list_changes",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.list_changes(publication name, slot_name name, max_changes integer, max_record_bytes integer)\n RETURNS TABLE(wal jsonb, is_rls_enabled boolean, subscription_ids uuid[], errors text[], slot_changes_count bigint)\n LANGUAGE sql\n SET log_min_messages TO 'fatal'\nAS $function$\n  WITH pub AS (\n    SELECT\n      concat_ws(\n        ',',\n        CASE WHEN bool_or(pubinsert) THEN 'insert' ELSE NULL END,\n        CASE WHEN bool_or(pubupdate) THEN 'update' ELSE NULL END,\n        CASE WHEN bool_or(pubdelete) THEN 'delete' ELSE NULL END\n      ) AS w2j_actions,\n      coalesce(\n        string_agg(\n          realtime.quote_wal2json(format('%I.%I', schemaname, tablename)::regclass),\n          ','\n        ) filter (WHERE ppt.tablename IS NOT NULL),\n        ''\n      ) AS w2j_add_tables\n    FROM pg_publication pp\n    LEFT JOIN pg_publication_tables ppt ON pp.pubname = ppt.pubname\n    WHERE pp.pubname = publication\n    GROUP BY pp.pubname\n    LIMIT 1\n  ),\n  -- MATERIALIZED ensures pg_logical_slot_get_changes is called exactly once\n  w2j AS MATERIALIZED (\n    SELECT x.*, pub.w2j_add_tables\n    FROM pub,\n         pg_logical_slot_get_changes(\n           slot_name, null, max_changes,\n           'include-pk', 'true',\n           'include-transaction', 'false',\n           'include-timestamp', 'true',\n           'include-type-oids', 'true',\n           'format-version', '2',\n           'actions', pub.w2j_actions,\n           'add-tables', pub.w2j_add_tables\n         ) x\n  ),\n  slot_count AS (\n    SELECT count(*)::bigint AS cnt\n    FROM w2j\n    WHERE w2j.w2j_add_tables <> ''\n  ),\n  rls_filtered AS (\n    SELECT xyz.wal, xyz.is_rls_enabled, xyz.subscription_ids, xyz.errors\n    FROM w2j,\n         realtime.apply_rls(\n           wal := w2j.data::jsonb,\n           max_record_bytes := max_record_bytes\n         ) xyz(wal, is_rls_enabled, subscription_ids, errors)\n    WHERE w2j.w2j_add_tables <> ''\n      AND xyz.subscription_ids[1] IS NOT NULL\n  )\n  SELECT rf.wal, rf.is_rls_enabled, rf.subscription_ids, rf.errors, sc.cnt\n  FROM rls_filtered rf, slot_count sc\n\n  UNION ALL\n\n  SELECT null, null, null, null, sc.cnt\n  FROM slot_count sc\n  WHERE NOT EXISTS (SELECT 1 FROM rls_filtered)\n$function$\n"
+  },
+  {
+    "proname": "quote_wal2json",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.quote_wal2json(entity regclass)\n RETURNS text\n LANGUAGE sql\n IMMUTABLE STRICT\nAS $function$\n  SELECT\n    realtime.wal2json_escape_identifier(nsp.nspname::text)\n    || '.'\n    || realtime.wal2json_escape_identifier(pc.relname::text)\n  FROM pg_class pc\n  JOIN pg_namespace nsp ON pc.relnamespace = nsp.oid\n  WHERE pc.oid = entity\n$function$\n"
+  },
+  {
+    "proname": "send",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.send(payload jsonb, event text, topic text, private boolean DEFAULT true)\n RETURNS void\n LANGUAGE plpgsql\nAS $function$\nDECLARE\n  generated_id uuid;\n  final_payload jsonb;\nBEGIN\n  BEGIN\n    generated_id := gen_random_uuid();\n\n    -- Check if payload has an 'id' key, if not, add the generated UUID\n    IF payload ? 'id' THEN\n      final_payload := payload;\n    ELSE\n      final_payload := jsonb_set(payload, '{id}', to_jsonb(generated_id));\n    END IF;\n\n    -- Set the topic configuration\n    EXECUTE format('SET LOCAL realtime.topic TO %L', topic);\n\n    INSERT INTO realtime.messages (id, payload, event, topic, private, extension)\n    VALUES (generated_id, final_payload, event, topic, private, 'broadcast');\n  EXCEPTION\n    WHEN OTHERS THEN\n      RAISE WARNING 'WarnSendingBroadcastMessage: %', SQLERRM;\n  END;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "send_binary",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.send_binary(payload bytea, event text, topic text, private boolean DEFAULT true)\n RETURNS void\n LANGUAGE plpgsql\nAS $function$\nDECLARE\n  generated_id uuid;\nBEGIN\n  BEGIN\n    generated_id := gen_random_uuid();\n\n    EXECUTE format('SET LOCAL realtime.topic TO %L', topic);\n\n    INSERT INTO realtime.messages (id, binary_payload, event, topic, private, extension)\n    VALUES (generated_id, payload, event, topic, private, 'broadcast');\n  EXCEPTION\n    WHEN OTHERS THEN\n      RAISE WARNING 'WarnSendingBroadcastMessage: %', SQLERRM;\n  END;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "subscription_check_filters",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.subscription_check_filters()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\ndeclare\n    col_names text[] = coalesce(\n            array_agg(a.attname order by a.attnum),\n            '{}'::text[]\n        )\n        from\n            pg_catalog.pg_attribute a\n        where\n            a.attrelid = new.entity\n            and a.attnum > 0\n            and not a.attisdropped\n            and pg_catalog.has_column_privilege(\n                (new.claims ->> 'role'),\n                a.attrelid,\n                a.attnum,\n                'SELECT'\n            );\n    filter realtime.user_defined_filter;\n    col_type regtype;\n    in_val jsonb;\n    selected_col text;\nbegin\n    for filter in select * from unnest(new.filters) loop\n        if not filter.column_name = any(col_names) then\n            raise exception 'invalid column for filter %', filter.column_name;\n        end if;\n\n        col_type = (\n            select atttypid::regtype\n            from pg_catalog.pg_attribute\n            where attrelid = new.entity\n                  and attname = filter.column_name\n        );\n        if col_type is null then\n            raise exception 'failed to lookup type for column %', filter.column_name;\n        end if;\n\n        if filter.op = 'in'::realtime.equality_op then\n            in_val = realtime.cast(filter.value, (col_type::text || '[]')::regtype);\n            if coalesce(jsonb_array_length(in_val), 0) > 100 then\n                raise exception 'too many values for `in` filter. Maximum 100';\n            end if;\n        elsif filter.op = 'is'::realtime.equality_op then\n            -- `is` requires a keyword RHS rather than a typed literal\n            if filter.value not in ('null', 'true', 'false', 'unknown') then\n                raise exception 'invalid value for is filter: must be null, true, false, or unknown';\n            end if;\n            -- IS NULL works for any type, but IS TRUE/FALSE/UNKNOWN require a boolean\n            -- operand. Reject the non-null keywords on non-boolean columns here so they\n            -- don't abort apply_rls at WAL time.\n            if filter.value <> 'null' and col_type <> 'boolean'::regtype then\n                raise exception 'is % filter requires a boolean column, got %', filter.value, col_type::text;\n            end if;\n        elsif filter.op in ('like'::realtime.equality_op, 'ilike'::realtime.equality_op) then\n            -- like/ilike apply the text pattern operator (~~); reject column types that\n            -- have no such operator instead of failing at WAL time\n            if not exists (\n                select 1 from pg_catalog.pg_operator\n                where oprname = '~~' and oprleft = col_type\n            ) then\n                raise exception 'operator % requires a text-compatible column type, got %', filter.op::text, col_type::text;\n            end if;\n        elsif filter.op in ('match'::realtime.equality_op, 'imatch'::realtime.equality_op) then\n            -- match/imatch apply the regex operators ~ / ~*; reject column types that have\n            -- no such operator (e.g. integer) instead of failing at WAL time, mirroring the\n            -- like/ilike guard above.\n            if not exists (\n                select 1 from pg_catalog.pg_operator\n                where oprname = case when filter.op = 'imatch'::realtime.equality_op then '~*' else '~' end\n                  and oprleft = col_type\n                  and oprright = col_type\n                  and oprresult = 'boolean'::regtype\n            ) then\n                raise exception 'operator % requires a text-compatible column type, got %', filter.op::text, col_type::text;\n            end if;\n            -- validate the regex eagerly so a bad pattern is rejected here, not inside\n            -- apply_rls where it would abort the WAL stream for the entity\n            begin\n                perform '' ~ filter.value;\n            exception when others then\n                raise exception 'invalid regular expression for % filter: %', filter.op::text, sqlerrm;\n            end;\n        else\n            -- eq/neq/lt/lte/gt/gte: value must be coercable to the type\n            perform realtime.cast(filter.value, col_type);\n        end if;\n    end loop;\n\n    if new.selected_columns is not null then\n        for selected_col in select * from unnest(new.selected_columns) loop\n            if not selected_col = any(col_names) then\n                raise exception 'invalid column for select %', selected_col;\n            end if;\n        end loop;\n    end if;\n\n    -- Apply consistent order to filters so the unique constraint can't be tricked by a\n    -- different filter order. negate is part of the sort key.\n    new.filters = coalesce(\n        array_agg(f order by f.column_name, f.op, f.value, f.negate),\n        '{}'\n    ) from unnest(new.filters) f;\n\n    new.selected_columns = (\n        select array_agg(c order by c)\n        from unnest(new.selected_columns) c\n    );\n\n    return new;\nend;\n$function$\n"
+  },
+  {
+    "proname": "to_regrole",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.to_regrole(role_name text)\n RETURNS regrole\n LANGUAGE sql\n IMMUTABLE\nAS $function$ select role_name::regrole $function$\n"
+  },
+  {
+    "proname": "topic",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.topic()\n RETURNS text\n LANGUAGE sql\n STABLE\nAS $function$\nselect nullif(current_setting('realtime.topic', true), '')::text;\n$function$\n"
+  },
+  {
+    "proname": "wal2json_escape_identifier",
+    "nspname": "realtime",
+    "definition": "CREATE OR REPLACE FUNCTION realtime.wal2json_escape_identifier(name text)\n RETURNS text\n LANGUAGE sql\n IMMUTABLE STRICT\nAS $function$\n  -- Prefix `\\`, `,`, `.`, and any whitespace with `\\`\n  SELECT regexp_replace(name, '([\\\\,.[:space:]])', '\\\\\\1', 'g')\n$function$\n"
+  },
+  {
+    "proname": "allow_any_operation",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.allow_any_operation(expected_operations text[])\n RETURNS boolean\n LANGUAGE sql\n STABLE\nAS $function$\n  WITH current_operation AS (\n    SELECT storage.operation() AS raw_operation\n  ),\n  normalized AS (\n    SELECT CASE\n      WHEN raw_operation LIKE 'storage.%' THEN substr(raw_operation, 9)\n      ELSE raw_operation\n    END AS current_operation\n    FROM current_operation\n  )\n  SELECT EXISTS (\n    SELECT 1\n    FROM normalized n\n    CROSS JOIN LATERAL unnest(expected_operations) AS expected_operation\n    WHERE expected_operation IS NOT NULL\n      AND expected_operation <> ''\n      AND n.current_operation = CASE\n        WHEN expected_operation LIKE 'storage.%' THEN substr(expected_operation, 9)\n        ELSE expected_operation\n      END\n  );\n$function$\n"
+  },
+  {
+    "proname": "allow_only_operation",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.allow_only_operation(expected_operation text)\n RETURNS boolean\n LANGUAGE sql\n STABLE\nAS $function$\n  WITH current_operation AS (\n    SELECT storage.operation() AS raw_operation\n  ),\n  normalized AS (\n    SELECT\n      CASE\n        WHEN raw_operation LIKE 'storage.%' THEN substr(raw_operation, 9)\n        ELSE raw_operation\n      END AS current_operation,\n      CASE\n        WHEN expected_operation LIKE 'storage.%' THEN substr(expected_operation, 9)\n        ELSE expected_operation\n      END AS requested_operation\n    FROM current_operation\n  )\n  SELECT CASE\n    WHEN requested_operation IS NULL OR requested_operation = '' THEN FALSE\n    ELSE COALESCE(current_operation = requested_operation, FALSE)\n  END\n  FROM normalized;\n$function$\n"
+  },
+  {
+    "proname": "can_insert_object",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.can_insert_object(bucketid text, name text, owner uuid, metadata jsonb)\n RETURNS void\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n  INSERT INTO \"storage\".\"objects\" (\"bucket_id\", \"name\", \"owner\", \"metadata\") VALUES (bucketid, name, owner, metadata);\n  -- hack to rollback the successful insert\n  RAISE sqlstate 'PT200' using\n  message = 'ROLLBACK',\n  detail = 'rollback successful insert';\nEND\n$function$\n"
+  },
+  {
+    "proname": "enforce_bucket_name_length",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.enforce_bucket_name_length()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n    if length(new.name) > 100 then\n        raise exception 'bucket name \"%\" is too long (% characters). Max is 100.', new.name, length(new.name);\n    end if;\n    return new;\nend;\n$function$\n"
+  },
+  {
+    "proname": "extension",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.extension(name text)\n RETURNS text\n LANGUAGE plpgsql\n IMMUTABLE\nAS $function$\nDECLARE\n    _parts text[];\n    _filename text;\nBEGIN\n    -- Split on \"/\" to get path segments\n    SELECT string_to_array(name, '/') INTO _parts;\n    -- Get the last path segment (the actual filename)\n    SELECT _parts[array_length(_parts, 1)] INTO _filename;\n    -- Extract extension: reverse, split on '.', then reverse again\n    RETURN reverse(split_part(reverse(_filename), '.', 1));\nEND\n$function$\n"
+  },
+  {
+    "proname": "filename",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.filename(name text)\n RETURNS text\n LANGUAGE plpgsql\nAS $function$\nDECLARE\n_parts text[];\nBEGIN\n\tselect string_to_array(name, '/') into _parts;\n\treturn _parts[array_length(_parts,1)];\nEND\n$function$\n"
+  },
+  {
+    "proname": "foldername",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.foldername(name text)\n RETURNS text[]\n LANGUAGE plpgsql\n IMMUTABLE\nAS $function$\nDECLARE\n    _parts text[];\nBEGIN\n    -- Split on \"/\" to get path segments\n    SELECT string_to_array(name, '/') INTO _parts;\n    -- Return everything except the last segment\n    RETURN _parts[1 : array_length(_parts,1) - 1];\nEND\n$function$\n"
+  },
+  {
+    "proname": "get_common_prefix",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.get_common_prefix(p_key text, p_prefix text, p_delimiter text)\n RETURNS text\n LANGUAGE sql\n IMMUTABLE\nAS $function$\nSELECT CASE\n    WHEN position(p_delimiter IN substring(p_key FROM length(p_prefix) + 1)) > 0\n    THEN left(p_key, length(p_prefix) + position(p_delimiter IN substring(p_key FROM length(p_prefix) + 1)))\n    ELSE NULL\nEND;\n$function$\n"
+  },
+  {
+    "proname": "get_size_by_bucket",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.get_size_by_bucket()\n RETURNS TABLE(size bigint, bucket_id text)\n LANGUAGE plpgsql\n STABLE\nAS $function$\nBEGIN\n    return query\n        select sum((metadata->>'size')::bigint)::bigint as size, obj.bucket_id\n        from \"storage\".objects as obj\n        group by obj.bucket_id;\nEND\n$function$\n"
+  },
+  {
+    "proname": "list_multipart_uploads_with_delimiter",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.list_multipart_uploads_with_delimiter(bucket_id text, prefix_param text, delimiter_param text, max_keys integer DEFAULT 100, next_key_token text DEFAULT ''::text, next_upload_token text DEFAULT ''::text)\n RETURNS TABLE(key text, id text, created_at timestamp with time zone)\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n    RETURN QUERY EXECUTE\n        'SELECT DISTINCT ON(key COLLATE \"C\") * from (\n            SELECT\n                CASE\n                    WHEN position($2 IN substring(key from length($1) + 1)) > 0 THEN\n                        substring(key from 1 for length($1) + position($2 IN substring(key from length($1) + 1)))\n                    ELSE\n                        key\n                END AS key, id, created_at\n            FROM\n                storage.s3_multipart_uploads\n            WHERE\n                bucket_id = $5 AND\n                key ILIKE $1 || ''%'' AND\n                CASE\n                    WHEN $4 != '''' AND $6 = '''' THEN\n                        CASE\n                            WHEN position($2 IN substring(key from length($1) + 1)) > 0 THEN\n                                substring(key from 1 for length($1) + position($2 IN substring(key from length($1) + 1))) COLLATE \"C\" > $4\n                            ELSE\n                                key COLLATE \"C\" > $4\n                            END\n                    ELSE\n                        true\n                END AND\n                CASE\n                    WHEN $6 != '''' THEN\n                        id COLLATE \"C\" > $6\n                    ELSE\n                        true\n                    END\n            ORDER BY\n                key COLLATE \"C\" ASC, created_at ASC) as e order by key COLLATE \"C\" LIMIT $3'\n        USING prefix_param, delimiter_param, max_keys, next_key_token, bucket_id, next_upload_token;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "list_objects_with_delimiter",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.list_objects_with_delimiter(_bucket_id text, prefix_param text, delimiter_param text, max_keys integer DEFAULT 100, start_after text DEFAULT ''::text, next_token text DEFAULT ''::text, sort_order text DEFAULT 'asc'::text)\n RETURNS TABLE(name text, id uuid, metadata jsonb, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone)\n LANGUAGE plpgsql\n STABLE\nAS $function$\nDECLARE\n    v_peek_name TEXT;\n    v_current RECORD;\n    v_common_prefix TEXT;\n\n    -- Configuration\n    v_is_asc BOOLEAN;\n    v_prefix TEXT;\n    v_start TEXT;\n    v_upper_bound TEXT;\n    v_file_batch_size INT;\n\n    -- Seek state\n    v_next_seek TEXT;\n    v_count INT := 0;\n\n    -- Dynamic SQL for batch query only\n    v_batch_query TEXT;\n\nBEGIN\n    -- ========================================================================\n    -- INITIALIZATION\n    -- ========================================================================\n    v_is_asc := lower(coalesce(sort_order, 'asc')) = 'asc';\n    v_prefix := coalesce(prefix_param, '');\n    v_start := CASE WHEN coalesce(next_token, '') <> '' THEN next_token ELSE coalesce(start_after, '') END;\n    v_file_batch_size := LEAST(GREATEST(max_keys * 2, 100), 1000);\n\n    -- Calculate upper bound for prefix filtering (bytewise, using COLLATE \"C\")\n    IF v_prefix = '' THEN\n        v_upper_bound := NULL;\n    ELSIF right(v_prefix, 1) = delimiter_param THEN\n        v_upper_bound := left(v_prefix, -1) || chr(ascii(delimiter_param) + 1);\n    ELSE\n        v_upper_bound := left(v_prefix, -1) || chr(ascii(right(v_prefix, 1)) + 1);\n    END IF;\n\n    -- Build batch query (dynamic SQL - called infrequently, amortized over many rows)\n    IF v_is_asc THEN\n        IF v_upper_bound IS NOT NULL THEN\n            v_batch_query := 'SELECT o.name, o.id, o.updated_at, o.created_at, o.last_accessed_at, o.metadata ' ||\n                'FROM storage.objects o WHERE o.bucket_id = $1 AND o.name COLLATE \"C\" >= $2 ' ||\n                'AND o.name COLLATE \"C\" < $3 ORDER BY o.name COLLATE \"C\" ASC LIMIT $4';\n        ELSE\n            v_batch_query := 'SELECT o.name, o.id, o.updated_at, o.created_at, o.last_accessed_at, o.metadata ' ||\n                'FROM storage.objects o WHERE o.bucket_id = $1 AND o.name COLLATE \"C\" >= $2 ' ||\n                'ORDER BY o.name COLLATE \"C\" ASC LIMIT $4';\n        END IF;\n    ELSE\n        IF v_upper_bound IS NOT NULL THEN\n            v_batch_query := 'SELECT o.name, o.id, o.updated_at, o.created_at, o.last_accessed_at, o.metadata ' ||\n                'FROM storage.objects o WHERE o.bucket_id = $1 AND o.name COLLATE \"C\" < $2 ' ||\n                'AND o.name COLLATE \"C\" >= $3 ORDER BY o.name COLLATE \"C\" DESC LIMIT $4';\n        ELSE\n            v_batch_query := 'SELECT o.name, o.id, o.updated_at, o.created_at, o.last_accessed_at, o.metadata ' ||\n                'FROM storage.objects o WHERE o.bucket_id = $1 AND o.name COLLATE \"C\" < $2 ' ||\n                'ORDER BY o.name COLLATE \"C\" DESC LIMIT $4';\n        END IF;\n    END IF;\n\n    -- ========================================================================\n    -- SEEK INITIALIZATION: Determine starting position\n    -- ========================================================================\n    IF v_start = '' THEN\n        IF v_is_asc THEN\n            v_next_seek := v_prefix;\n        ELSE\n            -- DESC without cursor: find the last item in range\n            IF v_upper_bound IS NOT NULL THEN\n                SELECT o.name INTO v_next_seek FROM storage.objects o\n                WHERE o.bucket_id = _bucket_id AND o.name COLLATE \"C\" >= v_prefix AND o.name COLLATE \"C\" < v_upper_bound\n                ORDER BY o.name COLLATE \"C\" DESC LIMIT 1;\n            ELSIF v_prefix <> '' THEN\n                SELECT o.name INTO v_next_seek FROM storage.objects o\n                WHERE o.bucket_id = _bucket_id AND o.name COLLATE \"C\" >= v_prefix\n                ORDER BY o.name COLLATE \"C\" DESC LIMIT 1;\n            ELSE\n                SELECT o.name INTO v_next_seek FROM storage.objects o\n                WHERE o.bucket_id = _bucket_id\n                ORDER BY o.name COLLATE \"C\" DESC LIMIT 1;\n            END IF;\n\n            IF v_next_seek IS NOT NULL THEN\n                v_next_seek := v_next_seek || delimiter_param;\n            ELSE\n                RETURN;\n            END IF;\n        END IF;\n    ELSE\n        -- Cursor provided: determine if it refers to a folder or leaf\n        IF EXISTS (\n            SELECT 1 FROM storage.objects o\n            WHERE o.bucket_id = _bucket_id\n              AND o.name COLLATE \"C\" LIKE v_start || delimiter_param || '%'\n            LIMIT 1\n        ) THEN\n            -- Cursor refers to a folder\n            IF v_is_asc THEN\n                v_next_seek := v_start || chr(ascii(delimiter_param) + 1);\n            ELSE\n                v_next_seek := v_start || delimiter_param;\n            END IF;\n        ELSE\n            -- Cursor refers to a leaf object\n            IF v_is_asc THEN\n                v_next_seek := v_start || delimiter_param;\n            ELSE\n                v_next_seek := v_start;\n            END IF;\n        END IF;\n    END IF;\n\n    -- ========================================================================\n    -- MAIN LOOP: Hybrid peek-then-batch algorithm\n    -- Uses STATIC SQL for peek (hot path) and DYNAMIC SQL for batch\n    -- ========================================================================\n    LOOP\n        EXIT WHEN v_count >= max_keys;\n\n        -- STEP 1: PEEK using STATIC SQL (plan cached, very fast)\n        IF v_is_asc THEN\n            IF v_upper_bound IS NOT NULL THEN\n                SELECT o.name INTO v_peek_name FROM storage.objects o\n                WHERE o.bucket_id = _bucket_id AND o.name COLLATE \"C\" >= v_next_seek AND o.name COLLATE \"C\" < v_upper_bound\n                ORDER BY o.name COLLATE \"C\" ASC LIMIT 1;\n            ELSE\n                SELECT o.name INTO v_peek_name FROM storage.objects o\n                WHERE o.bucket_id = _bucket_id AND o.name COLLATE \"C\" >= v_next_seek\n                ORDER BY o.name COLLATE \"C\" ASC LIMIT 1;\n            END IF;\n        ELSE\n            IF v_upper_bound IS NOT NULL THEN\n                SELECT o.name INTO v_peek_name FROM storage.objects o\n                WHERE o.bucket_id = _bucket_id AND o.name COLLATE \"C\" < v_next_seek AND o.name COLLATE \"C\" >= v_prefix\n                ORDER BY o.name COLLATE \"C\" DESC LIMIT 1;\n            ELSIF v_prefix <> '' THEN\n                SELECT o.name INTO v_peek_name FROM storage.objects o\n                WHERE o.bucket_id = _bucket_id AND o.name COLLATE \"C\" < v_next_seek AND o.name COLLATE \"C\" >= v_prefix\n                ORDER BY o.name COLLATE \"C\" DESC LIMIT 1;\n            ELSE\n                SELECT o.name INTO v_peek_name FROM storage.objects o\n                WHERE o.bucket_id = _bucket_id AND o.name COLLATE \"C\" < v_next_seek\n                ORDER BY o.name COLLATE \"C\" DESC LIMIT 1;\n            END IF;\n        END IF;\n\n        EXIT WHEN v_peek_name IS NULL;\n\n        -- STEP 2: Check if this is a FOLDER or FILE\n        v_common_prefix := storage.get_common_prefix(v_peek_name, v_prefix, delimiter_param);\n\n        IF v_common_prefix IS NOT NULL THEN\n            -- FOLDER: Emit and skip to next folder (no heap access needed)\n            name := rtrim(v_common_prefix, delimiter_param);\n            id := NULL;\n            updated_at := NULL;\n            created_at := NULL;\n            last_accessed_at := NULL;\n            metadata := NULL;\n            RETURN NEXT;\n            v_count := v_count + 1;\n\n            -- Advance seek past the folder range\n            IF v_is_asc THEN\n                v_next_seek := left(v_common_prefix, -1) || chr(ascii(delimiter_param) + 1);\n            ELSE\n                v_next_seek := v_common_prefix;\n            END IF;\n        ELSE\n            -- FILE: Batch fetch using DYNAMIC SQL (overhead amortized over many rows)\n            -- For ASC: upper_bound is the exclusive upper limit (< condition)\n            -- For DESC: prefix is the inclusive lower limit (>= condition)\n            FOR v_current IN EXECUTE v_batch_query USING _bucket_id, v_next_seek,\n                CASE WHEN v_is_asc THEN COALESCE(v_upper_bound, v_prefix) ELSE v_prefix END, v_file_batch_size\n            LOOP\n                v_common_prefix := storage.get_common_prefix(v_current.name, v_prefix, delimiter_param);\n\n                IF v_common_prefix IS NOT NULL THEN\n                    -- Hit a folder: exit batch, let peek handle it\n                    v_next_seek := v_current.name;\n                    EXIT;\n                END IF;\n\n                -- Emit file\n                name := v_current.name;\n                id := v_current.id;\n                updated_at := v_current.updated_at;\n                created_at := v_current.created_at;\n                last_accessed_at := v_current.last_accessed_at;\n                metadata := v_current.metadata;\n                RETURN NEXT;\n                v_count := v_count + 1;\n\n                -- Advance seek past this file\n                IF v_is_asc THEN\n                    v_next_seek := v_current.name || delimiter_param;\n                ELSE\n                    v_next_seek := v_current.name;\n                END IF;\n\n                EXIT WHEN v_count >= max_keys;\n            END LOOP;\n        END IF;\n    END LOOP;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "operation",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.operation()\n RETURNS text\n LANGUAGE plpgsql\n STABLE\nAS $function$\nBEGIN\n    RETURN current_setting('storage.operation', true);\nEND;\n$function$\n"
+  },
+  {
+    "proname": "protect_delete",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.protect_delete()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n    -- Check if storage.allow_delete_query is set to 'true'\n    IF COALESCE(current_setting('storage.allow_delete_query', true), 'false') != 'true' THEN\n        RAISE EXCEPTION 'Direct deletion from storage tables is not allowed. Use the Storage API instead.'\n            USING HINT = 'This prevents accidental data loss from orphaned objects.',\n                  ERRCODE = '42501';\n    END IF;\n    RETURN NULL;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "search",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.search(prefix text, bucketname text, limits integer DEFAULT 100, levels integer DEFAULT 1, offsets integer DEFAULT 0, search text DEFAULT ''::text, sortcolumn text DEFAULT 'name'::text, sortorder text DEFAULT 'asc'::text)\n RETURNS TABLE(name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)\n LANGUAGE plpgsql\n STABLE\nAS $function$\nDECLARE\n    v_peek_name TEXT;\n    v_current RECORD;\n    v_common_prefix TEXT;\n    v_delimiter CONSTANT TEXT := '/';\n\n    -- Configuration\n    v_limit INT;\n    v_prefix TEXT;\n    v_prefix_lower TEXT;\n    v_is_asc BOOLEAN;\n    v_order_by TEXT;\n    v_sort_order TEXT;\n    v_upper_bound TEXT;\n    v_file_batch_size INT;\n\n    -- Dynamic SQL for batch query only\n    v_batch_query TEXT;\n\n    -- Seek state\n    v_next_seek TEXT;\n    v_count INT := 0;\n    v_skipped INT := 0;\nBEGIN\n    -- ========================================================================\n    -- INITIALIZATION\n    -- ========================================================================\n    v_limit := LEAST(coalesce(limits, 100), 1500);\n    v_prefix := coalesce(prefix, '') || coalesce(search, '');\n    v_prefix_lower := lower(v_prefix);\n    v_is_asc := lower(coalesce(sortorder, 'asc')) = 'asc';\n    v_file_batch_size := LEAST(GREATEST(v_limit * 2, 100), 1000);\n\n    -- Validate sort column\n    CASE lower(coalesce(sortcolumn, 'name'))\n        WHEN 'name' THEN v_order_by := 'name';\n        WHEN 'updated_at' THEN v_order_by := 'updated_at';\n        WHEN 'created_at' THEN v_order_by := 'created_at';\n        WHEN 'last_accessed_at' THEN v_order_by := 'last_accessed_at';\n        ELSE v_order_by := 'name';\n    END CASE;\n\n    v_sort_order := CASE WHEN v_is_asc THEN 'asc' ELSE 'desc' END;\n\n    -- ========================================================================\n    -- NON-NAME SORTING: Use path_tokens approach (unchanged)\n    -- ========================================================================\n    IF v_order_by != 'name' THEN\n        RETURN QUERY EXECUTE format(\n            $sql$\n            WITH folders AS (\n                SELECT path_tokens[$1] AS folder\n                FROM storage.objects\n                WHERE objects.name ILIKE $2 || '%%'\n                  AND bucket_id = $3\n                  AND array_length(objects.path_tokens, 1) <> $1\n                GROUP BY folder\n                ORDER BY folder %s\n            )\n            (SELECT folder AS \"name\",\n                   NULL::uuid AS id,\n                   NULL::timestamptz AS updated_at,\n                   NULL::timestamptz AS created_at,\n                   NULL::timestamptz AS last_accessed_at,\n                   NULL::jsonb AS metadata FROM folders)\n            UNION ALL\n            (SELECT path_tokens[$1] AS \"name\",\n                   id, updated_at, created_at, last_accessed_at, metadata\n             FROM storage.objects\n             WHERE objects.name ILIKE $2 || '%%'\n               AND bucket_id = $3\n               AND array_length(objects.path_tokens, 1) = $1\n             ORDER BY %I %s)\n            LIMIT $4 OFFSET $5\n            $sql$, v_sort_order, v_order_by, v_sort_order\n        ) USING levels, v_prefix, bucketname, v_limit, offsets;\n        RETURN;\n    END IF;\n\n    -- ========================================================================\n    -- NAME SORTING: Hybrid skip-scan with batch optimization\n    -- ========================================================================\n\n    -- Calculate upper bound for prefix filtering\n    IF v_prefix_lower = '' THEN\n        v_upper_bound := NULL;\n    ELSIF right(v_prefix_lower, 1) = v_delimiter THEN\n        v_upper_bound := left(v_prefix_lower, -1) || chr(ascii(v_delimiter) + 1);\n    ELSE\n        v_upper_bound := left(v_prefix_lower, -1) || chr(ascii(right(v_prefix_lower, 1)) + 1);\n    END IF;\n\n    -- Build batch query (dynamic SQL - called infrequently, amortized over many rows)\n    IF v_is_asc THEN\n        IF v_upper_bound IS NOT NULL THEN\n            v_batch_query := 'SELECT o.name, o.id, o.updated_at, o.created_at, o.last_accessed_at, o.metadata ' ||\n                'FROM storage.objects o WHERE o.bucket_id = $1 AND lower(o.name) COLLATE \"C\" >= $2 ' ||\n                'AND lower(o.name) COLLATE \"C\" < $3 ORDER BY lower(o.name) COLLATE \"C\" ASC LIMIT $4';\n        ELSE\n            v_batch_query := 'SELECT o.name, o.id, o.updated_at, o.created_at, o.last_accessed_at, o.metadata ' ||\n                'FROM storage.objects o WHERE o.bucket_id = $1 AND lower(o.name) COLLATE \"C\" >= $2 ' ||\n                'ORDER BY lower(o.name) COLLATE \"C\" ASC LIMIT $4';\n        END IF;\n    ELSE\n        IF v_upper_bound IS NOT NULL THEN\n            v_batch_query := 'SELECT o.name, o.id, o.updated_at, o.created_at, o.last_accessed_at, o.metadata ' ||\n                'FROM storage.objects o WHERE o.bucket_id = $1 AND lower(o.name) COLLATE \"C\" < $2 ' ||\n                'AND lower(o.name) COLLATE \"C\" >= $3 ORDER BY lower(o.name) COLLATE \"C\" DESC LIMIT $4';\n        ELSE\n            v_batch_query := 'SELECT o.name, o.id, o.updated_at, o.created_at, o.last_accessed_at, o.metadata ' ||\n                'FROM storage.objects o WHERE o.bucket_id = $1 AND lower(o.name) COLLATE \"C\" < $2 ' ||\n                'ORDER BY lower(o.name) COLLATE \"C\" DESC LIMIT $4';\n        END IF;\n    END IF;\n\n    -- Initialize seek position\n    IF v_is_asc THEN\n        v_next_seek := v_prefix_lower;\n    ELSE\n        -- DESC: find the last item in range first (static SQL)\n        IF v_upper_bound IS NOT NULL THEN\n            SELECT o.name INTO v_peek_name FROM storage.objects o\n            WHERE o.bucket_id = bucketname AND lower(o.name) COLLATE \"C\" >= v_prefix_lower AND lower(o.name) COLLATE \"C\" < v_upper_bound\n            ORDER BY lower(o.name) COLLATE \"C\" DESC LIMIT 1;\n        ELSIF v_prefix_lower <> '' THEN\n            SELECT o.name INTO v_peek_name FROM storage.objects o\n            WHERE o.bucket_id = bucketname AND lower(o.name) COLLATE \"C\" >= v_prefix_lower\n            ORDER BY lower(o.name) COLLATE \"C\" DESC LIMIT 1;\n        ELSE\n            SELECT o.name INTO v_peek_name FROM storage.objects o\n            WHERE o.bucket_id = bucketname\n            ORDER BY lower(o.name) COLLATE \"C\" DESC LIMIT 1;\n        END IF;\n\n        IF v_peek_name IS NOT NULL THEN\n            v_next_seek := lower(v_peek_name) || v_delimiter;\n        ELSE\n            RETURN;\n        END IF;\n    END IF;\n\n    -- ========================================================================\n    -- MAIN LOOP: Hybrid peek-then-batch algorithm\n    -- Uses STATIC SQL for peek (hot path) and DYNAMIC SQL for batch\n    -- ========================================================================\n    LOOP\n        EXIT WHEN v_count >= v_limit;\n\n        -- STEP 1: PEEK using STATIC SQL (plan cached, very fast)\n        IF v_is_asc THEN\n            IF v_upper_bound IS NOT NULL THEN\n                SELECT o.name INTO v_peek_name FROM storage.objects o\n                WHERE o.bucket_id = bucketname AND lower(o.name) COLLATE \"C\" >= v_next_seek AND lower(o.name) COLLATE \"C\" < v_upper_bound\n                ORDER BY lower(o.name) COLLATE \"C\" ASC LIMIT 1;\n            ELSE\n                SELECT o.name INTO v_peek_name FROM storage.objects o\n                WHERE o.bucket_id = bucketname AND lower(o.name) COLLATE \"C\" >= v_next_seek\n                ORDER BY lower(o.name) COLLATE \"C\" ASC LIMIT 1;\n            END IF;\n        ELSE\n            IF v_upper_bound IS NOT NULL THEN\n                SELECT o.name INTO v_peek_name FROM storage.objects o\n                WHERE o.bucket_id = bucketname AND lower(o.name) COLLATE \"C\" < v_next_seek AND lower(o.name) COLLATE \"C\" >= v_prefix_lower\n                ORDER BY lower(o.name) COLLATE \"C\" DESC LIMIT 1;\n            ELSIF v_prefix_lower <> '' THEN\n                SELECT o.name INTO v_peek_name FROM storage.objects o\n                WHERE o.bucket_id = bucketname AND lower(o.name) COLLATE \"C\" < v_next_seek AND lower(o.name) COLLATE \"C\" >= v_prefix_lower\n                ORDER BY lower(o.name) COLLATE \"C\" DESC LIMIT 1;\n            ELSE\n                SELECT o.name INTO v_peek_name FROM storage.objects o\n                WHERE o.bucket_id = bucketname AND lower(o.name) COLLATE \"C\" < v_next_seek\n                ORDER BY lower(o.name) COLLATE \"C\" DESC LIMIT 1;\n            END IF;\n        END IF;\n\n        EXIT WHEN v_peek_name IS NULL;\n\n        -- STEP 2: Check if this is a FOLDER or FILE\n        v_common_prefix := storage.get_common_prefix(lower(v_peek_name), v_prefix_lower, v_delimiter);\n\n        IF v_common_prefix IS NOT NULL THEN\n            -- FOLDER: Handle offset, emit if needed, skip to next folder\n            IF v_skipped < offsets THEN\n                v_skipped := v_skipped + 1;\n            ELSE\n                name := split_part(rtrim(storage.get_common_prefix(v_peek_name, v_prefix, v_delimiter), v_delimiter), v_delimiter, levels);\n                id := NULL;\n                updated_at := NULL;\n                created_at := NULL;\n                last_accessed_at := NULL;\n                metadata := NULL;\n                RETURN NEXT;\n                v_count := v_count + 1;\n            END IF;\n\n            -- Advance seek past the folder range\n            IF v_is_asc THEN\n                v_next_seek := lower(left(v_common_prefix, -1)) || chr(ascii(v_delimiter) + 1);\n            ELSE\n                v_next_seek := lower(v_common_prefix);\n            END IF;\n        ELSE\n            -- FILE: Batch fetch using DYNAMIC SQL (overhead amortized over many rows)\n            -- For ASC: upper_bound is the exclusive upper limit (< condition)\n            -- For DESC: prefix_lower is the inclusive lower limit (>= condition)\n            FOR v_current IN EXECUTE v_batch_query\n                USING bucketname, v_next_seek,\n                    CASE WHEN v_is_asc THEN COALESCE(v_upper_bound, v_prefix_lower) ELSE v_prefix_lower END, v_file_batch_size\n            LOOP\n                v_common_prefix := storage.get_common_prefix(lower(v_current.name), v_prefix_lower, v_delimiter);\n\n                IF v_common_prefix IS NOT NULL THEN\n                    -- Hit a folder: exit batch, let peek handle it\n                    v_next_seek := lower(v_current.name);\n                    EXIT;\n                END IF;\n\n                -- Handle offset skipping\n                IF v_skipped < offsets THEN\n                    v_skipped := v_skipped + 1;\n                ELSE\n                    -- Emit file\n                    name := split_part(v_current.name, v_delimiter, levels);\n                    id := v_current.id;\n                    updated_at := v_current.updated_at;\n                    created_at := v_current.created_at;\n                    last_accessed_at := v_current.last_accessed_at;\n                    metadata := v_current.metadata;\n                    RETURN NEXT;\n                    v_count := v_count + 1;\n                END IF;\n\n                -- Advance seek past this file\n                IF v_is_asc THEN\n                    v_next_seek := lower(v_current.name) || v_delimiter;\n                ELSE\n                    v_next_seek := lower(v_current.name);\n                END IF;\n\n                EXIT WHEN v_count >= v_limit;\n            END LOOP;\n        END IF;\n    END LOOP;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "search_by_timestamp",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.search_by_timestamp(p_prefix text, p_bucket_id text, p_limit integer, p_level integer, p_start_after text, p_sort_order text, p_sort_column text, p_sort_column_after text)\n RETURNS TABLE(key text, name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)\n LANGUAGE plpgsql\n STABLE\nAS $function$\nDECLARE\n    v_cursor_op text;\n    v_query text;\n    v_prefix text;\nBEGIN\n    v_prefix := coalesce(p_prefix, '');\n\n    IF p_sort_order = 'asc' THEN\n        v_cursor_op := '>';\n    ELSE\n        v_cursor_op := '<';\n    END IF;\n\n    v_query := format($sql$\n        WITH raw_objects AS (\n            SELECT\n                o.name AS obj_name,\n                o.id AS obj_id,\n                o.updated_at AS obj_updated_at,\n                o.created_at AS obj_created_at,\n                o.last_accessed_at AS obj_last_accessed_at,\n                o.metadata AS obj_metadata,\n                storage.get_common_prefix(o.name, $1, '/') AS common_prefix\n            FROM storage.objects o\n            WHERE o.bucket_id = $2\n              AND o.name COLLATE \"C\" LIKE $1 || '%%'\n        ),\n        -- Aggregate common prefixes (folders)\n        -- Both created_at and updated_at use MIN(obj_created_at) to match the old prefixes table behavior\n        aggregated_prefixes AS (\n            SELECT\n                rtrim(common_prefix, '/') AS name,\n                NULL::uuid AS id,\n                MIN(obj_created_at) AS updated_at,\n                MIN(obj_created_at) AS created_at,\n                NULL::timestamptz AS last_accessed_at,\n                NULL::jsonb AS metadata,\n                TRUE AS is_prefix\n            FROM raw_objects\n            WHERE common_prefix IS NOT NULL\n            GROUP BY common_prefix\n        ),\n        leaf_objects AS (\n            SELECT\n                obj_name AS name,\n                obj_id AS id,\n                obj_updated_at AS updated_at,\n                obj_created_at AS created_at,\n                obj_last_accessed_at AS last_accessed_at,\n                obj_metadata AS metadata,\n                FALSE AS is_prefix\n            FROM raw_objects\n            WHERE common_prefix IS NULL\n        ),\n        combined AS (\n            SELECT * FROM aggregated_prefixes\n            UNION ALL\n            SELECT * FROM leaf_objects\n        ),\n        filtered AS (\n            SELECT *\n            FROM combined\n            WHERE (\n                $5 = ''\n                OR ROW(\n                    date_trunc('milliseconds', %I),\n                    name COLLATE \"C\"\n                ) %s ROW(\n                    COALESCE(NULLIF($6, '')::timestamptz, 'epoch'::timestamptz),\n                    $5\n                )\n            )\n        )\n        SELECT\n            split_part(name, '/', $3) AS key,\n            name,\n            id,\n            updated_at,\n            created_at,\n            last_accessed_at,\n            metadata\n        FROM filtered\n        ORDER BY\n            COALESCE(date_trunc('milliseconds', %I), 'epoch'::timestamptz) %s,\n            name COLLATE \"C\" %s\n        LIMIT $4\n    $sql$,\n        p_sort_column,\n        v_cursor_op,\n        p_sort_column,\n        p_sort_order,\n        p_sort_order\n    );\n\n    RETURN QUERY EXECUTE v_query\n    USING v_prefix, p_bucket_id, p_level, p_limit, p_start_after, p_sort_column_after;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "search_v2",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.search_v2(prefix text, bucket_name text, limits integer DEFAULT 100, levels integer DEFAULT 1, start_after text DEFAULT ''::text, sort_order text DEFAULT 'asc'::text, sort_column text DEFAULT 'name'::text, sort_column_after text DEFAULT ''::text)\n RETURNS TABLE(key text, name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)\n LANGUAGE plpgsql\n STABLE\nAS $function$\nDECLARE\n    v_sort_col text;\n    v_sort_ord text;\n    v_limit int;\nBEGIN\n    -- Cap limit to maximum of 1500 records\n    v_limit := LEAST(coalesce(limits, 100), 1500);\n\n    -- Validate and normalize sort_order\n    v_sort_ord := lower(coalesce(sort_order, 'asc'));\n    IF v_sort_ord NOT IN ('asc', 'desc') THEN\n        v_sort_ord := 'asc';\n    END IF;\n\n    -- Validate and normalize sort_column\n    v_sort_col := lower(coalesce(sort_column, 'name'));\n    IF v_sort_col NOT IN ('name', 'updated_at', 'created_at') THEN\n        v_sort_col := 'name';\n    END IF;\n\n    -- Route to appropriate implementation\n    IF v_sort_col = 'name' THEN\n        -- Use list_objects_with_delimiter for name sorting (most efficient: O(k * log n))\n        RETURN QUERY\n        SELECT\n            split_part(l.name, '/', levels) AS key,\n            l.name AS name,\n            l.id,\n            l.updated_at,\n            l.created_at,\n            l.last_accessed_at,\n            l.metadata\n        FROM storage.list_objects_with_delimiter(\n            bucket_name,\n            coalesce(prefix, ''),\n            '/',\n            v_limit,\n            start_after,\n            '',\n            v_sort_ord\n        ) l;\n    ELSE\n        -- Use aggregation approach for timestamp sorting\n        -- Not efficient for large datasets but supports correct pagination\n        RETURN QUERY SELECT * FROM storage.search_by_timestamp(\n            prefix, bucket_name, v_limit, levels, start_after,\n            v_sort_ord, v_sort_col, sort_column_after\n        );\n    END IF;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "update_updated_at_column",
+    "nspname": "storage",
+    "definition": "CREATE OR REPLACE FUNCTION storage.update_updated_at_column()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n    NEW.updated_at = now();\n    RETURN NEW; \nEND;\n$function$\n"
+  }
+]

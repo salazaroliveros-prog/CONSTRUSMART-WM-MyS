@@ -79,7 +79,7 @@ export const LogisticaCompras: React.FC = () => {
             </tr></thead>
             <tbody>
               {filteredActivos.map(a => (
-                <tr key={a.id} className="border-t hover:bg-muted/50">
+                <tr key={a.id} className="border-t border-border hover:bg-muted/50">
                   <td className="p-2 font-medium truncate" title={a.nombre}>{a.nombre}</td>
                   <td className="p-2 text-xs truncate">{t('logistica.tipo_' + a.tipo, a.tipo)}</td>
                   <td className="p-2 text-right font-mono">{fmtQ(a.costo)}</td>
@@ -120,7 +120,7 @@ export const LogisticaCompras: React.FC = () => {
               {filteredCuadros.map(c => {
                 const prov = proveedores.find(p => p.id === c.proveedorId);
                 return (
-                  <tr key={c.id} className="border-t hover:bg-muted/50">
+                  <tr key={c.id} className="border-t border-border hover:bg-muted/50">
                     <td className="p-2 font-medium">{prov?.nombre || c.proveedorId}</td>
                     <td className="p-2 text-xs">{c.descripcion}</td>
                     <td className="p-2 text-right font-mono">{fmtQ(c.montoTotal)}</td>
@@ -159,11 +159,11 @@ export const LogisticaCompras: React.FC = () => {
               {filteredPagos.map(p => {
                 const prov = proveedores.find(pv => pv.id === p.proveedorId);
                 return (
-                  <tr key={p.id} className="border-t hover:bg-muted/50">
+                  <tr key={p.id} className="border-t border-border hover:bg-muted/50">
                     <td className="p-2 font-medium">{prov?.nombre || p.proveedorId}</td>
                     <td className="p-2 text-right font-mono">{fmtQ(p.monto)}</td>
                     <td className="p-2">{p.estado === 'pendiente' ? t('logistica.estado_pendiente', 'Pendiente') : p.estado}</td>
-                    <td className="p-2 text-xs">{new Date(p.fecha).toLocaleDateString()}</td>
+                    <td className="p-2 text-xs">{new Date(p.fecha).toLocaleDateString('es-GT')}</td>
                   </tr>
                 );
               })}

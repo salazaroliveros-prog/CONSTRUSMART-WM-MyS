@@ -141,8 +141,8 @@ const RendimientoCampo: React.FC = () => {
                 filtered.map(r => {
                   const rend = r.horasHombre > 0 ? (r.cantidad / r.horasHombre).toFixed(2) : '—';
                   return (
-                    <tr key={r.id} className="border-t hover:bg-muted/50" tabIndex={0}>
-                      <td className="p-2 text-xs text-muted-foreground">{new Date(r.fecha).toLocaleDateString()}</td>
+                    <tr key={r.id} className="border-t border-border hover:bg-muted/50" tabIndex={0}>
+                      <td className="p-2 text-xs text-muted-foreground">{new Date(r.fecha).toLocaleDateString('es-GT')}</td>
                       <td className="p-2 font-medium">{r.cuadrilla}</td>
                       <td className="p-2 text-xs truncate max-w-xs" title={r.actividad}>{r.actividad}</td>
                       <td className="p-2 text-right font-mono">{r.cantidad} {r.unidad}</td>

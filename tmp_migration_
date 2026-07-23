@@ -1,0 +1,43 @@
+-- Migration 136: Cleanup final
+DO $$
+DECLARE
+  _tables int; _policies int; _realtime int; _orphan int; _norls int;
+BEGIN
+  SELECT count(*) INTO _tables FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r';
+  SELECT count(*) INTO _policies FROM pg_policies WHERE schemaname='public';
+  SELECT count(*) INTO _realtime FROM pg_publication_tables WHERE pubname='supabase_realtime';
+  SELECT count(*) INTO _orphan FROM pg_policies p WHERE p.schemaname='public' AND NOT EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE c.relname=p.tablename AND n.nspname=p.schemaname AND c.relkind='r');
+  SELECT count(*) INTO _norls FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relrowsecurity=false AND c.relname NOT IN ('schema_migrations','audit_log_entries','refresh_tokens','migrations','instances','projects','secrets','buckets','objects','users','sessions','identities','mfa_factors','mfa_challenges','one_time_tokens','saml_providers','saml_relay_states','flow_state','sso_providers','sso_domains','realtime_subscriptions','subscriptions','spatial_ref_sys','geography_columns','geometry_columns','_analytics');
+  RAISE NOTICE 'TABLAS: %', _tables;
+  RAISE NOTICE 'POLICIES: %', _policies;
+  RAISE NOTICE 'REALTIME: %', _realtime;
+  RAISE NOTICE 'ORPHAN_POLICIES: %', _orphan;
+  RAISE NOTICE 'NO_RLS: %', _norls;
+END;
+$$;
+
+DO $$
+DECLARE
+  r RECORD; n int:=0;
+BEGIN
+  FOR r IN (SELECT tablename,policyname FROM pg_policies p WHERE p.schemaname='public' AND NOT EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE c.relname=p.tablename AND n.nspname=p.schemaname AND c.relkind='r')) LOOP
+    EXECUTE format('DROP POLICY IF EXISTS %I ON %I', r.policyname, r.tablename);
+    n:=n+1;
+  END LOOP;
+  RAISE NOTICE 'ORPHANS_DROPPED: %', n;
+END;
+$$;
+
+DO $$
+DECLARE
+  r RECORD; n int:=0;
+BEGIN
+  FOR r IN (SELECT c.relname as t FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relrowsecurity=false AND c.relname NOT IN ('schema_migrations','audit_log_entries','refresh_tokens','migrations','instances','projects','secrets','buckets','objects','users','sessions','identities','mfa_factors','mfa_challenges','one_time_tokens','saml_providers','saml_relay_states','flow_state','sso_providers','sso_domains','realtime_subscriptions','subscriptions','spatial_ref_sys','geography_columns','geometry_columns','_analytics')) LOOP
+    EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', r.t);
+    n:=n+1;
+  END LOOP;
+  RAISE NOTICE 'RLS_ENABLED: %', n;
+END;
+$$;
+
+INSERT INTO supabase_migrations.schema_migrations (version,name) VALUES ('000000000136','136_cleanup') ON CONFLICT (version) DO NOTHING;

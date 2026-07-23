@@ -160,8 +160,8 @@ const CRM: React.FC = () => {
         <button onClick={() => { resetForm(); setShowForm(true); }} className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('crm.nueva_licitacion')}</button>
       </div>
 
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
-        <table className="w-full text-sm table-fixed" role="table" aria-label={t('crm.titulo')}>
+      <div className="bg-card rounded-xl border border-border overflow-x-auto">
+        <table className="w-full text-sm table-fixed min-w-[600px]" role="table" aria-label={t('crm.titulo')}>
           <thead><tr className="border-b border-border bg-muted/30">
             <th className="text-left p-2 w-[30%]" scope="col">{t('crm.col_nombre')}</th>
             <th className="text-left p-2 w-[25%]" scope="col">{t('crm.col_cliente')}</th>

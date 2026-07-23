@@ -15,17 +15,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
 const SEVERITY_COLORS: Record<ConflictSeverity, string> = {
-  bajo: 'bg-emerald-500',
-  medio: 'bg-amber-500',
-  alto: 'bg-orange-500',
-  critico: 'bg-red-500'
+  bajo: 'bg-emerald-500 dark:bg-emerald-600',
+  medio: 'bg-amber-500 dark:bg-amber-600',
+  alto: 'bg-orange-500 dark:bg-orange-600',
+  critico: 'bg-red-500 dark:bg-red-600'
 };
 
 const SEVERITY_TEXT_COLORS: Record<ConflictSeverity, string> = {
-  bajo: 'text-emerald-600',
-  medio: 'text-amber-600',
-  alto: 'text-orange-600',
-  critico: 'text-red-600'
+  bajo: 'text-emerald-600 dark:text-emerald-400',
+  medio: 'text-amber-600 dark:text-amber-400',
+  alto: 'text-orange-600 dark:text-orange-400',
+  critico: 'text-red-600 dark:text-red-400'
 };
 
 const TYPE_ICONS: Record<ConflictType, React.ReactNode> = {
@@ -425,7 +425,7 @@ const ResourceConflicts: React.FC = () => {
                     <ul className="text-xs text-muted-foreground space-y-0.5">
                       {suggestion.ventajas.map((ventaja, i) => (
                         <li key={i} className="flex items-start gap-1">
-                          <CheckCircle className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true" />
+                          <CheckCircle className="w-3 h-3 text-emerald-500 dark:text-emerald-400 shrink-0 mt-0.5" aria-hidden="true" />
                           <span>{ventaja}</span>
                         </li>
                       ))}
@@ -437,7 +437,7 @@ const ResourceConflicts: React.FC = () => {
                     <ul className="text-xs text-muted-foreground space-y-0.5">
                       {suggestion.desventajas.map((desventaja, i) => (
                         <li key={i} className="flex items-start gap-1">
-                          <X className="w-3 h-3 text-red-500 shrink-0 mt-0.5" aria-hidden="true" />
+                          <X className="w-3 h-3 text-red-500 dark:text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
                           <span>{desventaja}</span>
                         </li>
                       ))}

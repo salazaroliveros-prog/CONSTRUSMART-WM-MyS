@@ -219,7 +219,7 @@ const Hitos: React.FC = () => {
 
       <div className="space-y-2">
         {filtered.length === 0 && (
-          <div className="text-center py-10 text-muted-foreground"><p className="text-sm">{t('hitos.sin_datos', 'Sin hitos')}</p></div>
+          <div className="text-center py-10 text-muted-foreground"><Calendar className="w-10 h-10 mx-auto mb-2 text-slate-300" aria-hidden="true" /><p className="text-sm">{t('hitos.sin_datos', 'Sin hitos')}</p></div>
         )}
         {filtered.map(h => {
           const cfg = TIPOS[h.tipo] || TIPOS.otro;

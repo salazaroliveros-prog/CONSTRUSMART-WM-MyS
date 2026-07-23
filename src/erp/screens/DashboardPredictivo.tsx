@@ -130,7 +130,7 @@ const DashboardPredictivo: React.FC = () => {
                 <div className="text-[10px] text-muted-foreground">{t('dashboard_predictivo.ejecutado_ac', 'Ejecutado (AC)')}</div>
                 <div className="text-lg font-bold text-orange-600">{fmtQ(totalGastos)}</div>
               </div>
-              <div className={`rounded-xl p-4 border ${sobrecosto > 0 ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200'}`}>
+              <div className={`rounded-xl p-4 border ${sobrecosto > 0 ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800' : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800'}`}>
                 <div className="text-[10px] text-muted-foreground">{t('dashboard_predictivo.costo_final_eac', 'Costo Final Estimado (EAC)')}</div>
                 <div className="text-lg font-bold text-foreground">{fmtQ(EAC)}</div>
                 {sobrecosto > 0 && <div className="text-[10px] text-red-600 mt-1"><AlertTriangle className="w-3 h-3 inline text-red-600" aria-hidden="true" /> +{fmtQ(sobrecosto)}{t('dashboard_predictivo.sobre_presupuesto', ' sobre presupuesto')}</div>}
@@ -169,7 +169,7 @@ const DashboardPredictivo: React.FC = () => {
                 <div className="text-[10px] text-muted-foreground">{t('dashboard_predictivo.fecha_planificada', 'Fecha Planificada')}</div>
                 <div className="text-sm font-bold text-foreground">{proyecto?.fechaFin ? formatDateFmt(proyecto.fechaFin) : '—'}</div>
               </div>
-              <div className={`rounded-xl p-4 border ${desviacionDias > 30 ? 'bg-red-50 border-red-200' : desviacionDias > 0 ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200'}`}>
+              <div className={`rounded-xl p-4 border ${desviacionDias > 30 ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800' : desviacionDias > 0 ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800' : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800'}`}>
                 <div className="text-[10px] text-muted-foreground">{t('dashboard_predictivo.fecha_estimada', 'Fecha Estimada')}</div>
                 <div className="text-sm font-bold text-foreground">{formatDateFmt(fechaEstimadaFin.toISOString())}</div>
                 {desviacionDias > 0 && <div className="text-[10px] text-red-600 mt-1"><AlertTriangle className="w-3 h-3 inline text-red-600" aria-hidden="true" /> +{Math.round(desviacionDias)}{t('dashboard_predictivo.dias_retraso', ' días de retraso')}</div>}
@@ -216,7 +216,7 @@ const DashboardPredictivo: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t text-[10px] text-muted-foreground">
+              <div className="mt-3 pt-2 border-t border-border text-[10px] text-muted-foreground">
                 {diasEstimadosRestantes > 0
                   ? t('dashboard_predictivo.dias_restantes', 'Se estiman {{dias}} días restantes ({{fecha}})', { dias: Math.round(diasEstimadosRestantes), fecha: formatDateFmt(fechaEstimadaFin.toISOString()) })
                   : t('dashboard_predictivo.calculando_estimacion', 'Calculando estimación...')}
@@ -230,20 +230,20 @@ const DashboardPredictivo: React.FC = () => {
                   <AlertTriangle className="w-4 h-4 text-red-500" /> {t('dashboard_predictivo.riesgos_renglon', 'Riesgos por Renglón')}
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-                  <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-                    <div className="text-[10px] text-red-600 font-medium">{t('dashboard_predictivo.alto_riesgo', 'Alto Riesgo')}</div>
-                    <div className="text-2xl font-black text-red-600">{riesgosAltos.length}</div>
-                    <div className="text-[10px] text-red-500">{t('dashboard_predictivo.actividades_desviacion_alta', 'Actividades con desviación < -20%')}</div>
+                  <div className="bg-red-50 dark:bg-red-950/40 rounded-xl p-4 border border-red-200 dark:border-red-800">
+                    <div className="text-[10px] text-red-600 dark:text-red-400 font-medium">{t('dashboard_predictivo.alto_riesgo', 'Alto Riesgo')}</div>
+                    <div className="text-2xl font-black text-red-600 dark:text-red-400">{riesgosAltos.length}</div>
+                    <div className="text-[10px] text-red-500 dark:text-red-400">{t('dashboard_predictivo.actividades_desviacion_alta', 'Actividades con desviación < -20%')}</div>
                   </div>
-                  <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-                    <div className="text-[10px] text-amber-600 font-medium">{t('dashboard_predictivo.riesgo_medio', 'Riesgo Medio')}</div>
-                    <div className="text-2xl font-black text-amber-600">{riesgosMedios.length}</div>
-                    <div className="text-[10px] text-amber-500">{t('dashboard_predictivo.desviacion_media', 'Desviación entre -10% y -20%')}</div>
+                  <div className="bg-amber-50 dark:bg-amber-950/40 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
+                    <div className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">{t('dashboard_predictivo.riesgo_medio', 'Riesgo Medio')}</div>
+                    <div className="text-2xl font-black text-amber-600 dark:text-amber-400">{riesgosMedios.length}</div>
+                    <div className="text-[10px] text-amber-500 dark:text-amber-400">{t('dashboard_predictivo.desviacion_media', 'Desviación entre -10% y -20%')}</div>
                   </div>
-                  <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
-                    <div className="text-[10px] text-emerald-600 font-medium">{t('dashboard_predictivo.saludable', 'Saludable')}</div>
-                    <div className="text-2xl font-black text-emerald-600">{actividadesSaludables.length}</div>
-                    <div className="text-[10px] text-emerald-500">{t('dashboard_predictivo.actividades_saludables', 'Actividades dentro de lo esperado')}</div>
+                  <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800">
+                    <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">{t('dashboard_predictivo.saludable', 'Saludable')}</div>
+                    <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{actividadesSaludables.length}</div>
+                    <div className="text-[10px] text-emerald-500 dark:text-emerald-400">{t('dashboard_predictivo.actividades_saludables', 'Actividades dentro de lo esperado')}</div>
                   </div>
                 </div>
 

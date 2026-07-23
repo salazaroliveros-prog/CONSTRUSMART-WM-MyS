@@ -117,7 +117,7 @@ const CuentasCobrar: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
         <h1 className="text-lg sm:text-xl font-black text-foreground flex items-center gap-2">
-          <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" aria-hidden="true" />
+          <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500 dark:text-emerald-400" aria-hidden="true" />
           {t('cuentas_cobrar.titulo')}
         </h1>
         <button onClick={() => { setEditingId(null); setShowForm(true); }} className={`${BUTTON_PRIMARY} flex items-center gap-2`}>
@@ -132,19 +132,19 @@ const CuentasCobrar: React.FC = () => {
           <div className="text-xs text-muted-foreground">{stats.total} {t('cuentas_cobrar.cuentas_pendientes')}</div>
         </div>
         <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/50 p-4">
-          <div className="text-xs text-emerald-600">{t('cuentas_cobrar.cobradas')}</div>
-          <div className="text-2xl font-bold text-emerald-700">{stats.cobradas}</div>
-          <div className="text-xs text-emerald-600">{fmtQ(stats.montoCobrado)}</div>
+          <div className="text-xs text-emerald-600 dark:text-emerald-400">{t('cuentas_cobrar.cobradas')}</div>
+          <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{stats.cobradas}</div>
+          <div className="text-xs text-emerald-600 dark:text-emerald-400">{fmtQ(stats.montoCobrado)}</div>
         </div>
         <div className="bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-100 dark:border-amber-900/50 p-4">
-          <div className="text-xs text-amber-600">{t('cuentas_cobrar.pendientes')}</div>
-          <div className="text-2xl font-bold text-amber-700">{stats.pendientes}</div>
-          <div className="text-xs text-amber-600">{stats.total > 0 ? Math.round((stats.pendientes / stats.total) * 100) : 0}% {t('cuentas_cobrar.del_total')}</div>
+          <div className="text-xs text-amber-600 dark:text-amber-400">{t('cuentas_cobrar.pendientes')}</div>
+          <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">{stats.pendientes}</div>
+          <div className="text-xs text-amber-600 dark:text-amber-400">{stats.total > 0 ? Math.round((stats.pendientes / stats.total) * 100) : 0}% {t('cuentas_cobrar.del_total')}</div>
         </div>
         <div className="bg-red-50 dark:bg-red-950/40 rounded-xl border border-red-100 dark:border-red-900/50 p-4">
-          <div className="text-xs text-red-600">{t('cuentas_cobrar.vencidas')}</div>
-          <div className="text-2xl font-bold text-red-700">{stats.vencidas}</div>
-          <div className="text-xs text-red-600">{stats.vencidas > 0 ? t('cuentas_cobrar.requieren_atencion') : t('cuentas_cobrar.sin_vencidas')}</div>
+          <div className="text-xs text-red-600 dark:text-red-400">{t('cuentas_cobrar.vencidas')}</div>
+          <div className="text-2xl font-bold text-red-700 dark:text-red-300">{stats.vencidas}</div>
+          <div className="text-xs text-red-600 dark:text-red-400">{stats.vencidas > 0 ? t('cuentas_cobrar.requieren_atencion') : t('cuentas_cobrar.sin_vencidas')}</div>
         </div>
       </div>
 
@@ -188,7 +188,7 @@ const CuentasCobrar: React.FC = () => {
                     <td className="p-2 text-right font-medium">{fmtQ(c.monto)}</td>
                     <td className="p-2 text-center">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        c.estado === 'cobrada' ? 'bg-emerald-100 text-emerald-700' : c.estado === 'vencida' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                        c.estado === 'cobrada' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' : c.estado === 'vencida' ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
                       }`}>{t(`cuentas_cobrar.estado_${c.estado}`)}</span>
                     </td>
                      <td className="p-2 text-center text-muted-foreground truncate" title={c.fechaVencimiento || '-'}>{c.fechaVencimiento || '-'}</td>

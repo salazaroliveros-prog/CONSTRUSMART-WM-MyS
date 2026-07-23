@@ -153,18 +153,18 @@ export const ComercialFinanzas: React.FC = () => {
               </div>
               {a.estado === 'activo' && (
                 <div className="mt-2 flex gap-2">
-                  <input type="number" inputMode="decimal" placeholder={t('comercial.placeholder_amortizacion', 'Monto a amortizar')}
-                    className="text-xs px-3 py-2 border border-input rounded-lg outline-none focus:border-ring bg-background w-36"
+                  <input type="number" inputMode="decimal" placeholder={t('comercial.placeholder_amortizacion')}
+                    className="text-xs px-3 py-2 border border-input rounded-lg outline-none focus:border-ring bg-background w-full sm:w-36"
                     value={amortInputs[a.id] || ''}
                     onChange={e => setAmortInputs(prev => ({ ...prev, [a.id]: e.target.value }))} />
                   <button onClick={() => {
                     const monto = parseFloat(amortInputs[a.id] || '0');
                     if (monto > 0) {
-                      addAmortizacion(a.id, { anticipoId: a.id, monto: Math.min(monto, a.saldoPendiente), fecha: new Date().toISOString().split('T')[0], referencia: t('comercial.amortizacion_manual', 'Amortización manual') });
+                      addAmortizacion(a.id, { anticipoId: a.id, monto: Math.min(monto, a.saldoPendiente), fecha: new Date().toISOString().split('T')[0], referencia: t('comercial.amortizacion_manual') });
                       setAmortInputs(prev => ({ ...prev, [a.id]: '' }));
-                      toast.success(t('comercial.amortizacion_registrada', 'Amortización registrada'));
+                      toast.success(t('comercial.amortizacion_registrada'));
                     }
-                  }} className={`bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2.5 rounded-lg text-xs hover:bg-success/90 active:bg-success/80 active:scale-95 min-h-[44px] transition-all ${FOCUS_VISIBLE}`}>{t('comercial.amortizar', 'Amortizar')}</button>
+                  }} className={`bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2.5 rounded-lg text-xs hover:bg-success/90 active:bg-success/80 active:scale-95 min-h-[44px] transition-all ${FOCUS_VISIBLE}`}>{t('comercial.amortizar')}</button>
                 </div>
               )}
               {a.amortizaciones.length > 0 && (
@@ -172,7 +172,7 @@ export const ComercialFinanzas: React.FC = () => {
                   <p className="text-xs text-muted-foreground mb-1">{t('comercial.historial', 'Historial:')}</p>
                   {a.amortizaciones.map(am => (
                     <div key={am.id} className="flex justify-between text-xs text-muted-foreground">
-                      <span>{new Date(am.fecha).toLocaleDateString()}</span>
+                      <span>{new Date(am.fecha).toLocaleDateString('es-GT')}</span>
                       <span className="font-mono">-{fmtQ(am.monto)}</span>
                       {am.referencia && <span className="text-muted-foreground/70">{am.referencia}</span>}
                     </div>
@@ -192,7 +192,7 @@ export const ComercialFinanzas: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5"><Wallet className="w-4 h-4" aria-hidden="true" /> {t('comercial.cajas')}</h2>
         <button onClick={() => { setShowForm('caja'); setForm({}); }}
-          className={`bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('comercial.nuevo_gasto', '+ Nuevo Gasto')}</button>
+          className={`bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('comercial.nuevo_gasto')}</button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
@@ -230,7 +230,7 @@ export const ComercialFinanzas: React.FC = () => {
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${c.categoria === 'materiales' ? 'bg-info/10 text-info' : c.categoria === 'herramientas' ? 'bg-accent/10 text-accent-foreground' : c.categoria === 'transporte' ? 'bg-primary/10 text-primary' : c.categoria === 'comidas' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>{t('comercial.categoria_' + c.categoria, c.categoria)}</span>
                 </td>
                 <td className="p-2 text-right font-mono">{fmtQ(c.monto)}</td>
-                <td className="p-2 text-xs">{new Date(c.fechaGasto).toLocaleDateString()}</td>
+                <td className="p-2 text-xs">{new Date(c.fechaGasto).toLocaleDateString('es-GT')}</td>
                 <td className="p-2 text-xs truncate" title={c.solicitante}>{c.solicitante}</td>
                 <td className="p-2">
                   <select value={c.estado} onChange={e => updateCajaChica(c.id, {
@@ -267,7 +267,7 @@ export const ComercialFinanzas: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <h1 className="text-2xl font-black text-foreground mb-4">{t('comercial.titulo')}</h1>
 
-      <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto" role="tablist">
+      <div className="flex gap-1 mb-4 bg-muted p-1 rounded-lg overflow-x-auto" role="tablist">
         {[
           { key: 'ventas',    label: t('comercial.ventas'), icon: Building2 },
           { key: 'anticipos', label: t('comercial.anticipos'), icon: DollarSign },
@@ -303,11 +303,11 @@ export const ComercialFinanzas: React.FC = () => {
                   {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
                 </div>
                 <select className={SELECT} value={form.tipo || 'unidad'} onChange={e => setForm({ ...form, tipo: e.target.value })}>
-                  <option value="unidad">{t('comercial.unidad', 'Unidad')}</option><option value="lote">{t('comercial.lote', 'Lote')}</option><option value="paquete">{t('comercial.paquete', 'Paquete')}</option>
+                  <option value="unidad">{t('comercial.unidad')}</option><option value="lote">{t('comercial.lote')}</option><option value="paquete">{t('comercial.paquete')}</option>
                 </select>
-                <input placeholder={t('comercial.placeholder_identificador', 'Identificador')} className={INPUT} value={form.identificador || ''} onChange={e => setForm({ ...form, identificador: e.target.value })} />
-                <input placeholder={t('comercial.placeholder_precio', 'Precio de venta Q')} type="number" inputMode="decimal" className={INPUT} value={form.precioVenta || ''} onChange={e => setForm({ ...form, precioVenta: +e.target.value })} />
-                <input placeholder={t('comercial.placeholder_cliente', 'Cliente (opcional)')} className={INPUT} value={form.cliente || ''} onChange={e => setForm({ ...form, cliente: e.target.value })} />
+                <input placeholder={t('comercial.placeholder_identificador')} className={INPUT} value={form.identificador || ''} onChange={e => setForm({ ...form, identificador: e.target.value })} />
+                <input placeholder={t('comercial.placeholder_precio')} type="number" inputMode="decimal" className={INPUT} value={form.precioVenta || ''} onChange={e => setForm({ ...form, precioVenta: +e.target.value })} />
+                <input placeholder={t('comercial.placeholder_cliente')} className={INPUT} value={form.cliente || ''} onChange={e => setForm({ ...form, cliente: e.target.value })} />
                 <button onClick={() => {
                   const errors: Record<string, string> = {};
                   if (!form.proyectoId) errors.proyectoId = t('comercial.error_proyecto');
@@ -315,51 +315,51 @@ export const ComercialFinanzas: React.FC = () => {
                   if (Object.keys(errors).length > 0) return;
                   addVenta({ proyectoId: form.proyectoId, tipo: form.tipo || 'unidad', identificador: form.identificador || 'Nueva unidad', precioVenta: form.precioVenta || 0, precioContrato: form.precioVenta || 0, estado: 'disponible', cliente: form.cliente || undefined });
                   setShowForm(null);
-                  toast.success(t('comercial.venta_registrada', 'Venta registrada'));
+                  toast.success(t('comercial.venta_registrada'));
                 }} className={`bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('common.guardar')}</button>
               </div>
             )}
             {showForm === 'anticipo' && (
               <div className="grid gap-3">
                 <select className={`${SELECT} ${formErrors.proyectoId ? 'border-red-500' : ''}`} value={form.proyectoId || ''} onChange={e => { setForm({ ...form, proyectoId: e.target.value }); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }}>
-                  <option value="">{t('comercial.seleccionar_proyecto', 'Seleccionar proyecto')}</option>
+                  <option value="">{t('comercial.seleccionar_proyecto')}</option>
                   {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
                 {formErrors.proyectoId && <p className="text-xs text-red-500">{formErrors.proyectoId}</p>}
                 <select className={SELECT} value={form.tipo || 'proveedor'} onChange={e => setForm({ ...form, tipo: e.target.value })}>
-                  <option value="cliente">{t('common.cliente', 'Cliente')}</option><option value="proveedor">{t('common.proveedor', 'Proveedor')}</option><option value="empleado">{t('common.empleado', 'Empleado')}</option>
+                  <option value="cliente">{t('common.cliente')}</option><option value="proveedor">{t('common.proveedor')}</option><option value="empleado">{t('common.empleado')}</option>
                 </select>
-                <input placeholder={t('comercial.placeholder_beneficiario', 'Beneficiario')} className={INPUT} value={form.beneficiario || ''} onChange={e => setForm({ ...form, beneficiario: e.target.value })} />
-                <input placeholder={t('comercial.placeholder_concepto', 'Concepto')} className={INPUT} value={form.concepto || ''} onChange={e => setForm({ ...form, concepto: e.target.value })} />
-                <input placeholder={t('comercial.placeholder_monto_total', 'Monto total Q')} type="number" inputMode="decimal" className={INPUT} value={form.montoTotal || ''} onChange={e => setForm({ ...form, montoTotal: +e.target.value })} />
+                <input placeholder={t('comercial.placeholder_beneficiario')} className={INPUT} value={form.beneficiario || ''} onChange={e => setForm({ ...form, beneficiario: e.target.value })} />
+                <input placeholder={t('comercial.placeholder_concepto')} className={INPUT} value={form.concepto || ''} onChange={e => setForm({ ...form, concepto: e.target.value })} />
+                <input placeholder={t('comercial.placeholder_monto_total')} type="number" inputMode="decimal" className={INPUT} value={form.montoTotal || ''} onChange={e => setForm({ ...form, montoTotal: +e.target.value })} />
                 <button onClick={() => {
                   if (!form.proyectoId) { setFormErrors({ proyectoId: t('comercial.error_proyecto') }); return; }
                   const monto = form.montoTotal || 0;
                   addAnticipoLocal({ proyectoId: form.proyectoId, montoTotal: monto, saldoPendiente: monto, tipo: form.tipo || 'proveedor', beneficiario: form.beneficiario || 'Beneficiario', concepto: form.concepto || 'Anticipo', fechaEntrega: new Date().toISOString().split('T')[0], estado: 'activo' });
                   setShowForm(null);
-                  toast.success(t('comercial.anticipo_registrado', 'Anticipo registrado'));
+                  toast.success(t('comercial.anticipo_registrado'));
                 }} className={`bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('common.guardar')}</button>
               </div>
             )}
             {showForm === 'caja' && (
               <div className="grid gap-3">
                 <select className={`${SELECT} ${formErrors.proyectoId ? 'border-red-500' : ''}`} value={form.proyectoId || ''} onChange={e => { setForm({ ...form, proyectoId: e.target.value }); setFormErrors(prev => ({ ...prev, proyectoId: '' })); }}>
-                  <option value="">{t('comercial.seleccionar_proyecto', 'Seleccionar proyecto')}</option>
+                  <option value="">{t('comercial.seleccionar_proyecto')}</option>
                   {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                 </select>
                 {formErrors.proyectoId && <p className="text-xs text-red-500">{formErrors.proyectoId}</p>}
-                <input placeholder={t('comercial.placeholder_descripcion', 'Descripción del gasto')} className={INPUT} value={form.descripcion || ''} onChange={e => setForm({ ...form, descripcion: e.target.value })} />
+                <input placeholder={t('comercial.placeholder_descripcion')} className={INPUT} value={form.descripcion || ''} onChange={e => setForm({ ...form, descripcion: e.target.value })} />
                 <select className={SELECT} value={form.categoria || 'materiales'} onChange={e => setForm({ ...form, categoria: e.target.value })}>
-                  <option value="materiales">{t('bodega.materiales')}</option><option value="herramientas">{t('comercial.herramientas', 'Herramientas')}</option>
-                  <option value="transporte">{t('comercial.transporte', 'Transporte')}</option><option value="comidas">{t('comercial.comidas', 'Comidas')}</option><option value="otros">{t('comercial.otros', 'Otros')}</option>
+                  <option value="materiales">{t('bodega.materiales')}</option><option value="herramientas">{t('comercial.herramientas')}</option>
+                  <option value="transporte">{t('comercial.transporte')}</option><option value="comidas">{t('comercial.comidas')}</option><option value="otros">{t('comercial.otros')}</option>
                 </select>
-                <input placeholder={t('comercial.placeholder_monto', 'Monto Q')} type="number" inputMode="decimal" className={INPUT} value={form.monto || ''} onChange={e => setForm({ ...form, monto: +e.target.value })} />
-                <input placeholder={t('comercial.placeholder_solicitante', 'Solicitante')} className={INPUT} value={form.solicitante || ''} onChange={e => setForm({ ...form, solicitante: e.target.value })} />
+                <input placeholder={t('comercial.placeholder_monto')} type="number" inputMode="decimal" className={INPUT} value={form.monto || ''} onChange={e => setForm({ ...form, monto: +e.target.value })} />
+                <input placeholder={t('comercial.placeholder_solicitante')} className={INPUT} value={form.solicitante || ''} onChange={e => setForm({ ...form, solicitante: e.target.value })} />
                 <button onClick={() => {
                   if (!form.proyectoId) { setFormErrors({ proyectoId: t('comercial.error_proyecto') }); return; }
                   addCajaChicaLocal({ proyectoId: form.proyectoId, monto: form.monto || 0, descripcion: form.descripcion || 'Gasto', categoria: form.categoria || 'materiales', fechaGasto: new Date().toISOString().split('T')[0], solicitante: form.solicitante || 'Usuario', estado: 'pendiente' });
                   setShowForm(null);
-                  toast.success(t('comercial.gasto_registrado', 'Gasto registrado'));
+                  toast.success(t('comercial.gasto_registrado'));
                 }} className={`bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('common.guardar')}</button>
               </div>
             )}

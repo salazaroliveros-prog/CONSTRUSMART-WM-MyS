@@ -146,13 +146,13 @@ const RRHH: React.FC = () => {
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs text-muted-foreground">{t('rrhh.totalFSR')}</span>
           </div>
-          <div className="text-2xl font-bold text-amber-500">{fmtQ(totalFSR)}</div>
+          <div className="text-2xl font-bold text-amber-500 dark:text-amber-400">{fmtQ(totalFSR)}</div>
         </div>
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs text-muted-foreground">{t('rrhh.factorReal')}</span>
           </div>
-          <div className="text-2xl font-bold text-green-500">
+          <div className="text-2xl font-bold text-green-500 dark:text-green-400">
             {totalPlanilla > 0 ? ((totalFSR / totalPlanilla - 1) * 100).toFixed(1) : '0.0'}%
           </div>
         </div>
@@ -210,7 +210,7 @@ const RRHH: React.FC = () => {
                     <td className="p-3 text-right font-mono">{fmtQ(empleado.salarioDiario)}</td>
                     <td className="p-3 text-right font-mono">{empleado.diasTrabajados}</td>
                     <td className="p-3 text-right font-mono">{fmtQ(pago(empleado))}</td>
-                    <td className="p-3 text-right font-mono text-amber-500">{fmtQ(pagoFSR(empleado))}</td>
+                    <td className="p-3 text-right font-mono text-amber-500 dark:text-amber-400">{fmtQ(pagoFSR(empleado))}</td>
                     <td className="p-3 text-center">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         empleado.tipo === 'destajo'
@@ -234,14 +234,14 @@ const RRHH: React.FC = () => {
                               diasTrabajados: empleado.diasTrabajados,
                             });
                           }}
-                          className="text-blue-500 hover:text-blue-600"
+                          className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300"
                           aria-label={t('common.edit')}
                         >
                           <Edit className="w-4 h-4" aria-hidden="true" />
                         </button>
                         <button
                           onClick={() => deleteEmpleado(empleado.id)}
-                          className="text-red-500 hover:text-red-600"
+                          className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300"
                           aria-label={t('common.delete')}
                         >
                           <Trash2 className="w-4 h-4" aria-hidden="true" />

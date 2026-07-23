@@ -206,19 +206,19 @@ export default function Auditoria() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-sm text-gray-500 mb-1">{t('auditoria.total')}</div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</div>
+        <div className="bg-card p-4 rounded-xl border border-border">
+          <div className="text-sm text-muted-foreground mb-1">{t('auditoria.total')}</div>
+          <div className="text-2xl font-bold text-foreground">{stats.total}</div>
         </div>
-        <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-emerald-200 dark:border-emerald-800">
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800">
           <div className="text-sm text-emerald-600 dark:text-emerald-400 mb-1">{t('auditoria.creaciones')}</div>
           <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.creaciones}</div>
         </div>
-        <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div className="bg-blue-50 dark:bg-blue-950/40 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
           <div className="text-sm text-blue-600 dark:text-blue-400 mb-1">{t('auditoria.actualizaciones')}</div>
           <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.actualizaciones}</div>
         </div>
-        <div className="bg-card dark:bg-gray-900 p-4 rounded-lg border border-red-200 dark:border-red-800">
+        <div className="bg-red-50 dark:bg-red-950/40 p-4 rounded-xl border border-red-200 dark:border-red-800">
           <div className="text-sm text-red-600 dark:text-red-400 mb-1">{t('auditoria.eliminaciones')}</div>
           <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.eliminaciones}</div>
         </div>
@@ -414,24 +414,24 @@ export default function Auditoria() {
             {selectedEntry && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div><span className="text-gray-500">{t('auditoria.columna_fecha')}:</span> <span className="font-medium">{fmtDate(selectedEntry.createdAt)}</span></div>
-                  <div><span className="text-gray-500">{t('auditoria.columna_usuario')}:</span> <span className="font-medium">{selectedEntry.usuarioNombre}</span></div>
-                  <div><span className="text-gray-500">{t('auditoria.columna_tabla')}:</span> <span className="font-medium">{normalizeEntidad(selectedEntry.entidad)}</span></div>
-                  <div><span className="text-gray-500">{t('auditoria.columna_operacion')}:</span> <span className="font-medium">{getLabelKey(selectedEntry.accion, t)}</span></div>
+                  <div><span className="text-muted-foreground">{t('auditoria.columna_fecha')}:</span> <span className="font-medium">{fmtDate(selectedEntry.createdAt)}</span></div>
+                  <div><span className="text-muted-foreground">{t('auditoria.columna_usuario')}:</span> <span className="font-medium">{selectedEntry.usuarioNombre}</span></div>
+                  <div><span className="text-muted-foreground">{t('auditoria.columna_tabla')}:</span> <span className="font-medium">{normalizeEntidad(selectedEntry.entidad)}</span></div>
+                  <div><span className="text-muted-foreground">{t('auditoria.columna_operacion')}:</span> <span className="font-medium">{getLabelKey(selectedEntry.accion, t)}</span></div>
                   {selectedEntry.entidadId && (
-                    <div><span className="text-gray-500">{t('auditoria.columna_id')}:</span> <code className="font-medium text-xs">{selectedEntry.entidadId}</code></div>
+                    <div><span className="text-muted-foreground">{t('auditoria.columna_id')}:</span> <code className="font-medium text-xs">{selectedEntry.entidadId}</code></div>
                   )}
                 </div>
                 {selectedEntry.valoresAnteriores && Object.keys(selectedEntry.valoresAnteriores).length > 0 && (
                   <div>
                     <h4 className="font-semibold text-sm mb-1">{t('auditoria.datos_anteriores')}</h4>
-                    <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-3 rounded max-h-48 overflow-auto">{JSON.stringify(selectedEntry.valoresAnteriores, null, 2)}</pre>
+                    <pre className="text-xs bg-muted p-3 rounded max-h-48 overflow-auto">{JSON.stringify(selectedEntry.valoresAnteriores, null, 2)}</pre>
                   </div>
                 )}
                 {selectedEntry.valoresNuevos && Object.keys(selectedEntry.valoresNuevos).length > 0 && (
                   <div>
                     <h4 className="font-semibold text-sm mb-1">{t('auditoria.datos_nuevos')}</h4>
-                    <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-3 rounded max-h-48 overflow-auto">{JSON.stringify(selectedEntry.valoresNuevos, null, 2)}</pre>
+                    <pre className="text-xs bg-muted p-3 rounded max-h-48 overflow-auto">{JSON.stringify(selectedEntry.valoresNuevos, null, 2)}</pre>
                   </div>
                 )}
               </div>

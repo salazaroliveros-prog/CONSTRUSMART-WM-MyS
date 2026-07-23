@@ -163,12 +163,12 @@ const Cuadros: React.FC = () => {
           <div className="text-2xl font-bold">{stats.total}</div>
         </div>
         <div className="bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-100 dark:border-blue-900/50 p-4">
-          <div className="text-xs text-blue-600">{t('cuadros.abiertos')}</div>
-          <div className="text-2xl font-bold text-blue-700">{stats.abiertos}</div>
+          <div className="text-xs text-blue-600 dark:text-blue-400">{t('cuadros.abiertos')}</div>
+          <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{stats.abiertos}</div>
         </div>
         <div className="bg-gray-50 dark:bg-gray-950/40 rounded-xl border border-gray-100 dark:border-gray-900/50 p-4">
-          <div className="text-xs text-gray-600">{t('cuadros.cerrados')}</div>
-          <div className="text-2xl font-bold text-gray-700">{stats.cerrados}</div>
+          <div className="text-xs text-gray-600 dark:text-gray-400">{t('cuadros.cerrados')}</div>
+          <div className="text-2xl font-bold text-gray-700 dark:text-gray-300">{stats.cerrados}</div>
         </div>
         <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/50 p-4">
           <div className="text-xs text-emerald-600">{t('cuadros.adjudicados')}</div>

@@ -233,7 +233,7 @@ const CalidadCumplimiento: React.FC = () => {
 
   return (
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate" title={proyectoLabel}>{proyectoLabel}</h1>
           <p className="text-muted-foreground text-sm mt-1">{t('calidad_cumplimiento.descripcion')}</p>
@@ -246,7 +246,7 @@ const CalidadCumplimiento: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle className="w-5 h-5 text-emerald-500" aria-hidden="true" />

@@ -1,0 +1,390 @@
+[
+  {
+    "typname": "aal_level",
+    "enumlabel": "aal1"
+  },
+  {
+    "typname": "aal_level",
+    "enumlabel": "aal2"
+  },
+  {
+    "typname": "aal_level",
+    "enumlabel": "aal3"
+  },
+  {
+    "typname": "action",
+    "enumlabel": "INSERT"
+  },
+  {
+    "typname": "action",
+    "enumlabel": "UPDATE"
+  },
+  {
+    "typname": "action",
+    "enumlabel": "DELETE"
+  },
+  {
+    "typname": "action",
+    "enumlabel": "TRUNCATE"
+  },
+  {
+    "typname": "action",
+    "enumlabel": "ERROR"
+  },
+  {
+    "typname": "buckettype",
+    "enumlabel": "STANDARD"
+  },
+  {
+    "typname": "buckettype",
+    "enumlabel": "ANALYTICS"
+  },
+  {
+    "typname": "buckettype",
+    "enumlabel": "VECTOR"
+  },
+  {
+    "typname": "code_challenge_method",
+    "enumlabel": "s256"
+  },
+  {
+    "typname": "code_challenge_method",
+    "enumlabel": "plain"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "eq"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "neq"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "lt"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "lte"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "gt"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "gte"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "in"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "like"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "ilike"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "is"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "match"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "imatch"
+  },
+  {
+    "typname": "equality_op",
+    "enumlabel": "isdistinct"
+  },
+  {
+    "typname": "estado_activo",
+    "enumlabel": "disponible"
+  },
+  {
+    "typname": "estado_activo",
+    "enumlabel": "asignado"
+  },
+  {
+    "typname": "estado_activo",
+    "enumlabel": "mantenimiento"
+  },
+  {
+    "typname": "estado_activo",
+    "enumlabel": "baja"
+  },
+  {
+    "typname": "estado_anticipo",
+    "enumlabel": "activo"
+  },
+  {
+    "typname": "estado_anticipo",
+    "enumlabel": "amortizado"
+  },
+  {
+    "typname": "estado_anticipo",
+    "enumlabel": "cancelado"
+  },
+  {
+    "typname": "estado_caja",
+    "enumlabel": "pendiente"
+  },
+  {
+    "typname": "estado_caja",
+    "enumlabel": "aprobada"
+  },
+  {
+    "typname": "estado_caja",
+    "enumlabel": "rechazada"
+  },
+  {
+    "typname": "estado_cuadro",
+    "enumlabel": "abierto"
+  },
+  {
+    "typname": "estado_cuadro",
+    "enumlabel": "cerrado"
+  },
+  {
+    "typname": "estado_cuadro",
+    "enumlabel": "adjudicado"
+  },
+  {
+    "typname": "estado_licitacion",
+    "enumlabel": "activa"
+  },
+  {
+    "typname": "estado_licitacion",
+    "enumlabel": "ganada"
+  },
+  {
+    "typname": "estado_licitacion",
+    "enumlabel": "perdida"
+  },
+  {
+    "typname": "estado_licitacion",
+    "enumlabel": "cancelada"
+  },
+  {
+    "typname": "estado_orden",
+    "enumlabel": "borrador"
+  },
+  {
+    "typname": "estado_orden",
+    "enumlabel": "pendiente"
+  },
+  {
+    "typname": "estado_orden",
+    "enumlabel": "aprobado"
+  },
+  {
+    "typname": "estado_orden",
+    "enumlabel": "rechazado"
+  },
+  {
+    "typname": "estado_orden",
+    "enumlabel": "recibida"
+  },
+  {
+    "typname": "estado_orden",
+    "enumlabel": "cancelada"
+  },
+  {
+    "typname": "estado_pago",
+    "enumlabel": "pendiente"
+  },
+  {
+    "typname": "estado_pago",
+    "enumlabel": "pagado"
+  },
+  {
+    "typname": "estado_pago",
+    "enumlabel": "vencido"
+  },
+  {
+    "typname": "estado_pago",
+    "enumlabel": "cancelado"
+  },
+  {
+    "typname": "estado_presupuesto",
+    "enumlabel": "borrador"
+  },
+  {
+    "typname": "estado_presupuesto",
+    "enumlabel": "aprobado"
+  },
+  {
+    "typname": "estado_presupuesto",
+    "enumlabel": "revisado"
+  },
+  {
+    "typname": "estado_presupuesto",
+    "enumlabel": "rechazado"
+  },
+  {
+    "typname": "estado_proyecto",
+    "enumlabel": "planeacion"
+  },
+  {
+    "typname": "estado_proyecto",
+    "enumlabel": "ejecucion"
+  },
+  {
+    "typname": "estado_proyecto",
+    "enumlabel": "pausado"
+  },
+  {
+    "typname": "estado_proyecto",
+    "enumlabel": "finalizado"
+  },
+  {
+    "typname": "estado_venta",
+    "enumlabel": "disponible"
+  },
+  {
+    "typname": "estado_venta",
+    "enumlabel": "reservado"
+  },
+  {
+    "typname": "estado_venta",
+    "enumlabel": "vendido"
+  },
+  {
+    "typname": "estado_venta",
+    "enumlabel": "entregado"
+  },
+  {
+    "typname": "factor_status",
+    "enumlabel": "unverified"
+  },
+  {
+    "typname": "factor_status",
+    "enumlabel": "verified"
+  },
+  {
+    "typname": "factor_type",
+    "enumlabel": "totp"
+  },
+  {
+    "typname": "factor_type",
+    "enumlabel": "webauthn"
+  },
+  {
+    "typname": "factor_type",
+    "enumlabel": "phone"
+  },
+  {
+    "typname": "oauth_authorization_status",
+    "enumlabel": "pending"
+  },
+  {
+    "typname": "oauth_authorization_status",
+    "enumlabel": "approved"
+  },
+  {
+    "typname": "oauth_authorization_status",
+    "enumlabel": "denied"
+  },
+  {
+    "typname": "oauth_authorization_status",
+    "enumlabel": "expired"
+  },
+  {
+    "typname": "oauth_client_type",
+    "enumlabel": "public"
+  },
+  {
+    "typname": "oauth_client_type",
+    "enumlabel": "confidential"
+  },
+  {
+    "typname": "oauth_registration_type",
+    "enumlabel": "dynamic"
+  },
+  {
+    "typname": "oauth_registration_type",
+    "enumlabel": "manual"
+  },
+  {
+    "typname": "oauth_response_type",
+    "enumlabel": "code"
+  },
+  {
+    "typname": "one_time_token_type",
+    "enumlabel": "confirmation_token"
+  },
+  {
+    "typname": "one_time_token_type",
+    "enumlabel": "reauthentication_token"
+  },
+  {
+    "typname": "one_time_token_type",
+    "enumlabel": "recovery_token"
+  },
+  {
+    "typname": "one_time_token_type",
+    "enumlabel": "email_change_token_new"
+  },
+  {
+    "typname": "one_time_token_type",
+    "enumlabel": "email_change_token_current"
+  },
+  {
+    "typname": "one_time_token_type",
+    "enumlabel": "phone_change_token"
+  },
+  {
+    "typname": "request_status",
+    "enumlabel": "PENDING"
+  },
+  {
+    "typname": "request_status",
+    "enumlabel": "SUCCESS"
+  },
+  {
+    "typname": "request_status",
+    "enumlabel": "ERROR"
+  },
+  {
+    "typname": "tipo_activo",
+    "enumlabel": "herramienta"
+  },
+  {
+    "typname": "tipo_activo",
+    "enumlabel": "equipo"
+  },
+  {
+    "typname": "tipo_activo",
+    "enumlabel": "vehiculo"
+  },
+  {
+    "typname": "tipo_activo",
+    "enumlabel": "accesorio"
+  },
+  {
+    "typname": "tipo_caja",
+    "enumlabel": "materiales"
+  },
+  {
+    "typname": "tipo_caja",
+    "enumlabel": "herramientas"
+  },
+  {
+    "typname": "tipo_caja",
+    "enumlabel": "transporte"
+  },
+  {
+    "typname": "tipo_caja",
+    "enumlabel": "comidas"
+  },
+  {
+    "typname": "tipo_caja",
+    "enumlabel": "otros"
+  }
+]

@@ -6,7 +6,7 @@ import { AlertTriangle, Shield, Plus, X, Filter, Clock, CheckCircle, Crosshair, 
 import { INPUT } from '../ui';
 import { toast } from 'sonner';
 import { confirmAction } from '@/lib/confirm-action';
-import { todayISO } from '../utils';
+import { todayISO, fmtQ } from '../utils';
 import { canUserDelete } from '@/lib/security';
 import { calculateWeatherImpact } from '../services/weatherService';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -106,7 +106,7 @@ const Riesgos: React.FC = () => {
   };
 
   const nivelColor = (n: Riesgo['nivel']) => {
-    const map = { bajo: 'bg-emerald-50 text-emerald-600', medio: 'bg-amber-50 text-amber-600', alto: 'bg-orange-50 text-orange-600', critico: 'bg-red-50 text-red-600' };
+    const map = { bajo: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400', medio: 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400', alto: 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400', critico: 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400' };
     return map[n];
   };
 
@@ -317,11 +317,11 @@ const Riesgos: React.FC = () => {
         <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 mb-4 border border-blue-200 dark:border-blue-800">
           <div className="flex items-center gap-2 mb-3">
             <Cloud className="w-4 h-4 text-blue-500" />
-            <h3 className="text-sm font-bold text-blue-700 dark:text-blue-300 truncate" title={t('riesgos.riesgos_climaticos', 'Riesgos Climáticos Detectados')}>
-              {t('riesgos.riesgos_climaticos', 'Riesgos Climáticos Detectados')}
+            <h3 className="text-sm font-bold text-blue-700 dark:text-blue-300 truncate" title={t('riesgos.riesgos_climaticos')}>
+              {t('riesgos.riesgos_climaticos')}
             </h3>
             <span className="text-xs px-2 py-0.5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-200 ml-auto">
-              {riesgosClimaticos.length} {t('riesgos.automaticos', 'automáticos')}
+              {riesgosClimaticos.length} {t('riesgos.automaticos')}
             </span>
           </div>
           <div className="space-y-2">
@@ -339,14 +339,14 @@ const Riesgos: React.FC = () => {
                   </div>
                   {yaRegistrado ? (
                     <span className="text-[10px] text-green-600 flex items-center gap-0.5 shrink-0">
-                      <CheckCircle className="w-3 h-3" /> {t('riesgos.registrado_ya', 'Registrado')}
+                      <CheckCircle className="w-3 h-3" /> {t('riesgos.registrado_ya')}
                     </span>
                   ) : (
                     <button
                       onClick={() => agregarRiesgoClimatico(rc.factor, rc.recommendation)}
                       className="text-[10px] px-2 py-1 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 shrink-0"
                     >
-                      + {t('riesgos.agregar', 'Agregar')}
+                      + {t('riesgos.agregar')}
                     </button>
                   )}
                 </div>
@@ -357,17 +357,17 @@ const Riesgos: React.FC = () => {
       )}
 
       {showForm && (
-        <div className="bg-amber-50 rounded-xl p-4 mb-4 border border-amber-200 space-y-2">
+        <div className="bg-amber-50 dark:bg-amber-950/40 rounded-xl p-4 mb-4 border border-amber-200 dark:border-amber-800 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <label htmlFor="riesgo-nombre" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.nombre_placeholder', 'Nombre del riesgo *')}</label>
-              <input id="riesgo-nombre" value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder={t('riesgos.nombre_placeholder', 'Nombre del riesgo *')} className={INPUT} aria-invalid={!!formErrors.nombre} />
+              <label htmlFor="riesgo-nombre" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.nombre_placeholder')}</label>
+              <input id="riesgo-nombre" value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder={t('riesgos.nombre_placeholder')} className={INPUT} aria-invalid={!!formErrors.nombre} />
               {formErrors.nombre && <p className="text-xs text-red-500 mt-0.5">{formErrors.nombre}</p>}
             </div>
             <div>
-              <label htmlFor="riesgo-proyecto" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.seleccionar_proyecto', 'Seleccionar proyecto *')}</label>
+              <label htmlFor="riesgo-proyecto" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.seleccionar_proyecto')}</label>
               <select id="riesgo-proyecto" value={form.proyectoId} onChange={e => setForm(p => ({ ...p, proyectoId: e.target.value }))} className={INPUT} aria-invalid={!!formErrors.proyectoId}>
-                <option value="">{t('riesgos.seleccionar_proyecto', 'Seleccionar proyecto *')}</option>
+                <option value="">{t('riesgos.seleccionar_proyecto')}</option>
                 {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
               </select>
               {formErrors.proyectoId && <p className="text-xs text-red-500 mt-0.5">{formErrors.proyectoId}</p>}
@@ -375,49 +375,49 @@ const Riesgos: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div>
-              <label htmlFor="riesgo-tipo" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.tipo', 'Tipo')}</label>
+              <label htmlFor="riesgo-tipo" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.tipo')}</label>
               <select id="riesgo-tipo" value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value as RTipo }))} className={INPUT}>
-                <option value="tecnico">{t('riesgos.tipo_tecnico', 'Técnico')}</option>
-                <option value="financiero">{t('riesgos.tipo_financiero', 'Financiero')}</option>
-                <option value="cronograma">{t('riesgos.tipo_cronograma', 'Cronograma')}</option>
-                <option value="legal">{t('riesgos.tipo_legal', 'Legal')}</option>
-                <option value="ambiental">{t('riesgos.tipo_ambiental', 'Ambiental')}</option>
-                <option value="seguridad">{t('riesgos.tipo_seguridad', 'Seguridad')}</option>
-                <option value="otro">{t('riesgos.tipo_otro', 'Otro')}</option>
+                <option value="tecnico">{t('riesgos.tipo_tecnico')}</option>
+                <option value="financiero">{t('riesgos.tipo_financiero')}</option>
+                <option value="cronograma">{t('riesgos.tipo_cronograma')}</option>
+                <option value="legal">{t('riesgos.tipo_legal')}</option>
+                <option value="ambiental">{t('riesgos.tipo_ambiental')}</option>
+                <option value="seguridad">{t('riesgos.tipo_seguridad')}</option>
+                <option value="otro">{t('riesgos.tipo_otro')}</option>
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <label htmlFor="riesgo-probabilidad" className="text-xs text-muted-foreground">{t('riesgos.probabilidad', 'Probabilidad')} (1-5)</label>
+              <label htmlFor="riesgo-probabilidad" className="text-xs text-muted-foreground">{t('riesgos.probabilidad')} (1-5)</label>
               <input id="riesgo-probabilidad" type="number" inputMode="decimal" min={1} max={5} value={form.probabilidad} onChange={e => setForm(p => ({ ...p, probabilidad: Math.min(5, Math.max(1, +e.target.value)) as RProb }))} className={INPUT} />
             </div>
             <div className="flex items-center gap-2">
-              <label htmlFor="riesgo-impacto" className="text-xs text-muted-foreground">{t('riesgos.impacto', 'Impacto')} (1-5)</label>
+              <label htmlFor="riesgo-impacto" className="text-xs text-muted-foreground">{t('riesgos.impacto')} (1-5)</label>
               <input id="riesgo-impacto" type="number" inputMode="decimal" min={1} max={5} value={form.impacto} onChange={e => setForm(p => ({ ...p, impacto: Math.min(5, Math.max(1, +e.target.value)) as RImp }))} className={INPUT} />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <label htmlFor="riesgo-descripcion" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.descripcion_placeholder', 'Descripción del riesgo')}</label>
-              <textarea id="riesgo-descripcion" value={form.descripcion} onChange={e => setForm(p => ({ ...p, descripcion: e.target.value }))} placeholder={t('riesgos.descripcion_placeholder', 'Descripción del riesgo')} className={`${INPUT} min-h-[60px]`} />
+              <label htmlFor="riesgo-descripcion" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.descripcion_placeholder')}</label>
+              <textarea id="riesgo-descripcion" value={form.descripcion} onChange={e => setForm(p => ({ ...p, descripcion: e.target.value }))} placeholder={t('riesgos.descripcion_placeholder')} className={`${INPUT} min-h-[60px]`} />
             </div>
             <div>
-              <label htmlFor="riesgo-mitigacion" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.mitigacion_placeholder', 'Plan de mitigación')}</label>
-              <textarea id="riesgo-mitigacion" value={form.planMitigacion} onChange={e => setForm(p => ({ ...p, planMitigacion: e.target.value }))} placeholder={t('riesgos.mitigacion_placeholder', 'Plan de mitigación')} className={`${INPUT} min-h-[60px]`} />
+              <label htmlFor="riesgo-mitigacion" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.mitigacion_placeholder')}</label>
+              <textarea id="riesgo-mitigacion" value={form.planMitigacion} onChange={e => setForm(p => ({ ...p, planMitigacion: e.target.value }))} placeholder={t('riesgos.mitigacion_placeholder')} className={`${INPUT} min-h-[60px]`} />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <label htmlFor="riesgo-responsable" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.responsable_placeholder', 'Responsable')}</label>
-              <input id="riesgo-responsable" value={form.responsable} onChange={e => setForm(p => ({ ...p, responsable: e.target.value }))} placeholder={t('riesgos.responsable_placeholder', 'Responsable')} className={INPUT} />
+              <label htmlFor="riesgo-responsable" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.responsable_placeholder')}</label>
+              <input id="riesgo-responsable" value={form.responsable} onChange={e => setForm(p => ({ ...p, responsable: e.target.value }))} placeholder={t('riesgos.responsable_placeholder')} className={INPUT} />
             </div>
             <div>
-              <label htmlFor="riesgo-costo" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.costo_soporte_placeholder', 'Costo estimado de soporte Q')}</label>
-              <input id="riesgo-costo" type="number" inputMode="decimal" value={form.costoSoporte || ''} onChange={e => setForm(p => ({ ...p, costoSoporte: +e.target.value }))} placeholder={t('riesgos.costo_soporte_placeholder', 'Costo estimado de soporte Q')} className={INPUT} />
+              <label htmlFor="riesgo-costo" className="text-xs text-muted-foreground mb-1 block">{t('riesgos.costo_soporte_placeholder')}</label>
+              <input id="riesgo-costo" type="number" inputMode="decimal" value={form.costoSoporte || ''} onChange={e => setForm(p => ({ ...p, costoSoporte: +e.target.value }))} placeholder={t('riesgos.costo_soporte_placeholder')} className={INPUT} />
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={agregar} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg text-xs font-semibold">{t('riesgos.registrar', 'Registrar Riesgo')}</button>
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground">{t('riesgos.cancelar', 'Cancelar')}</button>
+            <button onClick={agregar} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg text-xs font-semibold">{t('riesgos.registrar')}</button>
+            <button onClick={() => setShowForm(false)} className="px-4 py-2 border border-border rounded-lg text-xs text-muted-foreground">{t('riesgos.cancelar')}</button>
           </div>
         </div>
       )}
@@ -442,7 +442,7 @@ const Riesgos: React.FC = () => {
                 <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
                   <span>P:{r.probabilidad} I:{r.impacto} = {r.probabilidad * r.impacto}pts</span>
                   {r.responsable && <span className="flex items-center gap-1"><User className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {r.responsable}</span>}
-                  {r.costoSoporte ? <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> Q{r.costoSoporte.toLocaleString()}</span> : null}
+                  {r.costoSoporte ? <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> Q{fmtQ(r.costoSoporte)}</span> : null}
                   <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {r.fechaIdentificacion}</span>
                 </div>
                 {r.planMitigacion && <div className="mt-1 text-xs text-muted-foreground italic flex items-center gap-1"><Shield className="w-3 h-3 text-muted-foreground" aria-hidden="true" /> {r.planMitigacion}</div>}

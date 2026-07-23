@@ -1,0 +1,1001 @@
+[
+  {
+    "tablename": "erp_access_log",
+    "policyname": "access_log_delete",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_access_log",
+    "policyname": "access_log_update",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_activos",
+    "policyname": "activos_select",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_anticipos",
+    "policyname": "anticipos_auth_delete",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_anticipos",
+    "policyname": "anticipos_auth_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_anticipos",
+    "policyname": "anticipos_auth_select",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_anticipos",
+    "policyname": "anticipos_auth_update",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_api_keys",
+    "policyname": "api_keys_admin",
+    "cmd": "ALL",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_api_keys",
+    "policyname": "api_keys_delete_admin",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_api_keys",
+    "policyname": "api_keys_insert_admin",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_api_keys",
+    "policyname": "api_keys_select_admin",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_api_keys",
+    "policyname": "api_keys_update_admin",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_audit_log",
+    "policyname": "audit_log_delete",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_audit_log",
+    "policyname": "audit_log_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_audit_log",
+    "policyname": "audit_log_select",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_audit_log",
+    "policyname": "audit_log_update",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_bodega",
+    "policyname": "bodega_auth_delete",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_bodega",
+    "policyname": "bodega_auth_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_bodega",
+    "policyname": "bodega_auth_select",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_bodega",
+    "policyname": "bodega_auth_update",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_cajas_chicas",
+    "policyname": "cajas_auth_delete",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_cajas_chicas",
+    "policyname": "cajas_auth_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_cajas_chicas",
+    "policyname": "cajas_auth_select",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_cajas_chicas",
+    "policyname": "cajas_auth_update",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_calculos_proyecto",
+    "policyname": "erp_calculos_proyecto_select_admin_gerente",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_checklist",
+    "policyname": "checklist_auth_delete",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_checklist",
+    "policyname": "checklist_auth_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_checklist",
+    "policyname": "checklist_auth_select",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_checklist",
+    "policyname": "checklist_auth_update",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_comparaciones_calculos",
+    "policyname": "comparaciones_delete_admin",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_comparaciones_calculos",
+    "policyname": "comparaciones_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_comparaciones_calculos",
+    "policyname": "comparaciones_select_admin",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_comparaciones_calculos",
+    "policyname": "comparaciones_update_admin",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_configuracion",
+    "policyname": "configuracion_auth_delete",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_configuracion",
+    "policyname": "configuracion_auth_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_configuracion",
+    "policyname": "configuracion_auth_select",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_configuracion",
+    "policyname": "configuracion_auth_update",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_cotizaciones_negocio",
+    "policyname": "cotizaciones_negocio_delete_admin",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_cotizaciones_negocio",
+    "policyname": "cotizaciones_negocio_insert_auth",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_cotizaciones_negocio",
+    "policyname": "cotizaciones_negocio_read_all",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_cotizaciones_negocio",
+    "policyname": "cotizaciones_negocio_update_auth",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_cuadros",
+    "policyname": "cuadros_read",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_departamentos_gt",
+    "policyname": "Departamentos lectura pública",
+    "cmd": "SELECT",
+    "roles": "{public}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_departamentos_gt",
+    "policyname": "departamentos_gt_read_all",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_departamentos_gt",
+    "policyname": "departamentos_gt_select_authenticated",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_departamentos_gt",
+    "policyname": "erp_departamentos_gt_select_authenticated",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_departamentos_gt",
+    "policyname": "geo_select_all",
+    "cmd": "SELECT",
+    "roles": "{public}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_documentos",
+    "policyname": "documentos_auth_delete",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_documentos",
+    "policyname": "documentos_auth_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_documentos",
+    "policyname": "documentos_auth_select",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_documentos",
+    "policyname": "documentos_auth_update",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_escalas_produccion",
+    "policyname": "escalas_produccion_read_all",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_estacionalidad",
+    "policyname": "estacionalidad_read_all",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_insumos_base",
+    "policyname": "erp_insumos_base_select_authenticated",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_movimientos",
+    "policyname": "erp_movimientos_delete_authenticated",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_movimientos",
+    "policyname": "erp_movimientos_insert_authenticated",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_movimientos",
+    "policyname": "erp_movimientos_read_anon",
+    "cmd": "SELECT",
+    "roles": "{anon}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_movimientos",
+    "policyname": "erp_movimientos_read_authenticated",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_movimientos",
+    "policyname": "erp_movimientos_update_authenticated",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_municipios_gt",
+    "policyname": "Municipios lectura pública",
+    "cmd": "SELECT",
+    "roles": "{public}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_municipios_gt",
+    "policyname": "erp_municipios_gt_select_authenticated",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_municipios_gt",
+    "policyname": "geo_municipios_select_all",
+    "cmd": "SELECT",
+    "roles": "{public}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_municipios_gt",
+    "policyname": "municipios_gt_read_all",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_normativa_departamental",
+    "policyname": "normativa_departamental_read_all",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_notificaciones",
+    "policyname": "erp_notificaciones_delete_authenticated",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_notificaciones",
+    "policyname": "erp_notificaciones_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_notificaciones",
+    "policyname": "erp_notificaciones_insert_authenticated",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_notificaciones",
+    "policyname": "notificaciones_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_notificaciones",
+    "policyname": "erp_notificaciones_read_anon",
+    "cmd": "SELECT",
+    "roles": "{anon}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_notificaciones",
+    "policyname": "erp_notificaciones_read_authenticated",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_notificaciones",
+    "policyname": "erp_notificaciones_update_authenticated",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_pagos_proveedor",
+    "policyname": "pagos_proveedor_read",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_parametros_movimiento_tierra",
+    "policyname": "parametros_mt_delete_admin",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_parametros_movimiento_tierra",
+    "policyname": "parametros_mt_insert_admin",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_parametros_movimiento_tierra",
+    "policyname": "parametros_mt_update_admin",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_parametros_muros_contencion",
+    "policyname": "parametros_muros_delete_admin",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_parametros_muros_contencion",
+    "policyname": "parametros_muros_insert_admin",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_parametros_muros_contencion",
+    "policyname": "parametros_muros_update_admin",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_parametros_pavimentos",
+    "policyname": "parametros_pav_delete_admin",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_parametros_pavimentos",
+    "policyname": "parametros_pav_insert_admin",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_parametros_pavimentos",
+    "policyname": "parametros_pav_update_admin",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_parametros_redes_infraestructura",
+    "policyname": "parametros_redes_delete_admin",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_parametros_redes_infraestructura",
+    "policyname": "parametros_redes_insert_admin",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_parametros_redes_infraestructura",
+    "policyname": "parametros_redes_update_admin",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_permisos",
+    "policyname": "permisos_auth_delete",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_permisos",
+    "policyname": "permisos_auth_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_permisos",
+    "policyname": "permisos_auth_select",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_permisos",
+    "policyname": "permisos_auth_update",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_presupuestos",
+    "policyname": "erp_presupuestos_delete_authenticated",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_presupuestos",
+    "policyname": "erp_presupuestos_insert_authenticated",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_presupuestos",
+    "policyname": "erp_presupuestos_read_anon",
+    "cmd": "SELECT",
+    "roles": "{anon}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_presupuestos",
+    "policyname": "erp_presupuestos_read_authenticated",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_presupuestos",
+    "policyname": "erp_presupuestos_update_authenticated",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_proyectos",
+    "policyname": "erp_proyectos_delete_authenticated",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_proyectos",
+    "policyname": "erp_proyectos_insert_authenticated",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_proyectos",
+    "policyname": "erp_proyectos_read_anon",
+    "cmd": "SELECT",
+    "roles": "{anon}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_proyectos",
+    "policyname": "erp_proyectos_read_authenticated",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_proyectos",
+    "policyname": "erp_proyectos_update_authenticated",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_recepciones",
+    "policyname": "recepciones_read",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_reglas_factores",
+    "policyname": "reglas_factores_read_all",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_rendimientos_campo",
+    "policyname": "rendimientos_campo_auth_delete",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_rendimientos_campo",
+    "policyname": "rendimientos_campo_auth_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_rendimientos_campo",
+    "policyname": "rendimientos_campo_auth_select",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_rendimientos_campo",
+    "policyname": "rendimientos_campo_auth_update",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_snapshots_estado_calculo",
+    "policyname": "snapshots_calculo_delete_admin",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_snapshots_estado_calculo",
+    "policyname": "snapshots_calculo_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_snapshots_estado_calculo",
+    "policyname": "snapshots_calculo_select_admin",
+    "cmd": "SELECT",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_snapshots_estado_calculo",
+    "policyname": "snapshots_calculo_update_admin",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  },
+  {
+    "tablename": "erp_subtipologias",
+    "policyname": "subtipologias_delete",
+    "cmd": "DELETE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": null,
+    "reason": "using_true"
+  },
+  {
+    "tablename": "erp_subtipologias",
+    "policyname": "subtipologias_insert",
+    "cmd": "INSERT",
+    "roles": "{authenticated}",
+    "qual": null,
+    "with_check": "true",
+    "reason": "check_true"
+  },
+  {
+    "tablename": "erp_subtipologias",
+    "policyname": "subtipologias_update",
+    "cmd": "UPDATE",
+    "roles": "{authenticated}",
+    "qual": "true",
+    "with_check": "true",
+    "reason": "using_true,check_true"
+  }
+]

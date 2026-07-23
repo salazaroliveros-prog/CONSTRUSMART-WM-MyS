@@ -425,26 +425,26 @@ const PlantillasProyectos: React.FC = () => {
         <div className="flex gap-2">
           <button
             onClick={() => setShowGlobalDashboard(true)}
-            className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-muted"
+            className="flex items-center gap-2 px-4 py-2 border border-border rounded-md hover:bg-muted text-foreground"
           >
             <BarChart3 className="h-4 w-4" />
             {t('plantillas.dashboard_global_btn')}
           </button>
           <button
             onClick={() => setModoSeleccion(!modoSeleccion)}
-            className={`flex items-center gap-2 px-4 py-2 border rounded-md ${modoSeleccion ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+            className={`flex items-center gap-2 px-4 py-2 border border-border rounded-md ${modoSeleccion ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-foreground'}`}
           >
             <CheckSquare2 className="h-4 w-4" />
             {modoSeleccion ? t('plantillas.cancelar_seleccion_btn') : t('plantillas.modo_seleccion_btn')}
           </button>
           <button
             onClick={() => setVistaLista(!vistaLista)}
-            className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-muted"
+            className="flex items-center gap-2 px-4 py-2 border border-border rounded-md hover:bg-muted text-foreground"
             title={vistaLista ? t('plantillas.vista_cuadricula') : t('plantillas.vista_lista')}
           >
             {vistaLista ? <Grid3x3 className="h-4 w-4" /> : <List className="h-4 w-4" />}
           </button>
-          <label className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-muted cursor-pointer">
+          <label className="flex items-center gap-2 px-4 py-2 border border-border rounded-md hover:bg-muted cursor-pointer text-foreground">
             <Upload className="h-4 w-4" />
             {t('plantillas.importar_btn', 'Importar')}
             <input
@@ -505,7 +505,7 @@ const PlantillasProyectos: React.FC = () => {
             placeholder={t('plantillas.buscar_placeholder')}
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border rounded-md text-sm"
+              className="w-full pl-9 pr-3 py-2 border border-border rounded-md text-sm bg-background text-foreground"
               aria-label={t('plantillas.buscar_placeholder')}
             />
             {busqueda && (
@@ -525,7 +525,7 @@ const PlantillasProyectos: React.FC = () => {
           <select
             value={ordenamiento}
             onChange={(e) => setOrdenamiento(e.target.value as string)}
-            className="px-3 py-1 border rounded-md text-sm"
+            className="px-3 py-1 border border-border rounded-md text-sm bg-background text-foreground"
               aria-label={t('plantillas.criterio_orden_aria')}
           >
             <option value="fecha">{t('plantillas.fecha_header')}</option>
@@ -638,7 +638,7 @@ const PlantillasProyectos: React.FC = () => {
           </button>
         </div>
       ) : vistaLista ? (
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border border-border rounded-xl overflow-hidden">
           <table className="w-full" role="table" aria-label="Lista de plantillas">
             <thead className="bg-muted">
               <tr>
@@ -665,7 +665,7 @@ const PlantillasProyectos: React.FC = () => {
               {plantillasFiltradas.map(plantilla => {
                 const catInfo = CATEGORIAS.find(c => c.key === plantilla.categoria) || CATEGORIAS[0];
                 return (
-                  <tr key={plantilla.id} className="border-t hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="row">
+                  <tr key={plantilla.id} className="border-t border-border hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring" tabIndex={0} role="row">
                     {modoSeleccion && (
                       <td className="px-4 py-3">
                         <input
@@ -695,7 +695,7 @@ const PlantillasProyectos: React.FC = () => {
                       v{plantilla.version}
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">
-                      {new Date(plantilla.createdAt).toLocaleDateString()}
+                      {new Date(plantilla.createdAt).toLocaleDateString('es-GT')}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1">
@@ -849,7 +849,7 @@ const PlantillasProyectos: React.FC = () => {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                   <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    <span>{new Date(plantilla.createdAt).toLocaleDateString()}</span>
+                    <span>{new Date(plantilla.createdAt).toLocaleDateString('es-GT')}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <TrendingUp className="h-3 w-3" />
@@ -1043,7 +1043,7 @@ const PlantillasProyectos: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-muted-foreground">{t('plantillas.creada_colon')}</span>
-                    <span className="ml-2">{new Date(previewPlantilla.createdAt).toLocaleDateString()}</span>
+                    <span className="ml-2">{new Date(previewPlantilla.createdAt).toLocaleDateString('es-GT')}</span>
                   </div>
                 </div>
               </div>

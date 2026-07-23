@@ -1,0 +1,14 @@
+[
+  {
+    "table_name": "erp_error_log_recent"
+  },
+  {
+    "table_name": "erp_error_log_stats"
+  },
+  {
+    "table_name": "erp_incidentes_sso"
+  },
+  {
+    "table_name": "v_slow_queries"
+  }
+]

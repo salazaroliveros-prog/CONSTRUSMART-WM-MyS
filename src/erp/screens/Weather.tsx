@@ -492,10 +492,10 @@ const Weather: React.FC = () => {
               <div className="flex items-start gap-3">
                 {getImpactIcon(impact.level)}
                 <div className="flex-1">
-                  <h3 className="font-semibold mb-2 truncate" title={t('weather.alert_title', 'Alerta Climática')}>{t('weather.alert_title', 'Alerta Climática')}</h3>
+                  <h3 className="font-semibold mb-2 truncate" title={t('weather.alert_title')}>{t('weather.alert_title')}</h3>
                   <div className="space-y-2">
                     <div>
-                      <span className="text-sm font-medium">{t('weather.factors', 'Factores')}:</span>
+                      <span className="text-sm font-medium">{t('weather.factors')}:</span>
                       <ul className="text-sm text-muted-foreground list-disc list-inside">
                         {impact.factors.map((factor, i) => (
                           <li key={i}>{factor}</li>
@@ -503,7 +503,7 @@ const Weather: React.FC = () => {
                       </ul>
                     </div>
                     <div>
-                      <span className="text-sm font-medium">{t('weather.recommendations', 'Recomendaciones')}:</span>
+                      <span className="text-sm font-medium">{t('weather.recommendations')}:</span>
                       <ul className="text-sm text-muted-foreground list-disc list-inside">
                         {impact.recommendations.map((rec, i) => (
                           <li key={i}>{rec}</li>
@@ -518,8 +518,8 @@ const Weather: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <CARD>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.current_conditions', 'Condiciones Actuales')}>{t('weather.current_conditions', 'Condiciones Actuales')}</h3>
+              <div className="flex items-center justify-between mb-4 min-w-0">
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.current_conditions')}>{t('weather.current_conditions')}</h3>
                 {currentWeather?.weather[0] && (
                   <img
                     src={getWeatherIconUrl(currentWeather.weather[0].icon)}
@@ -532,14 +532,14 @@ const Weather: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Sun className="w-4 h-4 text-yellow-500" aria-hidden="true" />
                   <div>
-                    <div className="text-xs text-muted-foreground">{t('weather.condition', 'Condición')}</div>
+                    <div className="text-xs text-muted-foreground">{t('weather.condition')}</div>
                     <div className="font-medium">{formatWeatherDescription(currentWeather?.weather[0]?.description || '')}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-blue-500" aria-hidden="true" />
                   <div>
-                    <div className="text-xs text-muted-foreground">{t('weather.last_update', 'Última actualización')}</div>
+                    <div className="text-xs text-muted-foreground">{t('weather.last_update')}</div>
                     <div className="font-medium">{weather.lastUpdated ? new Date(weather.lastUpdated).toLocaleTimeString() : '-'}</div>
                   </div>
                 </div>
@@ -547,13 +547,13 @@ const Weather: React.FC = () => {
             </CARD>
 
             <CARD>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.settings', 'Configuración')}>{t('weather.settings', 'Configuración')}</h3>
+              <div className="flex items-center justify-between mb-4 min-w-0">
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.settings')}>{t('weather.settings')}</h3>
                 <Settings className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">{t('weather.auto_refresh', 'Actualización automática')}</span>
+                  <span className="text-sm">{t('weather.auto_refresh')}</span>
                   <button
                     onClick={() => setAutoRefresh(!autoRefresh)}
                     className={`p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0 ${autoRefresh ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'}`}
@@ -563,17 +563,17 @@ const Weather: React.FC = () => {
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">{t('weather.alert_threshold', 'Umbral de alertas')}</span>
+                  <span className="text-sm">{t('weather.alert_threshold')}</span>
                   <select
                     value={alertThreshold}
                     onChange={(e) => setAlertThreshold(e.target.value as unknown)}
                     className="text-xs px-2 py-1 rounded border border-border bg-card focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0"
                     aria-label="Alert threshold"
                   >
-                    <option value="low">{t('weather.level.low', 'Bajo')}</option>
-                    <option value="medium">{t('weather.level.medium', 'Medio')}</option>
-                    <option value="high">{t('weather.level.high', 'Alto')}</option>
-                    <option value="critical">{t('weather.level.critical', 'Crítico')}</option>
+                    <option value="low">{t('weather.level.low')}</option>
+                    <option value="medium">{t('weather.level.medium')}</option>
+                    <option value="high">{t('weather.level.high')}</option>
+                    <option value="critical">{t('weather.level.critical')}</option>
                   </select>
                 </div>
               </div>
@@ -582,8 +582,8 @@ const Weather: React.FC = () => {
 
           {showConstruction && metrics && (
             <CARD>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.construction_metrics', 'Métricas de Construcción')}>{t('weather.construction_metrics', 'Métricas de Construcción')}</h3>
+              <div className="flex items-center justify-between mb-4 min-w-0">
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.construction_metrics')}>{t('weather.construction_metrics')}</h3>
                 <button
                   onClick={() => setShowConstruction(!showConstruction)}
                   className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0"
@@ -682,8 +682,8 @@ const Weather: React.FC = () => {
 
           {showHistory && weather?.history && weather.history.length > 1 && (
             <CARD>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.history_chart', 'Historial Climático')}>{t('weather.history_chart', 'Historial Climático')}</h3>
+              <div className="flex items-center justify-between mb-4 min-w-0">
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.history_chart')}>{t('weather.history_chart')}</h3>
                 <button
                   onClick={() => setShowHistory(!showHistory)}
                   className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0"
@@ -698,8 +698,8 @@ const Weather: React.FC = () => {
 
           {showScheduling && scheduling.length > 0 && (
             <CARD>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.scheduling_windows', 'Ventanas de Programación')}>{t('weather.scheduling_windows', 'Ventanas de Programación')}</h3>
+              <div className="flex items-center justify-between mb-4 min-w-0">
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.scheduling_windows')}>{t('weather.scheduling_windows')}</h3>
                 <button
                   onClick={() => setShowScheduling(!showScheduling)}
                   className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0"
@@ -751,8 +751,8 @@ const Weather: React.FC = () => {
 
           {showDetails && groupedForecast.length > 0 && (
             <CARD>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.forecast', 'Pronóstico')}>{t('weather.forecast', 'Pronóstico')}</h3>
+              <div className="flex items-center justify-between mb-4 min-w-0">
+                <h3 className={`${CARD_TITLE} truncate`} title={t('weather.forecast')}>{t('weather.forecast')}</h3>
                 <button
                   onClick={() => setShowDetails(!showDetails)}
                   className="p-1.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus-visible:ring-ring focus:ring-0"
@@ -977,7 +977,7 @@ const WeatherHistoryChart: React.FC<{ history: WeatherHistoryItem[] }> = ({ hist
 
           {proyectos.length > 1 && (
             <div className="mt-6">
-              <h3 className={SECTION_TITLE} title={t('weather.multi_project_comparison', 'Comparación multi-proyecto')}>{t('weather.multi_project_comparison', 'Comparación multi-proyecto')}</h3>
+              <h3 className={SECTION_TITLE} title={t('weather.multi_project_comparison')}>{t('weather.multi_project_comparison')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {proyectos.map((p) => {
                   const pw = proyectoWeather.find(w => w.proyectoId === p.id);

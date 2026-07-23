@@ -117,7 +117,7 @@ export const PlanillaDestajos: React.FC = () => {
         <div>
           <h1 className="text-xl font-bold text-foreground"><ClipboardList className="w-5 h-5 inline" aria-hidden="true" /> {t('planilla.titulo')} — {t('planilla_destajos.pago_semanal')}</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {semanaInicio.toLocaleDateString()} — {semanaFin.toLocaleDateString()}
+            {semanaInicio.toLocaleDateString('es-GT')} — {semanaFin.toLocaleDateString('es-GT')}
           </p>
         </div>
         <button onClick={() => { setShowForm(true); setFormErrors({}); }}
@@ -167,7 +167,7 @@ export const PlanillaDestajos: React.FC = () => {
           </thead>
           <tbody>
             {planilla.map(p => (
-              <tr key={p.key} className="border-t hover:bg-muted/50">
+              <tr key={p.key} className="border-t border-border hover:bg-muted/50">
                 <td className="p-2 font-medium text-foreground">
                   <span className="truncate block" title={p.cuadrilla}>{p.cuadrilla}</span>
                   <div className="text-xs text-muted-foreground truncate">{p.renglones.join(', ')}</div>
@@ -216,7 +216,7 @@ export const PlanillaDestajos: React.FC = () => {
               </thead>
               <tbody>
                 {destajosSemana.map(d => (
-                  <tr key={d.id} className="border-t hover:bg-muted/50">
+                  <tr key={d.id} className="border-t border-border hover:bg-muted/50">
                     <td className="p-2 font-medium text-foreground">{d.cuadrilla}</td>
                     <td className="p-2 text-muted-foreground">{d.renglonCodigo}</td>
                     <td className="p-2 text-muted-foreground">{proyectos.find(p => p.id === d.proyectoId)?.nombre || '—'}</td>
@@ -329,11 +329,11 @@ export const PlanillaDestajos: React.FC = () => {
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSubmitForm}
-                  className="flex-1 bg-green-600 text-white py-2 rounded text-sm hover:bg-green-700">
-                  <CheckCircle className="w-4 h-4" aria-hidden="true" /> {t('planilla_destajos.guardar_destajo')}
+                  className="flex-1 bg-primary text-primary-foreground py-2 rounded-lg text-sm hover:bg-primary/90 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <CheckCircle className="w-4 h-4 inline mr-1" aria-hidden="true" /> {t('planilla_destajos.guardar_destajo')}
                 </button>
                 <button onClick={() => setShowForm(false)}
-                  className="px-4 py-2 border rounded text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  className="px-4 py-2 border border-border rounded-lg text-sm hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground">
                   {t('planilla_destajos.cancelar')}
                 </button>
               </div>

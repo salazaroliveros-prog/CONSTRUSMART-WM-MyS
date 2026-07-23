@@ -159,14 +159,14 @@ const SSOCalidad: React.FC = () => {
       detectadoPor: ncForm.detectadoPor,
       estado: 'detectado',
     });
-    toast.success(t('sso_calidad.nc_registrada', { codigo }));
+    toast.success(t('sso_calidad.nc_registrada'));
     setShowNCForm(false);
     setNcForm({ descripcion: '', categoria: 'material', detectadoPor: '' });
   };
 
   const actualizarEstadoNC = (id: string, estado: NoConformidad['estado'], planAccion?: string) => {
     updateNC(id, { estado, ...(planAccion ? { planAccion } : {}), ...(estado === 'cerrado' ? { fechaCierre: todayISO() } : {}) });
-    toast.success(t('sso_calidad.nc_actualizada', { estado }));
+    toast.success(t('sso_calidad.nc_actualizada'));
   };
 
   // === LIBERACION FORM ===
@@ -558,13 +558,13 @@ const SSOCalidad: React.FC = () => {
           </div>
 
           {showPruebaForm && (
-            <div className="bg-purple-50 rounded-xl p-4 mb-4 border border-purple-200 space-y-2">
+            <div className="bg-purple-50 dark:bg-purple-950/30 rounded-xl p-4 mb-4 border border-purple-200 dark:border-purple-800 space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <select
                     value={pruebaForm.tipo}
                     onChange={e => { setPruebaForm(prev => ({ ...prev, tipo: e.target.value as PruebaLaboratorio['tipo'] })); clearSsError('tipo'); }}
-                    className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-purple-400 ${ssFormErrors.tipo ? 'border-red-500 bg-red-50' : 'border-purple-200'}`}
+                    className={`w-full px-3 py-2 rounded-lg border text-xs outline-none focus:border-purple-400 bg-background text-foreground ${ssFormErrors.tipo ? 'border-red-500' : 'border-purple-200 dark:border-purple-700'}`}
                   >
                     <option value="concreto">{t('sso_calidad.tipo_concreto', 'Concreto')}</option>
                     <option value="suelos">{t('sso_calidad.tipo_suelos', 'Suelos')}</option>
@@ -579,7 +579,7 @@ const SSOCalidad: React.FC = () => {
                     value={pruebaForm.responsable}
                     onChange={e => { setPruebaForm(prev => ({ ...prev, responsable: e.target.value })); clearSsError('responsable'); }}
                     placeholder={t('sso_calidad.responsable_placeholder', 'Responsable')}
-                    className={`w-full px-3 py-2 rounded-lg text-xs outline-none focus:border-purple-400 ${ssFormErrors.responsable ? 'border-red-500 bg-red-50' : 'border-purple-200 border'}`}
+                    className={`w-full px-3 py-2 rounded-lg text-xs outline-none focus:border-purple-400 bg-background text-foreground ${ssFormErrors.responsable ? 'border-red-500' : 'border-purple-200 dark:border-purple-700 border'}`}
                   />
                   {ssFormErrors.responsable && <p className="text-xs text-red-500 mt-1">{ssFormErrors.responsable}</p>}
                 </div>
@@ -589,7 +589,7 @@ const SSOCalidad: React.FC = () => {
                   value={pruebaForm.descripcion}
                   onChange={e => { setPruebaForm(prev => ({ ...prev, descripcion: e.target.value })); clearSsError('descripcion'); }}
                   placeholder={t('sso_calidad.descripcion_prueba_placeholder', 'Descripción de la prueba (ej: Resistencia concreto 28 días)')}
-                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-purple-400 ${ssFormErrors.descripcion ? 'border-red-500 bg-red-50' : 'border-purple-200 border'}`}
+                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-purple-400 bg-background text-foreground ${ssFormErrors.descripcion ? 'border-red-500' : 'border-purple-200 dark:border-purple-700 border'}`}
                 />
                 {ssFormErrors.descripcion && <p className="text-xs text-red-500 mt-1">{ssFormErrors.descripcion}</p>}
               </div>
@@ -751,13 +751,13 @@ const SSOCalidad: React.FC = () => {
           </div>
 
           {showLibForm && (
-            <div className="bg-emerald-50 rounded-xl p-4 mb-4 border border-emerald-200 space-y-2">
+            <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-xl p-4 mb-4 border border-emerald-200 dark:border-emerald-800 space-y-2">
               <div>
                 <input
                   value={libForm.renglonNombre}
                   onChange={e => { setLibForm(prev => ({ ...prev, renglonNombre: e.target.value })); clearSsError('renglonNombre'); }}
                   placeholder={t('sso_calidad.renglon_placeholder', 'Actividad / Partida a liberar')}
-                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 ${ssFormErrors.renglonNombre ? 'border-red-500 bg-red-50' : 'border-emerald-200 border'}`}
+                  className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 bg-background text-foreground ${ssFormErrors.renglonNombre ? 'border-red-500' : 'border-emerald-200 dark:border-emerald-700 border'}`}
                 />
                 {ssFormErrors.renglonNombre && <p className="text-xs text-red-500 mt-1">{ssFormErrors.renglonNombre}</p>}
               </div>
@@ -767,7 +767,7 @@ const SSOCalidad: React.FC = () => {
                     value={libForm.solicitante}
                     onChange={e => { setLibForm(prev => ({ ...prev, solicitante: e.target.value })); clearSsError('solicitante'); }}
                     placeholder={t('sso_calidad.solicitante_placeholder', 'Solicitante')}
-                    className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 ${ssFormErrors.solicitante ? 'border-red-500 bg-red-50' : 'border-emerald-200 border'}`}
+                    className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 bg-background text-foreground ${ssFormErrors.solicitante ? 'border-red-500' : 'border-emerald-200 dark:border-emerald-700 border'}`}
                   />
                   {ssFormErrors.solicitante && <p className="text-xs text-red-500 mt-1">{ssFormErrors.solicitante}</p>}
                 </div>
@@ -776,7 +776,7 @@ const SSOCalidad: React.FC = () => {
                     value={libForm.supervisor}
                     onChange={e => { setLibForm(prev => ({ ...prev, supervisor: e.target.value })); clearSsError('supervisor'); }}
                     placeholder={t('sso_calidad.supervisor_placeholder', 'Supervisor')}
-                    className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 ${ssFormErrors.supervisor ? 'border-red-500 bg-red-50' : 'border-emerald-200 border'}`}
+                    className={`w-full px-3 py-2 text-xs rounded-lg outline-none focus:border-emerald-400 bg-background text-foreground ${ssFormErrors.supervisor ? 'border-red-500' : 'border-emerald-200 dark:border-emerald-700 border'}`}
                   />
                   {ssFormErrors.supervisor && <p className="text-xs text-red-500 mt-1">{ssFormErrors.supervisor}</p>}
                 </div>

@@ -16,9 +16,9 @@ const mensajeSchema = z.object({
 type TipoPublicacion = 'avance' | 'calidad' | 'seguridad' | 'general';
 
 const TIPOS: Record<TipoPublicacion, { label: string; color: string }> = {
-  avance: { label: 'Avance', color: 'text-blue-600' },
-  calidad: { label: 'Calidad', color: 'text-emerald-600' },
-  seguridad: { label: 'Seguridad', color: 'text-red-600' },
+  avance: { label: 'Avance', color: 'text-blue-600 dark:text-blue-400' },
+  calidad: { label: 'Calidad', color: 'text-emerald-600 dark:text-emerald-400' },
+  seguridad: { label: 'Seguridad', color: 'text-red-600 dark:text-red-400' },
   general: { label: 'General', color: 'text-slate-500 dark:text-slate-400' },
 };
 
@@ -127,10 +127,10 @@ const MuroObra: React.FC = () => {
               </div>
               <p className="text-sm text-foreground whitespace-pre-wrap mb-3">{pub.texto}</p>
               <div className="flex items-center gap-3">
-                <button onClick={() => likePublicacionMuro(pub.id)} aria-label={t('muro.like', 'Me gusta')} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <button onClick={() => likePublicacionMuro(pub.id)} aria-label={t('muro.like', 'Me gusta')} className="flex items-center gap-1 text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Heart className="w-4 h-4" aria-hidden="true" /> {pub.likes}
                 </button>
-                <button onClick={() => {}} aria-label={t('muro.comentar', 'Comentar')} className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <button onClick={() => {}} aria-label={t('muro.comentar', 'Comentar')} className="flex items-center gap-1 text-xs text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <MessageCircle className="w-4 h-4" aria-hidden="true" /> {pub.comentarios.length}
                 </button>
               </div>

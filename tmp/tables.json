@@ -1,0 +1,242 @@
+[
+  {
+    "table_name": "amortizaciones"
+  },
+  {
+    "table_name": "anticipos"
+  },
+  {
+    "table_name": "cotizaciones_negocio"
+  },
+  {
+    "table_name": "destajos"
+  },
+  {
+    "table_name": "erp_access_log"
+  },
+  {
+    "table_name": "erp_activos"
+  },
+  {
+    "table_name": "erp_ajustes_estacionales_actividad"
+  },
+  {
+    "table_name": "erp_anticipos"
+  },
+  {
+    "table_name": "erp_api_keys"
+  },
+  {
+    "table_name": "erp_aplicacion_escalas"
+  },
+  {
+    "table_name": "erp_archivos_tipo"
+  },
+  {
+    "table_name": "erp_audit_log"
+  },
+  {
+    "table_name": "erp_auditoria"
+  },
+  {
+    "table_name": "erp_avances"
+  },
+  {
+    "table_name": "erp_bitacora"
+  },
+  {
+    "table_name": "erp_bodega"
+  },
+  {
+    "table_name": "erp_cajas_chicas"
+  },
+  {
+    "table_name": "erp_calculos_proyecto"
+  },
+  {
+    "table_name": "erp_centros_costo"
+  },
+  {
+    "table_name": "erp_checklist"
+  },
+  {
+    "table_name": "erp_comparaciones_calculos"
+  },
+  {
+    "table_name": "erp_configuracion"
+  },
+  {
+    "table_name": "erp_cotizaciones_negocio"
+  },
+  {
+    "table_name": "erp_cuadros"
+  },
+  {
+    "table_name": "erp_cuentas_cobrar"
+  },
+  {
+    "table_name": "erp_cuentas_pagar"
+  },
+  {
+    "table_name": "erp_cumplimiento_normativo"
+  },
+  {
+    "table_name": "erp_departamentos_gt"
+  },
+  {
+    "table_name": "erp_destajos"
+  },
+  {
+    "table_name": "erp_documentos"
+  },
+  {
+    "table_name": "erp_dosificaciones_concreto"
+  },
+  {
+    "table_name": "erp_empleados"
+  },
+  {
+    "table_name": "erp_error_log"
+  },
+  {
+    "table_name": "erp_escalas_produccion"
+  },
+  {
+    "table_name": "erp_estacionalidad"
+  },
+  {
+    "table_name": "erp_eventos_calendario"
+  },
+  {
+    "table_name": "erp_historial_aplicacion_reglas"
+  },
+  {
+    "table_name": "erp_hitos"
+  },
+  {
+    "table_name": "erp_incidentes"
+  },
+  {
+    "table_name": "erp_insumos_base"
+  },
+  {
+    "table_name": "erp_liberaciones_partida"
+  },
+  {
+    "table_name": "erp_licitaciones"
+  },
+  {
+    "table_name": "erp_materiales"
+  },
+  {
+    "table_name": "erp_movimientos"
+  },
+  {
+    "table_name": "erp_municipios_gt"
+  },
+  {
+    "table_name": "erp_no_conformidades"
+  },
+  {
+    "table_name": "erp_normativa_departamental"
+  },
+  {
+    "table_name": "erp_notificaciones"
+  },
+  {
+    "table_name": "erp_ordenes_cambio"
+  },
+  {
+    "table_name": "erp_ordenes_compra"
+  },
+  {
+    "table_name": "erp_pagos_proveedor"
+  },
+  {
+    "table_name": "erp_parametros_movimiento_tierra"
+  },
+  {
+    "table_name": "erp_parametros_muros_contencion"
+  },
+  {
+    "table_name": "erp_parametros_pavimentos"
+  },
+  {
+    "table_name": "erp_parametros_redes_infraestructura"
+  },
+  {
+    "table_name": "erp_permisos"
+  },
+  {
+    "table_name": "erp_planos"
+  },
+  {
+    "table_name": "erp_plantillas_proyectos"
+  },
+  {
+    "table_name": "erp_presupuestos"
+  },
+  {
+    "table_name": "erp_proveedores"
+  },
+  {
+    "table_name": "erp_proyecto_weather"
+  },
+  {
+    "table_name": "erp_proyectos"
+  },
+  {
+    "table_name": "erp_pruebas_laboratorio"
+  },
+  {
+    "table_name": "erp_publicaciones_muro"
+  },
+  {
+    "table_name": "erp_recepciones"
+  },
+  {
+    "table_name": "erp_recepciones_almacen"
+  },
+  {
+    "table_name": "erp_reglas_factores"
+  },
+  {
+    "table_name": "erp_rendimientos_campo"
+  },
+  {
+    "table_name": "erp_rfis"
+  },
+  {
+    "table_name": "erp_riesgos"
+  },
+  {
+    "table_name": "erp_seguimiento"
+  },
+  {
+    "table_name": "erp_snapshots_estado_calculo"
+  },
+  {
+    "table_name": "erp_solicitudes"
+  },
+  {
+    "table_name": "erp_submittals"
+  },
+  {
+    "table_name": "erp_subtipologias"
+  },
+  {
+    "table_name": "erp_vales_salida"
+  },
+  {
+    "table_name": "erp_ventas_paquetes"
+  },
+  {
+    "table_name": "final_dept_count"
+  },
+  {
+    "table_name": "final_muni_count"
+  },
+  {
+    "table_name": "profiles"
+  }
+]

@@ -1,0 +1,402 @@
+[
+  {
+    "relname": "amortizaciones",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "anticipos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "cotizaciones_negocio",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "destajos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_access_log",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_activos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_ajustes_estacionales_actividad",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_anticipos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_api_keys",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_aplicacion_escalas",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_archivos_tipo",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_audit_log",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_auditoria",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_avances",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_bitacora",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_bodega",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_cajas_chicas",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_calculos_proyecto",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_centros_costo",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_checklist",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_comparaciones_calculos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_configuracion",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_cotizaciones_negocio",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_cuadros",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_cuentas_cobrar",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_cuentas_pagar",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_cumplimiento_normativo",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_departamentos_gt",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_destajos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_documentos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_dosificaciones_concreto",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_empleados",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_error_log",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_escalas_produccion",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_estacionalidad",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_eventos_calendario",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_historial_aplicacion_reglas",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_hitos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_incidentes",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_insumos_base",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_liberaciones_partida",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_licitaciones",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_materiales",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_movimientos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_municipios_gt",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_no_conformidades",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_normativa_departamental",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_notificaciones",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_ordenes_cambio",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_ordenes_compra",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_pagos_proveedor",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_parametros_movimiento_tierra",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_parametros_muros_contencion",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_parametros_pavimentos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_parametros_redes_infraestructura",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_permisos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_planos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_plantillas_proyectos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_presupuestos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_proveedores",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_proyecto_weather",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_proyectos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_pruebas_laboratorio",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_publicaciones_muro",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_recepciones",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_recepciones_almacen",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_reglas_factores",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_rendimientos_campo",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_rfis",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_riesgos",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_seguimiento",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_snapshots_estado_calculo",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_solicitudes",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_submittals",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_subtipologias",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_vales_salida",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "erp_ventas_paquetes",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "final_dept_count",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "final_muni_count",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  },
+  {
+    "relname": "profiles",
+    "relrowsecurity": true,
+    "relforcerowsecurity": false
+  }
+]

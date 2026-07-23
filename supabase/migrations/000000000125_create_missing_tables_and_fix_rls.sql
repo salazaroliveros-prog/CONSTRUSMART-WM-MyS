@@ -1,6 +1,7 @@
 -- ============================================================
 -- MIGRACIÓN: Crear tablas faltantes y corregir políticas RLS
 -- Generado por auditoría remota - 2026-07-18
+-- CORREGIDO: Ahora es idempotente para poder aplicarse en remoto
 -- ============================================================
 
 -- 1. TABLAS FALTANTES DEL MOTOR DE CÁLCULO
@@ -220,58 +221,78 @@ ALTER TABLE IF EXISTS erp_api_keys ENABLE ROW LEVEL SECURITY;
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'erp_dosificaciones_concreto') THEN
-    CREATE POLICY "dosificaciones_concreto_read_all" ON erp_dosificaciones_concreto FOR SELECT TO authenticated USING (activo = true);
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'erp_dosificaciones_concreto' AND cmd = 'SELECT' AND policyname = 'dosificaciones_concreto_read_all') THEN
+      CREATE POLICY "dosificaciones_concreto_read_all" ON erp_dosificaciones_concreto FOR SELECT TO authenticated USING (activo = true);
+    END IF;
   END IF;
 END $$;
 
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'erp_parametros_movimiento_tierra') THEN
-    CREATE POLICY "parametros_movimiento_tierra_read_all" ON erp_parametros_movimiento_tierra FOR SELECT TO authenticated USING (activo = true);
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'erp_parametros_movimiento_tierra' AND cmd = 'SELECT' AND policyname = 'parametros_movimiento_tierra_read_all') THEN
+      CREATE POLICY "parametros_movimiento_tierra_read_all" ON erp_parametros_movimiento_tierra FOR SELECT TO authenticated USING (activo = true);
+    END IF;
   END IF;
 END $$;
 
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'erp_parametros_pavimentos') THEN
-    CREATE POLICY "parametros_pavimentos_read_all" ON erp_parametros_pavimentos FOR SELECT TO authenticated USING (activo = true);
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'erp_parametros_pavimentos' AND cmd = 'SELECT' AND policyname = 'parametros_pavimentos_read_all') THEN
+      CREATE POLICY "parametros_pavimentos_read_all" ON erp_parametros_pavimentos FOR SELECT TO authenticated USING (activo = true);
+    END IF;
   END IF;
 END $$;
 
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'erp_parametros_redes_infraestructura') THEN
-    CREATE POLICY "parametros_redes_read_all" ON erp_parametros_redes_infraestructura FOR SELECT TO authenticated USING (activo = true);
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'erp_parametros_redes_infraestructura' AND cmd = 'SELECT' AND policyname = 'parametros_redes_read_all') THEN
+      CREATE POLICY "parametros_redes_read_all" ON erp_parametros_redes_infraestructura FOR SELECT TO authenticated USING (activo = true);
+    END IF;
   END IF;
 END $$;
 
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'erp_parametros_muros_contencion') THEN
-    CREATE POLICY "parametros_muros_read_all" ON erp_parametros_muros_contencion FOR SELECT TO authenticated USING (activo = true);
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'erp_parametros_muros_contencion' AND cmd = 'SELECT' AND policyname = 'parametros_muros_read_all') THEN
+      CREATE POLICY "parametros_muros_read_all" ON erp_parametros_muros_contencion FOR SELECT TO authenticated USING (activo = true);
+    END IF;
   END IF;
 END $$;
 
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'erp_snapshots_estado_calculo') THEN
-    CREATE POLICY "snapshots_calculo_read" ON erp_snapshots_estado_calculo FOR SELECT TO authenticated USING (true);
-    CREATE POLICY "snapshots_calculo_insert" ON erp_snapshots_estado_calculo FOR INSERT TO authenticated WITH CHECK (true);
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'erp_snapshots_estado_calculo' AND cmd = 'SELECT' AND policyname = 'snapshots_calculo_read') THEN
+      CREATE POLICY "snapshots_calculo_read" ON erp_snapshots_estado_calculo FOR SELECT TO authenticated USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'erp_snapshots_estado_calculo' AND cmd = 'INSERT' AND policyname = 'snapshots_calculo_insert') THEN
+      CREATE POLICY "snapshots_calculo_insert" ON erp_snapshots_estado_calculo FOR INSERT TO authenticated WITH CHECK (true);
+    END IF;
   END IF;
 END $$;
 
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'erp_comparaciones_calculos') THEN
-    CREATE POLICY "comparaciones_read" ON erp_comparaciones_calculos FOR SELECT TO authenticated USING (true);
-    CREATE POLICY "comparaciones_insert" ON erp_comparaciones_calculos FOR INSERT TO authenticated WITH CHECK (true);
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'erp_comparaciones_calculos' AND cmd = 'SELECT' AND policyname = 'comparaciones_read') THEN
+      CREATE POLICY "comparaciones_read" ON erp_comparaciones_calculos FOR SELECT TO authenticated USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'erp_comparaciones_calculos' AND cmd = 'INSERT' AND policyname = 'comparaciones_insert') THEN
+      CREATE POLICY "comparaciones_insert" ON erp_comparaciones_calculos FOR INSERT TO authenticated WITH CHECK (true);
+    END IF;
   END IF;
 END $$;
 
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'erp_api_keys') THEN
-    CREATE POLICY "api_keys_admin" ON erp_api_keys FOR ALL TO authenticated USING (true) WITH CHECK (true);
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'erp_cuadros') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'erp_cuadros' AND cmd = 'SELECT' AND policyname = 'cuadros_read') THEN
+      CREATE POLICY "cuadros_read" ON erp_cuadros FOR SELECT TO authenticated USING (true);
+    END IF;
   END IF;
 END $$;
 

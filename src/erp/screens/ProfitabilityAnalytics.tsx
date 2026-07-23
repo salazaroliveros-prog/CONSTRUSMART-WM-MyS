@@ -402,7 +402,7 @@ const PROFITABILITYAnalytics: React.FC = () => {
                         <td className="text-right p-3">{fmtQ(p.presupuestoTotal)}</td>
                         <td className="text-right p-3">{fmtQ(p.costoReal)}</td>
                         <td className="text-right p-3">{fmtQ(p.ingresoReal)}</td>
-                        <td className={`text-right p-3 font-semibold ${p.utilidadBruta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                        <td className={`text-right p-3 font-semibold ${p.utilidadBruta >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                           {fmtQ(p.utilidadBruta)}
                         </td>
                         <td className="text-right p-3">{fmtPct(p.margenBruto)}</td>

@@ -224,7 +224,7 @@ const BasePrecios: React.FC = () => {
         <td className="py-2 px-2 text-muted-foreground">{ins.unidad}</td>
         <td className="py-2 px-2 text-right font-semibold text-muted-foreground">
           {editando === ins.id ? (
-            <input type="number" inputMode="decimal" value={nuevoPrecio} onChange={e => setNuevoPrecio(+e.target.value)} className="w-20 text-xs px-1 py-0.5 rounded border border-teal-300 text-right outline-none" />
+            <input type="number" inputMode="decimal" value={nuevoPrecio} onChange={e => setNuevoPrecio(+e.target.value)} className="w-full sm:w-20 text-xs px-1 py-0.5 rounded border border-teal-300 text-right outline-none" />
           ) : `Q${costoBase.toFixed(2)}`}
         </td>
         <td className="py-2 px-2 text-right font-bold text-teal-600">Q{precioZona.toFixed(2)}</td>

@@ -81,10 +81,10 @@ const OrdenesCambio: React.FC = () => {
   };
 
   const estadoConfig: Record<EstadoOC, { color: string; bg: string; label: string }> = {
-    solicitud: { color: 'text-amber-600', bg: 'bg-amber-50', label: t('ordenes_cambio.estado_solicitud', 'Solicitud') },
-    revision: { color: 'text-blue-600', bg: 'bg-blue-50', label: t('ordenes_cambio.estado_revision', 'En Revisión') },
-    aprobado: { color: 'text-emerald-600', bg: 'bg-emerald-50', label: t('ordenes_cambio.estado_aprobado', 'Aprobado') },
-    rechazado: { color: 'text-red-600', bg: 'bg-red-50', label: t('ordenes_cambio.estado_rechazado', 'Rechazado') },
+    solicitud: { color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/30', label: t('ordenes_cambio.estado_solicitud', 'Solicitud') },
+    revision: { color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/30', label: t('ordenes_cambio.estado_revision', 'En Revisión') },
+    aprobado: { color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/30', label: t('ordenes_cambio.estado_aprobado', 'Aprobado') },
+    rechazado: { color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/30', label: t('ordenes_cambio.estado_rechazado', 'Rechazado') },
   };
 
   const pendientes = useMemo(() => ordenesCambio.filter(o => o.estado === 'solicitud' || o.estado === 'revision').length, [ordenesCambio]);
@@ -122,18 +122,18 @@ const OrdenesCambio: React.FC = () => {
           <div className="text-xs text-muted-foreground">{t('ordenes_cambio.total_ordenes', 'Total Órdenes')}</div>
           <div className="text-lg font-bold text-foreground">{ordenesCambio.length}</div>
         </div>
-        <div className="bg-amber-50 rounded-xl p-3 sm:p-4 border border-amber-200">
-          <div className="text-xs text-amber-600">{t('ordenes_cambio.pendientes', 'Pendientes')}</div>
-          <div className="text-lg font-bold text-amber-600">{pendientes}</div>
+        <div className="bg-amber-50 dark:bg-amber-950/40 rounded-xl p-3 sm:p-4 border border-amber-200 dark:border-amber-800">
+          <div className="text-xs text-amber-600 dark:text-amber-400">{t('ordenes_cambio.pendientes', 'Pendientes')}</div>
+          <div className="text-lg font-bold text-amber-600 dark:text-amber-400">{pendientes}</div>
         </div>
-        <div className="bg-emerald-50 rounded-xl p-3 sm:p-4 border border-emerald-200">
-          <div className="text-xs text-emerald-600">{t('ordenes_cambio.costo_aprobado', 'Costo Aprobado')}</div>
-          <div className="text-lg font-bold text-emerald-600">{fmtQ(costoTotal)}</div>
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-xl p-3 sm:p-4 border border-emerald-200 dark:border-emerald-800">
+          <div className="text-xs text-emerald-600 dark:text-emerald-400">{t('ordenes_cambio.costo_aprobado', 'Costo Aprobado')}</div>
+          <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{fmtQ(costoTotal)}</div>
         </div>
       </div>
 
       {showForm && (
-        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-4">
+        <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 mb-4">
           <h3 className="font-bold text-sm text-muted-foreground mb-3"><FileText className="w-4 h-4 inline-block align-text-bottom" aria-hidden="true" /> {t('ordenes_cambio.nueva_solicitud', 'Nueva Solicitud de Cambio')}</h3>
           <div className="space-y-2">
             <div>

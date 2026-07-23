@@ -213,7 +213,7 @@ const Administracion: React.FC = () => {
     <div>
       <h2 className="text-lg font-bold mb-4 text-foreground">{t('admin.validacion')}</h2>
       <p className="text-sm text-muted-foreground mb-4">{t('admin.validacion_desc')}</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div className="p-4 bg-success/10 rounded-lg border border-success/30">
           <p className="text-sm font-semibold text-success">{t('admin.validacion_cc')}</p>
           <p className="text-xs text-muted-foreground mt-1">{centrosCosto.length} {t('admin.centros')}, {centrosConSobreCosto} {t('admin.con_sobrecosto')}</p>
@@ -247,12 +247,12 @@ const Administracion: React.FC = () => {
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto">
       <h1 className="text-2xl font-black text-foreground mb-4">{t('admin.titulo')}</h1>
 
-      <div className="flex gap-1 mb-6 bg-muted p-1 rounded-lg overflow-x-auto">
+      <div className="flex gap-1 mb-4 bg-muted p-1 rounded-lg overflow-x-auto">
         {[
           { key: 'centros' as const,    label: t('admin.tab_centros') },
           { key: 'logs' as const,       label: t('admin.tab_logs') },
           { key: 'validacion' as const, label: t('admin.tab_validacion') },
-          { key: 'rendimiento' as const, label: t('admin.tab_rendimiento', 'Rendimiento DB') },
+          { key: 'rendimiento' as const, label: t('admin.tab_rendimiento') },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)} aria-label={t.label}
             className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${tab === t.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50'}`}>{t.label}</button>
@@ -321,9 +321,9 @@ const Administracion: React.FC = () => {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-200" role="dialog" aria-modal="true" aria-label={editingId ? t('admin.editar_centro', 'Editar centro') : t('admin.nuevo_centro')}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-200" role="dialog" aria-modal="true" aria-label={editingId ? t('admin.editar_centro') : t('admin.nuevo_centro')}>
           <form onSubmit={handleSubmit(onSaveCentroCosto)} onClick={e => e.stopPropagation()} className="bg-card rounded-lg p-6 w-full max-w-md shadow-sm">
-            <h3 className="font-bold mb-4 text-foreground">{editingId ? t('admin.editar_centro', 'Editar Centro de Costo') : t('admin.nuevo_centro')}</h3>
+            <h3 className="font-bold mb-4 text-foreground">{editingId ? t('admin.editar_centro') : t('admin.nuevo_centro')}</h3>
             <div className="grid gap-3">
               <div>
                 <select {...register('proyectoId')} className={inp(!!errors.proyectoId)}>

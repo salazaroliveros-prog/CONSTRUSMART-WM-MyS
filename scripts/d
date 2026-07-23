@@ -1,0 +1,117 @@
+import { Client } from 'pg';
+
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54260/postgres';
+
+async function main() {
+  const c = new Client(DB_URL);
+  await c.connect();
+
+  console.log('=== REPORTE DB CONSTRUSMART ===\n');
+
+  // 1. Conteos
+  let r = await c.query(`SELECT count(*)::int as cnt FROM pg_class WHERE relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public') AND relkind = 'r'`);
+  console.log(`Tablas en public: ${r.rows[0].cnt}`);
+
+  r = await c.query(`SELECT count(*)::int as cnt FROM pg_policies WHERE schemaname = 'public'`);
+  console.log(`Políticas RLS: ${r.rows[0].cnt}`);
+
+  r = await c.query(`SELECT count(*)::int as cnt FROM pg_publication_tables WHERE pubname = 'supabase_realtime'`);
+  console.log(`Tablas en realtime: ${r.rows[0].cnt}`);
+
+  // 2. Tablas sin RLS
+  console.log('\n--- TABLAS SIN RLS ---');
+  r = await c.query(`
+    SELECT relname FROM pg_class 
+    WHERE relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public') 
+      AND relkind = 'r' 
+      AND relrowsecurity = false 
+      AND relname NOT IN (
+        'schema_migrations','audit_log_entries','refresh_tokens','migrations',
+        'instances','projects','secrets','buckets','objects',
+        'users','sessions','identities','mfa_factors','mfa_challenges',
+        'one_time_tokens','saml_providers','saml_relay_states',
+        'flow_state','sso_providers','sso_domains',
+        'realtime_subscriptions','subscriptions',
+        'spatial_ref_sys','geography_columns','geometry_columns',
+        '_analytics'
+      )
+    ORDER BY relname
+  `);
+  if (r.rows.length === 0) console.log('  ✅ Todas las tablas tienen RLS');
+  else r.rows.forEach(row => console.log(`  ⚠️  ${row.relname}`));
+
+  // 3. Tablas legacy (no-erp, no-sistema)
+  console.log('\n--- TABLAS NO-ERP (posible legacy) ---');
+  r = await c.query(`
+    SELECT table_name FROM information_schema.tables 
+    WHERE table_schema = 'public' 
+      AND table_type = 'BASE TABLE' 
+      AND table_name NOT LIKE 'erp_%' 
+      AND table_name NOT IN (
+        'schema_migrations','audit_log_entries','refresh_tokens','migrations',
+        'instances','projects','secrets','buckets','objects',
+        'users','sessions','identities','mfa_factors','mfa_challenges',
+        'one_time_tokens','saml_providers','saml_relay_states',
+        'flow_state','sso_providers','sso_domains',
+        'realtime_subscriptions','subscriptions',
+        'spatial_ref_sys','geography_columns','geometry_columns',
+        '_analytics'
+      )
+    ORDER BY table_name
+  `);
+  if (r.rows.length === 0) console.log('  ✅ No hay tablas legacy');
+  else r.rows.forEach(row => console.log(`  ${row.table_name}`));
+
+  // 4. Políticas PERMISSIVE
+  console.log('\n--- POLÍTICAS PERMISSIVE (muestra) ---');
+  r = await c.query(`
+    SELECT tablename, policyname, cmd FROM pg_policies 
+    WHERE schemaname = 'public' AND permissive = 'PERMISSIVE' 
+    ORDER BY tablename, policyname
+  `);
+  console.log(`  Total: ${r.rows.length}`);
+  r.rows.forEach(row => console.log(`  ${row.tablename} | ${row.policyname} | ${row.cmd}`));
+
+  // 5. Funciones legacy sin prefijo erp_
+  console.log('\n--- FUNCIONES POSIBLE LEGACY ---');
+  r = await c.query(`
+    SELECT proname FROM pg_proc 
+    WHERE pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')
+      AND prokind = 'f'
+      AND proname NOT LIKE 'erp_%'
+      AND proname NOT LIKE 'fn_%'
+      AND proname NOT IN ('crypto','digest','encode','gen_random_uuid','uuid_generate_v4','extensions','gist_decompress','gin_cmp_prefix','gin_compare_jsonb','uuid_nil','uuid_ns_dns','uuid_ns_url','uuid_ns_oid','uuid_ns_x500')
+    ORDER BY proname
+  `);
+  if (r.rows.length === 0) console.log('  ✅ No hay funciones legacy');
+  else r.rows.slice(0, 20).forEach(row => console.log(`  ${row.proname}`));
+
+  // 6. Tablas vacías (0 filas) que podrían ser legacy
+  console.log('\n--- TABLAS VACÍAS (posible basura) ---');
+  r = await c.query(`
+    SELECT relname as table_name
+    FROM pg_class 
+    WHERE relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')
+      AND relkind = 'r'
+      AND reltuples = 0
+      AND relname NOT LIKE 'erp_%'
+      AND relname NOT IN (
+        'schema_migrations','audit_log_entries','refresh_tokens','migrations',
+        'instances','projects','secrets','buckets','objects',
+        'users','sessions','identities','mfa_factors','mfa_challenges',
+        'one_time_tokens','saml_providers','saml_relay_states',
+        'flow_state','sso_providers','sso_domains',
+        'realtime_subscriptions','subscriptions',
+        'spatial_ref_sys','geography_columns','geometry_columns',
+        '_analytics'
+      )
+    ORDER BY relname
+  `);
+  if (r.rows.length === 0) console.log('  ✅ No hay tablas vacías legacy');
+  else r.rows.forEach(row => console.log(`  ${row.table_name}`));
+
+  await c.end();
+  console.log('\n✅ Reporte completado');
+}
+
+main().catch(e => { console.error('FATAL:', e.message); process.exit(1); });

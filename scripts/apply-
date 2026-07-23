@@ -1,0 +1,93 @@
+import { readFileSync } from 'fs';
+import { Client } from 'pg';
+
+const REMOTE_DB_URL = 'postgresql://postgres:AngelDario2027@db.neygzluxugodiwcuctbj.supabase.co:5432/postgres';
+const MIGRATIONS_DIR = 'supabase/migrations';
+
+const PENDING = [
+  '000000000120_create_erp_ventas_paquetes.sql',
+  '000000000121_fix_missing_columns_and_rls.sql',
+  '000000000122_fix_rls_if_tables_exist.sql',
+  '000000000123_create_erp_audit_log.sql',
+  '000000000124_create_missing_tables.sql',
+  '000000000125_create_missing_tables_and_fix_rls.sql',
+  '000000000126_complete_schema_alignment.sql',
+  '000000000127_strategic_composite_indexes.sql',
+  '000000000128_db_app_full_alignment.sql',
+  '000000000129_additional_indexes_and_fixes.sql',
+  '000000000130_final_db_app_alignment.sql',
+  '000000000131_create_missing_tables_and_clean_legacy.sql',
+  '000000000132_cleanup_unused_objects.sql',
+  '000000000133_harden_rls_policies.sql',
+  '000000000134_harden_weather_and_clean_duplicates.sql',
+  '000000000135_harden_new_tables_rls.sql',
+];
+
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function main() {
+  console.log('=== MIGRACIONES REMOTAS SUPABASE ===\n');
+  
+  const client = new Client({ connectionString: REMOTE_DB_URL, ssl: { rejectUnauthorized: false } });
+
+  // Reintentos por DNS inestable
+  let connected = false;
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      console.log(`Intento ${attempt}/5 - Conectando...`);
+      await client.connect();
+      connected = true;
+      console.log('✅ Conectado a DB remota\n');
+      break;
+    } catch (e) {
+      console.log(`  ⚠️  Error conexión: ${e.message}`);
+      if (attempt < 5) {
+        const wait = Math.min(1000 * Math.pow(2, attempt), 30000);
+        console.log(`  Esperando ${wait}ms antes de reintentar...`);
+        await sleep(wait);
+      }
+    }
+  }
+
+  if (!connected) {
+    console.error('❌ No se pudo conectar después de 5 intentos');
+    process.exit(1);
+  }
+
+  let success = 0;
+  let fail = 0;
+
+  for (const file of PENDING) {
+    const sql = readFileSync(`${MIGRATIONS_DIR}/${file}`, 'utf-8');
+    const version = file.split('_')[0];
+    const name = file.replace('.sql', '');
+
+    console.log(`▶️  ${version} — ${file.replace(/^\d+_/, '').replace('.sql', '')}...`);
+
+    try {
+      await client.query('BEGIN');
+      await client.query(
+        `INSERT INTO supabase_migrations.schema_migrations (version, name) VALUES ($1, $2) ON CONFLICT (version) DO NOTHING`,
+        [version, name]
+      );
+      await client.query(sql);
+      await client.query('COMMIT');
+      console.log('  ✅ Completado');
+      success++;
+    } catch (e) {
+      await client.query('ROLLBACK');
+      console.log(`  ❌ Error: ${e.message.slice(0, 120)}`);
+      fail++;
+    }
+  }
+
+  console.log(`\n=== RESUMEN ===`);
+  console.log(`✅ Exitosas: ${success}`);
+  if (fail > 0) console.log(`❌ Fallidas: ${fail}`);
+
+  await client.end();
+}
+
+main().catch(e => { console.error('FATAL:', e.message); process.exit(1); });

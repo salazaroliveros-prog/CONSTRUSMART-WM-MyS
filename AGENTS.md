@@ -121,17 +121,19 @@
 - Supabase sync con tabla erp_plantillas_proyectos
 - Selector visual en Proyectos.tsx con búsqueda, tarjetas interactivas, sugerencias inteligentes
 
-### Data Flow: Frontend ←→ Backend (100% integrity)
+#### Data Flow: Frontend ←→ Backend (100% integrity)
 - **43/43 screens** consumen datos via `useErp()` o `useErpStore()` — cero llamadas directas a `supabase.from()` en screens
-- **34+ tablas activas** sincronizadas via mutation queue (offline-first)
+- **79 tablas ERP** sincronizadas via mutation queue (offline-first)
 - **28 canales realtime** para sincronización multi-cliente
 - **localStorage persistence** con validación Zod + compresión lz-string
 - **Error boundaries** en todas las 43 screens lazy-loaded
+- **Base de datos limpia**: 0 registros en todas las tablas (datos de prueba eliminados)
 
 ### RBAC + Seguridad
 - `allowedViews` usa `getViewsByRole(user.rol)`
-- RLS habilitado en 65+ tablas (migration 066)
-- 40+ permissive drop policies eliminadas
+- RLS habilitado en 79 tablas (migration 066 + optimizaciones)
+- 164 políticas duplicadas eliminadas
+- 214 políticas RLS activas
 - anon SELECT revocado de 62+ tablas operacionales
 - exec_sql restringido a postgres owner
 
@@ -206,7 +208,8 @@
 - ✅ TABLE_MAP — entradas sin estado removidas (erp_amortizaciones, erp_rendimientos_cuadrilla)
 - ✅ ForceSync catch genérico — ya loguea todos los errores con logErrorFromException
 - ✅ Riesgos.tsx badge — bg-slate-800 → bg-foreground text-background (semántico)
-- 🟡 PENDIENTE: DB ↔ Zod alignment — 10 tablas sin schema Zod, enums desincronizados
+- ✅ DB ↔ Zod alignment completado — 79 tablas alineadas, 0 tablas sin RLS, auditoría completa en todas
+- ✅ Datos de prueba eliminados — 555 registros eliminados, base de datos limpia (0 registros en todas las tablas)
 - 🔵 PENDIENTE: Dos sistemas de tema (theme-provider.tsx + theme-manager.ts) — analizar antes de tocar
 - Conexión pooler no aplica (frontend sin backend Node.js propio)
 - Math.fround no usado para DB real(4)

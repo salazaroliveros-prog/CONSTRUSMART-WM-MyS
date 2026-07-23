@@ -381,7 +381,7 @@ const APUAvanzado: React.FC = () => {
       <div className="bg-card text-card-foreground rounded-2xl shadow-sm border border-border p-4 sm:p-5">
         {tab === 'insumos' && (
           <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 min-w-0">
               <h2 className="font-bold text-foreground text-sm truncate" title={t('apu.catalogo_insumos_base')}>{t('apu.catalogo_insumos_base')}</h2>
               <div className="flex flex-wrap gap-2">
                 <select value={rubroFilter} onChange={e => setRubroFilter(e.target.value)} className="text-xs px-2 py-1.5 rounded-lg border border-input outline-none bg-background text-foreground">
@@ -434,7 +434,7 @@ const APUAvanzado: React.FC = () => {
 
         {tab === 'rendimientos' && (
           <div>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-3 min-w-0">
               <h2 className="font-bold text-muted-foreground text-sm truncate" title={t('apu.rendimientos_cuadrilla')}>{t('apu.rendimientos_cuadrilla')}</h2>
               <div className="relative">
                 <Search className="absolute left-2 top-1.5 w-3.5 h-3.5 text-muted-foreground" />
@@ -507,7 +507,7 @@ const APUAvanzado: React.FC = () => {
         )}
 
         {tab === 'dosificacion' && (
-          <div>
+          <div className="min-w-0">
 <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.dosificacion_titulo')}>{t('apu.dosificacion_titulo')}</h2>
 <p className="text-xs text-muted-foreground mb-4 truncate" title={t('apu.dosificacion_descripcion')}>{t('apu.dosificacion_descripcion')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
@@ -552,7 +552,7 @@ const APUAvanzado: React.FC = () => {
         )}
 
         {tab === 'calculo' && (
-          <div>
+          <div className="min-w-0">
 <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.calculo_automatico')}>{t('apu.calculo_automatico')}</h2>
 <p className="text-xs text-muted-foreground mb-4 truncate" title={t('apu.ejemplo_renglon')}>{t('apu.ejemplo_renglon')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
@@ -582,7 +582,7 @@ const APUAvanzado: React.FC = () => {
         )}
 
         {tab === 'historico' && (
-          <div>
+          <div className="min-w-0">
 <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.historico_titulo')}>{t('apu.historico_titulo')}</h2>
 <p className="text-xs text-muted-foreground mb-4 truncate" title={t('apu.historico_descripcion')}>{t('apu.historico_descripcion')}</p>
             {historial.length > 0 ? (<>
@@ -607,7 +607,7 @@ const APUAvanzado: React.FC = () => {
         )}
 
         {tab === 'acero' && (
-          <div>
+          <div className="min-w-0">
             <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.acero_titulo')}>{t('apu.acero_titulo')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.elemento_acero')}</label><select value={acero.elemento} onChange={e => setAcero((d: AceroParams) => ({ ...d, elemento: e.target.value as AceroParams['elemento'] }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="columna">{t('apu.acero_elem_columna')}</option><option value="viga">{t('apu.acero_elem_viga')}</option><option value="losa">{t('apu.acero_elem_losa')}</option><option value="muro">{t('apu.acero_elem_muro')}</option></select></div>
@@ -628,7 +628,7 @@ const APUAvanzado: React.FC = () => {
         )}
 
         {tab === 'movimientoTierra' && (
-          <div>
+          <div className="min-w-0">
             <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.mov_tierra_titulo')}>{t('apu.mov_tierra_titulo')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.mov_tipo')}</label><select value={movimientoTierra.tipo} onChange={e => setMovimientoTierra(d => ({ ...d, tipo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="excavacion">{t('apu.mov_excavacion')}</option><option value="relleno">{t('apu.mov_relleno')}</option><option value="compactacion">{t('apu.mov_compactacion')}</option></select></div>
@@ -649,7 +649,7 @@ const APUAvanzado: React.FC = () => {
         )}
 
         {tab === 'parametrosClimaticos' && (
-          <div>
+          <div className="min-w-0">
 <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.climaticos_titulo')}>{t('apu.climaticos_titulo')}</h2>
 <p className="text-xs text-muted-foreground mb-4 truncate" title={t('apu.climaticos_descripcion')}>{t('apu.climaticos_descripcion')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
@@ -667,7 +667,7 @@ const APUAvanzado: React.FC = () => {
         )}
 
         {tab === 'pavimentos' && (
-          <div>
+          <div className="min-w-0">
             <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.pavimentos_titulo')}>{t('apu.pavimentos_titulo')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.pav_uso')}</label><select value={pavimento.uso} onChange={e => setPavimento(d => ({ ...d, uso: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="peatonal">{t('apu.pav_peatonal')}</option><option value="vehicular_liviano">{t('apu.pav_vehicular_liviano')}</option><option value="vehicular_medio">{t('apu.pav_vehicular_medio')}</option><option value="vehicular_pesado">{t('apu.pav_vehicular_pesado')}</option></select></div>
@@ -688,7 +688,7 @@ const APUAvanzado: React.FC = () => {
         )}
 
         {tab === 'redesInfraestructura' && (
-          <div>
+          <div className="min-w-0">
             <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.redes_titulo')}>{t('apu.redes_titulo')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.redes_tipo')}</label><select value={redInfraestructura.tipo} onChange={e => setRedInfraestructura(d => ({ ...d, tipo: e.target.value }))} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card"><option value="agua_potable">{t('apu.redes_agua_potable')}</option><option value="alcantarillado_sanitario">{t('apu.redes_alcantarillado_sanitario')}</option><option value="alcantarillado_pluvial">{t('apu.redes_alcantarillado_pluvial')}</option></select></div>
@@ -708,7 +708,7 @@ const APUAvanzado: React.FC = () => {
         )}
 
         {tab === 'murosContencion' && (
-          <div>
+          <div className="min-w-0">
             <h2 className="font-bold text-muted-foreground text-sm mb-3 truncate" title={t('apu.muros_titulo')}>{t('apu.muros_titulo')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <div><label className="text-xs text-muted-foreground mb-1 block">{t('apu.altura_m')}</label><input type="number" inputMode="decimal" value={muroContencion.alturaM} onChange={e => setMuroContencion(d => ({ ...d, alturaM: Math.max(1, parseFloat(e.target.value) || 1) }))} min={1} max={10} step={0.5} className="w-full text-xs px-3 py-2 rounded-lg border border-border outline-none focus:border-orange-400 bg-card" /></div>

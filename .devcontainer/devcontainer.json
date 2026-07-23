@@ -10,7 +10,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"saoudrizwan.claude-dev"
+				"saoudrizwan.claude-dev",
+				"Blackboxapp.blackboxagent"
 			]
 		}
 	}

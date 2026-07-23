@@ -1,0 +1,457 @@
+[
+  {
+    "schemaname": "public",
+    "tablename": "amortizaciones",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,anticipo_id,monto,fecha,referencia,created_by,created_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "anticipos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,monto_total,saldo_pendiente,tipo,beneficiario,concepto,fecha_entrega,fecha_ultima_amortizacion,estado,created_by,created_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "cotizaciones_negocio",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,tipo,numero,fecha,fecha_vencimiento,cliente_nombre,cliente_nit,cliente_telefono,cliente_email,cliente_direccion,descripcion,alcance,renglones,costo_directo_total,precio_venta_total,estado,notas,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "destajos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,renglon_codigo,cuadrilla,fecha,cantidad_ejecutada,unidad,horas_trabajadas,rendimiento_teorico,observaciones,registrado_por,created_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_activos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,nombre,tipo,modelo,numero_serie,estado,ubicacion,asignado_a,fecha_compra,costo,vida_util,created_by,created_at,updated_at,codigo_inventario,marca,valor_adquisicion,fecha_asignacion,fecha_adquisicion,proveedor_id,proveedor_nombre,observaciones}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_ajustes_estacionales_actividad",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,estacionalidad_id,tipo_actividad,factor_especifico,impacto_duracion,recomendaciones,medidas_mitigacion,activo,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_anticipos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,proveedor_id,monto,motivo,fecha_solicitud,fecha_aprobacion,estado,created_by,updated_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_aplicacion_escalas",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,escala_id,tamano_proyecto,presupuesto_estimado,cantidad_renglones,factor_economia_aplicado,factor_administracion_aplicado,factor_imprevistos_aplicado,factor_logistica_aplicado,factor_financiero_aplicado,factor_total,costo_ajustado,ahorro_estimado,usuario_aplicacion,fecha_aplicacion,observaciones,created_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_archivos_tipo",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,nombre,descripcion,extension,creat_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_auditoria",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,usuario_id,accion,tabla,registro_id,datos,ip,user_agent,creado_en}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_avances",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,presupuesto_id,renglon_id,fecha,avance_fisico,cantidad_ejecutada,foto,latitud,longitud,created_by,created_at,notas,renglon_codigo,renglon_nombre,updated_at,avance_financiero}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_bitacora",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,fecha,clima,personal,maquinaria,tareas,observaciones,created_by,created_at,updated_at,latitud,longitud,fotos,firma,clima_capturado,temperatura,humedad,viento_velocidad}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_bodega",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,material_id,cantidad_actual,cantidad_minima,unidad,ubicacion,estado,lote,fecha_entrada,fecha_caducidad,proveedor_id,costo_unitario,notas,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_calculos_proyecto",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,tipo_calculo,fecha_calculo,usuario_id,parametros,resultados,version_calculo,origen_calculo,observaciones,validado,validado_por,fecha_validacion,notas_validacion,created_at,updated_at,datos,costo_total}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_centros_costo",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,codigo,nombre,descripcion,presupuesto_asignado,proyecto_id,activo,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_checklist",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,hito_id,nombre,descripcion,items,estado,asignado_a,fecha_limite,fecha_completado,completado_por,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_configuracion",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,clave,valor,categoria,descripcion,actualizado_por,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_cotizaciones_negocio",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,tipo,numero,fecha,fecha_vencimiento,cliente_nombre,cliente_nit,cliente_telefono,cliente_email,cliente_direccion,descripcion,alcance,renglones,costo_directo_total,precio_venta_total,estado,notas,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_cuadros",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,nombre,descripcion,archivo_url,tipo,created_by,created_at,updated_at,solicitud,fecha_solicitud,fecha_cierre,adjudicado_a,cotizaciones,estado,observaciones}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_cuentas_cobrar",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,cliente,concepto,monto,saldo_pendiente,fecha_emision,fecha_vencimiento,fecha_cobro,estado,notas,created_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_cuentas_pagar",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,proveedor,concepto,monto,saldo_pendiente,fecha_emision,fecha_vencimiento,fecha_pago,estado,factura_url,created_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_cumplimiento_normativo",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,norma_id,estado_cumplimiento,fecha_verificacion,responsable_verificacion,evidencias_cumplimiento,observaciones,requiere_acciones_correctivas,acciones_correctivas,fecha_limite_correccion,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_departamentos_gt",
+    "pubname": "supabase_realtime",
+    "attnames": "{codigo,nombre,capital,zona_sismica,coeficiente_sismico,carga_viva_minima_kg_m2,altitud_promedio_msnm,zona_climatica,temperatura_promedio_c,precipitacion_anual_mm,factor_costo_base,referencia_norma,observaciones,created_at,updated_at,departamento}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_destajos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,trabajador,concepto,cantidad,unidad,precio_unitario,total,fecha,observaciones,created_at,updated_at,eficiencia,empleado_id,monto}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_documentos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,nombre,tipo,categoria,url,tamano,subido_por,version,estado,etiquetas,metadata,fecha_vencimiento,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_empleados",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,nombre,puesto,proyecto_id,salario_diario,dias_trabajados,tipo,created_by,created_at,updated_at,avatar_url,activo,telefono,proyecto_ids,fecha_asignacion}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_error_log",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,error_code,error_message,error_stack,error_type,severity,component,function_name,line_number,user_id,proyecto_id,request_id,request_method,request_path,request_params,request_headers,user_agent,ip_address,context,resolved,resolved_at,resolved_by,resolution_notes,created_at,entidad,entidad_id}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_escalas_produccion",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,tipo_proyecto,rango_tamano,tamano_minimo,tamano_maximo,factor_economia,factor_administracion,factor_imprevistos,descripcion,activo,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_estacionalidad",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,departamento_codigo,mes,factor_disponibilidad,factor_costo,factor_productividad,condiciones_especiales,activo,created_at,updated_at,factor_rango_climatico}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_eventos_calendario",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,fecha,hora,titulo,descripcion,tipo,completado,proyecto_id,created_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_historial_aplicacion_reglas",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,renglon_id,regla_id,valor_original,valor_aplicado,factor_aplicado,contexto_aplicacion,usuario_id,fecha_aplicacion,created_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_hitos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,nombre,descripcion,fecha,tipo,estado,responsable,depende_de,completado_en,created_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_incidentes",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,tipo,fecha,hora,descripcion,afectados,testigos,acciones_inmediatas,reportado_por,latitud,longitud,fotos,estado,created_by,created_at,updated_at,lat,lng}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_insumos_base",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,nombre,categoria,unidad,precio_referencia,rubro,activo,fecha_actualizacion}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_liberaciones_partida",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,renglon_id,renglon_nombre,fecha_solicitud,fecha_liberacion,solicitante,supervisor,checklist_aprobado,observaciones,estado,created_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_licitaciones",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,cliente,monto,estado,probabilidad,descripcion,fecha_creacion,created_by,created_at,updated_at,comentarios,fecha_cierre,monto_estimado,nombre,fecha_limite,documentos,notas}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_materiales",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,nombre,unidad,stock,stock_minimo,precio,critico,created_by,created_at,updated_at,categoria,bodega,renglon_id,cantidad_presupuestada,costo_presupuestado,proyecto_ids,version,ultima_actualizacion_presupuesto}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_movimientos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,tipo,proyecto_id,descripcion,cantidad,unidad,categoria,costo_unitario,costo_total,fecha,created_by,created_at,updated_at,proveedor_nit,forma_pago,referencia_bancaria,retencion_isr,retencion_iva,notas,factura,proveedor,monto}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_municipios_gt",
+    "pubname": "supabase_realtime",
+    "attnames": "{codigo,nombre,departamento_codigo,altitud_msnm,distancia_capital_km,accesibilidad,factor_costo,factor_rendimiento,norma_municipal,observaciones,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_no_conformidades",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,codigo,descripcion,categoria,fecha_deteccion,detectado_por,plan_accion,responsable_cierre,fecha_cierre,estado,created_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_normativa_departamental",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,departamento_codigo,tipo_norma,codigo_norma,nombre_norma,descripcion,ano_ultima_revision,organismo_emisor,requisitos_especificos,aplicacion,activo,created_at,updated_at,obligatoria}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_notificaciones",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,tipo,titulo,mensaje,proyecto_id,referencia_id,leido,created_at,created_by,updated_at,referencia_tipo,fecha_lectura,usuario_id,prioridad}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_ordenes_cambio",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,titulo,descripcion,impacto_costo,impacto_plazo,estado,solicitante,solicitante_rol,aprobador,fecha_aprobacion,created_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_ordenes_compra",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proveedor,material,cantidad,monto,estado,fecha,proyecto_id,created_by,created_at,updated_at,items,version,stock_actualizado,proveedor_id,total}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_pagos_proveedor",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proveedor_id,monto,forma_pago,referencia,fecha_pago,notas,created_at,updated_at,proveedor_nombre,fecha_emision,fecha_vencimiento,factura_url,estado}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_permisos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,usuario_id,proyecto_id,rol,permisos,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_planos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,nombre,tipo,archivo_url,version,estado,disciplina,revisado_por,fecha_revision,observaciones,created_by,created_at,updated_at,subido_por,fecha_subida,revision,subido_por_texto}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_plantillas_proyectos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,nombre,descripcion,categoria,proyecto_origen_id,cliente_id,cliente_nombre,activa,favorita,configuracion,estructura_presupuesto,hitos_template,riesgos_template,checklist_calidad,usos_count,metricas,version,version_historial,created_at,updated_at,creado_por,estructura}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_presupuestos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,tipologia,renglones,total_calculado,costo_directo_total,estado,notas,version_presupuesto,fecha_creacion,fecha_actualizacion,created_by,updated_by,version,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_proveedores",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,nombre,contacto,telefono,email,rubro,categoria,calificacion,created_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_proyecto_weather",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,weather_data,impact,construction_metrics,scheduling_windows,historical_impact,last_updated,created_at,updated_at,history}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_proyectos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,nombre,cliente,ubicacion,tipologia,estado,presupuesto_total,monto_contrato,avance_fisico,avance_financiero,lat,lng,fecha_inicio,fecha_fin,created_by,created_at,updated_at,presupuesto_actual_id,factor_sobrecosto,descripcion,tipo_obra,cliente_nit,cliente_telefono,cliente_email,direccion,ciudad,departamento,pais,codigo_postal,area_construccion,num_pisos,plazo_semanas,ingeniero_residente,supervisor,arquitecto,numero_expediente,numero_licencia,margen_utilidad_objetivo,moneda,etapa,fecha_inicio_real,fecha_fin_estimada,version,motivo_pausa,pausado_por,fecha_pausa,fecha_reanudacion_estimada,subtipo,etapa_anterior,fecha_cambio_etapa,latitud,longitud}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_pruebas_laboratorio",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,tipo,descripcion,fecha_muestra,fecha_resultado,resultado,responsable,observaciones,created_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_publicaciones_muro",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,autor_id,usuario_id,contenido,tipo_publicacion,likes,comentarios,imagenes,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_recepciones",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,oc_id,proveedor,fecha_recepcion,items,observaciones,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_reglas_factores",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,nombre,descripcion,tipo_factor,prioridad,condicion,factor_aplicacion,operador,ambito,departamento_id,municipio_id,tipologia,activo,fecha_inicio,fecha_fin,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_rendimientos_campo",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,cuadrilla,actividad,unidad,cantidad,horas_hombre,fecha,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_rfis",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,numero,titulo,descripcion,remitente,destinatario,fecha_envio,fecha_respuesta_esperada,respuesta,estado,prioridad,created_by,created_at,updated_at,solicitante,destino,fecha_solicitud,fecha_respuesta}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_riesgos",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,nombre,descripcion,tipo,probabilidad,impacto,nivel,plan_mitigacion,plan_contingencia,responsable,fecha_identificacion,estado,costo_soporte,created_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_seguimiento",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,fecha,avance_fisico,avance_financiero,costo_planeado,costo_real,valor_planeado,valor_ganado,created_by,created_at,updated_at,tipo,valor,observaciones}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_solicitudes",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,tipo_trabajo,descripcion,estado,fecha_solicitud,fecha_resolucion,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_submittals",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,numero,titulo,descripcion,fecha_envio,fecha_aprobacion,estado,created_by,created_at,updated_at,categoria,proveedor}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_vales_salida",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,renglon_id,fecha,items,observaciones,solicitante,created_by,created_at,updated_at}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "erp_ventas_paquetes",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,proyecto_id,estado,fecha_venta,observaciones,created_by,created_at,updated_at,tipo,identificador,precio_venta,precio_contrato,cliente,fecha_reserva,plan_pago,notas}",
+    "rowfilter": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "profiles",
+    "pubname": "supabase_realtime",
+    "attnames": "{id,nombre,rol,avatar_url,user_metadata,created_at}",
+    "rowfilter": null
+  }
+]
