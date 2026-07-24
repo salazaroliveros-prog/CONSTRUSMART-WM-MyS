@@ -4,20 +4,15 @@ import { scheduleHealthCheck } from '@/lib/store-health';
 import { useErpStore, fetchInitialData } from './zustandStore';
 import { TABLE_MAP as STORE_KEY_MAP } from './constants/table-mappings';
 import {
-   proyectoSchema, movimientoSchema, cuentaCobrarSchema, cuentaPagarSchema, ordenCambioSchema, ventaPaqueteSchema,
-   presupuestoSchema, cotizacionSchema, empleadoSchema, incidenteSchema, materialSchema,
-   ordenSchema, proveedorSchema, eventoSchema,
-   bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema, muroSchema,
-   notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
-   licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
-   destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema, insumosBaseSchema,
+    proyectoSchema, movimientoSchema, cuentaCobrarSchema, cuentaPagarSchema, ordenCambioSchema, ventaPaqueteSchema,
+    presupuestoSchema, cotizacionSchema, empleadoSchema, incidenteSchema, materialSchema,
+    ordenSchema, proveedorSchema, eventoSchema,
+    bitacoraSchema, seguimientoSchema, avanceObraSchema, hitoSchema, riesgoSchema, muroSchema,
+    notificacionSchema, liberacionSchema, pruebaSchema, noConformidadSchema, activoSchema,
+    licitacionSchema, cuadroSchema, pagoProveedorSchema, planoSchema, rfiSchema, submittalSchema,
+    destajoSchema, recepcionAlmacenSchema, valeSalidaSchema, centroCostoSchema, plantillaSchema, insumosBaseSchema,
     appSettingsSchema,
-    reglaFactorSchema, normativaDepartamentalSchema, escalaProduccionSchema, estacionalidadSchema,
-    historialAplicacionReglaSchema, calculoProyectoSchema, ajusteEstacionalActividadSchema,
-    aplicacionEscalaSchema, cumplimientoNormativoSchema, errorLogSchema, proyectoWeatherSchema,
-    cajaChicaSchema, anticipoSchema, amortizacionSchema, rendimientoCuadrillaSchema,
-    bodegaSchema, documentoSchema, permisoSchema, checklistSchema, configuracionSchema, apiKeySchema,
-    projectProfitabilitySchema, clientProfitabilitySchema, resourceEfficiencySchema, profitabilityTrendSchema,
+    historialAplicacionReglaSchema,
 } from './store/schemas';
 import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, decompressData, compressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel, __setActiveCurrency, __setActiveDateFormat } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -27,10 +22,12 @@ import { sanitizarObjeto, getViewsByRole } from '@/lib/security';
 import { useAuth } from '@/hooks/useAuth';
 import { encryptionManager, migrateSecureStorage } from '@/lib/encryption';
 import { logErrorFromException } from '@/lib/error-logger';
+import { HybridPersistenceManager } from './persistence/hybrid-persistence';
 const BASE_STORAGE_KEY = 'wm_erp_data';
 const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
 const PLANTILLA_KEY = BASE_STORAGE_KEY + '_plantillas';
 const HISTORIAL_REGLAS_KEY = BASE_STORAGE_KEY + '_historial_reglas';
+
 function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
   try {
     const raw = localStorage.getItem(key);
@@ -95,10 +92,7 @@ export const exportStoreData = (): Record<string, unknown> => {
     projectProfitabilities: s.projectProfitabilities, clientProfitabilities: s.clientProfitabilities,
     resourceEfficiencies: s.resourceEfficiencies, profitabilityTrends: s.profitabilityTrends,
     errorLogs: s.errorLogs, departamentos: s.departamentos, municipios: s.municipios,
-    cajasChicas: s.cajasChicas, anticipos: s.anticipos, amortizaciones: s.amortizaciones,
-    rendimientosCuadrilla: s.rendimientosCuadrilla, bodega: s.bodega, documentos: s.documentos,
-    permisos: s.permisos, checklist: s.checklist, configuracion: s.configuracion,
-    apiKeys: s.apiKeys,
+    cajasChicas: s.cajasChicas, anticipos: s.anticipos,
   };
 };
 
@@ -117,8 +111,7 @@ export const importStoreData = (data: Record<string, unknown>): void => {
     'calculosProyecto',
     'projectProfitabilities', 'clientProfitabilities', 'resourceEfficiencies', 'profitabilityTrends',
     'errorLogs', 'departamentos', 'municipios',
-    'cajasChicas', 'anticipos', 'amortizaciones', 'rendimientosCuadrilla',
-    'bodega', 'documentos', 'permisos', 'checklist', 'configuracion', 'apiKeys',
+    'cajasChicas', 'anticipos',
   ];
   for (const key of keys) {
     if (key in data) {
@@ -128,7 +121,7 @@ export const importStoreData = (data: Record<string, unknown>): void => {
   useErpStore.setState(state as any);
 };
 
-import type { AppSettings, Mutation } from './types';
+import type { ErpStore } from './types';
 
 
 export type LogAuditoria = {
@@ -250,6 +243,17 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
 
+  const persistenceRef = useRef<HybridPersistenceManager | null>(null);
+  if (!persistenceRef.current) {
+    persistenceRef.current = new HybridPersistenceManager({
+      storagePrefix: BASE_STORAGE_KEY,
+      onStatusChange: (status) => {
+        setIsOnline(status === 'online');
+      },
+    });
+  }
+  const hybridPersistence = persistenceRef.current;
+
   const { user: authUser, signInWithGoogle: realSignInWithGoogle, signOut: realLogout, loading: authLoading } = useAuth();
   const handleLogout = useCallback(async () => {
     await realLogout();
@@ -282,17 +286,13 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
    }, [authUser]);
 
   useEffect(() => {
-    useErpStore.getState().setUserRol(user?.rol ?? null);
-  }, [user?.rol]);
+    hybridPersistence.startListening();
+    return () => { hybridPersistence.stopListening(); };
+  }, [hybridPersistence]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const goOnline = () => setIsOnline(true);
-    const goOffline = () => setIsOnline(false);
-    window.addEventListener('online', goOnline);
-    window.addEventListener('offline', goOffline);
-    return () => { window.removeEventListener('online', goOnline); window.removeEventListener('offline', goOffline); };
-  }, []);
+    useErpStore.getState().setUserRol(user?.rol ?? null);
+  }, [user?.rol]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -383,14 +383,6 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       municipios: [],
       cajasChicas: [],
       anticipos: [],
-      amortizaciones: [],
-      rendimientosCuadrilla: [],
-      bodega: [],
-      documentos: [],
-      permisos: [],
-      checklist: [],
-      configuracion: [],
-      apiKeys: [],
     });
     const loadedSettings = useErpStore.getState().appSettings;
     if (loadedSettings.empresaInfo) setEmpresaInfo(loadedSettings.empresaInfo);
@@ -657,20 +649,8 @@ const forceSync = useMemo(() => {
   }, [forceSync]);
 useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueue.length > 0) forceSync(); }, [isOnline, forceSync]);
 
-   // Listen for browser online/offline events to trigger sync when connection returns
-   useEffect(() => {
-     const handleOnline = () => {
-       if (useErpStore.getState().mutationQueue.length > 0) {
-         forceSync();
-       }
-     };
-     
-     window.addEventListener('online', handleOnline);
-     return () => window.removeEventListener('online', handleOnline);
-   }, [forceSync]);
-
-    useEffect(() => {
-     let timer: ReturnType<typeof setTimeout>;
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
     const unsub = useErpStore.subscribe(() => {
       clearTimeout(timer);
       timer = setTimeout(async () => {

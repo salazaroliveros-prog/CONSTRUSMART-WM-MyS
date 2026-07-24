@@ -31,11 +31,12 @@ const RendimientoCampo: React.FC = () => {
   };
 
   const filtered = useMemo(() => {
-    let items = rendimientosCampo;
+    const base = Array.isArray(rendimientosCampo) ? rendimientosCampo : [];
+    let items = base;
     if (currentProjectId && currentProjectId !== 'none') {
       items = items.filter(r => r.proyectoId === currentProjectId);
     }
-    return items.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+    return [...items].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
   }, [rendimientosCampo, currentProjectId]);
 
   const kpis = useMemo(() => {
