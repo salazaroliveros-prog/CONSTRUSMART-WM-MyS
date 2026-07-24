@@ -103,17 +103,20 @@ describe('useAuth — session timeout race', () => {
 
   it('treats timeout (never-resolving getSession) as no session', async () => {
     vi.useFakeTimers();
-    hoisted.mockGetSession.mockImplementation(
-      () => new Promise(() => {}),
-    );
-    const { result } = renderHook(() => useAuth());
-    await act(async () => {
-      vi.advanceTimersByTime(5100);
-      await Promise.resolve();
-    });
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.user).toBeNull();
-    vi.useRealTimers();
+    try {
+      hoisted.mockGetSession.mockImplementation(
+        () => new Promise(() => {}),
+      );
+      const { result } = renderHook(() => useAuth());
+      await act(async () => {
+        vi.advanceTimersByTime(5100);
+        await Promise.resolve();
+      });
+      expect(result.current.loading).toBe(false);
+      expect(result.current.user).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 
@@ -140,6 +143,7 @@ describe('useAuth — user metadata fallbacks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     hoisted.setSupabaseEnabled(true);
+    hoisted.mockGetSession.mockResolvedValue({ data: { session: null } });
     hoisted.mockSingle.mockResolvedValue({ data: null });
   });
 

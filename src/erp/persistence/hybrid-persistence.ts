@@ -20,6 +20,9 @@ export interface HybridPersistenceOptions {
   storagePrefix: string;
   onStatusChange?: (status: ConnectionStatus) => void;
   onSyncError?: (error: string) => void;
+  compressData?: (data: string) => Promise<string>;
+  decompressData?: (raw: string) => string | null;
+  safeSetItem?: (key: string, value: string, rawKey: string) => Promise<void> | void;
 }
 
 export class HybridPersistenceManager {
@@ -28,7 +31,11 @@ export class HybridPersistenceManager {
   private onlineHandler: (() => void) | null = null;
   private offlineHandler: (() => void) | null = null;
 
-  constructor(private options: HybridPersistenceOptions) {}
+  constructor(private options: HybridPersistenceOptions & {
+    compressData?: (data: string) => Promise<string>;
+    decompressData?: (raw: string) => string | null;
+    safeSetItem?: (key: string, value: string, rawKey: string) => Promise<void> | void;
+  }) {}
 
   getStatus(): ConnectionStatus {
     return this.status;
@@ -72,7 +79,9 @@ export class HybridPersistenceManager {
     try {
       const raw = localStorage.getItem(key);
       if (!raw) return [];
-      const result = z.array(schema).safeParse(JSON.parse(raw));
+      const decompressed = this.options.decompressData ? this.options.decompressData(raw) : raw;
+      if (decompressed === null) { safeLogger.warn(`[Persistence] Decompress fail: ${key}`); return []; }
+      const result = z.array(schema).safeParse(JSON.parse(decompressed));
       return result.success ? result.data : [];
     } catch {
       safeLogger.warn(`[Persistence] Corrupto: ${key}`);
@@ -84,7 +93,9 @@ export class HybridPersistenceManager {
     try {
       const raw = localStorage.getItem(key);
       if (!raw) return fallback;
-      const result = schema.safeParse(JSON.parse(raw));
+      const decompressed = this.options.decompressData ? this.options.decompressData(raw) : raw;
+      if (decompressed === null) { safeLogger.warn(`[Persistence] Decompress fail: ${key}`); return fallback; }
+      const result = schema.safeParse(JSON.parse(decompressed));
       return result.success ? result.data : fallback;
     } catch {
       safeLogger.warn(`[Persistence] Corrupto: ${key}`);
@@ -94,7 +105,16 @@ export class HybridPersistenceManager {
 
   saveToStorage<T>(key: string, data: T[]): void {
     try {
-      localStorage.setItem(key, JSON.stringify(data));
+      const raw = JSON.stringify(data);
+      const save = async () => {
+        const compressed = this.options.compressData ? await this.options.compressData(raw) : raw;
+        if (this.options.safeSetItem) {
+          await this.options.safeSetItem(key, compressed, key);
+        } else {
+          localStorage.setItem(key, compressed);
+        }
+      };
+      save();
     } catch (error) {
       safeLogger.warn(`[Persistence] Error guardando ${key}:`, error);
     }
@@ -102,7 +122,16 @@ export class HybridPersistenceManager {
 
   saveObjectToStorage<T>(key: string, data: T): void {
     try {
-      localStorage.setItem(key, JSON.stringify(data));
+      const raw = JSON.stringify(data);
+      const save = async () => {
+        const compressed = this.options.compressData ? await this.options.compressData(raw) : raw;
+        if (this.options.safeSetItem) {
+          await this.options.safeSetItem(key, compressed, key);
+        } else {
+          localStorage.setItem(key, compressed);
+        }
+      };
+      save();
     } catch (error) {
       safeLogger.warn(`[Persistence] Error guardando ${key}:`, error);
     }

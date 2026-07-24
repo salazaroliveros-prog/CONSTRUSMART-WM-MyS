@@ -124,7 +124,7 @@ describe('useAuth', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(hoisted.mockFrom).toHaveBeenCalledWith('profiles');
     expect(hoisted.mockSingle).toHaveBeenCalled();
-    expect(result.current.user?.rol).toBe('Administrador');
+    expect(result.current.user?.rol).toBe('Compras');
   });
 
   it('default rol when profiles fails', async () => {
@@ -132,7 +132,7 @@ describe('useAuth', () => {
     hoisted.mockSingle.mockRejectedValue(new Error('not found'));
     const { result } = renderHook(() => useAuth());
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.user?.rol).toBe('Administrador');
+    expect(result.current.user?.rol).toBe('Residente');
   });
 
   it('signInWithGoogle', async () => {

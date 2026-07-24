@@ -151,14 +151,31 @@ describe('ProfitabilityAnalytics', () => {
   });
 
   it('renderiza KPI cards cuando hay datos', async () => {
-    render(<ProfitabilityAnalytics />);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/Utilidad Total/i)).toBeDefined();
-      expect(screen.getByText(/Margen Promedio/i)).toBeDefined();
-      expect(screen.getByText(/Proyectos Riesgosos/i)).toBeDefined();
-      expect(screen.getByText(/Proyectos Excelentes/i)).toBeDefined();
-    });
+    const originalError = console.error;
+    const errors: string[] = [];
+    console.error = (...args: unknown[]) => {
+      const msg = args.map(a => typeof a === 'string' ? a : JSON.stringify(a)).join(' ');
+      if (msg.includes('key') || msg.includes('Each child')) {
+        errors.push(msg);
+        const stack = new Error().stack;
+        if (stack) errors.push(stack);
+      }
+      originalError.apply(console, args);
+    };
+    try {
+      render(<ProfitabilityAnalytics />);
+      await waitFor(() => {
+        expect(screen.getByText(/Utilidad Total/i)).toBeDefined();
+        expect(screen.getByText(/Margen Promedio/i)).toBeDefined();
+        expect(screen.getByText(/Proyectos Riesgosos/i)).toBeDefined();
+        expect(screen.getByText(/Proyectos Excelentes/i)).toBeDefined();
+      });
+    } finally {
+      console.error = originalError;
+    }
+    if (errors.length) {
+      console.log('CAPTURED KEY WARNINGS:', errors.join('\n---\n'));
+    }
   });
 
   it('renderiza tabs de navegación', async () => {

@@ -14,7 +14,7 @@ import {
     appSettingsSchema,
     historialAplicacionReglaSchema,
 } from './store/schemas';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, decompressData, compressDataAsync, safeSetItem, isStorageQuotaCritical, toSnake, toCamel, __setActiveCurrency, __setActiveDateFormat } from './utils';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, isStorageQuotaCritical, toSnake, toCamel, __setActiveCurrency, __setActiveDateFormat } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { hasSupabase, assertSupabase, supabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
@@ -27,30 +27,6 @@ const BASE_STORAGE_KEY = 'wm_erp_data';
 const NOTIF_KEY = BASE_STORAGE_KEY + '_notificaciones';
 const PLANTILLA_KEY = BASE_STORAGE_KEY + '_plantillas';
 const HISTORIAL_REGLAS_KEY = BASE_STORAGE_KEY + '_historial_reglas';
-
-function loadFromStorage<T>(key: string, schema: z.ZodTypeAny): T[] {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return [];
-    const decompressed = decompressData(raw);
-    if (decompressed === null) { safeLogger.warn(`[Storage] Decompress fail: ${key}`); return []; }
-    const result = z.array(schema).safeParse(decompressed);
-    if (result.success) return result.data;
-  } catch { safeLogger.warn(`[Storage] Corrupto: ${key}`); }
-  return [];
-}
-
-function loadObjectFromStorage<T>(key: string, schema: z.ZodTypeAny, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    const decompressed = decompressData(raw);
-    if (decompressed === null) { safeLogger.warn(`[Storage] Decompress fail: ${key}`); return fallback; }
-    const result = schema.safeParse(decompressed);
-    if (result.success) return result.data;
-  } catch { safeLogger.warn(`[Storage] Corrupto: ${key}`); }
-  return fallback;
-}
 
 export type View = 'login' | 'dashboard' | 'proyectos' | 'presupuestos' | 'seguimiento' | 'financiero' | 'rrhh' | 'bodega' | 'crm' | 'apu' | 'baseprecios' | 'muro' | 'ordenes-cambio' | 'notificaciones' | 'sso-calidad' | 'documentos' | 'visor-bim' | 'predictivo' | 'exportacion' | 'logistica' | 'rendimiento-campo' | 'comercial-fin' | 'admin-sistema' | 'planilla-destajos' | 'impuestos' | 'entradas-almacen' | 'ajustes' | 'hitos' | 'riesgos' | 'cuentas-cobrar' | 'cuentas-pagar' | 'cotizaciones' | 'plantillas' | 'proveedor-analytics' | 'error-log' | 'activos' | 'cuadros' | 'profitability' | 'weather' | 'conflicts' | 'calidad-cumplimiento' | 'auditoria' | 'curvas-s';
 export type UIMode = 'shadcn' | 'antd';
@@ -247,6 +223,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   if (!persistenceRef.current) {
     persistenceRef.current = new HybridPersistenceManager({
       storagePrefix: BASE_STORAGE_KEY,
+      compressData: compressDataAsync,
+      decompressData: decompressData,
+      safeSetItem,
       onStatusChange: (status) => {
         setIsOnline(status === 'online');
       },
@@ -323,51 +302,51 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (initializedRef.current) return;
     initializedRef.current = true;
     useErpStore.setState({
-      proyectos: loadFromStorage(BASE_STORAGE_KEY + '_proyectos', proyectoSchema),
-      movimientos: loadFromStorage(BASE_STORAGE_KEY + '_movimientos', movimientoSchema),
-      empleados: loadFromStorage(BASE_STORAGE_KEY + '_empleados', empleadoSchema),
-      materiales: loadFromStorage(BASE_STORAGE_KEY + '_materiales', materialSchema),
-      ordenes: loadFromStorage(BASE_STORAGE_KEY + '_ordenes', ordenSchema),
-      proveedores: loadFromStorage(BASE_STORAGE_KEY + '_proveedores', proveedorSchema),
-      eventos: loadFromStorage(BASE_STORAGE_KEY + '_eventos', eventoSchema),
-      presupuestos: loadFromStorage(BASE_STORAGE_KEY + '_presupuestos', presupuestoSchema),
-      avances: loadFromStorage(BASE_STORAGE_KEY + '_avances', avanceObraSchema),
-      cuentasCobrar: loadFromStorage(BASE_STORAGE_KEY + '_cuentas_cobrar', cuentaCobrarSchema),
-      cuentasPagar: loadFromStorage(BASE_STORAGE_KEY + '_cuentas_pagar', cuentaPagarSchema),
-      ordenesCambio: loadFromStorage(BASE_STORAGE_KEY + '_ordenes_cambio', ordenCambioSchema),
-      hitos: loadFromStorage(BASE_STORAGE_KEY + '_hitos', hitoSchema),
-      riesgos: loadFromStorage(BASE_STORAGE_KEY + '_riesgos', riesgoSchema),
-      licitaciones: loadFromStorage(BASE_STORAGE_KEY + '_licitaciones', licitacionSchema),
-      cotizacionesNegocio: loadFromStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', cotizacionSchema),
+      proyectos: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_proyectos', proyectoSchema),
+      movimientos: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_movimientos', movimientoSchema),
+      empleados: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_empleados', empleadoSchema),
+      materiales: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_materiales', materialSchema),
+      ordenes: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_ordenes', ordenSchema),
+      proveedores: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_proveedores', proveedorSchema),
+      eventos: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_eventos', eventoSchema),
+      presupuestos: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_presupuestos', presupuestoSchema),
+      avances: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_avances', avanceObraSchema),
+      cuentasCobrar: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_cuentas_cobrar', cuentaCobrarSchema),
+      cuentasPagar: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_cuentas_pagar', cuentaPagarSchema),
+      ordenesCambio: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_ordenes_cambio', ordenCambioSchema),
+      hitos: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_hitos', hitoSchema),
+      riesgos: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_riesgos', riesgoSchema),
+      licitaciones: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_licitaciones', licitacionSchema),
+      cotizacionesNegocio: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_cotizacionesNegocio', cotizacionSchema),
 
-      bitacora: loadFromStorage(BASE_STORAGE_KEY + '_bitacora', bitacoraSchema),
-      pruebas: loadFromStorage(BASE_STORAGE_KEY + '_pruebas', pruebaSchema),
-      ncs: loadFromStorage(BASE_STORAGE_KEY + '_no_conformidades', noConformidadSchema),
-      valesSalida: loadFromStorage(BASE_STORAGE_KEY + '_vales_salida', valeSalidaSchema),
-      seguimientoEVM: loadFromStorage(BASE_STORAGE_KEY + '_seguimiento_evm', seguimientoSchema),
-      incidentes: loadFromStorage(BASE_STORAGE_KEY + '_incidentes', incidenteSchema),
-      publicacionesMuro: loadFromStorage(BASE_STORAGE_KEY + '_publicaciones_muro', muroSchema),
-      liberaciones: loadFromStorage(BASE_STORAGE_KEY + '_liberaciones', liberacionSchema),
-      planos: loadFromStorage(BASE_STORAGE_KEY + '_planos', planoSchema),
-      rfis: loadFromStorage(BASE_STORAGE_KEY + '_rfis', rfiSchema),
-      submittals: loadFromStorage(BASE_STORAGE_KEY + '_submittals', submittalSchema),
-      activos: loadFromStorage(BASE_STORAGE_KEY + '_activos', activoSchema),
-      cuadros: loadFromStorage(BASE_STORAGE_KEY + '_cuadros', cuadroSchema),
-      pagosProveedor: loadFromStorage(BASE_STORAGE_KEY + '_pagos_proveedor', pagoProveedorSchema),
-      destajos: loadFromStorage(BASE_STORAGE_KEY + '_destajos', destajoSchema),
-      ventasPaquetes: loadFromStorage(BASE_STORAGE_KEY + '_ventas_paquetes', ventaPaqueteSchema),
-      recepciones: loadFromStorage(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema),
-      centrosCosto: loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
-      plantillas: loadFromStorage(PLANTILLA_KEY, plantillaSchema),
-      insumosBase: loadFromStorage(BASE_STORAGE_KEY + '_insumos_base', insumosBaseSchema),
+      bitacora: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_bitacora', bitacoraSchema),
+      pruebas: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_pruebas', pruebaSchema),
+      ncs: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_no_conformidades', noConformidadSchema),
+      valesSalida: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_vales_salida', valeSalidaSchema),
+      seguimientoEVM: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_seguimiento_evm', seguimientoSchema),
+      incidentes: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_incidentes', incidenteSchema),
+      publicacionesMuro: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_publicaciones_muro', muroSchema),
+      liberaciones: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_liberaciones', liberacionSchema),
+      planos: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_planos', planoSchema),
+      rfis: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_rfis', rfiSchema),
+      submittals: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_submittals', submittalSchema),
+      activos: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_activos', activoSchema),
+      cuadros: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_cuadros', cuadroSchema),
+      pagosProveedor: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_pagos_proveedor', pagoProveedorSchema),
+      destajos: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_destajos', destajoSchema),
+      ventasPaquetes: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_ventas_paquetes', ventaPaqueteSchema),
+      recepciones: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_recepciones', recepcionAlmacenSchema),
+      centrosCosto: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_centros_costo', centroCostoSchema),
+      plantillas: hybridPersistence.loadFromStorage(PLANTILLA_KEY, plantillaSchema),
+      insumosBase: hybridPersistence.loadFromStorage(BASE_STORAGE_KEY + '_insumos_base', insumosBaseSchema),
       proyectoWeather: [],
       reglasFactores: [],
       normativasDepartamentales: [],
       escalasProduccion: [],
       estacionalidad: [],
-      historialReglas: loadFromStorage(HISTORIAL_REGLAS_KEY, historialAplicacionReglaSchema),
-      notificaciones: loadFromStorage(NOTIF_KEY, notificacionSchema),
-      appSettings: loadObjectFromStorage(BASE_STORAGE_KEY + '_app_settings', appSettingsSchema, APP_SETTINGS_DEFAULTS),
+      historialReglas: hybridPersistence.loadFromStorage(HISTORIAL_REGLAS_KEY, historialAplicacionReglaSchema),
+      notificaciones: hybridPersistence.loadFromStorage(NOTIF_KEY, notificacionSchema),
+      appSettings: hybridPersistence.loadObjectFromStorage(BASE_STORAGE_KEY + '_app_settings', appSettingsSchema, APP_SETTINGS_DEFAULTS),
       calculosProyecto: [],
       ajustesEstacionalesActividad: [],
       aplicacionEscalas: [],
@@ -388,7 +367,7 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (loadedSettings.empresaInfo) setEmpresaInfo(loadedSettings.empresaInfo);
     __setActiveCurrency(loadedSettings.currency);
     __setActiveDateFormat(loadedSettings.dateFormat);
-  }, []);
+  }, [hybridPersistence]);
 
   useEffect(() => {
     if (user?.id) {
@@ -655,43 +634,37 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
       clearTimeout(timer);
       timer = setTimeout(async () => {
         try {
-     const s = useErpStore.getState();
-     const map: Record<string, any> = {
-        proyectos: s.proyectos, movimientos: s.movimientos, empleados: s.empleados, materiales: s.materiales,
-        ordenes: s.ordenes, proveedores: s.proveedores, eventos: s.eventos, presupuestos: s.presupuestos,
-        avances: s.avances, cuentas_cobrar: s.cuentasCobrar, cuentas_pagar: s.cuentasPagar,
-        ordenes_cambio: s.ordenesCambio, hitos: s.hitos, riesgos: s.riesgos, licitaciones: s.licitaciones,
-        cotizacionesNegocio: s.cotizacionesNegocio,
-           seguimiento_evm: s.seguimientoEVM, incidentes: s.incidentes, publicaciones_muro: s.publicacionesMuro,
-           liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
-           activos: s.activos, cuadros: s.cuadros, pagos_proveedor: s.pagosProveedor,
-           destajos: s.destajos, recepciones: s.recepciones, centros_costo: s.centrosCosto,
-          plantillas: s.plantillas, insumos_base: s.insumosBase, weather: s.proyectoWeather,
-          historial_reglas: s.historialReglas,
-          bitacora: s.bitacora, no_conformidades: s.ncs, pruebas: s.pruebas, ventas_paquetes: s.ventasPaquetes,
-          vales_salida: s.valesSalida,
-          reglas_factores: s.reglasFactores, normativas_departamentales: s.normativasDepartamentales,
-          escalas_produccion: s.escalasProduccion, estacionalidad: s.estacionalidad,
-          ajustes_estacionales_actividad: s.ajustesEstacionalesActividad, aplicacion_escalas: s.aplicacionEscalas,
-          cumplimiento_normativo: s.cumplimientoNormativo, calculos_proyecto: s.calculosProyecto,
-          project_profitabilities: s.projectProfitabilities, client_profitabilities: s.clientProfitabilities,
-          resource_efficiencies: s.resourceEfficiencies, profitability_trends: s.profitabilityTrends,
-          error_logs: s.errorLogs, departamentos: s.departamentos, municipios: s.municipios,
-          cajas_chicas: s.cajasChicas, anticipos: s.anticipos, amortizaciones: s.amortizaciones,
-          rendimientos_campo: s.rendimientosCampo,
-          app_settings: s.appSettings,
-          rendimientos_cuadrilla: s.rendimientosCuadrilla, bodega: s.bodega, documentos: s.documentos,
-          permisos: s.permisos, checklist: s.checklist, configuracion: s.configuracion, api_keys: s.apiKeys,
+          const s = useErpStore.getState();
+          const keys: Record<string, any> = {
+            proyectos: s.proyectos, movimientos: s.movimientos, empleados: s.empleados, materiales: s.materiales,
+            ordenes: s.ordenes, proveedores: s.proveedores, eventos: s.eventos, presupuestos: s.presupuestos,
+            avances: s.avances, cuentas_cobrar: s.cuentasCobrar, cuentas_pagar: s.cuentasPagar,
+            ordenes_cambio: s.ordenesCambio, hitos: s.hitos, riesgos: s.riesgos, licitaciones: s.licitaciones,
+            cotizacionesNegocio: s.cotizacionesNegocio,
+            seguimiento_evm: s.seguimientoEVM, incidentes: s.incidentes, publicaciones_muro: s.publicacionesMuro,
+            liberaciones: s.liberaciones, planos: s.planos, rfis: s.rfis, submittals: s.submittals,
+            activos: s.activos, cuadros: s.cuadros, pagos_proveedor: s.pagosProveedor,
+            destajos: s.destajos, recepciones: s.recepciones, centros_costo: s.centrosCosto,
+            plantillas: s.plantillas, insumos_base: s.insumosBase, weather: s.proyectoWeather,
+            historial_reglas: s.historialReglas,
+            bitacora: s.bitacora, no_conformidades: s.ncs, pruebas: s.pruebas, ventas_paquetes: s.ventasPaquetes,
+            vales_salida: s.valesSalida,
+            reglas_factores: s.reglasFactores, normativas_departamentales: s.normativasDepartamentales,
+            escalas_produccion: s.escalasProduccion, estacionalidad: s.estacionalidad,
+            ajustes_estacionales_actividad: s.ajustesEstacionalesActividad, aplicacion_escalas: s.aplicacionEscalas,
+            cumplimiento_normativo: s.cumplimientoNormativo, calculos_proyecto: s.calculosProyecto,
+            project_profitabilities: s.projectProfitabilities, client_profitabilities: s.clientProfitabilities,
+            resource_efficiencies: s.resourceEfficiencies, profitability_trends: s.profitabilityTrends,
+            error_logs: s.errorLogs, departamentos: s.departamentos, municipios: s.municipios,
+            cajas_chicas: s.cajasChicas, anticipos: s.anticipos, amortizaciones: s.amortizaciones,
+            rendimientos_campo: s.rendimientosCampo,
+            rendimientos_cuadrilla: s.rendimientosCuadrilla, bodega: s.bodega, documentos: s.documentos,
+            permisos: s.permisos, checklist: s.checklist, configuracion: s.configuracion, api_keys: s.apiKeys,
           };
-          const quotaCritical = isStorageQuotaCritical();
-          for (const [k, v] of Object.entries(map)) {
-            try { const value = await compressDataAsync(v); safeSetItem(`${BASE_STORAGE_KEY}_${k}`, value, `${BASE_STORAGE_KEY}_${k}`); } catch (error) {
-              console.error(`Error compressing/saving ${k}:`, error);
-            }
+          for (const [k, v] of Object.entries(keys)) {
+            hybridPersistence.saveToStorage(`${BASE_STORAGE_KEY}_${k}`, v);
           }
-          try { const n = await compressDataAsync(s.notificaciones); safeSetItem(`${BASE_STORAGE_KEY}_notificaciones`, n); } catch (error) {
-            console.error('Error compressing/saving notificaciones:', error);
-          }
+          hybridPersistence.saveToStorage(`${BASE_STORAGE_KEY}_notificaciones`, s.notificaciones);
 
           encryptionManager.encryptItem(BASE_STORAGE_KEY + '_app_settings', s.appSettings, user?.id || 'default')
             .then(() => safeLogger.log('[Encryption] appSettings encrypted'))
@@ -700,11 +673,18 @@ useEffect(() => { if (isOnlineRef.current && useErpStore.getState().mutationQueu
               safeLogger.warn('[Encryption] Failed to encrypt appSettings:', err);
             });
           
-          if (quotaCritical) safeLogger.warn('[Storage] Cuota de localStorage casi llena — usando compresión');
+          if (isStorageQuotaCritical()) safeLogger.warn('[Storage] Cuota de localStorage casi llena — usando compresión');
         } catch (e) { safeLogger.warn('[Storage] Error al persistir:', e); }
-      }, 500);
+      }, 1000);
+      return () => clearTimeout(timer);
     });
-    return () => { unsub(); clearTimeout(timer); };
+    return unsub;
+  });
+
+  useEffect(() => {
+    if (user?.id) {
+      migrateSecureStorage(user?.id).catch(err => safeLogger.warn('[Encryption] Migration error:', err));
+    }
   }, [user?.id]);
 
   const allowedViews = useMemo(() => {
@@ -840,6 +820,5 @@ useEffect(() => {
 
   return <Ctx.Provider value={ctxValue}>{children}</Ctx.Provider>;
 };
-
 
 

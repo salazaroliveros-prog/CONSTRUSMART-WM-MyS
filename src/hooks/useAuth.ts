@@ -67,7 +67,7 @@ export function useAuth(): UseAuthReturn {
     const nombre = userMeta.full_name || userMeta.name || email.split('@')[0] || 'Usuario';
     const avatar = userMeta.picture || userMeta.avatar_url || '';
 
-    let rol = 'usuario';
+    let rol: Rol = 'Residente';
     const emailLower = (email || '').toLowerCase();
     if (emailLower === ADMIN_EMAIL.toLowerCase()) {
       rol = ADMIN_ROL;
@@ -82,7 +82,7 @@ export function useAuth(): UseAuthReturn {
           rol = roleData.rol;
         }
       } catch {
-        console.warn('No se pudo obtener el rol del perfil, usando "usuario"');
+        console.warn('No se pudo obtener el rol del perfil, usando "Residente"');
       }
     }
 
@@ -90,6 +90,7 @@ export function useAuth(): UseAuthReturn {
       ...session.user,
       nombre,
       avatar,
+      rol,
     } as any, {
       id: session.user.id,
       email,
