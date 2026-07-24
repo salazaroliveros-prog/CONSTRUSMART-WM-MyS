@@ -11,7 +11,17 @@ const mockProveedores = [
 ];
 
 const mockUseErp = {
+  proyectos: [],
+  currentProjectId: null,
+  setCurrentProjectId: () => {},
   proveedores: mockProveedores,
+  compras: [],
+  activos: [],
+  cuadros: [],
+  pagosProveedor: [],
+  ventasPaquetes: [],
+  anticipos: [],
+  cajasChicas: [],
   user: { nombre: 'Usuario Test', rol: 'Administrador' },
 };
 

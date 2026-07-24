@@ -74,12 +74,13 @@ describe('Error Database Logger', () => {
       });
     });
 
-    it('debe retornar null cuando RPC falla', async () => {
+    it('debe retornar el error local cuando RPC falla', async () => {
       mockRpc.mockResolvedValue({ data: null, error: new Error('RPC failed') });
 
       const result = await logError({ error_message: 'Test error' });
 
-      expect(result).toBeNull();
+      expect(typeof result).toBe('string');
+      expect(result.length).toBeGreaterThan(0);
     });
   });
 

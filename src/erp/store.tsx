@@ -14,7 +14,7 @@ import {
     appSettingsSchema,
     historialAplicacionReglaSchema,
 } from './store/schemas';
-import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, isStorageQuotaCritical, toSnake, toCamel, __setActiveCurrency, __setActiveDateFormat, compressDataAsync, decompressData } from './utils';
+import { setEmpresaInfo, APP_SETTINGS_DEFAULTS, isStorageQuotaCritical, toSnake, toCamel, __setActiveCurrency, __setActiveDateFormat, compressDataAsync, decompressData, safeSetItem } from './utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { hasSupabase, assertSupabase, supabase } from '@/lib/supabase';
 import { safeLogger } from '@/lib/safeLogger';
