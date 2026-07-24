@@ -336,7 +336,7 @@ const ProveedorAnalytics: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-      {metricsFiltradas
+      {[...metricsFiltradas]
         .sort((a, b) => b.puntajeGeneral - a.puntajeGeneral)
         .slice(0, 10)
         .map((metric) => {

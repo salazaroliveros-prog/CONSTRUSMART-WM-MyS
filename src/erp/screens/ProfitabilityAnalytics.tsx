@@ -454,11 +454,11 @@ const PROFITABILITYAnalytics: React.FC = () => {
                 Valor de Vida del Cliente
               </h3>
               <div className="h-64">
-                 <BarChart
-                   data={clientProfitabilities
-                     .sort((a, b) => b.valorVidaCliente - a.valorVidaCliente)
-                     .slice(0, 8)
-                     .map(c => ({
+                   <BarChart
+                    data={[...clientProfitabilities]
+                      .sort((a, b) => b.valorVidaCliente - a.valorVidaCliente)
+                      .slice(0, 8)
+                      .map(c => ({
                        label: c.cliente.substring(0, 15),
                        value: c.valorVidaCliente,
                        color: `hsl(var(--${SEGMENTO_COLORS[c.segmento]?.replace('bg-', '') || 'primary'})`,
