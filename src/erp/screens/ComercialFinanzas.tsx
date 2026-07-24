@@ -13,6 +13,9 @@ export const ComercialFinanzas: React.FC = () => {
   useEffect(() => { const t = setTimeout(() => setLoading(false), 400); return () => clearTimeout(t); }, []);
   const { t } = useTranslation();
   const { proyectos, user, ventasPaquetes, addVentaPaquete, updateVentaPaquete, anticipos, cajasChicas, addAnticipo, updateAnticipo, deleteAnticipo, addCajaChica, updateCajaChica, deleteCajaChica } = useErp();
+  const safeVentas = Array.isArray(ventasPaquetes) ? ventasPaquetes : [];
+  const safeAnticipos = Array.isArray(anticipos) ? anticipos : [];
+  const safeCajas = Array.isArray(cajasChicas) ? cajasChicas : [];
 
   const [tab, setTab] = useState<'ventas' | 'anticipos' | 'cajas'>('ventas');
   const [showForm, setShowForm] = useState<string | null>(null);
@@ -55,10 +58,10 @@ export const ComercialFinanzas: React.FC = () => {
   }), [ventasPaquetes]);
 
   const cajasKpis = useMemo(() => ({
-    pendientes: cajasChicas.filter(c => c.estado === 'pendiente').length,
-    aprobadas: cajasChicas.filter(c => c.estado === 'aprobada').length,
-    totalAprobado: cajasChicas.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.monto, 0),
-  }), [cajasChicas]);
+    pendientes: safeCajas.filter(c => c.estado === 'pendiente').length,
+    aprobadas: safeCajas.filter(c => c.estado === 'aprobada').length,
+    totalAprobado: safeCajas.filter(c => c.estado === 'aprobada').reduce((a, c) => a + c.monto, 0),
+  }), [safeCajas]);
 
   const renderVentas = () => (
     <div>
@@ -195,7 +198,10 @@ export const ComercialFinanzas: React.FC = () => {
           className={`bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs hover:bg-primary/90 font-medium ${FOCUS_VISIBLE}`}>{t('comercial.nuevo_gasto')}</button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+         {(safeCajas.length === 0 || safeCajas.length === 0) && (
+           <div className="text-center py-6 text-muted-foreground col-span-full"><Wallet className="w-8 h-8 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('comercial.no_hay_gastos')}</p></div>
+         )}
         <div className="p-3 bg-warning/10 rounded-lg text-center">
           <p className="text-xs text-warning font-medium">{t('comercial.pendientes')}</p>
           <p className="text-xl font-bold text-warning">{cajasKpis.pendientes}</p>
@@ -223,7 +229,7 @@ export const ComercialFinanzas: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {cajasChicas.map(c => (
+             {safeCajas.map(c => (
               <tr key={c.id} className="border-t hover:bg-muted/50">
                 <td className="p-2 text-xs truncate" title={c.descripcion}>{c.descripcion}</td>
                 <td className="p-2">
@@ -249,7 +255,7 @@ export const ComercialFinanzas: React.FC = () => {
           </tbody>
         </table>
       </div>
-      {cajasChicas.length === 0 && <div className="text-center py-10 text-muted-foreground"><Wallet className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('comercial.no_hay_gastos')}</p></div>}
+       {safeCajas.length === 0 && <div className="text-center py-10 text-muted-foreground"><Wallet className="w-10 h-10 mx-auto mb-2 opacity-30" aria-hidden="true" /><p className="text-sm">{t('comercial.no_hay_gastos')}</p></div>}
     </div>
   );
 

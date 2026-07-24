@@ -98,3 +98,5 @@ database-access/
 
 # Permitir .env.production para Vercel (sin credenciales sensibles)
 !.env.production
+.vercel
+.env*

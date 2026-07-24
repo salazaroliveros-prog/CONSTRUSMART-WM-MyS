@@ -25,9 +25,9 @@ export const LogisticaCompras: React.FC = () => {
   const { t } = useTranslation();
   const store = useErp();
   const { proyectos, currentProjectId, setCurrentProjectId, proveedores } = store;
-  const activos = store.activos as ActivoLogistica[];
-  const cuadros = store.cuadros as CuadroComparativo[];
-  const pagosProveedor = store.pagosProveedor as PagoProveedor[];
+  const activos = Array.isArray(store.activos) ? (store.activos as ActivoLogistica[]) : [];
+  const cuadros = Array.isArray(store.cuadros) ? (store.cuadros as CuadroComparativo[]) : [];
+  const pagosProveedor = Array.isArray(store.pagosProveedor) ? (store.pagosProveedor as PagoProveedor[]) : [];
 
   const [tab, setTab] = useState<'activos' | 'cuadros' | 'pagos'>('activos');
   const [showForm, setShowForm] = useState<string | null>(null);
